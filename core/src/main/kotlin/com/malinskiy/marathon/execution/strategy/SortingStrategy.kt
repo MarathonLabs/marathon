@@ -1,7 +1,7 @@
 package com.malinskiy.marathon.execution.strategy
 
-import com.malinskiy.marathon.execution.ExecutionShard
+import com.malinskiy.marathon.execution.TestShard
 
 interface SortingStrategy {
-    fun process(executionShards: Collection<ExecutionShard>): Collection<ExecutionShard>
+    fun process(testShard: TestShard): TestShard
 }

@@ -5,11 +5,11 @@ import com.malinskiy.marathon.execution.strategy.*
 data class MarathonPluginConfiguration @JvmOverloads constructor(
         val name: String,
 
-        var poolingStrategy: PoolingStrategy,
-        var sortingStrategy: SortingStrategy,
-        var batchingStrategy: BatchingStrategy,
-        var flakinessStrategy: FlakinessStrategy,
-        var retryStrategy: RetryStrategy,
+        var poolingStrategy: PoolingStrategy? = null,
+        var sortingStrategy: SortingStrategy? = null,
+        var batchingStrategy: BatchingStrategy? = null,
+        var flakinessStrategy: FlakinessStrategy? = null,
+        var retryStrategy: RetryStrategy? = null,
 
         var baseOutputDir: String? = null,
 

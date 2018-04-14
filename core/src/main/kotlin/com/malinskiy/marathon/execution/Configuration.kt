@@ -1,9 +1,10 @@
 package com.malinskiy.marathon.execution
 
 import com.malinskiy.marathon.execution.strategy.*
+import com.malinskiy.marathon.execution.strategy.impl.*
 import java.io.File
 
-data class Configuration @JvmOverloads constructor(
+data class Configuration constructor(
         val baseOutputDir: File,
         val outputDir: File,
         val applicationOutput: File,
@@ -35,11 +36,11 @@ data class Configuration @JvmOverloads constructor(
                 applicationOutput: File,
                 testApplicationOutput: File,
 
-                poolingStrategy: PoolingStrategy,
-                sortingStrategy: SortingStrategy,
-                batchingStrategy: BatchingStrategy,
-                flakinessStrategy: FlakinessStrategy,
-                retryStrategy: RetryStrategy,
+                poolingStrategy: PoolingStrategy?,
+                sortingStrategy: SortingStrategy?,
+                batchingStrategy: BatchingStrategy?,
+                flakinessStrategy: FlakinessStrategy?,
+                retryStrategy: RetryStrategy?,
 
                 ignoreFailures: Boolean?,
                 isCodeCoverageEnabled: Boolean?,
@@ -60,11 +61,11 @@ data class Configuration @JvmOverloads constructor(
                     outputDir = outputDir,
                     applicationOutput = applicationOutput,
                     testApplicationOutput = testApplicationOutput,
-                    poolingStrategy = poolingStrategy,
-                    sortingStrategy = sortingStrategy,
-                    batchingStrategy = batchingStrategy,
-                    flakinessStrategy = flakinessStrategy,
-                    retryStrategy = retryStrategy,
+                    poolingStrategy = poolingStrategy ?: OmniPoolingStrategy(),
+                    sortingStrategy = sortingStrategy ?: NoSortingStrategy(),
+                    batchingStrategy = batchingStrategy ?: IsolateBatchingStrategy(),
+                    flakinessStrategy = flakinessStrategy ?: IgnoreFlakinessStrategy(),
+                    retryStrategy = retryStrategy ?: NoRetryStrategy(),
                     ignoreFailures = ignoreFailures ?: false,
                     isCodeCoverageEnabled = isCodeCoverageEnabled ?: false,
                     fallbackToScreenshots = fallbackToScreenshots ?: false,

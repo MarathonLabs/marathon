@@ -8,6 +8,7 @@ import com.android.build.gradle.api.ApkVariantOutput
 import com.android.build.gradle.api.BaseVariantOutput
 import com.android.build.gradle.api.TestVariant
 import com.malinskiy.marathon.execution.Configuration
+import mu.KotlinLogging
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.Task
@@ -16,9 +17,13 @@ import org.gradle.kotlin.dsl.closureOf
 import org.gradle.kotlin.dsl.get
 import java.io.File
 
+private val log = KotlinLogging.logger {}
+
 class MarathonPlugin : Plugin<Project> {
 
     override fun apply(project: Project) {
+        log.info { "Applying marathon plugin" }
+
         val configuration = project.container(MarathonPluginConfiguration::class.java)
         project.extensions.add("marathon", configuration)
 
@@ -39,16 +44,15 @@ class MarathonPlugin : Plugin<Project> {
             val libraryExtension = extensions.findByType(LibraryExtension::class.java)
 
             if (appExtension == null && libraryExtension == null) {
-                throw IllegalStateException("No TestedExtension is not found")
+                throw IllegalStateException("No TestedExtension is found")
             }
             val testedExtension = appExtension ?: libraryExtension
             val defaultConfig = MarathonPluginConfiguration("config")
 
             val conf = if (configuration.names.contains("config")) configuration["config"] else defaultConfig
 
-            println("Starting")
             testedExtension!!.testVariants.all {
-                println("Creating for $this")
+                log.info { "Applying marathon for $this" }
                 val testTaskForVariant = createTask(this, project, conf)
                 marathonTask.dependsOn(testTaskForVariant)
             }
@@ -60,22 +64,25 @@ class MarathonPlugin : Plugin<Project> {
             checkTestVariants(variant)
 
             val marathonTask = project.tasks.create("$TASK_PREFIX${variant.name.capitalize()}", MarathonRunTask::class.java)
-            marathonTask.outputs.upToDateWhen { false }
 
-            variant.testedVariant.outputs.forEach {
-                checkTestedVariants(it)
+            variant.testedVariant.outputs.all {
+                val testedOutput = this
+                log.info { "Processing output $testedOutput" }
+
+                checkTestedVariants(testedOutput)
                 marathonTask.configure(closureOf<MarathonRunTask> {
                     group = JavaBasePlugin.VERIFICATION_GROUP
                     description = "Runs instrumentation tests on all the connected devices for '${variant.name}' variation and generates a report with screenshots"
+                    outputs.upToDateWhen { false }
 
                     val firstOutput = variant.outputs.first() as ApkVariantOutput
-                    val applicationOutput = it as ApkVariantOutput
+                    val applicationOutput = testedOutput as ApkVariantOutput
                     val instrumentationApk = File(firstOutput.packageApplication.outputDirectory.path, firstOutput.outputFileName)
                     val applicationApk = File(applicationOutput.packageApplication.outputDirectory.path, applicationOutput.outputFileName)
                     val baseOutputDir = if (config.baseOutputDir != null) File(config.baseOutputDir) else File(project.buildDir, "reports/marathon")
                     val output = File(baseOutputDir, variant.name)
 
-                    val configuration = Configuration(
+                    configuration = Configuration(
                             baseOutputDir,
                             output,
                             applicationApk,

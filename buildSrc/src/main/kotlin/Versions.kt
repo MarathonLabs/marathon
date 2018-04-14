@@ -4,7 +4,9 @@ object Versions {
     val kotlin = File("kotlin-version").readText().trim()
 
     val ddmlib = "26.1.1"
+    val dexTestParser = "1.1.0"
     val kotlinLogging = "1.4.9"
+    val slf4jSimple = "1.7.5"
 
     val junitGradle = "1.0.0"
     val androidGradleVersion = "3.0.1"
@@ -27,9 +29,11 @@ object BuildPlugins {
 
 object Libraries {
     val ddmlib = "com.android.tools.ddms:ddmlib:${Versions.ddmlib}"
+    val dexTestParser = "com.linkedin.dextestparser:parser:${Versions.dexTestParser}"
     val kotlinStdLib = "org.jetbrains.kotlin:kotlin-stdlib-jdk8:${Versions.kotlin}"
     val kotlinReflect = "org.jetbrains.kotlin:kotlin-reflect:${Versions.kotlin}"
     val kotlinLogging = "io.github.microutils:kotlin-logging:${Versions.kotlinLogging}"
+    val slf4jSimple = "org.slf4j:slf4j-simple:${Versions.slf4jSimple}"
 }
 
 object TestLibraries {
