@@ -24,5 +24,6 @@ dependencies {
     implementation(Libraries.kotlinLogging)
     implementation(Libraries.slf4jSimple)
     implementation(project(":core"))
+    implementation(project(":vendor-android"))
     implementation(BuildPlugins.androidGradle)
 }
