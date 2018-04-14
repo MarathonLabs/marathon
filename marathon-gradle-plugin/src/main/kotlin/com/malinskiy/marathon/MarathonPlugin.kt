@@ -4,6 +4,7 @@ import com.android.build.gradle.AppExtension
 import com.android.build.gradle.AppPlugin
 import com.android.build.gradle.LibraryExtension
 import com.android.build.gradle.LibraryPlugin
+import com.android.build.gradle.api.ApkVariantOutput
 import com.android.build.gradle.api.BaseVariantOutput
 import com.android.build.gradle.api.TestVariant
 import com.malinskiy.marathon.execution.Configuration
@@ -12,11 +13,13 @@ import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.api.plugins.JavaBasePlugin
 import org.gradle.kotlin.dsl.closureOf
+import org.gradle.kotlin.dsl.get
+import java.io.File
 
 class MarathonPlugin : Plugin<Project> {
 
     override fun apply(project: Project) {
-        val configuration = project.container(Configuration::class.java)
+        val configuration = project.container(MarathonPluginConfiguration::class.java)
         project.extensions.add("marathon", configuration)
 
         project.afterEvaluate {
@@ -27,7 +30,7 @@ class MarathonPlugin : Plugin<Project> {
                 throw IllegalStateException("Android plugin is not found")
             }
 
-            val marathonTask: Task = project.task(TASK_PREFIX, closureOf<Task>{
+            val marathonTask: Task = project.task(TASK_PREFIX, closureOf<Task> {
                 group = JavaBasePlugin.VERIFICATION_GROUP
                 description = "Runs all the instrumentation test variations on all the connected devices"
             })
@@ -39,11 +42,9 @@ class MarathonPlugin : Plugin<Project> {
                 throw IllegalStateException("No TestedExtension is not found")
             }
             val testedExtension = appExtension ?: libraryExtension
-            val defaultConfig = Configuration("config")
-            defaultConfig.test = "*"
-            defaultConfig.tests = "*"
+            val defaultConfig = MarathonPluginConfiguration("config")
 
-            val conf = configuration.getByName("config") ?: defaultConfig
+            val conf = if (configuration.names.contains("config")) configuration["config"] else defaultConfig
 
             println("Starting")
             testedExtension!!.testVariants.all {
@@ -55,87 +56,52 @@ class MarathonPlugin : Plugin<Project> {
     }
 
     companion object {
-        private fun createTask(variant: TestVariant, project: Project, configuration: Configuration): MarathonRunTask {
+        private fun createTask(variant: TestVariant, project: Project, config: MarathonPluginConfiguration): MarathonRunTask {
             checkTestVariants(variant)
 
             val marathonTask = project.tasks.create("$TASK_PREFIX${variant.name.capitalize()}", MarathonRunTask::class.java)
-            marathonTask.apply {
-                group = JavaBasePlugin.VERIFICATION_GROUP
-                description = "Runs all instrumentation test for ${variant.name.capitalize()} on all the connected devices"
-            }
-
-            println("Created $TASK_PREFIX${variant.name.capitalize()}")
+            marathonTask.outputs.upToDateWhen { false }
 
             variant.testedVariant.outputs.forEach {
                 checkTestedVariants(it)
+                marathonTask.configure(closureOf<MarathonRunTask> {
+                    group = JavaBasePlugin.VERIFICATION_GROUP
+                    description = "Runs instrumentation tests on all the connected devices for '${variant.name}' variation and generates a report with screenshots"
 
-//                marathonTask.configure {
-//
-//                }
+                    val firstOutput = variant.outputs.first() as ApkVariantOutput
+                    val applicationOutput = it as ApkVariantOutput
+                    val instrumentationApk = File(firstOutput.packageApplication.outputDirectory.path, firstOutput.outputFileName)
+                    val applicationApk = File(applicationOutput.packageApplication.outputDirectory.path, applicationOutput.outputFileName)
+                    val baseOutputDir = if (config.baseOutputDir != null) File(config.baseOutputDir) else File(project.buildDir, "reports/marathon")
+                    val output = File(baseOutputDir, variant.name)
+
+                    val configuration = Configuration(
+                            baseOutputDir,
+                            output,
+                            applicationApk,
+                            instrumentationApk,
+                            config.poolingStrategy,
+                            config.sortingStrategy,
+                            config.batchingStrategy,
+                            config.flakinessStrategy,
+                            config.retryStrategy,
+                            config.ignoreFailures,
+                            config.isCodeCoverageEnabled,
+                            config.fallbackToScreenshots,
+                            config.testClassRegexes?.map { it.toRegex() },
+                            config.includedTestAnnotations,
+                            config.excludedTestAnnotations,
+                            config.includeSerialRegexes?.map { it.toRegex() },
+                            config.excludeSerialRegexes?.map { it.toRegex() },
+                            config.testOutputTimeoutMillis,
+                            config.testPackage,
+                            config.autoGrantPermission
+                    )
+
+                    dependsOn(variant.testedVariant.assemble, variant.assemble)
+                })
             }
 
-//            variant.testedVariant.outputs.all(object : Closure<Any>(null, null) {
-//                fun doCall(baseVariantOutput: BaseVariantOutput) {
-//                    checkTestedVariants(baseVariantOutput)
-//                    forkTask.configure(object : Closure<Any>(null, null) {
-//                        @JvmOverloads
-//                        fun doCall(it: Any? = null): Any {
-//                            val config = project.fork
-//
-//
-//                            setProperty("description", "Runs instrumentation tests on all the connected devices for \'" + variant.name + "\' variation and generates a report with screenshots")
-//                            setProperty("group", JavaBasePlugin.VERIFICATION_GROUP)
-//
-//                            val firstOutput = DefaultGroovyMethods.first(DefaultGroovyMethods.asList(variant.outputs))
-//                            setProperty("instrumentationApk", File(firstOutput.packageApplication.outputDirectory.path + "/" + firstOutput.outputFileName))
-//
-//                            setProperty("title", config.title)
-//                            setProperty("subtitle", config.subtitle)
-//                            setProperty("testClassRegex", config.testClassRegex)
-//                            setProperty("testPackage", config.testPackage)
-//                            setProperty("testOutputTimeout", config.testOutputTimeout)
-//                            setProperty("testSize", config.testSize)
-//                            setProperty("excludedSerials", config.excludedSerials)
-//                            setProperty("fallbackToScreenshots", config.fallbackToScreenshots)
-//                            setProperty("totalAllowedRetryQuota", config.totalAllowedRetryQuota)
-//                            setProperty("retryPerTestCaseQuota", config.retryPerTestCaseQuota)
-//                            setProperty("isCoverageEnabled", config.isCoverageEnabled)
-//                            setProperty("poolingStrategy", config.poolingStrategy)
-//                            setProperty("autoGrantPermissions", config.autoGrantPermissions)
-//                            setProperty("ignoreFailures", config.ignoreFailures)
-//                            setProperty("excludedAnnotation", config.excludedAnnotation)
-//                            setProperty("includedAnnotation", config.includedAnnotation)
-//                            setProperty("sortingStrategy", config.sortingStrategy)
-//                            setProperty("batchStrategy", config.batchStrategy)
-//                            setProperty("customExecutionStrategy", config.customExecutionStrategy)
-//                            setProperty("ignoreFailedTests", config.ignoreFailedTests)
-//
-//                            setProperty("applicationApk", File(baseVariantOutput.packageApplication.outputDirectory.path + "/" + baseVariantOutput.outputFileName))
-//
-//                            val baseOutputDir = config.baseOutputDir
-//                            val outputBase: File
-//                            if (StringGroovyMethods.asBoolean(baseOutputDir)) {
-//                                outputBase = File(baseOutputDir)
-//                            } else {
-//                                outputBase = File(project.buildDir, "reports/fork")
-//                            }
-//
-//                            setProperty("output", File(outputBase, variant.name))
-//
-//                            return DefaultGroovyMethods.invokeMethod(this@ForkPlugin, "dependsOn", arrayOf<Any>(variant.testedVariant.assemble, variant.assemble))
-//                        }
-//
-//                    })
-//                    forkTask.getOutputs().upToDateWhen(object : Closure<Boolean>(null, null) {
-//                        @JvmOverloads
-//                        fun doCall(it: Task? = null): Boolean {
-//                            return false
-//                        }
-//
-//                    })
-//                }
-//
-//            })
             return marathonTask
         }
 
@@ -162,11 +128,6 @@ class MarathonPlugin : Plugin<Project> {
         /**
          * Task name prefix.
          */
-        private val TASK_PREFIX = "marathon"
-
-        private fun <Value> setProperty0(propOwner: Project, s: String, o: Value): Value {
-            propOwner.setProperty(s, o)
-            return o
-        }
+        private const val TASK_PREFIX = "marathon"
     }
 }

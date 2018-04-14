@@ -1,3 +1,3 @@
 package com.malinskiy.marathon.execution
 
-data class BatchResults(val results: List<TestResult>)
+data class TestBatchResults(val results: List<TestResult>)

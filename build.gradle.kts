@@ -7,7 +7,6 @@ buildscript {
     dependencies {
         classpath(BuildPlugins.kotlinPlugin)
         classpath(BuildPlugins.junitGradle)
-        classpath(BuildPlugins.androidGradle)
     }
 }
 

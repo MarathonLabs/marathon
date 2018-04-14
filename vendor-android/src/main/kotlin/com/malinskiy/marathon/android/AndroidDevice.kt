@@ -4,7 +4,7 @@ import com.android.ddmlib.IDevice
 import com.malinskiy.marathon.device.Device
 import com.malinskiy.marathon.device.NetworkState
 import com.malinskiy.marathon.device.OperatingSystem
-import com.malinskiy.marathon.test.Batch
+import com.malinskiy.marathon.test.TestBatch
 
 class AndroidDevice(val ddmsDevice: IDevice) : Device {
     override val serialNumber: String
@@ -22,7 +22,7 @@ class AndroidDevice(val ddmsDevice: IDevice) : Device {
             else -> false
         }
 
-    override fun execute(batch: Batch) {
+    override fun execute(testBatch: TestBatch) {
         TODO("not implemented")
     }
 }
