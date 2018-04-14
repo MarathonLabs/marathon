@@ -1,25 +1,14 @@
-//package com.malinskiy.marathon
-//
-//import mu.KotlinLogging
-//import org.gradle.api.DefaultTask
-//import org.gradle.api.GradleException
-//import org.gradle.api.tasks.InputFile
-//import org.gradle.api.tasks.OutputDirectory
-//import org.gradle.api.tasks.TaskAction
-//import org.gradle.api.tasks.VerificationTask
-//import org.slf4j.Logger
-//import org.slf4j.LoggerFactory
-//
-//import java.io.File
-//
-///**
-// * Task for using Fork.
-// */
-//class ForkRunTask : DefaultTask(), VerificationTask {
-//    /**
-//     * If true then test failures do not cause a build failure.
-//     */
-//    private var ignoreFailures: Boolean = false
+package com.malinskiy.marathon
+
+import org.gradle.api.DefaultTask
+import org.gradle.api.tasks.VerificationTask
+
+
+open class MarathonRunTask : DefaultTask(), VerificationTask {
+    /**
+     * If true then test failures do not cause a build failure.
+     */
+    private var ignoreFailures: Boolean = false
 //    /**
 //     * Instrumentation APK.
 //     */
@@ -74,17 +63,17 @@
 //
 //    }
 //
-//    override fun getIgnoreFailures(): Boolean {
-//        return ignoreFailures
-//    }
+    override fun getIgnoreFailures(): Boolean {
+        return ignoreFailures
+    }
 //
 //    fun isIgnoreFailures(): Boolean {
 //        return ignoreFailures
 //    }
 //
-//    override fun setIgnoreFailures(ignoreFailures: Boolean) {
-//        this.ignoreFailures = ignoreFailures
-//    }
+    override fun setIgnoreFailures(ignoreFailures: Boolean) {
+        this.ignoreFailures = ignoreFailures
+    }
 //
 //    fun isIsCoverageEnabled(): Boolean {
 //        return isCoverageEnabled
@@ -101,4 +90,4 @@
 //    companion object {
 //        private val log = KotlinLogging.logger {}
 //    }
-//}
+}

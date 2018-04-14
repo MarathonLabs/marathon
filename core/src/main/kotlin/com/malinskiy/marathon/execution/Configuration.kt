@@ -1,3 +1,5 @@
 package com.malinskiy.marathon.execution
 
-data class Configuration(val test: String, val tests: String)
+data class Configuration @JvmOverloads constructor(val name: String,
+                         var test: String = "",
+                         var tests: String = "")

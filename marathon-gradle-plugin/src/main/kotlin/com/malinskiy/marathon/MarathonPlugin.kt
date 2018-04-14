@@ -1,17 +1,24 @@
 package com.malinskiy.marathon
 
-import com.android.build.gradle.*
+import com.android.build.gradle.AppExtension
+import com.android.build.gradle.AppPlugin
+import com.android.build.gradle.LibraryExtension
+import com.android.build.gradle.LibraryPlugin
 import com.android.build.gradle.api.BaseVariantOutput
 import com.android.build.gradle.api.TestVariant
-import com.android.builder.model.AndroidProject
 import com.malinskiy.marathon.execution.Configuration
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.api.Task
 import org.gradle.api.plugins.JavaBasePlugin
+import org.gradle.kotlin.dsl.closureOf
 
 class MarathonPlugin : Plugin<Project> {
 
     override fun apply(project: Project) {
+        val configuration = project.container(Configuration::class.java)
+        project.extensions.add("marathon", configuration)
+
         project.afterEvaluate {
             val appPlugin = project.plugins.findPlugin(AppPlugin::class.java)
             val libraryPlugin = project.plugins.findPlugin(LibraryPlugin::class.java)
@@ -20,13 +27,10 @@ class MarathonPlugin : Plugin<Project> {
                 throw IllegalStateException("Android plugin is not found")
             }
 
-            val marathon = project.container(Configuration::class.java)
-            project.extensions.add("marathon", marathon)
-
-            val marathonTask = project.task(TASK_PREFIX) {
+            val marathonTask: Task = project.task(TASK_PREFIX, closureOf<Task>{
                 group = JavaBasePlugin.VERIFICATION_GROUP
                 description = "Runs all the instrumentation test variations on all the connected devices"
-            }
+            })
 
             val appExtension = extensions.findByType(AppExtension::class.java)
             val libraryExtension = extensions.findByType(LibraryExtension::class.java)
@@ -35,37 +39,41 @@ class MarathonPlugin : Plugin<Project> {
                 throw IllegalStateException("No TestedExtension is not found")
             }
             val testedExtension = appExtension ?: libraryExtension
+            val defaultConfig = Configuration("config")
+            defaultConfig.test = "*"
+            defaultConfig.tests = "*"
 
+            val conf = configuration.getByName("config") ?: defaultConfig
+
+            println("Starting")
             testedExtension!!.testVariants.all {
-
+                println("Creating for $this")
+                val testTaskForVariant = createTask(this, project, conf)
+                marathonTask.dependsOn(testTaskForVariant)
             }
-
-//        val forkTask = project.task(TASK_PREFIX, object : Closure<String>(this, this) {
-//            @JvmOverloads
-//            fun doCall(it: Any? = null): String {
-//                setProperty("group", JavaBasePlugin.VERIFICATION_GROUP)
-//                return setProperty0(this@ForkPlugin, "description", "Runs all the instrumentation test variations on all the connected devices")
-//            }
-//
-//        })
-//
-//        val android = project.android
-//        android.testVariants.invokeMethod("all", arrayOf<Any>(object : Closure<Task>(this, this) {
-//            fun doCall(variant: TestVariant): Task {
-//                val forkTaskForTestVariant = ForkPlugin.createTask(variant, project)
-//                return forkTask.dependsOn(forkTaskForTestVariant)
-//            }
-//
-//        }))
         }
     }
 
     companion object {
-//        private fun createTask(variant: TestVariant, project: Project): ForkRunTask {
-//            checkTestVariants(variant)
+        private fun createTask(variant: TestVariant, project: Project, configuration: Configuration): MarathonRunTask {
+            checkTestVariants(variant)
+
+            val marathonTask = project.tasks.create("$TASK_PREFIX${variant.name.capitalize()}", MarathonRunTask::class.java)
+            marathonTask.apply {
+                group = JavaBasePlugin.VERIFICATION_GROUP
+                description = "Runs all instrumentation test for ${variant.name.capitalize()} on all the connected devices"
+            }
+
+            println("Created $TASK_PREFIX${variant.name.capitalize()}")
+
+            variant.testedVariant.outputs.forEach {
+                checkTestedVariants(it)
+
+//                marathonTask.configure {
 //
-//            val forkTask = project.tasks.create(TASK_PREFIX + StringGroovyMethods.capitalize(variant.name), ForkRunTask::class.java as Class<T>)
-//
+//                }
+            }
+
 //            variant.testedVariant.outputs.all(object : Closure<Any>(null, null) {
 //                fun doCall(baseVariantOutput: BaseVariantOutput) {
 //                    checkTestedVariants(baseVariantOutput)
@@ -128,8 +136,8 @@ class MarathonPlugin : Plugin<Project> {
 //                }
 //
 //            })
-//            return forkTask
-//        }
+            return marathonTask
+        }
 
         private fun checkTestVariants(testVariant: TestVariant) {
             if (testVariant.outputs.size > 1) {
