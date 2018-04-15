@@ -2,6 +2,7 @@ package com.malinskiy.marathon.execution
 
 import com.malinskiy.marathon.execution.strategy.*
 import com.malinskiy.marathon.execution.strategy.impl.*
+import com.malinskiy.marathon.vendor.VendorConfiguration
 import java.io.File
 
 data class Configuration constructor(
@@ -29,7 +30,8 @@ data class Configuration constructor(
         val testOutputTimeoutMillis: Int,
 
         val testPackage: String?,
-        val autoGrantPermission: Boolean) {
+        val autoGrantPermission: Boolean,
+        val vendorConfiguration: VendorConfiguration) {
 
     constructor(baseOutputDir: File,
                 outputDir: File,
@@ -55,7 +57,8 @@ data class Configuration constructor(
                 testOutputTimeoutMillis: Int?,
 
                 testPackage: String?,
-                autoGrantPermission: Boolean?) :
+                autoGrantPermission: Boolean?,
+                vendorConfiguration: VendorConfiguration) :
 
             this(baseOutputDir = baseOutputDir,
                     outputDir = outputDir,
@@ -76,7 +79,7 @@ data class Configuration constructor(
                     excludeSerialRegexes = excludeSerialRegexes ?: emptyList(),
                     testOutputTimeoutMillis = testOutputTimeoutMillis ?: 60_000,
                     testPackage = testPackage ?: "",
-                    autoGrantPermission = autoGrantPermission ?: false
-
+                    autoGrantPermission = autoGrantPermission ?: false,
+                    vendorConfiguration = vendorConfiguration
             )
 }

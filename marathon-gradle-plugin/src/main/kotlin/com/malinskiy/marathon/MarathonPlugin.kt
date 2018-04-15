@@ -7,6 +7,7 @@ import com.android.build.gradle.LibraryPlugin
 import com.android.build.gradle.api.ApkVariantOutput
 import com.android.build.gradle.api.BaseVariantOutput
 import com.android.build.gradle.api.TestVariant
+import com.malinskiy.marathon.android.AndroidConfiguration
 import com.malinskiy.marathon.execution.Configuration
 import mu.KotlinLogging
 import org.gradle.api.Plugin
@@ -53,14 +54,14 @@ class MarathonPlugin : Plugin<Project> {
 
             testedExtension!!.testVariants.all {
                 log.info { "Applying marathon for $this" }
-                val testTaskForVariant = createTask(this, project, conf)
+                val testTaskForVariant = createTask(this, project, conf, testedExtension.sdkDirectory)
                 marathonTask.dependsOn(testTaskForVariant)
             }
         }
     }
 
     companion object {
-        private fun createTask(variant: TestVariant, project: Project, config: MarathonPluginConfiguration): MarathonRunTask {
+        private fun createTask(variant: TestVariant, project: Project, config: MarathonPluginConfiguration, sdkDirectory: File): MarathonRunTask {
             checkTestVariants(variant)
 
             val marathonTask = project.tasks.create("$TASK_PREFIX${variant.name.capitalize()}", MarathonRunTask::class.java)
@@ -102,7 +103,8 @@ class MarathonPlugin : Plugin<Project> {
                             config.excludeSerialRegexes?.map { it.toRegex() },
                             config.testOutputTimeoutMillis,
                             config.testPackage,
-                            config.autoGrantPermission
+                            config.autoGrantPermission,
+                            AndroidConfiguration(sdkDirectory)
                     )
 
                     dependsOn(variant.testedVariant.assemble, variant.assemble)
