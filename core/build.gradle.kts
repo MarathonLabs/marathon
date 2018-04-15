@@ -1,4 +1,5 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import org.jetbrains.kotlin.gradle.dsl.Coroutines
 import org.gradle.api.plugins.ExtensionAware
 import org.junit.platform.gradle.plugin.FiltersExtension
 import org.junit.platform.gradle.plugin.EnginesExtension
@@ -11,8 +12,11 @@ plugins {
     `maven-publish`
 }
 
+kotlin.experimental.coroutines = Coroutines.ENABLE
+
 dependencies {
-    compile(Libraries.kotlinStdLib)
+    implementation(Libraries.kotlinStdLib)
+    implementation(Libraries.kotlinCoroutines)
     testCompile(TestLibraries.kluent)
     testCompile(TestLibraries.spekAPI)
     testRuntime(TestLibraries.spekJUnitPlatformEngine)

@@ -2,6 +2,7 @@ import java.io.File
 
 object Versions {
     val kotlin = File("kotlin-version").readText().trim()
+    val coroutines = "0.21"
 
     val ddmlib = "26.1.1"
     val dexTestParser = "1.1.0"
@@ -33,6 +34,7 @@ object Libraries {
     val kotlinStdLib = "org.jetbrains.kotlin:kotlin-stdlib-jdk8:${Versions.kotlin}"
     val kotlinReflect = "org.jetbrains.kotlin:kotlin-reflect:${Versions.kotlin}"
     val kotlinLogging = "io.github.microutils:kotlin-logging:${Versions.kotlinLogging}"
+    val kotlinCoroutines = "org.jetbrains.kotlinx:kotlinx-coroutines-core:${Versions.coroutines}"
     val slf4jSimple = "org.slf4j:slf4j-simple:${Versions.slf4jSimple}"
 }
 
