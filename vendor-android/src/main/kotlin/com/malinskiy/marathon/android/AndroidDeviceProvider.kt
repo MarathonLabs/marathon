@@ -44,7 +44,7 @@ class AndroidDeviceProvider : DeviceProvider {
 
             override fun deviceConnected(device: IDevice?) {
                 device?.let {
-                    runBlocking {
+                    launch {
                         channel.send(DeviceConnected(AndroidDevice(it)))
                     }
                 }
@@ -52,7 +52,7 @@ class AndroidDeviceProvider : DeviceProvider {
 
             override fun deviceDisconnected(device: IDevice?) {
                 device?.let {
-                    runBlocking {
+                    launch {
                         channel.send(DeviceDisconnected(AndroidDevice(it)))
                     }
                 }
