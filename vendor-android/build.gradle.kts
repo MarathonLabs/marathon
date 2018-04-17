@@ -17,6 +17,7 @@ dependencies {
     implementation(Libraries.kotlinStdLib)
     implementation(Libraries.ddmlib)
     implementation(Libraries.dexTestParser)
+    implementation(Libraries.axmlParser)
     implementation(project(":core"))
     testImplementation(TestLibraries.kluent)
     testImplementation(TestLibraries.spekAPI)

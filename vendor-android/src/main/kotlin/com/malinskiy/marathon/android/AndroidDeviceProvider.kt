@@ -33,6 +33,11 @@ class AndroidDeviceProvider : DeviceProvider {
         }
     }
 
+    override fun terminate() {
+        AndroidDebugBridge.disconnectBridge()
+        AndroidDebugBridge.terminate()
+    }
+
     override fun getDevices(): List<Device> {
         return adb.devices.map {
             AndroidDevice(it)

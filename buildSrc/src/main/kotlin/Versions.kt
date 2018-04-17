@@ -7,7 +7,7 @@ object Versions {
     val ddmlib = "26.1.1"
     val dexTestParser = "1.1.0"
     val kotlinLogging = "1.4.9"
-    val slf4jSimple = "1.7.5"
+    val axmlParser = "1.0"
 
     val junitGradle = "1.0.0"
     val androidGradleVersion = "3.0.1"
@@ -35,7 +35,7 @@ object Libraries {
     val kotlinReflect = "org.jetbrains.kotlin:kotlin-reflect:${Versions.kotlin}"
     val kotlinLogging = "io.github.microutils:kotlin-logging:${Versions.kotlinLogging}"
     val kotlinCoroutines = "org.jetbrains.kotlinx:kotlinx-coroutines-core:${Versions.coroutines}"
-    val slf4jSimple = "org.slf4j:slf4j-simple:${Versions.slf4jSimple}"
+    val axmlParser = "com.shazam:axmlparser:${Versions.axmlParser}"
 }
 
 object TestLibraries {
