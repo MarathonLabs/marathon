@@ -1,4 +1,4 @@
-package com.malinskiy.marathon.vendor.ios
+package com.malinskiy.marathon.ios
 
 import com.malinskiy.marathon.execution.TestParser
 import com.malinskiy.marathon.test.Test

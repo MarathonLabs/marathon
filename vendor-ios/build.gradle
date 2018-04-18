@@ -5,6 +5,7 @@ apply plugin: 'kotlin'
 
 dependencies {
     compile Libraries.kotlinStdLib
+    compile Libraries.kotlinCoroutines
     compile project(":core")
 }
 

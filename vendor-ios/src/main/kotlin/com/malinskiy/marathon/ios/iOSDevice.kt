@@ -1,4 +1,4 @@
-package com.malinskiy.marathon.vendor.ios
+package com.malinskiy.marathon.ios
 
 import com.malinskiy.marathon.device.Device
 
