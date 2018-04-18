@@ -61,7 +61,7 @@ class AndroidDeviceProvider : DeviceProvider {
         AndroidDebugBridge.addDeviceChangeListener(listener)
     }
 
-    override fun finish() {
+    override fun terminate() {
       AndroidDebugBridge.disconnectBridge()
       AndroidDebugBridge.terminate()
     }
