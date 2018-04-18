@@ -17,6 +17,7 @@ kotlin.experimental.coroutines = Coroutines.ENABLE
 dependencies {
     implementation(Libraries.kotlinStdLib)
     implementation(Libraries.kotlinCoroutines)
+    implementation(Libraries.kotlinLogging)
     testCompile(TestLibraries.kluent)
     testCompile(TestLibraries.spekAPI)
     testRuntime(TestLibraries.spekJUnitPlatformEngine)

@@ -62,8 +62,8 @@ class AndroidDeviceProvider : DeviceProvider {
     }
 
     override fun finish() {
-        AndroidDebugBridge.terminate()
-        AndroidDebugBridge.disconnectBridge()
+      AndroidDebugBridge.disconnectBridge()
+      AndroidDebugBridge.terminate()
     }
 
     override fun subscribe() = channel
