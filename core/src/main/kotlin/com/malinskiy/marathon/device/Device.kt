@@ -1,5 +1,6 @@
 package com.malinskiy.marathon.device
 
+import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.test.TestBatch
 
 interface Device {
@@ -11,6 +12,6 @@ interface Device {
     val deviceFeatures: Collection<DeviceFeature>
     val healthy: Boolean
 
-    fun execute(testBatch: TestBatch)
+    fun execute(configuration: Configuration, testBatch: TestBatch)
 }
 

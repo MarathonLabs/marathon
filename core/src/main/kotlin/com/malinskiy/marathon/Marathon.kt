@@ -3,6 +3,9 @@ package com.malinskiy.marathon
 import com.malinskiy.marathon.device.DeviceProvider
 import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.execution.TestParser
+import com.malinskiy.marathon.test.TestBatch
+import kotlinx.coroutines.experimental.launch
+import kotlinx.coroutines.experimental.selects.select
 import mu.KotlinLogging
 import java.util.*
 import java.util.concurrent.TimeUnit
@@ -24,7 +27,12 @@ class Marathon(val configuration: Configuration) {
             val tests = testParser.extract(configuration.testApplicationOutput)
 
             tests.forEach { println(it) }
-            deviceProvider.getDevices().forEach { println(it) }
+            tests.forEach { test ->
+                deviceProvider.getDevices().forEach {
+                    it.execute(configuration, TestBatch(listOf(test)))
+                }
+            }
+//            deviceProvider.getDevices().forEach { println(it) }
 
             if (configuration.outputDir.exists()) {
                 log.info { "Output ${configuration.outputDir} already exists" }

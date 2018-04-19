@@ -1,7 +1,7 @@
 import org.gradle.kotlin.dsl.`kotlin-dsl`
 
 buildscript {
-    val kotlinVersion = file("../kotlin-version").readText().trim()
+    val kotlinVersion = "1.2.31"
 
     dependencies {
         classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion")
