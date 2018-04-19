@@ -15,14 +15,14 @@ class AndroidTestParser : TestParser {
 
             if (split.size != 2) throw IllegalStateException("Can't parse test $testName")
 
-            val methodName = split.get(1)
-            val packageAndClassName = split.get(0)
+            val methodName = split[1]
+            val packageAndClassName = split[0]
 
             val lastDotIndex = packageAndClassName.indexOfLast { c -> c == '.' }
-            val packageName = packageAndClassName.substring(0..lastDotIndex-1)
-            val className = packageAndClassName.substring(lastDotIndex+1..packageAndClassName.length-1)
+            val packageName = packageAndClassName.substring(0 until lastDotIndex)
+            val className = packageAndClassName.substring(lastDotIndex + 1 until packageAndClassName.length)
 
-            Test(packageName, className,methodName, annotationNames)
+            Test(packageName, className, methodName, annotationNames)
         }
     }
 }

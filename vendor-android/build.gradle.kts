@@ -16,6 +16,7 @@ kotlin.experimental.coroutines = Coroutines.ENABLE
 dependencies {
     implementation(Libraries.kotlinStdLib)
     implementation(Libraries.kotlinCoroutines)
+    implementation(Libraries.kotlinLogging)
     implementation(Libraries.ddmlib)
     implementation(Libraries.dexTestParser)
     implementation(Libraries.axmlParser)

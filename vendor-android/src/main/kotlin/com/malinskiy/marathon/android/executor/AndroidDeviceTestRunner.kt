@@ -1,7 +1,8 @@
-package com.malinskiy.marathon.android
+package com.malinskiy.marathon.android.executor
 
 import com.android.ddmlib.IDevice
 import com.android.ddmlib.testrunner.RemoteAndroidTestRunner
+import com.malinskiy.marathon.android.ApkParser
 import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.test.TestBatch
 import java.util.concurrent.TimeUnit

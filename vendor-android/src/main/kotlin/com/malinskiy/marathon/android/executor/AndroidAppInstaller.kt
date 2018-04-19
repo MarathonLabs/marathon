@@ -1,8 +1,10 @@
-package com.malinskiy.marathon.android
+package com.malinskiy.marathon.android.executor
 
 import com.android.ddmlib.IDevice
 import com.android.ddmlib.InstallException
+import com.malinskiy.marathon.android.ApkParser
 import com.malinskiy.marathon.execution.Configuration
+import com.malinskiy.marathon.execution.withRetry
 import java.io.File
 
 class AndroidAppInstaller(val configuration: Configuration) {
@@ -22,22 +24,6 @@ class AndroidAppInstaller(val configuration: Configuration) {
             } catch (e: InstallException) {
                 throw RuntimeException("Error while installing $appPackage on ${device.serialNumber}", e)
             }
-        }
-    }
-
-
-    fun withRetry(attempts: Int, f: () -> Unit) {
-        var attempt = 1
-        while (true) {
-            try {
-                f()
-                return
-            } catch (e: RuntimeException) {
-                if (attempt == attempts) {
-                    throw e
-                }
-            }
-            ++attempt
         }
     }
 }
