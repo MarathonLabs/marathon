@@ -52,10 +52,6 @@ class AndroidDevice(val ddmsDevice: IDevice) : Device {
         }
 
     override fun execute(testBatch: TestBatch) {
-        val runner = RemoteAndroidTestRunner(
-                instrumentationInfo.instrumentationPackage,
-                instrumentationInfo.testRunnerClass,
-                ddmsDevice)
     }
 
 
