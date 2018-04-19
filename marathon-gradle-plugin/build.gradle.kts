@@ -14,6 +14,8 @@ gradlePlugin {
 }
 
 publishing {
+    group = "com.malinskiy"
+    version  = "0.1.0"
     repositories {
         maven(url = "$rootDir/build/repository")
     }
