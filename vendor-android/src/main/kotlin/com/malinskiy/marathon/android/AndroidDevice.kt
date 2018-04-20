@@ -60,8 +60,11 @@ class AndroidDevice(val ddmsDevice: IDevice) : Device {
         }
 
     override fun execute(configuration: Configuration, testBatch: TestBatch) {
-        AndroidAppInstaller(configuration).prepareInstallation(ddmsDevice)
         AndroidDeviceTestRunner(ddmsDevice).execute(configuration, testBatch)
+    }
+
+    override fun prepare(configuration: Configuration) {
+        AndroidAppInstaller(configuration).prepareInstallation(ddmsDevice)
     }
 
     override fun toString(): String {
