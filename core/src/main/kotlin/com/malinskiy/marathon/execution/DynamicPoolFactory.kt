@@ -7,7 +7,7 @@ import kotlinx.coroutines.experimental.channels.SendChannel
 import kotlinx.coroutines.experimental.launch
 import kotlinx.coroutines.experimental.runBlocking
 
-class DynamicPoolFactory(private val deviceProvider: DeviceProvider,
+class DynamicPoolFactory(deviceProvider: DeviceProvider,
                          private val poolingStrategy: PoolingStrategy,
                          private val configuration: Configuration,
                          private val list: Collection<Test>) {
@@ -49,8 +49,8 @@ class DynamicPoolFactory(private val deviceProvider: DeviceProvider,
     private fun onDeviceConnected(item: DeviceProvider.DeviceEvent.DeviceConnected) {
         val pools = poolingStrategy.createPools(listOf(item.device))
         pools.forEach {
-            actors.computeIfAbsent(it.name, { t -> PoolTestExecutor(configuration, list) })
-            actors.computeIfPresent(it.name, { t, u ->
+            actors.computeIfAbsent(it.name, { _ -> PoolTestExecutor(configuration, list) })
+            actors.computeIfPresent(it.name, { _, u ->
                 runBlocking {
                     u.send(PoolMessage.AddDevice(item.device))
                 }
