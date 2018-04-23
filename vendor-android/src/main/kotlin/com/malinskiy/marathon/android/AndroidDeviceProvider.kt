@@ -13,28 +13,15 @@ import java.nio.file.Paths
 class AndroidDeviceProvider : DeviceProvider {
     private lateinit var adb: AndroidDebugBridge
 
-    val channel = Channel<DeviceProvider.DeviceEvent>(50)
+    private val channel = Channel<DeviceProvider.DeviceEvent>(50)
 
     override fun initialize(vendorConfiguration: VendorConfiguration) {
         if (vendorConfiguration !is AndroidConfiguration) {
             throw IllegalStateException("Invalid configuration $vendorConfiguration passed")
         }
-
         AndroidDebugBridge.initIfNeeded(false)
 
         val absolutePath = Paths.get(vendorConfiguration.androidSdk.absolutePath, "platform-tools", "adb").toFile().absolutePath
-
-
-        /*var timeout = vendorConfiguration.adbInitTimeoutMillis
-        val sleepTime = 1_000
-        while (!adb.hasInitialDeviceList() && timeout > 0) {
-            sleep(sleepTime.toLong())
-            timeout -= sleepTime
-        }
-
-        if (timeout <= 0 && !adb.hasInitialDeviceList()) {
-            throw RuntimeException("Timeout getting device list.", null)
-        }*/
 
         val listener = object : AndroidDebugBridge.IDeviceChangeListener {
             override fun deviceChanged(device: IDevice?, changeMask: Int) {
@@ -52,7 +39,7 @@ class AndroidDeviceProvider : DeviceProvider {
             override fun deviceDisconnected(device: IDevice?) {
                 device?.let {
                     println("deviceDisconnected")
-                    runBlocking{
+                    runBlocking {
                         channel.send(DeviceDisconnected(AndroidDevice(it)))
                     }
                 }
@@ -63,8 +50,8 @@ class AndroidDeviceProvider : DeviceProvider {
     }
 
     override fun terminate() {
-      AndroidDebugBridge.disconnectBridge()
-      AndroidDebugBridge.terminate()
+        AndroidDebugBridge.disconnectBridge()
+        AndroidDebugBridge.terminate()
     }
 
     override fun subscribe() = channel

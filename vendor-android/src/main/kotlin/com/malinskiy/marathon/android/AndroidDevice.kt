@@ -11,7 +11,7 @@ import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.test.TestBatch
 import java.util.*
 
-class AndroidDevice(val ddmsDevice: IDevice) : Device {
+class AndroidDevice(private val ddmsDevice: IDevice) : Device {
     override val model: String by lazy {
         ddmsDevice.getProperty("ro.product.model")
     }
