@@ -10,7 +10,7 @@ import java.util.concurrent.TimeUnit
 
 class AndroidDeviceTestRunner(private val device: IDevice) {
 
-    val logger = KotlinLogging.logger("AndroidDeviceTestRunner")
+    private val logger = KotlinLogging.logger("AndroidDeviceTestRunner")
 
     fun execute(configuration: Configuration, testBatch: TestBatch) {
         val info = ApkParser().parseInstrumentationInfo(configuration.testApplicationOutput)
@@ -18,11 +18,13 @@ class AndroidDeviceTestRunner(private val device: IDevice) {
         runner.setRunName("TestRunName")
         runner.setMaxTimeToOutputResponse(20, TimeUnit.SECONDS)
 
-        val classes = testBatch.tests.map {
+        val tests = testBatch.tests.map {
             "${it.pkg}.${it.clazz}#${it.method}"
         }.toTypedArray()
 
-        runner.setClassNames(classes)
+        logger.debug { "tests = ${tests.toList()}" }
+
+        runner.setClassNames(tests)
         runner.run(DebugTestRunListener(device))
     }
 }
