@@ -1,6 +1,8 @@
 package com.malinskiy.marathon.android
 
 import com.android.ddmlib.IDevice
+import com.malinskiy.marathon.android.executor.AndroidAppInstaller
+import com.malinskiy.marathon.android.executor.AndroidDeviceTestRunner
 import com.malinskiy.marathon.device.Device
 import com.malinskiy.marathon.device.DeviceFeature
 import com.malinskiy.marathon.device.NetworkState
@@ -9,7 +11,7 @@ import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.test.TestBatch
 import java.util.*
 
-class AndroidDevice(val ddmsDevice: IDevice) : Device {
+class AndroidDevice(private val ddmsDevice: IDevice) : Device {
     override val model: String by lazy {
         ddmsDevice.getProperty("ro.product.model")
     }
@@ -58,8 +60,11 @@ class AndroidDevice(val ddmsDevice: IDevice) : Device {
         }
 
     override fun execute(configuration: Configuration, testBatch: TestBatch) {
-        AndroidAppInstaller(configuration).prepareInstallation(ddmsDevice)
         AndroidDeviceTestRunner(ddmsDevice).execute(configuration, testBatch)
+    }
+
+    override fun prepare(configuration: Configuration) {
+        AndroidAppInstaller(configuration).prepareInstallation(ddmsDevice)
     }
 
     override fun toString(): String {

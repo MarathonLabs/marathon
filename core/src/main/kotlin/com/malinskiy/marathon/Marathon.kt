@@ -2,12 +2,11 @@ package com.malinskiy.marathon
 
 import com.malinskiy.marathon.device.DeviceProvider
 import com.malinskiy.marathon.execution.Configuration
+import com.malinskiy.marathon.execution.DynamicPoolFactory
 import com.malinskiy.marathon.execution.TestParser
-import com.malinskiy.marathon.test.TestBatch
-import kotlinx.coroutines.experimental.launch
-import kotlinx.coroutines.experimental.selects.select
 import mu.KotlinLogging
 import java.util.*
+import java.util.concurrent.Phaser
 import java.util.concurrent.TimeUnit
 import kotlin.system.measureTimeMillis
 
@@ -22,18 +21,19 @@ class Marathon(val configuration: Configuration) {
         val deviceProvider = ServiceLoader.load(DeviceProvider::class.java).first()
         deviceProvider.initialize(configuration.vendorConfiguration)
 
+        val tests = testParser.extract(configuration.testApplicationOutput)
+
+        val factory = DynamicPoolFactory(deviceProvider, configuration.poolingStrategy, configuration, tests)
+
+        val complete = Phaser()
         val timeMillis = measureTimeMillis {
 
-            val tests = testParser.extract(configuration.testApplicationOutput)
+            complete.register()
+            factory.execute(complete)
 
-            tests.forEach { println(it) }
-            tests.forEach { test ->
-                deviceProvider.getDevices().forEach {
-                    it.execute(configuration, TestBatch(listOf(test)))
-                }
-            }
-//            deviceProvider.getDevices().forEach { println(it) }
+            Thread.sleep(10_000)
 
+            complete.arriveAndAwaitAdvance()
             if (configuration.outputDir.exists()) {
                 log.info { "Output ${configuration.outputDir} already exists" }
                 configuration.outputDir.deleteRecursively()
@@ -47,6 +47,7 @@ class Marathon(val configuration: Configuration) {
 
         log.info { "Total time: ${hours}H ${minutes}m ${seconds}s" }
 
+        factory.terminate()
         deviceProvider.terminate()
 
         return false

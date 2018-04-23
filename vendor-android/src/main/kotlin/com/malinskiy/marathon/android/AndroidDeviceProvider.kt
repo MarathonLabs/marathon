@@ -7,36 +7,25 @@ import com.malinskiy.marathon.device.DeviceProvider
 import com.malinskiy.marathon.device.DeviceProvider.DeviceEvent.*
 import com.malinskiy.marathon.vendor.VendorConfiguration
 import kotlinx.coroutines.experimental.channels.Channel
-import kotlinx.coroutines.experimental.launch
 import kotlinx.coroutines.experimental.runBlocking
-import java.lang.Thread.sleep
+import mu.KotlinLogging
 import java.nio.file.Paths
 
 class AndroidDeviceProvider : DeviceProvider {
+
+    private val logger = KotlinLogging.logger("AndroidDeviceProvider")
+
     private lateinit var adb: AndroidDebugBridge
 
-    val channel = Channel<DeviceProvider.DeviceEvent>(50)
+    private val channel = Channel<DeviceProvider.DeviceEvent>(50)
 
     override fun initialize(vendorConfiguration: VendorConfiguration) {
         if (vendorConfiguration !is AndroidConfiguration) {
             throw IllegalStateException("Invalid configuration $vendorConfiguration passed")
         }
-
         AndroidDebugBridge.initIfNeeded(false)
 
         val absolutePath = Paths.get(vendorConfiguration.androidSdk.absolutePath, "platform-tools", "adb").toFile().absolutePath
-        adb = AndroidDebugBridge.createBridge(absolutePath, false)
-
-        var timeout = vendorConfiguration.adbInitTimeoutMillis
-        val sleepTime = 1_000
-        while (!adb.hasInitialDeviceList() && timeout > 0) {
-            sleep(sleepTime.toLong())
-            timeout -= sleepTime
-        }
-
-        if (timeout <= 0 && !adb.hasInitialDeviceList()) {
-            throw RuntimeException("Timeout getting device list.", null)
-        }
 
         val listener = object : AndroidDebugBridge.IDeviceChangeListener {
             override fun deviceChanged(device: IDevice?, changeMask: Int) {
@@ -44,7 +33,8 @@ class AndroidDeviceProvider : DeviceProvider {
 
             override fun deviceConnected(device: IDevice?) {
                 device?.let {
-                    launch {
+                    logger.debug { "${it.serialNumber} Connected" }
+                    runBlocking {
                         channel.send(DeviceConnected(AndroidDevice(it)))
                     }
                 }
@@ -52,26 +42,29 @@ class AndroidDeviceProvider : DeviceProvider {
 
             override fun deviceDisconnected(device: IDevice?) {
                 device?.let {
-                    launch {
+                    logger.debug { "${it.serialNumber} Disconnected" }
+                    runBlocking {
                         channel.send(DeviceDisconnected(AndroidDevice(it)))
                     }
                 }
             }
         }
         AndroidDebugBridge.addDeviceChangeListener(listener)
+        adb = AndroidDebugBridge.createBridge(absolutePath, false)
     }
 
     override fun terminate() {
-      AndroidDebugBridge.disconnectBridge()
-      AndroidDebugBridge.terminate()
+        AndroidDebugBridge.disconnectBridge()
+        AndroidDebugBridge.terminate()
     }
 
     override fun subscribe() = channel
 
     override fun getDevices(): List<Device> {
-        return adb.devices.map {
-            AndroidDevice(it)
-        }
+        TODO()
+//        return adb.devices.map {
+//            AndroidDevice(it)
+//        }
     }
 
     override fun lockDevice(device: Device): Boolean {

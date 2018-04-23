@@ -15,18 +15,18 @@ class ApkParser {
             apkInputStream = zip.getInputStream(entry)
 
             val parser = AXMLParser(apkInputStream)
-            var eventType = parser.getType()
+            var eventType = parser.type
 
             var appPackage: String? = null
             var testPackage: String? = null
             var testRunnerClass: String? = null
             while (eventType != AXMLParser.END_DOCUMENT) {
                 if (eventType == AXMLParser.START_TAG) {
-                    val parserName = parser.getName()
+                    val parserName = parser.name
                     val isManifest = "manifest" == parserName
                     val isInstrumentation = "instrumentation" == parserName
                     if (isManifest || isInstrumentation) {
-                        for (i in 0 until parser.getAttributeCount()) {
+                        for (i in 0 until parser.attributeCount) {
                             val parserAttributeName = parser.getAttributeName(i)
                             if (isManifest && "package" == parserAttributeName) {
                                 testPackage = parser.getAttributeValueString(i)

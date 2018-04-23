@@ -13,5 +13,6 @@ interface Device {
     val healthy: Boolean
 
     fun execute(configuration: Configuration, testBatch: TestBatch)
+    fun prepare(configuration: Configuration)
 }
 

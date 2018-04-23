@@ -17,6 +17,117 @@ class MainActivityTest {
 
     @Test
     fun testText() {
+        java.lang.Thread.sleep(5000)
+        screen {
+            text {
+                hasText("Test")
+            }
+        }
+    }
+
+    @Test
+    fun testText1() {
+        java.lang.Thread.sleep(5000)
+        screen {
+            text {
+                hasText("Test")
+            }
+        }
+    }
+
+    @Test
+    fun testText2() {
+        java.lang.Thread.sleep(5000)
+        screen {
+            text {
+                hasText("Test")
+            }
+        }
+    }
+
+    @Test
+    fun testText3() {
+        java.lang.Thread.sleep(5000)
+        screen {
+            text {
+                hasText("Test")
+            }
+        }
+    }
+
+    @Test
+    fun testText4() {
+        java.lang.Thread.sleep(5000)
+        screen {
+            text {
+                hasText("Test")
+            }
+        }
+    }
+
+    @Test
+    fun testText5() {
+        java.lang.Thread.sleep(5000)
+        screen {
+            text {
+                hasText("Test")
+            }
+        }
+    }
+
+    @Test
+    fun testText6() {
+        java.lang.Thread.sleep(5000)
+        screen {
+            text {
+                hasText("Test")
+            }
+        }
+    }
+
+    @Test
+    fun testText7() {
+        java.lang.Thread.sleep(5000)
+        screen {
+            text {
+                hasText("Test")
+            }
+        }
+    }
+
+    @Test
+    fun testText8() {
+        java.lang.Thread.sleep(5000)
+        screen {
+            text {
+                hasText("Test")
+            }
+        }
+    }
+
+    @Test
+    fun testText9() {
+        java.lang.Thread.sleep(5000)
+        screen {
+            text {
+                hasText("Test")
+            }
+        }
+    }
+
+    @Test
+    fun testText10() {
+        java.lang.Thread.sleep(5000)
+        screen {
+            text {
+                hasText("Test")
+            }
+        }
+    }
+
+    @Test
+    fun testText11() {
+        java.lang.Thread.sleep(5000)
         screen {
             text {
                 hasText("Test")
