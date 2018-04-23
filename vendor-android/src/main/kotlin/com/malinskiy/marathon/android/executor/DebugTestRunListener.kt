@@ -10,38 +10,38 @@ class DebugTestRunListener(private val device: IDevice) : ITestRunListener {
     private val logger = KotlinLogging.logger("DebugTestRunListener")
 
     override fun testRunStarted(runName: String?, testCount: Int) {
-        logger.debug { "testRunStarted ${device.serialNumber}" }
+        logger.warn { "testRunStarted ${device.serialNumber}" }
     }
 
     override fun testStarted(test: TestIdentifier?) {
-        logger.debug { "testStarted ${device.serialNumber} test = $test" }
+        logger.warn { "testStarted ${device.serialNumber} test = $test" }
     }
 
     override fun testAssumptionFailure(test: TestIdentifier?, trace: String?) {
-        logger.debug { "testAssumptionFailure ${device.serialNumber} test = $test trace = $trace" }
+        logger.warn { "testAssumptionFailure ${device.serialNumber} test = $test trace = $trace" }
     }
 
     override fun testRunStopped(elapsedTime: Long) {
-        logger.debug { "testRunStopped ${device.serialNumber} elapsedTime = $elapsedTime" }
+        logger.warn { "testRunStopped ${device.serialNumber} elapsedTime = $elapsedTime" }
     }
 
     override fun testFailed(test: TestIdentifier?, trace: String?) {
-        logger.debug { "testFailed ${device.serialNumber} test = $test trace = $trace" }
+        logger.warn { "testFailed ${device.serialNumber} test = $test trace = $trace" }
     }
 
     override fun testEnded(test: TestIdentifier?, testMetrics: MutableMap<String, String>?) {
-        logger.debug { "testEnded ${device.serialNumber} test = $test" }
+        logger.warn { "testEnded ${device.serialNumber} test = $test" }
     }
 
     override fun testIgnored(test: TestIdentifier?) {
-        logger.debug { "testIgnored ${device.serialNumber} test = $test" }
+        logger.warn { "testIgnored ${device.serialNumber} test = $test" }
     }
 
     override fun testRunFailed(errorMessage: String?) {
-        logger.debug { "testRunFailed ${device.serialNumber} errorMessage = $errorMessage" }
+        logger.warn { "testRunFailed ${device.serialNumber} errorMessage = $errorMessage" }
     }
 
     override fun testRunEnded(elapsedTime: Long, runMetrics: MutableMap<String, String>?) {
-        logger.debug { "testRunEnded elapsedTime $elapsedTime" }
+        logger.warn { "testRunEnded elapsedTime $elapsedTime" }
     }
 }

@@ -7,13 +7,13 @@ import kotlinx.coroutines.experimental.channels.SendChannel
 import kotlinx.coroutines.experimental.channels.actor
 import kotlinx.coroutines.experimental.launch
 import kotlinx.coroutines.experimental.selects.SelectClause2
-import java.util.concurrent.ConcurrentLinkedQueue
-import java.util.concurrent.Executors
-import java.util.concurrent.Future
-import java.util.concurrent.TimeUnit
+import mu.KotlinLogging
+import java.util.concurrent.*
 
 class PoolTestExecutor(private val configuration: Configuration,
-                       private val tests : Collection<Test>) : SendChannel<PoolMessage> {
+                       private val tests: Collection<Test>) : SendChannel<PoolMessage> {
+
+    private val logger = KotlinLogging.logger("PoolTestExecutor")
 
     private val act = actor<PoolMessage> {
         for (msg in channel) {
@@ -44,17 +44,35 @@ class PoolTestExecutor(private val configuration: Configuration,
     private fun addDevice(msg: PoolMessage.AddDevice) {
         val device = msg.device
         launch {
+            logger.warn {
+                "before prepare device with serial ${device.serialNumber}"
+            }
             prepareDevice(device)
-            execute(device)
+            logger.warn {
+                "before execute device with serial ${device.serialNumber}"
+            }
+            execute(device, msg.complete)
         }
     }
 
-    private fun execute(device: Device) {
+    private fun execute(device: Device, complete: Phaser) {
         executor.submit {
-            while (queue.isNotEmpty()) {
-                queue.poll()?.run {
-                    device.execute(configuration, TestBatch(listOf(this)))
+            complete.register()
+            logger.warn { "Phaser.register" }
+            try {
+                logger.warn { "queue.isNotEmpty() = ${queue.isNotEmpty()}" }
+                while (queue.isNotEmpty()) {
+                    logger.warn { "queue.isNotEmpty() = ${queue.isNotEmpty()}" }
+                    queue.poll()?.run {
+                        device.execute(configuration, TestBatch(listOf(this)))
+                    }
                 }
+            } catch (throwable: Throwable) {
+                logger.error(throwable) { "failed" }
+                throw throwable
+            } finally {
+                logger.warn { "Phaser.arriveAndDeregister" }
+                complete.arriveAndDeregister()
             }
         }
     }

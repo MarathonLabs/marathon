@@ -6,6 +6,7 @@ import com.malinskiy.marathon.execution.DynamicPoolFactory
 import com.malinskiy.marathon.execution.TestParser
 import mu.KotlinLogging
 import java.util.*
+import java.util.concurrent.Phaser
 import java.util.concurrent.TimeUnit
 import kotlin.system.measureTimeMillis
 
@@ -22,13 +23,17 @@ class Marathon(val configuration: Configuration) {
 
         val tests = testParser.extract(configuration.testApplicationOutput)
 
-        val factory = DynamicPoolFactory(deviceProvider,configuration.poolingStrategy,configuration,tests)
+        val factory = DynamicPoolFactory(deviceProvider, configuration.poolingStrategy, configuration, tests)
 
+        val complete = Phaser()
         val timeMillis = measureTimeMillis {
-            factory.execute()
 
-            //TODO: remove debug sleep
-            Thread.sleep(50_000)
+            complete.register()
+            factory.execute(complete)
+
+            Thread.sleep(10_000)
+
+            complete.arriveAndAwaitAdvance()
             if (configuration.outputDir.exists()) {
                 log.info { "Output ${configuration.outputDir} already exists" }
                 configuration.outputDir.deleteRecursively()
