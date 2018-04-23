@@ -29,7 +29,7 @@ class PoolTestExecutor(private val configuration: Configuration,
 
     private val executor = Executors.newCachedThreadPool()
 
-    private val devices = mutableMapOf<String, Future<Void>>()
+    private val devices = mutableMapOf<String, Future<*>>()
 
     private fun terminate() {
         executor.shutdown()
@@ -56,7 +56,7 @@ class PoolTestExecutor(private val configuration: Configuration,
     }
 
     private fun execute(device: Device, complete: Phaser) {
-        executor.submit {
+        val future = executor.submit {
             complete.register()
             logger.warn { "Phaser.register" }
             try {
@@ -75,6 +75,7 @@ class PoolTestExecutor(private val configuration: Configuration,
                 complete.arriveAndDeregister()
             }
         }
+        devices.put(device.serialNumber,future)
     }
 
     private fun prepareDevice(device: Device) {
