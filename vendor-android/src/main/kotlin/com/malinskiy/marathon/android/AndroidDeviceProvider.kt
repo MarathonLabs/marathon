@@ -8,9 +8,13 @@ import com.malinskiy.marathon.device.DeviceProvider.DeviceEvent.*
 import com.malinskiy.marathon.vendor.VendorConfiguration
 import kotlinx.coroutines.experimental.channels.Channel
 import kotlinx.coroutines.experimental.runBlocking
+import mu.KotlinLogging
 import java.nio.file.Paths
 
 class AndroidDeviceProvider : DeviceProvider {
+
+    private val logger = KotlinLogging.logger("AndroidDeviceProvider")
+
     private lateinit var adb: AndroidDebugBridge
 
     private val channel = Channel<DeviceProvider.DeviceEvent>(50)
@@ -29,7 +33,7 @@ class AndroidDeviceProvider : DeviceProvider {
 
             override fun deviceConnected(device: IDevice?) {
                 device?.let {
-                    println("deviceConnected")
+                    logger.debug { "${it.serialNumber} Connected" }
                     runBlocking {
                         channel.send(DeviceConnected(AndroidDevice(it)))
                     }
@@ -38,7 +42,7 @@ class AndroidDeviceProvider : DeviceProvider {
 
             override fun deviceDisconnected(device: IDevice?) {
                 device?.let {
-                    println("deviceDisconnected")
+                    logger.debug { "${it.serialNumber} Disconnected" }
                     runBlocking {
                         channel.send(DeviceDisconnected(AndroidDevice(it)))
                     }
