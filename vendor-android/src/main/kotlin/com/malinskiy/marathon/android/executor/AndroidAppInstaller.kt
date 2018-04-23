@@ -7,7 +7,7 @@ import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.execution.withRetry
 import java.io.File
 
-class AndroidAppInstaller(val configuration: Configuration) {
+class AndroidAppInstaller(private val configuration: Configuration) {
     fun prepareInstallation(device: IDevice) {
         val applicationInfo = ApkParser().parseInstrumentationInfo(configuration.testApplicationOutput)
         reinstall(device, applicationInfo.applicationPackage, configuration.applicationOutput)
