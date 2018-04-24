@@ -45,7 +45,6 @@ class Marathon(val configuration: Configuration) {
 
         log.info { "Total time: ${hours}H ${minutes}m ${seconds}s" }
 
-        factory.terminate()
         deviceProvider.terminate()
 
         return false

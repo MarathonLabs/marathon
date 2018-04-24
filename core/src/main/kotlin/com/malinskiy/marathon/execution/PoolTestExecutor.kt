@@ -1,27 +1,30 @@
 package com.malinskiy.marathon.execution
 
+import com.malinskiy.marathon.aktor.Aktor
 import com.malinskiy.marathon.device.Device
 import com.malinskiy.marathon.test.Test
 import com.malinskiy.marathon.test.TestBatch
+import kotlinx.coroutines.experimental.asCoroutineDispatcher
 import kotlinx.coroutines.experimental.channels.SendChannel
 import kotlinx.coroutines.experimental.channels.actor
+import kotlinx.coroutines.experimental.delay
 import kotlinx.coroutines.experimental.launch
 import kotlinx.coroutines.experimental.selects.SelectClause2
 import mu.KotlinLogging
 import java.util.concurrent.*
 
 class PoolTestExecutor(private val configuration: Configuration,
-                       private val tests: Collection<Test>) : SendChannel<PoolMessage> {
+                       private val tests: Collection<Test>) : Aktor<PoolMessage>() {
+
 
     private val logger = KotlinLogging.logger("PoolTestExecutor")
 
-    private val act = actor<PoolMessage> {
-        for (msg in channel) {
-            when (msg) {
-                is PoolMessage.AddDevice -> addDevice(msg)
-                is PoolMessage.RemoveDevice -> removeDevice(msg)
-                is PoolMessage.Terminate -> terminate()
-            }
+    override suspend fun receive(msg: PoolMessage) {
+        when (msg) {
+            is PoolMessage.Initialize -> initialize()
+            is PoolMessage.AddDevice -> addDevice(msg)
+            is PoolMessage.RemoveDevice -> removeDevice(msg)
+            is PoolMessage.Terminate -> terminate()
         }
     }
 
@@ -32,8 +35,24 @@ class PoolTestExecutor(private val configuration: Configuration,
     private val devices = mutableMapOf<String, Future<*>>()
 
     private fun terminate() {
+        logger.error { "PoolTestExecutor.terminate" }
         executor.shutdown()
         executor.awaitTermination(30, TimeUnit.SECONDS)
+        close()
+    }
+
+    private fun initialize() {
+        launch {
+            delay(500)
+            val checkDevices = { !devices.values.all { it.isDone or it.isCancelled } }
+            while (checkDevices()) {
+                devices.forEach { t, u ->
+                    logger.error("$t = ${u.isDone}")
+                }
+                delay(1_000)
+            }
+            terminate()
+        }
     }
 
     private fun removeDevice(msg: PoolMessage.RemoveDevice) {
@@ -43,55 +62,27 @@ class PoolTestExecutor(private val configuration: Configuration,
 
     private fun addDevice(msg: PoolMessage.AddDevice) {
         val device = msg.device
-        launch {
-            logger.warn {
-                "before prepare device with serial ${device.serialNumber}"
-            }
+        launch(executor.asCoroutineDispatcher()) {
             prepareDevice(device)
-            logger.warn {
-                "before execute device with serial ${device.serialNumber}"
-            }
-            execute(device, msg.complete)
+            execute(device)
         }
     }
 
-    private fun execute(device: Device, complete: Phaser) {
-        val future = executor.submit {
-            complete.register()
-            logger.warn { "Phaser.register" }
-            try {
-                logger.warn { "queue.isNotEmpty() = ${queue.isNotEmpty()}" }
-                while (queue.isNotEmpty()) {
-                    logger.warn { "queue.isNotEmpty() = ${queue.isNotEmpty()}" }
-                    queue.poll()?.run {
-                        device.execute(configuration, TestBatch(listOf(this)))
-                    }
+    private fun execute(device: Device) {
+        try {
+            while (queue.isNotEmpty()) {
+                queue.poll()?.run {
+                    logger.warn { "device = ${device.serialNumber} Thread.currentThread()  = ${Thread.currentThread()}" }
+                    device.execute(configuration, TestBatch(listOf(this)))
                 }
-            } catch (throwable: Throwable) {
-                logger.error(throwable) { "failed" }
-                throw throwable
-            } finally {
-                logger.warn { "Phaser.arriveAndDeregister" }
-                complete.arriveAndDeregister()
             }
+        } catch (throwable: Throwable) {
+            logger.error(throwable) { "failed" }
+            throw throwable
         }
-        devices.put(device.serialNumber,future)
     }
 
     private fun prepareDevice(device: Device) {
         device.prepare(configuration)
     }
-
-    override val isClosedForSend: Boolean
-        get() = act.isClosedForSend
-    override val isFull: Boolean
-        get() = act.isFull
-    override val onSend: SelectClause2<PoolMessage, SendChannel<PoolMessage>>
-        get() = act.onSend
-
-    override fun close(cause: Throwable?) = act.close(cause)
-
-    override fun offer(element: PoolMessage) = act.offer(element)
-
-    override suspend fun send(element: PoolMessage) = act.send(element)
 }
