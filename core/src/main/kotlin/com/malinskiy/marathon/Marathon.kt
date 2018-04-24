@@ -7,7 +7,6 @@ import com.malinskiy.marathon.execution.TestParser
 import kotlinx.coroutines.experimental.runBlocking
 import mu.KotlinLogging
 import java.util.*
-import java.util.concurrent.Phaser
 import java.util.concurrent.TimeUnit
 import kotlin.system.measureTimeMillis
 
