@@ -36,7 +36,9 @@ class DynamicPoolFactory(deviceProvider: DeviceProvider,
 
         launch {
             delay(10_000)
-            val checkActors = { !pools.values.all { it.isClosedForSend } }
+            val checkActors = {
+                !pools.values.all { it.isClosedForSend }
+            }
             while (checkActors()) {
                 delay(1_000)
             }
@@ -46,37 +48,26 @@ class DynamicPoolFactory(deviceProvider: DeviceProvider,
     fun terminate() {
         pools.values.forEach {
             runBlocking {
-                if(!it.isClosedForSend) {
+                if (!it.isClosedForSend) {
                     it.send(PoolMessage.Terminate)
                 }
             }
         }
     }
 
-    private fun onDeviceDisconnected(item: DeviceProvider.DeviceEvent.DeviceDisconnected) {
-        runBlocking {
-            pools.values.forEach {
-                it.send(PoolMessage.RemoveDevice(item.device))
-            }
+    private suspend fun onDeviceDisconnected(item: DeviceProvider.DeviceEvent.DeviceDisconnected) {
+        pools.values.forEach {
+            it.send(PoolMessage.RemoveDevice(item.device))
         }
     }
 
-    private fun onDeviceConnected(item: DeviceProvider.DeviceEvent.DeviceConnected) {
+    private suspend fun onDeviceConnected(item: DeviceProvider.DeviceEvent.DeviceConnected) {
         val pools = poolingStrategy.createPools(listOf(item.device))
         pools.forEach {
-            this.pools.computeIfAbsent(it.name, { _ ->
-                PoolTestExecutor(configuration, list).also {
-                    runBlocking {
-                        it.send(PoolMessage.Initialize)
-                    }
-                }
+            this.pools.computeIfAbsent(it.name, { name ->
+                PoolTestExecutor(name, configuration, list)
             })
-            this.pools.computeIfPresent(it.name, { _, u ->
-                runBlocking {
-                    u.send(PoolMessage.AddDevice(item.device))
-                }
-                u
-            })
+            this.pools[it.name]?.send(PoolMessage.AddDevice(item.device))
         }
     }
 }

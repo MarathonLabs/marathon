@@ -4,16 +4,16 @@ import com.malinskiy.marathon.aktor.Aktor
 import com.malinskiy.marathon.device.Device
 import com.malinskiy.marathon.test.Test
 import com.malinskiy.marathon.test.TestBatch
-import kotlinx.coroutines.experimental.asCoroutineDispatcher
+import kotlinx.coroutines.experimental.*
 import kotlinx.coroutines.experimental.channels.SendChannel
 import kotlinx.coroutines.experimental.channels.actor
-import kotlinx.coroutines.experimental.delay
-import kotlinx.coroutines.experimental.launch
 import kotlinx.coroutines.experimental.selects.SelectClause2
 import mu.KotlinLogging
+import java.lang.RuntimeException
 import java.util.concurrent.*
 
-class PoolTestExecutor(private val configuration: Configuration,
+class PoolTestExecutor(private val poolName: String,
+                       private val configuration: Configuration,
                        private val tests: Collection<Test>) : Aktor<PoolMessage>() {
 
 
@@ -32,57 +32,53 @@ class PoolTestExecutor(private val configuration: Configuration,
 
     private val executor = Executors.newCachedThreadPool()
 
-    private val devices = mutableMapOf<String, Future<*>>()
+    private val devices = mutableMapOf<String, Job>()
+
+    private var initialized = false
 
     private fun terminate() {
-        logger.error { "PoolTestExecutor.terminate" }
+        close()
         executor.shutdown()
         executor.awaitTermination(30, TimeUnit.SECONDS)
-        close()
     }
 
     private fun initialize() {
-        launch {
-            delay(500)
-            val checkDevices = { !devices.values.all { it.isDone or it.isCancelled } }
-            while (checkDevices()) {
-                devices.forEach { t, u ->
-                    logger.error("$t = ${u.isDone}")
+        if (!initialized) {
+            launch {
+                delay(1000)
+                val checkDevices = { devices.values.any { it.isActive } }
+                while (checkDevices()) {
+                    delay(1_000)
                 }
-                delay(1_000)
+                terminate()
             }
-            terminate()
+            initialized = true
         }
     }
 
     private fun removeDevice(msg: PoolMessage.RemoveDevice) {
-        val future = devices.remove(msg.device.serialNumber)
-        future?.cancel(true)
+        val job = devices.remove(msg.device.serialNumber)
+        job?.cancel()
     }
+
+    private val deviceDispatcher = executor.asCoroutineDispatcher();
 
     private fun addDevice(msg: PoolMessage.AddDevice) {
         val device = msg.device
-        launch(executor.asCoroutineDispatcher()) {
-            prepareDevice(device)
-            execute(device)
-        }
-    }
-
-    private fun execute(device: Device) {
-        try {
-            while (queue.isNotEmpty()) {
-                queue.poll()?.run {
-                    logger.warn { "device = ${device.serialNumber} Thread.currentThread()  = ${Thread.currentThread()}" }
-                    device.execute(configuration, TestBatch(listOf(this)))
+        devices[device.serialNumber] = launch(deviceDispatcher) {
+            device.prepare(configuration)
+            try {
+                while (queue.isNotEmpty() && isActive) {
+                    queue.poll()?.run {
+                        logger.warn { "device = ${device.serialNumber} Thread.currentThread()  = ${Thread.currentThread()}" }
+                        device.execute(configuration, TestBatch(listOf(this)))
+                    }
                 }
+            } catch (throwable: Throwable) {
+                logger.error(throwable) { "failed" }
+                throw throwable
             }
-        } catch (throwable: Throwable) {
-            logger.error(throwable) { "failed" }
-            throw throwable
         }
-    }
-
-    private fun prepareDevice(device: Device) {
-        device.prepare(configuration)
+        initialize()
     }
 }
