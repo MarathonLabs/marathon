@@ -1,4 +1,4 @@
-package com.malinskiy.marathon.android.executor
+package com.malinskiy.marathon.android.executor.listeners
 
 import com.android.ddmlib.IDevice
 import com.android.ddmlib.testrunner.ITestRunListener
