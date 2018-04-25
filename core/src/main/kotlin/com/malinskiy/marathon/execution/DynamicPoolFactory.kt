@@ -4,10 +4,10 @@ import com.malinskiy.marathon.device.DeviceProvider
 import com.malinskiy.marathon.execution.strategy.PoolingStrategy
 import com.malinskiy.marathon.test.Test
 import kotlinx.coroutines.experimental.channels.SendChannel
+import kotlinx.coroutines.experimental.delay
 import kotlinx.coroutines.experimental.launch
 import kotlinx.coroutines.experimental.runBlocking
 import mu.KotlinLogging
-import java.util.concurrent.Phaser
 
 class DynamicPoolFactory(deviceProvider: DeviceProvider,
                          private val poolingStrategy: PoolingStrategy,
@@ -18,49 +18,56 @@ class DynamicPoolFactory(deviceProvider: DeviceProvider,
 
     private val channel = deviceProvider.subscribe()
 
-    private val actors = mutableMapOf<String, SendChannel<PoolMessage>>()
+    private val pools = mutableMapOf<String, SendChannel<PoolMessage>>()
 
-    fun execute(complete: Phaser) {
+    suspend fun execute() {
         launch {
             for (msg in channel) {
                 when (msg) {
                     is DeviceProvider.DeviceEvent.DeviceConnected -> {
-                        onDeviceConnected(msg, complete)
+                        onDeviceConnected(msg)
                     }
                     is DeviceProvider.DeviceEvent.DeviceDisconnected -> {
-                        onDeviceDisconnected(msg, complete)
+                        onDeviceDisconnected(msg)
                     }
                 }
             }
         }
+
+        launch {
+            delay(10_000)
+            val checkActors = {
+                !pools.values.all { it.isClosedForSend }
+            }
+            while (checkActors()) {
+                delay(1_000)
+            }
+        }.join()
     }
 
     fun terminate() {
-        actors.values.forEach {
+        pools.values.forEach {
             runBlocking {
-                it.send(PoolMessage.Terminate)
+                if (!it.isClosedForSend) {
+                    it.send(PoolMessage.Terminate)
+                }
             }
         }
     }
 
-    private fun onDeviceDisconnected(item: DeviceProvider.DeviceEvent.DeviceDisconnected, complete: Phaser) {
-        runBlocking {
-            actors.values.forEach {
-                it.send(PoolMessage.RemoveDevice(item.device, complete))
-            }
+    private suspend fun onDeviceDisconnected(item: DeviceProvider.DeviceEvent.DeviceDisconnected) {
+        pools.values.forEach {
+            it.send(PoolMessage.RemoveDevice(item.device))
         }
     }
 
-    private fun onDeviceConnected(item: DeviceProvider.DeviceEvent.DeviceConnected, complete: Phaser) {
+    private suspend fun onDeviceConnected(item: DeviceProvider.DeviceEvent.DeviceConnected) {
         val pools = poolingStrategy.createPools(listOf(item.device))
         pools.forEach {
-            actors.computeIfAbsent(it.name, { _ -> PoolTestExecutor(configuration, list) })
-            actors.computeIfPresent(it.name, { _, u ->
-                runBlocking {
-                    u.send(PoolMessage.AddDevice(item.device, complete))
-                }
-                u
+            this.pools.computeIfAbsent(it.name, { name ->
+                PoolTestExecutor(name, configuration, list)
             })
+            this.pools[it.name]?.send(PoolMessage.AddDevice(item.device))
         }
     }
 }
