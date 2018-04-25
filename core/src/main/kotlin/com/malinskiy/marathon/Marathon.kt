@@ -2,7 +2,7 @@ package com.malinskiy.marathon
 
 import com.malinskiy.marathon.device.DeviceProvider
 import com.malinskiy.marathon.execution.Configuration
-import com.malinskiy.marathon.execution.DynamicPoolFactory
+import com.malinskiy.marathon.execution.Scheduler
 import com.malinskiy.marathon.execution.TestParser
 import kotlinx.coroutines.experimental.runBlocking
 import mu.KotlinLogging
@@ -23,12 +23,12 @@ class Marathon(val configuration: Configuration) {
 
         val tests = testParser.extract(configuration.testApplicationOutput)
 
-        val factory = DynamicPoolFactory(deviceProvider, configuration.poolingStrategy, configuration, tests)
+        val scheduler = Scheduler(deviceProvider, configuration.poolingStrategy, configuration, tests)
 
         val timeMillis = measureTimeMillis {
 
             runBlocking {
-                factory.execute()
+                scheduler.execute()
             }
 
             if (configuration.outputDir.exists()) {
