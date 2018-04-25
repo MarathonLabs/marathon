@@ -6,6 +6,7 @@ data class MarathonPluginConfiguration @JvmOverloads constructor(
         val name: String,
 
         var poolingStrategy: PoolingStrategy? = null,
+        var shardingStrategy: ShardingStrategy? = null,
         var sortingStrategy: SortingStrategy? = null,
         var batchingStrategy: BatchingStrategy? = null,
         var flakinessStrategy: FlakinessStrategy? = null,

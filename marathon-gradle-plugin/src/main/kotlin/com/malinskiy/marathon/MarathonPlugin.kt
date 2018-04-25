@@ -89,6 +89,7 @@ class MarathonPlugin : Plugin<Project> {
                             applicationApk,
                             instrumentationApk,
                             config.poolingStrategy,
+                            config.shardingStrategy,
                             config.sortingStrategy,
                             config.batchingStrategy,
                             config.flakinessStrategy,

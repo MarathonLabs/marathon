@@ -13,6 +13,7 @@ data class Configuration constructor(
         val testApplicationOutput: File,
 
         val poolingStrategy: PoolingStrategy,
+        val shardingStrategy: ShardingStrategy,
         val sortingStrategy: SortingStrategy,
         val batchingStrategy: BatchingStrategy,
         val flakinessStrategy: FlakinessStrategy,
@@ -40,6 +41,7 @@ data class Configuration constructor(
                 testApplicationOutput: File,
 
                 poolingStrategy: PoolingStrategy?,
+                shardingStrategy: ShardingStrategy?,
                 sortingStrategy: SortingStrategy?,
                 batchingStrategy: BatchingStrategy?,
                 flakinessStrategy: FlakinessStrategy?,
@@ -66,6 +68,7 @@ data class Configuration constructor(
                     applicationOutput = applicationOutput,
                     testApplicationOutput = testApplicationOutput,
                     poolingStrategy = poolingStrategy ?: OmniPoolingStrategy(),
+                    shardingStrategy = shardingStrategy ?: ParallelShardingStrategy(),
                     sortingStrategy = sortingStrategy ?: NoSortingStrategy(),
                     batchingStrategy = batchingStrategy ?: IsolateBatchingStrategy(),
                     flakinessStrategy = flakinessStrategy ?: IgnoreFlakinessStrategy(),
