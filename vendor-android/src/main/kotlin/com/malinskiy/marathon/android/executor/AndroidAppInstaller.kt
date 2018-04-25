@@ -13,6 +13,7 @@ class AndroidAppInstaller(private val configuration: Configuration) {
 
     private val logger = KotlinLogging.logger("AndroidAppInstaller")
 
+    //TODO: move InstrumentationInfo to Configuration
     fun prepareInstallation(device: IDevice) {
         val applicationInfo = ApkParser().parseInstrumentationInfo(configuration.testApplicationOutput)
         reinstall(device, applicationInfo.applicationPackage, configuration.applicationOutput)
