@@ -8,7 +8,7 @@ import org.jetbrains.spek.api.dsl.it
 import org.jetbrains.spek.api.dsl.on
 import java.io.File
 
-class AndroidTestParserTest : Spek({
+class AndroidTestParserSpek : Spek({
     describe("android test parser") {
         val parser = AndroidTestParser()
 
