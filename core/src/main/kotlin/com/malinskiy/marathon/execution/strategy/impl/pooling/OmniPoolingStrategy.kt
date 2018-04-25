@@ -1,4 +1,4 @@
-package com.malinskiy.marathon.execution.strategy.impl
+package com.malinskiy.marathon.execution.strategy.impl.pooling
 
 import com.malinskiy.marathon.device.Device
 import com.malinskiy.marathon.device.DevicePool

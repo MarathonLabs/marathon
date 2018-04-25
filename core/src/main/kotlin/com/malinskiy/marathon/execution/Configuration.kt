@@ -2,6 +2,7 @@ package com.malinskiy.marathon.execution
 
 import com.malinskiy.marathon.execution.strategy.*
 import com.malinskiy.marathon.execution.strategy.impl.*
+import com.malinskiy.marathon.execution.strategy.impl.pooling.OmniPoolingStrategy
 import com.malinskiy.marathon.vendor.VendorConfiguration
 import java.io.File
 
