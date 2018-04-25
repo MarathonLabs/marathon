@@ -60,13 +60,6 @@ class AndroidDeviceProvider : DeviceProvider {
 
     override fun subscribe() = channel
 
-    override fun getDevices(): List<Device> {
-        TODO()
-//        return adb.devices.map {
-//            AndroidDevice(it)
-//        }
-    }
-
     override fun lockDevice(device: Device): Boolean {
         TODO("not implemented")
     }
