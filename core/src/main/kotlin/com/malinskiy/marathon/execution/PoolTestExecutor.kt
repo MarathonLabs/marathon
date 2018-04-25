@@ -2,6 +2,7 @@ package com.malinskiy.marathon.execution
 
 import com.malinskiy.marathon.aktor.Aktor
 import com.malinskiy.marathon.device.Device
+import com.malinskiy.marathon.healthCheck
 import com.malinskiy.marathon.test.Test
 import com.malinskiy.marathon.test.TestBatch
 import kotlinx.coroutines.experimental.*
@@ -15,7 +16,6 @@ import java.util.concurrent.*
 class PoolTestExecutor(private val poolName: String,
                        private val configuration: Configuration,
                        private val tests: Collection<Test>) : Aktor<PoolMessage>() {
-
 
     private val logger = KotlinLogging.logger("PoolTestExecutor")
 
@@ -44,12 +44,9 @@ class PoolTestExecutor(private val poolName: String,
 
     private fun initialize() {
         if (!initialized) {
-            launch {
-                delay(1000)
-                val checkDevices = { devices.values.any { it.isActive } }
-                while (checkDevices()) {
-                    delay(1_000)
-                }
+            healthCheck(1_000, 1_000) {
+                devices.values.any { it.isActive }
+            }.invokeOnCompletion {
                 terminate()
             }
             initialized = true

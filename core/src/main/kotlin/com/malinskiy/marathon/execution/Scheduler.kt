@@ -2,11 +2,11 @@ package com.malinskiy.marathon.execution
 
 import com.malinskiy.marathon.device.DeviceProvider
 import com.malinskiy.marathon.execution.strategy.PoolingStrategy
+import com.malinskiy.marathon.healthCheck
 import com.malinskiy.marathon.test.Test
 import kotlinx.coroutines.experimental.channels.SendChannel
 import kotlinx.coroutines.experimental.delay
 import kotlinx.coroutines.experimental.launch
-import kotlinx.coroutines.experimental.runBlocking
 import mu.KotlinLogging
 
 
@@ -30,18 +30,14 @@ class Scheduler(private val deviceProvider: DeviceProvider,
     private val pools = mutableMapOf<String, SendChannel<PoolMessage>>()
 
     suspend fun execute() {
-        launch {
-            delay(10_000)
-            val checkActors = {
-                !pools.values.all { it.isClosedForSend }
-            }
-            while (checkActors()) {
-                delay(1_000)
-            }
+        subscribeOnDevices()
+        healthCheck(10_000, 1_000) {
+            !pools.values.all { it.isClosedForSend }
         }.join()
     }
 
-    private fun subscribeOnDevice() {
+
+    private fun subscribeOnDevices() {
         launch {
             for (msg in deviceProvider.subscribe()) {
                 when (msg) {
@@ -51,16 +47,6 @@ class Scheduler(private val deviceProvider: DeviceProvider,
                     is DeviceProvider.DeviceEvent.DeviceDisconnected -> {
                         onDeviceDisconnected(msg)
                     }
-                }
-            }
-        }
-    }
-
-    fun terminate() {
-        pools.values.forEach {
-            runBlocking {
-                if (!it.isClosedForSend) {
-                    it.send(PoolMessage.Terminate)
                 }
             }
         }
