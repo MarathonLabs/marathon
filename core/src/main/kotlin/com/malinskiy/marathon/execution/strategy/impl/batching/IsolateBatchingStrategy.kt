@@ -1,4 +1,4 @@
-package com.malinskiy.marathon.execution.strategy.impl
+package com.malinskiy.marathon.execution.strategy.impl.batching
 
 import com.malinskiy.marathon.execution.TestShard
 import com.malinskiy.marathon.execution.strategy.BatchingStrategy

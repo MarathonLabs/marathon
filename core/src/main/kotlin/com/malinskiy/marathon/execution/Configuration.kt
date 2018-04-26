@@ -1,8 +1,12 @@
 package com.malinskiy.marathon.execution
 
 import com.malinskiy.marathon.execution.strategy.*
-import com.malinskiy.marathon.execution.strategy.impl.*
+import com.malinskiy.marathon.execution.strategy.impl.batching.IsolateBatchingStrategy
+import com.malinskiy.marathon.execution.strategy.impl.flakiness.IgnoreFlakinessStrategy
 import com.malinskiy.marathon.execution.strategy.impl.pooling.OmniPoolingStrategy
+import com.malinskiy.marathon.execution.strategy.impl.retry.NoRetryStrategy
+import com.malinskiy.marathon.execution.strategy.impl.sharding.ParallelShardingStrategy
+import com.malinskiy.marathon.execution.strategy.impl.sorting.NoSortingStrategy
 import com.malinskiy.marathon.vendor.VendorConfiguration
 import java.io.File
 

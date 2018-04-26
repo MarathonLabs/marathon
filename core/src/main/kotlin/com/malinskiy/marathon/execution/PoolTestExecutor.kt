@@ -58,7 +58,7 @@ class PoolTestExecutor(private val poolName: String,
         job?.cancel()
     }
 
-    private val deviceDispatcher = executor.asCoroutineDispatcher();
+    private val deviceDispatcher = executor.asCoroutineDispatcher()
 
     private fun addDevice(msg: PoolMessage.AddDevice) {
         val device = msg.device

@@ -1,4 +1,4 @@
-package com.malinskiy.marathon.execution.strategy.impl
+package com.malinskiy.marathon.execution.strategy.impl.sharding
 
 import com.malinskiy.marathon.device.DevicePool
 import com.malinskiy.marathon.execution.TestShard
