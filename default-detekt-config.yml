@@ -20,9 +20,7 @@ test-pattern: # Configure exclusions for test sources
     - 'TooManyFunctions'
 
 build:
-  warningThreshold: 5
-  failThreshold: 10
-  maxIssues: 10
+  maxIssues: 150
   weights:
     # complexity: 2
     # LongParameterList: 1

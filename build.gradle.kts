@@ -1,3 +1,5 @@
+import io.gitlab.arturbosch.detekt.extensions.DetektExtension
+
 buildscript {
     repositories {
         jcenter()
@@ -10,8 +12,22 @@ buildscript {
     }
 }
 
+
 plugins {
     id("io.gitlab.arturbosch.detekt") version "1.0.0.RC6-4"
+}
+
+configure<DetektExtension>{
+    debug = true
+    version = "1.0.0.RC6-4"
+    profile = "main"
+
+    profile("main", Action {
+        input = rootProject.projectDir.absolutePath
+        filters = ".*/resources/.*, .*/build/.*"
+        config = "${rootProject.projectDir}/default-detekt-config.yml"
+        baseline = "${rootProject.projectDir}/reports/baseline.xml"
+    })
 }
 
 allprojects {
