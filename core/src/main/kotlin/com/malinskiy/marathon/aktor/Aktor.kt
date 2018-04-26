@@ -6,7 +6,7 @@ import kotlinx.coroutines.experimental.selects.SelectClause2
 
 abstract class Aktor<T> : SendChannel<T> {
 
-    abstract suspend fun receive(msg: T)
+    protected abstract suspend fun receive(msg: T)
 
     private val delegate = actor<T> {
         for (msg in channel) {
