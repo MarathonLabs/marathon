@@ -9,7 +9,6 @@ import kotlinx.coroutines.experimental.channels.SendChannel
 import kotlinx.coroutines.experimental.launch
 import mu.KotlinLogging
 
-
 /**
  * The logic of scheduler
  *
@@ -20,6 +19,7 @@ import mu.KotlinLogging
  * 5. Batching:     TestBatch into manageable chunks
  * 6. Retries:      Retry if something fails and we didn't account for it in the flakiness
  */
+
 class Scheduler(private val deviceProvider: DeviceProvider,
                 private val poolingStrategy: PoolingStrategy,
                 private val configuration: Configuration,
@@ -29,13 +29,16 @@ class Scheduler(private val deviceProvider: DeviceProvider,
 
     private val pools = mutableMapOf<DevicePoolId, SendChannel<PoolMessage>>()
 
+    companion object {
+        private const val DEFAULT_INITIAL_DELAY_MILLIS = 10_000L
+    }
+
     suspend fun execute() {
         subscribeOnDevices()
-        healthCheck(10_000, 1_000) {
+        healthCheck(startDelay = DEFAULT_INITIAL_DELAY_MILLIS) {
             !pools.values.all { it.isClosedForSend }
         }.join()
     }
-
 
     private fun subscribeOnDevices() {
         launch {
@@ -60,7 +63,7 @@ class Scheduler(private val deviceProvider: DeviceProvider,
 
     private suspend fun onDeviceConnected(item: DeviceProvider.DeviceEvent.DeviceConnected) {
         val poolId = poolingStrategy.associate(item.device)
-        pools.computeIfAbsent(poolId, { id -> PoolTestExecutor(id.name, configuration, list) })
+        pools.computeIfAbsent(poolId, { id -> PoolTestExecutor(id, configuration, list) })
         pools[poolId]?.send(PoolMessage.AddDevice(item.device))
     }
 }

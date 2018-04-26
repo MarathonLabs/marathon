@@ -5,7 +5,7 @@ import com.malinskiy.marathon.execution.strategy.BatchingStrategy
 import com.malinskiy.marathon.test.TestBatch
 
 class IsolateBatchingStrategy : BatchingStrategy {
-    override fun process(testShards: Collection<TestShard>): Collection<TestBatch> {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    override fun process(testShards: Collection<TestShard>): Collection<TestBatch> = testShards.flatMap {
+        it.tests.map { TestBatch(listOf(it)) }
     }
 }

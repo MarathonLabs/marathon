@@ -1,19 +1,15 @@
 package com.malinskiy.marathon.execution
 
 import com.malinskiy.marathon.aktor.Aktor
-import com.malinskiy.marathon.device.Device
+import com.malinskiy.marathon.device.DevicePoolId
 import com.malinskiy.marathon.healthCheck
 import com.malinskiy.marathon.test.Test
 import com.malinskiy.marathon.test.TestBatch
 import kotlinx.coroutines.experimental.*
-import kotlinx.coroutines.experimental.channels.SendChannel
-import kotlinx.coroutines.experimental.channels.actor
-import kotlinx.coroutines.experimental.selects.SelectClause2
 import mu.KotlinLogging
-import java.lang.RuntimeException
 import java.util.concurrent.*
 
-class PoolTestExecutor(private val poolName: String,
+class PoolTestExecutor(private val poolId: DevicePoolId,
                        private val configuration: Configuration,
                        private val tests: Collection<Test>) : Aktor<PoolMessage>() {
 
@@ -44,7 +40,7 @@ class PoolTestExecutor(private val poolName: String,
 
     private fun initialize() {
         if (!initialized) {
-            healthCheck(1_000, 1_000) {
+            healthCheck {
                 devices.values.any { it.isActive }
             }.invokeOnCompletion {
                 terminate()
@@ -67,7 +63,7 @@ class PoolTestExecutor(private val poolName: String,
             try {
                 while (queue.isNotEmpty() && isActive) {
                     queue.poll()?.run {
-                        logger.warn { "device = ${device.serialNumber} Pool = $poolName" }
+                        logger.warn { "device = ${device.serialNumber} Pool = $poolId" }
                         device.execute(configuration, TestBatch(listOf(this)))
                     }
                 }
