@@ -1,11 +1,11 @@
 package com.malinskiy.marathon.execution
 
+import com.malinskiy.marathon.device.DevicePoolId
 import com.malinskiy.marathon.device.DeviceProvider
 import com.malinskiy.marathon.execution.strategy.PoolingStrategy
 import com.malinskiy.marathon.healthCheck
 import com.malinskiy.marathon.test.Test
 import kotlinx.coroutines.experimental.channels.SendChannel
-import kotlinx.coroutines.experimental.delay
 import kotlinx.coroutines.experimental.launch
 import mu.KotlinLogging
 
@@ -27,7 +27,7 @@ class Scheduler(private val deviceProvider: DeviceProvider,
 
     private val logger = KotlinLogging.logger("DynamicPoolFactory")
 
-    private val pools = mutableMapOf<String, SendChannel<PoolMessage>>()
+    private val pools = mutableMapOf<DevicePoolId, SendChannel<PoolMessage>>()
 
     suspend fun execute() {
         subscribeOnDevices()
@@ -59,12 +59,8 @@ class Scheduler(private val deviceProvider: DeviceProvider,
     }
 
     private suspend fun onDeviceConnected(item: DeviceProvider.DeviceEvent.DeviceConnected) {
-        val pools = poolingStrategy.createPools(listOf(item.device))
-        pools.forEach {
-            this.pools.computeIfAbsent(it.name, { name ->
-                PoolTestExecutor(name, configuration, list)
-            })
-            this.pools[it.name]?.send(PoolMessage.AddDevice(item.device))
-        }
+        val poolId = poolingStrategy.associate(item.device)
+        pools.computeIfAbsent(poolId, { id -> PoolTestExecutor(id.name, configuration, list) })
+        pools[poolId]?.send(PoolMessage.AddDevice(item.device))
     }
 }

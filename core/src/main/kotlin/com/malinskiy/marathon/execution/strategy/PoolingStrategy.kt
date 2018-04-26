@@ -1,10 +1,8 @@
 package com.malinskiy.marathon.execution.strategy
 
 import com.malinskiy.marathon.device.Device
-import com.malinskiy.marathon.device.DeviceProvider
-import com.malinskiy.marathon.device.DevicePool
+import com.malinskiy.marathon.device.DevicePoolId
 
 interface PoolingStrategy {
-
-    fun createPools(devices: List<Device>): Collection<DevicePool>
+    fun associate(device: Device): DevicePoolId
 }

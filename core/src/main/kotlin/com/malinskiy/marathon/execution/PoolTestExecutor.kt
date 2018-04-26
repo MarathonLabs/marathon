@@ -67,7 +67,7 @@ class PoolTestExecutor(private val poolName: String,
             try {
                 while (queue.isNotEmpty() && isActive) {
                     queue.poll()?.run {
-                        logger.warn { "device = ${device.serialNumber} Thread.currentThread()  = ${Thread.currentThread()}" }
+                        logger.warn { "device = ${device.serialNumber} Pool = $poolName" }
                         device.execute(configuration, TestBatch(listOf(this)))
                     }
                 }
