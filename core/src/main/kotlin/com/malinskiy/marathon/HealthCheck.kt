@@ -4,9 +4,9 @@ import kotlinx.coroutines.experimental.Job
 import kotlinx.coroutines.experimental.delay
 import kotlinx.coroutines.experimental.launch
 
-fun healthCheck(startDelay: Int, tickDelay: Int, f: () -> Boolean): Job = launch {
+fun healthCheck(startDelay: Int, tickDelay: Int, condition: () -> Boolean): Job = launch {
     delay(startDelay)
-    while (f()) {
+    while (condition()) {
         delay(tickDelay)
     }
 }
