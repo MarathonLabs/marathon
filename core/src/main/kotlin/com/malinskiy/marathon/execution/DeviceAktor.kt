@@ -7,11 +7,9 @@ import kotlinx.coroutines.experimental.Job
 import kotlinx.coroutines.experimental.launch
 import kotlinx.coroutines.experimental.newFixedThreadPoolContext
 
-class DeviceAktor(
-    private val pool: Aktor<DevicePoolMessage>,
-    private val configuration: Configuration,
-    private val device: Device
-) : Aktor<DeviceMessage>() {
+class DeviceAktor(private val pool: Aktor<DevicePoolMessage>,
+                  private val configuration: Configuration,
+                  private val device: Device) : Aktor<DeviceMessage>() {
 
     override suspend fun receive(msg: DeviceMessage) {
         when (msg) {

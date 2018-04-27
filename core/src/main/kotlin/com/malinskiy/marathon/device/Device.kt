@@ -15,3 +15,4 @@ interface Device {
     fun execute(configuration: Configuration, testBatch: TestBatch)
     fun prepare(configuration: Configuration)
 }
+

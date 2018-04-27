@@ -10,8 +10,9 @@ interface DeviceProvider {
     }
 
     fun initialize(vendorConfiguration: VendorConfiguration)
-    fun subscribe(): Channel<DeviceEvent>
-    fun lockDevice(device: Device): Boolean
-    fun unlockDevice(device: Device): Boolean
+    fun subscribe() : Channel<DeviceEvent>
+    fun lockDevice(device: Device) : Boolean
+    fun unlockDevice(device: Device) : Boolean
     fun terminate()
+
 }

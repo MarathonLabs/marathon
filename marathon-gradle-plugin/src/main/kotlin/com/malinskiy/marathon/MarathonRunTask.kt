@@ -26,6 +26,7 @@ open class MarathonRunTask : DefaultTask(), VerificationTask {
         if (!success && !cnf.ignoreFailures) {
             throw GradleException("Tests failed! See ${cnf.outputDir}/html/index.html")
         }
+
     }
 
     override fun getIgnoreFailures(): Boolean {

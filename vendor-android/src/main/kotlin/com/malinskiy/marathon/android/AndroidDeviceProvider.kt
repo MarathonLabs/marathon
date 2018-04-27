@@ -8,6 +8,7 @@ import com.malinskiy.marathon.device.DeviceProvider.DeviceEvent.*
 import com.malinskiy.marathon.vendor.VendorConfiguration
 import kotlinx.coroutines.experimental.channels.Channel
 import kotlinx.coroutines.experimental.launch
+import kotlinx.coroutines.experimental.runBlocking
 import mu.KotlinLogging
 import java.nio.file.Paths
 
