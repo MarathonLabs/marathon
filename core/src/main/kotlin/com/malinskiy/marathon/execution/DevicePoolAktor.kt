@@ -16,7 +16,6 @@ class DevicePoolAktor(private val poolId: DevicePoolId,
 
     override suspend fun receive(msg: PoolMessage) {
         when (msg) {
-            is PoolMessage.Initialize -> initializeHealthCheck()
             is PoolMessage.AddDevice -> addDevice(msg)
             is PoolMessage.TestExecutionFinished -> testExecutionFinished(msg)
             is PoolMessage.Ready -> deviceReady(msg)

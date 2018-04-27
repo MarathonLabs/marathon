@@ -5,10 +5,9 @@ import com.malinskiy.marathon.test.Test
 import java.util.concurrent.Phaser
 
 sealed class PoolMessage {
-    class AddDevice(val device: Device) : PoolMessage()
-    class RemoveDevice(val device: Device) : PoolMessage()
-    class TestExecutionFinished(val device: Device, val sender: DeviceAktor) : PoolMessage()
-    class Ready(val device: Device, val sender: DeviceAktor) : PoolMessage()
-    object Initialize : PoolMessage()
+    data class AddDevice(val device: Device) : PoolMessage()
+    data class RemoveDevice(val device: Device) : PoolMessage()
+    data class TestExecutionFinished(val device: Device, val sender: DeviceAktor) : PoolMessage()
+    data class Ready(val device: Device, val sender: DeviceAktor) : PoolMessage()
     object Terminate : PoolMessage()
 }
