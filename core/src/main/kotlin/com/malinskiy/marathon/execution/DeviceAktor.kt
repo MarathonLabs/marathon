@@ -7,7 +7,7 @@ import kotlinx.coroutines.experimental.Job
 import kotlinx.coroutines.experimental.launch
 import kotlinx.coroutines.experimental.newFixedThreadPoolContext
 
-class DeviceAktor(private val pool: Aktor<PoolMessage>,
+class DeviceAktor(private val pool: Aktor<DevicePoolMessage>,
                   private val configuration: Configuration,
                   private val device: Device) : Aktor<DeviceMessage>() {
 
@@ -23,7 +23,7 @@ class DeviceAktor(private val pool: Aktor<PoolMessage>,
         launch(context) {
             device.prepare(configuration)
         }.join()
-        pool.send(PoolMessage.Ready(device, this@DeviceAktor))
+        pool.send(DevicePoolMessage.Ready(device, this@DeviceAktor))
     }
 
     private var job: Job? = null
@@ -33,7 +33,7 @@ class DeviceAktor(private val pool: Aktor<PoolMessage>,
     private fun executeBatch(batch: TestBatch) {
         job = launch(context) {
             device.execute(configuration, batch)
-            pool.send(PoolMessage.TestExecutionFinished(device, this@DeviceAktor))
+            pool.send(DevicePoolMessage.TestExecutionFinished(device, this@DeviceAktor))
         }
     }
 

@@ -1,5 +1,6 @@
 package com.malinskiy.marathon.execution
 
+import com.malinskiy.marathon.aktor.Aktor
 import com.malinskiy.marathon.device.DevicePoolId
 import com.malinskiy.marathon.device.DeviceProvider
 import com.malinskiy.marathon.execution.strategy.PoolingStrategy
@@ -26,7 +27,7 @@ class Scheduler(private val deviceProvider: DeviceProvider,
 
     private val logger = KotlinLogging.logger("DynamicPoolFactory")
 
-    private val pools = mutableMapOf<DevicePoolId, DevicePoolAktor>()
+    private val pools = mutableMapOf<DevicePoolId, Aktor<DevicePoolMessage>>()
 
     companion object {
         private const val DEFAULT_INITIAL_DELAY_MILLIS = 10_000L
@@ -56,13 +57,13 @@ class Scheduler(private val deviceProvider: DeviceProvider,
 
     private suspend fun onDeviceDisconnected(item: DeviceProvider.DeviceEvent.DeviceDisconnected) {
         pools.values.forEach {
-            it.send(PoolMessage.RemoveDevice(item.device))
+            it.send(DevicePoolMessage.RemoveDevice(item.device))
         }
     }
 
     private suspend fun onDeviceConnected(item: DeviceProvider.DeviceEvent.DeviceConnected) {
         val poolId = poolingStrategy.associate(item.device)
         pools.computeIfAbsent(poolId, { id -> DevicePoolAktor(id, configuration, list) })
-        pools[poolId]?.send(PoolMessage.AddDevice(item.device))
+        pools[poolId]?.send(DevicePoolMessage.AddDevice(item.device))
     }
 }

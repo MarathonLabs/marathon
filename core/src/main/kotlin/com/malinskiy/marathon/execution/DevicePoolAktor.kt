@@ -10,21 +10,21 @@ import java.util.concurrent.*
 
 class DevicePoolAktor(private val poolId: DevicePoolId,
                       private val configuration: Configuration,
-                      private val tests: Collection<Test>) : Aktor<PoolMessage>() {
+                      private val tests: Collection<Test>) : Aktor<DevicePoolMessage>() {
 
     private val logger = KotlinLogging.logger("DevicePoolAktor")
 
-    override suspend fun receive(msg: PoolMessage) {
+    override suspend fun receive(msg: DevicePoolMessage) {
         when (msg) {
-            is PoolMessage.AddDevice -> addDevice(msg)
-            is PoolMessage.TestExecutionFinished -> testExecutionFinished(msg)
-            is PoolMessage.Ready -> deviceReady(msg)
-            is PoolMessage.RemoveDevice -> removeDevice(msg)
-            is PoolMessage.Terminate -> terminate()
+            is DevicePoolMessage.AddDevice -> addDevice(msg)
+            is DevicePoolMessage.TestExecutionFinished -> testExecutionFinished(msg)
+            is DevicePoolMessage.Ready -> deviceReady(msg)
+            is DevicePoolMessage.RemoveDevice -> removeDevice(msg)
+            is DevicePoolMessage.Terminate -> terminate()
         }
     }
 
-    private suspend fun deviceReady(msg: PoolMessage.Ready) {
+    private suspend fun deviceReady(msg: DevicePoolMessage.Ready) {
         if (queue.isNotEmpty()) {
             msg.sender.send(DeviceMessage.ExecuteTestBatch(queue.poll()))
         } else {
@@ -32,7 +32,7 @@ class DevicePoolAktor(private val poolId: DevicePoolId,
         }
     }
 
-    private suspend fun testExecutionFinished(msg: PoolMessage.TestExecutionFinished) {
+    private suspend fun testExecutionFinished(msg: DevicePoolMessage.TestExecutionFinished) {
         if (queue.isNotEmpty()) {
             msg.sender.send(DeviceMessage.ExecuteTestBatch(queue.poll()))
         } else {
@@ -47,7 +47,7 @@ class DevicePoolAktor(private val poolId: DevicePoolId,
 
     private val executor = Executors.newCachedThreadPool()
 
-    private val devices = mutableMapOf<String, DeviceAktor>()
+    private val devices = mutableMapOf<String, Aktor<DeviceMessage>>()
 
     private var initialized = false
 
@@ -68,12 +68,12 @@ class DevicePoolAktor(private val poolId: DevicePoolId,
         }
     }
 
-    private suspend fun removeDevice(msg: PoolMessage.RemoveDevice) {
+    private suspend fun removeDevice(msg: DevicePoolMessage.RemoveDevice) {
         val device = devices.remove(msg.device.serialNumber)
         device?.send(DeviceMessage.Terminate)
     }
 
-    private suspend fun addDevice(msg: PoolMessage.AddDevice) {
+    private suspend fun addDevice(msg: DevicePoolMessage.AddDevice) {
         val device = msg.device
         val aktor = DeviceAktor(this, configuration, device)
         devices[device.serialNumber] = aktor
