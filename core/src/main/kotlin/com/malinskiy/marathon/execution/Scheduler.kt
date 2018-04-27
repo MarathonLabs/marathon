@@ -27,7 +27,7 @@ class Scheduler(private val deviceProvider: DeviceProvider,
 
     private val logger = KotlinLogging.logger("DynamicPoolFactory")
 
-    private val pools = mutableMapOf<DevicePoolId, SendChannel<PoolMessage>>()
+    private val pools = mutableMapOf<DevicePoolId, DevicePoolAktor>()
 
     companion object {
         private const val DEFAULT_INITIAL_DELAY_MILLIS = 10_000L
@@ -63,7 +63,7 @@ class Scheduler(private val deviceProvider: DeviceProvider,
 
     private suspend fun onDeviceConnected(item: DeviceProvider.DeviceEvent.DeviceConnected) {
         val poolId = poolingStrategy.associate(item.device)
-        pools.computeIfAbsent(poolId, { id -> PoolTestExecutor(id, configuration, list) })
+        pools.computeIfAbsent(poolId, { id -> DevicePoolAktor(id, configuration, list) })
         pools[poolId]?.send(PoolMessage.AddDevice(item.device))
     }
 }
