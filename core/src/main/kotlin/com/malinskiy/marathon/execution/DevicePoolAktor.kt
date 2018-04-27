@@ -40,7 +40,10 @@ class DevicePoolAktor(private val poolId: DevicePoolId,
         }
     }
 
-    private val queue = ConcurrentLinkedQueue<TestBatch>(configuration.batchingStrategy.process(listOf(TestShard(tests))))
+    private val shardingStrategy = configuration.shardingStrategy
+    private val batchingStrategy = configuration.batchingStrategy
+
+    private val queue = ConcurrentLinkedQueue<TestBatch>(batchingStrategy.process(shardingStrategy.createShards(tests)))
 
     private val executor = Executors.newCachedThreadPool()
 
