@@ -20,7 +20,7 @@ class DeviceAktor(private val pool: Aktor<PoolMessage>,
     }
 
     private suspend fun initialize() {
-        launch {
+        launch(context) {
             device.prepare(configuration)
         }.join()
         pool.send(PoolMessage.Ready(device, this@DeviceAktor))
@@ -39,6 +39,7 @@ class DeviceAktor(private val pool: Aktor<PoolMessage>,
 
     private fun terminate() {
         job?.cancel()
+        context.close()
         close()
     }
 }

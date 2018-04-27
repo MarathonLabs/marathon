@@ -28,12 +28,11 @@ class AndroidDeviceProvider : DeviceProvider {
         val absolutePath = Paths.get(vendorConfiguration.androidSdk.absolutePath, "platform-tools", "adb").toFile().absolutePath
 
         val listener = object : AndroidDebugBridge.IDeviceChangeListener {
-            override fun deviceChanged(device: IDevice?, changeMask: Int) {
-            }
+            override fun deviceChanged(device: IDevice?, changeMask: Int) {}
 
             override fun deviceConnected(device: IDevice?) {
                 device?.let {
-                    logger.debug { "${it.serialNumber} Connected" }
+                    logger.debug { "Device ${device.serialNumber} connected" }
                     runBlocking {
                         channel.send(DeviceConnected(AndroidDevice(it)))
                     }
@@ -42,7 +41,7 @@ class AndroidDeviceProvider : DeviceProvider {
 
             override fun deviceDisconnected(device: IDevice?) {
                 device?.let {
-                    logger.debug { "${it.serialNumber} Disconnected" }
+                    logger.debug { "Device ${device.serialNumber} disconnected" }
                     runBlocking {
                         channel.send(DeviceDisconnected(AndroidDevice(it)))
                     }
