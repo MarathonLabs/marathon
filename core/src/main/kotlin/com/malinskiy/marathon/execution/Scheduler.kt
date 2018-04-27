@@ -5,7 +5,6 @@ import com.malinskiy.marathon.device.DeviceProvider
 import com.malinskiy.marathon.execution.strategy.PoolingStrategy
 import com.malinskiy.marathon.healthCheck
 import com.malinskiy.marathon.test.Test
-import kotlinx.coroutines.experimental.channels.SendChannel
 import kotlinx.coroutines.experimental.launch
 import mu.KotlinLogging
 

@@ -1,4 +1,3 @@
 package com.malinskiy.marathon.execution
 
-class Filter {
-}
+class Filter
