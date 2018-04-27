@@ -20,10 +20,12 @@ import mu.KotlinLogging
  * 6. Retries:      Retry if something fails and we didn't account for it in the flakiness
  */
 
-class Scheduler(private val deviceProvider: DeviceProvider,
-                private val poolingStrategy: PoolingStrategy,
-                private val configuration: Configuration,
-                private val list: Collection<Test>) {
+class Scheduler(
+    private val deviceProvider: DeviceProvider,
+    private val poolingStrategy: PoolingStrategy,
+    private val configuration: Configuration,
+    private val list: Collection<Test>
+) {
 
     private val logger = KotlinLogging.logger("DynamicPoolFactory")
 

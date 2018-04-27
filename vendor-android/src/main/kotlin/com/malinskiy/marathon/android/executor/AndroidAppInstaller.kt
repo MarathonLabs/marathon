@@ -10,7 +10,6 @@ import java.io.File
 
 class AndroidAppInstaller(private val configuration: Configuration) {
 
-
     private val logger = KotlinLogging.logger("AndroidAppInstaller")
 
     //TODO: move InstrumentationInfo to Configuration

@@ -11,61 +11,64 @@ import com.malinskiy.marathon.vendor.VendorConfiguration
 import java.io.File
 
 data class Configuration constructor(
-        val baseOutputDir: File,
-        val outputDir: File,
-        val applicationOutput: File,
-        val testApplicationOutput: File,
+    val baseOutputDir: File,
+    val outputDir: File,
+    val applicationOutput: File,
+    val testApplicationOutput: File,
 
-        val poolingStrategy: PoolingStrategy,
-        val shardingStrategy: ShardingStrategy,
-        val sortingStrategy: SortingStrategy,
-        val batchingStrategy: BatchingStrategy,
-        val flakinessStrategy: FlakinessStrategy,
-        val retryStrategy: RetryStrategy,
+    val poolingStrategy: PoolingStrategy,
+    val shardingStrategy: ShardingStrategy,
+    val sortingStrategy: SortingStrategy,
+    val batchingStrategy: BatchingStrategy,
+    val flakinessStrategy: FlakinessStrategy,
+    val retryStrategy: RetryStrategy,
 
-        val ignoreFailures: Boolean,
-        val isCodeCoverageEnabled: Boolean,
-        val fallbackToScreenshots: Boolean,
+    val ignoreFailures: Boolean,
+    val isCodeCoverageEnabled: Boolean,
+    val fallbackToScreenshots: Boolean,
 
-        val testClassRegexes: Collection<Regex>,
-        val includedTestAnnotations: Collection<String>,
-        val excludedTestAnnotations: Collection<String>,
-        val includeSerialRegexes: Collection<Regex>,
-        val excludeSerialRegexes: Collection<Regex>,
+    val testClassRegexes: Collection<Regex>,
+    val includedTestAnnotations: Collection<String>,
+    val excludedTestAnnotations: Collection<String>,
+    val includeSerialRegexes: Collection<Regex>,
+    val excludeSerialRegexes: Collection<Regex>,
 
-        val testOutputTimeoutMillis: Int,
+    val testOutputTimeoutMillis: Int,
 
-        val testPackage: String?,
-        val autoGrantPermission: Boolean,
-        val vendorConfiguration: VendorConfiguration) {
+    val testPackage: String?,
+    val autoGrantPermission: Boolean,
+    val vendorConfiguration: VendorConfiguration
+) {
 
-    constructor(baseOutputDir: File,
-                outputDir: File,
-                applicationOutput: File,
-                testApplicationOutput: File,
+    constructor(
+        baseOutputDir: File,
+        outputDir: File,
+        applicationOutput: File,
+        testApplicationOutput: File,
 
-                poolingStrategy: PoolingStrategy?,
-                shardingStrategy: ShardingStrategy?,
-                sortingStrategy: SortingStrategy?,
-                batchingStrategy: BatchingStrategy?,
-                flakinessStrategy: FlakinessStrategy?,
-                retryStrategy: RetryStrategy?,
+        poolingStrategy: PoolingStrategy?,
+        shardingStrategy: ShardingStrategy?,
+        sortingStrategy: SortingStrategy?,
+        batchingStrategy: BatchingStrategy?,
+        flakinessStrategy: FlakinessStrategy?,
+        retryStrategy: RetryStrategy?,
 
-                ignoreFailures: Boolean?,
-                isCodeCoverageEnabled: Boolean?,
-                fallbackToScreenshots: Boolean?,
+        ignoreFailures: Boolean?,
+        isCodeCoverageEnabled: Boolean?,
+        fallbackToScreenshots: Boolean?,
 
-                testClassRegexes: Collection<Regex>?,
-                includedTestAnnotations: Collection<String>?,
-                excludedTestAnnotations: Collection<String>?,
-                includeSerialRegexes: Collection<Regex>?,
-                excludeSerialRegexes: Collection<Regex>?,
+        testClassRegexes: Collection<Regex>?,
+        includedTestAnnotations: Collection<String>?,
+        excludedTestAnnotations: Collection<String>?,
+        includeSerialRegexes: Collection<Regex>?,
+        excludeSerialRegexes: Collection<Regex>?,
 
-                testOutputTimeoutMillis: Int?,
+        testOutputTimeoutMillis: Int?,
 
-                testPackage: String?,
-                autoGrantPermission: Boolean?,
-                vendorConfiguration: VendorConfiguration) :
+        testPackage: String?,
+        autoGrantPermission: Boolean?,
+        vendorConfiguration: VendorConfiguration
+    ) :
 
             this(baseOutputDir = baseOutputDir,
                     outputDir = outputDir,

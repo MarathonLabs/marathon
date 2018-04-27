@@ -14,7 +14,7 @@ class iOSDeviceProvider : DeviceProvider {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
-    override fun subscribe() : Channel<DeviceProvider.DeviceEvent> {
+    override fun subscribe(): Channel<DeviceProvider.DeviceEvent> {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 

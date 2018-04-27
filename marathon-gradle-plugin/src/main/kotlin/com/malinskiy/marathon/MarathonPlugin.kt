@@ -119,7 +119,6 @@ class MarathonPlugin : Plugin<Project> {
             if (testVariant.outputs.size > 1) {
                 throw UnsupportedOperationException("The Marathon plugin does not support abi/density splits for test APKs")
             }
-
         }
 
         /**
@@ -132,7 +131,6 @@ class MarathonPlugin : Plugin<Project> {
             if (baseVariantOutput.outputs.size > 1) {
                 throw UnsupportedOperationException("The Marathon plugin does not support abi splits for app APKs, but supports testing via a universal APK. " + "Add the flag \"universalApk true\" in the android.splits.abi configuration.")
             }
-
         }
 
         /**

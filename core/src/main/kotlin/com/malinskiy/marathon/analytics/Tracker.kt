@@ -7,7 +7,7 @@ interface Tracker {
     fun trackTestFinished(test: Test, success: Boolean, time: Int)
     fun trackTestIgnored(test: Test)
 
-    fun calculateTestExpectedTime(test: Test) : Int
-    fun calculateTestVariance(test: Test) : Int
-    fun calculateTestExpectedRetries(test: Test) : Int
+    fun calculateTestExpectedTime(test: Test): Int
+    fun calculateTestVariance(test: Test): Int
+    fun calculateTestExpectedRetries(test: Test): Int
 }

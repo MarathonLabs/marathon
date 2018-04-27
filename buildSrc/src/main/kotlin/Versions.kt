@@ -1,4 +1,4 @@
-import java.io.File
+
 
 object Versions {
     val kotlin = "1.2.40"
@@ -51,5 +51,4 @@ object TestLibraries {
     val espressoContrib = "com.android.support.test.espresso:espresso-contrib:${Versions.espresso}"
     val espressoIntents = "com.android.support.test.espresso:espresso-intents:${Versions.espresso}"
     val junit = "junit:junit:${Versions.junit}"
-
 }

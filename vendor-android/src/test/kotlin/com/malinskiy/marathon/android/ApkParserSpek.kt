@@ -6,7 +6,6 @@ import org.jetbrains.spek.api.dsl.describe
 import org.jetbrains.spek.api.dsl.it
 import java.io.File
 
-
 class ApkParserSpek : Spek({
     describe("apk parser") {
         it("should parser AndroidManifest and return InstrumentationInfo") {

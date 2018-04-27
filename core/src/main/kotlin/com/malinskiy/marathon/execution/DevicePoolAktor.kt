@@ -8,9 +8,11 @@ import com.malinskiy.marathon.test.TestBatch
 import mu.KotlinLogging
 import java.util.concurrent.*
 
-class DevicePoolAktor(private val poolId: DevicePoolId,
-                      private val configuration: Configuration,
-                      private val tests: Collection<Test>) : Aktor<DevicePoolMessage>() {
+class DevicePoolAktor(
+    private val poolId: DevicePoolId,
+    private val configuration: Configuration,
+    private val tests: Collection<Test>
+) : Aktor<DevicePoolMessage>() {
 
     private val logger = KotlinLogging.logger("DevicePoolAktor")
 

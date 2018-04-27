@@ -12,12 +12,11 @@ buildscript {
     }
 }
 
-
 plugins {
     id("io.gitlab.arturbosch.detekt") version "1.0.0.RC6-4"
 }
 
-configure<DetektExtension>{
+configure<DetektExtension> {
     debug = true
     version = "1.0.0.RC6-4"
     profile = "main"
