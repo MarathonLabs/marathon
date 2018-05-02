@@ -6,6 +6,7 @@ import com.malinskiy.marathon.test.TestBatch
 import kotlinx.coroutines.experimental.Job
 import kotlinx.coroutines.experimental.launch
 import kotlinx.coroutines.experimental.newFixedThreadPoolContext
+import kotlinx.coroutines.experimental.newSingleThreadContext
 
 class DeviceAktor(private val pool: Aktor<DevicePoolMessage>,
                   private val configuration: Configuration,
@@ -28,7 +29,7 @@ class DeviceAktor(private val pool: Aktor<DevicePoolMessage>,
 
     private var job: Job? = null
 
-    private val context = newFixedThreadPoolContext(1, "Device serial = ${device.serialNumber}")
+    private val context = newSingleThreadContext("Device serial = ${device.serialNumber}")
 
     private fun executeBatch(batch: TestBatch) {
         job = launch(context) {
