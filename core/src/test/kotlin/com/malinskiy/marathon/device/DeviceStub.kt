@@ -14,9 +14,9 @@ class DeviceStub(override var operatingSystem: OperatingSystem,
     override val deviceFeatures: Collection<DeviceFeature>
         get() = TODO("not implemented") //To change initializer of created properties use File | Settings | File Templates.
 
-    override fun execute(configuration: Configuration, testBatch: TestBatch) {
+    override suspend fun execute(configuration: Configuration, testBatch: TestBatch) {
     }
 
-    override fun prepare(configuration: Configuration) {
+    override suspend fun prepare(configuration: Configuration) {
     }
 }

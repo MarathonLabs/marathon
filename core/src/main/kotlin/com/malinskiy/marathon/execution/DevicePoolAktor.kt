@@ -45,7 +45,6 @@ class DevicePoolAktor(private val poolId: DevicePoolId,
 
     private val queue = ConcurrentLinkedQueue<TestBatch>(batchingStrategy.process(shardingStrategy.createShards(tests)))
 
-    private val executor = Executors.newCachedThreadPool()
 
     private val devices = mutableMapOf<String, Aktor<DeviceMessage>>()
 
@@ -53,8 +52,6 @@ class DevicePoolAktor(private val poolId: DevicePoolId,
 
     private fun terminate() {
         close()
-        executor.shutdown()
-        executor.awaitTermination(30, TimeUnit.SECONDS)
     }
 
     private fun initializeHealthCheck() {

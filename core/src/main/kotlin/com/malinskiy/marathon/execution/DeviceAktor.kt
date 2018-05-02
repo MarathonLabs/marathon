@@ -21,26 +21,16 @@ class DeviceAktor(private val pool: Aktor<DevicePoolMessage>,
     }
 
     private suspend fun initialize() {
-        launch(context) {
-            device.prepare(configuration)
-        }.join()
-        pool.send(DevicePoolMessage.Ready(device, this@DeviceAktor))
+        device.prepare(configuration)
+        pool.send(DevicePoolMessage.Ready(device, this))
     }
 
-    private var job: Job? = null
-
-    private val context = newSingleThreadContext("Device serial = ${device.serialNumber}")
-
-    private fun executeBatch(batch: TestBatch) {
-        job = launch(context) {
-            device.execute(configuration, batch)
-            pool.send(DevicePoolMessage.TestExecutionFinished(device, this@DeviceAktor))
-        }
+    private suspend fun executeBatch(batch: TestBatch) {
+        device.execute(configuration, batch)
+        pool.send(DevicePoolMessage.TestExecutionFinished(device, this))
     }
 
     private fun terminate() {
-        job?.cancel()
-        context.close()
         close()
     }
 }

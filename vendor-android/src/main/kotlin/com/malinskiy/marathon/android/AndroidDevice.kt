@@ -9,6 +9,8 @@ import com.malinskiy.marathon.device.NetworkState
 import com.malinskiy.marathon.device.OperatingSystem
 import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.test.TestBatch
+import kotlinx.coroutines.experimental.launch
+import kotlinx.coroutines.experimental.newSingleThreadContext
 import java.util.*
 
 class AndroidDevice(private val ddmsDevice: IDevice) : Device {
@@ -59,12 +61,18 @@ class AndroidDevice(private val ddmsDevice: IDevice) : Device {
             else -> false
         }
 
-    override fun execute(configuration: Configuration, testBatch: TestBatch) {
-        AndroidDeviceTestRunner(ddmsDevice).execute(configuration, testBatch)
+    private val context = newSingleThreadContext(this.toString())
+
+    override suspend fun execute(configuration: Configuration, testBatch: TestBatch) {
+        launch(context) {
+            AndroidDeviceTestRunner(ddmsDevice).execute(configuration, testBatch)
+        }.join()
     }
 
-    override fun prepare(configuration: Configuration) {
-        AndroidAppInstaller(configuration).prepareInstallation(ddmsDevice)
+    override suspend fun prepare(configuration: Configuration) {
+        launch(context) {
+            AndroidAppInstaller(configuration).prepareInstallation(ddmsDevice)
+        }.join()
     }
 
     override fun toString(): String {
