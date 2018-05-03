@@ -1,6 +1,6 @@
 package com.malinskiy.marathon.execution
 
-fun withRetry(attempts: Int, f: () -> Unit) {
+inline fun withRetry(attempts: Int, f: () -> Unit) {
     var attempt = 1
     while (true) {
         try {

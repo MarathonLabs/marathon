@@ -10,7 +10,6 @@ import java.io.File
 
 class AndroidAppInstaller(private val configuration: Configuration) {
 
-
     private val logger = KotlinLogging.logger("AndroidAppInstaller")
 
     //TODO: move InstrumentationInfo to Configuration
@@ -23,9 +22,9 @@ class AndroidAppInstaller(private val configuration: Configuration) {
     private fun reinstall(device: IDevice, appPackage: String, appApk: File) {
         withRetry(3) {
             try {
-                logger.info { "Uninstalling $appPackage from $device.serialNumber" }
+                logger.info("Uninstalling $appPackage from $device.serialNumber")
                 device.uninstallPackage(appPackage)
-                logger.info { "Installing $appPackage to $device.serialNumber" }
+                logger.info("Installing $appPackage to $device.serialNumber")
                 device.installPackage(appApk.absolutePath, true)
             } catch (e: InstallException) {
                 throw RuntimeException("Error while installing $appPackage on ${device.serialNumber}", e)
