@@ -23,7 +23,7 @@ class Marathon(val configuration: Configuration) {
 
         val tests = testParser.extract(configuration.testApplicationOutput)
 
-        val scheduler = Scheduler(deviceProvider, configuration.poolingStrategy, configuration, tests)
+        val scheduler = Scheduler(deviceProvider, configuration, tests)
 
         val timeMillis = measureTimeMillis {
 

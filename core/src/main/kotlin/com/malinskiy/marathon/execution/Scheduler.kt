@@ -22,17 +22,17 @@ import mu.KotlinLogging
  */
 
 class Scheduler(private val deviceProvider: DeviceProvider,
-                private val poolingStrategy: PoolingStrategy,
                 private val configuration: Configuration,
                 private val list: Collection<Test>) {
-
-    private val logger = KotlinLogging.logger("DynamicPoolFactory")
-
-    private val pools = mutableMapOf<DevicePoolId, Aktor<DevicePoolMessage>>()
 
     companion object {
         private const val DEFAULT_INITIAL_DELAY_MILLIS = 10_000L
     }
+
+    private val logger = KotlinLogging.logger("DynamicPoolFactory")
+
+    private val pools = mutableMapOf<DevicePoolId, Aktor<DevicePoolMessage>>()
+    private val poolingStrategy = configuration.poolingStrategy
 
     suspend fun execute() {
         subscribeOnDevices()
