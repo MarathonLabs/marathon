@@ -11,7 +11,7 @@ fun healthCheck(startDelay: Long = DEFAULT_START_DELAY_MILLIS,
                 tickDelay: Long = DEFAULT_TICK_DELAY_MILLIS,
                 condition: () -> Boolean): Job = launch {
     delay(startDelay)
-    while (condition()) {
+    while (isActive && condition()) {
         delay(tickDelay)
     }
 }
