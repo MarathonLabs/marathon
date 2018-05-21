@@ -3,12 +3,9 @@ package com.malinskiy.marathon.execution
 import com.malinskiy.marathon.aktor.Aktor
 import com.malinskiy.marathon.device.DevicePoolId
 import com.malinskiy.marathon.device.DeviceProvider
-import com.malinskiy.marathon.execution.strategy.PoolingStrategy
 import com.malinskiy.marathon.healthCheck
 import com.malinskiy.marathon.test.Test
-import kotlinx.coroutines.experimental.delay
 import kotlinx.coroutines.experimental.launch
-import mu.KotlinLogging
 
 /**
  * The logic of scheduler
@@ -28,8 +25,6 @@ class Scheduler(private val deviceProvider: DeviceProvider,
     companion object {
         private const val DEFAULT_INITIAL_DELAY_MILLIS = 10_000L
     }
-
-    private val logger = KotlinLogging.logger("DynamicPoolFactory")
 
     private val pools = mutableMapOf<DevicePoolId, Aktor<DevicePoolMessage>>()
     private val poolingStrategy = configuration.poolingStrategy
