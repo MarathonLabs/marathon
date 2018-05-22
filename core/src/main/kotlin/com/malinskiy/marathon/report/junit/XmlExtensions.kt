@@ -2,14 +2,14 @@ package com.malinskiy.marathon.report.junit
 
 import javax.xml.stream.XMLStreamWriter
 
-fun XMLStreamWriter.document(init: XMLStreamWriter.() -> Unit): XMLStreamWriter {
+inline fun XMLStreamWriter.document(init: XMLStreamWriter.() -> Unit): XMLStreamWriter {
     this.writeStartDocument("UTF-8", "1.0")
     this.init()
     this.writeEndDocument()
     return this
 }
 
-fun XMLStreamWriter.element(name: String, init: XMLStreamWriter.() -> Unit): XMLStreamWriter {
+inline fun XMLStreamWriter.element(name: String, init: XMLStreamWriter.() -> Unit): XMLStreamWriter {
     this.writeStartElement(name)
     this.init()
     this.writeEndElement()
