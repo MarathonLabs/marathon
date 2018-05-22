@@ -4,3 +4,5 @@ data class Test(val pkg: String,
                 val clazz: String,
                 val method: String,
                 val annotations: Collection<String>)
+
+fun Test.toTestName(): String = "$pkg.$clazz#$method"
