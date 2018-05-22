@@ -25,17 +25,16 @@ class Marathon(val configuration: Configuration) {
 
         val scheduler = Scheduler(deviceProvider, configuration, tests)
 
-        val timeMillis = measureTimeMillis {
+        if (configuration.outputDir.exists()) {
+            log.info { "Output ${configuration.outputDir} already exists" }
+            configuration.outputDir.deleteRecursively()
+        }
+        configuration.outputDir.mkdirs()
 
+        val timeMillis = measureTimeMillis {
             runBlocking {
                 scheduler.execute()
             }
-
-            if (configuration.outputDir.exists()) {
-                log.info { "Output ${configuration.outputDir} already exists" }
-                configuration.outputDir.deleteRecursively()
-            }
-            configuration.outputDir.mkdirs()
         }
 
         val hours = TimeUnit.MICROSECONDS.toHours(timeMillis)

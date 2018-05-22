@@ -13,7 +13,7 @@ import kotlinx.coroutines.experimental.launch
 import kotlinx.coroutines.experimental.newSingleThreadContext
 import java.util.*
 
-class AndroidDevice(private val ddmsDevice: IDevice) : Device {
+class AndroidDevice(val ddmsDevice: IDevice) : Device {
     override val model: String by lazy {
         ddmsDevice.getProperty("ro.product.model")
     }
@@ -65,7 +65,7 @@ class AndroidDevice(private val ddmsDevice: IDevice) : Device {
 
     override suspend fun execute(configuration: Configuration, testBatch: TestBatch) {
         launch(context) {
-            AndroidDeviceTestRunner(ddmsDevice).execute(configuration, testBatch)
+            AndroidDeviceTestRunner(this@AndroidDevice).execute(configuration, testBatch)
         }.join()
     }
 

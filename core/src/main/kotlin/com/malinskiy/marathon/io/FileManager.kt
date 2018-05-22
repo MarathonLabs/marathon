@@ -16,6 +16,12 @@ class FileManager(private val output: File) {
         return createFile(directory, filename)
     }
 
+    fun createFile(fileType: FileType, pool: DevicePoolId, device: Device, test: Test, timestamp : Long): File {
+        val directory = createDirectory(fileType, pool, device)
+        val filename = createFilename(test, fileType, timestamp)
+        return createFile(directory, filename)
+    }
+
     private fun createDirectory(test: FileType, pool: DevicePoolId, device: Device): Path =
             createDirectories(getDirectory(test, pool, device))
 
@@ -25,4 +31,5 @@ class FileManager(private val output: File) {
     private fun createFile(directory: Path, filename: String): File = File(directory.toFile(), filename)
 
     private fun createFilename(test: Test, fileType: FileType): String = "${test.toTestName()}.${fileType.suffix}"
+    private fun createFilename(test: Test, fileType: FileType, timestamp : Long): String = "${test.toTestName()}-$timestamp.${fileType.suffix}"
 }
