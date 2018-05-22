@@ -3,7 +3,7 @@ package com.malinskiy.marathon.report.junit
 import javax.xml.stream.XMLStreamWriter
 
 fun XMLStreamWriter.document(init: XMLStreamWriter.() -> Unit): XMLStreamWriter {
-    this.writeStartDocument()
+    this.writeStartDocument("UTF-8","1.0")
     this.init()
     this.writeEndDocument()
     return this
