@@ -3,10 +3,7 @@ package com.malinskiy.marathon.android
 import com.android.ddmlib.IDevice
 import com.malinskiy.marathon.android.executor.AndroidAppInstaller
 import com.malinskiy.marathon.android.executor.AndroidDeviceTestRunner
-import com.malinskiy.marathon.device.Device
-import com.malinskiy.marathon.device.DeviceFeature
-import com.malinskiy.marathon.device.NetworkState
-import com.malinskiy.marathon.device.OperatingSystem
+import com.malinskiy.marathon.device.*
 import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.test.TestBatch
 import kotlinx.coroutines.experimental.launch
@@ -63,9 +60,11 @@ class AndroidDevice(val ddmsDevice: IDevice) : Device {
 
     private val context = newSingleThreadContext(this.toString())
 
-    override suspend fun execute(configuration: Configuration, testBatch: TestBatch) {
+    override suspend fun execute(configuration: Configuration,
+                                 devicePoolId: DevicePoolId,
+                                 testBatch: TestBatch) {
         launch(context) {
-            AndroidDeviceTestRunner(this@AndroidDevice).execute(configuration, testBatch)
+            AndroidDeviceTestRunner(this@AndroidDevice).execute(configuration, devicePoolId, testBatch)
         }.join()
     }
 

@@ -23,7 +23,7 @@ class JUnitReporter(private val fileManager: FileManager) {
 
         fun Long.toJUnitSeconds(): String = (TimeUnit.NANOSECONDS.toMillis(this) / 1000.0).toString()
 
-        val file = fileManager.createFile(FileType.TEST, devicePoolId, device, testResult.test, System.currentTimeMillis())
+        val file = fileManager.createFile(FileType.TEST, devicePoolId, device, testResult.test)
         file.createNewFile()
 
         val writer = XMLOutputFactory.newFactory().createXMLStreamWriter(FileWriter(file))

@@ -72,7 +72,7 @@ class DevicePoolAktor(private val poolId: DevicePoolId,
 
     private suspend fun addDevice(msg: DevicePoolMessage.AddDevice) {
         val device = msg.device
-        val aktor = DeviceAktor(this, configuration, device)
+        val aktor = DeviceAktor(poolId, this, configuration, device)
         devices[device.serialNumber] = aktor
         aktor.send(DeviceMessage.Initialize)
         initializeHealthCheck()

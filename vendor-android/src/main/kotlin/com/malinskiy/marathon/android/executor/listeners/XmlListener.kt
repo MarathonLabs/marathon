@@ -12,8 +12,8 @@ import com.malinskiy.marathon.report.junit.JUnitReporter
 import com.malinskiy.marathon.test.Test
 import com.android.ddmlib.testrunner.TestResult.TestStatus as DdmLibTestStatus
 
-class XmlListener(private val devicePoolId: DevicePoolId,
-                  private val device: Device,
+class XmlListener(private val device: Device,
+                  private val devicePoolId: DevicePoolId,
                   private val jUnitReporter: JUnitReporter) : NoOpTestRunListener() {
 
     private val runResult: TestRunResult = TestRunResult()

@@ -12,7 +12,10 @@ interface Device {
     val deviceFeatures: Collection<DeviceFeature>
     val healthy: Boolean
 
-    suspend fun execute(configuration: Configuration, testBatch: TestBatch)
+    suspend fun execute(configuration: Configuration,
+                        devicePoolId: DevicePoolId,
+                        testBatch: TestBatch)
+
     suspend fun prepare(configuration: Configuration)
 }
 

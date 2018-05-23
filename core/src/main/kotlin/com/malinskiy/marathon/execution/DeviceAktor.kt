@@ -2,13 +2,15 @@ package com.malinskiy.marathon.execution
 
 import com.malinskiy.marathon.aktor.Aktor
 import com.malinskiy.marathon.device.Device
+import com.malinskiy.marathon.device.DevicePoolId
 import com.malinskiy.marathon.test.TestBatch
 import kotlinx.coroutines.experimental.Job
 import kotlinx.coroutines.experimental.launch
 import kotlinx.coroutines.experimental.newFixedThreadPoolContext
 import kotlinx.coroutines.experimental.newSingleThreadContext
 
-class DeviceAktor(private val pool: Aktor<DevicePoolMessage>,
+class DeviceAktor(private val devicePoolId: DevicePoolId,
+                  private val pool: Aktor<DevicePoolMessage>,
                   private val configuration: Configuration,
                   private val device: Device) : Aktor<DeviceMessage>() {
 
@@ -26,7 +28,7 @@ class DeviceAktor(private val pool: Aktor<DevicePoolMessage>,
     }
 
     private suspend fun executeBatch(batch: TestBatch) {
-        device.execute(configuration, batch)
+        device.execute(configuration, devicePoolId, batch)
         pool.send(DevicePoolMessage.TestExecutionFinished(device, this))
     }
 
