@@ -4,11 +4,11 @@ import com.android.ddmlib.AndroidDebugBridge
 import com.android.ddmlib.IDevice
 import com.malinskiy.marathon.device.Device
 import com.malinskiy.marathon.device.DeviceProvider
-import com.malinskiy.marathon.device.DeviceProvider.DeviceEvent.*
+import com.malinskiy.marathon.device.DeviceProvider.DeviceEvent.DeviceConnected
+import com.malinskiy.marathon.device.DeviceProvider.DeviceEvent.DeviceDisconnected
 import com.malinskiy.marathon.vendor.VendorConfiguration
 import kotlinx.coroutines.experimental.channels.Channel
 import kotlinx.coroutines.experimental.launch
-import kotlinx.coroutines.experimental.runBlocking
 import mu.KotlinLogging
 import java.nio.file.Paths
 

@@ -4,10 +4,6 @@ import com.malinskiy.marathon.aktor.Aktor
 import com.malinskiy.marathon.device.Device
 import com.malinskiy.marathon.device.DevicePoolId
 import com.malinskiy.marathon.test.TestBatch
-import kotlinx.coroutines.experimental.Job
-import kotlinx.coroutines.experimental.launch
-import kotlinx.coroutines.experimental.newFixedThreadPoolContext
-import kotlinx.coroutines.experimental.newSingleThreadContext
 
 class DeviceAktor(private val devicePoolId: DevicePoolId,
                   private val pool: Aktor<DevicePoolMessage>,

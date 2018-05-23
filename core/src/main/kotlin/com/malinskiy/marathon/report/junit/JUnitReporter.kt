@@ -6,7 +6,6 @@ import com.malinskiy.marathon.execution.TestResult
 import com.malinskiy.marathon.execution.TestStatus
 import com.malinskiy.marathon.io.FileManager
 import com.malinskiy.marathon.io.FileType
-import com.malinskiy.marathon.test.toTestName
 import java.io.FileWriter
 import java.text.SimpleDateFormat
 import java.util.*

@@ -1,5 +1,3 @@
-import java.io.File
-
 object Versions {
     val kotlin = "1.2.40"
     val coroutines = "0.21"

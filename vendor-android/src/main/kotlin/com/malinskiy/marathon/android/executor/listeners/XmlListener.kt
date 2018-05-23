@@ -7,10 +7,7 @@ import com.malinskiy.marathon.android.toTest
 import com.malinskiy.marathon.device.Device
 import com.malinskiy.marathon.device.DevicePoolId
 import com.malinskiy.marathon.execution.TestResult
-import com.malinskiy.marathon.execution.TestStatus
 import com.malinskiy.marathon.report.junit.JUnitReporter
-import com.malinskiy.marathon.test.Test
-import com.android.ddmlib.testrunner.TestResult.TestStatus as DdmLibTestStatus
 
 class XmlListener(private val device: Device,
                   private val devicePoolId: DevicePoolId,
