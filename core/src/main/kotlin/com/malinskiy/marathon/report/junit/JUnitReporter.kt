@@ -6,7 +6,6 @@ import com.malinskiy.marathon.execution.TestResult
 import com.malinskiy.marathon.execution.TestStatus
 import com.malinskiy.marathon.io.FileManager
 import com.malinskiy.marathon.io.FileType
-import com.malinskiy.marathon.test.Test
 import java.io.FileWriter
 import java.text.SimpleDateFormat
 import java.util.*
@@ -26,8 +25,11 @@ class JUnitReporter(private val fileManager: FileManager) {
         writer.close()
     }
 
+    @Suppress("ComplexMethod")
     private fun generateXml(writer: XMLStreamWriter, testResult: TestResult) {
+        @Suppress("MagicNumber")
         fun Long.toJUnitSeconds(): String = (TimeUnit.NANOSECONDS.toMillis(this) / 1000.0).toString()
+
         val test = testResult.test
         val duration = testResult.endTime - testResult.startTime
 
@@ -55,7 +57,7 @@ class JUnitReporter(private val fileManager: FileManager) {
                     when (testResult.status) {
                         TestStatus.IGNORED -> {
                             element("skipped") {
-                                testResult.stacktrace?.takeIf { it.isNotEmpty() }?.let {
+                                testResult.stacktrace?.let {
                                     writeCData(it)
                                 }
                             }
