@@ -11,6 +11,11 @@ import kotlinx.coroutines.experimental.newSingleThreadContext
 import java.util.*
 
 class AndroidDevice(val ddmsDevice: IDevice) : Device {
+
+    companion object {
+        private const val JELLY_BEAN_SDK_VERSION = 16
+    }
+
     override val model: String by lazy {
         ddmsDevice.getProperty("ro.product.model")
     }
@@ -23,7 +28,7 @@ class AndroidDevice(val ddmsDevice: IDevice) : Device {
         get() {
             val videoSupport = ddmsDevice.supportsFeature(IDevice.Feature.SCREEN_RECORD) &&
                     manufacturer != "Genymotion"
-            val screenshotSupport = operatingSystem.version.toInt() >= 16
+            val screenshotSupport = operatingSystem.version.toInt() >= JELLY_BEAN_SDK_VERSION
 
             val features = mutableListOf<DeviceFeature>()
 

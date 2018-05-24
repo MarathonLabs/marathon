@@ -10,9 +10,12 @@ import java.io.File
 
 class AndroidAppInstaller(private val configuration: Configuration) {
 
+    companion object {
+        private const val MAX_RETIRES = 3
+    }
+
     private val logger = KotlinLogging.logger("AndroidAppInstaller")
 
-    //TODO: move InstrumentationInfo to Configuration
     fun prepareInstallation(device: IDevice) {
         val applicationInfo = ApkParser().parseInstrumentationInfo(configuration.testApplicationOutput)
         reinstall(device, applicationInfo.applicationPackage, configuration.applicationOutput)
@@ -20,7 +23,7 @@ class AndroidAppInstaller(private val configuration: Configuration) {
     }
 
     private fun reinstall(device: IDevice, appPackage: String, appApk: File) {
-        withRetry(3) {
+        withRetry(MAX_RETIRES) {
             try {
                 logger.info("Uninstalling $appPackage from $device.serialNumber")
                 device.uninstallPackage(appPackage)

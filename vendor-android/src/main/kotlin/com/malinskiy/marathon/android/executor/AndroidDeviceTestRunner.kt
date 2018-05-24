@@ -26,7 +26,7 @@ class AndroidDeviceTestRunner(private val device: AndroidDevice) {
         val info = ApkParser().parseInstrumentationInfo(configuration.testApplicationOutput)
         val runner = RemoteAndroidTestRunner(info.instrumentationPackage, info.testRunnerClass, device.ddmsDevice)
         runner.setRunName("TestRunName")
-        runner.setMaxTimeToOutputResponse(20, TimeUnit.SECONDS)
+        runner.setMaxTimeToOutputResponse(configuration.testOutputTimeoutMillis.toLong(), TimeUnit.MILLISECONDS)
 
         val tests = testBatch.tests.map {
             "${it.pkg}.${it.clazz}#${it.method}"
