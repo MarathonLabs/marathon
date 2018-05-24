@@ -7,7 +7,11 @@ import java.io.InputStream
 import java.util.zip.ZipFile
 
 class ApkParser {
-    @Suppress("ComplexMethod","ThrowsCount")
+    @Suppress("ComplexMethod",
+            "ThrowsCount",
+            "TooGenericExceptionThrown",
+            "NestedBlockDepth"
+    )
     fun parseInstrumentationInfo(apk: File): InstrumentationInfo {
         var apkInputStream: InputStream? = null
         try {
