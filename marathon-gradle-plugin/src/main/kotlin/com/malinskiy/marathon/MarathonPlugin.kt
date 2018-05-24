@@ -73,7 +73,8 @@ class MarathonPlugin : Plugin<Project> {
                 checkTestedVariants(testedOutput)
                 marathonTask.configure(closureOf<MarathonRunTask> {
                     group = JavaBasePlugin.VERIFICATION_GROUP
-                    description = "Runs instrumentation tests on all the connected devices for '${variant.name}' variation and generates a report with screenshots"
+                    description = "Runs instrumentation tests on all the connected devices for '${variant.name}' " +
+                            "variation and generates a report with screenshots"
                     outputs.upToDateWhen { false }
 
                     val firstOutput = variant.outputs.first() as ApkVariantOutput
@@ -130,7 +131,9 @@ class MarathonPlugin : Plugin<Project> {
          */
         private fun checkTestedVariants(baseVariantOutput: BaseVariantOutput) {
             if (baseVariantOutput.outputs.size > 1) {
-                throw UnsupportedOperationException("The Marathon plugin does not support abi splits for app APKs, but supports testing via a universal APK. " + "Add the flag \"universalApk true\" in the android.splits.abi configuration.")
+                throw UnsupportedOperationException("The Marathon plugin does not support abi splits for app APKs, " +
+                        "but supports testing via a universal APK. "
+                        + "Add the flag \"universalApk true\" in the android.splits.abi configuration.")
             }
 
         }
