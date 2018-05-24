@@ -6,9 +6,9 @@ inline fun withRetry(attempts: Int, f: () -> Unit) {
         try {
             f()
             return
-        } catch (e: RuntimeException) {
+        } catch (th: Throwable) {
             if (attempt == attempts) {
-                throw e
+                throw th
             }
         }
         ++attempt

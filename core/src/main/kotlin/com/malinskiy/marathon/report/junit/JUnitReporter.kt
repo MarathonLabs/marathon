@@ -6,26 +6,37 @@ import com.malinskiy.marathon.execution.TestResult
 import com.malinskiy.marathon.execution.TestStatus
 import com.malinskiy.marathon.io.FileManager
 import com.malinskiy.marathon.io.FileType
+import com.malinskiy.marathon.test.Test
 import java.io.FileWriter
 import java.text.SimpleDateFormat
 import java.util.*
 import java.util.concurrent.TimeUnit
 import javax.xml.stream.XMLOutputFactory
+import javax.xml.stream.XMLStreamWriter
 
 class JUnitReporter(private val fileManager: FileManager) {
     fun testFinished(devicePoolId: DevicePoolId, device: Device, testResult: TestResult) {
+        val file = fileManager.createFile(FileType.TEST, devicePoolId, device, testResult.test)
+        file.createNewFile()
+
+        val writer = XMLOutputFactory.newFactory().createXMLStreamWriter(FileWriter(file))
+
+        generateXml(writer, testResult)
+        writer.flush()
+        writer.close()
+    }
+
+    private fun generateXml(writer: XMLStreamWriter, testResult: TestResult) {
+        fun Long.toJUnitSeconds(): String = (TimeUnit.NANOSECONDS.toMillis(this) / 1000.0).toString()
         val test = testResult.test
         val duration = testResult.endTime - testResult.startTime
 
         val failures = if (testResult.status == TestStatus.FAILURE) 1 else 0
         val ignored = if (testResult.status == TestStatus.IGNORED) 1 else 0
 
-        fun Long.toJUnitSeconds(): String = (TimeUnit.NANOSECONDS.toMillis(this) / 1000.0).toString()
-
-        val file = fileManager.createFile(FileType.TEST, devicePoolId, device, testResult.test)
-        file.createNewFile()
-
-        val writer = XMLOutputFactory.newFactory().createXMLStreamWriter(FileWriter(file))
+        val formattedTimestamp = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.US).apply {
+            timeZone = TimeZone.getTimeZone("UTC")
+        }.format(Date(testResult.endTime))
 
         writer.document {
             element("testsuite") {
@@ -35,7 +46,7 @@ class JUnitReporter(private val fileManager: FileManager) {
                 attribute("errors", "0")
                 attribute("skipped", "$ignored")
                 attribute("time", duration.toJUnitSeconds())
-                attribute("timestamp", SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.US).apply { timeZone = TimeZone.getTimeZone("UTC") }.format(Date(testResult.endTime)))
+                attribute("timestamp", formattedTimestamp)
                 element("properties") {}
                 element("testcase") {
                     attribute("classname", "${test.pkg}.${test.clazz}")
@@ -60,7 +71,5 @@ class JUnitReporter(private val fileManager: FileManager) {
                 }
             }
         }
-        writer.flush()
-        writer.close()
     }
 }
