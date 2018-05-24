@@ -319,7 +319,7 @@ style:
     ignoreEnums: false
   MaxLineLength:
     active: true
-    maxLineLength: 120
+    maxLineLength: 150
     excludePackageStatements: false
     excludeImportStatements: false
   MayBeConst:
