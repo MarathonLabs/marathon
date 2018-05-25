@@ -1,14 +1,15 @@
 package com.malinskiy.marathon.execution
 
+@Suppress("TooGenericExceptionCaught")
 inline fun withRetry(attempts: Int, f: () -> Unit) {
     var attempt = 1
     while (true) {
         try {
             f()
             return
-        } catch (e: RuntimeException) {
+        } catch (th: Throwable) {
             if (attempt == attempts) {
-                throw e
+                throw th
             }
         }
         ++attempt

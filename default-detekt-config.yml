@@ -20,7 +20,7 @@ test-pattern: # Configure exclusions for test sources
     - 'TooManyFunctions'
 
 build:
-  maxIssues: 150
+  maxIssues: 20
   weights:
     # complexity: 2
     # LongParameterList: 1
@@ -319,7 +319,7 @@ style:
     ignoreEnums: false
   MaxLineLength:
     active: true
-    maxLineLength: 120
+    maxLineLength: 150
     excludePackageStatements: false
     excludeImportStatements: false
   MayBeConst:
@@ -354,7 +354,7 @@ style:
     active: false
   ThrowsCount:
     active: true
-    max: 2
+    max: 3
   TrailingWhitespace:
     active: false
   UnnecessaryAbstractClass:
@@ -375,5 +375,5 @@ style:
   UtilityClassWithPublicConstructor:
     active: false
   WildcardImport:
-    active: true
+    active: false
     excludeImports: 'java.util.*,kotlinx.android.synthetic.*'

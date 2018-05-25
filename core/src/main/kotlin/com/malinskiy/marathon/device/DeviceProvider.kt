@@ -14,5 +14,4 @@ interface DeviceProvider {
     fun lockDevice(device: Device) : Boolean
     fun unlockDevice(device: Device) : Boolean
     fun terminate()
-
 }

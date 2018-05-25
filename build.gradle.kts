@@ -24,7 +24,7 @@ configure<DetektExtension>{
 
     profile("main", Action {
         input = rootProject.projectDir.absolutePath
-        filters = ".*/resources/.*, .*/build/.*"
+        filters = ".*/resources/.*,.*/build/.*,.*/sample-app/.*"
         config = "${rootProject.projectDir}/default-detekt-config.yml"
         baseline = "${rootProject.projectDir}/reports/baseline.xml"
     })

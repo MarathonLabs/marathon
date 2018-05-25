@@ -10,6 +10,7 @@ import com.malinskiy.marathon.execution.strategy.impl.sorting.NoSortingStrategy
 import com.malinskiy.marathon.vendor.VendorConfiguration
 import java.io.File
 
+
 data class Configuration constructor(
         val baseOutputDir: File,
         val outputDir: File,
@@ -38,6 +39,10 @@ data class Configuration constructor(
         val testPackage: String?,
         val autoGrantPermission: Boolean,
         val vendorConfiguration: VendorConfiguration) {
+
+    companion object {
+        private const val DEFAULT_OUTPUT_TIMEOUT = 60_000
+    }
 
     constructor(baseOutputDir: File,
                 outputDir: File,
@@ -85,7 +90,7 @@ data class Configuration constructor(
                     excludedTestAnnotations = excludedTestAnnotations ?: emptyList(),
                     includeSerialRegexes = includeSerialRegexes ?: emptyList(),
                     excludeSerialRegexes = excludeSerialRegexes ?: emptyList(),
-                    testOutputTimeoutMillis = testOutputTimeoutMillis ?: 60_000,
+                    testOutputTimeoutMillis = testOutputTimeoutMillis ?: DEFAULT_OUTPUT_TIMEOUT,
                     testPackage = testPackage ?: "",
                     autoGrantPermission = autoGrantPermission ?: false,
                     vendorConfiguration = vendorConfiguration
