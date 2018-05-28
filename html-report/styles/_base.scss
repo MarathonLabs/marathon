@@ -1,0 +1,62 @@
+/* Reset */
+html,body,div,span,applet,object,iframe,
+h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,
+acronym,address,big,cite,code,del,dfn,em,
+font,img,ins,kbd,q,s,samp,small,strike,
+strong,sub,sup,tt,var,dl,dt,dd,ol,ul,
+li,fieldset,form,label,legend,table,
+caption,tbody,tfoot,thead,tr,th,td,hr {
+  padding: 0;
+  margin: 0;
+  border: none;
+  outline: none;
+  font-family: inherit;
+}
+
+h1,h2,h3,h4,h5,h6 {
+  font-weight: normal;
+}
+
+ul {
+  list-style-type: none;
+  list-style: none;
+}
+
+table {
+  border-collapse: collapse;
+  border-spacing: 0;
+}
+
+/* Global styles */
+
+html {
+  font: $font-normal/$line-height-normal $helvetica;
+}
+
+html, body {
+  text-size-adjust: 100%;
+  box-sizing: border-box;
+}
+
+html, body, .page-content {
+  height: 100%;
+}
+
+body {
+  background: $background;
+  color: $primary-blue;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+a {
+  color: $electric;
+  text-decoration: none;
+  line-height: inherit;
+  cursor: pointer;
+  transition: color $short-transition;
+
+  &:hover, &:active {
+    color: $electric;
+  }
+}

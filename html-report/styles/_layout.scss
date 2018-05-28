@@ -1,0 +1,268 @@
+/**
+  Main wrapper
+  Grid
+    Flex container
+    Columns
+  Margin for columns
+  Margins for blocks
+  Limited in width block
+  Centered block
+  Vertically aligned content in a row
+  Container to be 100% (or max possible) width of a parent
+  Right aligned block
+  Separated sections
+**/
+
+$main-container-min-width: 1200px;
+$page-padding-mobile: 20px;
+$page-padding-tablet: 20px;
+$page-padding-desktop: 20px;
+$side-padding: 20px;
+$side-padding-desktop: 40px;
+$margin: 20px;
+
+/* Main wrapper */
+
+.page-content {
+  min-width: $main-container-min-width;
+}
+
+/* Wrapper for content of the page */
+
+.content {
+  max-width: 1860px;
+  margin: 0 auto;
+  padding: 0 $page-padding-desktop;
+}
+
+/**
+  Grid
+**/
+
+/* Flex container, row wrapper, gives horizontal direction */
+
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  margin-right: -$margin;
+
+  &.full {
+    margin-right: 0;
+  }
+
+  &.rtl {
+    justify-content: flex-end;
+  }
+
+  &.no-wrap {
+    flex-wrap: nowrap;
+  }
+}
+
+/* Columns in different sizes, the number represents the actual size */
+
+[class^="col-"] {
+  box-sizing: border-box;
+  padding-right: $margin;
+}
+
+.col-100 {
+  flex: 0 0 100%;
+}
+
+.col-15 {
+  flex: 0 0 15%;
+}
+
+.col-20 {
+  flex: 0 0 20%;
+}
+
+.col-25 {
+  flex: 0 0 25%;
+}
+
+.col-30 {
+  flex: 0 0 30%;
+}
+
+.col-40 {
+  flex: 0 0 40%;
+}
+
+.col-50 {
+  flex: 0 0 50%;
+}
+
+.col-60 {
+  flex: 0 0 60%;
+}
+
+.col-70 {
+  flex: 0 0 70%;
+}
+
+.col-75 {
+  flex: 0 0 75%;
+}
+
+.col-80 {
+  flex: 0 0 80%;
+}
+
+/* Margin for columns
+   In react components used only direction + width (f.ex. 'left-20')
+ */
+
+.offset-all-0 {
+  padding: 0;
+}
+
+.offset-all-20 {
+  padding-right: 20px;
+}
+
+.offset-right-20 {
+  padding-right: 20px;
+}
+
+.offset-left-20 {
+  padding-left: 20px;
+}
+
+.offset-bottom-20 {
+  padding-bottom: 20px;
+}
+
+.offset-top-20 {
+  padding-top: 20px;
+}
+
+/* Margins for blocks */
+
+.margin-all-20 {
+  margin: 20px;
+}
+
+.margin-left-20 {
+  margin-left: 20px;
+}
+
+.margin-right-10 {
+  margin-right: 10px;
+}
+
+.margin-right-20 {
+  margin-right: 20px;
+}
+
+.margin-right-30 {
+  margin-right: 30px;
+}
+
+.margin-bottom-0.margin-bottom-0 {
+  margin-bottom: 0;
+}
+
+.margin-bottom-10 {
+  margin-bottom: 10px;
+}
+
+.margin-bottom-20 {
+  margin-bottom: 20px;
+}
+
+.margin-bottom-30 {
+  margin-bottom: 30px;
+}
+
+.margin-top-10 {
+  margin-top: 10px;
+}
+
+.margin-top-20 {
+  margin-top: 20px;
+}
+
+.margin-top-40 {
+  margin-top: 40px;
+}
+
+.margin-left-right-20 {
+  margin: 0 20px;
+}
+
+.margin-top-bottom-20 {
+  margin: 20px 0;
+}
+
+/* Limited in width block */
+
+.bounded {
+  max-width: 1100px;
+}
+
+/* Centered block */
+
+.centered {
+  margin: 0 auto;
+}
+
+/* Vertically aligned content in a row */
+
+.vertical-aligned-content {
+  display: flex;
+  align-items: center;
+}
+
+/* Container to be 100% (or max possible) width of a parent */
+
+.full-width-content {
+  flex-grow: 1;
+  flex-shrink: 1;
+}
+
+/* Right aligned block */
+
+.right-aligned-block {
+  margin-left: auto;
+}
+
+/* Justified content between */
+
+.justify-between {
+  justify-content: space-between;
+}
+
+/* Adaptive padding */
+
+.side-paddings {
+  padding-left: $side-padding;
+  padding-right: $side-padding;
+}
+
+@media $large-screen {
+  .side-paddings {
+    padding-left: $side-padding-desktop;
+    padding-right: $side-padding-desktop;
+  }
+}
+
+/* Separated sections */
+
+.separated-section {
+  position: relative;
+  margin: 0 -$side-padding $side-padding;
+  padding: 40px;
+  background: $background;
+
+  .form-container {
+    position: static;
+  }
+}
+
+@media $large-screen {
+  .separated-section {
+    margin: 0 -$side-padding-desktop $side-padding-desktop;
+  }
+}
