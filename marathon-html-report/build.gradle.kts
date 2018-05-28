@@ -15,6 +15,7 @@ plugins {
 kotlin.experimental.coroutines = Coroutines.ENABLE
 
 dependencies {
+    implementation(Libraries.gson)
     implementation(Libraries.kotlinStdLib)
     implementation(Libraries.kotlinCoroutines)
     implementation(Libraries.kotlinLogging)
