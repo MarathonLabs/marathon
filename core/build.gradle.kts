@@ -1,3 +1,4 @@
+import com.jfrog.bintray.gradle.BintrayExtension
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import org.jetbrains.kotlin.gradle.dsl.Coroutines
 import org.gradle.api.plugins.ExtensionAware
@@ -10,6 +11,7 @@ plugins {
     id("org.jetbrains.kotlin.jvm")
     id("org.junit.platform.gradle.plugin")
     `maven-publish`
+    id("com.jfrog.bintray") version "1.7.3"
 }
 
 kotlin.experimental.coroutines = Coroutines.ENABLE
@@ -23,15 +25,43 @@ dependencies {
     testRuntime(TestLibraries.spekJUnitPlatformEngine)
 }
 
+val sourcesJar by tasks.creating(Jar::class) {
+    classifier = "sources"
+    from(java.sourceSets["main"].allSource)
+}
+
+val javadocJar by tasks.creating(Jar::class) {
+    classifier = "javadoc"
+    from(java.docsDir)
+    dependsOn("javadoc")
+}
+
 publishing {
     publications {
         create("default", MavenPublication::class.java) {
             from(components["java"])
+            artifact(sourcesJar)
+            artifact(javadocJar)
+            groupId = "com.malinskiy.marathon"
+            artifactId = "core"
+            version = Versions.marathon
         }
     }
     repositories {
         maven(url = "$rootDir/build/repository")
     }
+}
+
+bintray {
+    user = Bintray.user
+    key = Bintray.key
+    setConfigurations("default")
+    pkg(delegateClosureOf<BintrayExtension.PackageConfig> {
+        repo = "marathon"
+        name = "core"
+        vcsUrl = "https://github.com/Malinskiy/marathon"
+        setLicenses("Apache-2.0")
+    })
 }
 
 val compileKotlin by tasks.getting(KotlinCompile::class) {
@@ -56,6 +86,7 @@ fun JUnitPlatformExtension.filters(setup: FiltersExtension.() -> Unit) {
         else -> throw IllegalArgumentException("${this::class} must be an instance of ExtensionAware")
     }
 }
+
 fun FiltersExtension.engines(setup: EnginesExtension.() -> Unit) {
     when (this) {
         is ExtensionAware -> extensions.getByType(EnginesExtension::class.java).setup()
