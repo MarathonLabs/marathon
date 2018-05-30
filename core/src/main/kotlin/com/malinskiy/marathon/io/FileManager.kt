@@ -30,6 +30,10 @@ class FileManager(private val output: File) {
         return deviceDirectory.listFiles(fileFilter)
     }
 
+    fun getTestResultFilesForDevice(pool: DevicePoolId, device: Device): Array<File> {
+        val path = getDirectory(FileType.TEST_RESULT, pool, device)
+        return path.toFile().listFiles()
+    }
 
     private fun createDirectory(fileType: FileType, pool: DevicePoolId, device: Device): Path =
             createDirectories(getDirectory(fileType, pool, device))
