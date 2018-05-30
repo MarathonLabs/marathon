@@ -23,10 +23,13 @@
   box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.2);
 }
 
-@media $large-screen {
-  .card {
-    padding: $side-padding-desktop;
-  }
+@media
+
+$large-screen{
+.card {
+  padding: $side-padding-desktop;
+}
+
 }
 
 /* Card with info */
@@ -481,7 +484,7 @@ $button-height: 34px;
   }
 
   &.danger,
-  // deprecated
+    // deprecated
   &.alert {
     background-color: $red;
   }
@@ -522,5 +525,51 @@ $button-height: 34px;
     border-left: 1px solid $primary-blue;
     border-top: 1px solid $primary-blue;
     transform: rotate(-135deg)
+  }
+}
+
+.formatted-time {
+  white-space: nowrap;
+}
+
+.center {
+  margin: auto;
+}
+
+.logcat {
+  table-layout: auto;
+  width: 100%;
+  font-size: 12px;
+
+  .line {
+    &.verbose {
+      color: white;
+      background-color: black;
+    }
+    &.debug {
+      color: black;
+      background-color: #42a5f5;
+    }
+    &.assert {
+      color: black;
+      background-color: #ff1744;
+    }
+    &.error {
+      color: black;
+      background-color: #ef5350;
+    }
+    &.info {
+      color: black;
+      background-color: #66bb6a;
+    }
+    &.warn {
+      color: black;
+      background-color: #ffee58;
+    }
+
+    td {
+      padding: 4px;
+      word-wrap: break-word;
+    }
   }
 }

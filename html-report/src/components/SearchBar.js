@@ -13,7 +13,7 @@ export default class SearchBar extends Component {
   };
 
   state = {
-    data: window.suite.tests,
+    data: window.pool.tests,
     error: false,
     searchLabel: null,
     searchParams: null,
@@ -97,7 +97,7 @@ export default class SearchBar extends Component {
   render() {
     let errorTextClasses = cx('form-item__error-text col-100', { visible: this.state.error });
     let errorInputClasses = cx({ 'is-invalid-input': this.state.error });
-    const data = window.suite;
+    const data = window.pool;
 
     return (
       <div>

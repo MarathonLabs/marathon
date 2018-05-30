@@ -4,8 +4,6 @@ import com.malinskiy.marathon.device.DeviceProvider
 import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.execution.Scheduler
 import com.malinskiy.marathon.execution.TestParser
-import com.malinskiy.marathon.report.html.ComposerHtmlReport
-import com.malinskiy.marathon.report.html.HtmlReportPrinter
 import com.malinskiy.marathon.report.html.Summary
 import kotlinx.coroutines.experimental.runBlocking
 import mu.KotlinLogging

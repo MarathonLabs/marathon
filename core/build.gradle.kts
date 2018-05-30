@@ -18,6 +18,7 @@ dependencies {
     implementation(project(":marathon-html-report"))
     implementation(Libraries.gson)
     implementation(Libraries.apacheCommonsText)
+    implementation(Libraries.apacheCommonsIO)
     implementation(Libraries.kotlinStdLib)
     implementation(Libraries.kotlinCoroutines)
     implementation(Libraries.kotlinLogging)

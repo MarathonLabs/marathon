@@ -31,7 +31,6 @@ class JUnitReporter(private val fileManager: FileManager) {
         fun Long.toJUnitSeconds(): String = (TimeUnit.NANOSECONDS.toMillis(this) / 1000.0).toString()
 
         val test = testResult.test
-        val duration = testResult.endTime - testResult.startTime
 
         val failures = if (testResult.status == TestStatus.FAILURE) 1 else 0
         val ignored = if (testResult.status == TestStatus.IGNORED) 1 else 0
@@ -47,13 +46,13 @@ class JUnitReporter(private val fileManager: FileManager) {
                 attribute("failures", "$failures")
                 attribute("errors", "0")
                 attribute("skipped", "$ignored")
-                attribute("time", duration.toJUnitSeconds())
+                attribute("time", testResult.durationMillis().toJUnitSeconds())
                 attribute("timestamp", formattedTimestamp)
                 element("properties") {}
                 element("testcase") {
                     attribute("classname", "${test.pkg}.${test.clazz}")
                     attribute("name", test.method)
-                    attribute("time", duration.toJUnitSeconds())
+                    attribute("time", testResult.durationMillis().toJUnitSeconds())
                     when (testResult.status) {
                         TestStatus.IGNORED -> {
                             element("skipped") {

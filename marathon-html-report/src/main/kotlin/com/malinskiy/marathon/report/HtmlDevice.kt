@@ -2,7 +2,7 @@ package com.malinskiy.marathon.report
 
 import com.google.gson.annotations.SerializedName
 
-data class HtmlDevice(@SerializedName("id") val id: String,
-                      @SerializedName("model") val model: String,
-                      @SerializedName("logcat_path") val logcatPath: String,
-                      @SerializedName("instrumentation_output_path") val instrumentationOutputPath: String)
+data class HtmlDevice(@SerializedName("apiLevel") val apiLevel: String,
+                      @SerializedName("isTable") val isTablet: Boolean,
+                      @SerializedName("serial") val serial: String,
+                      @SerializedName("modelName") val modelName: String)

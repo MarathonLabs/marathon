@@ -5,24 +5,24 @@ import convertTime from './../utils/convertTime';
 import paths from './../utils/paths';
 import SearchBar from './SearchBar';
 
-export default class Suite extends Component {
+export default class Pool extends Component {
   state = {
     colors: null,
-    tests: window.suite.tests
+    tests: window.pool.tests
   };
 
   componentWillMount() {
     this.setDevicesLabelColors();
-    document.title = `Suite ${window.suite.id}`;
+    document.title = `Pool ${window.pool.id}`;
   }
 
   setDevicesLabelColors() {
     const generatedColors = randomColor({
-      count: window.suite.devices.length,
+      count: window.pool.devices.length,
       luminosity: 'bright'
     });
     let colors = {};
-    window.suite.devices.map((item, i) => {
+    window.pool.devices.map((item, i) => {
       colors[item.id] = generatedColors[i];
     });
     this.setState({ colors });
@@ -33,10 +33,10 @@ export default class Suite extends Component {
   }
 
   render() {
-    const data = window.suite;
+    const data = window.pool;
     return (
       <div className="content margin-top-20">
-        <div className="title-common"><a href={ paths.fromSuiteToIndex }>Suites list</a>/ Suite {data.id}</div>
+        <div className="title-common"><a href={ paths.fromPoolToIndex }>Pools list</a>/ Pool {data.id}</div>
 
         <SearchBar setSearchResults={ (results) => this.getSearchResults(results) } />
 
@@ -58,8 +58,6 @@ export default class Suite extends Component {
                   <div className="margin-bottom-5">
                     <span className="label info"
                           style={ { background: this.state.colors[test.deviceId] } }>{ test.deviceId }</span>
-                    <span className="label info"
-                          style={ { background: this.state.colors[test.deviceId] } }>{ test.deviceModel }</span>
                   </div>
                   <div className="margin-bottom-5">
                     <span className="label big">{ convertTime(test.duration_millis) }</span>

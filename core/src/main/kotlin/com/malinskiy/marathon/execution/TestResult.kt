@@ -8,4 +8,6 @@ data class TestResult(val test: Test,
                       val status: TestStatus,
                       val startTime: Long,
                       val endTime: Long,
-                      val stacktrace: String? = null)
+                      val stacktrace: String? = null){
+    fun durationMillis() = endTime - startTime
+}
