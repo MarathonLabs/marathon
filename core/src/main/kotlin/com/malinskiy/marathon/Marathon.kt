@@ -4,6 +4,9 @@ import com.malinskiy.marathon.device.DeviceProvider
 import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.execution.Scheduler
 import com.malinskiy.marathon.execution.TestParser
+import com.malinskiy.marathon.report.html.ComposerHtmlReport
+import com.malinskiy.marathon.report.html.HtmlReportPrinter
+import com.malinskiy.marathon.report.html.Summary
 import kotlinx.coroutines.experimental.runBlocking
 import mu.KotlinLogging
 import java.util.*
@@ -36,6 +39,12 @@ class Marathon(val configuration: Configuration) {
                 scheduler.execute()
             }
         }
+
+        val reportPrinter: HtmlReportPrinter = ComposerHtmlReport(configuration)
+
+        val summary = Summary(emptyList())
+
+        reportPrinter.print(summary)
 
         val hours = TimeUnit.MICROSECONDS.toHours(timeMillis)
         val minutes = TimeUnit.MICROSECONDS.toMinutes(timeMillis)

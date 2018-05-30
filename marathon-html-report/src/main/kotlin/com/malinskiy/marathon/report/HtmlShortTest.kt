@@ -7,7 +7,7 @@ data class HtmlShortTest(@SerializedName("id") val id: String,
                          @SerializedName("class_name") val className: String,
                          @SerializedName("name") val name: String,
                          @SerializedName("duration_millis") val durationMillis: Long,
-                         @SerializedName("status") val status: Status,
+                         @SerializedName("status") val status: HtmlStatus,
                          @SerializedName("deviceId") val deviceId: String,
                          @SerializedName("deviceModel") val deviceModel: String,
                          @SerializedName("properties") val properties: Map<String, Any>

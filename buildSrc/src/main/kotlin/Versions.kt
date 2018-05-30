@@ -19,6 +19,7 @@ object Versions {
     val espressoRunner = "1.0.1"
     val junit = "4.12"
     val gson = "2.8.5"
+    val apacheCommons = "1.3"
 }
 
 object BuildPlugins {
@@ -36,6 +37,7 @@ object Libraries {
     val kotlinCoroutines = "org.jetbrains.kotlinx:kotlinx-coroutines-core:${Versions.coroutines}"
     val axmlParser = "com.shazam:axmlparser:${Versions.axmlParser}"
     val gson = "com.google.code.gson:gson:${Versions.gson}"
+    val apacheCommonsText = "org.apache.commons:commons-text:${Versions.apacheCommons}"
 }
 
 object TestLibraries {

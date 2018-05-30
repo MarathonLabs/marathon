@@ -55,7 +55,7 @@ class XmlListener(private val device: Device,
     private fun generateReports() {
         runResult.testResults.forEach {
             val status = it.value.status.toMarathonStatus()
-            val testResult = TestResult(it.key!!.toTest(), status, it.value.startTime, it.value.endTime, it.value.stackTrace)
+            val testResult = TestResult(it.key!!.toTest(), device, status, it.value.startTime, it.value.endTime, it.value.stackTrace)
             jUnitReporter.testFinished(devicePoolId, device, testResult)
         }
     }
