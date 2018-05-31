@@ -2,6 +2,7 @@ package com.malinskiy.marathon.report
 
 import com.google.gson.Gson
 import com.malinskiy.marathon.device.Device
+import com.malinskiy.marathon.device.DeviceInfo
 import com.malinskiy.marathon.device.DevicePoolId
 import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.execution.TestResult
@@ -41,13 +42,13 @@ class SummaryCompiler(private val configuration: Configuration,
                 devices = devices)
     }
 
-    private fun readTests(poolId: DevicePoolId, device: Device): List<TestResult> {
-        return fileManager.getTestResultFilesForDevice(poolId, device).map {
+    private fun readTests(poolId: DevicePoolId, device: DeviceInfo): List<TestResult> {
+        return fileManager.getTestResultFilesForDevice(poolId, device.serialNumber).map {
             gson.fromJson(FileReader(it), TestResult::class.java)
         }
     }
 
-    private fun readDeviceInfo(file: File): Device {
-        return gson.fromJson(FileReader(file), Device::class.java)
+    private fun readDeviceInfo(file: File): DeviceInfo {
+        return gson.fromJson(FileReader(file), DeviceInfo::class.java)
     }
 }

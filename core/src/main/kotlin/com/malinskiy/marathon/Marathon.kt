@@ -1,10 +1,16 @@
 package com.malinskiy.marathon
 
+import com.google.gson.Gson
+import com.malinskiy.marathon.analytics.LocalTracker
 import com.malinskiy.marathon.device.DeviceProvider
 import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.execution.Scheduler
 import com.malinskiy.marathon.execution.TestParser
-import com.malinskiy.marathon.report.html.Summary
+import com.malinskiy.marathon.io.FileManager
+import com.malinskiy.marathon.report.SummaryCompiler
+import com.malinskiy.marathon.report.html.HtmlSummaryPrinter
+import com.malinskiy.marathon.report.internal.TestResultSerializer
+import com.malinskiy.marathon.report.junit.JUnitReporter
 import kotlinx.coroutines.experimental.runBlocking
 import mu.KotlinLogging
 import java.util.*
@@ -24,7 +30,13 @@ class Marathon(val configuration: Configuration) {
 
         val tests = testParser.extract(configuration.testApplicationOutput)
 
-        val scheduler = Scheduler(deviceProvider, configuration, tests)
+        val fileManager = FileManager(configuration.outputDir)
+        val gson = Gson()
+        val jUnitReporter = JUnitReporter(fileManager)
+        val testResultSerializer = TestResultSerializer(fileManager, gson)
+        val tracker = LocalTracker(fileManager, gson, jUnitReporter, testResultSerializer)
+
+        val scheduler = Scheduler(deviceProvider, tracker, configuration, tests)
 
         if (configuration.outputDir.exists()) {
             log.info { "Output ${configuration.outputDir} already exists" }
@@ -38,11 +50,10 @@ class Marathon(val configuration: Configuration) {
             }
         }
 
-        val reportPrinter: HtmlReportPrinter = ComposerHtmlReport(configuration)
+        val summary = SummaryCompiler(configuration, fileManager, gson).compile(scheduler.getPools())
+        val summaryPrinter = HtmlSummaryPrinter(gson, configuration.outputDir)
 
-        val summary = Summary(emptyList())
-
-        reportPrinter.print(summary)
+        summaryPrinter.print(summary)
 
         val hours = TimeUnit.MICROSECONDS.toHours(timeMillis)
         val minutes = TimeUnit.MICROSECONDS.toMinutes(timeMillis)

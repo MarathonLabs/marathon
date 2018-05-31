@@ -1,8 +1,8 @@
 package com.malinskiy.marathon.report.html
 
 import com.google.gson.Gson
-import com.malinskiy.marathon.device.Device
 import com.malinskiy.marathon.device.DeviceFeature
+import com.malinskiy.marathon.device.DeviceInfo
 import com.malinskiy.marathon.execution.TestResult
 import com.malinskiy.marathon.execution.TestStatus
 import com.malinskiy.marathon.report.*
@@ -130,7 +130,7 @@ fun cssClassForLogcatLine(logcatLine: String): String {
     }
 }
 
-fun Device.toHtmlDevice() = HtmlDevice(
+fun DeviceInfo.toHtmlDevice() = HtmlDevice(
         apiLevel = operatingSystem.version,
         isTablet = false, //TODO: FIX
         serial = serialNumber,
@@ -139,7 +139,7 @@ fun Device.toHtmlDevice() = HtmlDevice(
 
 fun TestResult.toHtmlFullTest(poolId: String) = HtmlFullTest(
         poolId = poolId,
-        id = "${test.pkg}.${test.clazz}#${test.method}",
+        id = "${test.pkg}.${test.clazz}.${test.method}",
         packageName = test.pkg,
         className = test.clazz,
         name = test.method,
@@ -206,7 +206,7 @@ fun maxDuration(poolSummaries: List<PoolSummary>) = durationPerPool(poolSummarie
 
 
 fun TestResult.toHtmlShortSuite() = HtmlShortTest(
-        id = "${test.pkg}.${test.clazz}#${test.method}",
+        id = "${test.pkg}.${test.clazz}.${test.method}",
         packageName = test.pkg,
         className = test.clazz,
         name = test.method,

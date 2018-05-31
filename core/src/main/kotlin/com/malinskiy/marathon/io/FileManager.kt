@@ -30,8 +30,8 @@ class FileManager(private val output: File) {
         return deviceDirectory.listFiles(fileFilter)
     }
 
-    fun getTestResultFilesForDevice(pool: DevicePoolId, device: Device): Array<File> {
-        val path = getDirectory(FileType.TEST_RESULT, pool, device)
+    fun getTestResultFilesForDevice(pool: DevicePoolId, serial: String): Array<File> {
+        val path = getDirectory(FileType.TEST_RESULT, pool, serial)
         return path.toFile().listFiles()
     }
 
@@ -42,7 +42,10 @@ class FileManager(private val output: File) {
             createDirectories(getDirectory(fileType, pool))
 
     private fun getDirectory(fileType: FileType, pool: DevicePoolId, device: Device): Path =
-            get(output.absolutePath, fileType.dir, pool.name, device.serialNumber)
+            getDirectory(fileType, pool, device.serialNumber)
+
+    private fun getDirectory(fileType: FileType, pool: DevicePoolId, serial: String): Path =
+            get(output.absolutePath, fileType.dir, pool.name, serial)
 
     private fun getDirectory(fileType: FileType, pool: DevicePoolId): Path =
             get(output.absolutePath, fileType.dir, pool.name)
