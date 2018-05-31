@@ -10,8 +10,7 @@ export default class ColorizedLogsComponent extends Component {
 
     componentWillMount() {
         this.loadData(window.logs.log_path, function (text) {
-            const data = JSON.parse(text);
-            this.onDataReceived(data);
+            this.onDataReceived(text);
         }.bind(this));
     }
 
@@ -57,31 +56,32 @@ export default class ColorizedLogsComponent extends Component {
                             <th>Time</th>
                             <th className="message">Message</th>
                         </tr>
-                        {!!this.state.logs && this.state.logs.map((log) => {
-                                const process = log.mHeader.mPid;
-                                const tag = log.mHeader.mTag;
-                                const level = log.mHeader.mLogLevel;
-                                const timestamp = log.mHeader.mTimestamp;
-                                const time = timestamp.mMonth + "-" + timestamp.mDay + " " + timestamp.mHour + ":" + timestamp.mMinute + ":" + timestamp.mSecond + "." + timestamp.mMilli;
-                                const message = log.mMessage;
+                        {!!this.state.logs && this.state.logs.split("\n").map((line) => {
+                            const arr = line.split(" ");
+                            const time = arr[0] + " " + arr[1];
+                            const process = arr[2].split("-")[0];
+                            const logArr = arr[3].split("/");
+                            const level = logArr[0];
+                            const tag = logArr[1].substring(0, logArr[1].length-1);
+                            const message = line.split(tag + ": ");
 
                                 function selectStyle(logLevel) {
                                     switch (logLevel) {
-                                        case "WARN":
+                                        case "W":
                                             return "line warn";
-                                        case "DEBUG": {
+                                        case "D": {
                                             return "line debug";
                                         }
-                                        case "ERROR": {
+                                        case "E": {
                                             return "line error";
                                         }
-                                        case "INFO": {
+                                        case "I": {
                                             return "line info";
                                         }
-                                        case "ASSERT": {
+                                        case "A": {
                                             return "line assert";
                                         }
-                                        case "VERBOSE": {
+                                        case "V": {
                                             return "line verbose";
                                         }
                                     }

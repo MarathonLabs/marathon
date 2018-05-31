@@ -543,12 +543,12 @@ $button-height: 34px;
 
   .line {
     &.verbose {
-      color: white;
-      background-color: black;
+      color: black;
+      background-color: #eeeeee;
     }
     &.debug {
       color: black;
-      background-color: #42a5f5;
+      background-color: #90caf9;
     }
     &.assert {
       color: black;
@@ -556,15 +556,15 @@ $button-height: 34px;
     }
     &.error {
       color: black;
-      background-color: #ef5350;
+      background-color: #ef9a9a;
     }
     &.info {
       color: black;
-      background-color: #66bb6a;
+      background-color: #c5e1a5;
     }
     &.warn {
       color: black;
-      background-color: #ffee58;
+      background-color: #fff59d;
     }
 
     td {
