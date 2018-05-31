@@ -157,7 +157,7 @@ fun TestResult.toHtmlFullTest(poolId: String) = HtmlFullTest(
             true -> "../../../../screenrecord/$poolId/${device.serialNumber}/${test.pkg}.${test.clazz}%23${test.method}.mp4"
             false -> ""
         },
-        logFile = "../../../../logcat/$poolId/${device.serialNumber}/${test.pkg}.${test.clazz}%23${test.method}.log")
+        logFile = "../../../../logs/$poolId/${device.serialNumber}/${test.pkg}.${test.clazz}%23${test.method}.log")
 
 fun TestStatus.toHtmlStatus() = when (this) {
     TestStatus.PASSED -> Status.Passed
@@ -220,6 +220,6 @@ fun toHtmlTestLogDetails(poolId: String,
         testId = fullTest.id,
         displayName = fullTest.name,
         deviceId = fullTest.deviceId,
-        logPath = "../../../../../logcat_json/$poolId/${fullTest.deviceId}/${fullTest.packageName}.${fullTest.className}%23${fullTest.name}.json"
+        logPath = "../../../../../logs/$poolId/${fullTest.deviceId}/${fullTest.packageName}.${fullTest.className}%23${fullTest.name}.log"
 )
 
