@@ -2,6 +2,7 @@ package com.malinskiy.marathon
 
 import com.google.gson.Gson
 import com.malinskiy.marathon.analytics.LocalTracker
+import com.malinskiy.marathon.analytics.Tracker
 import com.malinskiy.marathon.device.DeviceProvider
 import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.execution.Scheduler
@@ -21,20 +22,34 @@ private val log = KotlinLogging.logger {}
 
 class Marathon(val configuration: Configuration) {
 
-    fun run(): Boolean {
-        val loader = ServiceLoader.load(TestParser::class.java)
-        val testParser = loader.first()
+    private val fileManager = FileManager(configuration.outputDir)
+    private val gson = Gson()
+    private val summaryCompiler = SummaryCompiler(configuration, fileManager, gson)
+    private val summaryPrinter = HtmlSummaryPrinter(gson, configuration.outputDir)
 
+    private fun loadDeviceProvider(): DeviceProvider {
         val deviceProvider = ServiceLoader.load(DeviceProvider::class.java).first()
         deviceProvider.initialize(configuration.vendorConfiguration)
+        return deviceProvider
+    }
 
-        val tests = testParser.extract(configuration.testApplicationOutput)
+    private fun loadTestParser(): TestParser {
+        val loader = ServiceLoader.load(TestParser::class.java)
+        return loader.first()
+    }
 
-        val fileManager = FileManager(configuration.outputDir)
-        val gson = Gson()
+    private fun loadTracker(): Tracker {
         val jUnitReporter = JUnitReporter(fileManager)
         val testResultSerializer = TestResultSerializer(fileManager, gson)
-        val tracker = LocalTracker(fileManager, gson, jUnitReporter, testResultSerializer)
+        return LocalTracker(fileManager, gson, jUnitReporter, testResultSerializer)
+    }
+
+    fun run(): Boolean {
+        val testParser = loadTestParser()
+        val deviceProvider = loadDeviceProvider()
+        val tracker = loadTracker()
+
+        val tests = testParser.extract(configuration.testApplicationOutput)
 
         val scheduler = Scheduler(deviceProvider, tracker, configuration, tests)
 
@@ -50,10 +65,7 @@ class Marathon(val configuration: Configuration) {
             }
         }
 
-        val summary = SummaryCompiler(configuration, fileManager, gson).compile(scheduler.getPools())
-        val summaryPrinter = HtmlSummaryPrinter(gson, configuration.outputDir)
-
-        summaryPrinter.print(summary)
+        summaryPrinter.print(summaryCompiler.compile(scheduler.getPools()))
 
         val hours = TimeUnit.MICROSECONDS.toHours(timeMillis)
         val minutes = TimeUnit.MICROSECONDS.toMinutes(timeMillis)
