@@ -34,7 +34,7 @@ class Marathon(val configuration: Configuration) {
     private val testResultSerializer = TestResultSerializer(fileManager, gson)
     private val deviceInfoSerializer = DeviceInfoSerializer(fileManager, gson)
 
-    private val summaryCompiler = SummaryCompiler(deviceInfoSerializer, testResultSerializer)
+    private val summaryCompiler = SummaryCompiler(deviceInfoSerializer, testResultSerializer, configuration)
 
     private fun loadSummaryPrinter(): SummaryPrinter {
         val outputDir = configuration.outputDir

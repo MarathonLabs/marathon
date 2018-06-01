@@ -1,6 +1,6 @@
 package com.malinskiy.marathon.device
 
-class DeviceInfo(val operatingSystem: OperatingSystem,
+data class DeviceInfo(val operatingSystem: OperatingSystem,
                  val serialNumber: String,
                  val model: String,
                  val manufacturer: String,

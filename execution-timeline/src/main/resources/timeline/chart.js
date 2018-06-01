@@ -3,48 +3,48 @@ function testsChart() {
         top: 70,
         right: 40,
         bottom: 20,
-        left: 150
+        left: 0
     };
 
     var dataHeight = 18;
     var lineSpacing = 30;
     var paddingTopHeading = -50;
     var paddingBottom = 10;
-    var paddingLeft = -150;
+    var paddingLeft = 0;
     var width = 1200 - margin.left - margin.right;
 
     var div = d3.select('body').append('div')
         .attr('class', 'tooltip')
         .style('opacity', 0);
 
-    function renderLegend(svg, success, failed, dataset) {
+    function renderLegend(svg, success, failed, dataset, textWidth) {
         var legend = svg.select('#g_title')
             .append('g')
             .attr('id', 'g_legend')
             .attr('transform', 'translate(0,-12)');
 
         legend.append('rect')
-            .attr('x', width + margin.right - 150)
+            .attr('x', width + margin.right - 150 + textWidth)
             .attr('y', paddingTopHeading)
             .attr('height', 15)
             .attr('width', 15)
             .attr('class', 'rect_passed_test');
 
         legend.append('text')
-            .attr('x', width + margin.right - 150 + 20)
+            .attr('x', width + margin.right - 150 + 20 + textWidth)
             .attr('y', paddingTopHeading + 8.5)
             .text('Passed test = ' + success)
             .attr('class', 'legend');
 
         legend.append('rect')
-            .attr('x', width + margin.right - 150)
+            .attr('x', width + margin.right - 150 + textWidth)
             .attr('y', paddingTopHeading + 17)
             .attr('height', 15)
             .attr('width', 15)
             .attr('class', 'rect_failed_test');
 
         legend.append('text')
-            .attr('x', width + margin.right - 150 + 20)
+            .attr('x', width + margin.right - 150 + 20 + textWidth)
             .attr('y', paddingTopHeading + 8.5 + 15 + 2)
             .text('Failed test = ' + failed)
             .attr('class', 'legend');
@@ -54,13 +54,13 @@ function testsChart() {
         var averageIdle = idle / deviceCount;
 
         legend.append('text')
-            .attr('x', width + margin.right - 350)
+            .attr('x', width + margin.right - 350 + textWidth)
             .attr('y', paddingTopHeading + 8.5 + 15 + 2)
             .text('Summary idle: ' + Math.round(moment.duration(idle).asSeconds()).toFixed(2) + " sec")
             .attr('class', 'legend');
 
         legend.append('text')
-            .attr('x', width + margin.right - 350)
+            .attr('x', width + margin.right - 350 + textWidth)
             .attr('y', paddingTopHeading + 8.5)
             .text('Average Idle: ' + Math.round(moment.duration(averageIdle).asSeconds()).toFixed(2) + " sec")
             .attr('class', 'legend');
@@ -92,7 +92,7 @@ function testsChart() {
             .attr('class', 'subheading');
     }
 
-    function renderTests(svg, dataset, startSet, endSet, xScale) {
+    function renderTests(svg, dataset, startSet, endSet, xScale, textWidth) {
         var g = svg.select('#g_data').selectAll('.g_data')
             .data(dataset.measures.slice(startSet, endSet))
             .enter()
@@ -109,7 +109,7 @@ function testsChart() {
             .enter()
             .append('rect')
             .attr('x', function (d) {
-                return xScale(d.startDate);
+                return xScale(d.startDate) + textWidth;
             })
             .attr('y', lineSpacing)
             .attr('width', function (d) {
@@ -166,35 +166,39 @@ function testsChart() {
             });
     }
 
-    function renderTime(svg, xAxis) {
+    function renderTime(svg, xAxis, textWidth) {
         svg.select('#g_axis').append('g')
             .attr('class', 'axis')
+            .attr('transform', function (d, i) {
+                return 'translate(' + textWidth + ',0)';
+            })
             .call(xAxis);
     }
 
-    function renderGrid(svg, xScale, noOfDatasets, dataset) {
+    function renderGrid(svg, xScale, noOfDatasets, dataset, textWidth) {
         svg.select('#g_axis').selectAll('line.vert_grid').data(xScale.ticks().concat(xScale.domain()))
             .enter()
             .append('line')
             .attr({
                 'class': 'vert_grid',
                 'x1': function (d) {
-                    return xScale(d);
+                    return xScale(d) + textWidth;
                 },
                 'x2': function (d) {
-                    return xScale(d);
+                    return xScale(d) + textWidth;
                 },
                 'y1': 0,
                 'y2': dataHeight * noOfDatasets + lineSpacing * noOfDatasets - 1 + paddingBottom
             });
+
 
         svg.select('#g_axis').selectAll('line.horz_grid').data(dataset.measures)
             .enter()
             .append('line')
             .attr({
                 'class': 'horz_grid',
-                'x1': 0,
-                'x2': width,
+                'x1': textWidth,
+                'x2': width + textWidth,
                 'y1': function (d, i) {
                     return ((lineSpacing + dataHeight) * i) + lineSpacing + dataHeight / 2;
                 },
@@ -287,13 +291,12 @@ function testsChart() {
                 .data(dataset.measures)
                 .enter();
 
+
             labels.append('text')
                 .attr('x', paddingLeft)
                 .attr('y', lineSpacing + dataHeight / 2)
                 .text(function (d) {
-                    if (!(d.measure_html != null)) {
-                        return d.measure;
-                    }
+                    return d.measure;
                 })
                 .attr('transform', function (d, i) {
                     return 'translate(0,' + ((lineSpacing + dataHeight) * i) + ')';
@@ -312,6 +315,22 @@ function testsChart() {
                     return null;
                 });
 
+            function getTextWidth(text, fontSize, fontFace) {
+                var canvas = document.createElement('canvas');
+                var context = canvas.getContext('2d');
+                context.font = fontSize + 'px ' + fontFace;
+                return context.measureText(text).width;
+            }
+
+            var longest = "";
+            dataset.measures.forEach(a => {
+                if (longest.length < a.measure.length) {
+                    longest = a.measure;
+                }
+            });
+
+            var width = getTextWidth(longest, 12, 'Arial');
+
             labels.append('foreignObject')
                 .attr('x', paddingLeft)
                 .attr('y', lineSpacing)
@@ -327,15 +346,15 @@ function testsChart() {
                     }
                 });
 
-            renderGrid(svg, scale, noOfDatasets, dataset);
+            renderGrid(svg, scale, noOfDatasets, dataset, width);
 
-            renderTime(svg, axis);
+            renderTime(svg, axis, width);
 
-            renderTests(svg, dataset, startSet, endSet, scale);
+            renderTests(svg, dataset, startSet, endSet, scale, width);
 
-            renderTitle(svg, startDate, finishDate);
+            renderTitle(svg, startDate, finishDate, width);
 
-            renderLegend(svg, success, failed, dataset);
+            renderLegend(svg, success, failed, dataset, width);
         });
     }
 

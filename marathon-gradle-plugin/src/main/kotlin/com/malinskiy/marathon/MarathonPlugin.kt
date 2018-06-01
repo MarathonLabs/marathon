@@ -85,6 +85,7 @@ class MarathonPlugin : Plugin<Project> {
                     val output = File(baseOutputDir, variant.name)
 
                     configuration = Configuration(
+                            config.name,
                             baseOutputDir,
                             output,
                             applicationApk,

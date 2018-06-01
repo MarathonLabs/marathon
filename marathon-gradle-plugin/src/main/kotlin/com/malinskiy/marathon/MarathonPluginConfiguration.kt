@@ -3,7 +3,7 @@ package com.malinskiy.marathon
 import com.malinskiy.marathon.execution.strategy.*
 
 data class MarathonPluginConfiguration @JvmOverloads constructor(
-        val name: String,
+        var name: String = "Marathon",
 
         var poolingStrategy: PoolingStrategy? = null,
         var shardingStrategy: ShardingStrategy? = null,

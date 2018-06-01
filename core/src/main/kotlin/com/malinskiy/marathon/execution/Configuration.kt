@@ -12,6 +12,7 @@ import java.io.File
 
 
 data class Configuration constructor(
+        val name: String,
         val baseOutputDir: File,
         val outputDir: File,
         val applicationOutput: File,
@@ -45,7 +46,8 @@ data class Configuration constructor(
         private const val DEFAULT_OUTPUT_TIMEOUT = 60_000
     }
 
-    constructor(baseOutputDir: File,
+    constructor(name: String,
+                baseOutputDir: File,
                 outputDir: File,
                 applicationOutput: File,
                 testApplicationOutput: File,
@@ -74,7 +76,8 @@ data class Configuration constructor(
                 autoGrantPermission: Boolean?,
                 vendorConfiguration: VendorConfiguration) :
 
-            this(baseOutputDir = baseOutputDir,
+            this(name = name,
+                    baseOutputDir = baseOutputDir,
                     outputDir = outputDir,
                     applicationOutput = applicationOutput,
                     testApplicationOutput = testApplicationOutput,

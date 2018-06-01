@@ -76,9 +76,7 @@ class TimelineSummarySerializer(private val testResultSerializer: TestResultSeri
         return Measure(device.serialNumber, calculateExecutionStats(data), data)
     }
 
-    private fun parseList(poolSummaries: List<PoolSummary>): List<Measure> {
-        return poolSummaries.flatMap { this.parsePoolSummary(it) }
-    }
+    private fun parseList(pools: List<PoolSummary>): List<Measure> = pools.flatMap { this.parsePoolSummary(it) }
 
     private fun extractIdentifiers(summary: PoolSummary): List<Test> {
         return summary.tests

@@ -1,16 +1,18 @@
 package com.malinskiy.marathon.report
 
 import com.malinskiy.marathon.device.DevicePoolId
+import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.execution.TestStatus
 import com.malinskiy.marathon.report.internal.DeviceInfoSerializer
 import com.malinskiy.marathon.report.internal.TestResultSerializer
 
 class SummaryCompiler(private val deviceInfoSerializer: DeviceInfoSerializer,
-                      private val testResultSerializer: TestResultSerializer) {
+                      private val testResultSerializer: TestResultSerializer,
+                      private val configuration: Configuration) {
 
     fun compile(pools: List<DevicePoolId>): Summary {
         val poolsSummary: List<PoolSummary> = pools.map { compilePoolSummary(it) }
-        return Summary("Test", poolsSummary)
+        return Summary(configuration.name, poolsSummary)
     }
 
     private fun compilePoolSummary(poolId: DevicePoolId): PoolSummary {
