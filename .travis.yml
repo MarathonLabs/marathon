@@ -12,7 +12,6 @@ cache:
   - $HOME/.gradle/caches/
   - $HOME/.gradle/wrapper/
   - $HOME/.android/build-cache
-
 env:
  global:
  - ANDROID_API=26
@@ -29,11 +28,12 @@ android:
 
 jobs:
   include:
-    - stage: test
-      script: ./gradlew clean test
-    - stage: detekt
-      script: ./gradlew clean detektCheck
+  - stage: test
+    script: ./gradlew clean test
+  - stage: detekt
+    script: ./gradlew clean detektCheck
 
+deploy:
 - provider: script
   script: bash .buildsystem/deploy.sh
   on:
