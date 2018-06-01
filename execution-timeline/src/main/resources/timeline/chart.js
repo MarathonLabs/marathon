@@ -301,19 +301,7 @@ function testsChart() {
                 .attr('transform', function (d, i) {
                     return 'translate(0,' + ((lineSpacing + dataHeight) * i) + ')';
                 })
-                .attr('class', function (d) {
-                    var returnCSSClass = 'ytitle';
-                    if (d.measure_url != null) {
-                        returnCSSClass = returnCSSClass + ' link';
-                    }
-                    return returnCSSClass;
-                })
-                .on('click', function (d) {
-                    if (d.measure_url != null) {
-                        return window.open(d.measure_url);
-                    }
-                    return null;
-                });
+                .attr('class', 'ytitle');
 
             function getTextWidth(text, fontSize, fontFace) {
                 var canvas = document.createElement('canvas');
@@ -339,12 +327,7 @@ function testsChart() {
                 })
                 .attr('width', -1 * paddingLeft)
                 .attr('height', dataHeight)
-                .attr('class', 'ytitle')
-                .html(function (d) {
-                    if (d.measure_html != null) {
-                        return d.measure_html;
-                    }
-                });
+                .attr('class', 'ytitle');
 
             renderGrid(svg, scale, noOfDatasets, dataset, width);
 
