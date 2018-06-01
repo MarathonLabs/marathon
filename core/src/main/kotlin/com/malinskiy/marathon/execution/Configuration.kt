@@ -96,7 +96,7 @@ data class Configuration constructor(
                     includeSerialRegexes = includeSerialRegexes ?: emptyList(),
                     excludeSerialRegexes = excludeSerialRegexes ?: emptyList(),
                     testOutputTimeoutMillis = testOutputTimeoutMillis ?: DEFAULT_OUTPUT_TIMEOUT,
-                    debug = debug ?: false,
+                    debug = debug ?: true,
                     testPackage = testPackage ?: "",
                     autoGrantPermission = autoGrantPermission ?: false,
                     vendorConfiguration = vendorConfiguration
