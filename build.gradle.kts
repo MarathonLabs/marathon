@@ -30,9 +30,11 @@ configure<DetektExtension> {
     })
 }
 
+Deployment.initialize(project)
+
 allprojects {
-    group = "com.malinskiy"
-    version = "0.1.0"
+    group = "com.malinskiy.marathon"
+    version = Versions.marathon + Deployment.versionSuffix
 
     repositories {
         jcenter()

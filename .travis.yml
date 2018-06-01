@@ -29,5 +29,11 @@ android:
 
 script: ./gradlew clean test build
 
-deploy:
-  - provider:
+- provider: script
+  script: bash .buildsystem/deploy.sh
+  on:
+    branch: develop
+- provider: script
+  script: bash .buildsystem/deploy.sh
+  on:
+    tags: true

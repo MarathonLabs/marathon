@@ -1,10 +1,8 @@
-import com.jfrog.bintray.gradle.BintrayExtension
-
 plugins {
     `java-gradle-plugin`
     `kotlin-dsl`
     `maven-publish`
-    id("com.jfrog.bintray") version "1.7.3"
+    `signing`
 }
 
 gradlePlugin {
@@ -30,28 +28,26 @@ val javadocJar by tasks.creating(Jar::class) {
 publishing {
     publications {
         create("default", MavenPublication::class.java) {
+            Deployment.customizePom(pom)
             from(components["java"])
             artifact(sourcesJar)
             artifact(javadocJar)
-            groupId = "com.malinskiy.marathon"
-            artifactId = "marathon-gradle-plugin"
-            version = Versions.marathon
         }
     }
     repositories {
-        maven(url = "$rootDir/build/repository")
+        maven {
+            name = "Local"
+            setUrl("$rootDir/build/repository")
+        }
+        maven {
+            name = "OSSHR"
+            credentials {
+                username = Deployment.user
+                password = Deployment.password
+            }
+            setUrl(Deployment.deployUrl)
+        }
     }
-}
-
-bintray {
-    user = Bintray.user
-    key = Bintray.key
-    pkg(delegateClosureOf<BintrayExtension.PackageConfig> {
-        repo = "marathon"
-        name = "marathon-gradle-plugin"
-        vcsUrl = "https://github.com/Malinskiy/marathon"
-        setLicenses("Apache-2.0")
-    })
 }
 
 dependencies {

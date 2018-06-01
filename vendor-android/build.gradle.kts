@@ -1,4 +1,3 @@
-import com.jfrog.bintray.gradle.BintrayExtension
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import org.jetbrains.kotlin.gradle.dsl.Coroutines
 import org.junit.platform.gradle.plugin.EnginesExtension
@@ -6,11 +5,11 @@ import org.junit.platform.gradle.plugin.FiltersExtension
 import org.junit.platform.gradle.plugin.JUnitPlatformExtension
 
 plugins {
-    java
+    `java-library`
     id("org.jetbrains.kotlin.jvm")
     id("org.junit.platform.gradle.plugin")
     `maven-publish`
-    id("com.jfrog.bintray") version "1.7.3"
+    `signing`
 }
 
 kotlin.experimental.coroutines = Coroutines.ENABLE
@@ -42,28 +41,26 @@ val javadocJar by tasks.creating(Jar::class) {
 publishing {
     publications {
         create("default", MavenPublication::class.java) {
+            Deployment.customizePom(pom)
             from(components["java"])
             artifact(sourcesJar)
             artifact(javadocJar)
-            groupId = "com.malinskiy.marathon"
-            artifactId = "vendor-android"
-            version = Versions.marathon
         }
     }
     repositories {
-        maven(url = "$rootDir/build/repository")
+        maven {
+            name = "Local"
+            setUrl("$rootDir/build/repository")
+        }
+        maven {
+            name = "OSSHR"
+            credentials {
+                username = Deployment.user
+                password = Deployment.password
+            }
+            setUrl(Deployment.deployUrl)
+        }
     }
-}
-
-bintray {
-    user = Bintray.user
-    key = Bintray.key
-    pkg(delegateClosureOf<BintrayExtension.PackageConfig> {
-        repo = "marathon"
-        name = "vendor-android"
-        vcsUrl = "https://github.com/Malinskiy/marathon"
-        setLicenses("Apache-2.0")
-    })
 }
 
 val compileKotlin by tasks.getting(KotlinCompile::class) {
