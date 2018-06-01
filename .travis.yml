@@ -27,7 +27,12 @@ android:
     - build-tools-${ANDROID_BUILD_TOOLS}
     - extra
 
-script: ./gradlew clean test build
+jobs:
+  include:
+    - stage: test
+      script: ./gradlew clean test
+    - stage: detekt
+      script: ./gradlew clean detektCheck
 
 - provider: script
   script: bash .buildsystem/deploy.sh
