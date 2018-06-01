@@ -25,6 +25,7 @@ data class MarathonPluginConfiguration @JvmOverloads constructor(
         var excludeSerialRegexes: Collection<String>? = null,
 
         var testOutputTimeoutMillis: Int? = null,
+        var debug: Boolean? = null,
 
         //Android specific for now
         var testPackage: String? = null,

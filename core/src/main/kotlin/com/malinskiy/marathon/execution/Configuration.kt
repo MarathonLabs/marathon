@@ -35,6 +35,7 @@ data class Configuration constructor(
         val excludeSerialRegexes: Collection<Regex>,
 
         val testOutputTimeoutMillis: Int,
+        val debug: Boolean,
 
         val testPackage: String?,
         val autoGrantPermission: Boolean,
@@ -67,6 +68,7 @@ data class Configuration constructor(
                 excludeSerialRegexes: Collection<Regex>?,
 
                 testOutputTimeoutMillis: Int?,
+                debug: Boolean?,
 
                 testPackage: String?,
                 autoGrantPermission: Boolean?,
@@ -91,6 +93,7 @@ data class Configuration constructor(
                     includeSerialRegexes = includeSerialRegexes ?: emptyList(),
                     excludeSerialRegexes = excludeSerialRegexes ?: emptyList(),
                     testOutputTimeoutMillis = testOutputTimeoutMillis ?: DEFAULT_OUTPUT_TIMEOUT,
+                    debug = debug ?: false,
                     testPackage = testPackage ?: "",
                     autoGrantPermission = autoGrantPermission ?: false,
                     vendorConfiguration = vendorConfiguration

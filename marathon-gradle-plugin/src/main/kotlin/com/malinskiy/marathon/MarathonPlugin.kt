@@ -104,6 +104,7 @@ class MarathonPlugin : Plugin<Project> {
                             config.includeSerialRegexes?.map { it.toRegex() },
                             config.excludeSerialRegexes?.map { it.toRegex() },
                             config.testOutputTimeoutMillis,
+                            config.debug,
                             config.testPackage,
                             config.autoGrantPermission,
                             AndroidConfiguration(sdkDirectory)
