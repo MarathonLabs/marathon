@@ -16,7 +16,7 @@ import com.malinskiy.marathon.report.SummaryPrinter
 import com.malinskiy.marathon.report.debug.timeline.TimelineSummaryPrinter
 import com.malinskiy.marathon.report.debug.timeline.TimelineSummarySerializer
 import com.malinskiy.marathon.report.html.HtmlSummaryPrinter
-import com.malinskiy.marathon.report.internal.DeviceInfoSerializer
+import com.malinskiy.marathon.report.internal.DeviceInfoReporter
 import com.malinskiy.marathon.report.internal.TestResultSerializer
 import com.malinskiy.marathon.report.junit.JUnitReporter
 import kotlinx.coroutines.experimental.runBlocking
@@ -33,7 +33,7 @@ class Marathon(val configuration: Configuration) {
     private val gson = Gson()
 
     private val testResultSerializer = TestResultSerializer(fileManager, gson)
-    private val deviceInfoSerializer = DeviceInfoSerializer(fileManager, gson)
+    private val deviceInfoSerializer = DeviceInfoReporter(fileManager, gson)
 
     private val summaryCompiler = SummaryCompiler(deviceInfoSerializer, testResultSerializer, configuration)
 

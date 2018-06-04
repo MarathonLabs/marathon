@@ -3,10 +3,10 @@ package com.malinskiy.marathon.report
 import com.malinskiy.marathon.device.DevicePoolId
 import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.execution.TestStatus
-import com.malinskiy.marathon.report.internal.DeviceInfoSerializer
+import com.malinskiy.marathon.report.internal.DeviceInfoReporter
 import com.malinskiy.marathon.report.internal.TestResultSerializer
 
-class SummaryCompiler(private val deviceInfoSerializer: DeviceInfoSerializer,
+class SummaryCompiler(private val deviceInfoSerializer: DeviceInfoReporter,
                       private val testResultSerializer: TestResultSerializer,
                       private val configuration: Configuration) {
 

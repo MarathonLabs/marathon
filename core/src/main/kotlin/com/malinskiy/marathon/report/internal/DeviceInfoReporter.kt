@@ -6,9 +6,9 @@ import com.malinskiy.marathon.io.FileManager
 import com.malinskiy.marathon.io.FileType
 import java.io.FileReader
 
-class DeviceInfoSerializer(private val fileManager: FileManager,
-                           private val gson: Gson) {
-    fun deviceConnected(poolId: DevicePoolId, device: Device) {
+class DeviceInfoReporter(private val fileManager: FileManager,
+                         private val gson: Gson) {
+    fun saveDeviceInfo(poolId: DevicePoolId, device: Device) {
         val json = gson.toJson(device.toDeviceInfo())
         fileManager.createFile(FileType.DEVICE_INFO, poolId, device).writeText(json)
     }
