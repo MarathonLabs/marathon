@@ -76,7 +76,7 @@ function testsChart() {
             .append('text')
             .attr('x', paddingLeft)
             .attr('y', paddingTopHeading)
-            .text('Test run results')
+            .text('Execution timeline')
             .attr('class', 'heading');
 
         var subtitleText = 'from ' + moment(convertDate(startDate)).format('l') + ' '
