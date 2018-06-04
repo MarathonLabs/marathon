@@ -29,7 +29,9 @@ class TimelineSummarySerializer(private val testResultSerializer: TestResultSeri
     private fun TestStatus.toStatus(): Status = when (this) {
         TestStatus.PASSED -> Status.PASSED
         TestStatus.IGNORED -> Status.IGNORED
-        else -> Status.FAILED
+        TestStatus.FAILURE -> Status.FAILURE
+        TestStatus.INCOMPLETE -> Status.INCOMPLETE
+        TestStatus.ASSUMPTION_FAILURE -> Status.ASSUMPTION_FAILURE
     }
 
     data class TestMetric(val expectedValue: Double, val variance: Double)

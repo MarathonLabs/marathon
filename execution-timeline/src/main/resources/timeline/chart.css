@@ -22,6 +22,22 @@
     fill: #cccccc;
 }
 
+.rect_incomplete_test {
+    fill: #e8e821;
+}
+
+.rect_incomplete_test:hover {
+    fill: #e8e821;
+}
+
+.rect_assumption_failure {
+    fill: #ca812d;
+}
+
+.rect_assumption_failure:hover {
+    fill: #ca812d;
+}
+
 .tooltip_passed_test {
     color: #449d44;
 }

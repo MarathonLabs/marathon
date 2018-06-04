@@ -121,11 +121,17 @@ function testsChart() {
                     case "PASSED": {
                         return 'rect_passed_test'
                     }
-                    case "FAILED": {
+                    case "FAILURE": {
                         return 'rect_failed_test'
                     }
                     case "IGNORED": {
                         return 'rect_ignored_test'
+                    }
+                    case "INCOMPLETE": {
+                        return 'rect_incomplete_test'
+                    }
+                    case "ASSUMPTION_FAILURE": {
+                        return 'rect_assumption_failure'
                     }
                 }
             })
