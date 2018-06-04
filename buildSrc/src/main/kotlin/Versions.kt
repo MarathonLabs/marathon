@@ -23,6 +23,7 @@ object Versions {
     val gson = "2.8.5"
     val apacheCommonsText = "1.3"
     val apacheCommonsIO = "2.6"
+    val influxDbClient = "2.10"
 }
 
 object BuildPlugins {
@@ -42,6 +43,7 @@ object Libraries {
     val gson = "com.google.code.gson:gson:${Versions.gson}"
     val apacheCommonsText = "org.apache.commons:commons-text:${Versions.apacheCommonsText}"
     val apacheCommonsIO = "commons-io:commons-io:${Versions.apacheCommonsIO}"
+    val influxDbClient = "org.influxdb:influxdb-java:${Versions.influxDbClient}"
 }
 
 object TestLibraries {

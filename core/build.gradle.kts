@@ -25,6 +25,7 @@ dependencies {
     implementation(Libraries.kotlinStdLib)
     implementation(Libraries.kotlinCoroutines)
     implementation(Libraries.kotlinLogging)
+    implementation(Libraries.influxDbClient)
     testCompile(TestLibraries.kluent)
     testCompile(TestLibraries.spekAPI)
     testRuntime(TestLibraries.spekJUnitPlatformEngine)
