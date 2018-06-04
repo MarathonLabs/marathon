@@ -1,5 +1,6 @@
 package com.malinskiy.marathon.device
 
+import com.malinskiy.marathon.analytics.Tracker
 import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.test.TestBatch
 
@@ -14,7 +15,8 @@ interface Device {
 
     suspend fun execute(configuration: Configuration,
                         devicePoolId: DevicePoolId,
-                        testBatch: TestBatch)
+                        testBatch: TestBatch,
+                        tracker: Tracker)
 
     suspend fun prepare(configuration: Configuration)
 }

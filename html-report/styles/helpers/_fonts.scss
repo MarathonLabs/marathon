@@ -1,0 +1,129 @@
+// Fonts
+
+// Variables
+$helvetica: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+$font-small: 12px;
+$font-normal: 14px;
+$font-medium: 16px;
+$font-large: 16px;
+$font-small-wide-screen: 13px;
+$font-normal-wide-screen: 16px;
+$font-large-wide-screen: 18px;
+$line-height-normal: 1.3;
+$line-height-medium: 1.25;
+$line-height-small: 1.12;
+
+// NEW
+@define-mixin text-title {
+  font-size: $font-large;
+  line-height: $line-height-normal;
+  font-weight: 500;
+  text-transform: uppercase;
+}
+
+@define-mixin text-sub-title {
+  font-size: $font-large;
+  line-height: $line-height-small;
+  font-weight: 500;
+}
+
+@define-mixin text-sub-title-light {
+  font-size: $font-large;
+  line-height: $line-height-small;
+  font-weight: 500;
+  color: $primary-grey;
+}
+
+@define-mixin text-regular {
+  font-size: $font-normal;
+  line-height: $line-height-normal;
+}
+
+@define-mixin text-note {
+  font-size: $font-small;
+  line-height: $line-height-normal;
+  color: $primary-grey;
+}
+
+@define-mixin text-regular-grey {
+  font-size: $font-normal;
+  line-height: $line-height-normal;
+  color: $primary-grey;
+}
+
+@define-mixin text-important {
+  color: $red;
+}
+
+@define-mixin text-grey {
+  color: $primary-grey;
+}
+
+@define-mixin text-error-text {
+  font-size: $font-small;
+  line-height: $line-height-small;
+  font-weight: bold;
+  color: $red;
+}
+
+.text-title {
+  @mixin text-title;
+}
+
+.text-sub-title {
+  @mixin text-sub-title;
+}
+
+.text-sub-title-light {
+  @mixin text-sub-title-light;
+}
+
+.text-regular {
+  @mixin text-regular;
+}
+
+.text-regular-grey {
+  @mixin text-regular-grey;
+}
+
+.text-note {
+  @mixin text-note;
+}
+
+.text-important {
+  @mixin text-important;
+}
+
+.text-grey {
+  @mixin text-grey;
+}
+
+.text-error-text {
+  @mixin text-error-text;
+}
+
+@media $large-screen {
+  .text-title {
+    font-size: $font-large-wide-screen;
+  }
+
+  .text-sub-title {
+    font-size: $font-large-wide-screen;
+  }
+
+  .text-sub-title-light {
+    font-size: $font-large-wide-screen;
+  }
+
+  .text-regular {
+    font-size: $font-normal-wide-screen;
+  }
+
+  .text-note {
+    font-size: $font-small-wide-screen;
+  }
+
+  .text-error-text {
+    font-size: $font-small-wide-screen;
+  }
+}

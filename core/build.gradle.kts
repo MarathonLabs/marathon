@@ -17,6 +17,11 @@ plugins {
 kotlin.experimental.coroutines = Coroutines.ENABLE
 
 dependencies {
+    implementation(project(":marathon-html-report"))
+    implementation(project(":execution-timeline"))
+    implementation(Libraries.gson)
+    implementation(Libraries.apacheCommonsText)
+    implementation(Libraries.apacheCommonsIO)
     implementation(Libraries.kotlinStdLib)
     implementation(Libraries.kotlinCoroutines)
     implementation(Libraries.kotlinLogging)

@@ -1,0 +1,28 @@
+// Mixins
+
+@define-mixin clearfix {
+  &:before, &:after {
+    content: '';
+    display: table;
+  }
+
+  &:after {
+    clear: both;
+  }
+}
+
+@define-mixin with-arrow {
+  &:before {
+    content: '';
+    display: block;
+    position: absolute;
+    top: 8px;
+    right: 13px;
+    z-index: 4;
+    width: 0;
+    height: 0;
+    border-top: 4px solid #0f375a;
+    border-left: 4px solid transparent;
+    border-right: 4px solid transparent;
+  }
+}

@@ -1,0 +1,38 @@
+// Color swatch
+$primary-blue: #0f375a;
+$primary-blue-darker: color(darken(#0f375a, 10%));
+$primary-blue-lighter: color(lighten(#0f375a, 10%));
+
+$primary-grey: #879bab;
+$primary-grey-darker: color(darken(#879bab, 10%));
+$primary-grey-lighter: rgba(135, 155, 171, 0.6);
+$primary-grey-lighter-2: rgba(135, 155, 171, 0.4);
+
+$light-grey: #e2e6f4;
+$light-grey-darker: #D7DBE8;
+
+$electric: #6e8aff;
+$electric-darker: color(darken(#6e8aff, 10%));
+$electric-lighter: color(lighten(#6e8aff, 15%));
+$electric-lightest: rgba(110, 138, 255, 0.1);
+
+$purple: #44547f;
+$purple-darker: color(darken(#44547f, 10%));
+$purple-lighter: color(lighten(#44547f, 15%));
+
+$green: #3ec07f;
+$green-darker: #39B075;
+$green-lighter: color(lighten(#3ec07f, 10%));
+
+$yellow: #f6bb42;
+$yellow-darker: color(darken(#f6bb42, 10%));
+$yellow-lighter: color(lighten(#f6bb42, 10%));
+
+$red: #ec5555;
+$red-darker: color(darken(#ec5555, 10%));;
+$red-lighter: color(lighten(#ec5555, 10%));
+$system-red: #ffe0e0;
+
+$background: #f7f8fc;
+$zebra-background: rgba(135, 155, 171, 0.07);
+$white: #fff;

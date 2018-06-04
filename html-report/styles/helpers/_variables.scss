@@ -1,0 +1,7 @@
+// MediaQueries
+$small-screen: screen and (max-width: 1199px); //$tiny-screen
+$medium-screen: screen and (max-width: 1679px); //$small-screen
+$large-screen: screen and (min-width: 1680px);
+
+// Transition speed
+$short-transition: 0.15s
