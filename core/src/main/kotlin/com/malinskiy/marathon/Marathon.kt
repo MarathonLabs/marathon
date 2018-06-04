@@ -2,8 +2,8 @@ package com.malinskiy.marathon
 
 import com.google.gson.Gson
 import com.malinskiy.marathon.analytics.DelegatingTracker
-import com.malinskiy.marathon.analytics.DeviceTracker
-import com.malinskiy.marathon.analytics.JUnitTracker
+import com.malinskiy.marathon.analytics.local.DeviceTracker
+import com.malinskiy.marathon.analytics.local.JUnitTracker
 import com.malinskiy.marathon.analytics.Tracker
 import com.malinskiy.marathon.device.DeviceProvider
 import com.malinskiy.marathon.execution.Configuration
