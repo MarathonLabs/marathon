@@ -5,6 +5,7 @@ import com.malinskiy.marathon.analytics.DelegatingTracker
 import com.malinskiy.marathon.analytics.local.DeviceTracker
 import com.malinskiy.marathon.analytics.local.JUnitTracker
 import com.malinskiy.marathon.analytics.Tracker
+import com.malinskiy.marathon.analytics.remote.influx.InfluxDbTracker
 import com.malinskiy.marathon.device.DeviceProvider
 import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.execution.Scheduler
@@ -63,7 +64,8 @@ class Marathon(val configuration: Configuration) {
     private fun loadTracker(): Tracker {
         return DelegatingTracker(listOf(
                 JUnitTracker(JUnitReporter(fileManager)),
-                DeviceTracker(deviceInfoSerializer)
+                DeviceTracker(deviceInfoSerializer),
+                InfluxDbTracker()
         ))
     }
 
