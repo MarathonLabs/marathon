@@ -1,7 +1,9 @@
 package com.malinskiy.marathon
 
 import com.google.gson.Gson
-import com.malinskiy.marathon.analytics.LocalTracker
+import com.malinskiy.marathon.analytics.DelegatingTracker
+import com.malinskiy.marathon.analytics.DeviceTracker
+import com.malinskiy.marathon.analytics.JUnitTracker
 import com.malinskiy.marathon.analytics.Tracker
 import com.malinskiy.marathon.device.DeviceProvider
 import com.malinskiy.marathon.execution.Configuration
@@ -30,7 +32,6 @@ class Marathon(val configuration: Configuration) {
     private val fileManager = FileManager(configuration.outputDir)
     private val gson = Gson()
 
-    private val jUnitReporter = JUnitReporter(fileManager)
     private val testResultSerializer = TestResultSerializer(fileManager, gson)
     private val deviceInfoSerializer = DeviceInfoSerializer(fileManager, gson)
 
@@ -57,7 +58,10 @@ class Marathon(val configuration: Configuration) {
     }
 
     private fun loadTracker(): Tracker {
-        return LocalTracker(jUnitReporter, testResultSerializer, deviceInfoSerializer)
+        return DelegatingTracker(listOf(
+                JUnitTracker(JUnitReporter(fileManager)),
+                DeviceTracker(deviceInfoSerializer)
+        ))
     }
 
     fun run(): Boolean {

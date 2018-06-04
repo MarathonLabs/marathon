@@ -7,13 +7,8 @@ import com.malinskiy.marathon.test.Test
 
 interface Tracker {
     fun trackTestStarted(test: Test, time: Int)
-    fun trackTestFinished(test: Test, success: Boolean, time: Int)
+    fun trackTestResult(poolId: DevicePoolId, device: Device, testResult: TestResult)
     fun trackTestIgnored(test: Test)
 
-    fun trackTestResult(poolId: DevicePoolId, device: Device, testResult: TestResult)
     fun trackDeviceConnected(poolId: DevicePoolId, device: Device)
-
-    fun calculateTestExpectedTime(test: Test) : Int
-    fun calculateTestVariance(test: Test) : Int
-    fun calculateTestExpectedRetries(test: Test) : Int
 }
