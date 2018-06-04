@@ -5,6 +5,7 @@ import com.malinskiy.marathon.analytics.DelegatingTracker
 import com.malinskiy.marathon.analytics.local.DeviceTracker
 import com.malinskiy.marathon.analytics.local.JUnitTracker
 import com.malinskiy.marathon.analytics.Tracker
+import com.malinskiy.marathon.analytics.local.TestRusultsTracker
 import com.malinskiy.marathon.device.DeviceProvider
 import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.execution.Scheduler
@@ -17,7 +18,7 @@ import com.malinskiy.marathon.report.debug.timeline.TimelineSummaryPrinter
 import com.malinskiy.marathon.report.debug.timeline.TimelineSummarySerializer
 import com.malinskiy.marathon.report.html.HtmlSummaryPrinter
 import com.malinskiy.marathon.report.internal.DeviceInfoReporter
-import com.malinskiy.marathon.report.internal.TestResultSerializer
+import com.malinskiy.marathon.report.internal.TestResultReporter
 import com.malinskiy.marathon.report.junit.JUnitReporter
 import kotlinx.coroutines.experimental.runBlocking
 import mu.KotlinLogging
@@ -32,10 +33,10 @@ class Marathon(val configuration: Configuration) {
     private val fileManager = FileManager(configuration.outputDir)
     private val gson = Gson()
 
-    private val testResultSerializer = TestResultSerializer(fileManager, gson)
+    private val testResultReporter = TestResultReporter(fileManager, gson)
     private val deviceInfoSerializer = DeviceInfoReporter(fileManager, gson)
 
-    private val summaryCompiler = SummaryCompiler(deviceInfoSerializer, testResultSerializer, configuration)
+    private val summaryCompiler = SummaryCompiler(deviceInfoSerializer, testResultReporter, configuration)
 
     private fun loadSummaryPrinter(): SummaryPrinter {
         val outputDir = configuration.outputDir
@@ -43,7 +44,7 @@ class Marathon(val configuration: Configuration) {
         if (configuration.debug) {
             return CompositeSummaryPrinter(listOf(
                     htmlSummaryPrinter,
-                    TimelineSummaryPrinter(TimelineSummarySerializer(testResultSerializer), gson, outputDir)
+                    TimelineSummaryPrinter(TimelineSummarySerializer(testResultReporter), gson, outputDir)
             ))
         }
         return htmlSummaryPrinter
@@ -63,7 +64,8 @@ class Marathon(val configuration: Configuration) {
     private fun loadTracker(): Tracker {
         return DelegatingTracker(listOf(
                 JUnitTracker(JUnitReporter(fileManager)),
-                DeviceTracker(deviceInfoSerializer)
+                DeviceTracker(deviceInfoSerializer),
+                TestRusultsTracker(testResultReporter)
         ))
     }
 
