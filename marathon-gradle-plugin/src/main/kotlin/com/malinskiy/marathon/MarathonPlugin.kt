@@ -85,6 +85,7 @@ class MarathonPlugin : Plugin<Project> {
                     val output = File(baseOutputDir, variant.name)
 
                     configuration = Configuration(
+                            config.name,
                             baseOutputDir,
                             output,
                             applicationApk,
@@ -104,6 +105,7 @@ class MarathonPlugin : Plugin<Project> {
                             config.includeSerialRegexes?.map { it.toRegex() },
                             config.excludeSerialRegexes?.map { it.toRegex() },
                             config.testOutputTimeoutMillis,
+                            config.debug,
                             config.testPackage,
                             config.autoGrantPermission,
                             AndroidConfiguration(sdkDirectory)

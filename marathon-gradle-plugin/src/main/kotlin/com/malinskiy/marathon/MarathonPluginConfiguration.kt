@@ -3,7 +3,7 @@ package com.malinskiy.marathon
 import com.malinskiy.marathon.execution.strategy.*
 
 data class MarathonPluginConfiguration @JvmOverloads constructor(
-        val name: String,
+        var name: String = "Marathon",
 
         var poolingStrategy: PoolingStrategy? = null,
         var shardingStrategy: ShardingStrategy? = null,
@@ -25,6 +25,7 @@ data class MarathonPluginConfiguration @JvmOverloads constructor(
         var excludeSerialRegexes: Collection<String>? = null,
 
         var testOutputTimeoutMillis: Int? = null,
+        var debug: Boolean? = null,
 
         //Android specific for now
         var testPackage: String? = null,

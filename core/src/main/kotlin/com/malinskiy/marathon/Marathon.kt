@@ -1,15 +1,22 @@
 package com.malinskiy.marathon
 
 import com.google.gson.Gson
-import com.malinskiy.marathon.analytics.LocalTracker
+import com.malinskiy.marathon.analytics.DelegatingTracker
+import com.malinskiy.marathon.analytics.local.DeviceTracker
+import com.malinskiy.marathon.analytics.local.JUnitTracker
 import com.malinskiy.marathon.analytics.Tracker
 import com.malinskiy.marathon.device.DeviceProvider
 import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.execution.Scheduler
 import com.malinskiy.marathon.execution.TestParser
 import com.malinskiy.marathon.io.FileManager
+import com.malinskiy.marathon.report.CompositeSummaryPrinter
 import com.malinskiy.marathon.report.SummaryCompiler
+import com.malinskiy.marathon.report.SummaryPrinter
+import com.malinskiy.marathon.report.debug.timeline.TimelineSummaryPrinter
+import com.malinskiy.marathon.report.debug.timeline.TimelineSummarySerializer
 import com.malinskiy.marathon.report.html.HtmlSummaryPrinter
+import com.malinskiy.marathon.report.internal.DeviceInfoReporter
 import com.malinskiy.marathon.report.internal.TestResultSerializer
 import com.malinskiy.marathon.report.junit.JUnitReporter
 import kotlinx.coroutines.experimental.runBlocking
@@ -24,8 +31,20 @@ class Marathon(val configuration: Configuration) {
 
     private val fileManager = FileManager(configuration.outputDir)
     private val gson = Gson()
-    private val summaryCompiler = SummaryCompiler(configuration, fileManager, gson)
-    private val summaryPrinter = HtmlSummaryPrinter(gson, configuration.outputDir)
+
+    private val testResultSerializer = TestResultSerializer(fileManager, gson)
+    private val deviceInfoSerializer = DeviceInfoReporter(fileManager, gson)
+
+    private val summaryCompiler = SummaryCompiler(deviceInfoSerializer, testResultSerializer, configuration)
+
+    private fun loadSummaryPrinter(): SummaryPrinter {
+        val outputDir = configuration.outputDir
+        val htmlSummaryPrinter = HtmlSummaryPrinter(gson, outputDir)
+        if (configuration.debug) {
+            return CompositeSummaryPrinter(listOf(htmlSummaryPrinter, TimelineSummaryPrinter(TimelineSummarySerializer(testResultSerializer), gson, outputDir)))
+        }
+        return htmlSummaryPrinter
+    }
 
     private fun loadDeviceProvider(): DeviceProvider {
         val deviceProvider = ServiceLoader.load(DeviceProvider::class.java).first()
@@ -39,9 +58,10 @@ class Marathon(val configuration: Configuration) {
     }
 
     private fun loadTracker(): Tracker {
-        val jUnitReporter = JUnitReporter(fileManager)
-        val testResultSerializer = TestResultSerializer(fileManager, gson)
-        return LocalTracker(fileManager, gson, jUnitReporter, testResultSerializer)
+        return DelegatingTracker(listOf(
+                JUnitTracker(JUnitReporter(fileManager)),
+                DeviceTracker(deviceInfoSerializer)
+        ))
     }
 
     fun run(): Boolean {
@@ -65,6 +85,7 @@ class Marathon(val configuration: Configuration) {
             }
         }
 
+        val summaryPrinter = loadSummaryPrinter()
         summaryPrinter.print(summaryCompiler.compile(scheduler.getPools()))
 
         val hours = TimeUnit.MICROSECONDS.toHours(timeMillis)

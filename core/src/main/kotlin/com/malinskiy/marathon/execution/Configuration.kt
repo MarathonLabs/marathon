@@ -12,6 +12,7 @@ import java.io.File
 
 
 data class Configuration constructor(
+        val name: String,
         val baseOutputDir: File,
         val outputDir: File,
         val applicationOutput: File,
@@ -35,6 +36,7 @@ data class Configuration constructor(
         val excludeSerialRegexes: Collection<Regex>,
 
         val testOutputTimeoutMillis: Int,
+        val debug: Boolean,
 
         val testPackage: String?,
         val autoGrantPermission: Boolean,
@@ -44,7 +46,8 @@ data class Configuration constructor(
         private const val DEFAULT_OUTPUT_TIMEOUT = 60_000
     }
 
-    constructor(baseOutputDir: File,
+    constructor(name: String,
+                baseOutputDir: File,
                 outputDir: File,
                 applicationOutput: File,
                 testApplicationOutput: File,
@@ -67,12 +70,14 @@ data class Configuration constructor(
                 excludeSerialRegexes: Collection<Regex>?,
 
                 testOutputTimeoutMillis: Int?,
+                debug: Boolean?,
 
                 testPackage: String?,
                 autoGrantPermission: Boolean?,
                 vendorConfiguration: VendorConfiguration) :
 
-            this(baseOutputDir = baseOutputDir,
+            this(name = name,
+                    baseOutputDir = baseOutputDir,
                     outputDir = outputDir,
                     applicationOutput = applicationOutput,
                     testApplicationOutput = testApplicationOutput,
@@ -91,6 +96,7 @@ data class Configuration constructor(
                     includeSerialRegexes = includeSerialRegexes ?: emptyList(),
                     excludeSerialRegexes = excludeSerialRegexes ?: emptyList(),
                     testOutputTimeoutMillis = testOutputTimeoutMillis ?: DEFAULT_OUTPUT_TIMEOUT,
+                    debug = debug ?: true,
                     testPackage = testPackage ?: "",
                     autoGrantPermission = autoGrantPermission ?: false,
                     vendorConfiguration = vendorConfiguration
