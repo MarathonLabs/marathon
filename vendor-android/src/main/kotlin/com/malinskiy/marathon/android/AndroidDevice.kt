@@ -22,7 +22,7 @@ class AndroidDevice(val ddmsDevice: IDevice) : Device {
     }
 
     override val manufacturer: String by lazy {
-        ddmsDevice.getProperty("ro.product.manufacturer")
+        ddmsDevice.getProperty("ro.product.manufacturer") ?: "Unknown"
     }
 
     override val deviceFeatures: Collection<DeviceFeature>

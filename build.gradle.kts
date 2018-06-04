@@ -17,7 +17,7 @@ plugins {
     id("io.gitlab.arturbosch.detekt") version "1.0.0.RC6-4"
 }
 
-configure<DetektExtension>{
+configure<DetektExtension> {
     debug = true
     version = "1.0.0.RC6-4"
     profile = "main"
@@ -30,9 +30,11 @@ configure<DetektExtension>{
     })
 }
 
+Deployment.initialize(project)
+
 allprojects {
-    group = "com.malinskiy"
-    version = "0.1.0"
+    group = "com.malinskiy.marathon"
+    version = Versions.marathon + Deployment.versionSuffix
 
     repositories {
         jcenter()
