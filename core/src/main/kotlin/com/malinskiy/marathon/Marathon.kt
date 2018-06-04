@@ -41,7 +41,10 @@ class Marathon(val configuration: Configuration) {
         val outputDir = configuration.outputDir
         val htmlSummaryPrinter = HtmlSummaryPrinter(gson, outputDir)
         if (configuration.debug) {
-            return CompositeSummaryPrinter(listOf(htmlSummaryPrinter, TimelineSummaryPrinter(TimelineSummarySerializer(testResultSerializer), gson, outputDir)))
+            return CompositeSummaryPrinter(listOf(
+                    htmlSummaryPrinter,
+                    TimelineSummaryPrinter(TimelineSummarySerializer(testResultSerializer), gson, outputDir)
+            ))
         }
         return htmlSummaryPrinter
     }
