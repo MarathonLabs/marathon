@@ -6,10 +6,10 @@ import com.malinskiy.marathon.execution.TestResult
 import com.malinskiy.marathon.execution.TestStatus
 import com.malinskiy.marathon.report.PoolSummary
 import com.malinskiy.marathon.report.Summary
-import com.malinskiy.marathon.report.internal.TestResultSerializer
+import com.malinskiy.marathon.report.internal.TestResultReporter
 import com.malinskiy.marathon.test.Test
 
-class TimelineSummarySerializer(private val testResultSerializer: TestResultSerializer) {
+class TimelineSummarySerializer(private val testResultSerializer: TestResultReporter) {
 
     private fun prepareTestName(fullTestName: String): String {
         return fullTestName.substring(fullTestName.lastIndexOf('.') + 1)
