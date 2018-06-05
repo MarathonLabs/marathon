@@ -6,3 +6,4 @@ data class Test(val pkg: String,
                 val annotations: Collection<String>)
 
 fun Test.toTestName(): String = "$pkg.$clazz#$method"
+fun Test.toSafeTestName(): String = "$pkg.$clazz.$method"
