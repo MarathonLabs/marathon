@@ -2,7 +2,7 @@ package com.malinskiy.marathon.android.executor.listeners
 
 import com.android.ddmlib.testrunner.TestIdentifier
 import com.android.ddmlib.testrunner.TestRunResult
-import com.malinskiy.marathon.analytics.Tracker
+import com.malinskiy.marathon.analytics.Analytics
 import com.malinskiy.marathon.android.toMarathonStatus
 import com.malinskiy.marathon.android.toTest
 import com.malinskiy.marathon.device.Device
@@ -12,7 +12,7 @@ import com.malinskiy.marathon.execution.TestResult
 
 class XmlListener(private val device: Device,
                   private val devicePoolId: DevicePoolId,
-                  private val tracker: Tracker) : NoOpTestRunListener() {
+                  private val analytics: Analytics) : NoOpTestRunListener() {
 
     private val runResult: TestRunResult = TestRunResult()
 
@@ -58,7 +58,7 @@ class XmlListener(private val device: Device,
             val status = it.value.status.toMarathonStatus()
             val testResult = TestResult(it.key!!.toTest(), device.toDeviceInfo(), status, it.value.startTime, it.value.endTime, it.value.stackTrace)
 
-            tracker.trackTestResult(devicePoolId, device, testResult)
+            analytics.trackTestResult(devicePoolId, device, testResult)
         }
     }
 }

@@ -90,6 +90,7 @@ class MarathonPlugin : Plugin<Project> {
                             output,
                             applicationApk,
                             instrumentationApk,
+                            config.analyticsConfiguration,
                             config.poolingStrategy,
                             config.shardingStrategy,
                             config.sortingStrategy,

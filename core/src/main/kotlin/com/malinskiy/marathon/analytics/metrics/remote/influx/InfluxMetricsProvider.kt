@@ -1,9 +1,8 @@
-package com.malinskiy.marathon.analytics.remote.influx
+package com.malinskiy.marathon.analytics.metrics.remote.influx
 
-import com.malinskiy.marathon.analytics.MetricsProvider
+import com.malinskiy.marathon.analytics.metrics.MetricsProvider
 import com.malinskiy.marathon.test.Test
 import com.malinskiy.marathon.test.toSafeTestName
-import com.malinskiy.marathon.test.toTestName
 import org.influxdb.InfluxDB
 import org.influxdb.annotation.Column
 import org.influxdb.annotation.Measurement
@@ -16,7 +15,8 @@ class ExecutionTime(@Column(name = "percentile") var percentile: Double? = null)
 @Measurement(name = "tests")
 class SuccessRate(@Column(name = "mean") var mean: Double? = null)
 
-class InfluxMetricsProvider(private val influxDb: InfluxDB) : MetricsProvider {
+internal class InfluxMetricsProvider(private val influxDb: InfluxDB,
+                                     private val dbName: String) : MetricsProvider {
     private val mapper = InfluxDBResultMapper()
 
     override fun successRate(test: Test): Double {

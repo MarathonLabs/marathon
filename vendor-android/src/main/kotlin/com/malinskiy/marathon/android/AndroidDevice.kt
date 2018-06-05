@@ -1,7 +1,7 @@
 package com.malinskiy.marathon.android
 
 import com.android.ddmlib.IDevice
-import com.malinskiy.marathon.analytics.Tracker
+import com.malinskiy.marathon.analytics.Analytics
 import com.malinskiy.marathon.android.executor.AndroidAppInstaller
 import com.malinskiy.marathon.android.executor.AndroidDeviceTestRunner
 import com.malinskiy.marathon.device.*
@@ -69,7 +69,7 @@ class AndroidDevice(val ddmsDevice: IDevice) : Device {
     override suspend fun execute(configuration: Configuration,
                                  devicePoolId: DevicePoolId,
                                  testBatch: TestBatch,
-                                 tracker: Tracker) {
+                                 tracker: Analytics) {
         launch(context) {
             AndroidDeviceTestRunner(this@AndroidDevice, tracker).execute(configuration, devicePoolId, testBatch)
         }.join()

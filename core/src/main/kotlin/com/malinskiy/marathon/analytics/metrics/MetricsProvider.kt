@@ -1,4 +1,4 @@
-package com.malinskiy.marathon.analytics
+package com.malinskiy.marathon.analytics.metrics
 
 import com.malinskiy.marathon.test.Test
 

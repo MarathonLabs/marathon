@@ -1,17 +1,18 @@
 package com.malinskiy.marathon.execution
 
 import com.malinskiy.marathon.aktor.Aktor
-import com.malinskiy.marathon.analytics.Tracker
+import com.malinskiy.marathon.analytics.Analytics
 import com.malinskiy.marathon.device.DevicePoolId
 import com.malinskiy.marathon.healthCheck
 import com.malinskiy.marathon.test.Test
 import com.malinskiy.marathon.test.TestBatch
+import com.malinskiy.marathon.test.toTestName
 import mu.KotlinLogging
 import java.util.concurrent.*
 
 class DevicePoolAktor(private val poolId: DevicePoolId,
                       private val configuration: Configuration,
-                      private val tracker: Tracker,
+                      private val analytics: Analytics,
                       private val tests: Collection<Test>) : Aktor<DevicePoolMessage>() {
 
     private val logger = KotlinLogging.logger("DevicePoolAktor")
@@ -47,7 +48,6 @@ class DevicePoolAktor(private val poolId: DevicePoolId,
 
     private val queue = ConcurrentLinkedQueue<TestBatch>(batchingStrategy.process(shardingStrategy.createShards(tests)))
 
-
     private val devices = mutableMapOf<String, Aktor<DeviceMessage>>()
 
     private var initialized = false
@@ -74,7 +74,7 @@ class DevicePoolAktor(private val poolId: DevicePoolId,
 
     private suspend fun addDevice(msg: DevicePoolMessage.AddDevice) {
         val device = msg.device
-        val aktor = DeviceAktor(poolId, this, configuration, device, tracker)
+        val aktor = DeviceAktor(poolId, this, configuration, device, analytics)
         devices[device.serialNumber] = aktor
         aktor.send(DeviceMessage.Initialize)
         initializeHealthCheck()

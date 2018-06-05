@@ -1,5 +1,6 @@
 package com.malinskiy.marathon.execution
 
+import com.malinskiy.marathon.execution.AnalyticsConfiguration.InfluxDbConfiguration
 import com.malinskiy.marathon.execution.strategy.*
 import com.malinskiy.marathon.execution.strategy.impl.batching.IsolateBatchingStrategy
 import com.malinskiy.marathon.execution.strategy.impl.flakiness.IgnoreFlakinessStrategy
@@ -18,6 +19,7 @@ data class Configuration constructor(
         val applicationOutput: File,
         val testApplicationOutput: File,
 
+        val analyticsConfiguration: AnalyticsConfiguration,
         val poolingStrategy: PoolingStrategy,
         val shardingStrategy: ShardingStrategy,
         val sortingStrategy: SortingStrategy,
@@ -52,6 +54,7 @@ data class Configuration constructor(
                 applicationOutput: File,
                 testApplicationOutput: File,
 
+                analyticsConfiguration: AnalyticsConfiguration?,
                 poolingStrategy: PoolingStrategy?,
                 shardingStrategy: ShardingStrategy?,
                 sortingStrategy: SortingStrategy?,
@@ -81,6 +84,9 @@ data class Configuration constructor(
                     outputDir = outputDir,
                     applicationOutput = applicationOutput,
                     testApplicationOutput = testApplicationOutput,
+//                    analyticsConfiguration = analyticsConfiguration ?: AnalyticsConfiguration.DisabledAnalytics,
+                    analyticsConfiguration = analyticsConfiguration
+                            ?: InfluxDbConfiguration("http://localhost:8086", "root", "root", "tests", InfluxDbConfiguration.RetentionPolicyConfiguration.default),
                     poolingStrategy = poolingStrategy ?: OmniPoolingStrategy(),
                     shardingStrategy = shardingStrategy ?: ParallelShardingStrategy(),
                     sortingStrategy = sortingStrategy ?: NoSortingStrategy(),

@@ -24,46 +24,55 @@ class MainActivityFlakyTest {
 
     @Test
     fun testText1() {
+        Thread.sleep(100)
         assertTrue(Random().nextBoolean())
     }
 
     @Test
     fun testText2() {
+        Thread.sleep(100)
         assertTrue(Random().nextBoolean())
     }
 
     @Test
     fun testText3() {
+        Thread.sleep(100)
         assertTrue(Random().nextBoolean())
     }
 
     @Test
     fun testText4() {
+        Thread.sleep(100)
         assertTrue(Random().nextBoolean())
     }
 
     @Test
     fun testText5() {
+        Thread.sleep(100)
         assertTrue(Random().nextBoolean())
     }
 
     @Test
     fun testText6() {
+        Thread.sleep(100)
         assertTrue(Random().nextBoolean())
     }
 
     @Test
     fun testText7() {
+        Thread.sleep(100)
         assertTrue(Random().nextBoolean())
     }
 
     @Test
     fun testText8() {
+        Thread.sleep(100)
         assertTrue(Random().nextBoolean())
     }
 
     @Test
     fun testText9() {
+        Thread.sleep(100)
         assertTrue(Random().nextBoolean())
     }
 }

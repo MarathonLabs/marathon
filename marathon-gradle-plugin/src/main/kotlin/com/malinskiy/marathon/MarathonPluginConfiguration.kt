@@ -1,9 +1,12 @@
 package com.malinskiy.marathon
 
+import com.malinskiy.marathon.execution.AnalyticsConfiguration
 import com.malinskiy.marathon.execution.strategy.*
 
 data class MarathonPluginConfiguration @JvmOverloads constructor(
         var name: String = "Marathon",
+
+        var analyticsConfiguration: AnalyticsConfiguration? = null,
 
         var poolingStrategy: PoolingStrategy? = null,
         var shardingStrategy: ShardingStrategy? = null,
