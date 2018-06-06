@@ -1,11 +1,9 @@
 package com.malinskiy.marathon.android
 
 import com.android.ddmlib.testrunner.TestIdentifier
-import com.android.ddmlib.testrunner.TestResult
 import com.malinskiy.marathon.execution.TestStatus
 import com.malinskiy.marathon.test.Test
 import com.android.ddmlib.testrunner.TestResult.TestStatus as DdmLibTestStatus
-
 
 fun DdmLibTestStatus.toMarathonStatus() = when (this) {
     DdmLibTestStatus.PASSED -> TestStatus.PASSED

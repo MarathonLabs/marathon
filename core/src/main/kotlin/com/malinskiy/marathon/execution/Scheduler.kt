@@ -1,7 +1,7 @@
 package com.malinskiy.marathon.execution
 
 import com.malinskiy.marathon.aktor.Aktor
-import com.malinskiy.marathon.analytics.Tracker
+import com.malinskiy.marathon.analytics.Analytics
 import com.malinskiy.marathon.device.DevicePoolId
 import com.malinskiy.marathon.device.DeviceProvider
 import com.malinskiy.marathon.healthCheck
@@ -20,7 +20,7 @@ import kotlinx.coroutines.experimental.launch
  */
 
 class Scheduler(private val deviceProvider: DeviceProvider,
-                private val tracker: Tracker,
+                private val analytics: Analytics,
                 private val configuration: Configuration,
                 private val list: Collection<Test>) {
 
@@ -66,8 +66,8 @@ class Scheduler(private val deviceProvider: DeviceProvider,
     private suspend fun onDeviceConnected(item: DeviceProvider.DeviceEvent.DeviceConnected) {
         val device = item.device
         val poolId = poolingStrategy.associate(device)
-        pools.computeIfAbsent(poolId, { id -> DevicePoolAktor(id, configuration, tracker, list) })
+        pools.computeIfAbsent(poolId, { id -> DevicePoolAktor(id, configuration, analytics, list) })
         pools[poolId]?.send(DevicePoolMessage.AddDevice(device))
-        tracker.trackDeviceConnected(poolId, device)
+        analytics.trackDeviceConnected(poolId, device)
     }
 }

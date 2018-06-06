@@ -1,11 +1,7 @@
 package com.malinskiy.marathon
 
 import com.google.gson.Gson
-import com.malinskiy.marathon.analytics.DelegatingTracker
-import com.malinskiy.marathon.analytics.local.DeviceTracker
-import com.malinskiy.marathon.analytics.local.JUnitTracker
-import com.malinskiy.marathon.analytics.Tracker
-import com.malinskiy.marathon.analytics.local.TestRusultsTracker
+import com.malinskiy.marathon.analytics.AnalyticsFactory
 import com.malinskiy.marathon.device.DeviceProvider
 import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.execution.Scheduler
@@ -19,7 +15,6 @@ import com.malinskiy.marathon.report.debug.timeline.TimelineSummarySerializer
 import com.malinskiy.marathon.report.html.HtmlSummaryPrinter
 import com.malinskiy.marathon.report.internal.DeviceInfoReporter
 import com.malinskiy.marathon.report.internal.TestResultReporter
-import com.malinskiy.marathon.report.junit.JUnitReporter
 import kotlinx.coroutines.experimental.runBlocking
 import mu.KotlinLogging
 import java.util.*
@@ -34,9 +29,10 @@ class Marathon(val configuration: Configuration) {
     private val gson = Gson()
 
     private val testResultReporter = TestResultReporter(fileManager, gson)
-    private val deviceInfoSerializer = DeviceInfoReporter(fileManager, gson)
+    private val deviceInfoReporter = DeviceInfoReporter(fileManager, gson)
+    private val analyticsFactory = AnalyticsFactory(configuration, fileManager, deviceInfoReporter, testResultReporter)
 
-    private val summaryCompiler = SummaryCompiler(deviceInfoSerializer, testResultReporter, configuration)
+    private val summaryCompiler = SummaryCompiler(deviceInfoReporter, testResultReporter, configuration)
 
     private fun loadSummaryPrinter(): SummaryPrinter {
         val outputDir = configuration.outputDir
@@ -61,22 +57,13 @@ class Marathon(val configuration: Configuration) {
         return loader.first()
     }
 
-    private fun loadTracker(): Tracker {
-        return DelegatingTracker(listOf(
-                JUnitTracker(JUnitReporter(fileManager)),
-                DeviceTracker(deviceInfoSerializer),
-                TestRusultsTracker(testResultReporter)
-        ))
-    }
-
     fun run(): Boolean {
         val testParser = loadTestParser()
         val deviceProvider = loadDeviceProvider()
-        val tracker = loadTracker()
+        val analytics = analyticsFactory.create()
 
         val tests = testParser.extract(configuration.testApplicationOutput)
-
-        val scheduler = Scheduler(deviceProvider, tracker, configuration, tests)
+        val scheduler = Scheduler(deviceProvider, analytics, configuration, tests)
 
         if (configuration.outputDir.exists()) {
             log.info { "Output ${configuration.outputDir} already exists" }

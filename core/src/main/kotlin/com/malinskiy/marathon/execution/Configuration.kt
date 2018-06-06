@@ -1,6 +1,12 @@
 package com.malinskiy.marathon.execution
 
-import com.malinskiy.marathon.execution.strategy.*
+import com.malinskiy.marathon.execution.AnalyticsConfiguration.InfluxDbConfiguration
+import com.malinskiy.marathon.execution.strategy.BatchingStrategy
+import com.malinskiy.marathon.execution.strategy.FlakinessStrategy
+import com.malinskiy.marathon.execution.strategy.PoolingStrategy
+import com.malinskiy.marathon.execution.strategy.RetryStrategy
+import com.malinskiy.marathon.execution.strategy.ShardingStrategy
+import com.malinskiy.marathon.execution.strategy.SortingStrategy
 import com.malinskiy.marathon.execution.strategy.impl.batching.IsolateBatchingStrategy
 import com.malinskiy.marathon.execution.strategy.impl.flakiness.IgnoreFlakinessStrategy
 import com.malinskiy.marathon.execution.strategy.impl.pooling.OmniPoolingStrategy
@@ -18,6 +24,7 @@ data class Configuration constructor(
         val applicationOutput: File,
         val testApplicationOutput: File,
 
+        val analyticsConfiguration: AnalyticsConfiguration,
         val poolingStrategy: PoolingStrategy,
         val shardingStrategy: ShardingStrategy,
         val sortingStrategy: SortingStrategy,
@@ -52,6 +59,7 @@ data class Configuration constructor(
                 applicationOutput: File,
                 testApplicationOutput: File,
 
+                analyticsConfiguration: AnalyticsConfiguration?,
                 poolingStrategy: PoolingStrategy?,
                 shardingStrategy: ShardingStrategy?,
                 sortingStrategy: SortingStrategy?,
@@ -81,6 +89,7 @@ data class Configuration constructor(
                     outputDir = outputDir,
                     applicationOutput = applicationOutput,
                     testApplicationOutput = testApplicationOutput,
+                    analyticsConfiguration = analyticsConfiguration ?: AnalyticsConfiguration.DisabledAnalytics,
                     poolingStrategy = poolingStrategy ?: OmniPoolingStrategy(),
                     shardingStrategy = shardingStrategy ?: ParallelShardingStrategy(),
                     sortingStrategy = sortingStrategy ?: NoSortingStrategy(),

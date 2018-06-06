@@ -14,7 +14,7 @@ open class MarathonRunTask : DefaultTask(), VerificationTask {
     var configuration: Configuration? = null
 
     @TaskAction
-    fun runFork() {
+    fun runMarathon() {
         val cnf = configuration!!
 
         log.info { "Run instrumentation tests ${cnf.testApplicationOutput} for app ${cnf.applicationOutput}" }

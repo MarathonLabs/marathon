@@ -1,7 +1,7 @@
 package com.malinskiy.marathon.android.executor
 
 import com.android.ddmlib.testrunner.RemoteAndroidTestRunner
-import com.malinskiy.marathon.analytics.Tracker
+import com.malinskiy.marathon.analytics.Analytics
 import com.malinskiy.marathon.android.AndroidDevice
 import com.malinskiy.marathon.android.ApkParser
 import com.malinskiy.marathon.android.executor.listeners.CompositeTestRunListener
@@ -17,7 +17,7 @@ import mu.KotlinLogging
 import java.util.concurrent.TimeUnit
 
 class AndroidDeviceTestRunner(private val device: AndroidDevice,
-                              private val tracker: Tracker) {
+                              private val analytics: Analytics) {
 
     private val logger = KotlinLogging.logger("AndroidDeviceTestRunner")
 
@@ -39,7 +39,7 @@ class AndroidDeviceTestRunner(private val device: AndroidDevice,
         val fileManager = FileManager(configuration.outputDir)
         runner.run(CompositeTestRunListener(listOf(
                 DebugTestRunListener(device.ddmsDevice),
-                XmlListener(device, devicePoolId, tracker),
+                XmlListener(device, devicePoolId, analytics),
                 LogCatListener(device, devicePoolId, LogWriter(fileManager)))
         ))
     }
