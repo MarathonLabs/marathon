@@ -1,6 +1,5 @@
 package com.malinskiy.marathon.execution
 
-import com.malinskiy.marathon.execution.AnalyticsConfiguration.InfluxDbConfiguration
 import com.malinskiy.marathon.execution.strategy.BatchingStrategy
 import com.malinskiy.marathon.execution.strategy.FlakinessStrategy
 import com.malinskiy.marathon.execution.strategy.PoolingStrategy
