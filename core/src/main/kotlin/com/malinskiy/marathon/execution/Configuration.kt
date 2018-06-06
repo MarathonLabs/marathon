@@ -89,14 +89,7 @@ data class Configuration constructor(
                     outputDir = outputDir,
                     applicationOutput = applicationOutput,
                     testApplicationOutput = testApplicationOutput,
-//                    analyticsConfiguration = analyticsConfiguration ?: AnalyticsConfiguration.DisabledAnalytics,
-                    analyticsConfiguration = analyticsConfiguration
-                            ?: InfluxDbConfiguration("http://localhost:8086",
-                                    "root",
-                                    "root",
-                                    "tests",
-                                    InfluxDbConfiguration.RetentionPolicyConfiguration.default
-                            ),
+                    analyticsConfiguration = analyticsConfiguration ?: AnalyticsConfiguration.DisabledAnalytics,
                     poolingStrategy = poolingStrategy ?: OmniPoolingStrategy(),
                     shardingStrategy = shardingStrategy ?: ParallelShardingStrategy(),
                     sortingStrategy = sortingStrategy ?: NoSortingStrategy(),
