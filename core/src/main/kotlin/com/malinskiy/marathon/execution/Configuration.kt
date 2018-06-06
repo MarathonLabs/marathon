@@ -1,7 +1,12 @@
 package com.malinskiy.marathon.execution
 
 import com.malinskiy.marathon.execution.AnalyticsConfiguration.InfluxDbConfiguration
-import com.malinskiy.marathon.execution.strategy.*
+import com.malinskiy.marathon.execution.strategy.BatchingStrategy
+import com.malinskiy.marathon.execution.strategy.FlakinessStrategy
+import com.malinskiy.marathon.execution.strategy.PoolingStrategy
+import com.malinskiy.marathon.execution.strategy.RetryStrategy
+import com.malinskiy.marathon.execution.strategy.ShardingStrategy
+import com.malinskiy.marathon.execution.strategy.SortingStrategy
 import com.malinskiy.marathon.execution.strategy.impl.batching.IsolateBatchingStrategy
 import com.malinskiy.marathon.execution.strategy.impl.flakiness.IgnoreFlakinessStrategy
 import com.malinskiy.marathon.execution.strategy.impl.pooling.OmniPoolingStrategy
@@ -86,7 +91,12 @@ data class Configuration constructor(
                     testApplicationOutput = testApplicationOutput,
 //                    analyticsConfiguration = analyticsConfiguration ?: AnalyticsConfiguration.DisabledAnalytics,
                     analyticsConfiguration = analyticsConfiguration
-                            ?: InfluxDbConfiguration("http://localhost:8086", "root", "root", "tests", InfluxDbConfiguration.RetentionPolicyConfiguration.default),
+                            ?: InfluxDbConfiguration("http://localhost:8086",
+                                    "root",
+                                    "root",
+                                    "tests",
+                                    InfluxDbConfiguration.RetentionPolicyConfiguration.default
+                            ),
                     poolingStrategy = poolingStrategy ?: OmniPoolingStrategy(),
                     shardingStrategy = shardingStrategy ?: ParallelShardingStrategy(),
                     sortingStrategy = sortingStrategy ?: NoSortingStrategy(),

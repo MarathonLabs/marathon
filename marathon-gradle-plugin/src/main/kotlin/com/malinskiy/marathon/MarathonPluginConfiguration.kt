@@ -1,7 +1,12 @@
 package com.malinskiy.marathon
 
 import com.malinskiy.marathon.execution.AnalyticsConfiguration
-import com.malinskiy.marathon.execution.strategy.*
+import com.malinskiy.marathon.execution.strategy.BatchingStrategy
+import com.malinskiy.marathon.execution.strategy.FlakinessStrategy
+import com.malinskiy.marathon.execution.strategy.PoolingStrategy
+import com.malinskiy.marathon.execution.strategy.RetryStrategy
+import com.malinskiy.marathon.execution.strategy.ShardingStrategy
+import com.malinskiy.marathon.execution.strategy.SortingStrategy
 
 data class MarathonPluginConfiguration @JvmOverloads constructor(
         var name: String = "Marathon",

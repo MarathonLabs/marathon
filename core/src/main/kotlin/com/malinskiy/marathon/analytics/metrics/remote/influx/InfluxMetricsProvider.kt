@@ -26,7 +26,8 @@ internal class InfluxMetricsProvider(private val influxDb: InfluxDB,
 
     override fun executionTime(test: Test): Double {
         val percentile = 90
-        val results = influxDb.query(Query("SELECT PERCENTILE(\"duration\",$percentile) FROM \"tests\" WHERE \"testname\" = \'${test.toSafeTestName()}\'", dbName))
+        val results = influxDb.query(Query("SELECT PERCENTILE(\"duration\",$percentile) " +
+                "FROM \"tests\" WHERE \"testname\" = \'${test.toSafeTestName()}\'", dbName))
         return mapper.toPOJO(results, ExecutionTime::class.java).first()?.percentile ?: 0.0
     }
 }

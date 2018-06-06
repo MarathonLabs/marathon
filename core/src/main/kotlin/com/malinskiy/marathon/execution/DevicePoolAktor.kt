@@ -6,9 +6,8 @@ import com.malinskiy.marathon.device.DevicePoolId
 import com.malinskiy.marathon.healthCheck
 import com.malinskiy.marathon.test.Test
 import com.malinskiy.marathon.test.TestBatch
-import com.malinskiy.marathon.test.toTestName
 import mu.KotlinLogging
-import java.util.concurrent.*
+import java.util.concurrent.ConcurrentLinkedQueue
 
 class DevicePoolAktor(private val poolId: DevicePoolId,
                       private val configuration: Configuration,

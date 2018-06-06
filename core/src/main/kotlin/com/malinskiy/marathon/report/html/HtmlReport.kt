@@ -5,7 +5,15 @@ import com.malinskiy.marathon.device.DeviceFeature
 import com.malinskiy.marathon.device.DeviceInfo
 import com.malinskiy.marathon.execution.TestResult
 import com.malinskiy.marathon.execution.TestStatus
-import com.malinskiy.marathon.report.*
+import com.malinskiy.marathon.report.HtmlDevice
+import com.malinskiy.marathon.report.HtmlFullTest
+import com.malinskiy.marathon.report.HtmlIndex
+import com.malinskiy.marathon.report.HtmlPoolSummary
+import com.malinskiy.marathon.report.HtmlShortTest
+import com.malinskiy.marathon.report.HtmlTestLogDetails
+import com.malinskiy.marathon.report.PoolSummary
+import com.malinskiy.marathon.report.Status
+import com.malinskiy.marathon.report.Summary
 import org.apache.commons.text.StringEscapeUtils
 import java.io.File
 import java.io.InputStream

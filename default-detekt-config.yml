@@ -366,7 +366,7 @@ style:
   UntilInsteadOfRangeTo:
     active: false
   UnusedImports:
-    active: false
+    active: true
   UnusedPrivateMember:
     active: false
   UseDataClass:
@@ -375,5 +375,5 @@ style:
   UtilityClassWithPublicConstructor:
     active: false
   WildcardImport:
-    active: false
+    active: true
     excludeImports: 'java.util.*,kotlinx.android.synthetic.*'

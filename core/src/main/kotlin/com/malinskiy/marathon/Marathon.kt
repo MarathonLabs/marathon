@@ -1,11 +1,7 @@
 package com.malinskiy.marathon
 
 import com.google.gson.Gson
-import com.malinskiy.marathon.analytics.*
-import com.malinskiy.marathon.analytics.metrics.MetricsProvider
-import com.malinskiy.marathon.analytics.metrics.MetricsProviderFactory
-import com.malinskiy.marathon.analytics.tracker.Tracker
-import com.malinskiy.marathon.analytics.tracker.TrackerFactory
+import com.malinskiy.marathon.analytics.AnalyticsFactory
 import com.malinskiy.marathon.device.DeviceProvider
 import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.execution.Scheduler
