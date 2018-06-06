@@ -1,7 +1,5 @@
-package com.malinskiy.marathon.analytics
+package com.malinskiy.marathon.analytics.tracker
 
-import com.malinskiy.marathon.analytics.tracker.DelegatingTracker
-import com.malinskiy.marathon.analytics.tracker.Tracker
 import com.malinskiy.marathon.device.Device
 import com.malinskiy.marathon.device.DeviceInfo
 import com.malinskiy.marathon.device.DevicePoolId
