@@ -17,8 +17,7 @@ object Deployment {
         val releaseMode: String? by project
         val versionSuffix = when (releaseMode) {
             "RELEASE" -> ""
-            else -> ""
-//            else -> "-SNAPSHOT"
+            else -> "-SNAPSHOT"
         }
 
         Deployment.releaseMode = releaseMode
