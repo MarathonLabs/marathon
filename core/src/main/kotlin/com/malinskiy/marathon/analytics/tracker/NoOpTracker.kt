@@ -6,13 +6,7 @@ import com.malinskiy.marathon.execution.TestResult
 import com.malinskiy.marathon.test.Test
 
 internal open class NoOpTracker : Tracker {
-    override fun trackTestStarted(test: Test, time: Int) {
-    }
-
     override fun trackTestResult(poolId: DevicePoolId, device: Device, testResult: TestResult) {
-    }
-
-    override fun trackTestIgnored(test: Test) {
     }
 
     override fun trackDeviceConnected(poolId: DevicePoolId, device: Device) {
