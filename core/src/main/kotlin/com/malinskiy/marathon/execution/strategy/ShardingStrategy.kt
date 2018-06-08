@@ -4,5 +4,5 @@ import com.malinskiy.marathon.execution.TestShard
 import com.malinskiy.marathon.test.Test
 
 interface ShardingStrategy {
-    fun createShards(tests: Collection<Test>): Collection<TestShard>
+    fun createShard(tests: Collection<Test>): TestShard
 }
