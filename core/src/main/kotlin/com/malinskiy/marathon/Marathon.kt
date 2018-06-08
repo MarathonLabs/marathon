@@ -63,8 +63,7 @@ class Marathon(val configuration: Configuration) {
         val analytics = analyticsFactory.create()
 
         val tests = testParser.extract(configuration.testApplicationOutput)
-        val shard = configuration.shardingStrategy.createShard(tests)
-        val scheduler = Scheduler(deviceProvider, analytics, configuration, shard)
+        val scheduler = Scheduler(deviceProvider, analytics, configuration, tests)
 
         if (configuration.outputDir.exists()) {
             log.info { "Output ${configuration.outputDir} already exists" }

@@ -6,13 +6,16 @@ import com.malinskiy.marathon.device.DevicePoolId
 import com.malinskiy.marathon.healthCheck
 import com.malinskiy.marathon.test.Test
 import com.malinskiy.marathon.test.TestBatch
+import kotlinx.coroutines.experimental.channels.Channel
 import mu.KotlinLogging
 import java.util.concurrent.ConcurrentLinkedQueue
+import kotlin.system.measureNanoTime
+import kotlin.system.measureTimeMillis
 
 class DevicePoolAktor(private val poolId: DevicePoolId,
                       private val configuration: Configuration,
                       private val analytics: Analytics,
-                      private val shard: TestShard) : Aktor<DevicePoolMessage>() {
+                      tests: Collection<Test>) : Aktor<DevicePoolMessage>() {
 
     private val logger = KotlinLogging.logger("DevicePoolAktor")
 
@@ -26,26 +29,40 @@ class DevicePoolAktor(private val poolId: DevicePoolId,
         }
     }
 
+    private val shardingStrategy = configuration.shardingStrategy
+    private val flakinessShard = configuration.flakinessStrategy
+    private val batchingStrategy = configuration.batchingStrategy
+
+    private val shard = flakinessShard.process(shardingStrategy.createShard(tests))
+
+    private val queue: QueueActor = QueueActor(configuration, shard)
+
     private suspend fun deviceReady(msg: DevicePoolMessage.Ready) {
-        if (queue.isNotEmpty()) {
-            msg.sender.send(DeviceMessage.ExecuteTestBatch(queue.poll()))
-        } else {
-            msg.sender.send(DeviceMessage.Terminate)
+        println("shard.tests.size = ${shard.tests.size}")
+        val time = measureTimeMillis {
+            val channel = Channel<QueueResponseMessage>()
+            queue.send(QueueMessage.RequestNext(channel))
+            val response = channel.receive()
+            when (response) {
+                is QueueResponseMessage.Empty -> msg.sender.send(DeviceMessage.Terminate)
+                is QueueResponseMessage.NextBatch -> msg.sender.send(DeviceMessage.ExecuteTestBatch(response.batch))
+            }
         }
+        println("after device ready = $time")
     }
 
     private suspend fun testExecutionFinished(msg: DevicePoolMessage.TestExecutionFinished) {
-        if (queue.isNotEmpty()) {
-            msg.sender.send(DeviceMessage.ExecuteTestBatch(queue.poll()))
-        } else {
-            msg.sender.send(DeviceMessage.Terminate)
+        val time = measureTimeMillis {
+            val channel = Channel<QueueResponseMessage>()
+            queue.send(QueueMessage.RequestNext(channel))
+            val response = channel.receive()
+            when (response) {
+                is QueueResponseMessage.Empty -> msg.sender.send(DeviceMessage.Terminate)
+                is QueueResponseMessage.NextBatch -> msg.sender.send(DeviceMessage.ExecuteTestBatch(response.batch))
+            }
         }
+        println("after device finished ready = $time")
     }
-
-    private val shardingStrategy = configuration.shardingStrategy
-    private val batchingStrategy = configuration.batchingStrategy
-
-    private val queue = ConcurrentLinkedQueue<TestBatch>(batchingStrategy.process(shard))
 
     private val devices = mutableMapOf<String, Aktor<DeviceMessage>>()
 

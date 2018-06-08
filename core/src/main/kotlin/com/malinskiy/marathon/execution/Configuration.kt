@@ -6,11 +6,13 @@ import com.malinskiy.marathon.execution.strategy.PoolingStrategy
 import com.malinskiy.marathon.execution.strategy.RetryStrategy
 import com.malinskiy.marathon.execution.strategy.ShardingStrategy
 import com.malinskiy.marathon.execution.strategy.SortingStrategy
+import com.malinskiy.marathon.execution.strategy.impl.batching.FixedSizeBatchingStrategy
 import com.malinskiy.marathon.execution.strategy.impl.batching.IsolateBatchingStrategy
 import com.malinskiy.marathon.execution.strategy.impl.flakiness.IgnoreFlakinessStrategy
 import com.malinskiy.marathon.execution.strategy.impl.pooling.OmniPoolingStrategy
 import com.malinskiy.marathon.execution.strategy.impl.retry.NoRetryStrategy
 import com.malinskiy.marathon.execution.strategy.impl.sharding.ParallelShardingStrategy
+import com.malinskiy.marathon.execution.strategy.impl.sharding.TempShardingStrategy
 import com.malinskiy.marathon.execution.strategy.impl.sorting.NoSortingStrategy
 import com.malinskiy.marathon.vendor.VendorConfiguration
 import java.io.File
@@ -88,11 +90,19 @@ data class Configuration constructor(
                     outputDir = outputDir,
                     applicationOutput = applicationOutput,
                     testApplicationOutput = testApplicationOutput,
-                    analyticsConfiguration = analyticsConfiguration ?: AnalyticsConfiguration.DisabledAnalytics,
+//                    analyticsConfiguration = analyticsConfiguration ?: AnalyticsConfiguration.DisabledAnalytics, //TODO: Revert
+                    analyticsConfiguration = analyticsConfiguration ?: AnalyticsConfiguration.InfluxDbConfiguration(
+                            url = "http://localhost:8086",
+                            user = "root",
+                            password = "root",
+                            dbName = "tests",
+                            retentionPolicyConfiguration = AnalyticsConfiguration.InfluxDbConfiguration.RetentionPolicyConfiguration.default),
                     poolingStrategy = poolingStrategy ?: OmniPoolingStrategy(),
-                    shardingStrategy = shardingStrategy ?: ParallelShardingStrategy(),
+//                    shardingStrategy = shardingStrategy ?: ParallelShardingStrategy(), // TODO: Revert
+                    shardingStrategy = TempShardingStrategy(5),
                     sortingStrategy = sortingStrategy ?: NoSortingStrategy(),
-                    batchingStrategy = batchingStrategy ?: IsolateBatchingStrategy(),
+//                    batchingStrategy = batchingStrategy ?: IsolateBatchingStrategy(), //TODO: Revert
+                    batchingStrategy = FixedSizeBatchingStrategy(5),
                     flakinessStrategy = flakinessStrategy ?: IgnoreFlakinessStrategy(),
                     retryStrategy = retryStrategy ?: NoRetryStrategy(),
                     ignoreFailures = ignoreFailures ?: false,
