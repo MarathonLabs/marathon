@@ -22,7 +22,7 @@ import kotlinx.coroutines.experimental.launch
 class Scheduler(private val deviceProvider: DeviceProvider,
                 private val analytics: Analytics,
                 private val configuration: Configuration,
-                private val list: Collection<Test>) {
+                private val shard: TestShard) {
 
     companion object {
         private const val DEFAULT_INITIAL_DELAY_MILLIS = 10_000L
@@ -66,7 +66,7 @@ class Scheduler(private val deviceProvider: DeviceProvider,
     private suspend fun onDeviceConnected(item: DeviceProvider.DeviceEvent.DeviceConnected) {
         val device = item.device
         val poolId = poolingStrategy.associate(device)
-        pools.computeIfAbsent(poolId, { id -> DevicePoolAktor(id, configuration, analytics, list) })
+        pools.computeIfAbsent(poolId, { id -> DevicePoolAktor(id, configuration, analytics, shard) })
         pools[poolId]?.send(DevicePoolMessage.AddDevice(device))
         analytics.trackDeviceConnected(poolId, device)
     }

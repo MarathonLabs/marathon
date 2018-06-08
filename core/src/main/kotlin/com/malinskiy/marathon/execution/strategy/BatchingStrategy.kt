@@ -4,5 +4,5 @@ import com.malinskiy.marathon.execution.TestShard
 import com.malinskiy.marathon.test.TestBatch
 
 interface BatchingStrategy {
-    fun process(testShards: Collection<TestShard>): Collection<TestBatch>
+    fun process(testShards: TestShard): Collection<TestBatch>
 }

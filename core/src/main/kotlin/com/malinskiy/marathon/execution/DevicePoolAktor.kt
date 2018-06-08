@@ -12,7 +12,7 @@ import java.util.concurrent.ConcurrentLinkedQueue
 class DevicePoolAktor(private val poolId: DevicePoolId,
                       private val configuration: Configuration,
                       private val analytics: Analytics,
-                      private val tests: Collection<Test>) : Aktor<DevicePoolMessage>() {
+                      private val shard: TestShard) : Aktor<DevicePoolMessage>() {
 
     private val logger = KotlinLogging.logger("DevicePoolAktor")
 
@@ -45,7 +45,7 @@ class DevicePoolAktor(private val poolId: DevicePoolId,
     private val shardingStrategy = configuration.shardingStrategy
     private val batchingStrategy = configuration.batchingStrategy
 
-    private val queue = ConcurrentLinkedQueue<TestBatch>(batchingStrategy.process(shardingStrategy.createShards(tests)))
+    private val queue = ConcurrentLinkedQueue<TestBatch>(batchingStrategy.process(shard))
 
     private val devices = mutableMapOf<String, Aktor<DeviceMessage>>()
 
