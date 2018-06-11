@@ -14,7 +14,7 @@ class NoOpMetricsProviderSpek : Spek({
         }
         it("should return 0.0 as executionTime") {
             val test = Test("pkg", "clazz", "method", emptyList())
-            NoOpMetricsProvider().executionTime(test) `should be equal to` 0.0
+            NoOpMetricsProvider().executionTime(test, 90.0) `should be equal to` 0.0
         }
     }
 })

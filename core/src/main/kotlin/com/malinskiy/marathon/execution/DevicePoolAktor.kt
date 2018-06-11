@@ -32,7 +32,7 @@ class DevicePoolAktor(private val poolId: DevicePoolId,
     private val flakinessShard = configuration.flakinessStrategy
     private val batchingStrategy = configuration.batchingStrategy
 
-    private val shard = flakinessShard.process(shardingStrategy.createShard(tests))
+    private val shard = flakinessShard.process(shardingStrategy.createShard(tests), analytics)
 
     private val queue: QueueActor = QueueActor(configuration, shard, analytics)
 
