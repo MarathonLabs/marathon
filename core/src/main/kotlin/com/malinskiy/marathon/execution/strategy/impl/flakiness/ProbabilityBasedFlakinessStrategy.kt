@@ -5,7 +5,7 @@ import com.malinskiy.marathon.execution.TestShard
 import com.malinskiy.marathon.execution.strategy.FlakinessStrategy
 import com.malinskiy.marathon.test.Test
 
-class SuccessRateFlakinessStrategy(private val minSuccessRate: Double) : FlakinessStrategy {
+class ProbabilityBasedFlakinessStrategy(private val minSuccessRate: Double) : FlakinessStrategy {
     override fun process(testShard: TestShard,
                          metricsProvider: MetricsProvider): TestShard {
         val tests = testShard.tests

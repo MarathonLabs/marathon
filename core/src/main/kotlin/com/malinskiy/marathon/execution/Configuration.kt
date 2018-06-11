@@ -102,10 +102,9 @@ data class Configuration constructor(
                             dbName = "tests",
                             retentionPolicyConfiguration = AnalyticsConfiguration.InfluxDbConfiguration.RetentionPolicyConfiguration.default),
                     poolingStrategy = poolingStrategy ?: OmniPoolingStrategy(),
-//                    shardingStrategy = shardingStrategy ?: ParallelShardingStrategy(), // TODO: Revert
-                    shardingStrategy = TempShardingStrategy(2),
+                    shardingStrategy = shardingStrategy ?: ParallelShardingStrategy(), // TODO: Revert
 //                    sortingStrategy = sortingStrategy ?: NoSortingStrategy(),
-                    sortingStrategy = sortingStrategy ?: SuccessRateSortingStrategy(),
+                    sortingStrategy = sortingStrategy ?: ExecutionTimeSortingStrategy(90.0),
 //                    batchingStrategy = batchingStrategy ?: IsolateBatchingStrategy(), //TODO: Revert
                     batchingStrategy = FixedSizeBatchingStrategy(5),
                     flakinessStrategy = flakinessStrategy ?: IgnoreFlakinessStrategy(),
