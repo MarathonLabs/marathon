@@ -4,8 +4,8 @@ import com.malinskiy.marathon.analytics.metrics.MetricsProvider
 import com.malinskiy.marathon.execution.strategy.SortingStrategy
 import com.malinskiy.marathon.test.Test
 
-class NoSortingStrategy : SortingStrategy {
+class ExecutionTimeSortingStrategy(private val percentile: Double) : SortingStrategy {
     override fun process(tests: Collection<Test>, metricsProvider: MetricsProvider): Collection<Test> {
-        return tests
+        return tests.sortedBy { metricsProvider.executionTime(it, percentile) }
     }
 }

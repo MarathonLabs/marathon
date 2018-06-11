@@ -8,26 +8,51 @@ import org.influxdb.annotation.Column
 import org.influxdb.annotation.Measurement
 import org.influxdb.dto.Query
 import org.influxdb.impl.InfluxDBResultMapper
+import java.util.concurrent.ConcurrentHashMap
 
 @Measurement(name = "tests")
-class ExecutionTime(@Column(name = "percentile") var percentile: Double? = null)
+class ExecutionTime(@Column(name = "testname", tag = true) var testName: String? = null,
+                    @Column(name = "percentile") var percentile: Double? = null)
 
 @Measurement(name = "tests")
-class SuccessRate(@Column(name = "mean") var mean: Double? = null)
+class SuccessRate(@Column(name = "testname", tag = true) var testName: String? = null,
+                  @Column(name = "mean") var mean: Double? = null)
 
 internal class InfluxMetricsProvider(private val influxDb: InfluxDB,
                                      private val dbName: String) : MetricsProvider {
     private val mapper = InfluxDBResultMapper()
 
+    private val successRate = ConcurrentHashMap<String, Double>()
+    private val executionTime = ConcurrentHashMap<String, Double>()
+
     override fun successRate(test: Test): Double {
-        val results = influxDb.query(Query("SELECT MEAN(\"success\") FROM \"tests\" WHERE \"testname\" = \'${test.toSafeTestName()}\'", dbName))
-        return mapper.toPOJO(results, SuccessRate::class.java).first()?.mean ?: 0.0
+        if (successRate.isEmpty()) {
+            requestAllSuccessRates()
+        }
+        return successRate[test.toSafeTestName()] ?: 0.0
     }
 
-    override fun executionTime(test: Test): Double {
-        val percentile = 90
+    private fun requestAllSuccessRates() {
+        val results = influxDb.query(Query("SELECT MEAN(\"success\") FROM \"tests\" GROUP BY \"testname\"", dbName))
+        val mappedResults = mapper.toPOJO(results, SuccessRate::class.java)
+        mappedResults.forEach {
+            successRate[it.testName!!] = it.mean!!
+        }
+    }
+
+    override fun executionTime(test: Test, percentile: Double): Double {
+        if (executionTime.isEmpty()) {
+            requestAllExecutionTimes(percentile)
+        }
+        return executionTime[test.toSafeTestName()] ?: 0.0
+    }
+
+    private fun requestAllExecutionTimes(percentile: Double) {
         val results = influxDb.query(Query("SELECT PERCENTILE(\"duration\",$percentile) " +
-                "FROM \"tests\" WHERE \"testname\" = \'${test.toSafeTestName()}\'", dbName))
-        return mapper.toPOJO(results, ExecutionTime::class.java).first()?.percentile ?: 0.0
+                "FROM \"tests\" GROUP BY \"testname\"", dbName))
+        val mappedResults = mapper.toPOJO(results, ExecutionTime::class.java)
+        mappedResults.forEach {
+            executionTime[it.testName!!] = it.percentile!!
+        }
     }
 }

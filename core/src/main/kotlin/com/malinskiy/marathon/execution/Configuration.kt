@@ -1,5 +1,7 @@
 package com.malinskiy.marathon.execution
 
+import com.malinskiy.marathon.analytics.metrics.remote.influx.SuccessRate
+import com.malinskiy.marathon.analytics.tracker.remote.influx.InfluxDbProvider
 import com.malinskiy.marathon.execution.strategy.BatchingStrategy
 import com.malinskiy.marathon.execution.strategy.FlakinessStrategy
 import com.malinskiy.marathon.execution.strategy.PoolingStrategy
@@ -13,7 +15,9 @@ import com.malinskiy.marathon.execution.strategy.impl.pooling.OmniPoolingStrateg
 import com.malinskiy.marathon.execution.strategy.impl.retry.NoRetryStrategy
 import com.malinskiy.marathon.execution.strategy.impl.sharding.ParallelShardingStrategy
 import com.malinskiy.marathon.execution.strategy.impl.sharding.TempShardingStrategy
+import com.malinskiy.marathon.execution.strategy.impl.sorting.ExecutionTimeSortingStrategy
 import com.malinskiy.marathon.execution.strategy.impl.sorting.NoSortingStrategy
+import com.malinskiy.marathon.execution.strategy.impl.sorting.SuccessRateSortingStrategy
 import com.malinskiy.marathon.vendor.VendorConfiguration
 import java.io.File
 
@@ -99,8 +103,9 @@ data class Configuration constructor(
                             retentionPolicyConfiguration = AnalyticsConfiguration.InfluxDbConfiguration.RetentionPolicyConfiguration.default),
                     poolingStrategy = poolingStrategy ?: OmniPoolingStrategy(),
 //                    shardingStrategy = shardingStrategy ?: ParallelShardingStrategy(), // TODO: Revert
-                    shardingStrategy = TempShardingStrategy(5),
-                    sortingStrategy = sortingStrategy ?: NoSortingStrategy(),
+                    shardingStrategy = TempShardingStrategy(2),
+//                    sortingStrategy = sortingStrategy ?: NoSortingStrategy(),
+                    sortingStrategy = sortingStrategy ?: SuccessRateSortingStrategy(),
 //                    batchingStrategy = batchingStrategy ?: IsolateBatchingStrategy(), //TODO: Revert
                     batchingStrategy = FixedSizeBatchingStrategy(5),
                     flakinessStrategy = flakinessStrategy ?: IgnoreFlakinessStrategy(),

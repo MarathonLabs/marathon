@@ -7,7 +7,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
-class MainActivityTest {
+class MainActivitySlowTest {
 
     @Rule
     @JvmField
@@ -17,7 +17,7 @@ class MainActivityTest {
 
     @Test
     fun testText() {
-        java.lang.Thread.sleep(500)
+        java.lang.Thread.sleep(5000)
         screen {
             text {
                 hasText("Test")
@@ -27,7 +27,7 @@ class MainActivityTest {
 
     @Test
     fun testText1() {
-        java.lang.Thread.sleep(500)
+        java.lang.Thread.sleep(5000)
         screen {
             text {
                 hasText("Test")
@@ -37,7 +37,7 @@ class MainActivityTest {
 
     @Test
     fun testText2() {
-        java.lang.Thread.sleep(500)
+        java.lang.Thread.sleep(5000)
         screen {
             text {
                 hasText("Test")
@@ -47,7 +47,7 @@ class MainActivityTest {
 
     @Test
     fun testText3() {
-        java.lang.Thread.sleep(500)
+        java.lang.Thread.sleep(5000)
         screen {
             text {
                 hasText("Test")
@@ -57,7 +57,7 @@ class MainActivityTest {
 
     @Test
     fun testText4() {
-        java.lang.Thread.sleep(500)
+        java.lang.Thread.sleep(5000)
         screen {
             text {
                 hasText("Test")
@@ -67,7 +67,7 @@ class MainActivityTest {
 
     @Test
     fun testText5() {
-        java.lang.Thread.sleep(500)
+        java.lang.Thread.sleep(5000)
         screen {
             text {
                 hasText("Test")
@@ -77,7 +77,7 @@ class MainActivityTest {
 
     @Test
     fun testText6() {
-        java.lang.Thread.sleep(500)
+        java.lang.Thread.sleep(5000)
         screen {
             text {
                 hasText("Test")
@@ -87,7 +87,7 @@ class MainActivityTest {
 
     @Test
     fun testText7() {
-        java.lang.Thread.sleep(500)
+        java.lang.Thread.sleep(5000)
         screen {
             text {
                 hasText("Test")
@@ -97,7 +97,7 @@ class MainActivityTest {
 
     @Test
     fun testText8() {
-        java.lang.Thread.sleep(500)
+        java.lang.Thread.sleep(5000)
         screen {
             text {
                 hasText("Test")
@@ -107,7 +107,7 @@ class MainActivityTest {
 
     @Test
     fun testText9() {
-        java.lang.Thread.sleep(500)
+        java.lang.Thread.sleep(5000)
         screen {
             text {
                 hasText("Test")
@@ -117,7 +117,7 @@ class MainActivityTest {
 
     @Test
     fun testText10() {
-        java.lang.Thread.sleep(500)
+        java.lang.Thread.sleep(5000)
         screen {
             text {
                 hasText("Test")
@@ -127,7 +127,7 @@ class MainActivityTest {
 
     @Test
     fun testText11() {
-        java.lang.Thread.sleep(500)
+        java.lang.Thread.sleep(5000)
         screen {
             text {
                 hasText("Test")

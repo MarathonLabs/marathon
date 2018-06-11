@@ -5,11 +5,10 @@ import com.malinskiy.marathon.analytics.Analytics
 import com.malinskiy.marathon.device.DevicePoolId
 import com.malinskiy.marathon.healthCheck
 import com.malinskiy.marathon.test.Test
-import com.malinskiy.marathon.test.TestBatch
 import kotlinx.coroutines.experimental.channels.Channel
+import kotlinx.coroutines.experimental.delay
+import kotlinx.coroutines.experimental.launch
 import mu.KotlinLogging
-import java.util.concurrent.ConcurrentLinkedQueue
-import kotlin.system.measureNanoTime
 import kotlin.system.measureTimeMillis
 
 class DevicePoolAktor(private val poolId: DevicePoolId,
@@ -35,7 +34,7 @@ class DevicePoolAktor(private val poolId: DevicePoolId,
 
     private val shard = flakinessShard.process(shardingStrategy.createShard(tests))
 
-    private val queue: QueueActor = QueueActor(configuration, shard)
+    private val queue: QueueActor = QueueActor(configuration, shard, analytics)
 
     private suspend fun deviceReady(msg: DevicePoolMessage.Ready) {
         println("shard.tests.size = ${shard.tests.size}")
