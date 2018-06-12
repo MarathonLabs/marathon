@@ -14,7 +14,7 @@ class DeviceActor(private val devicePoolId: DevicePoolId,
                   private val device: Device,
                   private val analytics: Analytics) : Actor<DeviceMessage>() {
 
-    private var status = DeviceStatus.WAITING
+    private var status = DeviceStatus.CONNECTED
 
     override suspend fun receive(msg: DeviceMessage) {
         when (msg) {

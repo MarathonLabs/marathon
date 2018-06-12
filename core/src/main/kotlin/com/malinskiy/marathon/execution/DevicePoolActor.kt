@@ -3,8 +3,13 @@ package com.malinskiy.marathon.execution
 import com.malinskiy.marathon.actor.Actor
 import com.malinskiy.marathon.analytics.Analytics
 import com.malinskiy.marathon.device.DevicePoolId
+import com.malinskiy.marathon.execution.DevicePoolMessage.AddDevice
+import com.malinskiy.marathon.execution.DevicePoolMessage.RemoveDevice
+import com.malinskiy.marathon.execution.DevicePoolMessage.Terminate
+import com.malinskiy.marathon.execution.DevicePoolMessage.MessageFromDevice
 import com.malinskiy.marathon.healthCheck
 import com.malinskiy.marathon.test.Test
+import kotlinx.coroutines.experimental.CompletableDeferred
 import kotlinx.coroutines.experimental.channels.Channel
 import mu.KotlinLogging
 
@@ -17,11 +22,11 @@ class DevicePoolActor(private val poolId: DevicePoolId,
 
     override suspend fun receive(msg: DevicePoolMessage) {
         when (msg) {
-            is DevicePoolMessage.AddDevice -> addDevice(msg)
-            is DevicePoolMessage.TestExecutionFinished -> testExecutionFinished(msg)
-            is DevicePoolMessage.Ready -> deviceReady(msg)
-            is DevicePoolMessage.RemoveDevice -> removeDevice(msg)
-            is DevicePoolMessage.Terminate -> terminate()
+            is AddDevice -> addDevice(msg)
+            is RemoveDevice -> removeDevice(msg)
+            is Terminate -> terminate()
+            is MessageFromDevice.TestExecutionFinished -> testExecutionFinished(msg)
+            is MessageFromDevice.Ready -> deviceReady(msg)
         }
     }
 
@@ -30,20 +35,20 @@ class DevicePoolActor(private val poolId: DevicePoolId,
 
     private val shard = flakinessShard.process(shardingStrategy.createShard(tests), analytics)
 
-    private val queue: QueueActor = QueueActor(configuration, shard, analytics)
+    private val queue: QueueActor = QueueActor(configuration, shard, analytics, this)
+
     private val devices = mutableMapOf<String, Actor<DeviceMessage>>()
 
-    private suspend fun deviceReady(msg: DevicePoolMessage.Ready) {
+    private suspend fun deviceReady(msg: MessageFromDevice.Ready) {
         val channel = Channel<QueueResponseMessage>()
         queue.send(QueueMessage.RequestNext(channel))
         val response = channel.receive()
         when (response) {
-            is QueueResponseMessage.Empty -> msg.sender.send(DeviceMessage.Terminate)
             is QueueResponseMessage.NextBatch -> msg.sender.send(DeviceMessage.ExecuteTestBatch(response.batch))
         }
     }
 
-    private suspend fun testExecutionFinished(msg: DevicePoolMessage.TestExecutionFinished) {
+    private suspend fun testExecutionFinished(msg: MessageFromDevice.TestExecutionFinished) {
         val channel = Channel<QueueResponseMessage>()
         queue.send(QueueMessage.RequestNext(channel))
         val response = channel.receive()
@@ -61,8 +66,22 @@ class DevicePoolActor(private val poolId: DevicePoolId,
 
     private fun initializeHealthCheck() {
         if (!initialized) {
+            fun allClosed() = devices.values.all { it.isClosedForSend }
+            fun waiting() = suspend {
+                devices.values.all {
+                    val referred = CompletableDeferred<DeviceStatus>()
+                    it.send(DeviceMessage.GetStatus(referred))
+                    referred.await() == DeviceStatus.WAITING
+                }
+            }
+
+            fun queueIsEmpty() = suspend {
+                val deferred = CompletableDeferred<Boolean>()
+                queue.send(QueueMessage.IsEmpty(deferred))
+                deferred.await()
+            }
             healthCheck {
-                !devices.values.all { it.isClosedForSend }
+                !allClosed() || !(waiting().invoke() && queueIsEmpty().invoke())
             }.invokeOnCompletion {
                 terminate()
             }
@@ -70,12 +89,12 @@ class DevicePoolActor(private val poolId: DevicePoolId,
         }
     }
 
-    private suspend fun removeDevice(msg: DevicePoolMessage.RemoveDevice) {
+    private suspend fun removeDevice(msg: RemoveDevice) {
         val device = devices.remove(msg.device.serialNumber)
         device?.send(DeviceMessage.Terminate)
     }
 
-    private suspend fun addDevice(msg: DevicePoolMessage.AddDevice) {
+    private suspend fun addDevice(msg: AddDevice) {
         val device = msg.device
         val actor = DeviceActor(poolId, this, configuration, device, analytics)
         devices[device.serialNumber] = actor
