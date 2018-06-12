@@ -18,15 +18,12 @@ import kotlinx.coroutines.experimental.launch
  * 5. Batching:     TestBatch into manageable chunks
  * 6. Retries:      Retry if something fails and we didn't account for it in the flakiness
  */
+private const val DEFAULT_INITIAL_DELAY_MILLIS = 10_000L
 
 class Scheduler(private val deviceProvider: DeviceProvider,
                 private val analytics: Analytics,
                 private val configuration: Configuration,
                 private val tests: Collection<Test>) {
-
-    companion object {
-        private const val DEFAULT_INITIAL_DELAY_MILLIS = 10_000L
-    }
 
     private val pools = mutableMapOf<DevicePoolId, Actor<DevicePoolMessage>>()
     private val poolingStrategy = configuration.poolingStrategy

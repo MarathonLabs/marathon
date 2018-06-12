@@ -67,7 +67,8 @@ class DevicePoolActor(private val poolId: DevicePoolId,
     private fun initializeHealthCheck() {
         if (!initialized) {
             fun allClosed() = devices.values.all { it.isClosedForSend }
-            fun waiting() = suspend {
+
+            val waiting: suspend () -> Boolean = {
                 devices.values.all {
                     val referred = CompletableDeferred<DeviceStatus>()
                     it.send(DeviceMessage.GetStatus(referred))
@@ -75,13 +76,14 @@ class DevicePoolActor(private val poolId: DevicePoolId,
                 }
             }
 
-            fun queueIsEmpty() = suspend {
+            val queueIsEmpty: suspend () -> Boolean = {
                 val deferred = CompletableDeferred<Boolean>()
                 queue.send(QueueMessage.IsEmpty(deferred))
                 deferred.await()
             }
+
             healthCheck {
-                !allClosed() || !(waiting().invoke() && queueIsEmpty().invoke())
+                !allClosed() || !(waiting() && queueIsEmpty())
             }.invokeOnCompletion {
                 terminate()
             }

@@ -1,7 +1,5 @@
 package com.malinskiy.marathon.execution
 
-import com.malinskiy.marathon.analytics.metrics.remote.influx.SuccessRate
-import com.malinskiy.marathon.analytics.tracker.remote.influx.InfluxDbProvider
 import com.malinskiy.marathon.execution.strategy.BatchingStrategy
 import com.malinskiy.marathon.execution.strategy.FlakinessStrategy
 import com.malinskiy.marathon.execution.strategy.PoolingStrategy
@@ -9,18 +7,15 @@ import com.malinskiy.marathon.execution.strategy.RetryStrategy
 import com.malinskiy.marathon.execution.strategy.ShardingStrategy
 import com.malinskiy.marathon.execution.strategy.SortingStrategy
 import com.malinskiy.marathon.execution.strategy.impl.batching.FixedSizeBatchingStrategy
-import com.malinskiy.marathon.execution.strategy.impl.batching.IsolateBatchingStrategy
 import com.malinskiy.marathon.execution.strategy.impl.flakiness.IgnoreFlakinessStrategy
 import com.malinskiy.marathon.execution.strategy.impl.pooling.OmniPoolingStrategy
 import com.malinskiy.marathon.execution.strategy.impl.retry.NoRetryStrategy
 import com.malinskiy.marathon.execution.strategy.impl.sharding.ParallelShardingStrategy
-import com.malinskiy.marathon.execution.strategy.impl.sharding.TempShardingStrategy
 import com.malinskiy.marathon.execution.strategy.impl.sorting.ExecutionTimeSortingStrategy
-import com.malinskiy.marathon.execution.strategy.impl.sorting.NoSortingStrategy
-import com.malinskiy.marathon.execution.strategy.impl.sorting.SuccessRateSortingStrategy
 import com.malinskiy.marathon.vendor.VendorConfiguration
 import java.io.File
 
+private const val DEFAULT_OUTPUT_TIMEOUT = 60_000
 
 data class Configuration constructor(
         val name: String,
@@ -53,10 +48,6 @@ data class Configuration constructor(
         val testPackage: String?,
         val autoGrantPermission: Boolean,
         val vendorConfiguration: VendorConfiguration) {
-
-    companion object {
-        private const val DEFAULT_OUTPUT_TIMEOUT = 60_000
-    }
 
     constructor(name: String,
                 baseOutputDir: File,
