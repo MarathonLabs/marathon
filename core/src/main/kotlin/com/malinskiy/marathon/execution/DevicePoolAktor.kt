@@ -30,37 +30,29 @@ class DevicePoolAktor(private val poolId: DevicePoolId,
 
     private val shardingStrategy = configuration.shardingStrategy
     private val flakinessShard = configuration.flakinessStrategy
-    private val batchingStrategy = configuration.batchingStrategy
 
     private val shard = flakinessShard.process(shardingStrategy.createShard(tests), analytics)
 
     private val queue: QueueActor = QueueActor(configuration, shard, analytics)
 
     private suspend fun deviceReady(msg: DevicePoolMessage.Ready) {
-        println("shard.tests.size = ${shard.tests.size}")
-        val time = measureTimeMillis {
-            val channel = Channel<QueueResponseMessage>()
-            queue.send(QueueMessage.RequestNext(channel))
-            val response = channel.receive()
-            when (response) {
-                is QueueResponseMessage.Empty -> msg.sender.send(DeviceMessage.Terminate)
-                is QueueResponseMessage.NextBatch -> msg.sender.send(DeviceMessage.ExecuteTestBatch(response.batch))
-            }
+        val channel = Channel<QueueResponseMessage>()
+        queue.send(QueueMessage.RequestNext(channel))
+        val response = channel.receive()
+        when (response) {
+            is QueueResponseMessage.Empty -> msg.sender.send(DeviceMessage.Terminate)
+            is QueueResponseMessage.NextBatch -> msg.sender.send(DeviceMessage.ExecuteTestBatch(response.batch))
         }
-        println("after device ready = $time")
     }
 
     private suspend fun testExecutionFinished(msg: DevicePoolMessage.TestExecutionFinished) {
-        val time = measureTimeMillis {
-            val channel = Channel<QueueResponseMessage>()
-            queue.send(QueueMessage.RequestNext(channel))
-            val response = channel.receive()
-            when (response) {
-                is QueueResponseMessage.Empty -> msg.sender.send(DeviceMessage.Terminate)
-                is QueueResponseMessage.NextBatch -> msg.sender.send(DeviceMessage.ExecuteTestBatch(response.batch))
-            }
+        val channel = Channel<QueueResponseMessage>()
+        queue.send(QueueMessage.RequestNext(channel))
+        val response = channel.receive()
+        when (response) {
+            is QueueResponseMessage.Empty -> msg.sender.send(DeviceMessage.Terminate)
+            is QueueResponseMessage.NextBatch -> msg.sender.send(DeviceMessage.ExecuteTestBatch(response.batch))
         }
-        println("after device finished ready = $time")
     }
 
     private val devices = mutableMapOf<String, Aktor<DeviceMessage>>()
