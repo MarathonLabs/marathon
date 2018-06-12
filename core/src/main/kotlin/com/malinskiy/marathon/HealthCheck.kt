@@ -9,7 +9,7 @@ private const val DEFAULT_TICK_DELAY_MILLIS = 1_000L
 
 fun healthCheck(startDelay: Long = DEFAULT_START_DELAY_MILLIS,
                 tickDelay: Long = DEFAULT_TICK_DELAY_MILLIS,
-                condition: () -> Boolean): Job = launch {
+                condition: suspend () -> Boolean): Job = launch {
     delay(startDelay)
     while (isActive && condition()) {
         delay(tickDelay)
