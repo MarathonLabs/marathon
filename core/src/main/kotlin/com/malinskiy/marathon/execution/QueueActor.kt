@@ -6,10 +6,9 @@ import com.malinskiy.marathon.test.Test
 import com.malinskiy.marathon.test.TestBatch
 import kotlinx.coroutines.experimental.channels.Channel
 import java.util.*
-import kotlin.system.measureTimeMillis
 
 class QueueActor(configuration: Configuration,
-                 testShard: TestShard,
+                 private val testShard: TestShard,
                  private val metricsProvider: MetricsProvider) : Aktor<QueueMessage>() {
 
     //TODO: Use PriorityQueue instead of LinkedList
@@ -30,15 +29,12 @@ class QueueActor(configuration: Configuration,
 
     private suspend fun requestNextBatch(deferred: Channel<QueueResponseMessage>) {
         if (queue.isNotEmpty()) {
-            val millis = measureTimeMillis {
-                val sort = sortingStrategy.process(queue, metricsProvider)
-                val batch = batching.process(LinkedList(sort))
-                batch.tests.forEach {
-                    queue.remove(it)
-                }
-                deferred.send(QueueResponseMessage.NextBatch(batch))
+            val sort = sortingStrategy.process(queue, metricsProvider)
+            val batch = batching.process(LinkedList(sort))
+            batch.tests.forEach {
+                queue.remove(it)
             }
-            println("sorting + batching millis = $millis")
+            deferred.send(QueueResponseMessage.NextBatch(batch))
         } else {
             deferred.send(QueueResponseMessage.Empty)
         }

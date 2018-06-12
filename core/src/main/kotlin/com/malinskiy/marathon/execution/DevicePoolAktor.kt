@@ -34,6 +34,7 @@ class DevicePoolAktor(private val poolId: DevicePoolId,
     private val shard = flakinessShard.process(shardingStrategy.createShard(tests), analytics)
 
     private val queue: QueueActor = QueueActor(configuration, shard, analytics)
+    private val devices = mutableMapOf<String, Aktor<DeviceMessage>>()
 
     private suspend fun deviceReady(msg: DevicePoolMessage.Ready) {
         val channel = Channel<QueueResponseMessage>()
@@ -54,8 +55,6 @@ class DevicePoolAktor(private val poolId: DevicePoolId,
             is QueueResponseMessage.NextBatch -> msg.sender.send(DeviceMessage.ExecuteTestBatch(response.batch))
         }
     }
-
-    private val devices = mutableMapOf<String, Aktor<DeviceMessage>>()
 
     private var initialized = false
 
