@@ -2,17 +2,8 @@ package com.malinskiy.marathon.android.executor.listeners
 
 import com.android.ddmlib.testrunner.TestIdentifier
 import com.android.ddmlib.testrunner.TestRunResult
-import com.malinskiy.marathon.analytics.Analytics
-import com.malinskiy.marathon.android.toMarathonStatus
-import com.malinskiy.marathon.android.toTest
-import com.malinskiy.marathon.device.Device
-import com.malinskiy.marathon.device.DevicePoolId
-import com.malinskiy.marathon.device.toDeviceInfo
-import com.malinskiy.marathon.execution.TestResult
 
-class XmlListener(private val device: Device,
-                  private val devicePoolId: DevicePoolId,
-                  private val analytics: Analytics) : NoOpTestRunListener() {
+abstract class NoOpTestRunResultListener : NoOpTestRunListener() {
 
     private val runResult: TestRunResult = TestRunResult()
 
@@ -50,15 +41,8 @@ class XmlListener(private val device: Device,
 
     override fun testRunEnded(elapsedTime: Long, runMetrics: Map<String, String>) {
         runResult.testRunEnded(elapsedTime, runMetrics)
-        generateReports()
+        handleTestRunResults(runResult)
     }
 
-    private fun generateReports() {
-        runResult.testResults.forEach {
-            val status = it.value.status.toMarathonStatus()
-            val testResult = TestResult(it.key!!.toTest(), device.toDeviceInfo(), status, it.value.startTime, it.value.endTime, it.value.stackTrace)
-
-            analytics.trackTestResult(devicePoolId, device, testResult)
-        }
-    }
+    abstract fun handleTestRunResults(runResult: TestRunResult)
 }

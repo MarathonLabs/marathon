@@ -7,7 +7,7 @@ import com.malinskiy.marathon.android.ApkParser
 import com.malinskiy.marathon.android.executor.listeners.CompositeTestRunListener
 import com.malinskiy.marathon.android.executor.listeners.DebugTestRunListener
 import com.malinskiy.marathon.android.executor.listeners.LogCatListener
-import com.malinskiy.marathon.android.executor.listeners.XmlListener
+import com.malinskiy.marathon.android.executor.listeners.AnalyticsListener
 import com.malinskiy.marathon.device.DevicePoolId
 import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.io.FileManager
@@ -39,7 +39,7 @@ class AndroidDeviceTestRunner(private val device: AndroidDevice,
         val fileManager = FileManager(configuration.outputDir)
         runner.run(CompositeTestRunListener(listOf(
                 DebugTestRunListener(device.ddmsDevice),
-                XmlListener(device, devicePoolId, analytics),
+                AnalyticsListener(device, devicePoolId, analytics),
                 LogCatListener(device, devicePoolId, LogWriter(fileManager)))
         ))
     }
