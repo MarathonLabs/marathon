@@ -1,16 +1,16 @@
 package com.malinskiy.marathon.execution
 
-import com.malinskiy.marathon.aktor.Aktor
+import com.malinskiy.marathon.actor.Actor
 import com.malinskiy.marathon.analytics.Analytics
 import com.malinskiy.marathon.device.Device
 import com.malinskiy.marathon.device.DevicePoolId
 import com.malinskiy.marathon.test.TestBatch
 
-class DeviceAktor(private val devicePoolId: DevicePoolId,
-                  private val pool: Aktor<DevicePoolMessage>,
+class DeviceActor(private val devicePoolId: DevicePoolId,
+                  private val pool: Actor<DevicePoolMessage>,
                   private val configuration: Configuration,
                   private val device: Device,
-                  private val analytics: Analytics) : Aktor<DeviceMessage>() {
+                  private val analytics: Analytics) : Actor<DeviceMessage>() {
 
     override suspend fun receive(msg: DeviceMessage) {
         when (msg) {

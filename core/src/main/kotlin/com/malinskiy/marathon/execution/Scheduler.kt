@@ -1,6 +1,6 @@
 package com.malinskiy.marathon.execution
 
-import com.malinskiy.marathon.aktor.Aktor
+import com.malinskiy.marathon.actor.Actor
 import com.malinskiy.marathon.analytics.Analytics
 import com.malinskiy.marathon.device.DevicePoolId
 import com.malinskiy.marathon.device.DeviceProvider
@@ -28,7 +28,7 @@ class Scheduler(private val deviceProvider: DeviceProvider,
         private const val DEFAULT_INITIAL_DELAY_MILLIS = 10_000L
     }
 
-    private val pools = mutableMapOf<DevicePoolId, Aktor<DevicePoolMessage>>()
+    private val pools = mutableMapOf<DevicePoolId, Actor<DevicePoolMessage>>()
     private val poolingStrategy = configuration.poolingStrategy
 
     suspend fun execute() {
@@ -66,7 +66,7 @@ class Scheduler(private val deviceProvider: DeviceProvider,
     private suspend fun onDeviceConnected(item: DeviceProvider.DeviceEvent.DeviceConnected) {
         val device = item.device
         val poolId = poolingStrategy.associate(device)
-        pools.computeIfAbsent(poolId, { id -> DevicePoolAktor(id, configuration, analytics, tests) })
+        pools.computeIfAbsent(poolId, { id -> DevicePoolActor(id, configuration, analytics, tests) })
         pools[poolId]?.send(DevicePoolMessage.AddDevice(device))
         analytics.trackDeviceConnected(poolId, device)
     }

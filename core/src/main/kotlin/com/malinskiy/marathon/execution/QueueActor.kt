@@ -1,6 +1,6 @@
 package com.malinskiy.marathon.execution
 
-import com.malinskiy.marathon.aktor.Aktor
+import com.malinskiy.marathon.actor.Actor
 import com.malinskiy.marathon.analytics.metrics.MetricsProvider
 import com.malinskiy.marathon.test.Test
 import com.malinskiy.marathon.test.TestBatch
@@ -9,7 +9,7 @@ import java.util.*
 
 class QueueActor(configuration: Configuration,
                  private val testShard: TestShard,
-                 private val metricsProvider: MetricsProvider) : Aktor<QueueMessage>() {
+                 private val metricsProvider: MetricsProvider) : Actor<QueueMessage>() {
 
     //TODO: Use PriorityQueue instead of LinkedList
     private val queue: Queue<Test> = LinkedList<Test>(testShard.tests)

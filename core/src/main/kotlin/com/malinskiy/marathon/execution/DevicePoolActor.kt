@@ -1,22 +1,19 @@
 package com.malinskiy.marathon.execution
 
-import com.malinskiy.marathon.aktor.Aktor
+import com.malinskiy.marathon.actor.Actor
 import com.malinskiy.marathon.analytics.Analytics
 import com.malinskiy.marathon.device.DevicePoolId
 import com.malinskiy.marathon.healthCheck
 import com.malinskiy.marathon.test.Test
 import kotlinx.coroutines.experimental.channels.Channel
-import kotlinx.coroutines.experimental.delay
-import kotlinx.coroutines.experimental.launch
 import mu.KotlinLogging
-import kotlin.system.measureTimeMillis
 
-class DevicePoolAktor(private val poolId: DevicePoolId,
+class DevicePoolActor(private val poolId: DevicePoolId,
                       private val configuration: Configuration,
                       private val analytics: Analytics,
-                      tests: Collection<Test>) : Aktor<DevicePoolMessage>() {
+                      tests: Collection<Test>) : Actor<DevicePoolMessage>() {
 
-    private val logger = KotlinLogging.logger("DevicePoolAktor")
+    private val logger = KotlinLogging.logger("DevicePoolActor")
 
     override suspend fun receive(msg: DevicePoolMessage) {
         when (msg) {
@@ -34,7 +31,7 @@ class DevicePoolAktor(private val poolId: DevicePoolId,
     private val shard = flakinessShard.process(shardingStrategy.createShard(tests), analytics)
 
     private val queue: QueueActor = QueueActor(configuration, shard, analytics)
-    private val devices = mutableMapOf<String, Aktor<DeviceMessage>>()
+    private val devices = mutableMapOf<String, Actor<DeviceMessage>>()
 
     private suspend fun deviceReady(msg: DevicePoolMessage.Ready) {
         val channel = Channel<QueueResponseMessage>()
@@ -80,9 +77,9 @@ class DevicePoolAktor(private val poolId: DevicePoolId,
 
     private suspend fun addDevice(msg: DevicePoolMessage.AddDevice) {
         val device = msg.device
-        val aktor = DeviceAktor(poolId, this, configuration, device, analytics)
-        devices[device.serialNumber] = aktor
-        aktor.send(DeviceMessage.Initialize)
+        val actor = DeviceActor(poolId, this, configuration, device, analytics)
+        devices[device.serialNumber] = actor
+        actor.send(DeviceMessage.Initialize)
         initializeHealthCheck()
     }
 }

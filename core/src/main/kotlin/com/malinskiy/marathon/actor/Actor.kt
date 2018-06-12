@@ -1,10 +1,10 @@
-package com.malinskiy.marathon.aktor
+package com.malinskiy.marathon.actor
 
 import kotlinx.coroutines.experimental.channels.SendChannel
 import kotlinx.coroutines.experimental.channels.actor
 import kotlinx.coroutines.experimental.selects.SelectClause2
 
-abstract class Aktor<T> : SendChannel<T> {
+abstract class Actor<T> : SendChannel<T> {
 
     protected abstract suspend fun receive(msg: T)
 
