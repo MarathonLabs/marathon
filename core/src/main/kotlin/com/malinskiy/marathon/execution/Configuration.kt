@@ -9,7 +9,7 @@ import com.malinskiy.marathon.execution.strategy.SortingStrategy
 import com.malinskiy.marathon.execution.strategy.impl.batching.FixedSizeBatchingStrategy
 import com.malinskiy.marathon.execution.strategy.impl.flakiness.IgnoreFlakinessStrategy
 import com.malinskiy.marathon.execution.strategy.impl.pooling.OmniPoolingStrategy
-import com.malinskiy.marathon.execution.strategy.impl.retry.NoRetryStrategy
+import com.malinskiy.marathon.execution.strategy.impl.retry.FixedQuotaRetryStrategy
 import com.malinskiy.marathon.execution.strategy.impl.sharding.ParallelShardingStrategy
 import com.malinskiy.marathon.execution.strategy.impl.sorting.ExecutionTimeSortingStrategy
 import com.malinskiy.marathon.vendor.VendorConfiguration
@@ -99,7 +99,8 @@ data class Configuration constructor(
 //                    batchingStrategy = batchingStrategy ?: IsolateBatchingStrategy(), //TODO: Revert
                     batchingStrategy = FixedSizeBatchingStrategy(5),
                     flakinessStrategy = flakinessStrategy ?: IgnoreFlakinessStrategy(),
-                    retryStrategy = retryStrategy ?: NoRetryStrategy(),
+                    retryStrategy = retryStrategy ?: FixedQuotaRetryStrategy(),
+//                    retryStrategy = retryStrategy ?: NoRetryStrategy(),
                     ignoreFailures = ignoreFailures ?: false,
                     isCodeCoverageEnabled = isCodeCoverageEnabled ?: false,
                     fallbackToScreenshots = fallbackToScreenshots ?: false,

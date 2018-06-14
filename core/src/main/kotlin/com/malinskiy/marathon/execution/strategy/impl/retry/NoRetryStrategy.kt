@@ -1,12 +1,11 @@
 package com.malinskiy.marathon.execution.strategy.impl.retry
 
-import com.malinskiy.marathon.device.DevicePool
 import com.malinskiy.marathon.execution.TestShard
-import com.malinskiy.marathon.execution.TestBatchResults
 import com.malinskiy.marathon.execution.strategy.RetryStrategy
+import com.malinskiy.marathon.test.Test
 
 class NoRetryStrategy : RetryStrategy {
-    override fun process(testBatchResults: TestBatchResults, testShard: TestShard, devicePool: DevicePool) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    override fun process(tests: Collection<Test>, testShard: TestShard) : List<Test>{
+        return emptyList()
     }
 }

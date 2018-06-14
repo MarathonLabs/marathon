@@ -37,8 +37,11 @@ class QueueActor(configuration: Configuration,
     }
 
     private suspend fun handleFailedTests(failed: Collection<Test>, device: Device) {
-        queue.addAll(failed)
-        pool.send(FromQueue.Notify)
+        val shouldRetry = retry.process(failed, testShard)
+        queue.addAll(retry.process(failed, testShard))
+        if (shouldRetry.isNotEmpty()) {
+            pool.send(FromQueue.Notify)
+        }
     }
 
     private fun requestNextBatch(deferred: CompletableDeferred<QueueResponseMessage>, device: Device) {
