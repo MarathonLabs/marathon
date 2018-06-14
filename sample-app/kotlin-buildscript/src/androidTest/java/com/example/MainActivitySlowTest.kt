@@ -16,7 +16,7 @@ class MainActivitySlowTest {
     val screen = MainScreen()
 
     @Test
-    fun testText() {
+    fun testTextSlow() {
         java.lang.Thread.sleep(5000)
         screen {
             text {
@@ -26,7 +26,7 @@ class MainActivitySlowTest {
     }
 
     @Test
-    fun testText1() {
+    fun testTextSlow1() {
         java.lang.Thread.sleep(5000)
         screen {
             text {
@@ -36,7 +36,7 @@ class MainActivitySlowTest {
     }
 
     @Test
-    fun testText2() {
+    fun testTextSlow2() {
         java.lang.Thread.sleep(5000)
         screen {
             text {
@@ -46,7 +46,7 @@ class MainActivitySlowTest {
     }
 
     @Test
-    fun testText3() {
+    fun testTextSlow3() {
         java.lang.Thread.sleep(5000)
         screen {
             text {
@@ -56,77 +56,7 @@ class MainActivitySlowTest {
     }
 
     @Test
-    fun testText4() {
-        java.lang.Thread.sleep(5000)
-        screen {
-            text {
-                hasText("Test")
-            }
-        }
-    }
-
-    @Test
-    fun testText5() {
-        java.lang.Thread.sleep(5000)
-        screen {
-            text {
-                hasText("Test")
-            }
-        }
-    }
-
-    @Test
-    fun testText6() {
-        java.lang.Thread.sleep(5000)
-        screen {
-            text {
-                hasText("Test")
-            }
-        }
-    }
-
-    @Test
-    fun testText7() {
-        java.lang.Thread.sleep(5000)
-        screen {
-            text {
-                hasText("Test")
-            }
-        }
-    }
-
-    @Test
-    fun testText8() {
-        java.lang.Thread.sleep(5000)
-        screen {
-            text {
-                hasText("Test")
-            }
-        }
-    }
-
-    @Test
-    fun testText9() {
-        java.lang.Thread.sleep(5000)
-        screen {
-            text {
-                hasText("Test")
-            }
-        }
-    }
-
-    @Test
-    fun testText10() {
-        java.lang.Thread.sleep(5000)
-        screen {
-            text {
-                hasText("Test")
-            }
-        }
-    }
-
-    @Test
-    fun testText11() {
+    fun testTextSlow4() {
         java.lang.Thread.sleep(5000)
         screen {
             text {

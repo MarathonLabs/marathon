@@ -2,28 +2,33 @@ package com.malinskiy.marathon.execution
 
 import com.malinskiy.marathon.actor.Actor
 import com.malinskiy.marathon.analytics.metrics.MetricsProvider
+import com.malinskiy.marathon.device.Device
+import com.malinskiy.marathon.execution.DevicePoolMessage.*
 import com.malinskiy.marathon.test.Test
 import com.malinskiy.marathon.test.TestBatch
 import kotlinx.coroutines.experimental.CompletableDeferred
-import kotlinx.coroutines.experimental.channels.Channel
 import java.util.*
 
 class QueueActor(configuration: Configuration,
                  private val testShard: TestShard,
                  private val metricsProvider: MetricsProvider,
-                 private val pool: Actor<DevicePoolMessage>) : Actor<QueueMessage>() {
+                 private val pool: Actor<DevicePoolMessage.FromQueue>) : Actor<QueueMessage>() {
 
     private val queue: Queue<Test> = LinkedList<Test>(testShard.tests)
-    private val sortingStrategy = configuration.sortingStrategy
+    private val sorting = configuration.sortingStrategy
     private val batching = configuration.batchingStrategy
+    private val retry = configuration.retryStrategy
 
     override suspend fun receive(msg: QueueMessage) {
         when (msg) {
             is QueueMessage.RequestNext -> {
-                requestNextBatch(msg.channel)
+                requestNextBatch(msg.channel, msg.device)
             }
             is QueueMessage.IsEmpty -> {
                 msg.deffered.complete(queue.isEmpty())
+            }
+            is QueueMessage.FromDevice.TestFailed -> {
+                handleFailedTests(msg.failed, msg.device)
             }
             is QueueMessage.Terminate -> {
 
@@ -31,27 +36,43 @@ class QueueActor(configuration: Configuration,
         }
     }
 
-    private suspend fun requestNextBatch(channel: Channel<QueueResponseMessage>) {
+    private suspend fun handleFailedTests(failed: Collection<Test>, device: Device) {
+        queue.addAll(failed)
+        pool.send(FromQueue.Notify)
+    }
+
+    private fun requestNextBatch(deferred: CompletableDeferred<QueueResponseMessage>, device: Device) {
         if (queue.isNotEmpty()) {
-            val sort = sortingStrategy.process(queue, metricsProvider)
-            val batch = batching.process(LinkedList(sort))
-            batch.tests.forEach {
-                queue.remove(it)
-            }
-            channel.send(QueueResponseMessage.NextBatch(batch))
+            sendBatch(deferred)
         } else {
-            channel.send(QueueResponseMessage.Empty)
+            deferred.complete(QueueResponseMessage.Wait)
         }
+    }
+
+    private fun sendBatch(channel: CompletableDeferred<QueueResponseMessage>) {
+        val sort = sorting.process(queue, metricsProvider)
+        val batch = batching.process(LinkedList(sort))
+        batch.tests.forEach {
+            queue.remove(it)
+        }
+        channel.complete(QueueResponseMessage.NextBatch(batch))
     }
 }
 
 sealed class QueueResponseMessage {
     data class NextBatch(val batch: TestBatch) : QueueResponseMessage()
-    object Empty : QueueResponseMessage()
+    object Wait : QueueResponseMessage()
 }
 
 sealed class QueueMessage {
-    data class RequestNext(val channel: Channel<QueueResponseMessage>) : QueueMessage()
+    data class RequestNext(val channel: CompletableDeferred<QueueResponseMessage>,
+                           val device: Device) : QueueMessage()
+
     data class IsEmpty(val deffered: CompletableDeferred<Boolean>) : QueueMessage()
+    sealed class FromDevice : QueueMessage() {
+        data class TestFailed(val failed: Collection<Test>,
+                              val device: Device) : FromDevice()
+    }
+
     object Terminate : QueueMessage()
 }

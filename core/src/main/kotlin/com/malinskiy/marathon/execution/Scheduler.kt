@@ -4,7 +4,9 @@ import com.malinskiy.marathon.actor.Actor
 import com.malinskiy.marathon.analytics.Analytics
 import com.malinskiy.marathon.device.DevicePoolId
 import com.malinskiy.marathon.device.DeviceProvider
-import com.malinskiy.marathon.healthCheck
+import com.malinskiy.marathon.execution.DevicePoolMessage.FromScheduler
+import com.malinskiy.marathon.execution.DevicePoolMessage.FromScheduler.*
+import com.malinskiy.marathon.waitWhileTrue
 import com.malinskiy.marathon.test.Test
 import kotlinx.coroutines.experimental.launch
 
@@ -25,12 +27,12 @@ class Scheduler(private val deviceProvider: DeviceProvider,
                 private val configuration: Configuration,
                 private val tests: Collection<Test>) {
 
-    private val pools = mutableMapOf<DevicePoolId, Actor<DevicePoolMessage>>()
+    private val pools = mutableMapOf<DevicePoolId, Actor<FromScheduler>>()
     private val poolingStrategy = configuration.poolingStrategy
 
     suspend fun execute() {
         subscribeOnDevices()
-        healthCheck(startDelay = DEFAULT_INITIAL_DELAY_MILLIS) {
+        waitWhileTrue(startDelay = DEFAULT_INITIAL_DELAY_MILLIS) {
             !pools.values.all { it.isClosedForSend }
         }.join()
     }
@@ -56,15 +58,17 @@ class Scheduler(private val deviceProvider: DeviceProvider,
 
     private suspend fun onDeviceDisconnected(item: DeviceProvider.DeviceEvent.DeviceDisconnected) {
         pools.values.forEach {
-            it.send(DevicePoolMessage.RemoveDevice(item.device))
+            it.send(RemoveDevice(item.device))
         }
     }
 
     private suspend fun onDeviceConnected(item: DeviceProvider.DeviceEvent.DeviceConnected) {
         val device = item.device
         val poolId = poolingStrategy.associate(device)
-        pools.computeIfAbsent(poolId, { id -> DevicePoolActor(id, configuration, analytics, tests) })
-        pools[poolId]?.send(DevicePoolMessage.AddDevice(device))
+        pools.computeIfAbsent(poolId, { id ->
+            DevicePoolActor(id, configuration, analytics, tests)
+        })
+        pools[poolId]?.send(AddDevice(device))
         analytics.trackDeviceConnected(poolId, device)
     }
 }

@@ -10,7 +10,9 @@ import com.malinskiy.marathon.device.DevicePoolId
 import com.malinskiy.marathon.device.NetworkState
 import com.malinskiy.marathon.device.OperatingSystem
 import com.malinskiy.marathon.execution.Configuration
+import com.malinskiy.marathon.execution.QueueMessage
 import com.malinskiy.marathon.test.TestBatch
+import kotlinx.coroutines.experimental.channels.SendChannel
 import kotlinx.coroutines.experimental.launch
 import kotlinx.coroutines.experimental.newSingleThreadContext
 import java.util.UUID
@@ -73,9 +75,10 @@ class AndroidDevice(val ddmsDevice: IDevice) : Device {
     override suspend fun execute(configuration: Configuration,
                                  devicePoolId: DevicePoolId,
                                  testBatch: TestBatch,
-                                 tracker: Analytics) {
+                                 tracker: Analytics,
+                                 queueChannel: SendChannel<QueueMessage.FromDevice>) {
         launch(context) {
-            AndroidDeviceTestRunner(this@AndroidDevice, tracker).execute(configuration, devicePoolId, testBatch)
+            AndroidDeviceTestRunner(this@AndroidDevice, tracker).execute(configuration, devicePoolId, testBatch, queueChannel)
         }.join()
     }
 

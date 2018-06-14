@@ -4,7 +4,7 @@ import kotlinx.coroutines.experimental.channels.SendChannel
 import kotlinx.coroutines.experimental.channels.actor
 import kotlinx.coroutines.experimental.selects.SelectClause2
 
-abstract class Actor<T> : SendChannel<T> {
+abstract class Actor<in T> : SendChannel<T> {
 
     protected abstract suspend fun receive(msg: T)
 
