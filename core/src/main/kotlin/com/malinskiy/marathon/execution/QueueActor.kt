@@ -8,13 +8,14 @@ import com.malinskiy.marathon.execution.DevicePoolMessage.FromQueue
 import com.malinskiy.marathon.test.Test
 import com.malinskiy.marathon.test.TestBatch
 import kotlinx.coroutines.experimental.CompletableDeferred
+import kotlinx.coroutines.experimental.channels.SendChannel
 import java.util.Queue
 import java.util.LinkedList
 
 class QueueActor(configuration: Configuration,
                  private val testShard: TestShard,
                  private val metricsProvider: MetricsProvider,
-                 private val pool: Actor<DevicePoolMessage.FromQueue>) : Actor<QueueMessage>() {
+                 private val pool: SendChannel<DevicePoolMessage.FromQueue>) : Actor<QueueMessage>() {
 
     private val queue: Queue<Test> = LinkedList<Test>(testShard.tests + testShard.flakyTests)
     private val sorting = configuration.sortingStrategy

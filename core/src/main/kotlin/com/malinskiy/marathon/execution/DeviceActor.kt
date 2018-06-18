@@ -10,7 +10,7 @@ import kotlinx.coroutines.experimental.CompletableDeferred
 import kotlinx.coroutines.experimental.channels.SendChannel
 
 class DeviceActor(private val devicePoolId: DevicePoolId,
-                  private val pool: Actor<DevicePoolMessage>,
+                  private val pool: SendChannel<DevicePoolMessage>,
                   private val configuration: Configuration,
                   private val device: Device,
                   private val analytics: Analytics,

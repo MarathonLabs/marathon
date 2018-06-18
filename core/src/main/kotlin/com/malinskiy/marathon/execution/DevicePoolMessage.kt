@@ -1,6 +1,7 @@
 package com.malinskiy.marathon.execution
 
 import com.malinskiy.marathon.device.Device
+import kotlinx.coroutines.experimental.channels.SendChannel
 
 sealed class DevicePoolMessage {
     sealed class FromScheduler : DevicePoolMessage() {
@@ -9,11 +10,11 @@ sealed class DevicePoolMessage {
         object Terminate : FromScheduler()
     }
 
-    sealed class FromDevice(val device: Device, val sender: DeviceActor) : DevicePoolMessage() {
-        class RequestNextBatch(device: Device, sender: DeviceActor) : FromDevice(device, sender)
+    sealed class FromDevice(val device: Device, val sender: SendChannel<DeviceMessage>) : DevicePoolMessage() {
+        class RequestNextBatch(device: Device, sender: SendChannel<DeviceMessage>) : FromDevice(device, sender)
     }
 
-    sealed class FromQueue : DevicePoolMessage(){
+    sealed class FromQueue : DevicePoolMessage() {
         object Notify : FromQueue()
     }
 }

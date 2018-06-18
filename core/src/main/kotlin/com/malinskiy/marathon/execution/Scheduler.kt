@@ -1,14 +1,14 @@
 package com.malinskiy.marathon.execution
 
-import com.malinskiy.marathon.actor.Actor
 import com.malinskiy.marathon.analytics.Analytics
 import com.malinskiy.marathon.device.DevicePoolId
 import com.malinskiy.marathon.device.DeviceProvider
 import com.malinskiy.marathon.execution.DevicePoolMessage.FromScheduler
 import com.malinskiy.marathon.execution.DevicePoolMessage.FromScheduler.AddDevice
 import com.malinskiy.marathon.execution.DevicePoolMessage.FromScheduler.RemoveDevice
-import com.malinskiy.marathon.waitWhileTrue
 import com.malinskiy.marathon.test.Test
+import com.malinskiy.marathon.waitWhileTrue
+import kotlinx.coroutines.experimental.channels.SendChannel
 import kotlinx.coroutines.experimental.launch
 
 /**
@@ -28,7 +28,7 @@ class Scheduler(private val deviceProvider: DeviceProvider,
                 private val configuration: Configuration,
                 private val tests: Collection<Test>) {
 
-    private val pools = mutableMapOf<DevicePoolId, Actor<FromScheduler>>()
+    private val pools = mutableMapOf<DevicePoolId, SendChannel<FromScheduler>>()
     private val poolingStrategy = configuration.poolingStrategy
 
     suspend fun execute() {

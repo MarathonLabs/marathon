@@ -9,6 +9,7 @@ import com.malinskiy.marathon.execution.DevicePoolMessage.FromDevice
 import com.malinskiy.marathon.waitWhileTrue
 import com.malinskiy.marathon.test.Test
 import kotlinx.coroutines.experimental.CompletableDeferred
+import kotlinx.coroutines.experimental.channels.SendChannel
 import mu.KotlinLogging
 
 class DevicePoolActor(private val poolId: DevicePoolId,
@@ -35,7 +36,7 @@ class DevicePoolActor(private val poolId: DevicePoolId,
 
     private val queue: QueueActor = QueueActor(configuration, shard, analytics, this)
 
-    private val devices = mutableMapOf<String, Actor<DeviceMessage>>()
+    private val devices = mutableMapOf<String, SendChannel<DeviceMessage>>()
 
     private suspend fun notifyDevices() {
         devices.filterValues { it.isClosedForSend }.forEach {
