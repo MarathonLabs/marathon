@@ -13,6 +13,7 @@ class CountShardingStrategySpek : Spek({
             val tests = TestGenerator().create(1)
             val result = strategy.createShard(tests)
             result.tests.size shouldBe 5
+            result.flakyTests.size shouldBe 0
         }
     }
 })

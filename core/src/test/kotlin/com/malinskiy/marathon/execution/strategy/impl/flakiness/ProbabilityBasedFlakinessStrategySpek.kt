@@ -11,27 +11,30 @@ import org.jetbrains.spek.api.dsl.it
 class ProbabilityBasedFlakinessStrategySpek : Spek({
     describe("probability-based-strategy test") {
         group("min success rate 0.8") {
-            it("should return 3 tests instead of 1 if success rate = 0.5") {
+            it("should return 2 flaky tests for one with success rate = 0.5") {
                 val metricsProvider = MetricsProviderStub()
                 val strategy = ProbabilityBasedFlakinessStrategy(0.8)
                 val testShard = TestShard(TestGenerator().create(1))
                 val result = strategy.process(testShard, metricsProvider)
-                result.tests.size shouldBe 3
+                result.tests.size shouldBe 1
+                result.flakyTests.size shouldBe 2
             }
-            it("should return 2 tests instead of 1 if success rate = 0.7") {
+            it("should return one flaky test for one test with success rate = 0.7") {
                 val metricsProvider = MetricsProviderStub(successRate = 0.7)
                 val strategy = ProbabilityBasedFlakinessStrategy(0.8)
                 val testShard = TestShard(TestGenerator().create(1))
                 val result = strategy.process(testShard, metricsProvider)
-                result.tests.size shouldBe 2
+                result.tests.size shouldBe 1
+                result.flakyTests.size shouldBe 1
             }
 
-            it("should return 6 tests instead of 3 if success rate = 0.7") {
+            it("should return three flaky tests for three tests with success rate = 0.7") {
                 val metricsProvider = MetricsProviderStub(successRate = 0.7)
                 val strategy = ProbabilityBasedFlakinessStrategy(0.8)
                 val testShard = TestShard(TestGenerator().create(3))
                 val result = strategy.process(testShard, metricsProvider)
-                result.tests.size shouldBe 6
+                result.tests.size shouldBe 3
+                result.flakyTests.size shouldBe 3
             }
         }
     }

@@ -11,7 +11,6 @@ class ProbabilityBasedFlakinessStrategy(private val minSuccessRate: Double) : Fl
         val tests = testShard.tests
         val output = mutableListOf<Test>()
         tests.forEach {
-            output.add(it)
             val successRate = metricsProvider.successRate(it)
             if (successRate < minSuccessRate) {
                 val maxFailRate = 1.0 - minSuccessRate
