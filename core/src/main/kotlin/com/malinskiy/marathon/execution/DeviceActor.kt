@@ -4,7 +4,7 @@ import com.malinskiy.marathon.actor.Actor
 import com.malinskiy.marathon.analytics.Analytics
 import com.malinskiy.marathon.device.Device
 import com.malinskiy.marathon.device.DevicePoolId
-import com.malinskiy.marathon.execution.DevicePoolMessage.FromDevice.*
+import com.malinskiy.marathon.execution.DevicePoolMessage.FromDevice.RequestNextBatch
 import com.malinskiy.marathon.test.TestBatch
 import kotlinx.coroutines.experimental.CompletableDeferred
 import kotlinx.coroutines.experimental.channels.SendChannel

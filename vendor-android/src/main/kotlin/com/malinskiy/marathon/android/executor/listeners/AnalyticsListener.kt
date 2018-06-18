@@ -10,7 +10,6 @@ import com.malinskiy.marathon.device.DevicePoolId
 import com.malinskiy.marathon.device.toDeviceInfo
 import com.malinskiy.marathon.execution.TestResult
 import com.android.ddmlib.testrunner.TestResult as DdmLibTestResult
-import com.android.ddmlib.testrunner.TestResult.TestStatus as DdmLibTestStatus
 
 class AnalyticsListener(private val device: Device,
                         private val devicePoolId: DevicePoolId,

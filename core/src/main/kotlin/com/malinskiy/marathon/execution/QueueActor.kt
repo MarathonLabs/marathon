@@ -4,11 +4,12 @@ import com.malinskiy.marathon.actor.Actor
 import com.malinskiy.marathon.analytics.metrics.MetricsProvider
 import com.malinskiy.marathon.device.Device
 import com.malinskiy.marathon.device.DevicePoolId
-import com.malinskiy.marathon.execution.DevicePoolMessage.*
+import com.malinskiy.marathon.execution.DevicePoolMessage.FromQueue
 import com.malinskiy.marathon.test.Test
 import com.malinskiy.marathon.test.TestBatch
 import kotlinx.coroutines.experimental.CompletableDeferred
-import java.util.*
+import java.util.Queue
+import java.util.LinkedList
 
 class QueueActor(configuration: Configuration,
                  private val testShard: TestShard,

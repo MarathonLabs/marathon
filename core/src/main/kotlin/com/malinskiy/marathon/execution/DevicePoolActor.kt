@@ -3,7 +3,9 @@ package com.malinskiy.marathon.execution
 import com.malinskiy.marathon.actor.Actor
 import com.malinskiy.marathon.analytics.Analytics
 import com.malinskiy.marathon.device.DevicePoolId
-import com.malinskiy.marathon.execution.DevicePoolMessage.*
+import com.malinskiy.marathon.execution.DevicePoolMessage.FromScheduler
+import com.malinskiy.marathon.execution.DevicePoolMessage.FromQueue
+import com.malinskiy.marathon.execution.DevicePoolMessage.FromDevice
 import com.malinskiy.marathon.waitWhileTrue
 import com.malinskiy.marathon.test.Test
 import kotlinx.coroutines.experimental.CompletableDeferred
@@ -81,7 +83,7 @@ class DevicePoolActor(private val poolId: DevicePoolId,
     private fun initializeHealthCheck() {
         if (!initialized) {
             waitWhileTrue(startDelay = 10_000) {
-                anyRunning() && !queueIsEmpty()
+                !allClosed() && anyRunning() && !queueIsEmpty()
             }.invokeOnCompletion {
                 terminate()
             }

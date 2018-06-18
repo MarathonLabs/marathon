@@ -26,5 +26,4 @@ class ProbabilityBasedFlakinessStrategy(private val minSuccessRate: Double) : Fl
         }
         return testShard.copy(flakyTests = output)
     }
-
 }

@@ -4,7 +4,6 @@ import com.malinskiy.marathon.device.DevicePoolId
 import com.malinskiy.marathon.execution.TestShard
 import com.malinskiy.marathon.execution.strategy.RetryStrategy
 import com.malinskiy.marathon.test.Test
-import com.malinskiy.marathon.test.toSafeTestName
 
 class FixedQuotaRetryStrategy(totalAllowedRetryQuota: Int = 200,
                               retryPerTestQuota: Int = 3) : RetryStrategy {
