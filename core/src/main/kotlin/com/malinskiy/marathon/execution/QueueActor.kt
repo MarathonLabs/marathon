@@ -16,7 +16,7 @@ class QueueActor(configuration: Configuration,
                  private val metricsProvider: MetricsProvider,
                  private val pool: Actor<DevicePoolMessage.FromQueue>) : Actor<QueueMessage>() {
 
-    private val queue: Queue<Test> = LinkedList<Test>(testShard.tests)
+    private val queue: Queue<Test> = LinkedList<Test>(testShard.tests + testShard.flakyTests)
     private val sorting = configuration.sortingStrategy
     private val batching = configuration.batchingStrategy
     private val retry = configuration.retryStrategy
