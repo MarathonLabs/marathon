@@ -8,7 +8,7 @@ import com.malinskiy.marathon.test.Test
 class FixedQuotaRetryStrategy(totalAllowedRetryQuota: Int = 200,
                               retryPerTestQuota: Int = 3) : RetryStrategy {
     private val retryWatchdog = RetryWatchdog(totalAllowedRetryQuota, retryPerTestQuota)
-    private val poolTestCaseFailureAccumulator = PoolTestCaseFailureAccumulator()
+    private val poolTestCaseFailureAccumulator = PoolTestFailureAccumulator()
 
     override fun process(devicePoolId: DevicePoolId, tests: Collection<Test>, testShard: TestShard): List<Test> {
         return tests.filter {

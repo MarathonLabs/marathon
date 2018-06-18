@@ -4,7 +4,7 @@ import mu.KotlinLogging
 import java.util.concurrent.atomic.AtomicInteger
 
 internal class RetryWatchdog(totalAllowedRetryQuota: Int,
-                             private val maxRetryPerTestCaseQuota: Int) {
+                             private val maxRetryPerTestQuota: Int) {
 
     private val totalAllowedRetryLeft: AtomicInteger = AtomicInteger(totalAllowedRetryQuota)
     private val logBuilder = StringBuilder()
@@ -13,7 +13,7 @@ internal class RetryWatchdog(totalAllowedRetryQuota: Int,
 
     fun requestRetry(failuresCount: Int): Boolean {
         val totalAllowedRetryAvailable = totalAllowedRetryAvailable()
-        val singleTestAllowed = failuresCount <= maxRetryPerTestCaseQuota
+        val singleTestAllowed = failuresCount <= maxRetryPerTestQuota
         val result = totalAllowedRetryAvailable && singleTestAllowed
 
         log(failuresCount, singleTestAllowed, result)
@@ -21,7 +21,7 @@ internal class RetryWatchdog(totalAllowedRetryQuota: Int,
     }
 
     private fun totalAllowedRetryAvailable(): Boolean {
-        return totalAllowedRetryLeft.getAndDecrement() >= 0
+        return totalAllowedRetryLeft.decrementAndGet() >= 0
     }
 
     private fun log(testCaseFailures: Int, singleTestAllowed: Boolean, result: Boolean) {
@@ -29,8 +29,8 @@ internal class RetryWatchdog(totalAllowedRetryQuota: Int,
         logBuilder.append("Retry requested ")
                 .append(if (result) " and allowed. " else " but not allowed. ")
                 .append("Total retry left :").append(totalAllowedRetryLeft.get())
-                .append(" and Single Test case retry left: ")
-                .append(if (singleTestAllowed) maxRetryPerTestCaseQuota - testCaseFailures else 0)
+                .append(" and Single Test retry left: ")
+                .append(if (singleTestAllowed) maxRetryPerTestQuota - testCaseFailures else 0)
 //        logger.debug(logBuilder.toString())
         logger.error(logBuilder.toString())
     }
