@@ -42,7 +42,7 @@ class AndroidDeviceTestRunner(private val device: AndroidDevice,
         runner.setClassNames(tests)
         val fileManager = FileManager(configuration.outputDir)
         runner.run(CompositeTestRunListener(listOf(
-                RetryListener(testBatch, device, queueChannel),
+                RetryListener(testBatch, device, queueChannel, devicePoolId),
                 DebugTestRunListener(device.ddmsDevice),
                 AnalyticsListener(device, devicePoolId, analytics),
                 LogCatListener(device, devicePoolId, LogWriter(fileManager)))

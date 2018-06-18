@@ -3,6 +3,7 @@ package com.malinskiy.marathon.execution
 import com.malinskiy.marathon.actor.Actor
 import com.malinskiy.marathon.analytics.metrics.MetricsProvider
 import com.malinskiy.marathon.device.Device
+import com.malinskiy.marathon.device.DevicePoolId
 import com.malinskiy.marathon.execution.DevicePoolMessage.*
 import com.malinskiy.marathon.test.Test
 import com.malinskiy.marathon.test.TestBatch
@@ -28,7 +29,7 @@ class QueueActor(configuration: Configuration,
                 msg.deffered.complete(queue.isEmpty())
             }
             is QueueMessage.FromDevice.TestFailed -> {
-                handleFailedTests(msg.failed, msg.device)
+                handleFailedTests(msg.devicePoolId, msg.failed, msg.device)
             }
             is QueueMessage.Terminate -> {
 
@@ -36,10 +37,10 @@ class QueueActor(configuration: Configuration,
         }
     }
 
-    private suspend fun handleFailedTests(failed: Collection<Test>, device: Device) {
-        val shouldRetry = retry.process(failed, testShard)
-        queue.addAll(retry.process(failed, testShard))
-        if (shouldRetry.isNotEmpty()) {
+    private suspend fun handleFailedTests(poolId: DevicePoolId, failed: Collection<Test>, device: Device) {
+        val retryList = retry.process(poolId, failed, testShard)
+        queue.addAll(retryList)
+        if (retryList.isNotEmpty()) {
             pool.send(FromQueue.Notify)
         }
     }
@@ -73,7 +74,8 @@ sealed class QueueMessage {
 
     data class IsEmpty(val deffered: CompletableDeferred<Boolean>) : QueueMessage()
     sealed class FromDevice : QueueMessage() {
-        data class TestFailed(val failed: Collection<Test>,
+        data class TestFailed(val devicePoolId: DevicePoolId,
+                              val failed: Collection<Test>,
                               val device: Device) : FromDevice()
     }
 
