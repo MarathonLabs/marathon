@@ -1,7 +1,7 @@
 import org.gradle.kotlin.dsl.`kotlin-dsl`
 
 buildscript {
-    val kotlinVersion = "1.2.40"
+    val kotlinVersion = "1.2.50"
 
     dependencies {
         classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion")
