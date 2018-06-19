@@ -27,7 +27,7 @@ internal class InfluxDbProvider(configuration: AnalyticsConfiguration.InfluxDbCo
             influxDb.setRetentionPolicy(rpName)
         }
         influxDb.setDatabase(dbName)
-        influxDb.enableBatch(BatchOptions.DEFAULTS)
+        influxDb.enableBatch()
         return influxDb
     }
 }

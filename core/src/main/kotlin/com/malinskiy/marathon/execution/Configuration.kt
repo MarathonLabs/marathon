@@ -14,6 +14,8 @@ import com.malinskiy.marathon.execution.strategy.impl.sharding.ParallelShardingS
 import com.malinskiy.marathon.execution.strategy.impl.sorting.ExecutionTimeSortingStrategy
 import com.malinskiy.marathon.vendor.VendorConfiguration
 import java.io.File
+import java.time.Instant
+import java.time.temporal.ChronoUnit
 
 private const val DEFAULT_OUTPUT_TIMEOUT = 60_000
 
@@ -95,7 +97,8 @@ data class Configuration constructor(
                     poolingStrategy = poolingStrategy ?: OmniPoolingStrategy(),
                     shardingStrategy = shardingStrategy ?: ParallelShardingStrategy(), // TODO: Revert
 //                    sortingStrategy = sortingStrategy ?: NoSortingStrategy(),
-                    sortingStrategy = sortingStrategy ?: ExecutionTimeSortingStrategy(90.0),
+                    sortingStrategy = sortingStrategy
+                            ?: ExecutionTimeSortingStrategy(90.0, Instant.now().minus(30, ChronoUnit.DAYS)),
 //                    batchingStrategy = batchingStrategy ?: IsolateBatchingStrategy(), //TODO: Revert
                     batchingStrategy = FixedSizeBatchingStrategy(5),
                     flakinessStrategy = flakinessStrategy ?: IgnoreFlakinessStrategy(),

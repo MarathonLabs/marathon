@@ -85,7 +85,7 @@ class Marathon(val configuration: Configuration) {
         val seconds = TimeUnit.MICROSECONDS.toSeconds(timeMillis)
 
         log.info { "Total time: ${hours}H ${minutes}m ${seconds}s" }
-
+        analytics.terminate()
         deviceProvider.terminate()
 
         return false
