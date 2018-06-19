@@ -7,7 +7,6 @@ import com.malinskiy.marathon.device.DevicePoolId
 import com.malinskiy.marathon.execution.DevicePoolMessage.FromQueue
 import com.malinskiy.marathon.test.Test
 import com.malinskiy.marathon.test.TestBatch
-import com.malinskiy.marathon.test.toTestName
 import kotlinx.coroutines.experimental.CompletableDeferred
 import kotlinx.coroutines.experimental.channels.SendChannel
 import java.util.*

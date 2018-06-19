@@ -3,7 +3,6 @@ package com.malinskiy.marathon.execution.strategy.impl.retry
 import com.malinskiy.marathon.TestGenerator
 import com.malinskiy.marathon.device.DevicePoolId
 import com.malinskiy.marathon.execution.TestShard
-import org.amshove.kluent.shouldBe
 import org.amshove.kluent.shouldBeEmpty
 import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.describe

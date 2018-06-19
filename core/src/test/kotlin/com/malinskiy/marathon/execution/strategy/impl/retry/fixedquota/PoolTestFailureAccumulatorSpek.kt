@@ -1,7 +1,6 @@
 package com.malinskiy.marathon.execution.strategy.impl.retry.fixedquota
 
 import com.malinskiy.marathon.TestGenerator
-import com.malinskiy.marathon.device.Device
 import com.malinskiy.marathon.device.DevicePoolId
 import org.amshove.kluent.shouldBe
 import org.jetbrains.spek.api.Spek
