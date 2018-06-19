@@ -7,18 +7,20 @@ import com.malinskiy.marathon.device.DevicePoolId
 import com.malinskiy.marathon.execution.DevicePoolMessage.FromQueue
 import com.malinskiy.marathon.test.Test
 import com.malinskiy.marathon.test.TestBatch
+import com.malinskiy.marathon.test.toTestName
 import kotlinx.coroutines.experimental.CompletableDeferred
 import kotlinx.coroutines.experimental.channels.SendChannel
-import java.util.Queue
-import java.util.LinkedList
+import java.util.*
 
 class QueueActor(configuration: Configuration,
                  private val testShard: TestShard,
                  private val metricsProvider: MetricsProvider,
                  private val pool: SendChannel<DevicePoolMessage.FromQueue>) : Actor<QueueMessage>() {
 
-    private val queue: Queue<Test> = LinkedList<Test>(testShard.tests + testShard.flakyTests)
     private val sorting = configuration.sortingStrategy
+    private val queue: Queue<Test> = PriorityQueue<Test>(sorting.process(metricsProvider)).apply {
+        addAll(testShard.tests + testShard.flakyTests)
+    }
     private val batching = configuration.batchingStrategy
     private val retry = configuration.retryStrategy
 
@@ -56,11 +58,7 @@ class QueueActor(configuration: Configuration,
     }
 
     private fun sendBatch(channel: CompletableDeferred<QueueResponseMessage>) {
-        val sort = sorting.process(queue, metricsProvider)
-        val batch = batching.process(LinkedList(sort))
-        batch.tests.forEach {
-            queue.remove(it)
-        }
+        val batch = batching.process(queue)
         channel.complete(QueueResponseMessage.NextBatch(batch))
     }
 }

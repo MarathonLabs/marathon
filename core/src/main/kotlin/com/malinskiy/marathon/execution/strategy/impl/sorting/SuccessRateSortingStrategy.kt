@@ -5,7 +5,8 @@ import com.malinskiy.marathon.execution.strategy.SortingStrategy
 import com.malinskiy.marathon.test.Test
 
 class SuccessRateSortingStrategy : SortingStrategy {
-    override fun process(tests: Collection<Test>, metricsProvider: MetricsProvider): Collection<Test> {
-        return tests.sortedBy { metricsProvider.successRate(it) }
-    }
+    override fun process(metricsProvider: MetricsProvider): Comparator<Test> =
+            Comparator.comparingDouble<Test> {
+                metricsProvider.successRate(it)
+            }.reversed()
 }
