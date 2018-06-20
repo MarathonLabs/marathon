@@ -9,9 +9,6 @@ import org.influxdb.annotation.Measurement
 import org.influxdb.dto.Query
 import org.influxdb.impl.InfluxDBResultMapper
 import java.time.Instant
-import java.time.temporal.ChronoUnit
-import java.time.temporal.TemporalUnit
-import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 
 @Measurement(name = "tests")
