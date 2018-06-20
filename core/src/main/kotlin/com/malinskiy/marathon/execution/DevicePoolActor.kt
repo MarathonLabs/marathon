@@ -17,7 +17,7 @@ class DevicePoolActor(private val poolId: DevicePoolId,
                       private val analytics: Analytics,
                       tests: Collection<Test>) : Actor<DevicePoolMessage>() {
 
-    private val logger = KotlinLogging.logger("DevicePoolActor")
+    private val logger = KotlinLogging.logger("DevicePoolActor[${poolId.name}]")
 
     override suspend fun receive(msg: DevicePoolMessage) {
         when (msg) {
@@ -63,22 +63,18 @@ class DevicePoolActor(private val poolId: DevicePoolId,
     private fun allClosed() = devices.values.all { it.isClosedForSend }
 
     private suspend fun anyRunning(): Boolean {
-        val res = devices.values.any {
+        return devices.values.any {
             val referred = CompletableDeferred<DeviceStatus>()
             it.send(DeviceMessage.GetStatus(referred))
             val status = referred.await()
             status == DeviceStatus.RUNNING
         }
-        println("Any Running = $res")
-        return res
     }
 
     private suspend fun queueIsEmpty(): Boolean {
         val deferred = CompletableDeferred<Boolean>()
         queue.send(QueueMessage.IsEmpty(deferred))
-        val res = deferred.await()
-        println("QueueIsEmpty = $res")
-        return res
+        return deferred.await()
     }
 
     private fun initializeHealthCheck() {

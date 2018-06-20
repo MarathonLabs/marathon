@@ -8,6 +8,7 @@ import com.malinskiy.marathon.execution.DevicePoolMessage.FromDevice.RequestNext
 import com.malinskiy.marathon.test.TestBatch
 import kotlinx.coroutines.experimental.CompletableDeferred
 import kotlinx.coroutines.experimental.channels.SendChannel
+import mu.KotlinLogging
 
 class DeviceActor(private val devicePoolId: DevicePoolId,
                   private val pool: SendChannel<DevicePoolMessage>,
@@ -17,6 +18,8 @@ class DeviceActor(private val devicePoolId: DevicePoolId,
                   private val queueChannel: SendChannel<QueueMessage.FromDevice>) : Actor<DeviceMessage>() {
 
     private var status = DeviceStatus.CONNECTED
+
+    val logger = KotlinLogging.logger("DeviceActor[${device.serialNumber}]")
 
     override suspend fun receive(msg: DeviceMessage) {
         when (msg) {
@@ -33,7 +36,7 @@ class DeviceActor(private val devicePoolId: DevicePoolId,
         if (status == DeviceStatus.WAITING) {
             pool.send(RequestNextBatch(device, this))
         } else {
-            println("WakeUp status $status")
+            logger.warn { "WakeUp status $status" }
         }
     }
 
