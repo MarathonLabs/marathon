@@ -14,6 +14,7 @@ interface Device {
     val networkState: NetworkState
     val deviceFeatures: Collection<DeviceFeature>
     val healthy: Boolean
+    val abi: String
 
     suspend fun execute(configuration: Configuration,
                         devicePoolId: DevicePoolId,

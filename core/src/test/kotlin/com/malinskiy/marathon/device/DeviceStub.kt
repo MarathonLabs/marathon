@@ -10,6 +10,8 @@ class DeviceStub(override var operatingSystem: OperatingSystem,
                  override var serialNumber: String,
                  override var networkState: NetworkState,
                  override var healthy: Boolean) : Device {
+    override val abi: String
+        get() = TODO("not implemented") //To change initializer of created properties use File | Settings | File Templates.
     override val model: String
         get() = TODO("not implemented") //To change initializer of created properties use File | Settings | File Templates.
 

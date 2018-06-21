@@ -18,6 +18,9 @@ import kotlinx.coroutines.experimental.newSingleThreadContext
 import java.util.UUID
 
 class AndroidDevice(val ddmsDevice: IDevice) : Device {
+    override val abi: String by lazy {
+        ddmsDevice.getProperty("ro.product.cpu.abi") ?: "Unknown"
+    }
 
     companion object {
         private const val JELLY_BEAN_SDK_VERSION = 16
@@ -30,6 +33,7 @@ class AndroidDevice(val ddmsDevice: IDevice) : Device {
     override val manufacturer: String by lazy {
         ddmsDevice.getProperty("ro.product.manufacturer") ?: "Unknown"
     }
+
 
     override val deviceFeatures: Collection<DeviceFeature>
         get() {
