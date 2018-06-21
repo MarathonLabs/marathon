@@ -10,6 +10,7 @@ import com.malinskiy.marathon.execution.strategy.impl.batching.FixedSizeBatching
 import com.malinskiy.marathon.execution.strategy.impl.flakiness.IgnoreFlakinessStrategy
 import com.malinskiy.marathon.execution.strategy.impl.pooling.OmniPoolingStrategy
 import com.malinskiy.marathon.execution.strategy.impl.retry.fixedquota.FixedQuotaRetryStrategy
+import com.malinskiy.marathon.execution.strategy.impl.sharding.CountShardingStrategy
 import com.malinskiy.marathon.execution.strategy.impl.sharding.ParallelShardingStrategy
 import com.malinskiy.marathon.execution.strategy.impl.sorting.ExecutionTimeSortingStrategy
 import com.malinskiy.marathon.vendor.VendorConfiguration
@@ -95,7 +96,8 @@ data class Configuration constructor(
                             dbName = "tests",
                             retentionPolicyConfiguration = AnalyticsConfiguration.InfluxDbConfiguration.RetentionPolicyConfiguration.default),
                     poolingStrategy = poolingStrategy ?: OmniPoolingStrategy(),
-                    shardingStrategy = shardingStrategy ?: ParallelShardingStrategy(), // TODO: Revert
+                    shardingStrategy = shardingStrategy ?: CountShardingStrategy(10), // TODO: Revert
+//                    shardingStrategy = shardingStrategy ?: ParallelShardingStrategy(),
 //                    sortingStrategy = sortingStrategy ?: NoSortingStrategy(),
                     sortingStrategy = sortingStrategy
                             ?: ExecutionTimeSortingStrategy(90.0, Instant.now().minus(30, ChronoUnit.DAYS)),

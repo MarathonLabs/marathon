@@ -9,14 +9,19 @@ import com.malinskiy.marathon.test.Test
 import com.malinskiy.marathon.test.TestBatch
 import kotlinx.coroutines.experimental.CompletableDeferred
 import kotlinx.coroutines.experimental.channels.SendChannel
+import mu.KotlinLogging
 import java.util.*
 
 class QueueActor(configuration: Configuration,
                  private val testShard: TestShard,
-                 private val metricsProvider: MetricsProvider,
-                 private val pool: SendChannel<DevicePoolMessage.FromQueue>) : Actor<QueueMessage>() {
+                 metricsProvider: MetricsProvider,
+                 private val pool: SendChannel<DevicePoolMessage.FromQueue>,
+                 poolId: DevicePoolId) : Actor<QueueMessage>() {
+
+    private val logger = KotlinLogging.logger("QueueActor[$poolId]")
 
     private val sorting = configuration.sortingStrategy
+
     private val queue: Queue<Test> = PriorityQueue<Test>(sorting.process(metricsProvider)).apply {
         addAll(testShard.tests + testShard.flakyTests)
     }
@@ -29,7 +34,7 @@ class QueueActor(configuration: Configuration,
                 requestNextBatch(msg.channel, msg.device)
             }
             is QueueMessage.IsEmpty -> {
-                msg.deffered.complete(queue.isEmpty())
+                msg.deferred.complete(queue.isEmpty())
             }
             is QueueMessage.FromDevice.TestFailed -> {
                 handleFailedTests(msg.devicePoolId, msg.failed, msg.device)
@@ -41,6 +46,7 @@ class QueueActor(configuration: Configuration,
     }
 
     private suspend fun handleFailedTests(poolId: DevicePoolId, failed: Collection<Test>, device: Device) {
+        logger.debug { "handle failed tests from device ${device.serialNumber}" }
         val retryList = retry.process(poolId, failed, testShard)
         queue.addAll(retryList)
         if (retryList.isNotEmpty()) {
@@ -49,6 +55,7 @@ class QueueActor(configuration: Configuration,
     }
 
     private fun requestNextBatch(deferred: CompletableDeferred<QueueResponseMessage>, device: Device) {
+        logger.debug { "request next batch for device ${device.serialNumber}" }
         if (queue.isNotEmpty()) {
             sendBatch(deferred)
         } else {
@@ -56,9 +63,9 @@ class QueueActor(configuration: Configuration,
         }
     }
 
-    private fun sendBatch(channel: CompletableDeferred<QueueResponseMessage>) {
+    private fun sendBatch(deferred: CompletableDeferred<QueueResponseMessage>) {
         val batch = batching.process(queue)
-        channel.complete(QueueResponseMessage.NextBatch(batch))
+        deferred.complete(QueueResponseMessage.NextBatch(batch))
     }
 }
 
@@ -71,7 +78,7 @@ sealed class QueueMessage {
     data class RequestNext(val channel: CompletableDeferred<QueueResponseMessage>,
                            val device: Device) : QueueMessage()
 
-    data class IsEmpty(val deffered: CompletableDeferred<Boolean>) : QueueMessage()
+    data class IsEmpty(val deferred: CompletableDeferred<Boolean>) : QueueMessage()
     sealed class FromDevice : QueueMessage() {
         data class TestFailed(val devicePoolId: DevicePoolId,
                               val failed: Collection<Test>,

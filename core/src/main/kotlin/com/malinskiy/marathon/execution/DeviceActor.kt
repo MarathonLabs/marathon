@@ -8,6 +8,7 @@ import com.malinskiy.marathon.execution.DevicePoolMessage.FromDevice.RequestNext
 import com.malinskiy.marathon.test.TestBatch
 import kotlinx.coroutines.experimental.CompletableDeferred
 import kotlinx.coroutines.experimental.channels.SendChannel
+import mu.KLogging
 import mu.KotlinLogging
 
 class DeviceActor(private val devicePoolId: DevicePoolId,
@@ -19,7 +20,7 @@ class DeviceActor(private val devicePoolId: DevicePoolId,
 
     private var status = DeviceStatus.CONNECTED
 
-    val logger = KotlinLogging.logger("DeviceActor[${device.serialNumber}]")
+    private val logger = KotlinLogging.logger("DevicePool[${devicePoolId.name}]_DeviceActor[${device.serialNumber}]")
 
     override suspend fun receive(msg: DeviceMessage) {
         when (msg) {
@@ -41,12 +42,14 @@ class DeviceActor(private val devicePoolId: DevicePoolId,
     }
 
     private suspend fun initialize() {
+        logger.debug { "initialize" }
         device.prepare(configuration)
         status = DeviceStatus.WAITING
         pool.send(RequestNextBatch(device, this))
     }
 
     private suspend fun executeBatch(batch: TestBatch) {
+        logger.debug { "executeBatch" }
         status = DeviceStatus.RUNNING
         device.execute(configuration, devicePoolId, batch, analytics, queueChannel)
         status = DeviceStatus.WAITING
@@ -54,6 +57,7 @@ class DeviceActor(private val devicePoolId: DevicePoolId,
     }
 
     private fun terminate() {
+        logger.debug { "terminate" }
         close()
     }
 }

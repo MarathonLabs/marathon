@@ -10,6 +10,7 @@ import com.malinskiy.marathon.test.Test
 import com.malinskiy.marathon.waitWhileTrue
 import kotlinx.coroutines.experimental.channels.SendChannel
 import kotlinx.coroutines.experimental.launch
+import mu.KotlinLogging
 
 /**
  * The logic of scheduler
@@ -31,9 +32,12 @@ class Scheduler(private val deviceProvider: DeviceProvider,
     private val pools = mutableMapOf<DevicePoolId, SendChannel<FromScheduler>>()
     private val poolingStrategy = configuration.poolingStrategy
 
+    private val logger = KotlinLogging.logger("Scheduler")
+
     suspend fun execute() {
         subscribeOnDevices()
         waitWhileTrue(startDelay = DEFAULT_INITIAL_DELAY_MILLIS) {
+            logger.debug { "waiting for completion" }
             !pools.values.all { it.isClosedForSend }
         }.join()
     }
@@ -58,6 +62,7 @@ class Scheduler(private val deviceProvider: DeviceProvider,
     }
 
     private suspend fun onDeviceDisconnected(item: DeviceProvider.DeviceEvent.DeviceDisconnected) {
+        logger.debug { "device ${item.device.serialNumber} disconnected" }
         pools.values.forEach {
             it.send(RemoveDevice(item.device))
         }
@@ -66,6 +71,7 @@ class Scheduler(private val deviceProvider: DeviceProvider,
     private suspend fun onDeviceConnected(item: DeviceProvider.DeviceEvent.DeviceConnected) {
         val device = item.device
         val poolId = poolingStrategy.associate(device)
+        logger.debug { "device ${device.serialNumber} associated with poolId ${poolId.name}" }
         pools.computeIfAbsent(poolId) { id ->
             DevicePoolActor(id, configuration, analytics, tests)
         }

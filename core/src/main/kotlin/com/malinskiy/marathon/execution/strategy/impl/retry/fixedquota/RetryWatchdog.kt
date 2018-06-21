@@ -7,7 +7,6 @@ internal class RetryWatchdog(totalAllowedRetryQuota: Int,
                              private val maxRetryPerTestQuota: Int) {
 
     private val totalAllowedRetryLeft: AtomicInteger = AtomicInteger(totalAllowedRetryQuota)
-    private val logBuilder = StringBuilder()
 
     private val logger = KotlinLogging.logger("RetryWatchdog")
 
@@ -25,13 +24,9 @@ internal class RetryWatchdog(totalAllowedRetryQuota: Int,
     }
 
     private fun log(testCaseFailures: Int, singleTestAllowed: Boolean, result: Boolean) {
-        logBuilder.setLength(0)
-        logBuilder.append("Retry requested ")
-                .append(if (result) " and allowed. " else " but not allowed. ")
-                .append("Total retry left :").append(totalAllowedRetryLeft.get())
-                .append(" and Single Test retry left: ")
-                .append(if (singleTestAllowed) maxRetryPerTestQuota - testCaseFailures else 0)
-//        logger.debug(logBuilder.toString())
-        logger.error(logBuilder.toString())
+        logger.warn("""
+            Retry requested ${if (result) "and allowed. " else "but not allowed. "}
+            Total retry left: ${totalAllowedRetryLeft.get()} and Single Test retry left: ${if (singleTestAllowed) maxRetryPerTestQuota - testCaseFailures else 0}
+        """.trimIndent())
     }
 }

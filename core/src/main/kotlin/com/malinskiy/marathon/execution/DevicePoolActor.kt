@@ -34,20 +34,22 @@ class DevicePoolActor(private val poolId: DevicePoolId,
 
     private val shard = flakinessShard.process(shardingStrategy.createShard(tests), analytics)
 
-    private val queue: QueueActor = QueueActor(configuration, shard, analytics, this)
+    private val queue: QueueActor = QueueActor(configuration, shard, analytics, this, poolId)
 
     private val devices = mutableMapOf<String, SendChannel<DeviceMessage>>()
 
     private suspend fun notifyDevices() {
+        logger.debug { "Notify devices" }
         devices.filterValues { it.isClosedForSend }.forEach {
             it.value.send(DeviceMessage.WakeUp)
         }
     }
 
     private suspend fun testExecutionFinished(msg: FromDevice.RequestNextBatch) {
-        val channel = CompletableDeferred<QueueResponseMessage>()
-        queue.send(QueueMessage.RequestNext(channel, msg.device))
-        val response = channel.await()
+        logger.debug { "test execution finished ${msg.device.serialNumber}" }
+        val deferred = CompletableDeferred<QueueResponseMessage>()
+        queue.send(QueueMessage.RequestNext(deferred, msg.device))
+        val response = deferred.await()
         when (response) {
             is QueueResponseMessage.Wait -> msg.sender.send(DeviceMessage.Wait)
             is QueueResponseMessage.NextBatch -> msg.sender.send(DeviceMessage.ExecuteTestBatch(response.batch))
@@ -80,6 +82,7 @@ class DevicePoolActor(private val poolId: DevicePoolId,
     private fun initializeHealthCheck() {
         if (!initialized) {
             waitWhileTrue(startDelay = 10_000) {
+                logger.debug { "waiting for completion" }
                 !allClosed() && anyRunning() && !queueIsEmpty()
             }.invokeOnCompletion {
                 terminate()
@@ -89,11 +92,13 @@ class DevicePoolActor(private val poolId: DevicePoolId,
     }
 
     private suspend fun removeDevice(msg: FromScheduler.RemoveDevice) {
+        logger.debug { "remove device ${msg.device.serialNumber}" }
         val device = devices.remove(msg.device.serialNumber)
         device?.send(DeviceMessage.Terminate)
     }
 
     private suspend fun addDevice(msg: FromScheduler.AddDevice) {
+        logger.debug { "Notify devices" }
         val device = msg.device
         val actor = DeviceActor(poolId, this, configuration, device, analytics, queue)
         devices[device.serialNumber] = actor
