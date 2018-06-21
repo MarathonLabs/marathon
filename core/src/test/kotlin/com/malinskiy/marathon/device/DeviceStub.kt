@@ -6,20 +6,14 @@ import com.malinskiy.marathon.execution.QueueMessage
 import com.malinskiy.marathon.test.TestBatch
 import kotlinx.coroutines.experimental.channels.SendChannel
 
-class DeviceStub(override var operatingSystem: OperatingSystem,
-                 override var serialNumber: String,
-                 override var networkState: NetworkState,
-                 override var healthy: Boolean) : Device {
-    override val abi: String
-        get() = TODO("not implemented") //To change initializer of created properties use File | Settings | File Templates.
-    override val model: String
-        get() = TODO("not implemented") //To change initializer of created properties use File | Settings | File Templates.
-
-    override val manufacturer: String
-        get() = TODO("not implemented") //To change initializer of created properties use File | Settings | File Templates.
-    override val deviceFeatures: Collection<DeviceFeature>
-        get() = TODO("not implemented") //To change initializer of created properties use File | Settings | File Templates.
-
+class DeviceStub(override var operatingSystem: OperatingSystem = OperatingSystem("25"),
+                 override var serialNumber: String = "serialNumber",
+                 override var networkState: NetworkState = NetworkState.CONNECTED,
+                 override var healthy: Boolean = true,
+                 override val abi: String = "x64",
+                 override val model: String = "model",
+                 override val manufacturer: String = "manufacturer",
+                 override val deviceFeatures: Collection<DeviceFeature> = emptyList()) : Device {
     override suspend fun execute(configuration: Configuration, devicePoolId: DevicePoolId, testBatch: TestBatch, tracker: Analytics, queueChannel: SendChannel<QueueMessage.FromDevice>) {
     }
 

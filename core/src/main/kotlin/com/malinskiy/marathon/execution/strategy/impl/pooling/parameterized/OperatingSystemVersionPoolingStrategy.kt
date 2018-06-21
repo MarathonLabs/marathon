@@ -4,6 +4,6 @@ import com.malinskiy.marathon.device.Device
 import com.malinskiy.marathon.device.DevicePoolId
 import com.malinskiy.marathon.execution.strategy.PoolingStrategy
 
-class SdkVersionPoolingStrategy : PoolingStrategy {
+class OperatingSystemVersionPoolingStrategy : PoolingStrategy {
     override fun associate(device: Device) = DevicePoolId(device.operatingSystem.version)
 }
