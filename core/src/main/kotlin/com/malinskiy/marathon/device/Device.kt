@@ -2,9 +2,9 @@ package com.malinskiy.marathon.device
 
 import com.malinskiy.marathon.analytics.Analytics
 import com.malinskiy.marathon.execution.Configuration
-import com.malinskiy.marathon.execution.QueueMessage
+import com.malinskiy.marathon.execution.TestFailed
 import com.malinskiy.marathon.test.TestBatch
-import kotlinx.coroutines.experimental.channels.SendChannel
+import kotlinx.coroutines.experimental.channels.Channel
 
 interface Device {
     val operatingSystem: OperatingSystem
@@ -20,7 +20,7 @@ interface Device {
                         devicePoolId: DevicePoolId,
                         testBatch: TestBatch,
                         tracker: Analytics,
-                        queueChannel: SendChannel<QueueMessage.FromDevice>)
+                        retryChannel: Channel<TestFailed>)
 
     suspend fun prepare(configuration: Configuration)
 }

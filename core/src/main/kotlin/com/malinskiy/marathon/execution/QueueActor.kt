@@ -6,17 +6,19 @@ import com.malinskiy.marathon.device.Device
 import com.malinskiy.marathon.device.DevicePoolId
 import com.malinskiy.marathon.execution.DevicePoolMessage.FromQueue
 import com.malinskiy.marathon.test.Test
-import com.malinskiy.marathon.test.TestBatch
 import kotlinx.coroutines.experimental.CompletableDeferred
+import kotlinx.coroutines.experimental.channels.Channel
 import kotlinx.coroutines.experimental.channels.SendChannel
+import kotlinx.coroutines.experimental.launch
 import mu.KotlinLogging
 import java.util.*
 
 class QueueActor(configuration: Configuration,
                  private val testShard: TestShard,
                  metricsProvider: MetricsProvider,
-                 private val pool: SendChannel<DevicePoolMessage.FromQueue>,
-                 poolId: DevicePoolId) : Actor<QueueMessage>() {
+                 private val pool: SendChannel<FromQueue>,
+                 poolId: DevicePoolId,
+                 private val retryChannel: Channel<TestFailed>) : Actor<QueueMessage>() {
 
     private val logger = KotlinLogging.logger("QueueActor[$poolId]")
 
@@ -28,22 +30,28 @@ class QueueActor(configuration: Configuration,
     private val batching = configuration.batchingStrategy
     private val retry = configuration.retryStrategy
 
+    init {
+        launch {
+            for (msg in retryChannel) {
+                handleFailedTests(msg.devicePoolId, msg.failed, msg.device)
+            }
+        }
+    }
+
     override suspend fun receive(msg: QueueMessage) {
         when (msg) {
             is QueueMessage.RequestNext -> {
-                requestNextBatch(msg.channel, msg.device)
+                requestNextBatch(msg.device)
             }
             is QueueMessage.IsEmpty -> {
                 msg.deferred.complete(queue.isEmpty())
-            }
-            is QueueMessage.FromDevice.TestFailed -> {
-                handleFailedTests(msg.devicePoolId, msg.failed, msg.device)
             }
             is QueueMessage.Terminate -> {
 
             }
         }
     }
+
 
     private suspend fun handleFailedTests(poolId: DevicePoolId, failed: Collection<Test>, device: Device) {
         logger.debug { "handle failed tests from device ${device.serialNumber}" }
@@ -54,36 +62,28 @@ class QueueActor(configuration: Configuration,
         }
     }
 
-    private fun requestNextBatch(deferred: CompletableDeferred<QueueResponseMessage>, device: Device) {
+    private suspend fun requestNextBatch(device: Device) {
         logger.debug { "request next batch for device ${device.serialNumber}" }
-        if (queue.isNotEmpty()) {
-            sendBatch(deferred)
-        } else {
-            deferred.complete(QueueResponseMessage.Wait)
+        val queueNotIsEmpty = queue.isNotEmpty()
+        if (queueNotIsEmpty) {
+            sendBatch(device)
         }
     }
 
-    private fun sendBatch(deferred: CompletableDeferred<QueueResponseMessage>) {
+    private suspend fun sendBatch(device: Device) {
         val batch = batching.process(queue)
-        deferred.complete(QueueResponseMessage.NextBatch(batch))
+        pool.send(FromQueue.ExecuteBatch(device, batch))
     }
 }
 
-sealed class QueueResponseMessage {
-    data class NextBatch(val batch: TestBatch) : QueueResponseMessage()
-    object Wait : QueueResponseMessage()
-}
+data class TestFailed(val devicePoolId: DevicePoolId,
+                      val failed: Collection<Test>,
+                      val device: Device)
 
 sealed class QueueMessage {
-    data class RequestNext(val channel: CompletableDeferred<QueueResponseMessage>,
-                           val device: Device) : QueueMessage()
+    data class RequestNext(val device: Device) : QueueMessage()
 
     data class IsEmpty(val deferred: CompletableDeferred<Boolean>) : QueueMessage()
-    sealed class FromDevice : QueueMessage() {
-        data class TestFailed(val devicePoolId: DevicePoolId,
-                              val failed: Collection<Test>,
-                              val device: Device) : FromDevice()
-    }
 
     object Terminate : QueueMessage()
 }

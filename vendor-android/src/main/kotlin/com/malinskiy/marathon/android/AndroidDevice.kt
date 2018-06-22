@@ -10,9 +10,9 @@ import com.malinskiy.marathon.device.DevicePoolId
 import com.malinskiy.marathon.device.NetworkState
 import com.malinskiy.marathon.device.OperatingSystem
 import com.malinskiy.marathon.execution.Configuration
-import com.malinskiy.marathon.execution.QueueMessage
+import com.malinskiy.marathon.execution.TestFailed
 import com.malinskiy.marathon.test.TestBatch
-import kotlinx.coroutines.experimental.channels.SendChannel
+import kotlinx.coroutines.experimental.channels.Channel
 import kotlinx.coroutines.experimental.launch
 import kotlinx.coroutines.experimental.newSingleThreadContext
 import java.util.UUID
@@ -80,9 +80,9 @@ class AndroidDevice(val ddmsDevice: IDevice) : Device {
                                  devicePoolId: DevicePoolId,
                                  testBatch: TestBatch,
                                  tracker: Analytics,
-                                 queueChannel: SendChannel<QueueMessage.FromDevice>) {
+                                 retryChannel: Channel<TestFailed>) {
         launch(context) {
-            AndroidDeviceTestRunner(this@AndroidDevice, tracker).execute(configuration, devicePoolId, testBatch, queueChannel)
+            AndroidDeviceTestRunner(this@AndroidDevice, tracker).execute(configuration, devicePoolId, testBatch, retryChannel)
         }.join()
     }
 

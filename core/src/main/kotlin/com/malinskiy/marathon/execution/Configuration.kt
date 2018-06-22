@@ -11,7 +11,6 @@ import com.malinskiy.marathon.execution.strategy.impl.flakiness.IgnoreFlakinessS
 import com.malinskiy.marathon.execution.strategy.impl.pooling.OmniPoolingStrategy
 import com.malinskiy.marathon.execution.strategy.impl.retry.fixedquota.FixedQuotaRetryStrategy
 import com.malinskiy.marathon.execution.strategy.impl.sharding.CountShardingStrategy
-import com.malinskiy.marathon.execution.strategy.impl.sharding.ParallelShardingStrategy
 import com.malinskiy.marathon.execution.strategy.impl.sorting.ExecutionTimeSortingStrategy
 import com.malinskiy.marathon.vendor.VendorConfiguration
 import java.io.File

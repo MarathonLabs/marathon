@@ -5,15 +5,15 @@ import com.android.ddmlib.testrunner.TestResult
 import com.android.ddmlib.testrunner.TestRunResult
 import com.malinskiy.marathon.device.Device
 import com.malinskiy.marathon.device.DevicePoolId
-import com.malinskiy.marathon.execution.QueueMessage
+import com.malinskiy.marathon.execution.TestFailed
 import com.malinskiy.marathon.test.Test
 import com.malinskiy.marathon.test.TestBatch
 import kotlinx.coroutines.experimental.channels.SendChannel
-import kotlinx.coroutines.experimental.runBlocking
+import kotlinx.coroutines.experimental.launch
 
 class RetryListener(private val testBatch: TestBatch,
                     private val device: Device,
-                    private val queueChannel: SendChannel<QueueMessage.FromDevice>,
+                    private val retryChannel: SendChannel<TestFailed>,
                     private val devicePoolId: DevicePoolId) : NoOpTestRunResultListener() {
     override fun handleTestRunResults(runResult: TestRunResult) {
         val results = runResult.testResults
@@ -23,8 +23,8 @@ class RetryListener(private val testBatch: TestBatch,
 
             val failed = tests.filterNot { results[it.key]?.isSuccessful() ?: false }.values
 
-            runBlocking {
-                queueChannel.send(QueueMessage.FromDevice.TestFailed(devicePoolId, failed, device))
+            launch {
+                retryChannel.send(TestFailed(devicePoolId, failed, device))
             }
         }
     }
