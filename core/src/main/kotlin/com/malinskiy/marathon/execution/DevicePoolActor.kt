@@ -55,8 +55,12 @@ class DevicePoolActor(private val poolId: DevicePoolId,
 
     private suspend fun notifyDevices() {
         logger.debug { "Notify devices" }
-        devices.values.filterNot { it.isClosedForSend }.forEach {
-            it.send(DeviceMessage.WakeUp)
+        devices.filter {
+            !it.value.isClosedForSend
+        }.filter {
+            deviceStatuses[it.key] != DeviceStatus.RUNNING
+        }.forEach {
+            it.value.send(DeviceMessage.WakeUp)
         }
     }
 
