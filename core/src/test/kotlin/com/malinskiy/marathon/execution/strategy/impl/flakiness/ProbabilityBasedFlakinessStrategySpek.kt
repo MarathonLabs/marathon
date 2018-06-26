@@ -14,7 +14,7 @@ class ProbabilityBasedFlakinessStrategySpek : Spek({
         val instant = Instant.now()
         group("min success rate 0.8") {
             it("should return 2 flaky tests for one with success rate = 0.5") {
-                val metricsProvider = MetricsProviderStub()
+                val metricsProvider = MetricsProviderStub(successRate = 0.5)
                 val strategy = ProbabilityBasedFlakinessStrategy(0.8, instant)
                 val testShard = TestShard(TestGenerator().create(1))
                 val result = strategy.process(testShard, metricsProvider)
