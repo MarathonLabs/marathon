@@ -26,7 +26,7 @@ internal class InfluxMetricsProvider(private val influxDb: InfluxDB,
     private val successRate = ConcurrentHashMap<String, Double>()
     private val executionTime = ConcurrentHashMap<String, Double>()
 
-    override fun successRate(test: Test,limit : Instant): Double {
+    override fun successRate(test: Test, limit: Instant): Double {
         if (successRate.isEmpty()) {
             requestAllSuccessRates(limit)
         }
@@ -34,7 +34,11 @@ internal class InfluxMetricsProvider(private val influxDb: InfluxDB,
     }
 
     private fun requestAllSuccessRates(limit: Instant) {
-        val results = influxDb.query(Query("SELECT MEAN(\"success\") FROM \"tests\" GROUP BY \"testname\"", dbName))
+        val results = influxDb.query(Query(
+                "SELECT MEAN(\"success\") " +
+                        "FROM \"tests\" " +
+                        "WHERE time >= '$limit'" +
+                        "GROUP BY \"testname\"", dbName))
         val mappedResults = mapper.toPOJO(results, SuccessRate::class.java)
         mappedResults.forEach {
             successRate[it.testName!!] = it.mean!!
@@ -45,16 +49,19 @@ internal class InfluxMetricsProvider(private val influxDb: InfluxDB,
                                percentile: Double,
                                limit: Instant): Double {
         if (executionTime.isEmpty()) {
-            requestAllExecutionTimes(percentile,limit)
+            requestAllExecutionTimes(percentile, limit)
         }
         return executionTime[test.toSafeTestName()] ?: 0.0
     }
 
     private fun requestAllExecutionTimes(percentile: Double,
-                                         limit : Instant) {
+                                         limit: Instant) {
 
-        val results = influxDb.query(Query("SELECT PERCENTILE(\"duration\",$percentile) " +
-                "FROM \"tests\" WHERE time >= '$limit' GROUP BY \"testname\"",dbName))
+        val results = influxDb.query(Query(
+                "SELECT PERCENTILE(\"duration\",$percentile) " +
+                        "FROM \"tests\" " +
+                        "WHERE time >= '$limit' " +
+                        "GROUP BY \"testname\"", dbName))
         val mappedResults = mapper.toPOJO(results, ExecutionTime::class.java)
         mappedResults.forEach {
             executionTime[it.testName!!] = it.percentile!!
