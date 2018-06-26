@@ -19,7 +19,7 @@ class QueueActor(configuration: Configuration,
                  metricsProvider: MetricsProvider,
                  private val pool: SendChannel<FromQueue>,
                  poolId: DevicePoolId,
-                 private val retryChannel: Channel<TestFailed>) : Actor<QueueMessage>() {
+                 private val retryChannel: Channel<TestRunResults>) : Actor<QueueMessage>() {
 
     private val logger = KotlinLogging.logger("QueueActor[$poolId]")
 
@@ -34,7 +34,7 @@ class QueueActor(configuration: Configuration,
     init {
         launch {
             for (msg in retryChannel) {
-                handleFailedTests(msg.devicePoolId, msg.failed, msg.device)
+                handleTestResults(msg.devicePoolId, msg.finished, msg.failed, msg.device)
             }
         }
     }
@@ -54,14 +54,36 @@ class QueueActor(configuration: Configuration,
     }
 
 
-    private suspend fun handleFailedTests(poolId: DevicePoolId, failed: Collection<Test>, device: Device) {
-        logger.debug { "handle failed tests from device ${device.serialNumber}" }
+    private suspend fun handleTestResults(poolId: DevicePoolId,
+                                          finished: Collection<Test>,
+                                          failed: Collection<Test>,
+                                          device: Device) {
+        logger.debug { "handle test results ${device.serialNumber}" }
+        if (finished.isNotEmpty()) {
+            handleFinishedTests(finished)
+        }
+        if (failed.isNotEmpty()) {
+            handleFailedTests(poolId, failed, device)
+        }
+    }
+
+    private fun handleFinishedTests(finished: Collection<Test>) {
+        finished.filter { testShard.flakyTests.contains(it) }.let {
+            queue.removeAll(it)
+        }
+    }
+
+    private suspend fun handleFailedTests(poolId: DevicePoolId,
+                                          failed: Collection<Test>,
+                                          device: Device) {
+        logger.debug { "handle failed tests ${device.serialNumber}" }
         val retryList = retry.process(poolId, failed, testShard)
         queue.addAll(retryList)
         if (retryList.isNotEmpty()) {
             pool.send(FromQueue.Notify)
         }
     }
+
 
     private suspend fun requestNextBatch(device: Device) {
         logger.debug { "request next batch for device ${device.serialNumber}" }
@@ -77,9 +99,10 @@ class QueueActor(configuration: Configuration,
     }
 }
 
-data class TestFailed(val devicePoolId: DevicePoolId,
-                      val failed: Collection<Test>,
-                      val device: Device)
+data class TestRunResults(val devicePoolId: DevicePoolId,
+                          val finished: Collection<Test>,
+                          val failed: Collection<Test>,
+                          val device: Device)
 
 sealed class QueueMessage {
     data class RequestNext(val device: Device) : QueueMessage()

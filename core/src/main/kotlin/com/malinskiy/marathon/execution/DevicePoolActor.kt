@@ -34,7 +34,7 @@ class DevicePoolActor(private val poolId: DevicePoolId,
         }
     }
 
-    private val retryChannel: Channel<TestFailed> = Channel()
+    private val retryChannel: Channel<TestRunResults> = Channel()
 
     private val shardingStrategy = configuration.shardingStrategy
     private val flakinessShard = configuration.flakinessStrategy

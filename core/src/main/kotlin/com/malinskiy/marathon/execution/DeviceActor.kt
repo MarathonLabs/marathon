@@ -16,7 +16,7 @@ class DeviceActor(private val devicePoolId: DevicePoolId,
                   private val configuration: Configuration,
                   private val device: Device,
                   private val analytics: Analytics,
-                  private val retry: Channel<TestFailed>) : Actor<DeviceMessage>() {
+                  private val retry: Channel<TestRunResults>) : Actor<DeviceMessage>() {
 
     private val logger = KotlinLogging.logger("DevicePool[${devicePoolId.name}]_DeviceActor[${device.serialNumber}]")
 

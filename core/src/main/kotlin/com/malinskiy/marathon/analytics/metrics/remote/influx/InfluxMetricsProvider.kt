@@ -63,7 +63,7 @@ internal class InfluxMetricsProvider(private val influxDb: InfluxDB,
                                          limit: Instant) {
 
         val results = influxDb.query(Query("""
-            SELECT PERCENTILE(\"duration\",$percentile)
+            SELECT PERCENTILE("duration",$percentile)
             FROM "tests"
             WHERE time >= '$limit'
             GROUP BY "testname"

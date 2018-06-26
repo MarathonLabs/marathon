@@ -1,11 +1,11 @@
 package com.malinskiy.marathon.android.executor.listeners
 
 import com.android.ddmlib.testrunner.TestIdentifier
-import com.android.ddmlib.testrunner.TestRunResult
+import com.android.ddmlib.testrunner.TestRunResult as DdmLibTestRunResult
 
 abstract class AbstractTestRunResultListener : NoOpTestRunListener() {
 
-    private val runResult: TestRunResult = TestRunResult()
+    private val runResult: DdmLibTestRunResult = DdmLibTestRunResult()
 
     override fun testRunStarted(runName: String, testCount: Int) {
         runResult.testRunStarted(runName, testCount)
@@ -44,5 +44,5 @@ abstract class AbstractTestRunResultListener : NoOpTestRunListener() {
         handleTestRunResults(runResult)
     }
 
-    abstract fun handleTestRunResults(runResult: TestRunResult)
+    abstract fun handleTestRunResults(runResult: DdmLibTestRunResult)
 }

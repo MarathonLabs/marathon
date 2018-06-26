@@ -15,19 +15,23 @@ import java.time.Instant
  */
 
 class ProbabilityBasedFlakinessStrategy(private val minSuccessRate: Double,
-                                        private val limit: Instant) : FlakinessStrategy {
+                                        private val maxCount: Int,
+                                        private val timeLimit: Instant) : FlakinessStrategy {
     override fun process(testShard: TestShard,
                          metricsProvider: MetricsProvider): TestShard {
         val tests = testShard.tests
         val output = mutableListOf<Test>()
         tests.forEach {
-            val successRate = metricsProvider.successRate(it, limit)
+            val successRate = metricsProvider.successRate(it, timeLimit)
+
             if (successRate < minSuccessRate) {
                 val maxFailRate = 1.0 - minSuccessRate
                 var currentFailRate = 1.0 - successRate
-                while (currentFailRate > maxFailRate) {
+                var counter = 0
+                while (currentFailRate > maxFailRate && counter < maxCount) {
                     output.add(it)
                     currentFailRate *= currentFailRate
+                    counter++
                 }
             } else {
                 output.add(it)
