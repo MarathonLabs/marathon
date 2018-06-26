@@ -7,7 +7,7 @@ import org.jetbrains.spek.api.dsl.describe
 import org.jetbrains.spek.api.dsl.it
 
 class ParallelShardingStrategySpek : Spek({
-    describe("") {
+    describe("parallel sharding strategy tests") {
         it("should save list of tests to TestShard w/o modifications") {
             val strategy = ParallelShardingStrategy()
             val tests = TestGenerator().create(100)
