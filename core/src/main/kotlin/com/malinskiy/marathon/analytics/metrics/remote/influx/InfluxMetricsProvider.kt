@@ -53,7 +53,8 @@ internal class InfluxMetricsProvider(private val influxDb: InfluxDB,
     private fun requestAllExecutionTimes(percentile: Double,
                                          limit : Instant) {
 
-        val results = influxDb.query(Query("SELECT PERCENTILE(\"duration\",$percentile) FROM \"tests\" WHERE time >= '$limit' GROUP BY \"testname\"",dbName))
+        val results = influxDb.query(Query("SELECT PERCENTILE(\"duration\",$percentile) " +
+                "FROM \"tests\" WHERE time >= '$limit' GROUP BY \"testname\"",dbName))
         val mappedResults = mapper.toPOJO(results, ExecutionTime::class.java)
         mappedResults.forEach {
             executionTime[it.testName!!] = it.percentile!!

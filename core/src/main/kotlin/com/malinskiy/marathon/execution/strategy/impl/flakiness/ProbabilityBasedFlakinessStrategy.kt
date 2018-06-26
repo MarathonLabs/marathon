@@ -7,7 +7,8 @@ import com.malinskiy.marathon.test.Test
 import java.time.Instant
 
 /**
- * The idea is that flakiness anticipates the flakiness of the test based on the probability of test passing and tries to maximize the probability of passing when executed multiple times.
+ * The idea is that flakiness anticipates the flakiness of the test based on the probability of test passing
+ * and tries to maximize the probability of passing when executed multiple times.
  * For example the probability of test A passing is 0.5 and configuration has probability of 0.8 requested,
  * then the flakiness strategy multiplies the test A to be executed 3 times
  * (0.5 x 0.5 x 0.5 = 0.125 is the probability of all tests failing, so with probability 0.875 > 0.8 at least one of tests will pass).
