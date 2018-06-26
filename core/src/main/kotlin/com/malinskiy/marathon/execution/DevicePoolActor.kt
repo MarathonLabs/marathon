@@ -34,24 +34,18 @@ class DevicePoolActor(private val poolId: DevicePoolId,
         }
     }
 
-    private suspend fun executeBatch(device: Device, batch: TestBatch) {
-        devices[device.serialNumber]?.let {
-            updateDeviceStatus(device, DeviceStatus.RUNNING)
-            it.send(DeviceMessage.Execute(batch))
-        }
-    }
-
     private val retryChannel: Channel<TestFailed> = Channel()
 
     private val shardingStrategy = configuration.shardingStrategy
     private val flakinessShard = configuration.flakinessStrategy
-
     private val shard = flakinessShard.process(shardingStrategy.createShard(tests), analytics)
 
     private val queue: QueueActor = QueueActor(configuration, shard, analytics, this, poolId, retryChannel)
 
     private val devices = mutableMapOf<String, SendChannel<DeviceMessage>>()
     private val deviceStatuses = mutableMapOf<String, DeviceStatus>()
+
+    private var initialized = false
 
     private suspend fun notifyDevices() {
         logger.debug { "Notify devices" }
@@ -77,7 +71,12 @@ class DevicePoolActor(private val poolId: DevicePoolId,
         deviceStatuses[device.serialNumber] = status
     }
 
-    private var initialized = false
+    private suspend fun executeBatch(device: Device, batch: TestBatch) {
+        devices[device.serialNumber]?.let {
+            updateDeviceStatus(device, DeviceStatus.RUNNING)
+            it.send(DeviceMessage.Execute(batch))
+        }
+    }
 
     private fun terminate() {
         close()
@@ -120,8 +119,8 @@ class DevicePoolActor(private val poolId: DevicePoolId,
         val actor = devices.remove(device.serialNumber)
         deviceStatuses.remove(device.serialNumber)
         actor?.send(DeviceMessage.Terminate)
-        logger.debug{ "devices.size = ${devices.size}" }
-        logger.debug{ "deviceStatuses.size = ${deviceStatuses.size}" }
+        logger.debug { "devices.size = ${devices.size}" }
+        logger.debug { "deviceStatuses.size = ${deviceStatuses.size}" }
     }
 
     private suspend fun addDevice(device: Device) {
