@@ -3,7 +3,7 @@ package com.malinskiy.marathon.android.executor.listeners
 import com.android.ddmlib.testrunner.TestIdentifier
 import com.android.ddmlib.testrunner.TestRunResult
 
-abstract class NoOpTestRunResultListener : NoOpTestRunListener() {
+abstract class AbstractTestRunResultListener : NoOpTestRunListener() {
 
     private val runResult: TestRunResult = TestRunResult()
 

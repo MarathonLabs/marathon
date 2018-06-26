@@ -14,7 +14,7 @@ import kotlinx.coroutines.experimental.launch
 class RetryListener(private val testBatch: TestBatch,
                     private val device: Device,
                     private val retryChannel: SendChannel<TestFailed>,
-                    private val devicePoolId: DevicePoolId) : NoOpTestRunResultListener() {
+                    private val devicePoolId: DevicePoolId) : AbstractTestRunResultListener() {
     override fun handleTestRunResults(runResult: TestRunResult) {
         val results = runResult.testResults
         val successful = results.all { it.value.isSuccessful() }

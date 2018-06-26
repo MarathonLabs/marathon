@@ -13,7 +13,7 @@ import com.android.ddmlib.testrunner.TestResult as DdmLibTestResult
 
 class AnalyticsListener(private val device: Device,
                         private val devicePoolId: DevicePoolId,
-                        private val analytics: Analytics) : NoOpTestRunResultListener() {
+                        private val analytics: Analytics) : AbstractTestRunResultListener() {
     override fun handleTestRunResults(runResult: TestRunResult) {
         runResult.testResults.forEach {
             analytics.trackTestResult(devicePoolId, device, it.toTestResult(device))
