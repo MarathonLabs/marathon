@@ -6,16 +6,14 @@ import com.malinskiy.marathon.execution.strategy.PoolingStrategy
 import com.malinskiy.marathon.execution.strategy.RetryStrategy
 import com.malinskiy.marathon.execution.strategy.ShardingStrategy
 import com.malinskiy.marathon.execution.strategy.SortingStrategy
-import com.malinskiy.marathon.execution.strategy.impl.batching.FixedSizeBatchingStrategy
+import com.malinskiy.marathon.execution.strategy.impl.batching.IsolateBatchingStrategy
 import com.malinskiy.marathon.execution.strategy.impl.flakiness.IgnoreFlakinessStrategy
 import com.malinskiy.marathon.execution.strategy.impl.pooling.OmniPoolingStrategy
-import com.malinskiy.marathon.execution.strategy.impl.retry.fixedquota.FixedQuotaRetryStrategy
-import com.malinskiy.marathon.execution.strategy.impl.sharding.CountShardingStrategy
-import com.malinskiy.marathon.execution.strategy.impl.sorting.ExecutionTimeSortingStrategy
+import com.malinskiy.marathon.execution.strategy.impl.retry.NoRetryStrategy
+import com.malinskiy.marathon.execution.strategy.impl.sharding.ParallelShardingStrategy
+import com.malinskiy.marathon.execution.strategy.impl.sorting.NoSortingStrategy
 import com.malinskiy.marathon.vendor.VendorConfiguration
 import java.io.File
-import java.time.Instant
-import java.time.temporal.ChronoUnit
 
 private const val DEFAULT_OUTPUT_TIMEOUT = 60_000
 
@@ -95,16 +93,11 @@ data class Configuration constructor(
                             dbName = "tests",
                             retentionPolicyConfiguration = AnalyticsConfiguration.InfluxDbConfiguration.RetentionPolicyConfiguration.default),
                     poolingStrategy = poolingStrategy ?: OmniPoolingStrategy(),
-                    shardingStrategy = shardingStrategy ?: CountShardingStrategy(10), // TODO: Revert
-//                    shardingStrategy = shardingStrategy ?: ParallelShardingStrategy(),
-//                    sortingStrategy = sortingStrategy ?: NoSortingStrategy(),
-                    sortingStrategy = sortingStrategy
-                            ?: ExecutionTimeSortingStrategy(90.0, Instant.now().minus(30, ChronoUnit.DAYS)),
-//                    batchingStrategy = batchingStrategy ?: IsolateBatchingStrategy(), //TODO: Revert
-                    batchingStrategy = FixedSizeBatchingStrategy(5),
+                    shardingStrategy = shardingStrategy ?: ParallelShardingStrategy(),
+                    sortingStrategy = sortingStrategy ?: NoSortingStrategy(),
+                    batchingStrategy = batchingStrategy ?: IsolateBatchingStrategy(),
                     flakinessStrategy = flakinessStrategy ?: IgnoreFlakinessStrategy(),
-                    retryStrategy = retryStrategy ?: FixedQuotaRetryStrategy(),
-//                    retryStrategy = retryStrategy ?: NoRetryStrategy(),
+                    retryStrategy = retryStrategy ?: NoRetryStrategy(),
                     ignoreFailures = ignoreFailures ?: false,
                     isCodeCoverageEnabled = isCodeCoverageEnabled ?: false,
                     fallbackToScreenshots = fallbackToScreenshots ?: false,
