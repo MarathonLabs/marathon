@@ -34,14 +34,19 @@ internal class InfluxMetricsProvider(private val influxDb: InfluxDB,
     }
 
     private fun requestAllSuccessRates(limit: Instant) {
-        val results = influxDb.query(Query(
-                "SELECT MEAN(\"success\") " +
-                        "FROM \"tests\" " +
-                        "WHERE time >= '$limit'" +
-                        "GROUP BY \"testname\"", dbName))
+        val results = influxDb.query(Query("""
+            SELECT MEAN("success")
+            FROM "tests"
+            WHERE time >= '$limit'
+            GROUP BY "testname"
+        """, dbName))
         val mappedResults = mapper.toPOJO(results, SuccessRate::class.java)
         mappedResults.forEach {
-            successRate[it.testName!!] = it.mean!!
+            val testName = it.testName
+            val mean = it.mean
+            if (testName != null && mean != null) {
+                successRate[testName] = mean
+            }
         }
     }
 
@@ -57,11 +62,12 @@ internal class InfluxMetricsProvider(private val influxDb: InfluxDB,
     private fun requestAllExecutionTimes(percentile: Double,
                                          limit: Instant) {
 
-        val results = influxDb.query(Query(
-                "SELECT PERCENTILE(\"duration\",$percentile) " +
-                        "FROM \"tests\" " +
-                        "WHERE time >= '$limit' " +
-                        "GROUP BY \"testname\"", dbName))
+        val results = influxDb.query(Query("""
+            SELECT PERCENTILE(\"duration\",$percentile)
+            FROM "tests"
+            WHERE time >= '$limit'
+            GROUP BY "testname"
+        """, dbName))
         val mappedResults = mapper.toPOJO(results, ExecutionTime::class.java)
         mappedResults.forEach {
             executionTime[it.testName!!] = it.percentile!!
