@@ -85,13 +85,7 @@ data class Configuration constructor(
                     outputDir = outputDir,
                     applicationOutput = applicationOutput,
                     testApplicationOutput = testApplicationOutput,
-//                    analyticsConfiguration = analyticsConfiguration ?: AnalyticsConfiguration.DisabledAnalytics, //TODO: Revert
-                    analyticsConfiguration = analyticsConfiguration ?: AnalyticsConfiguration.InfluxDbConfiguration(
-                            url = "http://localhost:8086",
-                            user = "root",
-                            password = "root",
-                            dbName = "tests",
-                            retentionPolicyConfiguration = AnalyticsConfiguration.InfluxDbConfiguration.RetentionPolicyConfiguration.default),
+                    analyticsConfiguration = analyticsConfiguration ?: AnalyticsConfiguration.DisabledAnalytics,
                     poolingStrategy = poolingStrategy ?: OmniPoolingStrategy(),
                     shardingStrategy = shardingStrategy ?: ParallelShardingStrategy(),
                     sortingStrategy = sortingStrategy ?: NoSortingStrategy(),
