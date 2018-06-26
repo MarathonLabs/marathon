@@ -24,8 +24,8 @@ class DevicePoolActor(private val poolId: DevicePoolId,
 
     override suspend fun receive(msg: DevicePoolMessage) {
         when (msg) {
-            is FromScheduler.AddDevice -> addDevice(msg)
-            is FromScheduler.RemoveDevice -> removeDevice(msg)
+            is FromScheduler.AddDevice -> addDevice(msg.device)
+            is FromScheduler.RemoveDevice -> removeDevice(msg.device)
             is FromScheduler.Terminate -> terminate()
             is FromDevice.Ready -> deviceReady(msg)
             is FromDevice.Failed -> deviceFailed(msg.device)
@@ -69,9 +69,8 @@ class DevicePoolActor(private val poolId: DevicePoolId,
         queue.send(QueueMessage.RequestNext(msg.device))
     }
 
-    private fun deviceFailed(device: Device) {
-        deviceStatuses.remove(device.serialNumber)
-        devices.remove(device.serialNumber)
+    private suspend fun deviceFailed(device: Device) {
+        removeDevice(device)
     }
 
     private fun updateDeviceStatus(device: Device, status: DeviceStatus) {
@@ -116,16 +115,17 @@ class DevicePoolActor(private val poolId: DevicePoolId,
         }
     }
 
-    private suspend fun removeDevice(msg: FromScheduler.RemoveDevice) {
-        logger.debug { "remove device ${msg.device.serialNumber}" }
-        val device = devices.remove(msg.device.serialNumber)
-        deviceStatuses.remove(msg.device.serialNumber)
-        device?.send(DeviceMessage.Terminate)
+    private suspend fun removeDevice(device: Device) {
+        logger.debug { "remove device ${device.serialNumber}" }
+        val actor = devices.remove(device.serialNumber)
+        deviceStatuses.remove(device.serialNumber)
+        actor?.send(DeviceMessage.Terminate)
+        logger.debug{ "devices.size = ${devices.size}" }
+        logger.debug{ "deviceStatuses.size = ${deviceStatuses.size}" }
     }
 
-    private suspend fun addDevice(msg: FromScheduler.AddDevice) {
-        logger.debug { "add device ${msg.device.serialNumber}" }
-        val device = msg.device
+    private suspend fun addDevice(device: Device) {
+        logger.debug { "add device ${device.serialNumber}" }
         val actor = DeviceActor(poolId, this, configuration, device, analytics, retryChannel)
         devices[device.serialNumber] = actor
         deviceStatuses[device.serialNumber] = DeviceStatus.CONNECTED
