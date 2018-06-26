@@ -11,7 +11,8 @@ import kotlinx.coroutines.experimental.channels.Channel
 import kotlinx.coroutines.experimental.channels.SendChannel
 import kotlinx.coroutines.experimental.launch
 import mu.KotlinLogging
-import java.util.*
+import java.util.Queue
+import java.util.PriorityQueue
 
 class QueueActor(configuration: Configuration,
                  private val testShard: TestShard,
