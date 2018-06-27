@@ -1,8 +1,9 @@
 package com.malinskiy.marathon.execution.strategy
 
-import com.malinskiy.marathon.execution.TestShard
+import com.malinskiy.marathon.test.Test
 import com.malinskiy.marathon.test.TestBatch
+import java.util.*
 
 interface BatchingStrategy {
-    fun process(testShards: Collection<TestShard>): Collection<TestBatch>
+    fun process(queue: Queue<Test>): TestBatch
 }

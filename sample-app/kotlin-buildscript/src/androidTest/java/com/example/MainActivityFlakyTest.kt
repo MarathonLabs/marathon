@@ -18,60 +18,30 @@ class MainActivityFlakyTest {
     val screen = MainScreen()
 
     @Test
-    fun testText() {
+    fun testTextFlaky() {
         assertTrue(Random().nextBoolean())
     }
 
     @Test
-    fun testText1() {
+    fun testTextFlaky1() {
         Thread.sleep(100)
         assertTrue(Random().nextBoolean())
     }
 
     @Test
-    fun testText2() {
+    fun testTextFlaky2() {
         Thread.sleep(100)
         assertTrue(Random().nextBoolean())
     }
 
     @Test
-    fun testText3() {
+    fun testTextFlaky3() {
         Thread.sleep(100)
         assertTrue(Random().nextBoolean())
     }
 
     @Test
-    fun testText4() {
-        Thread.sleep(100)
-        assertTrue(Random().nextBoolean())
-    }
-
-    @Test
-    fun testText5() {
-        Thread.sleep(100)
-        assertTrue(Random().nextBoolean())
-    }
-
-    @Test
-    fun testText6() {
-        Thread.sleep(100)
-        assertTrue(Random().nextBoolean())
-    }
-
-    @Test
-    fun testText7() {
-        Thread.sleep(100)
-        assertTrue(Random().nextBoolean())
-    }
-
-    @Test
-    fun testText8() {
-        Thread.sleep(100)
-        assertTrue(Random().nextBoolean())
-    }
-
-    @Test
-    fun testText9() {
+    fun testTextFlaky4() {
         Thread.sleep(100)
         assertTrue(Random().nextBoolean())
     }

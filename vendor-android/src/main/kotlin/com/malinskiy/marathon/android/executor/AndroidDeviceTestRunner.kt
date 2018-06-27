@@ -7,12 +7,15 @@ import com.malinskiy.marathon.android.ApkParser
 import com.malinskiy.marathon.android.executor.listeners.CompositeTestRunListener
 import com.malinskiy.marathon.android.executor.listeners.DebugTestRunListener
 import com.malinskiy.marathon.android.executor.listeners.LogCatListener
-import com.malinskiy.marathon.android.executor.listeners.XmlListener
+import com.malinskiy.marathon.android.executor.listeners.AnalyticsListener
+import com.malinskiy.marathon.android.executor.listeners.TestRunResultsListener
 import com.malinskiy.marathon.device.DevicePoolId
 import com.malinskiy.marathon.execution.Configuration
+import com.malinskiy.marathon.execution.TestRunResults
 import com.malinskiy.marathon.io.FileManager
 import com.malinskiy.marathon.report.logs.LogWriter
 import com.malinskiy.marathon.test.TestBatch
+import kotlinx.coroutines.experimental.channels.Channel
 import mu.KotlinLogging
 import java.util.concurrent.TimeUnit
 
@@ -23,7 +26,8 @@ class AndroidDeviceTestRunner(private val device: AndroidDevice,
 
     fun execute(configuration: Configuration,
                 devicePoolId: DevicePoolId,
-                testBatch: TestBatch) {
+                testBatch: TestBatch,
+                retryChannel: Channel<TestRunResults>) {
         val info = ApkParser().parseInstrumentationInfo(configuration.testApplicationOutput)
         val runner = RemoteAndroidTestRunner(info.instrumentationPackage, info.testRunnerClass, device.ddmsDevice)
         runner.setRunName("TestRunName")
@@ -38,8 +42,9 @@ class AndroidDeviceTestRunner(private val device: AndroidDevice,
         runner.setClassNames(tests)
         val fileManager = FileManager(configuration.outputDir)
         runner.run(CompositeTestRunListener(listOf(
+                TestRunResultsListener(testBatch, device, retryChannel, devicePoolId),
                 DebugTestRunListener(device.ddmsDevice),
-                XmlListener(device, devicePoolId, analytics),
+                AnalyticsListener(device, devicePoolId, analytics),
                 LogCatListener(device, devicePoolId, LogWriter(fileManager)))
         ))
     }

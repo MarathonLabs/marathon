@@ -8,4 +8,6 @@ interface Tracker {
     fun trackTestResult(poolId: DevicePoolId, device: Device, testResult: TestResult)
 
     fun trackDeviceConnected(poolId: DevicePoolId, device: Device)
+
+    fun terminate()
 }

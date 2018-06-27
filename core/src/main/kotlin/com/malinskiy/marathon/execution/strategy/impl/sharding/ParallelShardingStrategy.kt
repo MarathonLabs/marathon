@@ -8,7 +8,7 @@ import com.malinskiy.marathon.test.Test
  * Implements default sharding which executes all tests in parallel on all available devices in the pool
  */
 class ParallelShardingStrategy : ShardingStrategy {
-    override fun createShards(tests: Collection<Test>): Collection<TestShard> {
-        return listOf(TestShard(tests))
+    override fun createShard(tests: Collection<Test>): TestShard {
+        return TestShard(tests)
     }
 }

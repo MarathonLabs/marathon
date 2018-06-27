@@ -20,4 +20,9 @@ internal class InfluxDbTracker(private val influxDb: InfluxDB,
                 .addField("duration", testResult.durationMillis())
                 .build())
     }
+
+    override fun terminate() {
+        influxDb.close()
+        super.terminate()
+    }
 }

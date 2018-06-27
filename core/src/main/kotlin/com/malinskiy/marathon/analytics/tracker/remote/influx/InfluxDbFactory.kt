@@ -1,7 +1,6 @@
 package com.malinskiy.marathon.analytics.tracker.remote.influx
 
 import com.malinskiy.marathon.execution.AnalyticsConfiguration
-import org.influxdb.BatchOptions
 import org.influxdb.InfluxDB
 import org.influxdb.InfluxDBFactory
 
@@ -27,7 +26,7 @@ internal class InfluxDbProvider(configuration: AnalyticsConfiguration.InfluxDbCo
             influxDb.setRetentionPolicy(rpName)
         }
         influxDb.setDatabase(dbName)
-        influxDb.enableBatch(BatchOptions.DEFAULTS)
+        influxDb.enableBatch()
         return influxDb
     }
 }

@@ -10,12 +10,17 @@ import com.malinskiy.marathon.device.DevicePoolId
 import com.malinskiy.marathon.device.NetworkState
 import com.malinskiy.marathon.device.OperatingSystem
 import com.malinskiy.marathon.execution.Configuration
+import com.malinskiy.marathon.execution.TestRunResults
 import com.malinskiy.marathon.test.TestBatch
+import kotlinx.coroutines.experimental.channels.Channel
 import kotlinx.coroutines.experimental.launch
 import kotlinx.coroutines.experimental.newSingleThreadContext
 import java.util.UUID
 
 class AndroidDevice(val ddmsDevice: IDevice) : Device {
+    override val abi: String by lazy {
+        ddmsDevice.getProperty("ro.product.cpu.abi") ?: "Unknown"
+    }
 
     companion object {
         private const val JELLY_BEAN_SDK_VERSION = 16
@@ -28,6 +33,7 @@ class AndroidDevice(val ddmsDevice: IDevice) : Device {
     override val manufacturer: String by lazy {
         ddmsDevice.getProperty("ro.product.manufacturer") ?: "Unknown"
     }
+
 
     override val deviceFeatures: Collection<DeviceFeature>
         get() {
@@ -44,11 +50,13 @@ class AndroidDevice(val ddmsDevice: IDevice) : Device {
         }
 
     override val serialNumber: String by lazy {
-        val serialNumber: String = ddmsDevice.getProperty("ro.boot.serialno") ?: ""
+        val serialProp: String = ddmsDevice.getProperty("ro.boot.serialno") ?: ""
         val hostName: String = ddmsDevice.getProperty("net.hostname") ?: ""
+        val serialNumber = ddmsDevice.serialNumber
 
-        serialNumber.takeIf { it.isNotEmpty() }
+        serialProp.takeIf { it.isNotEmpty() }
                 ?: hostName.takeIf { it.isNotEmpty() }
+                ?: serialNumber.takeIf { it.isNotEmpty() }
                 ?: UUID.randomUUID().toString()
     }
 
@@ -73,9 +81,10 @@ class AndroidDevice(val ddmsDevice: IDevice) : Device {
     override suspend fun execute(configuration: Configuration,
                                  devicePoolId: DevicePoolId,
                                  testBatch: TestBatch,
-                                 tracker: Analytics) {
+                                 tracker: Analytics,
+                                 retryChannel: Channel<TestRunResults>) {
         launch(context) {
-            AndroidDeviceTestRunner(this@AndroidDevice, tracker).execute(configuration, devicePoolId, testBatch)
+            AndroidDeviceTestRunner(this@AndroidDevice, tracker).execute(configuration, devicePoolId, testBatch, retryChannel)
         }.join()
     }
 

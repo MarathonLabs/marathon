@@ -1,9 +1,9 @@
 import java.io.File
 
 object Versions {
-    val kotlin = "1.2.40"
+    val kotlin = "1.2.50"
 
-    val androidGradleVersion = "3.1.1"
+    val androidGradleVersion = "3.1.3"
 
     val kakao = "1.2.1"
     val espresso = "3.0.1"

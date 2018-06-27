@@ -33,7 +33,7 @@ class FileManager(private val output: File) {
 
     fun getTestResultFilesForDevice(pool: DevicePoolId, serial: String): Array<File> {
         val path = getDirectory(FileType.TEST_RESULT, pool, serial)
-        return path.toFile().listFiles()
+        return path.toFile().listFiles() ?: emptyArray()
     }
 
     private fun createDirectory(fileType: FileType, pool: DevicePoolId, device: Device): Path =
