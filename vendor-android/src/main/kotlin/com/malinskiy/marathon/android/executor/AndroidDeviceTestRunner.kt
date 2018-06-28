@@ -47,7 +47,7 @@ class AndroidDeviceTestRunner(private val device: AndroidDevice,
         runner.run(CompositeTestRunListener(listOf(
                 TestRunResultsListener(testBatch, device, retryChannel, devicePoolId),
                 DebugTestRunListener(device.ddmsDevice),
-                ProgressTestRunListener(progressReporter, devicePoolId),
+                ProgressTestRunListener(device, devicePoolId,progressReporter),
                 AnalyticsListener(device, devicePoolId, analytics),
                 LogCatListener(device, devicePoolId, LogWriter(fileManager)))
         ))

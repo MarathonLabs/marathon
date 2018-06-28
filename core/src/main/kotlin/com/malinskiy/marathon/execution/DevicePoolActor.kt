@@ -42,7 +42,7 @@ class DevicePoolActor(private val poolId: DevicePoolId,
     private val flakinessShard = configuration.flakinessStrategy
     private val shard = flakinessShard.process(shardingStrategy.createShard(tests), analytics)
 
-    private val queue: QueueActor = QueueActor(configuration, shard, analytics, this, poolId, retryChannel)
+    private val queue: QueueActor = QueueActor(configuration, shard, analytics, this, poolId, retryChannel, progressReporter)
 
     private val devices = mutableMapOf<String, SendChannel<DeviceMessage>>()
     private val deviceStatuses = mutableMapOf<String, DeviceStatus>()
