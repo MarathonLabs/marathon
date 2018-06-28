@@ -10,6 +10,7 @@ plugins {
     id("org.jetbrains.kotlin.jvm")
     id("org.junit.platform.gradle.plugin")
     `maven-publish`
+    `signing`
 }
 
 kotlin.experimental.coroutines = Coroutines.ENABLE
@@ -59,6 +60,10 @@ publishing {
             setUrl(Deployment.deployUrl)
         }
     }
+}
+
+signing {
+    sign(publishing.publications.getByName("default"))
 }
 
 val compileKotlin by tasks.getting(KotlinCompile::class) {

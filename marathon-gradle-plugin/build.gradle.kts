@@ -50,6 +50,10 @@ publishing {
     }
 }
 
+signing {
+    sign(publishing.publications.getByName("default"))
+}
+
 dependencies {
     implementation(gradleApi())
     implementation(Libraries.kotlinLogging)
