@@ -41,7 +41,7 @@ val javadocJar by tasks.creating(Jar::class) {
 publishing {
     publications {
         create("default", MavenPublication::class.java) {
-            Deployment.customizePom(pom)
+            Deployment.customizePom(project, pom)
             from(components["java"])
             artifact(sourcesJar)
             artifact(javadocJar)
@@ -61,6 +61,10 @@ publishing {
             setUrl(Deployment.deployUrl)
         }
     }
+}
+
+signing {
+    sign(publishing.publications.getByName("default"))
 }
 
 val compileKotlin by tasks.getting(KotlinCompile::class) {

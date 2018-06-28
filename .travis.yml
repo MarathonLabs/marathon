@@ -32,13 +32,14 @@ jobs:
     script: ./gradlew clean test
   - stage: detekt
     script: ./gradlew clean detektCheck
-
-deploy:
-- provider: script
-  script: bash .buildsystem/deploy.sh
-  on:
-    branch: develop
-- provider: script
-  script: bash .buildsystem/deploy.sh
-  on:
-    tags: true
+  - stage: deploy
+    script: skip
+    deploy:
+    - provider: script
+      script: bash .buildsystem/deploy.sh
+      on:
+        branch: develop
+    - provider: script
+      script: bash .buildsystem/deploy.sh
+      on:
+        tags: true

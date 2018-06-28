@@ -10,6 +10,7 @@ plugins {
     id("org.jetbrains.kotlin.jvm")
     id("org.junit.platform.gradle.plugin")
     `maven-publish`
+    `signing`
 }
 
 kotlin.experimental.coroutines = Coroutines.ENABLE
@@ -39,7 +40,7 @@ val javadocJar by tasks.creating(Jar::class) {
 publishing {
     publications {
         create("default", MavenPublication::class.java) {
-            Deployment.customizePom(pom)
+            Deployment.customizePom(project, pom)
             from(components["java"])
             artifact(sourcesJar)
             artifact(javadocJar)
@@ -59,6 +60,10 @@ publishing {
             setUrl(Deployment.deployUrl)
         }
     }
+}
+
+signing {
+    sign(publishing.publications.getByName("default"))
 }
 
 val compileKotlin by tasks.getting(KotlinCompile::class) {
