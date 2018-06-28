@@ -1,6 +1,9 @@
+import com.sun.org.apache.xalan.internal.Version
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import org.jetbrains.kotlin.gradle.dsl.Coroutines
 import org.gradle.api.plugins.ExtensionAware
+import org.gradle.api.publish.maven.MavenPom
+import org.gradle.internal.impldep.org.fusesource.jansi.internal.WindowsSupport
 import org.junit.platform.gradle.plugin.FiltersExtension
 import org.junit.platform.gradle.plugin.EnginesExtension
 import org.junit.platform.gradle.plugin.JUnitPlatformExtension
@@ -41,10 +44,11 @@ val javadocJar by tasks.creating(Jar::class) {
     dependsOn("javadoc")
 }
 
+
 publishing {
     publications {
         create("default", MavenPublication::class.java) {
-            Deployment.customizePom(pom)
+            Deployment.customizePom(project, pom)
             from(components["java"])
             artifact(sourcesJar)
             artifact(javadocJar)

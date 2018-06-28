@@ -32,10 +32,30 @@ object Deployment {
         project.extra.set("signing.secretKeyRingFile", "${project.rootProject.rootDir}/.buildsystem/secring.gpg")
     }
 
-    fun customizePom(pom: MavenPom?) {
-        pom?.withXml {
-            val root = asNode()
-            root.appendNode("description", "Android & iOS test runner")
+    fun customizePom(project: Project, pom: MavenPom?) {
+        pom?.apply {
+            name.set(project.name)
+            url.set("https://github.com/Malinskiy/marathon")
+            description.set("Android & iOS test runner")
+
+            licenses {
+                license {
+                    name.set("The Apache License, Version 2.0")
+                    url.set("http://www.apache.org/licenses/LICENSE-2.0.txt")
+                }
+            }
+
+            developers {
+                developer {
+                    id.set("marathon-team")
+                    name.set("Marathon team")
+                    email.set("anton@malinskiy.com")
+                }
+            }
+
+            scm {
+                url.set("https://github.com/Malinskiy/marathon")
+            }
         }
     }
 }
