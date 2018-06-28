@@ -6,6 +6,7 @@ import com.malinskiy.marathon.device.Device
 import com.malinskiy.marathon.device.DevicePoolId
 import com.malinskiy.marathon.execution.DevicePoolMessage.FromDevice.Ready
 import com.malinskiy.marathon.execution.DevicePoolMessage.FromDevice.Failed
+import com.malinskiy.marathon.execution.progress.ProgressReporter
 import com.malinskiy.marathon.test.TestBatch
 import kotlinx.coroutines.experimental.channels.Channel
 import kotlinx.coroutines.experimental.channels.SendChannel
@@ -16,7 +17,8 @@ class DeviceActor(private val devicePoolId: DevicePoolId,
                   private val configuration: Configuration,
                   private val device: Device,
                   private val analytics: Analytics,
-                  private val retry: Channel<TestRunResults>) : Actor<DeviceMessage>() {
+                  private val retry: Channel<TestRunResults>,
+                  private val progressReporter: ProgressReporter) : Actor<DeviceMessage>() {
 
     private val logger = KotlinLogging.logger("DevicePool[${devicePoolId.name}]_DeviceActor[${device.serialNumber}]")
 
@@ -49,7 +51,7 @@ class DeviceActor(private val devicePoolId: DevicePoolId,
     private suspend fun executeBatch(batch: TestBatch) {
         logger.debug { "executeBatch" }
         try {
-            device.execute(configuration, devicePoolId, batch, analytics, retry)
+            device.execute(configuration, devicePoolId, batch, analytics, retry, progressReporter)
             pool.send(Ready(device))
         } catch (th: Throwable) {
             logger.error { th }
