@@ -31,8 +31,8 @@ android {
 dependencies {
     implementation("com.android.support:appcompat-v7:27.0.1")
     implementation("com.android.support.constraint:constraint-layout:1.0.2")
+    implementation(Libraries.kotlinStdLib)
     implementation(TestLibraries.espressoRunner)
     implementation(TestLibraries.espressoCore)
-    implementation(kotlin("stdlib", "1.2.0"))
     androidTestImplementation(TestLibraries.kakao)
 }

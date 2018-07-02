@@ -47,25 +47,25 @@
       <sourceFolder url="file://$MODULE_DIR$/src/main/groovy" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/main/java" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/main/resources" type="java-resource" />
+      <sourceFolder url="file://$MODULE_DIR$/src/test/java" isTestSource="true" />
       <sourceFolder url="file://$MODULE_DIR$/src/test/kotlin" isTestSource="true" />
       <sourceFolder url="file://$MODULE_DIR$/src/test/groovy" isTestSource="true" />
-      <sourceFolder url="file://$MODULE_DIR$/src/test/java" isTestSource="true" />
       <sourceFolder url="file://$MODULE_DIR$/src/test/resources" type="java-test-resource" />
       <excludeFolder url="file://$MODULE_DIR$/.gradle" />
       <excludeFolder url="file://$MODULE_DIR$/build" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="library" exported="" scope="PROVIDED" name="kotlin-stdlib-jdk8-1.2.21" level="project" />
-    <orderEntry type="library" exported="" scope="PROVIDED" name="kotlin-reflect-1.2.21" level="project" />
-    <orderEntry type="library" exported="" scope="PROVIDED" name="kotlin-stdlib-jdk7-1.2.21" level="project" />
-    <orderEntry type="library" exported="" scope="PROVIDED" name="kotlin-stdlib-1.2.21" level="project" />
+    <orderEntry type="library" exported="" scope="PROVIDED" name="kotlin-stdlib-jdk8-1.2.31" level="project" />
+    <orderEntry type="library" exported="" scope="PROVIDED" name="kotlin-reflect-1.2.31" level="project" />
+    <orderEntry type="library" exported="" scope="PROVIDED" name="kotlin-stdlib-jdk7-1.2.31" level="project" />
+    <orderEntry type="library" exported="" scope="PROVIDED" name="kotlin-stdlib-1.2.31" level="project" />
     <orderEntry type="library" exported="" scope="PROVIDED" name="annotations-13.0" level="project" />
-    <orderEntry type="library" exported="" name="gradle-api-4.6" level="project" />
+    <orderEntry type="library" exported="" name="gradle-api-4.7" level="project" />
     <orderEntry type="library" exported="" name="groovy-all-2.4.12" level="project" />
-    <orderEntry type="library" exported="" name="gradle-installation-beacon-4.6" level="project" />
-    <orderEntry type="library" exported="" scope="PROVIDED" name="gradle-kotlin-dsl-extensions-0.15.6-4.6" level="project" />
-    <orderEntry type="library" exported="" scope="PROVIDED" name="gradle-kotlin-dsl-0.15.6" level="project" />
-    <orderEntry type="library" exported="" scope="PROVIDED" name="gradle-kotlin-dsl-tooling-models-0.15.6" level="project" />
+    <orderEntry type="library" exported="" name="gradle-installation-beacon-4.7" level="project" />
+    <orderEntry type="library" exported="" scope="PROVIDED" name="gradle-kotlin-dsl-extensions-0.16.3-4.7" level="project" />
+    <orderEntry type="library" exported="" scope="PROVIDED" name="gradle-kotlin-dsl-0.16.3" level="project" />
+    <orderEntry type="library" exported="" scope="PROVIDED" name="gradle-kotlin-dsl-tooling-models-0.16.3" level="project" />
   </component>
 </module>
