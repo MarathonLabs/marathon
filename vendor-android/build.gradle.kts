@@ -63,9 +63,10 @@ publishing {
     }
 }
 
-signing {
-    sign(publishing.publications.getByName("default"))
-}
+//TODO: revert
+//signing {
+//    sign(publishing.publications.getByName("default"))
+//}
 
 val compileKotlin by tasks.getting(KotlinCompile::class) {
     kotlinOptions.jvmTarget = "1.8"

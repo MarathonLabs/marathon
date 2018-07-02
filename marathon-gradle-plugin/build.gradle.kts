@@ -50,9 +50,10 @@ publishing {
     }
 }
 
-signing {
-    sign(publishing.publications.getByName("default"))
-}
+//TODO: revert
+//signing {
+//    sign(publishing.publications.getByName("default"))
+//}
 
 dependencies {
     implementation(gradleApi())
