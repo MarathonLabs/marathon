@@ -1,12 +1,7 @@
 package com.malinskiy.marathon
 
 import com.malinskiy.marathon.execution.AnalyticsConfiguration
-import com.malinskiy.marathon.execution.strategy.BatchingStrategy
-import com.malinskiy.marathon.execution.strategy.FlakinessStrategy
-import com.malinskiy.marathon.execution.strategy.PoolingStrategy
-import com.malinskiy.marathon.execution.strategy.RetryStrategy
-import com.malinskiy.marathon.execution.strategy.ShardingStrategy
-import com.malinskiy.marathon.execution.strategy.SortingStrategy
+import groovy.lang.Closure
 import org.gradle.api.Project
 
 open class MarathonExtension(project: Project) {
@@ -39,4 +34,12 @@ open class MarathonExtension(project: Project) {
     //Android specific for now
     var testPackage: String? = null
     var autoGrantPermission: Boolean? = null
+
+    fun retryStrategy(bachStrategyClosure: Closure<*>) {
+        retryStrategy = RetryStrategy()
+        bachStrategyClosure.delegate = retryStrategy
+        bachStrategyClosure.call()
+    }
+
+
 }
