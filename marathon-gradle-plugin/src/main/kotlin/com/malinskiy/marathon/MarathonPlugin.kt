@@ -108,7 +108,6 @@ class MarathonPlugin : Plugin<Project> {
                             config.autoGrantPermission,
                             AndroidConfiguration(sdkDirectory)
                     )
-                    println(configuration?.toString())
 
                     dependsOn(variant.testedVariant.assemble, variant.assemble)
                 })
