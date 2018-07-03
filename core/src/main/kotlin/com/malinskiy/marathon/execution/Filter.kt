@@ -26,8 +26,3 @@ class AnnotationFilter(val regex: Regex) : TestFilter {
     override fun filter(tests: List<Test>): List<Test> = tests.filter { it.annotations.any { regex.matches("$it") } }
     override fun filterNot(tests: List<Test>): List<Test> = tests.filterNot { it.annotations.any { regex.matches("$it") } }
 }
-
-fun List<Test>.whitelist(testFilter: TestFilter): List<Test> = testFilter.filter(this)
-
-fun List<Test>.blacklist(testFilter: TestFilter): List<Test> = testFilter.filter(this)
-
