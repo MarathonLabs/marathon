@@ -32,7 +32,6 @@ configure<DetektExtension> {
 
 allprojects {
     group = "com.malinskiy.marathon"
-    version = Versions.marathon + Deployment.versionSuffix
 
     repositories {
         jcenter()
