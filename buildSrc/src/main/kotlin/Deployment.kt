@@ -1,7 +1,12 @@
 import org.gradle.api.Project
+import org.gradle.api.plugins.ExtensionAware
+import org.gradle.api.plugins.JavaPluginConvention
+import org.gradle.api.publish.PublishingExtension
 import org.gradle.api.publish.maven.MavenPom
+import org.gradle.api.publish.maven.MavenPublication
 import org.gradle.kotlin.dsl.extra
 import org.gradle.kotlin.dsl.*
+import org.gradle.plugins.signing.SigningExtension
 
 object Deployment {
     val user = System.getenv("SONATYPE_USERNAME")
@@ -17,8 +22,7 @@ object Deployment {
         val releaseMode: String? by project
         val versionSuffix = when (releaseMode) {
             "RELEASE" -> ""
-//            else -> "-SNAPSHOT" //TODO: revert
-            else -> ""
+            else -> "-SNAPSHOT"
         }
 
         Deployment.releaseMode = releaseMode
@@ -28,9 +32,65 @@ object Deployment {
             else -> Deployment.snapshotDeployUrl
         }
 
-        project.extra.set("signing.keyId", "1131CBA5")
-        project.extra.set("signing.password", System.getenv("GPG_PASSPHRASE"))
-        project.extra.set("signing.secretKeyRingFile", "${project.rootProject.rootDir}/.buildsystem/secring.gpg")
+        initializePublishing(project)
+        initializeSigning(project)
+    }
+
+    private fun initializePublishing(project: Project) {
+        project.plugins.apply("maven-publish")
+
+        val javaPlugin = project.the(JavaPluginConvention::class)
+
+        val sourcesJar by project.tasks.creating(org.gradle.api.tasks.bundling.Jar::class) {
+            classifier = "sources"
+            from(javaPlugin.sourceSets["main"].allSource)
+        }
+        val javadocJar by project.tasks.creating(org.gradle.api.tasks.bundling.Jar::class) {
+            classifier = "javadoc"
+            from(javaPlugin.docsDir)
+            dependsOn("javadoc")
+        }
+
+        project.configure<PublishingExtension> {
+            publications {
+                create("default", MavenPublication::class.java) {
+                    Deployment.customizePom(project, pom)
+                    from(project.components["java"])
+                    artifact(sourcesJar)
+                    artifact(javadocJar)
+                }
+            }
+            repositories {
+                maven {
+                    name = "Local"
+                    setUrl("${project.rootDir}/build/repository")
+                }
+                maven {
+                    name = "OSSHR"
+                    credentials {
+                        username = Deployment.user
+                        password = Deployment.password
+                    }
+                    setUrl(Deployment.deployUrl)
+                }
+            }
+        }
+    }
+
+    private fun initializeSigning(project: Project) {
+        val passphrase = System.getenv("GPG_PASSPHRASE")
+        passphrase?.let {
+            project.plugins.apply("signing")
+
+            val publishing = project.the(PublishingExtension::class)
+            project.configure<SigningExtension> {
+                sign(publishing.publications.getByName("default"))
+            }
+
+            project.extra.set("signing.keyId", "1131CBA5")
+            project.extra.set("signing.password", passphrase)
+            project.extra.set("signing.secretKeyRingFile", "${project.rootProject.rootDir}/.buildsystem/secring.gpg")
+        }
     }
 
     fun customizePom(project: Project, pom: MavenPom?) {

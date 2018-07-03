@@ -30,8 +30,6 @@ configure<DetektExtension> {
     })
 }
 
-Deployment.initialize(project)
-
 allprojects {
     group = "com.malinskiy.marathon"
     version = Versions.marathon + Deployment.versionSuffix
