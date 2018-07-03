@@ -15,7 +15,6 @@ import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.api.plugins.JavaBasePlugin
 import org.gradle.kotlin.dsl.closureOf
-import org.gradle.kotlin.dsl.get
 import java.io.File
 
 private val log = KotlinLogging.logger {}
@@ -89,12 +88,12 @@ class MarathonPlugin : Plugin<Project> {
                             applicationApk,
                             instrumentationApk,
                             config.analyticsConfiguration,
-                            config.poolingStrategy?.toRealStrategy(),
-                            config.shardingStrategy?.toRealStrategy(),
-                            config.sortingStrategy?.toRealStrategy(),
-                            config.batchingStrategy?.toRealStrategy(),
-                            config.flakinessStrategy?.toRealStrategy(),
-                            config.retryStrategy?.toRealStrategy(),
+                            config.poolingStrategy?.toStrategy(),
+                            config.shardingStrategy?.toStrategy(),
+                            config.sortingStrategy?.toStrategy(),
+                            config.batchingStrategy?.toStrategy(),
+                            config.flakinessStrategy?.toStrategy(),
+                            config.retryStrategy?.toStrategy(),
                             config.ignoreFailures,
                             config.isCodeCoverageEnabled,
                             config.fallbackToScreenshots,

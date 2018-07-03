@@ -9,12 +9,12 @@ open class MarathonExtension(project: Project) {
 
     var analyticsConfiguration: AnalyticsConfiguration? = null
 
-    var poolingStrategy: PoolingStrategy? = null
-    var shardingStrategy: ShardingStrategy? = null
-    var sortingStrategy: SortingStrategy? = null
-    var batchingStrategy: BatchingStrategy? = null
-    var flakinessStrategy: FlakinessStrategy? = null
-    var retryStrategy: RetryStrategy? = null
+    var poolingStrategy: PoolingStrategyConfiguration? = null
+    var shardingStrategy: ShardingStrategyConfiguration? = null
+    var sortingStrategy: SortingStrategyConfiguration? = null
+    var batchingStrategy: BatchingStrategyConfiguration? = null
+    var flakinessStrategy: FlakinessStrategyConfiguration? = null
+    var retryStrategy: RetryStrategyConfiguration? = null
 
     var baseOutputDir: String? = null
 
@@ -36,7 +36,7 @@ open class MarathonExtension(project: Project) {
     var autoGrantPermission: Boolean? = null
 
     fun retryStrategy(bachStrategyClosure: Closure<*>) {
-        retryStrategy = RetryStrategy()
+        retryStrategy = RetryStrategyConfiguration()
         bachStrategyClosure.delegate = retryStrategy
         bachStrategyClosure.call()
     }
