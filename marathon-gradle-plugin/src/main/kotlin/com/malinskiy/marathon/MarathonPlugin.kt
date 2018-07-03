@@ -87,7 +87,7 @@ class MarathonPlugin : Plugin<Project> {
                             output,
                             applicationApk,
                             instrumentationApk,
-                            config.analyticsConfiguration,
+                            config.analyticsConfiguration?.toAnalyticsConfiguration(),
                             config.poolingStrategy?.toStrategy(),
                             config.shardingStrategy?.toStrategy(),
                             config.sortingStrategy?.toStrategy(),

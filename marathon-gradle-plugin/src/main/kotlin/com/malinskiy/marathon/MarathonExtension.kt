@@ -1,13 +1,12 @@
 package com.malinskiy.marathon
 
-import com.malinskiy.marathon.execution.AnalyticsConfiguration
 import groovy.lang.Closure
 import org.gradle.api.Project
 
 open class MarathonExtension(project: Project) {
     var name: String = "Marathon"
 
-    var analyticsConfiguration: AnalyticsConfiguration? = null
+    var analyticsConfiguration: AnalyticsConfig? = null
 
     var poolingStrategy: PoolingStrategyConfiguration? = null
     var shardingStrategy: ShardingStrategyConfiguration? = null
@@ -34,6 +33,12 @@ open class MarathonExtension(project: Project) {
     //Android specific for now
     var testPackage: String? = null
     var autoGrantPermission: Boolean? = null
+
+    fun analytics(closure: Closure<*>) {
+        analyticsConfiguration = AnalyticsConfig()
+        closure.delegate = analyticsConfiguration
+        closure.call()
+    }
 
     fun batchingStrategy(closure: Closure<*>) {
         batchingStrategy = BatchingStrategyConfiguration()
