@@ -10,6 +10,7 @@ open class RetryStrategyConfiguration {
     fun fixedQuota(closure: Closure<*>) {
         fixedQuota = FixedQuotaRetryStrategyConfiguration()
         closure.delegate = fixedQuota
+        closure.call()
     }
 }
 

@@ -35,11 +35,39 @@ open class MarathonExtension(project: Project) {
     var testPackage: String? = null
     var autoGrantPermission: Boolean? = null
 
-    fun retryStrategy(bachStrategyClosure: Closure<*>) {
-        retryStrategy = RetryStrategyConfiguration()
-        bachStrategyClosure.delegate = retryStrategy
-        bachStrategyClosure.call()
+    fun batchingStrategy(closure: Closure<*>) {
+        batchingStrategy = BatchingStrategyConfiguration()
+        closure.delegate = batchingStrategy
+        closure.call()
     }
 
+    fun flakinessStrategy(closure: Closure<*>) {
+        flakinessStrategy = FlakinessStrategyConfiguration()
+        closure.delegate = flakinessStrategy
+        closure.call()
+    }
 
+    fun poolingStrategy(closure: Closure<*>) {
+        poolingStrategy = PoolingStrategyConfiguration()
+        closure.delegate = poolingStrategy
+        closure.call()
+    }
+
+    fun retryStrategy(closure: Closure<*>) {
+        retryStrategy = RetryStrategyConfiguration()
+        closure.delegate = retryStrategy
+        closure.call()
+    }
+
+    fun shardingStrategy(closure: Closure<*>) {
+        shardingStrategy = ShardingStrategyConfiguration()
+        closure.delegate = shardingStrategy
+        closure.call()
+    }
+
+    fun sortingStrategy(closure: Closure<*>) {
+        sortingStrategy = SortingStrategyConfiguration()
+        closure.delegate = sortingStrategy
+        closure.call()
+    }
 }
