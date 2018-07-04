@@ -14,6 +14,7 @@ open class MarathonExtension(project: Project) {
     var batchingStrategy: BatchingStrategyConfiguration? = null
     var flakinessStrategy: FlakinessStrategyConfiguration? = null
     var retryStrategy: RetryStrategyConfiguration? = null
+    var filteringConfiguration: FilteringPluginConfiguration? = null
 
     var baseOutputDir: String? = null
 
