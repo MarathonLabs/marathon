@@ -13,8 +13,8 @@ class SimpleClassnameFilter(val regex: Regex) : TestFilter {
 }
 
 class FullyQualifiedClassnameFilter(val regex: Regex) : TestFilter {
-    override fun filter(tests: List<Test>): List<Test> = tests.filter { regex.matches("${it.pkg}${it.clazz}") }
-    override fun filterNot(tests: List<Test>): List<Test> = tests.filterNot { regex.matches("${it.pkg}${it.clazz}") }
+    override fun filter(tests: List<Test>): List<Test> = tests.filter { regex.matches("${it.pkg}.${it.clazz}") }
+    override fun filterNot(tests: List<Test>): List<Test> = tests.filterNot { regex.matches("${it.pkg}.${it.clazz}") }
 }
 
 class TestPackageFilter(val regex: Regex) : TestFilter {
