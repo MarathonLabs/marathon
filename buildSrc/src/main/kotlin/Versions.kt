@@ -1,5 +1,5 @@
 object Versions {
-    val marathon = "0.1.0"
+    val marathon = "0.1.1"
 
     val kotlin = "1.2.50"
     val coroutines = "0.21"
