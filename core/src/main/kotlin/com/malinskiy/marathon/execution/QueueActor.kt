@@ -5,6 +5,7 @@ import com.malinskiy.marathon.analytics.metrics.MetricsProvider
 import com.malinskiy.marathon.device.Device
 import com.malinskiy.marathon.device.DevicePoolId
 import com.malinskiy.marathon.execution.DevicePoolMessage.FromQueue
+import com.malinskiy.marathon.execution.progress.ProgressReporter
 import com.malinskiy.marathon.test.Test
 import kotlinx.coroutines.experimental.CompletableDeferred
 import kotlinx.coroutines.experimental.channels.Channel
@@ -18,8 +19,9 @@ class QueueActor(configuration: Configuration,
                  private val testShard: TestShard,
                  metricsProvider: MetricsProvider,
                  private val pool: SendChannel<FromQueue>,
-                 poolId: DevicePoolId,
-                 private val retryChannel: Channel<TestRunResults>) : Actor<QueueMessage>() {
+                 private val poolId: DevicePoolId,
+                 private val retryChannel: Channel<TestRunResults>,
+                 private val progressReporter: ProgressReporter) : Actor<QueueMessage>() {
 
     private val logger = KotlinLogging.logger("QueueActor[$poolId]")
 
@@ -32,6 +34,7 @@ class QueueActor(configuration: Configuration,
     private val retry = configuration.retryStrategy
 
     init {
+        progressReporter.totalTests(poolId, queue.size)
         launch {
             for (msg in retryChannel) {
                 handleTestResults(msg.devicePoolId, msg.finished, msg.failed, msg.device)
@@ -69,7 +72,9 @@ class QueueActor(configuration: Configuration,
 
     private fun handleFinishedTests(finished: Collection<Test>) {
         finished.filter { testShard.flakyTests.contains(it) }.let {
+            val size = queue.size
             queue.removeAll(it)
+            progressReporter.removeTests(poolId,queue.size - size)
         }
     }
 

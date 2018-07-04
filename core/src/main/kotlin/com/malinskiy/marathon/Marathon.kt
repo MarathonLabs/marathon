@@ -6,6 +6,7 @@ import com.malinskiy.marathon.device.DeviceProvider
 import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.execution.Scheduler
 import com.malinskiy.marathon.execution.TestParser
+import com.malinskiy.marathon.execution.progress.ProgressReporter
 import com.malinskiy.marathon.io.FileManager
 import com.malinskiy.marathon.report.CompositeSummaryPrinter
 import com.malinskiy.marathon.report.SummaryCompiler
@@ -63,13 +64,15 @@ class Marathon(val configuration: Configuration) {
         val analytics = analyticsFactory.create()
 
         val tests = testParser.extract(configuration.testApplicationOutput)
-        val scheduler = Scheduler(deviceProvider, analytics, configuration, tests)
+        val progressReporter = ProgressReporter()
+        val scheduler = Scheduler(deviceProvider, analytics, configuration, tests, progressReporter)
 
         if (configuration.outputDir.exists()) {
             log.info { "Output ${configuration.outputDir} already exists" }
             configuration.outputDir.deleteRecursively()
         }
         configuration.outputDir.mkdirs()
+
 
         val timeMillis = measureTimeMillis {
             runBlocking {
@@ -88,6 +91,6 @@ class Marathon(val configuration: Configuration) {
         analytics.terminate()
         deviceProvider.terminate()
 
-        return false
+        return progressReporter.aggregateResult()
     }
 }
