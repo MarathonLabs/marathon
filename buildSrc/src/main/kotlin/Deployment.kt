@@ -37,6 +37,8 @@ object Deployment {
     }
 
     private fun initializePublishing(project: Project) {
+        project.version = Versions.marathon + versionSuffix
+
         project.plugins.apply("maven-publish")
 
         val javaPlugin = project.the(JavaPluginConvention::class)
