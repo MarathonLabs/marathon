@@ -15,10 +15,10 @@ class AnalyticsConfig {
 }
 
 class InfluxConfig {
-    var url: String? = null
-    var user: String? = null
-    var password: String? = null
-    var dbName: String? = null
+    var url: String = ""
+    var user: String = ""
+    var password: String = ""
+    var dbName: String = ""
     var retentionPolicy: RetentionPolicy? = null
 }
 
@@ -32,12 +32,11 @@ class RetentionPolicy {
 
 fun AnalyticsConfig.toAnalyticsConfiguration(): AnalyticsConfiguration {
     return influx?.let {
-        validate(it)
         AnalyticsConfiguration.InfluxDbConfiguration(
-                dbName = it.dbName!!,
-                user = it.user!!,
-                password = it.password!!,
-                url = it.url!!,
+                dbName = it.dbName,
+                user = it.user,
+                password = it.password,
+                url = it.url,
                 retentionPolicyConfiguration = it.retentionPolicy?.toRetentionPolicy()
                         ?: RetentionPolicyConfiguration.default)
     } ?: AnalyticsConfiguration.DisabledAnalytics
@@ -45,13 +44,4 @@ fun AnalyticsConfig.toAnalyticsConfiguration(): AnalyticsConfiguration {
 
 private fun RetentionPolicy.toRetentionPolicy(): RetentionPolicyConfiguration {
     return RetentionPolicyConfiguration(name, duration, shardDuration, replicationFactor, isDefault)
-}
-
-private fun validate(configuration: InfluxConfig) {
-    when {
-        configuration.url == null -> throw IllegalArgumentException("Url is null")
-        configuration.user == null -> throw IllegalArgumentException("User is null")
-        configuration.password == null -> throw IllegalArgumentException("Password is null")
-        configuration.dbName == null -> throw IllegalArgumentException("DbName is null")
-    }
 }
