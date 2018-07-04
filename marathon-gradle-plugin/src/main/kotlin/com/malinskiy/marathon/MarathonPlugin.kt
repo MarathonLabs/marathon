@@ -15,7 +15,6 @@ import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.api.plugins.JavaBasePlugin
 import org.gradle.kotlin.dsl.closureOf
-import org.gradle.kotlin.dsl.get
 import java.io.File
 
 private val log = KotlinLogging.logger {}
@@ -25,8 +24,7 @@ class MarathonPlugin : Plugin<Project> {
     override fun apply(project: Project) {
         log.info { "Applying marathon plugin" }
 
-        val configuration = project.container(MarathonPluginConfiguration::class.java)
-        project.extensions.add("marathon", configuration)
+        val extension: MarathonExtension = project.extensions.create("marathon", MarathonExtension::class.java, project)
 
         project.afterEvaluate {
             val appPlugin = project.plugins.findPlugin(AppPlugin::class.java)
@@ -48,9 +46,8 @@ class MarathonPlugin : Plugin<Project> {
                 throw IllegalStateException("No TestedExtension is found")
             }
             val testedExtension = appExtension ?: libraryExtension
-            val defaultConfig = MarathonPluginConfiguration("config")
 
-            val conf = if (configuration.names.contains("config")) configuration["config"] else defaultConfig
+            val conf = extensions.getByName("marathon") as? MarathonExtension ?: MarathonExtension(project)
 
             testedExtension!!.testVariants.all {
                 log.info { "Applying marathon for $this" }
@@ -61,7 +58,7 @@ class MarathonPlugin : Plugin<Project> {
     }
 
     companion object {
-        private fun createTask(variant: TestVariant, project: Project, config: MarathonPluginConfiguration, sdkDirectory: File): MarathonRunTask {
+        private fun createTask(variant: TestVariant, project: Project, config: MarathonExtension, sdkDirectory: File): MarathonRunTask {
             checkTestVariants(variant)
 
             val marathonTask = project.tasks.create("$TASK_PREFIX${variant.name.capitalize()}", MarathonRunTask::class.java)
@@ -90,13 +87,13 @@ class MarathonPlugin : Plugin<Project> {
                             output,
                             applicationApk,
                             instrumentationApk,
-                            config.analyticsConfiguration,
-                            config.poolingStrategy,
-                            config.shardingStrategy,
-                            config.sortingStrategy,
-                            config.batchingStrategy,
-                            config.flakinessStrategy,
-                            config.retryStrategy,
+                            config.analyticsConfiguration?.toAnalyticsConfiguration(),
+                            config.poolingStrategy?.toStrategy(),
+                            config.shardingStrategy?.toStrategy(),
+                            config.sortingStrategy?.toStrategy(),
+                            config.batchingStrategy?.toStrategy(),
+                            config.flakinessStrategy?.toStrategy(),
+                            config.retryStrategy?.toStrategy(),
                             config.ignoreFailures,
                             config.isCodeCoverageEnabled,
                             config.fallbackToScreenshots,

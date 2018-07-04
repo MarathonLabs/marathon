@@ -6,6 +6,7 @@ import com.malinskiy.marathon.device.DeviceProvider
 import com.malinskiy.marathon.execution.DevicePoolMessage.FromScheduler
 import com.malinskiy.marathon.execution.DevicePoolMessage.FromScheduler.AddDevice
 import com.malinskiy.marathon.execution.DevicePoolMessage.FromScheduler.RemoveDevice
+import com.malinskiy.marathon.execution.progress.ProgressReporter
 import com.malinskiy.marathon.test.Test
 import com.malinskiy.marathon.waitWhileTrue
 import kotlinx.coroutines.experimental.channels.SendChannel
@@ -22,7 +23,8 @@ private const val DEFAULT_INITIAL_DELAY_MILLIS = 10_000L
 class Scheduler(private val deviceProvider: DeviceProvider,
                 private val analytics: Analytics,
                 private val configuration: Configuration,
-                private val tests: Collection<Test>) {
+                private val tests: Collection<Test>,
+                private val progressReporter: ProgressReporter) {
 
     private val pools = mutableMapOf<DevicePoolId, SendChannel<FromScheduler>>()
     private val poolingStrategy = configuration.poolingStrategy
@@ -68,7 +70,7 @@ class Scheduler(private val deviceProvider: DeviceProvider,
         val poolId = poolingStrategy.associate(device)
         logger.debug { "device ${device.serialNumber} associated with poolId ${poolId.name}" }
         pools.computeIfAbsent(poolId) { id ->
-            DevicePoolActor(id, configuration, analytics, tests)
+            DevicePoolActor(id, configuration, analytics, tests, progressReporter)
         }
         pools[poolId]?.send(AddDevice(device))
         analytics.trackDeviceConnected(poolId, device)

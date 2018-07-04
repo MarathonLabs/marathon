@@ -7,6 +7,7 @@ import com.malinskiy.marathon.device.DevicePoolId
 import com.malinskiy.marathon.execution.DevicePoolMessage.FromScheduler
 import com.malinskiy.marathon.execution.DevicePoolMessage.FromQueue
 import com.malinskiy.marathon.execution.DevicePoolMessage.FromDevice
+import com.malinskiy.marathon.execution.progress.ProgressReporter
 import com.malinskiy.marathon.waitWhileTrue
 import com.malinskiy.marathon.test.Test
 import com.malinskiy.marathon.test.TestBatch
@@ -18,7 +19,8 @@ import mu.KotlinLogging
 class DevicePoolActor(private val poolId: DevicePoolId,
                       private val configuration: Configuration,
                       private val analytics: Analytics,
-                      tests: Collection<Test>) : Actor<DevicePoolMessage>() {
+                      tests: Collection<Test>,
+                      private val progressReporter: ProgressReporter) : Actor<DevicePoolMessage>() {
 
     private val logger = KotlinLogging.logger("DevicePoolActor[${poolId.name}]")
 
@@ -40,7 +42,7 @@ class DevicePoolActor(private val poolId: DevicePoolId,
     private val flakinessShard = configuration.flakinessStrategy
     private val shard = flakinessShard.process(shardingStrategy.createShard(tests), analytics)
 
-    private val queue: QueueActor = QueueActor(configuration, shard, analytics, this, poolId, retryChannel)
+    private val queue: QueueActor = QueueActor(configuration, shard, analytics, this, poolId, retryChannel, progressReporter)
 
     private val devices = mutableMapOf<String, SendChannel<DeviceMessage>>()
     private val deviceStatuses = mutableMapOf<String, DeviceStatus>()
@@ -125,7 +127,7 @@ class DevicePoolActor(private val poolId: DevicePoolId,
 
     private suspend fun addDevice(device: Device) {
         logger.debug { "add device ${device.serialNumber}" }
-        val actor = DeviceActor(poolId, this, configuration, device, analytics, retryChannel)
+        val actor = DeviceActor(poolId, this, configuration, device, analytics, retryChannel, progressReporter)
         devices[device.serialNumber] = actor
         deviceStatuses[device.serialNumber] = DeviceStatus.CONNECTED
         actor.send(DeviceMessage.Initialize)

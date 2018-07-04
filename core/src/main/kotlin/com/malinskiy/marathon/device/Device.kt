@@ -3,6 +3,7 @@ package com.malinskiy.marathon.device
 import com.malinskiy.marathon.analytics.Analytics
 import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.execution.TestRunResults
+import com.malinskiy.marathon.execution.progress.ProgressReporter
 import com.malinskiy.marathon.test.TestBatch
 import kotlinx.coroutines.experimental.channels.Channel
 
@@ -20,7 +21,8 @@ interface Device {
                         devicePoolId: DevicePoolId,
                         testBatch: TestBatch,
                         tracker: Analytics,
-                        retryChannel: Channel<TestRunResults>)
+                        retryChannel: Channel<TestRunResults>,
+                        progressReporter: ProgressReporter)
 
     suspend fun prepare(configuration: Configuration)
 }

@@ -64,13 +64,15 @@ class Marathon(val configuration: Configuration) {
         val parsedTests = testParser.extract(configuration.testApplicationOutput)
         var tests = applyTestFilters(parsedTests)
 
-        val scheduler = Scheduler(deviceProvider, analytics, configuration, tests)
+        val progressReporter = ProgressReporter()
+        val scheduler = Scheduler(deviceProvider, analytics, configuration, tests, progressReporter)
 
         if (configuration.outputDir.exists()) {
             log.info { "Output ${configuration.outputDir} already exists" }
             configuration.outputDir.deleteRecursively()
         }
         configuration.outputDir.mkdirs()
+
 
         val timeMillis = measureTimeMillis {
             runBlocking {
@@ -89,7 +91,7 @@ class Marathon(val configuration: Configuration) {
         analytics.terminate()
         deviceProvider.terminate()
 
-        return false
+        return progressReporter.aggregateResult()
     }
 
     private fun applyTestFilters(parsedTests: List<Test>): List<Test> {

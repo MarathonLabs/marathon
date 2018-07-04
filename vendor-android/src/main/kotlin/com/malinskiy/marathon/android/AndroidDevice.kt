@@ -11,6 +11,7 @@ import com.malinskiy.marathon.device.NetworkState
 import com.malinskiy.marathon.device.OperatingSystem
 import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.execution.TestRunResults
+import com.malinskiy.marathon.execution.progress.ProgressReporter
 import com.malinskiy.marathon.test.TestBatch
 import kotlinx.coroutines.experimental.channels.Channel
 import kotlinx.coroutines.experimental.launch
@@ -82,9 +83,10 @@ class AndroidDevice(val ddmsDevice: IDevice) : Device {
                                  devicePoolId: DevicePoolId,
                                  testBatch: TestBatch,
                                  tracker: Analytics,
-                                 retryChannel: Channel<TestRunResults>) {
+                                 retryChannel: Channel<TestRunResults>,
+                                 progressReporter: ProgressReporter) {
         launch(context) {
-            AndroidDeviceTestRunner(this@AndroidDevice, tracker).execute(configuration, devicePoolId, testBatch, retryChannel)
+            AndroidDeviceTestRunner(this@AndroidDevice, tracker).execute(configuration, devicePoolId, testBatch, retryChannel, progressReporter)
         }.join()
     }
 
