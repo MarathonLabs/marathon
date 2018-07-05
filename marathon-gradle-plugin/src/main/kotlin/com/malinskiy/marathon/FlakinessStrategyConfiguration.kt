@@ -10,6 +10,10 @@ import java.time.temporal.ChronoUnit
 class FlakinessStrategyConfiguration {
     var probabilityBased: ProbabilityBasedFlakinessStrategyConfiguration? = null
 
+    fun probabilityBased(block: ProbabilityBasedFlakinessStrategyConfiguration.() -> Unit) {
+        probabilityBased = ProbabilityBasedFlakinessStrategyConfiguration().also(block)
+    }
+
     fun probabilityBased(closure: Closure<*>) {
         probabilityBased = ProbabilityBasedFlakinessStrategyConfiguration()
         closure.delegate = probabilityBased

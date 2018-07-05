@@ -12,6 +12,10 @@ class AnalyticsConfig {
         closure.delegate = influx
         closure.call()
     }
+
+    fun influx(block: InfluxConfig.() -> Unit) {
+        influx = InfluxConfig().also(block)
+    }
 }
 
 class InfluxConfig {

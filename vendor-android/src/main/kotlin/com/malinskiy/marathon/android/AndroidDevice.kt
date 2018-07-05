@@ -38,7 +38,7 @@ class AndroidDevice(val ddmsDevice: IDevice) : Device {
         get() {
             val videoSupport = ddmsDevice.supportsFeature(IDevice.Feature.SCREEN_RECORD) &&
                     manufacturer != "Genymotion"
-            val screenshotSupport = operatingSystem.version.toInt() >= JELLY_BEAN_SDK_VERSION
+            val screenshotSupport = ddmsDevice.version.isGreaterOrEqualThan(JELLY_BEAN_SDK_VERSION)
 
             val features = mutableListOf<DeviceFeature>()
 
@@ -60,7 +60,7 @@ class AndroidDevice(val ddmsDevice: IDevice) : Device {
     }
 
     override val operatingSystem: OperatingSystem by lazy {
-        OperatingSystem(ddmsDevice.getProperty("ro.build.version.sdk") ?: "unknown")
+        OperatingSystem(ddmsDevice.version.apiString)
     }
 
     override val networkState: NetworkState

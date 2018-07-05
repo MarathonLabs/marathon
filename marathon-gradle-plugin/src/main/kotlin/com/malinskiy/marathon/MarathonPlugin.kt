@@ -94,6 +94,7 @@ class MarathonPlugin : Plugin<Project> {
                             config.batchingStrategy?.toStrategy(),
                             config.flakinessStrategy?.toStrategy(),
                             config.retryStrategy?.toStrategy(),
+                            config.filteringConfiguration?.toFilteringConfiguration(),
                             config.ignoreFailures,
                             config.isCodeCoverageEnabled,
                             config.fallbackToScreenshots,

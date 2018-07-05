@@ -8,6 +8,10 @@ import groovy.lang.Closure
 class BatchingStrategyConfiguration {
     var fixedSize: FixedSizeBatchingStrategyConfiguration? = null
 
+    fun fixedSize(block: FixedSizeBatchingStrategyConfiguration.() -> Unit) {
+        fixedSize = FixedSizeBatchingStrategyConfiguration().also(block)
+    }
+
     fun fixedSize(closure: Closure<*>) {
         fixedSize = FixedSizeBatchingStrategyConfiguration()
         closure.delegate = fixedSize

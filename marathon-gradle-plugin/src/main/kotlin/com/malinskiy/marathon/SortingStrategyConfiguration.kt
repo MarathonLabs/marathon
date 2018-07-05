@@ -12,10 +12,18 @@ class SortingStrategyConfiguration {
     var executionTime: ExecutionTimeSortingStrategyConfiguration? = null
     var successRate: SuccessRateSortingStrategyConfiguration? = null
 
+    fun executionTime(block: ExecutionTimeSortingStrategyConfiguration.() -> Unit) {
+        executionTime = ExecutionTimeSortingStrategyConfiguration().also(block)
+    }
+
     fun executionTime(closure: Closure<*>) {
         executionTime = ExecutionTimeSortingStrategyConfiguration()
         closure.delegate = executionTime
         closure.call()
+    }
+
+    fun successRate(block: SuccessRateSortingStrategyConfiguration.() -> Unit) {
+        successRate = SuccessRateSortingStrategyConfiguration().also(block)
     }
 
     fun successRate(closure: Closure<*>) {
