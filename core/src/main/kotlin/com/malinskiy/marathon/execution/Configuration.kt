@@ -31,6 +31,7 @@ data class Configuration constructor(
         val batchingStrategy: BatchingStrategy,
         val flakinessStrategy: FlakinessStrategy,
         val retryStrategy: RetryStrategy,
+        val filteringConfiguration: FilteringConfiguration,
 
         val ignoreFailures: Boolean,
         val isCodeCoverageEnabled: Boolean,
@@ -62,6 +63,7 @@ data class Configuration constructor(
                 batchingStrategy: BatchingStrategy?,
                 flakinessStrategy: FlakinessStrategy?,
                 retryStrategy: RetryStrategy?,
+                filteringConfiguration: FilteringConfiguration?,
 
                 ignoreFailures: Boolean?,
                 isCodeCoverageEnabled: Boolean?,
@@ -92,6 +94,7 @@ data class Configuration constructor(
                     batchingStrategy = batchingStrategy ?: IsolateBatchingStrategy(),
                     flakinessStrategy = flakinessStrategy ?: IgnoreFlakinessStrategy(),
                     retryStrategy = retryStrategy ?: NoRetryStrategy(),
+                    filteringConfiguration = filteringConfiguration ?: FilteringConfiguration(emptyList(), emptyList()),
                     ignoreFailures = ignoreFailures ?: false,
                     isCodeCoverageEnabled = isCodeCoverageEnabled ?: false,
                     fallbackToScreenshots = fallbackToScreenshots ?: false,

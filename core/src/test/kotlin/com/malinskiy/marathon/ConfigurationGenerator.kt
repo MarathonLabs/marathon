@@ -2,6 +2,7 @@ package com.malinskiy.marathon
 
 import com.malinskiy.marathon.execution.AnalyticsConfiguration
 import com.malinskiy.marathon.execution.Configuration
+import com.malinskiy.marathon.execution.FilteringConfiguration
 import com.malinskiy.marathon.execution.strategy.BatchingStrategy
 import com.malinskiy.marathon.execution.strategy.FlakinessStrategy
 import com.malinskiy.marathon.execution.strategy.PoolingStrategy
@@ -24,6 +25,7 @@ class ConfigurationGenerator {
                batchingStrategy: BatchingStrategy? = null,
                flakinessStrategy: FlakinessStrategy? = null,
                retryStrategy: RetryStrategy? = null,
+               filteringConfiguration: FilteringConfiguration? = null,
                ignoreFailures: Boolean? = null,
                isCodeCoverageEnabled: Boolean? = null,
                fallbackToScreenshots: Boolean? = null,
@@ -49,6 +51,7 @@ class ConfigurationGenerator {
             batchingStrategy = batchingStrategy,
             flakinessStrategy = flakinessStrategy,
             retryStrategy = retryStrategy,
+            filteringConfiguration = filteringConfiguration,
             ignoreFailures = ignoreFailures,
             isCodeCoverageEnabled = isCodeCoverageEnabled,
             fallbackToScreenshots = fallbackToScreenshots,

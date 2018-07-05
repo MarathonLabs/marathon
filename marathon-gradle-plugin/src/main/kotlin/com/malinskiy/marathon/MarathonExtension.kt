@@ -1,5 +1,6 @@
 package com.malinskiy.marathon
 
+import com.malinskiy.marathon.execution.FilteringConfiguration
 import groovy.lang.Closure
 import org.gradle.api.Project
 
@@ -14,6 +15,7 @@ open class MarathonExtension(project: Project) {
     var batchingStrategy: BatchingStrategyConfiguration? = null
     var flakinessStrategy: FlakinessStrategyConfiguration? = null
     var retryStrategy: RetryStrategyConfiguration? = null
+    var filteringConfiguration: FilteringPluginConfiguration? = null
 
     var baseOutputDir: String? = null
 
@@ -34,6 +36,40 @@ open class MarathonExtension(project: Project) {
     var testPackage: String? = null
     var autoGrantPermission: Boolean? = null
 
+    //Kotlin way
+    fun analytics(block: AnalyticsConfig.() -> Unit) {
+        analyticsConfiguration = AnalyticsConfig().also(block)
+    }
+
+    fun batchingStrategy(block: BatchingStrategyConfiguration.() -> Unit) {
+        batchingStrategy = BatchingStrategyConfiguration().also(block)
+    }
+
+    fun flakinessStrategy(block: FlakinessStrategyConfiguration.() -> Unit) {
+        flakinessStrategy = FlakinessStrategyConfiguration().also(block)
+    }
+
+    fun poolingStrategy(block: PoolingStrategyConfiguration.() -> Unit) {
+        poolingStrategy = PoolingStrategyConfiguration().also(block)
+    }
+
+    fun retryStrategy(block: RetryStrategyConfiguration.() -> Unit) {
+        retryStrategy = RetryStrategyConfiguration().also(block)
+    }
+
+    fun shardingStrategy(block: ShardingStrategyConfiguration.() -> Unit) {
+        shardingStrategy = ShardingStrategyConfiguration().also(block)
+    }
+
+    fun sortingStrategy(block: SortingStrategyConfiguration.() -> Unit) {
+        sortingStrategy = SortingStrategyConfiguration().also(block)
+    }
+
+    fun filteringConfiguration(block: FilteringPluginConfiguration.() -> Unit) {
+        filteringConfiguration = FilteringPluginConfiguration().also(block)
+    }
+
+    //Groovy way
     fun analytics(closure: Closure<*>) {
         analyticsConfiguration = AnalyticsConfig()
         closure.delegate = analyticsConfiguration
@@ -73,6 +109,12 @@ open class MarathonExtension(project: Project) {
     fun sortingStrategy(closure: Closure<*>) {
         sortingStrategy = SortingStrategyConfiguration()
         closure.delegate = sortingStrategy
+        closure.call()
+    }
+
+    fun filteringConfiguration(closure: Closure<*>) {
+        filteringConfiguration = FilteringPluginConfiguration()
+        closure.delegate = filteringConfiguration
         closure.call()
     }
 }

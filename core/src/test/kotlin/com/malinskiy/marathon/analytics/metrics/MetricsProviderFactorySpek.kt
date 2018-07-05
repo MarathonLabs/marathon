@@ -24,6 +24,7 @@ class MetricsProviderFactorySpek : Spek({
                     batchingStrategy = null,
                     flakinessStrategy = null,
                     retryStrategy = null,
+                    filteringConfiguration = null,
                     ignoreFailures = null,
                     isCodeCoverageEnabled = null,
                     fallbackToScreenshots = null,

@@ -16,6 +16,7 @@ import com.malinskiy.marathon.report.debug.timeline.TimelineSummarySerializer
 import com.malinskiy.marathon.report.html.HtmlSummaryPrinter
 import com.malinskiy.marathon.report.internal.DeviceInfoReporter
 import com.malinskiy.marathon.report.internal.TestResultReporter
+import com.malinskiy.marathon.test.Test
 import kotlinx.coroutines.experimental.runBlocking
 import mu.KotlinLogging
 import java.util.*
@@ -63,7 +64,9 @@ class Marathon(val configuration: Configuration) {
         val deviceProvider = loadDeviceProvider()
         val analytics = analyticsFactory.create()
 
-        val tests = testParser.extract(configuration.testApplicationOutput)
+        val parsedTests = testParser.extract(configuration.testApplicationOutput)
+        var tests = applyTestFilters(parsedTests)
+
         val progressReporter = ProgressReporter()
         val scheduler = Scheduler(deviceProvider, analytics, configuration, tests, progressReporter)
 
@@ -92,5 +95,12 @@ class Marathon(val configuration: Configuration) {
         deviceProvider.terminate()
 
         return progressReporter.aggregateResult()
+    }
+
+    private fun applyTestFilters(parsedTests: List<Test>): List<Test> {
+        var tests = parsedTests
+        configuration.filteringConfiguration.whitelist.forEach { tests = it.filter(tests) }
+        configuration.filteringConfiguration.blacklist.forEach { tests = it.filterNot(tests) }
+        return tests
     }
 }
