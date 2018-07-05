@@ -1,8 +1,6 @@
 package com.malinskiy.marathon.execution
 
 import com.malinskiy.marathon.test.Test
-import org.amshove.kluent.shouldBe
-import org.amshove.kluent.shouldContainAll
 import org.amshove.kluent.shouldEqual
 import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.given
