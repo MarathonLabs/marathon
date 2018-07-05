@@ -7,6 +7,11 @@ import com.malinskiy.marathon.execution.strategy.RetryStrategy
 
 open class RetryStrategyConfiguration {
     var fixedQuota: FixedQuotaRetryStrategyConfiguration? = null
+
+    fun fixedQuota(block: FixedQuotaRetryStrategyConfiguration.() -> Unit) {
+        fixedQuota = FixedQuotaRetryStrategyConfiguration().also(block)
+    }
+
     fun fixedQuota(closure: Closure<*>) {
         fixedQuota = FixedQuotaRetryStrategyConfiguration()
         closure.delegate = fixedQuota
