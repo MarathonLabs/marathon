@@ -13,7 +13,11 @@ internal class InfluxDbProvider(configuration: AnalyticsConfiguration.InfluxDbCo
     private val retentionPolicyConfiguration = configuration.retentionPolicyConfiguration
 
     fun createDb(): InfluxDB {
-        val influxDb = InfluxDBFactory.connect(url, user, password)
+        val influxDb = if (user.isNotEmpty() && password.isNotEmpty()) {
+            InfluxDBFactory.connect(url, user, password)
+        } else {
+            InfluxDBFactory.connect(url)
+        }
         if (!influxDb.databaseExists(dbName)) {
             influxDb.createDatabase(dbName)
             val rpName = retentionPolicyConfiguration.name
