@@ -62,7 +62,7 @@ class AndroidDevice(val ddmsDevice: IDevice) : Device {
     }
 
     override val operatingSystem: OperatingSystem by lazy {
-        OperatingSystem(ddmsDevice.getProperty("ro.build.version.sdk") ?: "unknown")
+        OperatingSystem(ddmsDevice.version.apiLevel.toString())
     }
 
     override val networkState: NetworkState
