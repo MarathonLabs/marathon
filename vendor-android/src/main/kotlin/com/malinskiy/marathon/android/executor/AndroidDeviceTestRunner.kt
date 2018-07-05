@@ -12,7 +12,7 @@ import com.malinskiy.marathon.android.executor.listeners.ProgressTestRunListener
 import com.malinskiy.marathon.android.executor.listeners.TestRunResultsListener
 import com.malinskiy.marathon.device.DevicePoolId
 import com.malinskiy.marathon.execution.Configuration
-import com.malinskiy.marathon.execution.TestRunResults
+import com.malinskiy.marathon.execution.RetryMessage
 import com.malinskiy.marathon.execution.progress.ProgressReporter
 import com.malinskiy.marathon.io.FileManager
 import com.malinskiy.marathon.report.logs.LogWriter
@@ -29,7 +29,7 @@ class AndroidDeviceTestRunner(private val device: AndroidDevice,
     fun execute(configuration: Configuration,
                 devicePoolId: DevicePoolId,
                 testBatch: TestBatch,
-                retryChannel: Channel<TestRunResults>,
+                retryChannel: Channel<RetryMessage>,
                 progressReporter: ProgressReporter) {
         val info = ApkParser().parseInstrumentationInfo(configuration.testApplicationOutput)
         val runner = RemoteAndroidTestRunner(info.instrumentationPackage, info.testRunnerClass, device.ddmsDevice)
@@ -47,7 +47,7 @@ class AndroidDeviceTestRunner(private val device: AndroidDevice,
         runner.run(CompositeTestRunListener(listOf(
                 TestRunResultsListener(testBatch, device, retryChannel, devicePoolId),
                 DebugTestRunListener(device.ddmsDevice),
-                ProgressTestRunListener(device, devicePoolId,progressReporter),
+                ProgressTestRunListener(device, devicePoolId, progressReporter),
                 AnalyticsListener(device, devicePoolId, analytics),
                 LogCatListener(device, devicePoolId, LogWriter(fileManager)))
         ))

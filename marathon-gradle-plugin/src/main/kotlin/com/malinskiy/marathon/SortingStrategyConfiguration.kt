@@ -25,13 +25,16 @@ class SortingStrategyConfiguration {
     }
 }
 
+private const val DEFAULT_PERCENTILE = 90.0
+const val DEFAULT_DAYS_COUNT = 30L
+
 class ExecutionTimeSortingStrategyConfiguration {
-    var percentile: Double = 90.0
-    var timeLimit: Instant = Instant.now().minus(30, ChronoUnit.DAYS)
+    var percentile: Double = DEFAULT_PERCENTILE
+    var timeLimit: Instant = Instant.now().minus(DEFAULT_DAYS_COUNT, ChronoUnit.DAYS)
 }
 
 class SuccessRateSortingStrategyConfiguration {
-    var limit: Instant = Instant.now().minus(30, ChronoUnit.DAYS)
+    var limit: Instant = Instant.now().minus(DEFAULT_DAYS_COUNT, ChronoUnit.DAYS)
 }
 
 fun SortingStrategyConfiguration.toStrategy(): SortingStrategy = executionTime?.let {

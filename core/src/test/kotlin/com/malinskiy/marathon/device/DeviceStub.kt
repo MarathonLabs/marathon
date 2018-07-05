@@ -15,9 +15,9 @@ class DeviceStub(override var operatingSystem: OperatingSystem = OperatingSystem
                  override val model: String = "model",
                  override val manufacturer: String = "manufacturer",
                  override val deviceFeatures: Collection<DeviceFeature> = emptyList()) : Device {
-    override suspend fun execute(configuration: Configuration, devicePoolId: DevicePoolId, testBatch: TestBatch, tracker: Analytics, retryChannel: Channel<TestRunResults>, progressReporter: ProgressReporter) {
+    override fun execute(configuration: Configuration, devicePoolId: DevicePoolId, testBatch: TestBatch, tracker: Analytics, retryChannel: Channel<TestRunResults>, progressReporter: ProgressReporter) {
     }
 
-    override suspend fun prepare(configuration: Configuration) {
+    override fun prepare(configuration: Configuration) {
     }
 }

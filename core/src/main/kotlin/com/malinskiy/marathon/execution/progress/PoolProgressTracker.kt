@@ -16,6 +16,7 @@ class PoolProgressTracker {
 
     private val tests = mutableMapOf<Test, Status>()
 
+    @Suppress("ThrowsCount")
     private fun updateStatus(test: Test, newStatus: Status) {
         val prev = tests[test]
         tests[test] = when (prev) {
@@ -66,7 +67,7 @@ class PoolProgressTracker {
         }
     }
 
-    private val TEST_TIME = SimpleDateFormat("mm.ss")
+    private val testTimeFormat = SimpleDateFormat("mm.ss")
 
     var totalTests = 0
     var completed = 0

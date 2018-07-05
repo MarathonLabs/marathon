@@ -14,9 +14,12 @@ open class RetryStrategyConfiguration {
     }
 }
 
+private const val DEFAULT_TOTAL_ALLOWED_RETRY_QUOTA = 200
+private const val DEFAULT_RETRY_PER_TEST_QUOTA = 3
+
 open class FixedQuotaRetryStrategyConfiguration {
-    var totalAllowedRetryQuota: Int = 200
-    var retryPerTestQuota: Int = 3
+    var totalAllowedRetryQuota: Int = DEFAULT_TOTAL_ALLOWED_RETRY_QUOTA
+    var retryPerTestQuota: Int = DEFAULT_RETRY_PER_TEST_QUOTA
 }
 
 fun RetryStrategyConfiguration.toStrategy(): RetryStrategy {

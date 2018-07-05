@@ -17,10 +17,13 @@ class FlakinessStrategyConfiguration {
     }
 }
 
+private const val DEFAULT_MIN_SUCCESS_RATE = 0.8
+private const val DEFAULT_MAX_FLAKY_TESTS_COUNT = 3
+
 class ProbabilityBasedFlakinessStrategyConfiguration {
-    var minSuccessRate: Double = 0.8
-    var maxCount: Int = 3
-    var timeLimit: Instant = Instant.now().minus(30, ChronoUnit.DAYS)
+    var minSuccessRate: Double = DEFAULT_MIN_SUCCESS_RATE
+    var maxCount: Int = DEFAULT_MAX_FLAKY_TESTS_COUNT
+    var timeLimit: Instant = Instant.now().minus(DEFAULT_DAYS_COUNT, ChronoUnit.DAYS)
 }
 
 fun FlakinessStrategyConfiguration.toStrategy(): FlakinessStrategy = probabilityBased?.let {
