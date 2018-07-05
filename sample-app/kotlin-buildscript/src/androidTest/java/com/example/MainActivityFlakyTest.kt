@@ -45,4 +45,28 @@ class MainActivityFlakyTest {
         Thread.sleep(100)
         assertTrue(Random().nextBoolean())
     }
+
+    @Test
+    fun testTextFlaky5() {
+        Thread.sleep(100)
+        assertTrue(Random().nextBoolean())
+    }
+
+    @Test
+    fun testTextFlaky6() {
+        Thread.sleep(100)
+        assertTrue(Random().nextBoolean())
+    }
+
+    @Test
+    fun testTextFlaky7() {
+        Thread.sleep(100)
+        assertTrue(Random().nextBoolean())
+    }
+
+    @Test
+    fun testTextFlaky8() {
+        Thread.sleep(100)
+        assertTrue(Random().nextBoolean())
+    }
 }

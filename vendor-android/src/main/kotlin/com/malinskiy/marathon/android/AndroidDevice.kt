@@ -10,13 +10,11 @@ import com.malinskiy.marathon.device.DevicePoolId
 import com.malinskiy.marathon.device.NetworkState
 import com.malinskiy.marathon.device.OperatingSystem
 import com.malinskiy.marathon.execution.Configuration
-import com.malinskiy.marathon.execution.TestRunResults
+import com.malinskiy.marathon.execution.RetryMessage
 import com.malinskiy.marathon.execution.progress.ProgressReporter
 import com.malinskiy.marathon.test.TestBatch
 import kotlinx.coroutines.experimental.channels.Channel
-import kotlinx.coroutines.experimental.launch
-import kotlinx.coroutines.experimental.newSingleThreadContext
-import java.util.UUID
+import java.util.*
 
 class AndroidDevice(val ddmsDevice: IDevice) : Device {
     override val abi: String by lazy {
@@ -77,23 +75,17 @@ class AndroidDevice(val ddmsDevice: IDevice) : Device {
             else -> false
         }
 
-    private val context = newSingleThreadContext(this.toString())
-
-    override suspend fun execute(configuration: Configuration,
-                                 devicePoolId: DevicePoolId,
-                                 testBatch: TestBatch,
-                                 tracker: Analytics,
-                                 retryChannel: Channel<TestRunResults>,
-                                 progressReporter: ProgressReporter) {
-        launch(context) {
-            AndroidDeviceTestRunner(this@AndroidDevice, tracker).execute(configuration, devicePoolId, testBatch, retryChannel, progressReporter)
-        }.join()
+    override fun execute(configuration: Configuration,
+                         devicePoolId: DevicePoolId,
+                         testBatch: TestBatch,
+                         tracker: Analytics,
+                         retryChannel: Channel<RetryMessage>,
+                         progressReporter: ProgressReporter) {
+        AndroidDeviceTestRunner(this@AndroidDevice, tracker).execute(configuration, devicePoolId, testBatch, retryChannel, progressReporter)
     }
 
-    override suspend fun prepare(configuration: Configuration) {
-        launch(context) {
-            AndroidAppInstaller(configuration).prepareInstallation(ddmsDevice)
-        }.join()
+    override fun prepare(configuration: Configuration) {
+        AndroidAppInstaller(configuration).prepareInstallation(ddmsDevice)
     }
 
     override fun toString(): String {

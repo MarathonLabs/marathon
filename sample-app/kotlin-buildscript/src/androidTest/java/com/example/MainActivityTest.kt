@@ -64,4 +64,54 @@ class MainActivityTest {
             }
         }
     }
+
+    @Test
+    fun testText5() {
+        java.lang.Thread.sleep(500)
+        screen {
+            text {
+                hasText("Test")
+            }
+        }
+    }
+
+    @Test
+    fun testText6() {
+        java.lang.Thread.sleep(500)
+        screen {
+            text {
+                hasText("Test")
+            }
+        }
+    }
+
+    @Test
+    fun testText7() {
+        java.lang.Thread.sleep(500)
+        screen {
+            text {
+                hasText("Test")
+            }
+        }
+    }
+
+    @Test
+    fun testText8() {
+        java.lang.Thread.sleep(500)
+        screen {
+            text {
+                hasText("Test")
+            }
+        }
+    }
+
+    @Test
+    fun testText9() {
+        java.lang.Thread.sleep(500)
+        screen {
+            text {
+                hasText("Test")
+            }
+        }
+    }
 }
