@@ -3,7 +3,9 @@ package com.malinskiy.marathon
 import com.google.gson.Gson
 import com.malinskiy.marathon.analytics.AnalyticsFactory
 import com.malinskiy.marathon.device.DeviceProvider
-import com.malinskiy.marathon.execution.*
+import com.malinskiy.marathon.execution.Configuration
+import com.malinskiy.marathon.execution.Scheduler
+import com.malinskiy.marathon.execution.TestParser
 import com.malinskiy.marathon.execution.progress.ProgressReporter
 import com.malinskiy.marathon.io.FileManager
 import com.malinskiy.marathon.report.CompositeSummaryPrinter
