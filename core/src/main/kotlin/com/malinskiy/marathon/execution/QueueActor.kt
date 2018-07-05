@@ -7,6 +7,7 @@ import com.malinskiy.marathon.device.DevicePoolId
 import com.malinskiy.marathon.execution.DevicePoolMessage.FromQueue
 import com.malinskiy.marathon.execution.progress.ProgressReporter
 import com.malinskiy.marathon.test.Test
+import com.malinskiy.marathon.test.TestBatch
 import kotlinx.coroutines.experimental.CompletableDeferred
 import kotlinx.coroutines.experimental.channels.Channel
 import kotlinx.coroutines.experimental.channels.SendChannel
@@ -20,7 +21,7 @@ class QueueActor(configuration: Configuration,
                  metricsProvider: MetricsProvider,
                  private val pool: SendChannel<FromQueue>,
                  private val poolId: DevicePoolId,
-                 private val retryChannel: Channel<TestRunResults>,
+                 private val retryChannel: Channel<RetryMessage>,
                  private val progressReporter: ProgressReporter) : Actor<QueueMessage>() {
 
     private val logger = KotlinLogging.logger("QueueActor[$poolId]")
@@ -37,7 +38,14 @@ class QueueActor(configuration: Configuration,
         progressReporter.totalTests(poolId, queue.size)
         launch {
             for (msg in retryChannel) {
-                handleTestResults(msg.devicePoolId, msg.finished, msg.failed, msg.device)
+                when (msg) {
+                    is RetryMessage.TestRunResults -> {
+                        handleTestResults(msg.devicePoolId, msg.finished, msg.failed, msg.device)
+                    }
+                    is RetryMessage.ReturnTestBatch -> {
+                        queue.addAll(msg.testBatch.tests)
+                    }
+                }
             }
         }
     }
@@ -74,7 +82,7 @@ class QueueActor(configuration: Configuration,
         finished.filter { testShard.flakyTests.contains(it) }.let {
             val size = queue.size
             queue.removeAll(it)
-            progressReporter.removeTests(poolId,queue.size - size)
+            progressReporter.removeTests(poolId, queue.size - size)
         }
     }
 
@@ -104,10 +112,16 @@ class QueueActor(configuration: Configuration,
     }
 }
 
-data class TestRunResults(val devicePoolId: DevicePoolId,
-                          val finished: Collection<Test>,
-                          val failed: Collection<Test>,
-                          val device: Device)
+sealed class RetryMessage {
+    data class TestRunResults(val devicePoolId: DevicePoolId,
+                              val finished: Collection<Test>,
+                              val failed: Collection<Test>,
+                              val device: Device) : RetryMessage()
+
+    data class ReturnTestBatch(val devicePoolId: DevicePoolId,
+                               val testBatch: TestBatch,
+                               val device: Device) : RetryMessage()
+}
 
 sealed class QueueMessage {
     data class RequestNext(val device: Device) : QueueMessage()

@@ -140,7 +140,7 @@ fun cssClassForLogcatLine(logcatLine: String): String {
 
 fun DeviceInfo.toHtmlDevice() = HtmlDevice(
         apiLevel = operatingSystem.version,
-        isTablet = false, //TODO: FIX
+        isTablet = false,
         serial = serialNumber,
         modelName = model
 )

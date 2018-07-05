@@ -5,7 +5,7 @@ import com.android.ddmlib.testrunner.TestResult
 import com.android.ddmlib.testrunner.TestRunResult as DdmLibTestRunResult
 import com.malinskiy.marathon.device.Device
 import com.malinskiy.marathon.device.DevicePoolId
-import com.malinskiy.marathon.execution.TestRunResults
+import com.malinskiy.marathon.execution.RetryMessage
 import com.malinskiy.marathon.test.Test
 import com.malinskiy.marathon.test.TestBatch
 import kotlinx.coroutines.experimental.channels.SendChannel
@@ -13,7 +13,7 @@ import kotlinx.coroutines.experimental.launch
 
 class TestRunResultsListener(private val testBatch: TestBatch,
                              private val device: Device,
-                             private val retryChannel: SendChannel<TestRunResults>,
+                             private val retryChannel: SendChannel<RetryMessage>,
                              private val devicePoolId: DevicePoolId) : AbstractTestRunResultListener() {
     override fun handleTestRunResults(runResult: DdmLibTestRunResult) {
         val results = runResult.testResults
@@ -28,7 +28,7 @@ class TestRunResultsListener(private val testBatch: TestBatch,
         }.values
 
         launch {
-            retryChannel.send(TestRunResults(devicePoolId, finished, failed, device))
+            retryChannel.send(RetryMessage.TestRunResults(devicePoolId, finished, failed, device))
         }
     }
 
@@ -37,7 +37,7 @@ class TestRunResultsListener(private val testBatch: TestBatch,
         return TestIdentifier("$pkg.$clazz", method)
     }
 
-    private fun TestResult.isSuccessful() = status == TestResult.TestStatus.PASSED
-            || status == TestResult.TestStatus.IGNORED
+    private fun TestResult.isSuccessful() =
+            status == TestResult.TestStatus.PASSED || status == TestResult.TestStatus.IGNORED
 
 }
