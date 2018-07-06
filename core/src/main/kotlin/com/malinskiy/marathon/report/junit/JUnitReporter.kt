@@ -6,6 +6,7 @@ import com.malinskiy.marathon.execution.TestResult
 import com.malinskiy.marathon.execution.TestStatus
 import com.malinskiy.marathon.io.FileManager
 import com.malinskiy.marathon.io.FileType
+import java.io.FileOutputStream
 import java.io.FileWriter
 import java.text.SimpleDateFormat
 import java.util.*
@@ -18,7 +19,7 @@ class JUnitReporter(private val fileManager: FileManager) {
         val file = fileManager.createFile(FileType.TEST, devicePoolId, device, testResult.test)
         file.createNewFile()
 
-        val writer = XMLOutputFactory.newFactory().createXMLStreamWriter(FileWriter(file))
+        val writer = XMLOutputFactory.newFactory().createXMLStreamWriter(FileOutputStream(file),"UTF-8")
 
         generateXml(writer, testResult)
         writer.flush()
