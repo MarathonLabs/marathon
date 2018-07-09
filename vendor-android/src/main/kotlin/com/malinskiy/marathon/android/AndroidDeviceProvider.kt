@@ -2,6 +2,7 @@ package com.malinskiy.marathon.android
 
 import com.android.ddmlib.AndroidDebugBridge
 import com.android.ddmlib.IDevice
+import com.malinskiy.marathon.actor.unboundedChannel
 import com.malinskiy.marathon.device.Device
 import com.malinskiy.marathon.device.DeviceProvider
 import com.malinskiy.marathon.device.DeviceProvider.DeviceEvent.DeviceConnected
@@ -18,7 +19,7 @@ class AndroidDeviceProvider : DeviceProvider {
 
     private lateinit var adb: AndroidDebugBridge
 
-    private val channel = Channel<DeviceProvider.DeviceEvent>()
+    private val channel: Channel<DeviceProvider.DeviceEvent> = unboundedChannel()
 
     override fun initialize(vendorConfiguration: VendorConfiguration) {
         if (vendorConfiguration !is AndroidConfiguration) {

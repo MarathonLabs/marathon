@@ -1,6 +1,7 @@
 package com.malinskiy.marathon.execution
 
 import com.malinskiy.marathon.actor.Actor
+import com.malinskiy.marathon.actor.unboundedChannel
 import com.malinskiy.marathon.analytics.Analytics
 import com.malinskiy.marathon.device.Device
 import com.malinskiy.marathon.device.DevicePoolId
@@ -36,7 +37,7 @@ class DevicePoolActor(private val poolId: DevicePoolId,
         }
     }
 
-    private val retryChannel: Channel<RetryMessage> = Channel()
+    private val retryChannel: Channel<RetryMessage> = unboundedChannel()
 
     private val shardingStrategy = configuration.shardingStrategy
     private val flakinessShard = configuration.flakinessStrategy
