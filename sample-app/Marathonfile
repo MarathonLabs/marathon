@@ -1,0 +1,35 @@
+name: "sample-app tests"
+outputDir: "./marathon"
+applicationOutput: "kotlin-buildscript/build/outputs/apk/debug/kotlin-buildscript-debug.apk"
+testApplicationOutput: "kotlin-buildscript/build/outputs/apk/androidTest/debug/kotlin-buildscript-debug-androidTest.apk"
+
+#analyticsConfiguration: !!com.malinskiy.marathon.execution.InfluxDbConfiguration {
+#  url: "http://influx.svc.cluster.local:8086",
+#  user: "root",
+#  password: "root",
+#  dbName: "marathon"
+#}
+poolingStrategy: !com.malinskiy.marathon.execution.strategy.impl.pooling.OmniPoolingStrategy {}
+shardingStrategy: !com.malinskiy.marathon.execution.strategy.impl.sharding.ParallelShardingStrategy {}
+sortingStrategy: !com.malinskiy.marathon.execution.strategy.impl.sorting.NoSortingStrategy {}
+batchingStrategy: !com.malinskiy.marathon.execution.strategy.impl.batching.FixedSizeBatchingStrategy (3)
+flakinessStrategy: !com.malinskiy.marathon.execution.strategy.impl.flakiness.IgnoreFlakinessStrategy {}
+retryStrategy: !com.malinskiy.marathon.execution.strategy.impl.retry.NoRetryStrategy {}
+filteringConfiguration: !com.malinskiy.marathon.execution.FilteringConfiguration {}
+#
+#ignoreFailures: Boolean,
+#isCodeCoverageEnabled: Boolean,
+#fallbackToScreenshots: Boolean,
+#
+#testClassRegexes: Collection<Regex>,
+#includedTestAnnotations: Collection<String>,
+#excludedTestAnnotations: Collection<String>,
+#includeSerialRegexes: Collection<Regex>,
+#excludeSerialRegexes: Collection<Regex>,
+#
+#testOutputTimeoutMillis: Int,
+#debug: Boolean,
+#
+#testPackage: String?,
+#autoGrantPermission: Boolean,
+#vendorConfiguration: VendorConfiguration

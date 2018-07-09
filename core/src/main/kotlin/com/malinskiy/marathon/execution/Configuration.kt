@@ -19,7 +19,6 @@ private const val DEFAULT_OUTPUT_TIMEOUT_MILLIS = 60_000
 
 data class Configuration constructor(
         val name: String,
-        val baseOutputDir: File,
         val outputDir: File,
         val applicationOutput: File,
         val testApplicationOutput: File,
@@ -51,7 +50,6 @@ data class Configuration constructor(
         val vendorConfiguration: VendorConfiguration) {
 
     constructor(name: String,
-                baseOutputDir: File,
                 outputDir: File,
                 applicationOutput: File,
                 testApplicationOutput: File,
@@ -83,7 +81,6 @@ data class Configuration constructor(
                 vendorConfiguration: VendorConfiguration) :
 
             this(name = name,
-                    baseOutputDir = baseOutputDir,
                     outputDir = outputDir,
                     applicationOutput = applicationOutput,
                     testApplicationOutput = testApplicationOutput,

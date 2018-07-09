@@ -7,6 +7,7 @@ object Versions {
     val ddmlib = "26.1.1"
     val dexTestParser = "1.1.0"
     val kotlinLogging = "1.4.9"
+    val slf4j = "1.7.25"
     val axmlParser = "1.0"
 
     val junitGradle = "1.0.0"
@@ -24,6 +25,10 @@ object Versions {
     val apacheCommonsText = "1.3"
     val apacheCommonsIO = "2.6"
     val influxDbClient = "2.10"
+    val argParser = "2.0.7"
+    val jacksonDatabind = "2.9.5"
+    val jacksonKotlin = "2.9.4.1"
+    val jacksonYaml = "2.9.6"
 }
 
 object BuildPlugins {
@@ -38,12 +43,17 @@ object Libraries {
     val kotlinStdLib = "org.jetbrains.kotlin:kotlin-stdlib-jdk8:${Versions.kotlin}"
     val kotlinReflect = "org.jetbrains.kotlin:kotlin-reflect:${Versions.kotlin}"
     val kotlinLogging = "io.github.microutils:kotlin-logging:${Versions.kotlinLogging}"
+    val slf4j = "org.slf4j:slf4j-simple:${Versions.slf4j}"
     val kotlinCoroutines = "org.jetbrains.kotlinx:kotlinx-coroutines-core:${Versions.coroutines}"
     val axmlParser = "com.shazam:axmlparser:${Versions.axmlParser}"
     val gson = "com.google.code.gson:gson:${Versions.gson}"
     val apacheCommonsText = "org.apache.commons:commons-text:${Versions.apacheCommonsText}"
     val apacheCommonsIO = "commons-io:commons-io:${Versions.apacheCommonsIO}"
     val influxDbClient = "org.influxdb:influxdb-java:${Versions.influxDbClient}"
+    val argParser = "com.xenomachina:kotlin-argparser:${Versions.argParser}"
+    val jacksonDatabind = "com.fasterxml.jackson.core:jackson-databind:${Versions.jacksonDatabind}"
+    val jacksonKotlin = "com.fasterxml.jackson.module:jackson-module-kotlin:${Versions.jacksonKotlin}"
+    val jacksonYaml = "com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:${Versions.jacksonYaml}"
 }
 
 object TestLibraries {

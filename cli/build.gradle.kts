@@ -13,15 +13,28 @@ plugins {
 
 application {
     mainClassName = "com.malinskiy.marathon.cli.ApplicationViewKt"
+    applicationName = "marathon"
+}
+
+distributions {
+    getByName("main") {
+        baseName = "marathon"
+    }
 }
 
 kotlin.experimental.coroutines = Coroutines.ENABLE
 
 dependencies {
     implementation(project(":core"))
+    implementation(project(":vendor-android"))
     implementation(Libraries.kotlinStdLib)
     implementation(Libraries.kotlinCoroutines)
     implementation(Libraries.kotlinLogging)
+    implementation(Libraries.slf4j)
+    implementation(Libraries.argParser)
+    implementation(Libraries.jacksonDatabind)
+    implementation(Libraries.jacksonKotlin)
+    implementation(Libraries.jacksonYaml)
     testCompile(TestLibraries.kluent)
     testCompile(TestLibraries.spekAPI)
     testRuntime(TestLibraries.spekJUnitPlatformEngine)
