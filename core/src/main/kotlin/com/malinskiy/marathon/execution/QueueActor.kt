@@ -13,6 +13,8 @@ import kotlinx.coroutines.experimental.channels.SendChannel
 import mu.KotlinLogging
 import java.util.Queue
 import java.util.PriorityQueue
+import kotlin.system.measureNanoTime
+import kotlin.system.measureTimeMillis
 
 class QueueActor(configuration: Configuration,
                  private val testShard: TestShard,
@@ -25,13 +27,12 @@ class QueueActor(configuration: Configuration,
 
     private val sorting = configuration.sortingStrategy
 
-    private val queue: Queue<Test> = PriorityQueue<Test>(sorting.process(metricsProvider)).apply {
-        addAll(testShard.tests + testShard.flakyTests)
-    }
+    private val queue: Queue<Test> = PriorityQueue<Test>(sorting.process(metricsProvider))
     private val batching = configuration.batchingStrategy
     private val retry = configuration.retryStrategy
 
     init {
+        queue.addAll(testShard.tests + testShard.flakyTests)
         progressReporter.totalTests(poolId, queue.size)
     }
 

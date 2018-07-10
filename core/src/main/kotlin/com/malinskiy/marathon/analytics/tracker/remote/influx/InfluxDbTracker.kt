@@ -10,10 +10,9 @@ import org.influxdb.InfluxDB
 import org.influxdb.dto.Point
 import java.util.concurrent.TimeUnit
 
-internal class InfluxDbTracker(private val influxDb: InfluxDB,
-                               private val dbName: String) : NoOpTracker() {
+internal class InfluxDbTracker(private val influxDb: InfluxDB) : NoOpTracker() {
     override fun trackTestResult(poolId: DevicePoolId, device: Device, testResult: TestResult) {
-        influxDb.write(Point.measurement(dbName)
+        influxDb.write(Point.measurement("tests")
                 .time(System.currentTimeMillis(), TimeUnit.MILLISECONDS)
                 .tag("testname", testResult.test.toSafeTestName())
                 .addField("success", if (testResult.status == TestStatus.PASSED) 1.0 else 0.0)
