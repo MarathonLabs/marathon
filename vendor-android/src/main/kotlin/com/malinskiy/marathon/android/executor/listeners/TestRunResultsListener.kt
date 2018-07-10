@@ -5,7 +5,7 @@ import com.android.ddmlib.testrunner.TestResult
 import com.android.ddmlib.testrunner.TestRunResult as DdmLibTestRunResult
 import com.malinskiy.marathon.device.Device
 import com.malinskiy.marathon.device.DevicePoolId
-import com.malinskiy.marathon.execution.RetryMessage
+import com.malinskiy.marathon.execution.QueueMessage
 import com.malinskiy.marathon.test.Test
 import com.malinskiy.marathon.test.TestBatch
 import kotlinx.coroutines.experimental.channels.SendChannel
@@ -13,7 +13,7 @@ import kotlinx.coroutines.experimental.launch
 
 class TestRunResultsListener(private val testBatch: TestBatch,
                              private val device: Device,
-                             private val retryChannel: SendChannel<RetryMessage>,
+                             private val retryChannel: SendChannel<QueueMessage.RetryMessage>,
                              private val devicePoolId: DevicePoolId) : AbstractTestRunResultListener() {
     override fun handleTestRunResults(runResult: DdmLibTestRunResult) {
         val results = runResult.testResults
@@ -28,7 +28,7 @@ class TestRunResultsListener(private val testBatch: TestBatch,
         }.values
 
         launch {
-            retryChannel.send(RetryMessage.TestRunResults(devicePoolId, finished, failed, device))
+            retryChannel.send(QueueMessage.RetryMessage.TestRunResults(devicePoolId, finished, failed, device))
         }
     }
 

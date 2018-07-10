@@ -5,17 +5,16 @@ import com.malinskiy.marathon.analytics.Analytics
 import com.malinskiy.marathon.device.Device
 import com.malinskiy.marathon.device.DevicePoolId
 import com.malinskiy.marathon.execution.DevicePoolMessage.FromScheduler
-import com.malinskiy.marathon.execution.DevicePoolMessage.FromQueue
 import com.malinskiy.marathon.execution.DevicePoolMessage.FromDevice
+import com.malinskiy.marathon.execution.DevicePoolMessage.FromQueue
 import com.malinskiy.marathon.execution.device.DeviceActor
 import com.malinskiy.marathon.execution.device.DeviceEvent
 import com.malinskiy.marathon.execution.device.DeviceState
 import com.malinskiy.marathon.execution.progress.ProgressReporter
-import com.malinskiy.marathon.waitWhileTrue
 import com.malinskiy.marathon.test.Test
 import com.malinskiy.marathon.test.TestBatch
+import com.malinskiy.marathon.waitWhileTrue
 import kotlinx.coroutines.experimental.CompletableDeferred
-import kotlinx.coroutines.experimental.channels.Channel
 import kotlinx.coroutines.experimental.channels.SendChannel
 import mu.KotlinLogging
 
@@ -38,13 +37,11 @@ class DevicePoolActor(private val poolId: DevicePoolId,
         }
     }
 
-    private val retryChannel: Channel<RetryMessage> = Channel()
-
     private val shardingStrategy = configuration.shardingStrategy
     private val flakinessShard = configuration.flakinessStrategy
     private val shard = flakinessShard.process(shardingStrategy.createShard(tests), analytics)
 
-    private val queue: QueueActor = QueueActor(configuration, shard, analytics, this, poolId, retryChannel, progressReporter)
+    private val queue: QueueActor = QueueActor(configuration, shard, analytics, this, poolId, progressReporter)
 
     private val devices = mutableMapOf<String, SendChannel<DeviceEvent>>()
 
@@ -63,13 +60,11 @@ class DevicePoolActor(private val poolId: DevicePoolId,
         queue.send(QueueMessage.RequestNext(msg.device))
     }
 
-    private suspend fun deviceFailed(device: Device) {
-        removeDevice(device)
-    }
-
     private suspend fun executeBatch(device: Device, batch: TestBatch) {
-        devices[device.serialNumber]?.let {
-            it.send(DeviceEvent.Execute(batch))
+        devices[device.serialNumber]?.run {
+            if (!isClosedForSend) {
+                send(DeviceEvent.Execute(batch))
+            }
         }
     }
 
@@ -122,7 +117,7 @@ class DevicePoolActor(private val poolId: DevicePoolId,
 
     private suspend fun addDevice(device: Device) {
         logger.debug { "add device ${device.serialNumber}" }
-        val actor = DeviceActor(poolId, this, configuration, device, analytics, retryChannel, progressReporter)
+        val actor = DeviceActor(poolId, this, configuration, device, analytics, queue, progressReporter)
         devices[device.serialNumber] = actor
         actor.send(DeviceEvent.Initialize)
         initializeHealthCheck()
