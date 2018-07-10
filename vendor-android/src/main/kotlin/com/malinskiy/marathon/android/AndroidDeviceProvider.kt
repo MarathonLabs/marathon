@@ -1,6 +1,7 @@
 package com.malinskiy.marathon.android
 
 import com.android.ddmlib.AndroidDebugBridge
+import com.android.ddmlib.DdmPreferences
 import com.android.ddmlib.IDevice
 import com.malinskiy.marathon.actor.unboundedChannel
 import com.malinskiy.marathon.device.Device
@@ -12,6 +13,8 @@ import kotlinx.coroutines.experimental.channels.Channel
 import kotlinx.coroutines.experimental.launch
 import mu.KotlinLogging
 import java.nio.file.Paths
+
+private const val DEFAULT_DDM_LIB_TIMEOUT = 30000
 
 class AndroidDeviceProvider : DeviceProvider {
 
@@ -25,6 +28,7 @@ class AndroidDeviceProvider : DeviceProvider {
         if (vendorConfiguration !is AndroidConfiguration) {
             throw IllegalStateException("Invalid configuration $vendorConfiguration passed")
         }
+        DdmPreferences.setTimeOut(DEFAULT_DDM_LIB_TIMEOUT)
         AndroidDebugBridge.initIfNeeded(false)
 
         val absolutePath = Paths.get(vendorConfiguration.androidSdk.absolutePath, "platform-tools", "adb").toFile().absolutePath
@@ -52,6 +56,7 @@ class AndroidDeviceProvider : DeviceProvider {
         }
         AndroidDebugBridge.addDeviceChangeListener(listener)
         adb = AndroidDebugBridge.createBridge(absolutePath, false)
+
     }
 
     override fun terminate() {
