@@ -2,10 +2,10 @@ package com.malinskiy.marathon.device
 
 import com.malinskiy.marathon.analytics.Analytics
 import com.malinskiy.marathon.execution.Configuration
-import com.malinskiy.marathon.execution.RetryMessage
+import com.malinskiy.marathon.execution.QueueMessage
 import com.malinskiy.marathon.execution.progress.ProgressReporter
 import com.malinskiy.marathon.test.TestBatch
-import kotlinx.coroutines.experimental.channels.Channel
+import kotlinx.coroutines.experimental.channels.SendChannel
 
 class DeviceStub(override var operatingSystem: OperatingSystem = OperatingSystem("25"),
                  override var serialNumber: String = "serialNumber",
@@ -15,7 +15,7 @@ class DeviceStub(override var operatingSystem: OperatingSystem = OperatingSystem
                  override val model: String = "model",
                  override val manufacturer: String = "manufacturer",
                  override val deviceFeatures: Collection<DeviceFeature> = emptyList()) : Device {
-    override fun execute(configuration: Configuration, devicePoolId: DevicePoolId, testBatch: TestBatch, tracker: Analytics, retryChannel: Channel<RetryMessage>, progressReporter: ProgressReporter) {
+    override fun execute(configuration: Configuration, devicePoolId: DevicePoolId, testBatch: TestBatch, tracker: Analytics, retryChannel: SendChannel<QueueMessage.RetryMessage>, progressReporter: ProgressReporter) {
     }
 
     override fun prepare(configuration: Configuration) {
