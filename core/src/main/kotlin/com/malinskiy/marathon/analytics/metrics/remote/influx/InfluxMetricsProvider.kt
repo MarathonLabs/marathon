@@ -9,7 +9,6 @@ import org.influxdb.annotation.Measurement
 import org.influxdb.dto.Query
 import org.influxdb.impl.InfluxDBResultMapper
 import java.time.Instant
-import java.util.concurrent.ConcurrentHashMap
 
 @Measurement(name = "tests")
 class ExecutionTime(@Column(name = "testname", tag = true) var testName: String? = null,
