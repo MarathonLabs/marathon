@@ -10,7 +10,6 @@ import com.malinskiy.marathon.execution.progress.ProgressReporter
 import com.malinskiy.marathon.test.TestBatch
 import kotlinx.coroutines.experimental.Job
 import kotlinx.coroutines.experimental.async
-import kotlinx.coroutines.experimental.channels.Channel
 import kotlinx.coroutines.experimental.channels.SendChannel
 import kotlinx.coroutines.experimental.launch
 import kotlinx.coroutines.experimental.newSingleThreadContext
@@ -22,7 +21,7 @@ class DeviceActor(private val devicePoolId: DevicePoolId,
                   private val configuration: Configuration,
                   private val device: Device,
                   private val analytics: Analytics,
-                  private val retry: Channel<RetryMessage>,
+                  private val retry: SendChannel<QueueMessage.RetryMessage>,
                   private val progressReporter: ProgressReporter) : Actor<DeviceMessage>() {
 
     private val logger = KotlinLogging.logger("DevicePool[${devicePoolId.name}]_DeviceActor[${device.serialNumber}]")
@@ -83,7 +82,7 @@ class DeviceActor(private val devicePoolId: DevicePoolId,
         context.close()
         currentBatch?.let {
             launch {
-                retry.send(RetryMessage.ReturnTestBatch(devicePoolId, it, device))
+                retry.send(QueueMessage.RetryMessage.ReturnTestBatch(devicePoolId, it, device))
             }
         }
         close()

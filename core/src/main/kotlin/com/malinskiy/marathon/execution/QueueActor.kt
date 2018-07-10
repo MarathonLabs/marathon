@@ -9,9 +9,7 @@ import com.malinskiy.marathon.execution.progress.ProgressReporter
 import com.malinskiy.marathon.test.Test
 import com.malinskiy.marathon.test.TestBatch
 import kotlinx.coroutines.experimental.CompletableDeferred
-import kotlinx.coroutines.experimental.channels.Channel
 import kotlinx.coroutines.experimental.channels.SendChannel
-import kotlinx.coroutines.experimental.launch
 import mu.KotlinLogging
 import java.util.Queue
 import java.util.PriorityQueue
@@ -21,7 +19,6 @@ class QueueActor(configuration: Configuration,
                  metricsProvider: MetricsProvider,
                  private val pool: SendChannel<FromQueue>,
                  private val poolId: DevicePoolId,
-                 private val retryChannel: Channel<RetryMessage>,
                  private val progressReporter: ProgressReporter) : Actor<QueueMessage>() {
 
     private val logger = KotlinLogging.logger("QueueActor[$poolId]")
@@ -36,18 +33,6 @@ class QueueActor(configuration: Configuration,
 
     init {
         progressReporter.totalTests(poolId, queue.size)
-        launch {
-            for (msg in retryChannel) {
-                when (msg) {
-                    is RetryMessage.TestRunResults -> {
-                        handleTestResults(msg.devicePoolId, msg.finished, msg.failed, msg.device)
-                    }
-                    is RetryMessage.ReturnTestBatch -> {
-                        queue.addAll(msg.testBatch.tests)
-                    }
-                }
-            }
-        }
     }
 
     override suspend fun receive(msg: QueueMessage) {
@@ -60,6 +45,12 @@ class QueueActor(configuration: Configuration,
             }
             is QueueMessage.Terminate -> {
 
+            }
+            is QueueMessage.RetryMessage.TestRunResults -> {
+                handleTestResults(msg.devicePoolId, msg.finished, msg.failed, msg.device)
+            }
+            is QueueMessage.RetryMessage.ReturnTestBatch -> {
+                queue.addAll(msg.testBatch.tests)
             }
         }
     }
@@ -80,9 +71,9 @@ class QueueActor(configuration: Configuration,
 
     private fun handleFinishedTests(finished: Collection<Test>) {
         finished.filter { testShard.flakyTests.contains(it) }.let {
-            val size = queue.size
+            val oldSize = queue.size
             queue.removeAll(it)
-            progressReporter.removeTests(poolId, queue.size - size)
+            progressReporter.removeTests(poolId, oldSize - queue.size)
         }
     }
 
@@ -112,21 +103,22 @@ class QueueActor(configuration: Configuration,
     }
 }
 
-sealed class RetryMessage {
-    data class TestRunResults(val devicePoolId: DevicePoolId,
-                              val finished: Collection<Test>,
-                              val failed: Collection<Test>,
-                              val device: Device) : RetryMessage()
-
-    data class ReturnTestBatch(val devicePoolId: DevicePoolId,
-                               val testBatch: TestBatch,
-                               val device: Device) : RetryMessage()
-}
 
 sealed class QueueMessage {
     data class RequestNext(val device: Device) : QueueMessage()
 
     data class IsEmpty(val deferred: CompletableDeferred<Boolean>) : QueueMessage()
+
+    sealed class RetryMessage : QueueMessage() {
+        data class TestRunResults(val devicePoolId: DevicePoolId,
+                                  val finished: Collection<Test>,
+                                  val failed: Collection<Test>,
+                                  val device: Device) : RetryMessage()
+
+        data class ReturnTestBatch(val devicePoolId: DevicePoolId,
+                                   val testBatch: TestBatch,
+                                   val device: Device) : RetryMessage()
+    }
 
     object Terminate : QueueMessage()
 }

@@ -2,8 +2,7 @@ package com.malinskiy.marathon.execution.progress
 
 import com.malinskiy.marathon.device.Device
 import com.malinskiy.marathon.test.Test
-import java.lang.IllegalArgumentException
-import java.text.SimpleDateFormat
+import java.util.concurrent.atomic.AtomicInteger
 
 class PoolProgressTracker {
 
@@ -18,59 +17,11 @@ class PoolProgressTracker {
 
     @Suppress("ThrowsCount")
     private fun updateStatus(test: Test, newStatus: Status) {
-        val prev = tests[test]
-        tests[test] = when (prev) {
-            is Status.Started -> {
-                when (newStatus) {
-                    is Status.Ended, Status.Failed, Status.Ignored -> {
-                        newStatus
-                    }
-                    else -> {
-                        throw IllegalArgumentException("old state = $prev and new state $newStatus")
-                    }
-                }
-            }
-            is Status.Ended -> {
-                when (newStatus) {
-                    is Status.Started -> {
-                        newStatus
-                    }
-                    else -> {
-                        throw IllegalArgumentException("old state = $prev and new state $newStatus")
-                    }
-                }
-            }
-            is Status.Failed -> {
-                when (newStatus) {
-                    is Status.Started -> {
-                        newStatus
-                    }
-                    is Status.Ended -> {
-                        prev
-                    }
-                    else -> {
-                        throw IllegalArgumentException("old state = $prev and new state $newStatus")
-                    }
-                }
-            }
-            is Status.Ignored -> {
-                when (newStatus) {
-                    is Status.Started -> {
-                        newStatus
-                    }
-                    else -> {
-                        throw IllegalArgumentException("old state = $prev and new state $newStatus")
-                    }
-                }
-            }
-            null -> newStatus
-        }
+        tests[test] = newStatus
     }
 
-    private val testTimeFormat = SimpleDateFormat("mm.ss")
-
-    var totalTests = 0
-    var completed = 0
+    private val totalTests = AtomicInteger(0)
+    private val completed = AtomicInteger(0)
 
     fun testStarted(test: Test, device: Device) {
         updateStatus(test, Status.Started)
@@ -81,7 +32,9 @@ class PoolProgressTracker {
     }
 
     fun testEnded(test: Test, device: Device) {
-        completed++
+        completed.updateAndGet {
+            it + 1
+        }
         updateStatus(test, Status.Ended)
     }
 
@@ -94,11 +47,13 @@ class PoolProgressTracker {
     }
 
     fun totalTests(size: Int) {
-        totalTests = size
+        totalTests.set(size)
     }
 
     fun removeTests(count: Int) {
-        totalTests -= count
+        totalTests.updateAndGet {
+            it - count
+        }
     }
 
     fun progress(): Float {

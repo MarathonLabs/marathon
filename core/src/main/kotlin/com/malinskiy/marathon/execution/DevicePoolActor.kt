@@ -1,19 +1,17 @@
 package com.malinskiy.marathon.execution
 
 import com.malinskiy.marathon.actor.Actor
-import com.malinskiy.marathon.actor.unboundedChannel
 import com.malinskiy.marathon.analytics.Analytics
 import com.malinskiy.marathon.device.Device
 import com.malinskiy.marathon.device.DevicePoolId
-import com.malinskiy.marathon.execution.DevicePoolMessage.FromScheduler
 import com.malinskiy.marathon.execution.DevicePoolMessage.FromQueue
 import com.malinskiy.marathon.execution.DevicePoolMessage.FromDevice
+import com.malinskiy.marathon.execution.DevicePoolMessage.FromScheduler
 import com.malinskiy.marathon.execution.progress.ProgressReporter
-import com.malinskiy.marathon.waitWhileTrue
 import com.malinskiy.marathon.test.Test
 import com.malinskiy.marathon.test.TestBatch
+import com.malinskiy.marathon.waitWhileTrue
 import kotlinx.coroutines.experimental.CompletableDeferred
-import kotlinx.coroutines.experimental.channels.Channel
 import kotlinx.coroutines.experimental.channels.SendChannel
 import mu.KotlinLogging
 
@@ -37,13 +35,11 @@ class DevicePoolActor(private val poolId: DevicePoolId,
         }
     }
 
-    private val retryChannel: Channel<RetryMessage> = unboundedChannel()
-
     private val shardingStrategy = configuration.shardingStrategy
     private val flakinessShard = configuration.flakinessStrategy
     private val shard = flakinessShard.process(shardingStrategy.createShard(tests), analytics)
 
-    private val queue: QueueActor = QueueActor(configuration, shard, analytics, this, poolId, retryChannel, progressReporter)
+    private val queue: QueueActor = QueueActor(configuration, shard, analytics, this, poolId, progressReporter)
 
     private val devices = mutableMapOf<String, SendChannel<DeviceMessage>>()
     private val deviceStatuses = mutableMapOf<String, DeviceStatus>()
@@ -128,7 +124,7 @@ class DevicePoolActor(private val poolId: DevicePoolId,
 
     private suspend fun addDevice(device: Device) {
         logger.debug { "add device ${device.serialNumber}" }
-        val actor = DeviceActor(poolId, this, configuration, device, analytics, retryChannel, progressReporter)
+        val actor = DeviceActor(poolId, this, configuration, device, analytics, queue, progressReporter)
         devices[device.serialNumber] = actor
         deviceStatuses[device.serialNumber] = DeviceStatus.CONNECTED
         actor.send(DeviceMessage.Initialize)

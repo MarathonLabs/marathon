@@ -1,6 +1,5 @@
 package com.malinskiy.marathon
 
-import com.malinskiy.marathon.execution.FilteringConfiguration
 import groovy.lang.Closure
 import org.gradle.api.Project
 
