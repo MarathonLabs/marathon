@@ -22,6 +22,7 @@ class PoolProgressTracker {
 
     private val totalTests = AtomicInteger(0)
     private val completed = AtomicInteger(0)
+    private val failed = AtomicInteger(0)
 
     fun testStarted(test: Test, device: Device) {
         updateStatus(test, Status.Started)
@@ -29,6 +30,9 @@ class PoolProgressTracker {
 
     fun testFailed(test: Test, device: Device) {
         updateStatus(test, Status.Failed)
+        failed.updateAndGet {
+            it + 1
+        }
     }
 
     fun testEnded(test: Test, device: Device) {
@@ -57,6 +61,6 @@ class PoolProgressTracker {
     }
 
     fun progress(): Float {
-        return completed.toFloat() / totalTests.toFloat()
+        return (completed.toFloat() + failed.toFloat()) / totalTests.toFloat()
     }
 }

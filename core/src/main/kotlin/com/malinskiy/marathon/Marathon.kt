@@ -19,7 +19,7 @@ import com.malinskiy.marathon.report.internal.TestResultReporter
 import com.malinskiy.marathon.test.Test
 import kotlinx.coroutines.experimental.runBlocking
 import mu.KotlinLogging
-import java.util.*
+import java.util.ServiceLoader
 import java.util.concurrent.TimeUnit
 import kotlin.system.measureTimeMillis
 
@@ -59,7 +59,7 @@ class Marathon(val configuration: Configuration) {
         return loader.first()
     }
 
-    fun run(): Boolean {
+    fun run(): Boolean = runBlocking {
         val testParser = loadTestParser()
         val deviceProvider = loadDeviceProvider()
         val analytics = analyticsFactory.create()
@@ -67,6 +67,7 @@ class Marathon(val configuration: Configuration) {
         val parsedTests = testParser.extract(configuration.testApplicationOutput)
         var tests = applyTestFilters(parsedTests)
 
+        log.info { "${tests.size} after filters" }
         val progressReporter = ProgressReporter()
         val scheduler = Scheduler(deviceProvider, analytics, configuration, tests, progressReporter)
 
@@ -76,15 +77,16 @@ class Marathon(val configuration: Configuration) {
         }
         configuration.outputDir.mkdirs()
 
-
         val timeMillis = measureTimeMillis {
-            runBlocking {
-                scheduler.execute()
-            }
+            scheduler.execute()
         }
 
-        val summaryPrinter = loadSummaryPrinter()
-        summaryPrinter.print(summaryCompiler.compile(scheduler.getPools()))
+        val pools = scheduler.getPools()
+        if (!pools.isEmpty()) {
+            val summaryPrinter = loadSummaryPrinter()
+            val summary = summaryCompiler.compile(scheduler.getPools())
+            summaryPrinter.print(summary)
+        }
 
         val hours = TimeUnit.MICROSECONDS.toHours(timeMillis)
         val minutes = TimeUnit.MICROSECONDS.toMinutes(timeMillis)
@@ -94,7 +96,7 @@ class Marathon(val configuration: Configuration) {
         analytics.terminate()
         deviceProvider.terminate()
 
-        return progressReporter.aggregateResult()
+        progressReporter.aggregateResult()
     }
 
     private fun applyTestFilters(parsedTests: List<Test>): List<Test> {
