@@ -11,8 +11,7 @@ sealed class DevicePoolMessage {
     }
 
     sealed class FromDevice(val device: Device) : DevicePoolMessage() {
-        class Failed(device: Device) : FromDevice(device)
-        class Ready(device: Device) : FromDevice(device)
+        class RequestNextBatch(device: Device) : FromDevice(device)
     }
 
     sealed class FromQueue : DevicePoolMessage() {
