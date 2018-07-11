@@ -83,8 +83,12 @@ class Marathon(val configuration: Configuration) {
             }
         }
 
-        val summaryPrinter = loadSummaryPrinter()
-        summaryPrinter.print(summaryCompiler.compile(scheduler.getPools()))
+        val pools = scheduler.getPools()
+        if (!pools.isEmpty()) {
+            val summaryPrinter = loadSummaryPrinter()
+            val summary = summaryCompiler.compile(scheduler.getPools())
+            summaryPrinter.print(summary)
+        }
 
         val hours = TimeUnit.MICROSECONDS.toHours(timeMillis)
         val minutes = TimeUnit.MICROSECONDS.toMinutes(timeMillis)

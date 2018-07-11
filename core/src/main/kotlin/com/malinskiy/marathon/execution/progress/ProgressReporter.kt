@@ -42,8 +42,10 @@ class ProgressReporter {
         execute(poolId) { it.testIgnored(test, device) }
     }
 
-    fun aggregateResult(): Boolean = reporters.values.all {
-        it.aggregateResult()
+    fun aggregateResult(): Boolean {
+        return reporters.isNotEmpty() && reporters.values.all {
+            it.aggregateResult()
+        }
     }
 
     fun totalTests(poolId: DevicePoolId, size: Int) {
