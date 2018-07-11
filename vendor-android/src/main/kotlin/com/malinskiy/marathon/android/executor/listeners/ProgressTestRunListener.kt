@@ -10,16 +10,23 @@ class ProgressTestRunListener(private val device: Device,
                               private val poolId: DevicePoolId,
                               private val progressTracker: ProgressReporter) : NoOpTestRunListener() {
 
+    private val failed = mutableMapOf<TestIdentifier, Boolean>()
+
     override fun testStarted(test: TestIdentifier) {
+        failed[test] = false
         progressTracker.testStarted(poolId, device, test.toTest())
     }
 
     override fun testFailed(test: TestIdentifier, trace: String) {
-        progressTracker.testFailed(poolId, device, test.toTest())
+        failed[test] = true
     }
 
     override fun testEnded(test: TestIdentifier, testMetrics: Map<String, String>) {
-        progressTracker.testEnded(poolId, device, test.toTest())
+        if (failed[test] == true) {
+            progressTracker.testFailed(poolId, device, test.toTest())
+        } else {
+            progressTracker.testEnded(poolId, device, test.toTest())
+        }
     }
 
     override fun testIgnored(test: TestIdentifier) {
