@@ -3,7 +3,6 @@ package com.malinskiy.marathon
 import com.google.gson.Gson
 import com.malinskiy.marathon.analytics.AnalyticsFactory
 import com.malinskiy.marathon.device.DeviceProvider
-import com.malinskiy.marathon.exceptions.NoDevicesException
 import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.execution.Scheduler
 import com.malinskiy.marathon.execution.TestParser
@@ -18,14 +17,10 @@ import com.malinskiy.marathon.report.html.HtmlSummaryPrinter
 import com.malinskiy.marathon.report.internal.DeviceInfoReporter
 import com.malinskiy.marathon.report.internal.TestResultReporter
 import com.malinskiy.marathon.test.Test
-import kotlinx.coroutines.experimental.async
-import kotlinx.coroutines.experimental.launch
 import kotlinx.coroutines.experimental.runBlocking
-import kotlinx.coroutines.experimental.withTimeout
 import mu.KotlinLogging
-import java.util.*
+import java.util.ServiceLoader
 import java.util.concurrent.TimeUnit
-import java.util.concurrent.TimeoutException
 import kotlin.system.measureTimeMillis
 
 private val log = KotlinLogging.logger {}

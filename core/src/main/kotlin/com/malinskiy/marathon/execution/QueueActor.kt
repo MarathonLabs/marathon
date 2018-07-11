@@ -11,10 +11,7 @@ import com.malinskiy.marathon.test.TestBatch
 import kotlinx.coroutines.experimental.CompletableDeferred
 import kotlinx.coroutines.experimental.channels.SendChannel
 import mu.KotlinLogging
-import java.util.Queue
-import java.util.PriorityQueue
-import kotlin.system.measureNanoTime
-import kotlin.system.measureTimeMillis
+import java.util.*
 
 class QueueActor(configuration: Configuration,
                  private val testShard: TestShard,
