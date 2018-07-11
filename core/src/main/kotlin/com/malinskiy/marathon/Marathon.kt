@@ -67,6 +67,7 @@ class Marathon(val configuration: Configuration) {
         val parsedTests = testParser.extract(configuration.testApplicationOutput)
         var tests = applyTestFilters(parsedTests)
 
+        log.info { "${tests.size} after filters" }
         val progressReporter = ProgressReporter()
         val scheduler = Scheduler(deviceProvider, analytics, configuration, tests, progressReporter)
 
