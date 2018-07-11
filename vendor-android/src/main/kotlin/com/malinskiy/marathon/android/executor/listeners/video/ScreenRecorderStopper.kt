@@ -20,25 +20,20 @@ internal class ScreenRecorderStopper(private val deviceInterface: IDevice) {
         }
     }
 
-    fun hasFailed(): Boolean {
-        return hasFailed
-    }
-
     private fun attemptToGracefullyKillScreenRecord(): Boolean {
         val receiver = CollectingShellOutputReceiver()
         try {
             deviceInterface.executeShellCommand("ps |grep screenrecord", receiver)
             val pid = extractPidOfScreenrecordProcess(receiver)
             if (isNotBlank(pid)) {
-                logger.trace("Killing PID {} on {}", pid, deviceInterface.serialNumber)
-                deviceInterface.executeShellCommand("kill -2 " + pid!!, nullOutputReceiver)
+                logger.trace("Killing PID $pid on ${deviceInterface.serialNumber}")
+                deviceInterface.executeShellCommand("kill -2 $pid", nullOutputReceiver)
                 return true
             }
             logger.trace("Did not kill any screen recording process")
         } catch (e: Exception) {
             logger.error("Error while killing recording processes", e)
         }
-
         return false
     }
 
@@ -56,7 +51,7 @@ internal class ScreenRecorderStopper(private val deviceInterface: IDevice) {
         }
         val split = output.split("\\s+".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
         val pid = split[1]
-        logger.trace("Extracted PID {} from output {}", pid, output)
+        logger.trace("Extracted PID $pid from output $output")
         return pid
     }
 

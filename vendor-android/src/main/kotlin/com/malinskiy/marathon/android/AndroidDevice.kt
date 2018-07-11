@@ -91,10 +91,10 @@ class AndroidDevice(val ddmsDevice: IDevice) : Device {
     }
 
     override fun prepare(configuration: Configuration) {
+        AndroidAppInstaller(configuration).prepareInstallation(ddmsDevice)
         RemoteFileManager.removeRemoteDirectory(ddmsDevice)
         RemoteFileManager.createRemoteDirectory(ddmsDevice)
         clearLogcat(ddmsDevice)
-        AndroidAppInstaller(configuration).prepareInstallation(ddmsDevice)
     }
 
     private fun clearLogcat(device: IDevice) {
