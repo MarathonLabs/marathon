@@ -29,6 +29,7 @@ object Versions {
     val jacksonDatabind = "2.9.5"
     val jacksonKotlin = "2.9.4.1"
     val jacksonYaml = "2.9.6"
+    val jacksonJSR310 = "2.9.6"
 }
 
 object BuildPlugins {
@@ -52,8 +53,10 @@ object Libraries {
     val influxDbClient = "org.influxdb:influxdb-java:${Versions.influxDbClient}"
     val argParser = "com.xenomachina:kotlin-argparser:${Versions.argParser}"
     val jacksonDatabind = "com.fasterxml.jackson.core:jackson-databind:${Versions.jacksonDatabind}"
+    val jacksonAnnotations = "com.fasterxml.jackson.core:jackson-annotations:${Versions.jacksonDatabind}"
     val jacksonKotlin = "com.fasterxml.jackson.module:jackson-module-kotlin:${Versions.jacksonKotlin}"
     val jacksonYaml = "com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:${Versions.jacksonYaml}"
+    val jacksonJSR310 = "com.fasterxml.jackson.datatype:jackson-datatype-jsr310:${Versions.jacksonJSR310}"
 }
 
 object TestLibraries {

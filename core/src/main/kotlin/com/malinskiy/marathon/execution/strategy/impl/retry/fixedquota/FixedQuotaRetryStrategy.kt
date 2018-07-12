@@ -1,12 +1,13 @@
 package com.malinskiy.marathon.execution.strategy.impl.retry.fixedquota
 
+import com.fasterxml.jackson.annotation.JsonProperty
 import com.malinskiy.marathon.device.DevicePoolId
 import com.malinskiy.marathon.execution.TestShard
 import com.malinskiy.marathon.execution.strategy.RetryStrategy
 import com.malinskiy.marathon.test.Test
 
-class FixedQuotaRetryStrategy(totalAllowedRetryQuota: Int = 200,
-                              retryPerTestQuota: Int = 3) : RetryStrategy {
+class FixedQuotaRetryStrategy(@JsonProperty("totalAllowedRetryQuota") totalAllowedRetryQuota: Int = 200,
+                              @JsonProperty("retryPerTestQuota") retryPerTestQuota: Int = 3) : RetryStrategy {
     private val retryWatchdog = RetryWatchdog(totalAllowedRetryQuota, retryPerTestQuota)
     private val poolTestCaseFailureAccumulator = PoolTestFailureAccumulator()
 

@@ -17,6 +17,7 @@ dependencies {
     implementation(project(":marathon-html-report"))
     implementation(project(":execution-timeline"))
     implementation(Libraries.gson)
+    implementation(Libraries.jacksonAnnotations)
     implementation(Libraries.apacheCommonsText)
     implementation(Libraries.apacheCommonsIO)
     implementation(Libraries.kotlinStdLib)

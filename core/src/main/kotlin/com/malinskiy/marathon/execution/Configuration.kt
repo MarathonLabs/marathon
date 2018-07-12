@@ -37,8 +37,6 @@ data class Configuration constructor(
         val fallbackToScreenshots: Boolean,
 
         val testClassRegexes: Collection<Regex>,
-        val includedTestAnnotations: Collection<String>,
-        val excludedTestAnnotations: Collection<String>,
         val includeSerialRegexes: Collection<Regex>,
         val excludeSerialRegexes: Collection<Regex>,
 
@@ -68,8 +66,6 @@ data class Configuration constructor(
                 fallbackToScreenshots: Boolean?,
 
                 testClassRegexes: Collection<Regex>?,
-                includedTestAnnotations: Collection<String>?,
-                excludedTestAnnotations: Collection<String>?,
                 includeSerialRegexes: Collection<Regex>?,
                 excludeSerialRegexes: Collection<Regex>?,
 
@@ -96,8 +92,6 @@ data class Configuration constructor(
                     isCodeCoverageEnabled = isCodeCoverageEnabled ?: false,
                     fallbackToScreenshots = fallbackToScreenshots ?: false,
                     testClassRegexes = testClassRegexes ?: listOf(Regex("^((?!Abstract).)*Test$")),
-                    includedTestAnnotations = includedTestAnnotations ?: emptyList(),
-                    excludedTestAnnotations = excludedTestAnnotations ?: emptyList(),
                     includeSerialRegexes = includeSerialRegexes ?: emptyList(),
                     excludeSerialRegexes = excludeSerialRegexes ?: emptyList(),
                     testOutputTimeoutMillis = testOutputTimeoutMillis ?: DEFAULT_OUTPUT_TIMEOUT_MILLIS,

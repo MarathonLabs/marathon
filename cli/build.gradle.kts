@@ -35,6 +35,7 @@ dependencies {
     implementation(Libraries.jacksonDatabind)
     implementation(Libraries.jacksonKotlin)
     implementation(Libraries.jacksonYaml)
+    implementation(Libraries.jacksonJSR310)
     testCompile(TestLibraries.kluent)
     testCompile(TestLibraries.spekAPI)
     testRuntime(TestLibraries.spekJUnitPlatformEngine)
