@@ -26,8 +26,9 @@ class DeviceActor(private val devicePoolId: DevicePoolId,
                   private val analytics: Analytics,
                   private val retry: SendChannel<QueueMessage.RetryMessage>,
                   private val progressReporter: ProgressReporter,
-                  private val parent: Job) : Actor<DeviceEvent>(parent = parent) {
+                  parent: Job) : Actor<DeviceEvent>(parent = parent) {
 
+    private val deviceJob = Job(parent)
 
     private val state = StateMachine.create<DeviceState, DeviceEvent, DeviceAction> {
         initialState(DeviceState.Connected)
@@ -113,7 +114,7 @@ class DeviceActor(private val devicePoolId: DevicePoolId,
     }
 
     private fun requestNextBatch() {
-        launch(parent = parent) {
+        launch(parent = deviceJob) {
             pool.send(RequestNextBatch(device))
         }
     }
@@ -134,20 +135,20 @@ class DeviceActor(private val devicePoolId: DevicePoolId,
 
     private fun initialize() {
         logger.debug { "initialize" }
-        job = async(context, parent = parent) {
+        job = async(context, parent = deviceJob) {
             device.prepare(configuration)
         }
     }
 
     private fun executeBatch(batch: TestBatch) {
         logger.debug { "executeBatch" }
-        job = async(context, parent = parent) {
+        job = async(context, parent = deviceJob) {
             device.execute(configuration, devicePoolId, batch, analytics, retry, progressReporter)
         }
     }
 
     private fun returnBatch(batch: TestBatch) {
-        launch(parent = parent) {
+        launch(parent = deviceJob) {
             retry.send(QueueMessage.RetryMessage.ReturnTestBatch(devicePoolId, batch, device))
         }
     }
@@ -156,6 +157,7 @@ class DeviceActor(private val devicePoolId: DevicePoolId,
         logger.debug { "terminate" }
         job?.cancel()
         context.close()
+        deviceJob.cancel()
         close()
     }
 }
