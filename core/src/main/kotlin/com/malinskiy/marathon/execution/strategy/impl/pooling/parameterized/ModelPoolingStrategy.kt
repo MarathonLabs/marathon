@@ -6,4 +6,10 @@ import com.malinskiy.marathon.execution.strategy.PoolingStrategy
 
 class ModelPoolingStrategy : PoolingStrategy {
     override fun associate(device: Device) = DevicePoolId(device.model)
+
+    override fun equals(other: Any?): Boolean {
+        if(other == null) return false
+        val javaClass: Class<Any> = other.javaClass
+        return this.javaClass.canonicalName == javaClass.canonicalName
+    }
 }

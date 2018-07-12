@@ -6,7 +6,7 @@ import com.malinskiy.marathon.execution.strategy.SortingStrategy
 import com.malinskiy.marathon.test.Test
 import java.time.Instant
 
-class SuccessRateSortingStrategy(@JsonProperty("limit") private val limit: Instant) : SortingStrategy {
+data class SuccessRateSortingStrategy(@JsonProperty("limit") private val limit: Instant) : SortingStrategy {
     override fun process(metricsProvider: MetricsProvider): Comparator<Test> =
             Comparator.comparingDouble<Test> {
                 metricsProvider.successRate(it, limit)

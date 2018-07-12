@@ -9,4 +9,10 @@ class NoSortingStrategy : SortingStrategy {
     override fun process(metricsProvider: MetricsProvider): Comparator<Test> {
         return Comparator { _, _ -> 0 }
     }
+
+    override fun equals(other: Any?): Boolean {
+        if(other == null) return false
+        val javaClass: Class<Any> = other.javaClass
+        return this.javaClass.canonicalName == javaClass.canonicalName
+    }
 }

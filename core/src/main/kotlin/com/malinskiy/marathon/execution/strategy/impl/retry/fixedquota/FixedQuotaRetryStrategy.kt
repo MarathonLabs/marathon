@@ -18,4 +18,10 @@ class FixedQuotaRetryStrategy(@JsonProperty("totalAllowedRetryQuota") totalAllow
             retryWatchdog.requestRetry(poolTestCaseFailureAccumulator.getCount(devicePoolId, it) + flakinessResultCount)
         }
     }
+
+    override fun equals(other: Any?): Boolean {
+        if(other == null) return false
+        val javaClass: Class<Any> = other.javaClass
+        return this.javaClass.canonicalName == javaClass.canonicalName
+    }
 }

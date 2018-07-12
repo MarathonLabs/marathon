@@ -6,7 +6,7 @@ import com.malinskiy.marathon.test.Test
 import com.malinskiy.marathon.test.TestBatch
 import java.util.*
 
-class FixedSizeBatchingStrategy(@JsonProperty("size") private val size: Int) : BatchingStrategy {
+data class FixedSizeBatchingStrategy(@JsonProperty("size") private val size: Int) : BatchingStrategy {
     override fun process(queue: Queue<Test>): TestBatch {
         var counter = 0
         val result = mutableListOf<Test>()

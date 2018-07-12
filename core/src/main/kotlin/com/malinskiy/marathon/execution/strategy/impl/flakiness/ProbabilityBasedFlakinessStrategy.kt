@@ -15,7 +15,7 @@ import java.time.Instant
  * (0.5 x 0.5 x 0.5 = 0.125 is the probability of all tests failing, so with probability 0.875 > 0.8 at least one of tests will pass).
  */
 
-class ProbabilityBasedFlakinessStrategy(@JsonProperty("minSuccessRate") private val minSuccessRate: Double,
+data class ProbabilityBasedFlakinessStrategy(@JsonProperty("minSuccessRate") private val minSuccessRate: Double,
                                         @JsonProperty("maxCount") private  val maxCount: Int,
                                         @JsonProperty("timeLimit") private  val timeLimit: Instant) : FlakinessStrategy {
     override fun process(testShard: TestShard,
