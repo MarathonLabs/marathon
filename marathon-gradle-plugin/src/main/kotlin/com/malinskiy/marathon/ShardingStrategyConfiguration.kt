@@ -13,6 +13,10 @@ class ShardingStrategyConfiguration {
         closure.delegate = countSharding
         closure.call()
     }
+
+    fun countSharding(block: CountShardingStrategyConfiguration.() -> Unit) {
+        countSharding = CountShardingStrategyConfiguration().also(block)
+    }
 }
 
 class CountShardingStrategyConfiguration {
