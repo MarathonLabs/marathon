@@ -1,15 +1,19 @@
 package com.malinskiy.marathon.actor
 
+import kotlinx.coroutines.experimental.Job
 import kotlinx.coroutines.experimental.channels.Channel
 import kotlinx.coroutines.experimental.channels.SendChannel
 import kotlinx.coroutines.experimental.channels.actor
 import kotlinx.coroutines.experimental.selects.SelectClause2
 
-abstract class Actor<in T> : SendChannel<T> {
+abstract class Actor<in T>(parent: Job? = null) : SendChannel<T> {
 
     protected abstract suspend fun receive(msg: T)
 
-    private val delegate = actor<T>(capacity = Channel.UNLIMITED) {
+    private val delegate = actor<T>(
+            capacity = Channel.UNLIMITED,
+            parent = parent
+    ) {
         for (msg in channel) {
             receive(msg)
         }
