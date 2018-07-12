@@ -15,6 +15,7 @@ import com.malinskiy.marathon.test.Test
 import com.malinskiy.marathon.test.TestBatch
 import com.malinskiy.marathon.waitWhileTrue
 import kotlinx.coroutines.experimental.CompletableDeferred
+import kotlinx.coroutines.experimental.Job
 import kotlinx.coroutines.experimental.channels.SendChannel
 import mu.KotlinLogging
 
@@ -22,7 +23,8 @@ class DevicePoolActor(private val poolId: DevicePoolId,
                       private val configuration: Configuration,
                       private val analytics: Analytics,
                       tests: Collection<Test>,
-                      private val progressReporter: ProgressReporter) : Actor<DevicePoolMessage>() {
+                      private val progressReporter: ProgressReporter,
+                      private val parent: Job) : Actor<DevicePoolMessage>(parent = parent) {
 
     private val logger = KotlinLogging.logger("DevicePoolActor[${poolId.name}]")
 
@@ -41,7 +43,7 @@ class DevicePoolActor(private val poolId: DevicePoolId,
     private val flakinessShard = configuration.flakinessStrategy
     private val shard = flakinessShard.process(shardingStrategy.createShard(tests), analytics)
 
-    private val queue: QueueActor = QueueActor(configuration, shard, analytics, this, poolId, progressReporter)
+    private val queue: QueueActor = QueueActor(configuration, shard, analytics, this, poolId, progressReporter, parent)
 
     private val devices = mutableMapOf<String, SendChannel<DeviceEvent>>()
 
@@ -93,6 +95,7 @@ class DevicePoolActor(private val poolId: DevicePoolId,
             devices.values.forEach {
                 it.send(DeviceEvent.Terminate)
             }
+            queue.send(QueueMessage.Terminate)
         }
     }
 
@@ -117,7 +120,7 @@ class DevicePoolActor(private val poolId: DevicePoolId,
 
     private suspend fun addDevice(device: Device) {
         logger.debug { "add device ${device.serialNumber}" }
-        val actor = DeviceActor(poolId, this, configuration, device, analytics, queue, progressReporter)
+        val actor = DeviceActor(poolId, this, configuration, device, analytics, queue, progressReporter, parent)
         devices[device.serialNumber] = actor
         actor.send(DeviceEvent.Initialize)
         initializeHealthCheck()

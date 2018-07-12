@@ -9,6 +9,7 @@ import com.malinskiy.marathon.execution.progress.ProgressReporter
 import com.malinskiy.marathon.test.Test
 import com.malinskiy.marathon.test.TestBatch
 import kotlinx.coroutines.experimental.CompletableDeferred
+import kotlinx.coroutines.experimental.Job
 import kotlinx.coroutines.experimental.channels.SendChannel
 import mu.KotlinLogging
 import java.util.*
@@ -18,7 +19,8 @@ class QueueActor(configuration: Configuration,
                  metricsProvider: MetricsProvider,
                  private val pool: SendChannel<FromQueue>,
                  private val poolId: DevicePoolId,
-                 private val progressReporter: ProgressReporter) : Actor<QueueMessage>() {
+                 private val progressReporter: ProgressReporter,
+                 poolJob: Job) : Actor<QueueMessage>(parent = poolJob) {
 
     private val logger = KotlinLogging.logger("QueueActor[$poolId]")
 
@@ -42,7 +44,7 @@ class QueueActor(configuration: Configuration,
                 msg.deferred.complete(queue.isEmpty())
             }
             is QueueMessage.Terminate -> {
-
+                close()
             }
             is QueueMessage.RetryMessage.TestRunResults -> {
                 handleTestResults(msg.devicePoolId, msg.finished, msg.failed, msg.device)

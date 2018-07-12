@@ -25,7 +25,8 @@ class DeviceActor(private val devicePoolId: DevicePoolId,
                   private val device: Device,
                   private val analytics: Analytics,
                   private val retry: SendChannel<QueueMessage.RetryMessage>,
-                  private val progressReporter: ProgressReporter) : Actor<DeviceEvent>() {
+                  private val progressReporter: ProgressReporter,
+                  private val parent: Job) : Actor<DeviceEvent>(parent = parent) {
 
 
     private val state = StateMachine.create<DeviceState, DeviceEvent, DeviceAction> {
@@ -112,7 +113,7 @@ class DeviceActor(private val devicePoolId: DevicePoolId,
     }
 
     private fun requestNextBatch() {
-        launch {
+        launch(parent = parent) {
             pool.send(RequestNextBatch(device))
         }
     }
@@ -133,20 +134,20 @@ class DeviceActor(private val devicePoolId: DevicePoolId,
 
     private fun initialize() {
         logger.debug { "initialize" }
-        job = async(context) {
+        job = async(context, parent = parent) {
             device.prepare(configuration)
         }
     }
 
     private fun executeBatch(batch: TestBatch) {
         logger.debug { "executeBatch" }
-        job = async(context) {
+        job = async(context, parent = parent) {
             device.execute(configuration, devicePoolId, batch, analytics, retry, progressReporter)
         }
     }
 
     private fun returnBatch(batch: TestBatch) {
-        launch {
+        launch(parent = parent) {
             retry.send(QueueMessage.RetryMessage.ReturnTestBatch(devicePoolId, batch, device))
         }
     }
