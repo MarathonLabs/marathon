@@ -2,6 +2,7 @@ package com.malinskiy.marathon.android.executor
 
 import com.android.ddmlib.IDevice
 import com.android.ddmlib.InstallException
+import com.android.sdklib.AndroidVersion
 import com.malinskiy.marathon.android.ApkParser
 import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.execution.withRetry
@@ -12,6 +13,7 @@ class AndroidAppInstaller(private val configuration: Configuration) {
 
     companion object {
         private const val MAX_RETIRES = 3
+        private const val MARSHMALLOW_VERSION_CODE = 23
     }
 
     private val logger = KotlinLogging.logger("AndroidAppInstaller")
@@ -29,10 +31,18 @@ class AndroidAppInstaller(private val configuration: Configuration) {
                 logger.info("Uninstalling $appPackage from $device.serialNumber")
                 device.uninstallPackage(appPackage)
                 logger.info("Installing $appPackage to $device.serialNumber")
-                device.installPackage(appApk.absolutePath, true)
+                device.installPackage(appApk.absolutePath, true, optionalParams(device))
             } catch (e: InstallException) {
                 throw RuntimeException("Error while installing $appPackage on ${device.serialNumber}", e)
             }
+        }
+    }
+
+    private fun optionalParams(device: IDevice): String {
+        return if (device.version.apiLevel >= MARSHMALLOW_VERSION_CODE && configuration.autoGrantPermission) {
+            "-g"
+        } else {
+            ""
         }
     }
 }
