@@ -16,13 +16,13 @@ import kotlin.system.measureTimeMillis
 
 internal class ScreenRecorderTestRunListener(private val fileManager: FileManager,
                                              private val pool: DevicePoolId,
-                                             device: AndroidDevice) : NoOpTestRunListener() {
-    private val device: Device = device
+                                             private val device: AndroidDevice) : NoOpTestRunListener() {
+    private val logger = KotlinLogging.logger("ScreenRecorder")
+
     private val deviceInterface: IDevice = device.ddmsDevice
 
     private var hasFailed: Boolean = false
     private var screenRecorderStopper: ScreenRecorderStopper? = null
-
 
     override fun testStarted(test: TestIdentifier) {
         hasFailed = false
@@ -60,11 +60,9 @@ internal class ScreenRecorderTestRunListener(private val fileManager: FileManage
         removeTestVideo(test)
     }
 
-    private val logger = KotlinLogging.logger("ScreenRecorder")
-
     private fun pullTestVideo(test: TestIdentifier) {
         val localVideoFile = fileManager.createFile(FileType.VIDEO, pool, device, test.toTest())
-        val remoteFilePath: String = RemoteFileManager.remoteVideoForTest(test)
+        val remoteFilePath = RemoteFileManager.remoteVideoForTest(test)
         val millis = measureTimeMillis {
             deviceInterface.pullFile(remoteFilePath, localVideoFile.toString())
         }
@@ -72,7 +70,7 @@ internal class ScreenRecorderTestRunListener(private val fileManager: FileManage
     }
 
     private fun removeTestVideo(test: TestIdentifier) {
-        val remoteFilePath: String = RemoteFileManager.remoteVideoForTest(test)
+        val remoteFilePath = RemoteFileManager.remoteVideoForTest(test)
         val millis = measureTimeMillis {
             removeRemotePath(deviceInterface, remoteFilePath)
         }
