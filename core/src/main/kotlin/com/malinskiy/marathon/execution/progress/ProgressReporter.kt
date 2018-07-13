@@ -56,6 +56,10 @@ class ProgressReporter {
         execute(poolId) { it.removeTests(count) }
     }
 
+    fun addTests(poolId: DevicePoolId, count: Int) {
+        execute(poolId) { it.addTests(count) }
+    }
+
     fun progress(): Float {
         val size = reporters.size
         return reporters.values.sumByDouble { it.progress().toDouble() }.toFloat() / size

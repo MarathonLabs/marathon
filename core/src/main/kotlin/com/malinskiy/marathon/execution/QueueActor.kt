@@ -72,6 +72,7 @@ class QueueActor(configuration: Configuration,
     }
 
     private fun onReturnBatch(device: Device, batch: TestBatch) {
+
         queue.addAll(batch.tests)
         activeBatches.remove(device)
     }
@@ -93,6 +94,7 @@ class QueueActor(configuration: Configuration,
                                           device: Device) {
         logger.debug { "handle failed tests ${device.serialNumber}" }
         val retryList = retry.process(poolId, failed, testShard)
+        progressReporter.addTests(poolId, retryList.size)
         queue.addAll(retryList)
         if (retryList.isNotEmpty()) {
             pool.send(FromQueue.Notify)
