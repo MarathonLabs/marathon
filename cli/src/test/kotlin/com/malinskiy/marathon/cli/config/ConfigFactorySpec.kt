@@ -3,16 +3,18 @@ package com.malinskiy.marathon.cli.config
 import com.malinskiy.marathon.android.AndroidConfiguration
 import com.malinskiy.marathon.execution.*
 import com.malinskiy.marathon.execution.strategy.impl.batching.FixedSizeBatchingStrategy
+import com.malinskiy.marathon.execution.strategy.impl.batching.IsolateBatchingStrategy
+import com.malinskiy.marathon.execution.strategy.impl.flakiness.IgnoreFlakinessStrategy
 import com.malinskiy.marathon.execution.strategy.impl.flakiness.ProbabilityBasedFlakinessStrategy
 import com.malinskiy.marathon.execution.strategy.impl.pooling.OmniPoolingStrategy
 import com.malinskiy.marathon.execution.strategy.impl.pooling.parameterized.*
+import com.malinskiy.marathon.execution.strategy.impl.retry.NoRetryStrategy
 import com.malinskiy.marathon.execution.strategy.impl.retry.fixedquota.FixedQuotaRetryStrategy
 import com.malinskiy.marathon.execution.strategy.impl.sharding.CountShardingStrategy
+import com.malinskiy.marathon.execution.strategy.impl.sharding.ParallelShardingStrategy
+import com.malinskiy.marathon.execution.strategy.impl.sorting.NoSortingStrategy
 import com.malinskiy.marathon.execution.strategy.impl.sorting.SuccessRateSortingStrategy
-import org.amshove.kluent.should
-import org.amshove.kluent.shouldContain
-import org.amshove.kluent.shouldContainAll
-import org.amshove.kluent.shouldEqual
+import org.amshove.kluent.*
 import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.given
 import org.jetbrains.spek.api.dsl.it
@@ -70,8 +72,8 @@ object ConfigFactorySpec: Spek({
                 configuration.testClassRegexes.map { it.toString() } shouldContainAll listOf("^((?!Abstract).)*Test$")
 
 
-                configuration.includeSerialRegexes shouldEqual emptyList<Regex>()
-                configuration.excludeSerialRegexes shouldEqual emptyList<Regex>()
+                configuration.includeSerialRegexes shouldEqual emptyList()
+                configuration.excludeSerialRegexes shouldEqual emptyList()
                 configuration.ignoreFailures shouldEqual false
                 configuration.isCodeCoverageEnabled shouldEqual false
                 configuration.fallbackToScreenshots shouldEqual false
@@ -88,6 +90,35 @@ object ConfigFactorySpec: Spek({
 
             it("should deserialize with minimal configuration") {
                 val configuration = parser.create(file, File("/local/android"))
+
+                configuration.name shouldEqual "sample-app tests"
+                configuration.outputDir  shouldEqual File("./marathon")
+                configuration.applicationOutput shouldEqual File("kotlin-buildscript/build/outputs/apk/debug/kotlin-buildscript-debug.apk")
+                configuration.testApplicationOutput shouldEqual  File("kotlin-buildscript/build/outputs/apk/androidTest/debug/kotlin-buildscript-debug-androidTest.apk")
+                configuration.analyticsConfiguration shouldEqual AnalyticsConfiguration.DisabledAnalytics
+                configuration.poolingStrategy shouldEqual OmniPoolingStrategy()
+                configuration.shardingStrategy shouldEqual ParallelShardingStrategy()
+                configuration.sortingStrategy shouldEqual NoSortingStrategy()
+                configuration.batchingStrategy shouldEqual IsolateBatchingStrategy()
+                configuration.flakinessStrategy shouldEqual IgnoreFlakinessStrategy()
+                configuration.retryStrategy shouldEqual NoRetryStrategy()
+                SimpleClassnameFilter(".*".toRegex()) shouldEqual  SimpleClassnameFilter(".*".toRegex())
+
+                configuration.filteringConfiguration.whitelist.shouldBeEmpty()
+                configuration.filteringConfiguration.blacklist.shouldBeEmpty()
+
+                configuration.testClassRegexes.map { it.toString() } shouldContainAll listOf("^((?!Abstract).)*Test$")
+
+                configuration.includeSerialRegexes shouldEqual emptyList()
+                configuration.excludeSerialRegexes shouldEqual emptyList()
+                configuration.ignoreFailures shouldEqual false
+                configuration.isCodeCoverageEnabled shouldEqual false
+                configuration.fallbackToScreenshots shouldEqual false
+                configuration.testOutputTimeoutMillis shouldEqual 60000
+                configuration.debug shouldEqual true
+                configuration.testPackage!!.shouldBeEmpty()
+                configuration.autoGrantPermission shouldEqual false
+                configuration.vendorConfiguration shouldEqual AndroidConfiguration(File("/local/android"))
             }
         }
     }

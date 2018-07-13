@@ -1,5 +1,6 @@
 package com.malinskiy.marathon.cli
 
+import com.malinskiy.marathon.Marathon
 import com.malinskiy.marathon.cli.args.MarathonCliConfiguration
 import com.malinskiy.marathon.cli.config.ConfigFactory
 import com.xenomachina.argparser.ArgParser
@@ -14,5 +15,8 @@ fun main(args: Array<String>) = mainBody {
         logger.info { "Starting marathon" }
 
         val configuration = ConfigFactory().create(marathonfile, androidSdkDir)
+        val marathon = Marathon(configuration = configuration)
+        marathon.run()
     }
+    return@mainBody
 }

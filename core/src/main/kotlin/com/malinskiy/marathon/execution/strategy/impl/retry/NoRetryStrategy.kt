@@ -9,4 +9,10 @@ class NoRetryStrategy : RetryStrategy {
     override fun process(devicePoolId: DevicePoolId, tests: Collection<Test>, testShard: TestShard): List<Test> {
         return emptyList()
     }
+
+    override fun equals(other: Any?): Boolean {
+        if(other == null) return false
+        val javaClass: Class<Any> = other.javaClass
+        return this.javaClass.canonicalName == javaClass.canonicalName
+    }
 }
