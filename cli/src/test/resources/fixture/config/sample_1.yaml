@@ -52,5 +52,4 @@ isCodeCoverageEnabled: false
 fallbackToScreenshots: false
 testOutputTimeoutMillis: 30000
 debug: true
-testPackage: "com.example"
 autoGrantPermission: true

@@ -79,7 +79,6 @@ object ConfigFactorySpec: Spek({
                 configuration.fallbackToScreenshots shouldEqual false
                 configuration.testOutputTimeoutMillis shouldEqual 30000
                 configuration.debug shouldEqual true
-                configuration.testPackage shouldEqual "com.example"
                 configuration.autoGrantPermission shouldEqual true
                 configuration.vendorConfiguration shouldEqual AndroidConfiguration(File("/local/android"))
             }
@@ -116,7 +115,6 @@ object ConfigFactorySpec: Spek({
                 configuration.fallbackToScreenshots shouldEqual false
                 configuration.testOutputTimeoutMillis shouldEqual 60000
                 configuration.debug shouldEqual true
-                configuration.testPackage!!.shouldBeEmpty()
                 configuration.autoGrantPermission shouldEqual false
                 configuration.vendorConfiguration shouldEqual AndroidConfiguration(File("/local/android"))
             }
