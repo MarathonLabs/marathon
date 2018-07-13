@@ -8,10 +8,8 @@ import com.malinskiy.marathon.execution.DevicePoolMessage.FromScheduler.AddDevic
 import com.malinskiy.marathon.execution.DevicePoolMessage.FromScheduler.RemoveDevice
 import com.malinskiy.marathon.execution.progress.ProgressReporter
 import com.malinskiy.marathon.test.Test
-import com.malinskiy.marathon.waitWhileTrue
 import kotlinx.coroutines.experimental.Job
 import kotlinx.coroutines.experimental.channels.SendChannel
-import kotlinx.coroutines.experimental.delay
 import kotlinx.coroutines.experimental.joinChildren
 import kotlinx.coroutines.experimental.launch
 import mu.KotlinLogging
@@ -36,10 +34,7 @@ class Scheduler(private val deviceProvider: DeviceProvider,
     suspend fun execute() {
         val job = Job()
         subscribeOnDevices(job)
-        /*launch {
-            delay(10_000)
-        }.join()*/
-        Thread.sleep(10_000)
+        Thread.sleep(10_000) //TODO: Replace with delay
         job.joinChildren()
     }
 

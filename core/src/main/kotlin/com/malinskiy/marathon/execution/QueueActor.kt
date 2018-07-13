@@ -103,12 +103,13 @@ class QueueActor(configuration: Configuration,
     private suspend fun onRequestBatch(device: Device) {
         logger.debug { "request next batch for device ${device.serialNumber}" }
         val queueIsEmpty = queue.isEmpty()
-        if (!queueIsEmpty && !activeBatches.containsKey(device)) {
+        if (queue.isNotEmpty() && !activeBatches.containsKey(device)) {
             sendBatch(device)
+            return
         }
         if (queueIsEmpty && activeBatches.isEmpty()) {
             pool.send(DevicePoolMessage.FromQueue.Terminated)
-            close()
+            onTerminate()
         }
     }
 
