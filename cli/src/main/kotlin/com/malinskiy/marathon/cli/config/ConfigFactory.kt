@@ -48,7 +48,6 @@ class ConfigFactory {
                 config.excludeSerialRegexes,
                 config.testOutputTimeoutMillis,
                 config.debug,
-                config.testPackage,
                 config.autoGrantPermission,
                 vendorConfiguration = AndroidConfiguration(
                         readEnvironment().androidSdkDir

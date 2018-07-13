@@ -30,7 +30,6 @@ open class MarathonExtension(project: Project) {
     var debug: Boolean? = null
 
     //Android specific for now
-    var testPackage: String? = null
     var autoGrantPermission: Boolean? = null
 
     //Kotlin way

@@ -15,7 +15,7 @@ class InfluxDbConfigurationDeserializer : StdDeserializer<AnalyticsConfiguration
         val password = node?.get("password")?.asText()
         val dbName = node?.get("dbName")?.asText()
 
-        val retentionPolicyNode = node?.get("retentionPolicyConfiguration")?.traverse(p?.codec)
+        val retentionPolicyNode = node?.get("retentionPolicyConfiguration")?.traverse(p.codec)
         val retentionPolicyConfiguration =
                 retentionPolicyNode?.let { ctxt?.readValue(retentionPolicyNode, AnalyticsConfiguration.InfluxDbConfiguration.RetentionPolicyConfiguration::class.java) }
                 ?: AnalyticsConfiguration.InfluxDbConfiguration.RetentionPolicyConfiguration.default

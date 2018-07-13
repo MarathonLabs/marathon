@@ -43,7 +43,6 @@ data class Configuration constructor(
         val testOutputTimeoutMillis: Int,
         val debug: Boolean,
 
-        val testPackage: String?,
         val autoGrantPermission: Boolean,
         val vendorConfiguration: VendorConfiguration) {
 
@@ -72,7 +71,6 @@ data class Configuration constructor(
                 testOutputTimeoutMillis: Int?,
                 debug: Boolean?,
 
-                testPackage: String?,
                 autoGrantPermission: Boolean?,
                 vendorConfiguration: VendorConfiguration) :
 
@@ -96,7 +94,6 @@ data class Configuration constructor(
                     excludeSerialRegexes = excludeSerialRegexes ?: emptyList(),
                     testOutputTimeoutMillis = testOutputTimeoutMillis ?: DEFAULT_OUTPUT_TIMEOUT_MILLIS,
                     debug = debug ?: true,
-                    testPackage = testPackage ?: "",
                     autoGrantPermission = autoGrantPermission ?: false,
                     vendorConfiguration = vendorConfiguration
             )

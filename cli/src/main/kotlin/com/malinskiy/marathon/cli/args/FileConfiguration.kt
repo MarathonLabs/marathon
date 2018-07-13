@@ -32,6 +32,5 @@ data class FileConfiguration(
         var testOutputTimeoutMillis: Int?,
         var debug: Boolean?,
 
-        val testPackage: String?,
         var autoGrantPermission: Boolean?
 )
