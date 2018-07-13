@@ -17,7 +17,7 @@ private val logger = KotlinLogging.logger {}
 
 class ConfigFactory {
     fun create(marathonfile: File, androidSdkDir: File?): Configuration {
-        logger.info { "Checking ${marathonfile} config" }
+        logger.info { "Checking $marathonfile config" }
 
         if (!marathonfile.isFile) {
             logger.error { "No config ${marathonfile.absolutePath} present" }
@@ -50,8 +50,8 @@ class ConfigFactory {
                 config.debug,
                 config.autoGrantPermission,
                 vendorConfiguration = AndroidConfiguration(
-                        readEnvironment().androidSdkDir
-                                ?: androidSdkDir
+                        androidSdkDir
+                                ?: readEnvironment().androidSdkDir
                                 ?: throw ConfigurationException("Android SDK not found")
                 )
         )
