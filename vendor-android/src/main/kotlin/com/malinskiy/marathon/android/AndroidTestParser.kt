@@ -23,6 +23,10 @@ class AndroidTestParser : TestParser {
             val className = packageAndClassName.substring(lastDotIndex + 1 until packageAndClassName.length)
 
             Test(packageName, className, methodName, annotationNames)
+        }.also {
+            if (it.isEmpty()) {
+                throw NoTestCasesFoundException("No tests cases were found in the test APK: " + file.absolutePath)
+            }
         }
     }
 }
