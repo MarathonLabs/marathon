@@ -3,7 +3,6 @@ package com.malinskiy.marathon.android.executor.listeners.video
 import com.android.ddmlib.IShellOutputReceiver
 
 import java.nio.ByteBuffer
-import java.nio.CharBuffer
 import java.nio.charset.Charset
 
 class CollectingShellOutputReceiver : IShellOutputReceiver {

@@ -7,7 +7,6 @@ import com.malinskiy.marathon.android.RemoteFileManager
 import com.malinskiy.marathon.android.RemoteFileManager.removeRemotePath
 import com.malinskiy.marathon.android.executor.listeners.NoOpTestRunListener
 import com.malinskiy.marathon.android.toTest
-import com.malinskiy.marathon.device.Device
 import com.malinskiy.marathon.device.DevicePoolId
 import com.malinskiy.marathon.io.FileManager
 import com.malinskiy.marathon.io.FileType

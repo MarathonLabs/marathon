@@ -2,8 +2,12 @@ package com.malinskiy.marathon.cli.args
 
 import com.malinskiy.marathon.execution.AnalyticsConfiguration
 import com.malinskiy.marathon.execution.FilteringConfiguration
-import com.malinskiy.marathon.execution.strategy.*
-import com.malinskiy.marathon.vendor.VendorConfiguration
+import com.malinskiy.marathon.execution.strategy.BatchingStrategy
+import com.malinskiy.marathon.execution.strategy.FlakinessStrategy
+import com.malinskiy.marathon.execution.strategy.PoolingStrategy
+import com.malinskiy.marathon.execution.strategy.RetryStrategy
+import com.malinskiy.marathon.execution.strategy.ShardingStrategy
+import com.malinskiy.marathon.execution.strategy.SortingStrategy
 import java.io.File
 
 data class FileConfiguration(

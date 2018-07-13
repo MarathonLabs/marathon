@@ -10,6 +10,10 @@ class NoRetryStrategy : RetryStrategy {
         return emptyList()
     }
 
+    override fun hashCode(): Int {
+        return super.hashCode()
+    }
+
     override fun equals(other: Any?): Boolean {
         if(other == null) return false
         val javaClass: Class<Any> = other.javaClass
