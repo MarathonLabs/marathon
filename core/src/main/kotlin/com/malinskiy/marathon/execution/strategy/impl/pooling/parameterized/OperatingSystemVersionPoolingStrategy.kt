@@ -7,6 +7,10 @@ import com.malinskiy.marathon.execution.strategy.PoolingStrategy
 class OperatingSystemVersionPoolingStrategy : PoolingStrategy {
     override fun associate(device: Device) = DevicePoolId(device.operatingSystem.version)
 
+    override fun hashCode(): Int {
+        return super.hashCode()
+    }
+
     override fun equals(other: Any?): Boolean {
         if(other == null) return false
         val javaClass: Class<Any> = other.javaClass

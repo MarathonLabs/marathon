@@ -1,6 +1,10 @@
 package com.malinskiy.marathon.android
 
-import com.android.ddmlib.*
+import com.android.ddmlib.AdbCommandRejectedException
+import com.android.ddmlib.IDevice
+import com.android.ddmlib.NullOutputReceiver
+import com.android.ddmlib.ShellCommandUnresponsiveException
+import com.android.ddmlib.TimeoutException
 import com.android.ddmlib.testrunner.TestIdentifier
 import mu.KotlinLogging
 

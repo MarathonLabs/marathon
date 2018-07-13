@@ -7,7 +7,6 @@ import com.malinskiy.marathon.execution.TestStatus
 import com.malinskiy.marathon.io.FileManager
 import com.malinskiy.marathon.io.FileType
 import java.io.FileOutputStream
-import java.io.FileWriter
 import java.text.SimpleDateFormat
 import java.util.*
 import java.util.concurrent.TimeUnit

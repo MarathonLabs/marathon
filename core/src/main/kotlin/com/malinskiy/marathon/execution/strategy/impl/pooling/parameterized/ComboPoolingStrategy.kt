@@ -15,6 +15,10 @@ class ComboPoolingStrategy(private val list: List<PoolingStrategy>) : PoolingStr
         return DevicePoolId(acc.toString())
     }
 
+    override fun hashCode(): Int {
+        return super.hashCode()
+    }
+
     override fun equals(other: Any?): Boolean {
         if(other !is ComboPoolingStrategy) return false
         return list.equals(other.list)

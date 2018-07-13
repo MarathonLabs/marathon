@@ -21,10 +21,10 @@ class ConfigFactory {
 
         if (!marathonfile.isFile) {
             logger.error { "No config ${marathonfile.absolutePath} present" }
-            throw RuntimeException("No config ${marathonfile.absolutePath} present")
+            throw ConfigurationException("No config ${marathonfile.absolutePath} present")
         }
 
-        val config = readConfigFile(marathonfile) ?: throw RuntimeException("Invalid config format")
+        val config = readConfigFile(marathonfile) ?: throw ConfigurationException("Invalid config format")
 
         return Configuration(
                 config.name,
@@ -52,7 +52,7 @@ class ConfigFactory {
                 vendorConfiguration = AndroidConfiguration(
                         readEnvironment().androidSdkDir
                                 ?: androidSdkDir
-                                ?: throw RuntimeException("Android SDK not found")
+                                ?: throw ConfigurationException("Android SDK not found")
                 )
         )
     }
@@ -74,7 +74,7 @@ class ConfigFactory {
             return mapper.readValue(configFile.bufferedReader(), FileConfiguration::class.java)
         } catch (e: MismatchedInputException) {
             logger.error { "Invalid config file ${configFile.absolutePath}. Error parsing ${e.targetType.canonicalName}" }
-            throw RuntimeException(e)
+            throw ConfigurationException(e)
         }
     }
 }
