@@ -2,19 +2,16 @@ package com.malinskiy.marathon.android.executor.listeners
 
 import com.android.ddmlib.testrunner.TestIdentifier
 import com.android.ddmlib.testrunner.TestResult
-import com.android.ddmlib.testrunner.TestRunResult as DdmLibTestRunResult
 import com.malinskiy.marathon.device.Device
-import com.malinskiy.marathon.device.DevicePoolId
-import com.malinskiy.marathon.execution.QueueMessage
+import com.malinskiy.marathon.execution.TestBatchResults
 import com.malinskiy.marathon.test.Test
 import com.malinskiy.marathon.test.TestBatch
-import kotlinx.coroutines.experimental.channels.SendChannel
-import kotlinx.coroutines.experimental.launch
+import kotlinx.coroutines.experimental.CompletableDeferred
+import com.android.ddmlib.testrunner.TestRunResult as DdmLibTestRunResult
 
 class TestRunResultsListener(private val testBatch: TestBatch,
                              private val device: Device,
-                             private val retryChannel: SendChannel<QueueMessage.RetryMessage>,
-                             private val devicePoolId: DevicePoolId) : AbstractTestRunResultListener() {
+                             private val deferred: CompletableDeferred<TestBatchResults>) : AbstractTestRunResultListener() {
     override fun handleTestRunResults(runResult: DdmLibTestRunResult) {
         val results = runResult.testResults
         val tests = testBatch.tests.associateBy { it.identifier() }
@@ -27,9 +24,7 @@ class TestRunResultsListener(private val testBatch: TestBatch,
             results[it.key]?.isSuccessful() ?: false
         }.values
 
-        launch {
-            retryChannel.send(QueueMessage.RetryMessage.TestRunResults(devicePoolId, finished, failed, device))
-        }
+        deferred.complete(TestBatchResults(device, finished, failed))
     }
 
 

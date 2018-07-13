@@ -2,10 +2,10 @@ package com.malinskiy.marathon.device
 
 import com.malinskiy.marathon.analytics.Analytics
 import com.malinskiy.marathon.execution.Configuration
-import com.malinskiy.marathon.execution.QueueMessage
+import com.malinskiy.marathon.execution.TestBatchResults
 import com.malinskiy.marathon.execution.progress.ProgressReporter
 import com.malinskiy.marathon.test.TestBatch
-import kotlinx.coroutines.experimental.channels.SendChannel
+import kotlinx.coroutines.experimental.CompletableDeferred
 
 interface Device {
     val operatingSystem: OperatingSystem
@@ -21,7 +21,7 @@ interface Device {
                 devicePoolId: DevicePoolId,
                 testBatch: TestBatch,
                 tracker: Analytics,
-                retryChannel: SendChannel<QueueMessage.RetryMessage>,
+                deferred: CompletableDeferred<TestBatchResults>,
                 progressReporter: ProgressReporter)
 
     fun prepare(configuration: Configuration)

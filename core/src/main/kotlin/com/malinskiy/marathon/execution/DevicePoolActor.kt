@@ -17,7 +17,6 @@ import com.malinskiy.marathon.waitWhileTrue
 import kotlinx.coroutines.experimental.CompletableDeferred
 import kotlinx.coroutines.experimental.Job
 import kotlinx.coroutines.experimental.channels.SendChannel
-import kotlinx.coroutines.experimental.joinChildren
 import mu.KotlinLogging
 
 class DevicePoolActor(private val poolId: DevicePoolId,
@@ -35,7 +34,10 @@ class DevicePoolActor(private val poolId: DevicePoolId,
             is FromScheduler.RemoveDevice -> removeDevice(msg.device)
             is FromScheduler.Terminate -> terminate()
             is FromDevice.RequestNextBatch -> deviceReady(msg)
+            is FromDevice.CompletedTestBatch -> deviceCompleted(msg.device, msg.results)
+            is FromDevice.ReturnTestBatch -> deviceReturnedTestBatch(msg.device, msg.batch)
             is FromQueue.Notify -> notifyDevices()
+            is FromQueue.Terminated -> onQueueTerminated()
             is FromQueue.ExecuteBatch -> executeBatch(msg.device, msg.batch)
         }
     }
@@ -61,8 +63,24 @@ class DevicePoolActor(private val poolId: DevicePoolId,
         }
     }
 
+    private suspend fun onQueueTerminated() {
+        devices.filterValues {
+            !it.isClosedForSend
+        }.forEach {
+            it.value.send(DeviceEvent.Terminate)
+        }
+    }
+
+    private suspend fun deviceReturnedTestBatch(device: Device, batch: TestBatch) {
+        queue.send(QueueMessage.ReturnBatch(device, batch))
+    }
+
+    private suspend fun deviceCompleted(device: Device, results: TestBatchResults) {
+        queue.send(QueueMessage.Completed(device, results))
+    }
+
     private suspend fun deviceReady(msg: FromDevice.RequestNextBatch) {
-        queue.send(QueueMessage.RequestNext(msg.device))
+        queue.send(QueueMessage.RequestBatch(msg.device))
     }
 
     private suspend fun executeBatch(device: Device, batch: TestBatch) {
@@ -124,7 +142,7 @@ class DevicePoolActor(private val poolId: DevicePoolId,
 
     private suspend fun addDevice(device: Device) {
         logger.debug { "add device ${device.serialNumber}" }
-        val actor = DeviceActor(poolId, this, configuration, device, analytics, queue, progressReporter, poolJob)
+        val actor = DeviceActor(poolId, this, configuration, device, analytics, progressReporter, poolJob)
         devices[device.serialNumber] = actor
         actor.send(DeviceEvent.Initialize)
         initializeHealthCheck()

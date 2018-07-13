@@ -12,12 +12,12 @@ import com.malinskiy.marathon.android.executor.listeners.ProgressTestRunListener
 import com.malinskiy.marathon.android.executor.listeners.TestRunResultsListener
 import com.malinskiy.marathon.device.DevicePoolId
 import com.malinskiy.marathon.execution.Configuration
-import com.malinskiy.marathon.execution.QueueMessage
+import com.malinskiy.marathon.execution.TestBatchResults
 import com.malinskiy.marathon.execution.progress.ProgressReporter
 import com.malinskiy.marathon.io.FileManager
 import com.malinskiy.marathon.report.logs.LogWriter
 import com.malinskiy.marathon.test.TestBatch
-import kotlinx.coroutines.experimental.channels.SendChannel
+import kotlinx.coroutines.experimental.CompletableDeferred
 import mu.KotlinLogging
 import java.util.concurrent.TimeUnit
 
@@ -29,7 +29,7 @@ class AndroidDeviceTestRunner(private val device: AndroidDevice,
     fun execute(configuration: Configuration,
                 devicePoolId: DevicePoolId,
                 testBatch: TestBatch,
-                retryChannel: SendChannel<QueueMessage.RetryMessage>,
+                deferred: CompletableDeferred<TestBatchResults>,
                 progressReporter: ProgressReporter) {
         val info = ApkParser().parseInstrumentationInfo(configuration.testApplicationOutput)
         val runner = RemoteAndroidTestRunner(info.instrumentationPackage, info.testRunnerClass, device.ddmsDevice)
@@ -45,7 +45,7 @@ class AndroidDeviceTestRunner(private val device: AndroidDevice,
         runner.setClassNames(tests)
         val fileManager = FileManager(configuration.outputDir)
         runner.run(CompositeTestRunListener(listOf(
-                TestRunResultsListener(testBatch, device, retryChannel, devicePoolId),
+                TestRunResultsListener(testBatch, device, deferred),
                 DebugTestRunListener(device.ddmsDevice),
                 ProgressTestRunListener(device, devicePoolId, progressReporter),
                 AnalyticsListener(device, devicePoolId, analytics),
