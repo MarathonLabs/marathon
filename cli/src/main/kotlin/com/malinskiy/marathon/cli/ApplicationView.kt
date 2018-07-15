@@ -10,7 +10,7 @@ import mu.KotlinLogging
 
 private val logger = KotlinLogging.logger {}
 
-fun main(args: Array<String>) = mainBody(
+fun main(args: Array<String>): Unit = mainBody(
         programName = "marathon v${BuildConfig.VERSION}"
 ) {
     ArgParser(args).parseInto(::MarathonCliConfiguration).run {
@@ -20,5 +20,4 @@ fun main(args: Array<String>) = mainBody(
         val marathon = Marathon(configuration = configuration)
         marathon.run()
     }
-    return@mainBody
 }

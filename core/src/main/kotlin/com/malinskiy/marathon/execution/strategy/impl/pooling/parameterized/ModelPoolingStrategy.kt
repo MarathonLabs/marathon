@@ -7,9 +7,7 @@ import com.malinskiy.marathon.execution.strategy.PoolingStrategy
 class ModelPoolingStrategy : PoolingStrategy {
     override fun associate(device: Device) = DevicePoolId(device.model)
 
-    override fun hashCode(): Int {
-        return super.hashCode()
-    }
+    override fun hashCode() = javaClass.canonicalName.hashCode()
 
     override fun equals(other: Any?): Boolean {
         if(other == null) return false

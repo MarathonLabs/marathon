@@ -8,9 +8,7 @@ import java.util.*
 class IsolateBatchingStrategy : BatchingStrategy {
     override fun process(queue: Queue<Test>): TestBatch = TestBatch(listOf(queue.poll()))
 
-    override fun hashCode(): Int {
-        return super.hashCode()
-    }
+    override fun hashCode() = javaClass.canonicalName.hashCode()
 
     override fun equals(other: Any?): Boolean {
         if(other == null) return false

@@ -10,9 +10,7 @@ class NoRetryStrategy : RetryStrategy {
         return emptyList()
     }
 
-    override fun hashCode(): Int {
-        return super.hashCode()
-    }
+    override fun hashCode() = javaClass.canonicalName.hashCode()
 
     override fun equals(other: Any?): Boolean {
         if(other == null) return false

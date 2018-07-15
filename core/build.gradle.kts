@@ -6,6 +6,7 @@ import org.junit.platform.gradle.plugin.EnginesExtension
 import org.junit.platform.gradle.plugin.JUnitPlatformExtension
 
 plugins {
+    `idea`
     `java-library`
     id("org.jetbrains.kotlin.jvm")
     id("org.junit.platform.gradle.plugin")

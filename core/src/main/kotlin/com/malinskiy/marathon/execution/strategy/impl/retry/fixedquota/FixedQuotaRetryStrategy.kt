@@ -19,13 +19,18 @@ class FixedQuotaRetryStrategy(@JsonProperty("totalAllowedRetryQuota") totalAllow
         }
     }
 
-    override fun hashCode(): Int {
-        return super.hashCode()
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as FixedQuotaRetryStrategy
+
+        if (retryWatchdog != other.retryWatchdog) return false
+
+        return true
     }
 
-    override fun equals(other: Any?): Boolean {
-        if(other == null) return false
-        val javaClass: Class<Any> = other.javaClass
-        return this.javaClass.canonicalName == javaClass.canonicalName
+    override fun hashCode(): Int {
+        return retryWatchdog.hashCode()
     }
 }
