@@ -18,6 +18,7 @@ internal class InfluxDbProvider(configuration: AnalyticsConfiguration.InfluxDbCo
         } else {
             InfluxDBFactory.connect(url)
         }
+        influxDb.setLogLevel(InfluxDB.LogLevel.BASIC)
         if (!influxDb.databaseExists(dbName)) {
             influxDb.createDatabase(dbName)
             val rpName = retentionPolicyConfiguration.name

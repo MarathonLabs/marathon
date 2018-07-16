@@ -4,10 +4,11 @@ import com.malinskiy.marathon.device.Device
 import com.malinskiy.marathon.device.DevicePoolId
 import com.malinskiy.marathon.test.Test
 import com.malinskiy.marathon.test.toTestName
+import java.util.concurrent.ConcurrentHashMap
 import kotlin.math.roundToInt
 
 class ProgressReporter {
-    private val reporters = mutableMapOf<DevicePoolId, PoolProgressTracker>()
+    private val reporters = ConcurrentHashMap<DevicePoolId, PoolProgressTracker>()
 
     private inline fun <T> execute(poolId: DevicePoolId, f: (PoolProgressTracker) -> T): T {
         val reporter = reporters[poolId] ?: PoolProgressTracker()
@@ -41,8 +42,10 @@ class ProgressReporter {
         execute(poolId) { it.testIgnored(test, device) }
     }
 
-    fun aggregateResult(): Boolean = reporters.values.all {
-        it.aggregateResult()
+    fun aggregateResult(): Boolean {
+        return reporters.isNotEmpty() && reporters.values.all {
+            it.aggregateResult()
+        }
     }
 
     fun totalTests(poolId: DevicePoolId, size: Int) {

@@ -14,7 +14,7 @@ class AnalyticsConfigurationDeserializer : StdDeserializer<AnalyticsConfiguratio
 
         val influxNode = node?.get("influx")
         influxNode?.let {
-            val influxDbConfiguration = ctxt?.readValue(influxNode?.traverse(p?.codec), AnalyticsConfiguration.InfluxDbConfiguration::class.java)
+            val influxDbConfiguration = ctxt?.readValue(influxNode.traverse(p.codec), AnalyticsConfiguration.InfluxDbConfiguration::class.java)
             if(influxDbConfiguration != null) return influxDbConfiguration
         }
 

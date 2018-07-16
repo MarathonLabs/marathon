@@ -1,6 +1,7 @@
 package com.malinskiy.marathon.android
 
 import com.android.ddmlib.IDevice
+import com.android.ddmlib.NullOutputReceiver
 import com.malinskiy.marathon.analytics.Analytics
 import com.malinskiy.marathon.android.executor.AndroidAppInstaller
 import com.malinskiy.marathon.android.executor.AndroidDeviceTestRunner
@@ -10,10 +11,11 @@ import com.malinskiy.marathon.device.DevicePoolId
 import com.malinskiy.marathon.device.NetworkState
 import com.malinskiy.marathon.device.OperatingSystem
 import com.malinskiy.marathon.execution.Configuration
-import com.malinskiy.marathon.execution.RetryMessage
+import com.malinskiy.marathon.execution.QueueMessage
 import com.malinskiy.marathon.execution.progress.ProgressReporter
 import com.malinskiy.marathon.test.TestBatch
-import kotlinx.coroutines.experimental.channels.Channel
+import kotlinx.coroutines.experimental.channels.SendChannel
+import mu.KotlinLogging
 import java.util.*
 
 class AndroidDevice(val ddmsDevice: IDevice) : Device {
@@ -79,13 +81,25 @@ class AndroidDevice(val ddmsDevice: IDevice) : Device {
                          devicePoolId: DevicePoolId,
                          testBatch: TestBatch,
                          tracker: Analytics,
-                         retryChannel: Channel<RetryMessage>,
+                         retryChannel: SendChannel<QueueMessage.RetryMessage>,
                          progressReporter: ProgressReporter) {
         AndroidDeviceTestRunner(this@AndroidDevice, tracker).execute(configuration, devicePoolId, testBatch, retryChannel, progressReporter)
     }
 
     override fun prepare(configuration: Configuration) {
         AndroidAppInstaller(configuration).prepareInstallation(ddmsDevice)
+        RemoteFileManager.removeRemoteDirectory(ddmsDevice)
+        RemoteFileManager.createRemoteDirectory(ddmsDevice)
+        clearLogcat(ddmsDevice)
+    }
+
+    private fun clearLogcat(device: IDevice) {
+        val logger = KotlinLogging.logger("AndroidDevice.clearLogcat")
+        try {
+            device.executeShellCommand("logcat -c", NullOutputReceiver())
+        } catch (e: Throwable) {
+            logger.warn("Could not clear logcat on device: ${device.serialNumber}", e)
+        }
     }
 
     override fun toString(): String {

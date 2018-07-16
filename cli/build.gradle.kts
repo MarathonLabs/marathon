@@ -9,6 +9,7 @@ plugins {
     `application`
     id("org.jetbrains.kotlin.jvm")
     id("org.junit.platform.gradle.plugin")
+    id("de.fuerstenau.buildconfig") version "1.1.8"
 }
 
 application {
@@ -48,6 +49,11 @@ val compileKotlin by tasks.getting(KotlinCompile::class) {
 }
 val compileTestKotlin by tasks.getting(KotlinCompile::class) {
     kotlinOptions.jvmTarget = "1.8"
+}
+
+buildConfig {
+    appName = project.name
+    version = Versions.marathon
 }
 
 junitPlatform {

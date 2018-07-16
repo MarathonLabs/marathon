@@ -16,7 +16,17 @@ class ComboPoolingStrategy(private val list: List<PoolingStrategy>) : PoolingStr
     }
 
     override fun equals(other: Any?): Boolean {
-        if(other !is ComboPoolingStrategy) return false
-        return list.equals(other.list)
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as ComboPoolingStrategy
+
+        if (list != other.list) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        return list.hashCode()
     }
 }

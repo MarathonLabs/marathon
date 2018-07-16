@@ -12,6 +12,8 @@ class ParallelShardingStrategy : ShardingStrategy {
         return TestShard(tests)
     }
 
+    override fun hashCode() = javaClass.canonicalName.hashCode()
+
     override fun equals(other: Any?): Boolean {
         if(other == null) return false
         val javaClass: Class<Any> = other.javaClass

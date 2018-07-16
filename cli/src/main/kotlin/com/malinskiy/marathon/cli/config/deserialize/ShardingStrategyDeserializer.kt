@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer
 import com.fasterxml.jackson.databind.node.ObjectNode
 import com.fasterxml.jackson.module.kotlin.treeToValue
+import com.malinskiy.marathon.cli.config.ConfigurationException
 import com.malinskiy.marathon.execution.strategy.ShardingStrategy
 import com.malinskiy.marathon.execution.strategy.impl.sharding.CountShardingStrategy
 import com.malinskiy.marathon.execution.strategy.impl.sharding.ParallelShardingStrategy
@@ -14,7 +15,7 @@ import com.malinskiy.marathon.execution.strategy.impl.sharding.ParallelShardingS
 class ShardingStrategyDeserializer : StdDeserializer<ShardingStrategy>(ShardingStrategy::class.java) {
     override fun deserialize(p: JsonParser?, ctxt: DeserializationContext?): ShardingStrategy {
         val codec = p?.codec as ObjectMapper
-        val node: JsonNode = codec.readTree(p) ?: throw RuntimeException("Missing sharding strategy")
+        val node: JsonNode = codec.readTree(p) ?: throw ConfigurationException("Missing sharding strategy")
         val type = node.get("type").asText()
 
         return when (type) {
@@ -23,7 +24,7 @@ class ShardingStrategyDeserializer : StdDeserializer<ShardingStrategy>(ShardingS
                 return codec.treeToValue<CountShardingStrategy>(node)
             }
             "parallel" -> ParallelShardingStrategy()
-            else -> throw RuntimeException("Unrecognized sharding strategy ${type}")
+            else -> throw ConfigurationException("Unrecognized sharding strategy ${type}")
         }
     }
 }

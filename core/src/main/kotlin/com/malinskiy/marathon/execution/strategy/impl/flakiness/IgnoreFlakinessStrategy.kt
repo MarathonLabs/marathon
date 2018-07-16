@@ -9,6 +9,8 @@ class IgnoreFlakinessStrategy : FlakinessStrategy {
         return testShard
     }
 
+    override fun hashCode() = javaClass.canonicalName.hashCode()
+
     override fun equals(other: Any?): Boolean {
         if(other == null) return false
         val javaClass: Class<Any> = other.javaClass
