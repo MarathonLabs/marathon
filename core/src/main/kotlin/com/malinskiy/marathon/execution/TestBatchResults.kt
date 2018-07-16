@@ -1,3 +1,8 @@
 package com.malinskiy.marathon.execution
 
-data class TestBatchResults(val results: List<TestResult>)
+import com.malinskiy.marathon.device.Device
+import com.malinskiy.marathon.test.Test
+
+data class TestBatchResults(val device: Device,
+                            val finished: Collection<Test>,
+                            val failed: Collection<Test>)

@@ -26,7 +26,7 @@ class AndroidAppInstaller(private val configuration: Configuration) {
 
     @Suppress("TooGenericExceptionThrown")
     private fun reinstall(device: IDevice, appPackage: String, appApk: File) {
-        withRetry(MAX_RETIRES) {
+        withRetry(attempts = MAX_RETIRES, delay = 1000) {
             try {
                 logger.info("Uninstalling $appPackage from $device.serialNumber")
                 device.uninstallPackage(appPackage)

@@ -63,4 +63,10 @@ class PoolProgressTracker {
     fun progress(): Float {
         return (completed.toFloat() + failed.toFloat()) / totalTests.toFloat()
     }
+
+    fun addTests(count: Int) {
+        totalTests.updateAndGet {
+            it + count
+        }
+    }
 }

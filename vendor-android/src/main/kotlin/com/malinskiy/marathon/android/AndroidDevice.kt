@@ -1,10 +1,7 @@
 package com.malinskiy.marathon.android
 
-import com.android.ddmlib.AdbCommandRejectedException
 import com.android.ddmlib.IDevice
 import com.android.ddmlib.NullOutputReceiver
-import com.android.ddmlib.ShellCommandUnresponsiveException
-import com.android.ddmlib.TimeoutException
 import com.malinskiy.marathon.analytics.Analytics
 import com.malinskiy.marathon.android.executor.AndroidAppInstaller
 import com.malinskiy.marathon.android.executor.AndroidDeviceTestRunner
@@ -14,12 +11,11 @@ import com.malinskiy.marathon.device.DevicePoolId
 import com.malinskiy.marathon.device.NetworkState
 import com.malinskiy.marathon.device.OperatingSystem
 import com.malinskiy.marathon.execution.Configuration
-import com.malinskiy.marathon.execution.QueueMessage
+import com.malinskiy.marathon.execution.TestBatchResults
 import com.malinskiy.marathon.execution.progress.ProgressReporter
 import com.malinskiy.marathon.test.TestBatch
-import kotlinx.coroutines.experimental.channels.SendChannel
+import kotlinx.coroutines.experimental.CompletableDeferred
 import mu.KotlinLogging
-import java.io.IOException
 import java.util.*
 
 class AndroidDevice(val ddmsDevice: IDevice) : Device {
@@ -85,9 +81,9 @@ class AndroidDevice(val ddmsDevice: IDevice) : Device {
                          devicePoolId: DevicePoolId,
                          testBatch: TestBatch,
                          tracker: Analytics,
-                         retryChannel: SendChannel<QueueMessage.RetryMessage>,
+                         deferred: CompletableDeferred<TestBatchResults>,
                          progressReporter: ProgressReporter) {
-        AndroidDeviceTestRunner(this@AndroidDevice, tracker).execute(configuration, devicePoolId, testBatch, retryChannel, progressReporter)
+        AndroidDeviceTestRunner(this@AndroidDevice, tracker).execute(configuration, devicePoolId, testBatch, deferred, progressReporter)
     }
 
     override fun prepare(configuration: Configuration) {
