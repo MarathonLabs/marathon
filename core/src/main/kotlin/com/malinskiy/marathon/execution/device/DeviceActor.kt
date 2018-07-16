@@ -133,7 +133,8 @@ class DeviceActor(private val devicePoolId: DevicePoolId,
             if (it == null) {
                 state.transition(DeviceEvent.Complete)
             } else {
-                logger.error { it }
+                it.printStackTrace()
+                logger.error(it) { "Error ${it.message}" }
                 state.transition(DeviceEvent.Terminate)
                 terminate()
             }
