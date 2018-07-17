@@ -16,7 +16,7 @@ import mu.KotlinLogging
 
 class DevicePoolActor(private val poolId: DevicePoolId,
                       private val configuration: Configuration,
-                      private val analytics: Analytics,
+                      analytics: Analytics,
                       tests: Collection<Test>,
                       private val progressReporter: ProgressReporter,
                       parent: Job) : Actor<DevicePoolMessage>(parent = parent) {
@@ -99,7 +99,7 @@ class DevicePoolActor(private val poolId: DevicePoolId,
 
     private suspend fun addDevice(device: Device) {
         logger.debug { "add device ${device.serialNumber}" }
-        val actor = DeviceActor(poolId, this, configuration, device, analytics, progressReporter, poolJob)
+        val actor = DeviceActor(poolId, this, configuration, device, progressReporter, poolJob)
         devices[device.serialNumber] = actor
         actor.send(DeviceEvent.Initialize)
     }

@@ -20,7 +20,6 @@ interface Device {
     fun execute(configuration: Configuration,
                 devicePoolId: DevicePoolId,
                 testBatch: TestBatch,
-                tracker: Analytics,
                 deferred: CompletableDeferred<TestBatchResults>,
                 progressReporter: ProgressReporter)
 

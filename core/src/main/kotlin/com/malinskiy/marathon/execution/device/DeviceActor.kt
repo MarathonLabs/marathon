@@ -2,13 +2,11 @@ package com.malinskiy.marathon.execution.device
 
 import com.malinskiy.marathon.actor.Actor
 import com.malinskiy.marathon.actor.StateMachine
-import com.malinskiy.marathon.analytics.Analytics
 import com.malinskiy.marathon.device.Device
 import com.malinskiy.marathon.device.DevicePoolId
 import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.execution.DevicePoolMessage
 import com.malinskiy.marathon.execution.DevicePoolMessage.FromDevice.RequestNextBatch
-import com.malinskiy.marathon.execution.QueueMessage
 import com.malinskiy.marathon.execution.TestBatchResults
 import com.malinskiy.marathon.execution.progress.ProgressReporter
 import com.malinskiy.marathon.test.TestBatch
@@ -25,7 +23,6 @@ class DeviceActor(private val devicePoolId: DevicePoolId,
                   private val pool: SendChannel<DevicePoolMessage>,
                   private val configuration: Configuration,
                   private val device: Device,
-                  private val analytics: Analytics,
                   private val progressReporter: ProgressReporter,
                   parent: Job) : Actor<DeviceEvent>(parent = parent) {
 
@@ -151,7 +148,7 @@ class DeviceActor(private val devicePoolId: DevicePoolId,
     private fun executeBatch(batch: TestBatch, result: CompletableDeferred<TestBatchResults>) {
         logger.debug { "executeBatch" }
         job = async(context, parent = deviceJob) {
-            device.execute(configuration, devicePoolId, batch, analytics, result, progressReporter)
+            device.execute(configuration, devicePoolId, batch, result, progressReporter)
         }
     }
 

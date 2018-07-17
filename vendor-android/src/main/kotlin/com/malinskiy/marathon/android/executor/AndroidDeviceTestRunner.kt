@@ -4,10 +4,8 @@ import com.android.ddmlib.AdbCommandRejectedException
 import com.android.ddmlib.ShellCommandUnresponsiveException
 import com.android.ddmlib.TimeoutException
 import com.android.ddmlib.testrunner.RemoteAndroidTestRunner
-import com.malinskiy.marathon.analytics.Analytics
 import com.malinskiy.marathon.android.AndroidDevice
 import com.malinskiy.marathon.android.ApkParser
-import com.malinskiy.marathon.android.executor.listeners.AnalyticsListener
 import com.malinskiy.marathon.android.executor.listeners.CompositeTestRunListener
 import com.malinskiy.marathon.android.executor.listeners.DebugTestRunListener
 import com.malinskiy.marathon.android.executor.listeners.LogCatListener
@@ -27,8 +25,7 @@ import mu.KotlinLogging
 import java.io.IOException
 import java.util.concurrent.TimeUnit
 
-class AndroidDeviceTestRunner(private val device: AndroidDevice,
-                              private val analytics: Analytics) {
+class AndroidDeviceTestRunner(private val device: AndroidDevice) {
 
     private val logger = KotlinLogging.logger("AndroidDeviceTestRunner")
 
@@ -55,7 +52,6 @@ class AndroidDeviceTestRunner(private val device: AndroidDevice,
                 ScreenRecorderTestRunListener(fileManager, devicePoolId, device),
                 DebugTestRunListener(device.ddmsDevice),
                 ProgressTestRunListener(device, devicePoolId, progressReporter),
-                AnalyticsListener(device, devicePoolId, analytics),
                 LogCatListener(device, devicePoolId, LogWriter(fileManager)))
         )
         try {

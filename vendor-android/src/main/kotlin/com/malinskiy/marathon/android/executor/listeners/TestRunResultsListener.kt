@@ -1,13 +1,18 @@
 package com.malinskiy.marathon.android.executor.listeners
 
 import com.android.ddmlib.testrunner.TestIdentifier
-import com.android.ddmlib.testrunner.TestResult
+import com.malinskiy.marathon.android.toMarathonStatus
+import com.malinskiy.marathon.android.toTest
 import com.malinskiy.marathon.device.Device
+import com.malinskiy.marathon.device.toDeviceInfo
 import com.malinskiy.marathon.execution.TestBatchResults
 import com.malinskiy.marathon.test.Test
 import com.malinskiy.marathon.test.TestBatch
+import com.malinskiy.marathon.execution.TestResult
+import com.malinskiy.marathon.execution.TestStatus
 import kotlinx.coroutines.experimental.CompletableDeferred
 import com.android.ddmlib.testrunner.TestRunResult as DdmLibTestRunResult
+import com.android.ddmlib.testrunner.TestResult as DdmLibTestResult
 
 class TestRunResultsListener(private val testBatch: TestBatch,
                              private val device: Device,
@@ -16,15 +21,34 @@ class TestRunResultsListener(private val testBatch: TestBatch,
         val results = runResult.testResults
         val tests = testBatch.tests.associateBy { it.identifier() }
 
-        val finished = tests.filter {
-            results[it.key]?.isSuccessful() ?: false
-        }.values
+        val testResults = runResult.testResults.map {
+            it.toTestResult(device)
+        }
 
-        val failed = tests.filterNot {
-            results[it.key]?.isSuccessful() ?: false
-        }.values
+        val finished = testResults.filter {
+            results[it.test.identifier()]?.isSuccessful() ?: false
+        }
 
-        deferred.complete(TestBatchResults(device, finished, failed))
+        val failed = testResults.filterNot {
+            results[it.test.identifier()]?.isSuccessful() ?: false
+        }
+
+        val notExecuted = tests.filterNot {
+            results.containsKey(it.key)
+        }.values.map {
+            TestResult(it, device.toDeviceInfo(), TestStatus.INCOMPLETE, 0, 0, null)
+        }
+
+        deferred.complete(TestBatchResults(device, finished, failed + notExecuted))
+    }
+
+    fun Map.Entry<TestIdentifier, DdmLibTestResult>.toTestResult(device: Device): TestResult {
+        return TestResult(test = key.toTest(),
+                device = device.toDeviceInfo(),
+                status = value.status.toMarathonStatus(),
+                startTime = value.startTime,
+                endTime = value.endTime,
+                stacktrace = value.stackTrace)
     }
 
 
@@ -32,7 +56,7 @@ class TestRunResultsListener(private val testBatch: TestBatch,
         return TestIdentifier("$pkg.$clazz", method)
     }
 
-    private fun TestResult.isSuccessful() =
-            status == TestResult.TestStatus.PASSED || status == TestResult.TestStatus.IGNORED
+    private fun DdmLibTestResult.isSuccessful() =
+            status == DdmLibTestResult.TestStatus.PASSED || status == DdmLibTestResult.TestStatus.IGNORED
 
 }
