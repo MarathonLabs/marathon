@@ -1,6 +1,7 @@
 package com.malinskiy.marathon.android.executor.listeners.video
 
 import com.android.ddmlib.IDevice
+import com.android.ddmlib.SyncException
 import com.android.ddmlib.testrunner.TestIdentifier
 import com.malinskiy.marathon.android.AndroidDevice
 import com.malinskiy.marathon.android.RemoteFileManager
@@ -23,13 +24,16 @@ internal class ScreenRecorderTestRunListener(private val fileManager: FileManage
 
     private var hasFailed: Boolean = false
     private var screenRecorderStopper: ScreenRecorderStopper? = null
+    private var thread: Thread? = null
+
+    private val awaitMillis = 10_000L
 
     override fun testStarted(test: TestIdentifier) {
         hasFailed = false
 
         screenRecorderStopper = ScreenRecorderStopper(deviceInterface)
         val screenRecorder = ScreenRecorder(deviceInterface, test)
-        Thread(screenRecorder, "ScreenRecorder").start()
+        thread = Thread(screenRecorder, "ScreenRecorder").also { it.start() }
     }
 
     override fun testFailed(test: TestIdentifier, trace: String) {
@@ -38,26 +42,31 @@ internal class ScreenRecorderTestRunListener(private val fileManager: FileManage
 
     override fun testAssumptionFailure(test: TestIdentifier, trace: String) {
         screenRecorderStopper!!.stopScreenRecord(hasFailed)
-        if (hasFailed) {
-            pullTestVideo(test)
+        pullVideo(test)
+    }
+
+    private fun pullVideo(test: TestIdentifier) {
+        try {
+            thread?.join(awaitMillis)
+            if (hasFailed) {
+                pullTestVideo(test)
+            }
+            removeTestVideo(test)
+        } catch (e: InterruptedException) {
+            logger.warn { "Can't stop recording" }
+        } catch (e: SyncException) {
+            logger.warn { "Can't pull video" }
         }
-        removeTestVideo(test)
     }
 
     override fun testIgnored(test: TestIdentifier) {
         screenRecorderStopper!!.stopScreenRecord(hasFailed)
-        if (hasFailed) {
-            pullTestVideo(test)
-        }
-        removeTestVideo(test)
+        pullVideo(test)
     }
 
     override fun testEnded(test: TestIdentifier, testMetrics: Map<String, String>) {
         screenRecorderStopper!!.stopScreenRecord(hasFailed)
-        if (hasFailed) {
-            pullTestVideo(test)
-        }
-        removeTestVideo(test)
+        pullVideo(test)
     }
 
     private fun pullTestVideo(test: TestIdentifier) {
