@@ -17,6 +17,7 @@ import mu.KotlinLogging
 import java.nio.file.Paths
 
 private const val DEFAULT_DDM_LIB_TIMEOUT = 30000
+private const val DEFAULT_DDM_LIB_SLEEP_TIME = 500
 
 class AndroidDeviceProvider : DeviceProvider {
 
@@ -60,7 +61,7 @@ class AndroidDeviceProvider : DeviceProvider {
         adb = AndroidDebugBridge.createBridge(absolutePath, false)
 
         var getDevicesCountdown = DEFAULT_DDM_LIB_TIMEOUT
-        val sleepTime = 500
+        val sleepTime = DEFAULT_DDM_LIB_SLEEP_TIME
         while (!adb.hasInitialDeviceList() || !adb.hasDevices() && getDevicesCountdown >= 0) {
             try {
                 Thread.sleep(sleepTime.toLong())

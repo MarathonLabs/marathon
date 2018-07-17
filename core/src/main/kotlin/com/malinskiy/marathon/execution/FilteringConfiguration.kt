@@ -1,3 +1,6 @@
 package com.malinskiy.marathon.execution
 
-data class FilteringConfiguration(val whitelist: Collection<TestFilter>, val blacklist: Collection<TestFilter>)
+import com.fasterxml.jackson.annotation.JsonProperty
+
+data class FilteringConfiguration(@JsonProperty("whitelist") val whitelist: Collection<TestFilter>,
+                                  @JsonProperty("blacklist") val blacklist: Collection<TestFilter>)

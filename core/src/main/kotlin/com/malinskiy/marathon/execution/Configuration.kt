@@ -19,7 +19,6 @@ private const val DEFAULT_OUTPUT_TIMEOUT_MILLIS = 60_000
 
 data class Configuration constructor(
         val name: String,
-        val baseOutputDir: File,
         val outputDir: File,
         val applicationOutput: File,
         val testApplicationOutput: File,
@@ -38,20 +37,16 @@ data class Configuration constructor(
         val fallbackToScreenshots: Boolean,
 
         val testClassRegexes: Collection<Regex>,
-        val includedTestAnnotations: Collection<String>,
-        val excludedTestAnnotations: Collection<String>,
         val includeSerialRegexes: Collection<Regex>,
         val excludeSerialRegexes: Collection<Regex>,
 
         val testOutputTimeoutMillis: Int,
         val debug: Boolean,
 
-        val testPackage: String?,
         val autoGrantPermission: Boolean,
         val vendorConfiguration: VendorConfiguration) {
 
     constructor(name: String,
-                baseOutputDir: File,
                 outputDir: File,
                 applicationOutput: File,
                 testApplicationOutput: File,
@@ -70,20 +65,16 @@ data class Configuration constructor(
                 fallbackToScreenshots: Boolean?,
 
                 testClassRegexes: Collection<Regex>?,
-                includedTestAnnotations: Collection<String>?,
-                excludedTestAnnotations: Collection<String>?,
                 includeSerialRegexes: Collection<Regex>?,
                 excludeSerialRegexes: Collection<Regex>?,
 
                 testOutputTimeoutMillis: Int?,
                 debug: Boolean?,
 
-                testPackage: String?,
                 autoGrantPermission: Boolean?,
                 vendorConfiguration: VendorConfiguration) :
 
             this(name = name,
-                    baseOutputDir = baseOutputDir,
                     outputDir = outputDir,
                     applicationOutput = applicationOutput,
                     testApplicationOutput = testApplicationOutput,
@@ -99,13 +90,10 @@ data class Configuration constructor(
                     isCodeCoverageEnabled = isCodeCoverageEnabled ?: false,
                     fallbackToScreenshots = fallbackToScreenshots ?: false,
                     testClassRegexes = testClassRegexes ?: listOf(Regex("^((?!Abstract).)*Test$")),
-                    includedTestAnnotations = includedTestAnnotations ?: emptyList(),
-                    excludedTestAnnotations = excludedTestAnnotations ?: emptyList(),
                     includeSerialRegexes = includeSerialRegexes ?: emptyList(),
                     excludeSerialRegexes = excludeSerialRegexes ?: emptyList(),
                     testOutputTimeoutMillis = testOutputTimeoutMillis ?: DEFAULT_OUTPUT_TIMEOUT_MILLIS,
                     debug = debug ?: true,
-                    testPackage = testPackage ?: "",
                     autoGrantPermission = autoGrantPermission ?: false,
                     vendorConfiguration = vendorConfiguration
             )

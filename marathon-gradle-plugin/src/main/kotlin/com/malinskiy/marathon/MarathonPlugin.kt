@@ -83,7 +83,6 @@ class MarathonPlugin : Plugin<Project> {
 
                     configuration = Configuration(
                             config.name,
-                            baseOutputDir,
                             output,
                             applicationApk,
                             instrumentationApk,
@@ -99,13 +98,10 @@ class MarathonPlugin : Plugin<Project> {
                             config.isCodeCoverageEnabled,
                             config.fallbackToScreenshots,
                             config.testClassRegexes?.map { it.toRegex() },
-                            config.includedTestAnnotations,
-                            config.excludedTestAnnotations,
                             config.includeSerialRegexes?.map { it.toRegex() },
                             config.excludeSerialRegexes?.map { it.toRegex() },
                             config.testOutputTimeoutMillis,
                             config.debug,
-                            config.testPackage,
                             config.autoGrantPermission,
                             AndroidConfiguration(sdkDirectory)
                     )

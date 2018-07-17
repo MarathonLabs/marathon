@@ -1,0 +1,55 @@
+name: "sample-app tests"
+outputDir: "./marathon"
+applicationOutput: "kotlin-buildscript/build/outputs/apk/debug/kotlin-buildscript-debug.apk"
+testApplicationOutput: "kotlin-buildscript/build/outputs/apk/androidTest/debug/kotlin-buildscript-debug-androidTest.apk"
+analyticsConfiguration:
+  influx:
+    url: "http://influx.svc.cluster.local:8086"
+    user: "root"
+    password: "root"
+    dbName: "marathon"
+poolingStrategy:
+- type: "omni"
+- type: "device-model"
+- type: "os-version"
+- type: "manufacturer"
+- type: "abi"
+shardingStrategy:
+  type: "count"
+  count: 5
+sortingStrategy:
+  type: "success-rate"
+  limit: "2015-03-14T09:26:53.590Z"
+batchingStrategy:
+  type: "fixed-size"
+  size: 5
+flakinessStrategy:
+  type: "probability"
+  minSuccessRate: 0.7
+  maxCount: 3
+  timeLimit: "2015-03-14T09:26:53.590Z"
+retryStrategy:
+  type: "fixed-quota"
+  totalAllowedRetryQuota: 100
+  retryPerTestQuota: 2
+filteringConfiguration:
+  whitelist:
+  - type: "simple-class-name"
+    regex: ".*"
+  - type: "fully-qualified-class-name"
+    regex: ".*"
+  blacklist:
+  - type: "package"
+    regex: ".*"
+  - type: "annotation"
+    regex: ".*"
+testClassRegexes:
+- "^((?!Abstract).)*Test$"
+includeSerialRegexes: []
+excludeSerialRegexes: []
+ignoreFailures: false
+isCodeCoverageEnabled: false
+fallbackToScreenshots: false
+testOutputTimeoutMillis: 30000
+debug: true
+autoGrantPermission: true

@@ -11,4 +11,12 @@ class ParallelShardingStrategy : ShardingStrategy {
     override fun createShard(tests: Collection<Test>): TestShard {
         return TestShard(tests)
     }
+
+    override fun hashCode() = javaClass.canonicalName.hashCode()
+
+    override fun equals(other: Any?): Boolean {
+        if(other == null) return false
+        val javaClass: Class<Any> = other.javaClass
+        return this.javaClass.canonicalName == javaClass.canonicalName
+    }
 }

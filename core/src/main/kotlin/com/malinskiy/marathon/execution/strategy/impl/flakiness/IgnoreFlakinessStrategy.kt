@@ -8,4 +8,12 @@ class IgnoreFlakinessStrategy : FlakinessStrategy {
     override fun process(testShard: TestShard, metricsProvider: MetricsProvider): TestShard {
         return testShard
     }
+
+    override fun hashCode() = javaClass.canonicalName.hashCode()
+
+    override fun equals(other: Any?): Boolean {
+        if(other == null) return false
+        val javaClass: Class<Any> = other.javaClass
+        return this.javaClass.canonicalName == javaClass.canonicalName
+    }
 }

@@ -23,8 +23,6 @@ open class MarathonExtension(project: Project) {
     var fallbackToScreenshots: Boolean? = null
 
     var testClassRegexes: Collection<String>? = null
-    var includedTestAnnotations: Collection<String>? = null
-    var excludedTestAnnotations: Collection<String>? = null
     var includeSerialRegexes: Collection<String>? = null
     var excludeSerialRegexes: Collection<String>? = null
 
@@ -32,7 +30,6 @@ open class MarathonExtension(project: Project) {
     var debug: Boolean? = null
 
     //Android specific for now
-    var testPackage: String? = null
     var autoGrantPermission: Boolean? = null
 
     //Kotlin way

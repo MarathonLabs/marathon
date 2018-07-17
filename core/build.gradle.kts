@@ -6,6 +6,7 @@ import org.junit.platform.gradle.plugin.EnginesExtension
 import org.junit.platform.gradle.plugin.JUnitPlatformExtension
 
 plugins {
+    `idea`
     `java-library`
     id("org.jetbrains.kotlin.jvm")
     id("org.junit.platform.gradle.plugin")
@@ -17,6 +18,7 @@ dependencies {
     implementation(project(":marathon-html-report"))
     implementation(project(":execution-timeline"))
     implementation(Libraries.gson)
+    implementation(Libraries.jacksonAnnotations)
     implementation(Libraries.apacheCommonsText)
     implementation(Libraries.apacheCommonsIO)
     implementation(Libraries.kotlinStdLib)

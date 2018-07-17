@@ -2,7 +2,6 @@ package com.malinskiy.marathon.android.executor
 
 import com.android.ddmlib.IDevice
 import com.android.ddmlib.InstallException
-import com.android.sdklib.AndroidVersion
 import com.malinskiy.marathon.android.ApkParser
 import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.execution.withRetry
