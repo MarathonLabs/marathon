@@ -61,16 +61,12 @@ class QueueActor(configuration: Configuration,
     private suspend fun onBatchCompleted(device: Device, results: TestBatchResults) {
         val finished = results.finished
         val failed = results.failed
-        val notExecuted = results.notExecuted
         logger.debug { "handle test results ${device.serialNumber}" }
         if (finished.isNotEmpty()) {
             handleFinishedTests(finished, device)
         }
         if (failed.isNotEmpty()) {
             handleFailedTests(failed, device)
-        }
-        if (notExecuted.isNotEmpty()) {
-            returnTests(notExecuted)
         }
         activeBatches.remove(device)
         onRequestBatch(device)

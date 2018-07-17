@@ -9,6 +9,7 @@ import com.malinskiy.marathon.execution.TestBatchResults
 import com.malinskiy.marathon.test.Test
 import com.malinskiy.marathon.test.TestBatch
 import com.malinskiy.marathon.execution.TestResult
+import com.malinskiy.marathon.execution.TestStatus
 import kotlinx.coroutines.experimental.CompletableDeferred
 import com.android.ddmlib.testrunner.TestRunResult as DdmLibTestRunResult
 import com.android.ddmlib.testrunner.TestResult as DdmLibTestResult
@@ -34,9 +35,11 @@ class TestRunResultsListener(private val testBatch: TestBatch,
 
         val notExecuted = tests.filterNot {
             results.containsKey(it.key)
-        }.values
+        }.values.map {
+            TestResult(it, device.toDeviceInfo(), TestStatus.INCOMPLETE, 0, 0, null)
+        }
 
-        deferred.complete(TestBatchResults(device, finished, failed, notExecuted))
+        deferred.complete(TestBatchResults(device, finished, failed + notExecuted))
     }
 
     fun Map.Entry<TestIdentifier, DdmLibTestResult>.toTestResult(device: Device): TestResult {

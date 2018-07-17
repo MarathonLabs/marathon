@@ -5,5 +5,4 @@ import com.malinskiy.marathon.test.Test
 
 data class TestBatchResults(val device: Device,
                             val finished: Collection<TestResult>,
-                            val failed: Collection<TestResult>,
-                            val notExecuted: Collection<Test>)
+                            val failed: Collection<TestResult>)
