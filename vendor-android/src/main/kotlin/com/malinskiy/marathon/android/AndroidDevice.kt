@@ -80,10 +80,9 @@ class AndroidDevice(val ddmsDevice: IDevice) : Device {
     override fun execute(configuration: Configuration,
                          devicePoolId: DevicePoolId,
                          testBatch: TestBatch,
-                         tracker: Analytics,
                          deferred: CompletableDeferred<TestBatchResults>,
                          progressReporter: ProgressReporter) {
-        AndroidDeviceTestRunner(this@AndroidDevice, tracker).execute(configuration, devicePoolId, testBatch, deferred, progressReporter)
+        AndroidDeviceTestRunner(this@AndroidDevice).execute(configuration, devicePoolId, testBatch, deferred, progressReporter)
     }
 
     override fun prepare(configuration: Configuration) {

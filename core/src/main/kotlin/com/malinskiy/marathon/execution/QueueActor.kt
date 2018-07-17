@@ -1,6 +1,7 @@
 package com.malinskiy.marathon.execution
 
 import com.malinskiy.marathon.actor.Actor
+import com.malinskiy.marathon.analytics.Analytics
 import com.malinskiy.marathon.analytics.metrics.MetricsProvider
 import com.malinskiy.marathon.device.Device
 import com.malinskiy.marathon.device.DevicePoolId
@@ -16,7 +17,7 @@ import java.util.*
 
 class QueueActor(configuration: Configuration,
                  private val testShard: TestShard,
-                 metricsProvider: MetricsProvider,
+                 private val analytics: Analytics,
                  private val pool: SendChannel<FromQueue>,
                  private val poolId: DevicePoolId,
                  private val progressReporter: ProgressReporter,
@@ -26,7 +27,7 @@ class QueueActor(configuration: Configuration,
 
     private val sorting = configuration.sortingStrategy
 
-    private val queue: Queue<Test> = PriorityQueue<Test>(sorting.process(metricsProvider))
+    private val queue: Queue<Test> = PriorityQueue<Test>(sorting.process(analytics))
     private val batching = configuration.batchingStrategy
     private val retry = configuration.retryStrategy
 
@@ -60,44 +61,60 @@ class QueueActor(configuration: Configuration,
     private suspend fun onBatchCompleted(device: Device, results: TestBatchResults) {
         val finished = results.finished
         val failed = results.failed
+        val notExecuted = results.notExecuted
         logger.debug { "handle test results ${device.serialNumber}" }
         if (finished.isNotEmpty()) {
-            handleFinishedTests(finished)
+            handleFinishedTests(finished, device)
         }
         if (failed.isNotEmpty()) {
-            handleFailedTests(poolId, failed, device)
+            handleFailedTests(failed, device)
+        }
+        if (notExecuted.isNotEmpty()) {
+            returnTests(notExecuted)
         }
         activeBatches.remove(device)
         onRequestBatch(device)
     }
 
     private fun onReturnBatch(device: Device, batch: TestBatch) {
-
-        queue.addAll(batch.tests)
+        returnTests(batch.tests)
         activeBatches.remove(device)
+    }
+
+    private fun returnTests(tests: Collection<Test>) {
+        queue.addAll(tests)
     }
 
     private fun onTerminate() {
         close()
     }
 
-    private fun handleFinishedTests(finished: Collection<Test>) {
-        finished.filter { testShard.flakyTests.contains(it) }.let {
+    private fun handleFinishedTests(finished: Collection<TestResult>, device: Device) {
+        finished.filter { testShard.flakyTests.contains(it.test) }.let {
             val oldSize = queue.size
-            queue.removeAll(it)
+            queue.removeAll(it.map { it.test })
             progressReporter.removeTests(poolId, oldSize - queue.size)
+        }
+        finished.forEach {
+            analytics.trackTestResult(poolId, device, it)
         }
     }
 
-    private suspend fun handleFailedTests(poolId: DevicePoolId,
-                                          failed: Collection<Test>,
+    private suspend fun handleFailedTests(failed: Collection<TestResult>,
                                           device: Device) {
         logger.debug { "handle failed tests ${device.serialNumber}" }
-        val retryList = retry.process(poolId, failed, testShard)
+        val retryList = retry.process(poolId, failed.map { it.test }, testShard)
+
         progressReporter.addTests(poolId, retryList.size)
         queue.addAll(retryList)
         if (retryList.isNotEmpty()) {
             pool.send(FromQueue.Notify)
+        }
+
+        failed.filterNot {
+            retryList.contains(it.test)
+        }.forEach {
+            analytics.trackTestResult(poolId, device, it)
         }
     }
 
