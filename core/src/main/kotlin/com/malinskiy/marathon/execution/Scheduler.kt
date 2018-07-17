@@ -8,8 +8,9 @@ import com.malinskiy.marathon.execution.DevicePoolMessage.FromScheduler.AddDevic
 import com.malinskiy.marathon.execution.DevicePoolMessage.FromScheduler.RemoveDevice
 import com.malinskiy.marathon.execution.progress.ProgressReporter
 import com.malinskiy.marathon.test.Test
-import com.malinskiy.marathon.waitWhileTrue
+import kotlinx.coroutines.experimental.Job
 import kotlinx.coroutines.experimental.channels.SendChannel
+import kotlinx.coroutines.experimental.joinChildren
 import kotlinx.coroutines.experimental.launch
 import mu.KotlinLogging
 
@@ -18,7 +19,6 @@ import mu.KotlinLogging
  * 1) Subscribe on DeviceProvider
  * 2) Create device pools using PoolingStrategy
  */
-private const val DEFAULT_INITIAL_DELAY_MILLIS = 10_000L
 
 class Scheduler(private val deviceProvider: DeviceProvider,
                 private val analytics: Analytics,
@@ -32,23 +32,22 @@ class Scheduler(private val deviceProvider: DeviceProvider,
     private val logger = KotlinLogging.logger("Scheduler")
 
     suspend fun execute() {
-        subscribeOnDevices()
-        waitWhileTrue(startDelay = DEFAULT_INITIAL_DELAY_MILLIS) {
-            logger.debug { "waiting for completion" }
-            !pools.values.all { it.isClosedForSend }
-        }.join()
+        val job = Job()
+        subscribeOnDevices(job)
+        Thread.sleep(10_000) //TODO: Replace with delay
+        job.joinChildren()
     }
 
     fun getPools(): List<DevicePoolId> {
         return pools.keys.toList()
     }
 
-    private fun subscribeOnDevices() {
+    private fun subscribeOnDevices(job: Job) {
         launch {
             for (msg in deviceProvider.subscribe()) {
                 when (msg) {
                     is DeviceProvider.DeviceEvent.DeviceConnected -> {
-                        onDeviceConnected(msg)
+                        onDeviceConnected(msg, job)
                     }
                     is DeviceProvider.DeviceEvent.DeviceDisconnected -> {
                         onDeviceDisconnected(msg)
@@ -65,12 +64,12 @@ class Scheduler(private val deviceProvider: DeviceProvider,
         }
     }
 
-    private suspend fun onDeviceConnected(item: DeviceProvider.DeviceEvent.DeviceConnected) {
+    private suspend fun onDeviceConnected(item: DeviceProvider.DeviceEvent.DeviceConnected, parent: Job) {
         val device = item.device
         val poolId = poolingStrategy.associate(device)
         logger.debug { "device ${device.serialNumber} associated with poolId ${poolId.name}" }
         pools.computeIfAbsent(poolId) { id ->
-            DevicePoolActor(id, configuration, analytics, tests, progressReporter)
+            DevicePoolActor(id, configuration, analytics, tests, progressReporter, parent)
         }
         pools[poolId]?.send(AddDevice(device))
         analytics.trackDeviceConnected(poolId, device)

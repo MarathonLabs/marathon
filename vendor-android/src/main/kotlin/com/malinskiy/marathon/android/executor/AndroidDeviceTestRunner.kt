@@ -1,5 +1,8 @@
 package com.malinskiy.marathon.android.executor
 
+import com.android.ddmlib.AdbCommandRejectedException
+import com.android.ddmlib.ShellCommandUnresponsiveException
+import com.android.ddmlib.TimeoutException
 import com.android.ddmlib.testrunner.RemoteAndroidTestRunner
 import com.malinskiy.marathon.analytics.Analytics
 import com.malinskiy.marathon.android.AndroidDevice
@@ -13,13 +16,15 @@ import com.malinskiy.marathon.android.executor.listeners.video.ScreenRecorderTes
 import com.malinskiy.marathon.android.executor.listeners.TestRunResultsListener
 import com.malinskiy.marathon.device.DevicePoolId
 import com.malinskiy.marathon.execution.Configuration
-import com.malinskiy.marathon.execution.QueueMessage
+import com.malinskiy.marathon.execution.TestBatchResults
 import com.malinskiy.marathon.execution.progress.ProgressReporter
 import com.malinskiy.marathon.io.FileManager
 import com.malinskiy.marathon.report.logs.LogWriter
 import com.malinskiy.marathon.test.TestBatch
-import kotlinx.coroutines.experimental.channels.SendChannel
+import com.malinskiy.marathon.test.toTestName
+import kotlinx.coroutines.experimental.CompletableDeferred
 import mu.KotlinLogging
+import java.io.IOException
 import java.util.concurrent.TimeUnit
 
 class AndroidDeviceTestRunner(private val device: AndroidDevice,
@@ -30,7 +35,7 @@ class AndroidDeviceTestRunner(private val device: AndroidDevice,
     fun execute(configuration: Configuration,
                 devicePoolId: DevicePoolId,
                 testBatch: TestBatch,
-                retryChannel: SendChannel<QueueMessage.RetryMessage>,
+                deferred: CompletableDeferred<TestBatchResults>,
                 progressReporter: ProgressReporter) {
         val info = ApkParser().parseInstrumentationInfo(configuration.testApplicationOutput)
         val runner = RemoteAndroidTestRunner(info.instrumentationPackage, info.testRunnerClass, device.ddmsDevice)
@@ -45,13 +50,26 @@ class AndroidDeviceTestRunner(private val device: AndroidDevice,
 
         runner.setClassNames(tests)
         val fileManager = FileManager(configuration.outputDir)
-        runner.run(CompositeTestRunListener(listOf(
-                TestRunResultsListener(testBatch, device, retryChannel, devicePoolId),
+        val listeners = CompositeTestRunListener(listOf(
+                TestRunResultsListener(testBatch, device, deferred),
                 ScreenRecorderTestRunListener(fileManager, devicePoolId, device),
                 DebugTestRunListener(device.ddmsDevice),
                 ProgressTestRunListener(device, devicePoolId, progressReporter),
                 AnalyticsListener(device, devicePoolId, analytics),
                 LogCatListener(device, devicePoolId, LogWriter(fileManager)))
-        ))
+        )
+        try {
+            runner.run(listeners)
+        } catch (e: ShellCommandUnresponsiveException) {
+            logger.warn("Test got stuck. You can increase the timeout in settings if it's too strict")
+        } catch (e: TimeoutException) {
+            logger.warn("Test got stuck. You can increase the timeout in settings if it's too strict")
+        } catch (e: AdbCommandRejectedException) {
+            throw RuntimeException("Error while running tests ${testBatch.tests.map { it.toTestName() }}", e)
+        } catch (e: IOException) {
+            throw RuntimeException("Error while running tests ${testBatch.tests.map { it.toTestName() }}", e)
+        } finally {
+
+        }
     }
 }
