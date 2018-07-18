@@ -8,6 +8,8 @@ import com.malinskiy.marathon.execution.DevicePoolMessage.*
 import com.malinskiy.marathon.execution.device.DeviceActor
 import com.malinskiy.marathon.execution.device.DeviceEvent
 import com.malinskiy.marathon.execution.progress.ProgressReporter
+import com.malinskiy.marathon.execution.queue.QueueActor
+import com.malinskiy.marathon.execution.queue.QueueMessage
 import com.malinskiy.marathon.test.Test
 import com.malinskiy.marathon.test.TestBatch
 import kotlinx.coroutines.experimental.Job
