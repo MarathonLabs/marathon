@@ -8,12 +8,13 @@ import com.malinskiy.marathon.execution.TestResult
 import com.malinskiy.marathon.execution.TestShard
 import com.malinskiy.marathon.execution.TestStatus
 import com.malinskiy.marathon.test.Test
+import com.malinskiy.marathon.test.toTestName
 import mu.KotlinLogging
 
 class TestResultReporter(private val poolId: DevicePoolId,
                          private val analytics: Analytics,
                          shard: TestShard) {
-    private val tests: HashMap<Test, StateMachine<TestState, TestEvent, TestAction>> = HashMap()
+    private val tests: HashMap<String, StateMachine<TestState, TestEvent, TestAction>> = HashMap()
 
     private val logger = KotlinLogging.logger("TestResultReporter")
 
@@ -89,23 +90,23 @@ class TestResultReporter(private val poolId: DevicePoolId,
 
     init {
         val allTests = shard.tests + shard.flakyTests
-        allTests.groupBy { it }.mapValues {
+        allTests.groupBy { it }.map {
             val count = it.value.size
-            createState(count)
+            it.key.toTestName() to createState(count)
         }.also {
             tests.putAll(it)
         }
     }
 
     fun testFinished(device: Device, testResult: TestResult) {
-        tests[testResult.test]?.transition(TestEvent.Passed(device, testResult))
+        tests[testResult.test.toTestName()]?.transition(TestEvent.Passed(device, testResult))
     }
 
     fun testFailed(device: Device, testResult: TestResult) {
-        tests[testResult.test]?.transition(TestEvent.Failed(device, testResult))
+        tests[testResult.test.toTestName()]?.transition(TestEvent.Failed(device, testResult))
     }
 
     fun retryTest(test: Test) {
-        tests[test]?.transition(TestEvent.Retry)
+        tests[test.toTestName()]?.transition(TestEvent.Retry)
     }
 }
