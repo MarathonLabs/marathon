@@ -2,6 +2,7 @@ package com.malinskiy.marathon.execution.progress
 
 import com.malinskiy.marathon.device.Device
 import com.malinskiy.marathon.device.DevicePoolId
+import com.malinskiy.marathon.execution.progress.tracker.PoolProgressTracker
 import com.malinskiy.marathon.test.Test
 import com.malinskiy.marathon.test.toTestName
 import java.util.concurrent.ConcurrentHashMap
@@ -33,8 +34,8 @@ class ProgressReporter {
         println("${toPercent(progress(poolId))} | [${poolId.name}]-[${device.serialNumber}] ${test.toTestName()} failed")
     }
 
-    fun testEnded(poolId: DevicePoolId, device: Device, test: Test) {
-        execute(poolId) { it.testEnded(test, device) }
+    fun testPassed(poolId: DevicePoolId, device: Device, test: Test) {
+        execute(poolId) { it.testPassed(test, device) }
         println("${toPercent(progress(poolId))} | [${poolId.name}]-[${device.serialNumber}] ${test.toTestName()} ended")
     }
 
