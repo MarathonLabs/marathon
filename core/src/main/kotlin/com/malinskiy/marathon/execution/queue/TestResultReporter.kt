@@ -31,7 +31,6 @@ class TestResultReporter(private val poolId: DevicePoolId,
                 }
             }
             on<TestEvent.Remove> {
-                println("status added ${this.count} and remove event ${it.diff}")
                 transitionTo(this.copy(count = this.count - it.diff))
             }
         }
@@ -62,7 +61,6 @@ class TestResultReporter(private val poolId: DevicePoolId,
                 logger.error { "from ${it.fromState} event ${it.event}" }
                 return@onTransition
             }
-            logger.warn { "from ${it.fromState} event ${it.event}" }
             val sideEffect = validTransition.sideEffect
             when (sideEffect) {
                 is TestAction.SaveReport -> {

@@ -95,7 +95,7 @@ class QueueActor(configuration: Configuration,
         finished.filter { testShard.flakyTests.contains(it.test) }.let {
             it.forEach {
                 val oldSize = queue.size
-                queue.remove(it.test)
+                queue.removeAll(listOf(it.test))
                 val diff = oldSize - queue.size
                 testResultReporter.removeTest(it.test, diff)
                 progressReporter.removeTests(poolId, diff)
