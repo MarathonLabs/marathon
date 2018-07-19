@@ -34,6 +34,7 @@ class TestResultReporter(private val poolId: DevicePoolId,
                 }
             }
             on<TestEvent.Remove> {
+                println("status added ${this.count} and remove event ${it.diff}")
                 transitionTo(this.copy(count = count - it.diff))
             }
         }
@@ -53,6 +54,7 @@ class TestResultReporter(private val poolId: DevicePoolId,
 
             }
             on<TestEvent.Remove> {
+                println("status executed ${this.count} and remove event ${it.diff}")
                 transitionTo(this.copy(count = count - it.diff))
             }
             on<TestEvent.Passed> {
