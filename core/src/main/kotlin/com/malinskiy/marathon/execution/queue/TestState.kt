@@ -13,6 +13,6 @@ sealed class TestState {
     data class Failed(val device: Device,
                       val testResult: TestResult) : TestState()
 
-    data class Finished(val device: Device,
-                        val testResult: TestResult) : TestState()
+    data class Passed(val device: Device,
+                      val testResult: TestResult) : TestState()
 }
