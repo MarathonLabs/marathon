@@ -10,5 +10,6 @@ sealed class TestEvent {
     data class Passed(val device: Device,
                       val testResult: TestResult) : TestEvent()
 
+    data class Remove(val diff: Int) : TestEvent()
     object Retry : TestEvent()
 }

@@ -22,42 +22,43 @@ class TestResultReporter(private val poolId: DevicePoolId,
         initialState(TestState.Added(count))
         state<TestState.Added> {
             on<TestEvent.Passed> {
-                if (count > 1) {
-                    transitionTo(TestState.Executed(it.device, it.testResult, this.count - 1))
-                } else {
-                    transitionTo(TestState.Finished(it.device, it.testResult), TestAction.SaveReport(it.device, it.testResult))
+                when (count > 0) {
+                    true -> transitionTo(TestState.Executed(it.device, it.testResult, this.count - 1))
+                    false -> transitionTo(TestState.Finished(it.device, it.testResult), TestAction.SaveReport(it.device, it.testResult))
                 }
             }
             on<TestEvent.Failed> {
-                if (count > 1) {
-                    transitionTo(TestState.Executed(it.device, it.testResult, this.count - 1))
-                } else {
-                    transitionTo(TestState.Failed(it.device, it.testResult), TestAction.SaveReport(it.device, it.testResult))
+                when (count > 1) {
+                    true -> transitionTo(TestState.Executed(it.device, it.testResult, this.count - 1))
+                    false -> transitionTo(TestState.Failed(it.device, it.testResult), TestAction.SaveReport(it.device, it.testResult))
                 }
+            }
+            on<TestEvent.Remove> {
+                transitionTo(this.copy(count = count - it.diff))
             }
         }
         state<TestState.Executed> {
             on<TestEvent.Failed> {
                 if (this.testResult.status != it.testResult.status && this.testResult.status == TestStatus.PASSED) {
-                    if (count > 1) {
-                        transitionTo(this.copy(device = it.device, testResult = it.testResult, count = this.count - 1))
-                    } else {
-                        transitionTo(TestState.Finished(it.device, it.testResult), TestAction.SaveReport(it.device, it.testResult))
+                    when (count > 1) {
+                        true -> transitionTo(this.copy(device = it.device, testResult = it.testResult, count = this.count - 1))
+                        false -> transitionTo(TestState.Finished(it.device, it.testResult), TestAction.SaveReport(it.device, it.testResult))
                     }
                 } else {
-                    if (count > 1) {
-                        transitionTo(this.copy(count = this.count - 1))
-                    } else {
-                        transitionTo(TestState.Finished(it.device, it.testResult), TestAction.SaveReport(it.device, it.testResult))
+                    when (count > 1) {
+                        true -> transitionTo(this.copy(count = this.count - 1))
+                        false -> transitionTo(TestState.Finished(it.device, it.testResult), TestAction.SaveReport(it.device, it.testResult))
                     }
                 }
 
             }
+            on<TestEvent.Remove> {
+                transitionTo(this.copy(count = count - it.diff))
+            }
             on<TestEvent.Passed> {
-                if (count > 1) {
-                    transitionTo(this.copy(device = it.device, testResult = it.testResult, count = this.count - 1))
-                } else {
-                    transitionTo(TestState.Finished(it.device, it.testResult), TestAction.SaveReport(it.device, it.testResult))
+                when (count > 1) {
+                    true -> transitionTo(this.copy(device = it.device, testResult = it.testResult, count = this.count - 1))
+                    false -> transitionTo(TestState.Finished(it.device, it.testResult), TestAction.SaveReport(it.device, it.testResult))
                 }
             }
             on<TestEvent.Retry> {
@@ -74,7 +75,7 @@ class TestResultReporter(private val poolId: DevicePoolId,
                 logger.error { "from ${it.fromState} event ${it.event}" }
                 return@onTransition
             }
-            logger.warn { "from ${it.fromState} event ${it.event}"  }
+            logger.warn { "from ${it.fromState} event ${it.event}" }
             val sideEffect = validTransition.sideEffect
             when (sideEffect) {
                 is TestAction.SaveReport -> {
@@ -108,5 +109,9 @@ class TestResultReporter(private val poolId: DevicePoolId,
 
     fun retryTest(test: Test) {
         tests[test.toTestName()]?.transition(TestEvent.Retry)
+    }
+
+    fun removeTest(test: Test, diff: Int) {
+        tests[test.toTestName()]?.transition(TestEvent.Remove(diff))
     }
 }

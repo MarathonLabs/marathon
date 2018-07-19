@@ -93,9 +93,13 @@ class QueueActor(configuration: Configuration,
 
     private fun handleFinishedTests(finished: Collection<TestResult>, device: Device) {
         finished.filter { testShard.flakyTests.contains(it.test) }.let {
-            val oldSize = queue.size
-            queue.removeAll(it.map { it.test })
-            progressReporter.removeTests(poolId, oldSize - queue.size)
+            it.forEach {
+                val oldSize = queue.size
+                queue.remove(it.test)
+                val diff = oldSize - queue.size
+                testResultReporter.removeTest(it.test, diff)
+                progressReporter.removeTests(poolId, diff)
+            }
         }
         finished.forEach {
             testResultReporter.testFinished(device, it)
