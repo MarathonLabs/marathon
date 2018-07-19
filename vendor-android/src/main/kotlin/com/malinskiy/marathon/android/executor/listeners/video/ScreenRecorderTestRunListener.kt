@@ -1,5 +1,6 @@
 package com.malinskiy.marathon.android.executor.listeners.video
 
+import com.android.ddmlib.CollectingOutputReceiver
 import com.android.ddmlib.IDevice
 import com.android.ddmlib.SyncException
 import com.android.ddmlib.testrunner.TestIdentifier
@@ -22,16 +23,16 @@ internal class ScreenRecorderTestRunListener(private val fileManager: FileManage
     private val deviceInterface: IDevice = device.ddmsDevice
 
     private var hasFailed: Boolean = false
-    private var screenRecorderStopper: ScreenRecorderStopper? = null
     private var thread: Thread? = null
+    private var receiver: CollectingOutputReceiver? = null
 
-    private val awaitMillis = 10_000L
+    private val awaitMillis = 1_000L
 
     override fun testStarted(test: TestIdentifier) {
         hasFailed = false
 
-        screenRecorderStopper = ScreenRecorderStopper(deviceInterface)
-        val screenRecorder = ScreenRecorder(deviceInterface, test)
+        receiver = CollectingOutputReceiver()
+        val screenRecorder = ScreenRecorder(deviceInterface, test, receiver!!)
         thread = Thread(screenRecorder, "ScreenRecorder").also { it.start() }
     }
 
@@ -40,13 +41,21 @@ internal class ScreenRecorderTestRunListener(private val fileManager: FileManage
     }
 
     override fun testAssumptionFailure(test: TestIdentifier, trace: String) {
-        screenRecorderStopper!!.stopScreenRecord(hasFailed)
+        receiver!!.cancel()
+        pullVideo(test)
+    }
+
+    override fun testEnded(test: TestIdentifier, testMetrics: Map<String, String>) {
+        receiver!!.cancel()
         pullVideo(test)
     }
 
     private fun pullVideo(test: TestIdentifier) {
         try {
-            thread?.join(awaitMillis)
+            val join = measureTimeMillis {
+                thread?.join(awaitMillis)
+            }
+            logger.trace { "join ${join}ms" }
             if (hasFailed) {
                 pullTestVideo(test)
             }
@@ -56,16 +65,6 @@ internal class ScreenRecorderTestRunListener(private val fileManager: FileManage
         } catch (e: SyncException) {
             logger.warn { "Can't pull video" }
         }
-    }
-
-    override fun testIgnored(test: TestIdentifier) {
-        screenRecorderStopper!!.stopScreenRecord(hasFailed)
-        pullVideo(test)
-    }
-
-    override fun testEnded(test: TestIdentifier, testMetrics: Map<String, String>) {
-        screenRecorderStopper!!.stopScreenRecord(hasFailed)
-        pullVideo(test)
     }
 
     private fun pullTestVideo(test: TestIdentifier) {
