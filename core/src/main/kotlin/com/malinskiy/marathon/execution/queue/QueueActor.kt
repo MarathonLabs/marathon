@@ -1,11 +1,15 @@
-package com.malinskiy.marathon.execution
+package com.malinskiy.marathon.execution.queue
 
 import com.malinskiy.marathon.actor.Actor
 import com.malinskiy.marathon.analytics.Analytics
-import com.malinskiy.marathon.analytics.metrics.MetricsProvider
 import com.malinskiy.marathon.device.Device
 import com.malinskiy.marathon.device.DevicePoolId
+import com.malinskiy.marathon.execution.Configuration
+import com.malinskiy.marathon.execution.DevicePoolMessage
 import com.malinskiy.marathon.execution.DevicePoolMessage.FromQueue
+import com.malinskiy.marathon.execution.TestBatchResults
+import com.malinskiy.marathon.execution.TestResult
+import com.malinskiy.marathon.execution.TestShard
 import com.malinskiy.marathon.execution.progress.ProgressReporter
 import com.malinskiy.marathon.test.Test
 import com.malinskiy.marathon.test.TestBatch
@@ -17,7 +21,7 @@ import java.util.*
 
 class QueueActor(configuration: Configuration,
                  private val testShard: TestShard,
-                 private val analytics: Analytics,
+                 analytics: Analytics,
                  private val pool: SendChannel<FromQueue>,
                  private val poolId: DevicePoolId,
                  private val progressReporter: ProgressReporter,
@@ -32,6 +36,8 @@ class QueueActor(configuration: Configuration,
     private val retry = configuration.retryStrategy
 
     private val activeBatches = mutableMapOf<Device, TestBatch>()
+
+    private val testResultReporter = TestResultReporter(poolId, analytics, testShard)
 
     init {
         queue.addAll(testShard.tests + testShard.flakyTests)
@@ -87,12 +93,16 @@ class QueueActor(configuration: Configuration,
 
     private fun handleFinishedTests(finished: Collection<TestResult>, device: Device) {
         finished.filter { testShard.flakyTests.contains(it.test) }.let {
-            val oldSize = queue.size
-            queue.removeAll(it.map { it.test })
-            progressReporter.removeTests(poolId, oldSize - queue.size)
+            it.forEach {
+                val oldSize = queue.size
+                queue.removeAll(listOf(it.test))
+                val diff = oldSize - queue.size
+                testResultReporter.removeTest(it.test, diff)
+                progressReporter.removeTests(poolId, diff)
+            }
         }
         finished.forEach {
-            analytics.trackTestResult(poolId, device, it)
+            testResultReporter.testFinished(device, it)
         }
     }
 
@@ -107,10 +117,14 @@ class QueueActor(configuration: Configuration,
             pool.send(FromQueue.Notify)
         }
 
+        retryList.forEach {
+            testResultReporter.retryTest(it)
+        }
+
         failed.filterNot {
             retryList.contains(it.test)
         }.forEach {
-            analytics.trackTestResult(poolId, device, it)
+            testResultReporter.testFailed(device, it)
         }
     }
 

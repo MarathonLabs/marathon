@@ -25,7 +25,7 @@ class ProgressTestRunListener(private val device: Device,
         if (failed[test] == true) {
             progressTracker.testFailed(poolId, device, test.toTest())
         } else {
-            progressTracker.testEnded(poolId, device, test.toTest())
+            progressTracker.testPassed(poolId, device, test.toTest())
         }
     }
 
