@@ -51,6 +51,6 @@ jobs:
       file: "cli/build/distributions/marathon-*.zip"
       file_glob: "true"
       skip_cleanup: true
-    on:
-      repo: Malinskiy/marathon
-      tags: true
+      on:
+        repo: Malinskiy/marathon
+        tags: true
