@@ -97,7 +97,12 @@ class DevicePoolActor(private val poolId: DevicePoolId,
         val actor = devices.remove(device.serialNumber)
         actor?.send(DeviceEvent.Terminate)
         logger.debug { "devices.size = ${devices.size}" }
+        if (noActiveDevices()) {
+            terminate()
+        }
     }
+
+    private fun noActiveDevices() = devices.isEmpty() || devices.all { it.value.isClosedForSend }
 
     private suspend fun addDevice(device: Device) {
         logger.debug { "add device ${device.serialNumber}" }
