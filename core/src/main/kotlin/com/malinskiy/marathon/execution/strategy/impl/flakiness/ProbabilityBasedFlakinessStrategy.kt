@@ -34,8 +34,6 @@ class ProbabilityBasedFlakinessStrategy(@JsonProperty("minSuccessRate") private 
                     currentFailRate *= currentFailRate
                     counter++
                 }
-            } else {
-                output.add(it)
             }
         }
         return testShard.copy(flakyTests = output)
