@@ -23,6 +23,18 @@ class ProbabilityBasedFlakinessStrategySpek : Spek({
                     result.tests.size shouldBe 1
                     result.flakyTests.size shouldBe 2
                 }
+                it("should return zero flaky tests for one test with success rate 0.8") {
+                    val metricsProvider = MetricsProviderStub(successRate = 0.8)
+                    val result = strategy.process(testShard, metricsProvider)
+                    result.tests.size shouldBe 1
+                    result.flakyTests.size shouldBe 0
+                }
+                it("should return zero flaky tests for one test with success rate 1") {
+                    val metricsProvider = MetricsProviderStub(successRate = 1.0)
+                    val result = strategy.process(testShard, metricsProvider)
+                    result.tests.size shouldBe 1
+                    result.flakyTests.size shouldBe 0
+                }
                 it("should return one flaky test for one test with success rate = 0.7") {
                     val metricsProvider = MetricsProviderStub(successRate = 0.7)
                     val result = strategy.process(testShard, metricsProvider)
