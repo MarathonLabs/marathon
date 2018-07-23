@@ -27,7 +27,7 @@ class AndroidTestParser : TestParser {
             filters.all { it.matches(test.clazz) }
         }.also {
             if (it.isEmpty()) {
-                throw NoTestCasesFoundException("No tests cases were found in the test APK: " + file.absolutePath)
+                throw NoTestCasesFoundException("No tests cases were found in the test APK: ${file.absolutePath}")
             }
         }
     }
