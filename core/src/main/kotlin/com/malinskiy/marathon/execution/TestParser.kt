@@ -4,5 +4,5 @@ import com.malinskiy.marathon.test.Test
 import java.io.File
 
 interface TestParser {
-    fun extract(file: File, filters: Collection<Regex>) : List<Test>
+    fun extract(file: File) : List<Test>
 }
