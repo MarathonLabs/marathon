@@ -16,7 +16,7 @@ class AndroidTestParserSpek : Spek({
             val apkFile = File(javaClass.classLoader.getResource("android_test_1.apk").file)
 
             it("should return proper list of test methods") {
-                val extractedTests = parser.extract(apkFile)
+                val extractedTests = parser.extract(apkFile, emptyList())
                 extractedTests shouldEqual listOf(Test("com.example", "MainActivityTest", "testText",
                         listOf("org.junit.Test", "kotlin.Metadata", "org.junit.runner.RunWith")))
             }
