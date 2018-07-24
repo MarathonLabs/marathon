@@ -100,7 +100,9 @@ class Marathon(val configuration: Configuration) {
     }
 
     private fun applyTestFilters(parsedTests: List<Test>): List<Test> {
-        var tests = parsedTests
+        var tests = parsedTests.filter { test ->
+            configuration.testClassRegexes.all { it.matches(test.clazz) }
+        }
         configuration.filteringConfiguration.whitelist.forEach { tests = it.filter(tests) }
         configuration.filteringConfiguration.blacklist.forEach { tests = it.filterNot(tests) }
         return tests

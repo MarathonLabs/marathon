@@ -6,6 +6,6 @@ import java.io.File
 
 class IOSTestParser : TestParser {
     override fun extract(file: File): List<Test> {
-        TODO("not implemented")
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 }
