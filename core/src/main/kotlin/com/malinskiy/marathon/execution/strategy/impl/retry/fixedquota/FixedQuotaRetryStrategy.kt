@@ -12,10 +12,10 @@ class FixedQuotaRetryStrategy(@JsonProperty("totalAllowedRetryQuota") totalAllow
     private val poolTestCaseFailureAccumulator = PoolTestFailureAccumulator()
 
     override fun process(devicePoolId: DevicePoolId, tests: Collection<Test>, testShard: TestShard): List<Test> {
-        return tests.filter {
-            poolTestCaseFailureAccumulator.record(devicePoolId, it)
-            val flakinessResultCount = testShard.flakyTests.count { it == it }
-            retryWatchdog.requestRetry(poolTestCaseFailureAccumulator.getCount(devicePoolId, it) + flakinessResultCount)
+        return tests.filter { test ->
+            poolTestCaseFailureAccumulator.record(devicePoolId, test)
+            val flakinessResultCount = testShard.flakyTests.count { it == test }
+            retryWatchdog.requestRetry(poolTestCaseFailureAccumulator.getCount(devicePoolId, test) + flakinessResultCount)
         }
     }
 
