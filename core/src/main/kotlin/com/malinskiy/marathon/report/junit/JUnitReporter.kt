@@ -66,6 +66,13 @@ class JUnitReporter(private val fileManager: FileManager) {
                                 writeCData(testResult.stacktrace!!)
                             }
                         }
+                        TestStatus.ASSUMPTION_FAILURE -> {
+                            element("skipped") {
+                                testResult.stacktrace?.let {
+                                    writeCData(it)
+                                }
+                            }
+                        }
                         else -> {
                         }
                     }
