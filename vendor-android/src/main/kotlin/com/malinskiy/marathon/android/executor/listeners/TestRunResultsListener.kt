@@ -39,6 +39,15 @@ class TestRunResultsListener(private val testBatch: TestBatch,
             TestResult(it, device.toDeviceInfo(), TestStatus.INCOMPLETE, 0, 0, null)
         }
 
+        val incomplete = runResult.getNumTestsInState(DdmLibTestResult.TestStatus.INCOMPLETE)
+        println("""
+            batch size = ${testBatch.tests.size}
+            finished size = ${finished.size}
+            failed size = ${failed.size}
+            ddm incomplete = $incomplete
+            manual check = ${notExecuted.size}
+        """)
+
         deferred.complete(TestBatchResults(device, finished, failed + notExecuted))
     }
 
