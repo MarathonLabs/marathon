@@ -28,7 +28,7 @@ class JUnitReporter(private val fileManager: FileManager) {
     @Suppress("ComplexMethod")
     private fun generateXml(writer: XMLStreamWriter, testResult: TestResult) {
         @Suppress("MagicNumber")
-        fun Long.toJUnitSeconds(): String = (TimeUnit.NANOSECONDS.toMillis(this) / 1000.0).toString()
+        fun Long.toJUnitSeconds(): String = (this / 1000.0).toString()
 
         val test = testResult.test
 
