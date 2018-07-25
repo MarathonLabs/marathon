@@ -21,9 +21,10 @@ internal class ScreenRecorderTestRunListener(private val fileManager: FileManage
     private val logger = KotlinLogging.logger("ScreenRecorder")
 
     private val deviceInterface: IDevice = device.ddmsDevice
+    private val screenRecorderStopper = ScreenRecorderStopper(deviceInterface)
 
     private var hasFailed: Boolean = false
-    private var thread: Thread? = null
+    private var recorder: Thread? = null
     private var receiver: CollectingOutputReceiver? = null
 
     private val awaitMillis = 1_000L
@@ -33,7 +34,9 @@ internal class ScreenRecorderTestRunListener(private val fileManager: FileManage
 
         receiver = CollectingOutputReceiver()
         val screenRecorder = ScreenRecorder(deviceInterface, test, receiver!!)
-        thread = Thread(screenRecorder, "ScreenRecorder").also { it.start() }
+        recorder = kotlin.concurrent.thread {
+            screenRecorder.run()
+        }
     }
 
     override fun testFailed(test: TestIdentifier, trace: String) {
@@ -53,10 +56,14 @@ internal class ScreenRecorderTestRunListener(private val fileManager: FileManage
     private fun pullVideo(test: TestIdentifier) {
         try {
             val join = measureTimeMillis {
-                thread?.join(awaitMillis)
+                recorder?.join(awaitMillis)
             }
             logger.trace { "join ${join}ms" }
             if (hasFailed) {
+                val stop = measureTimeMillis {
+                    screenRecorderStopper.stopScreenRecord()
+                }
+                logger.trace { "stop ${stop}ms" }
                 pullTestVideo(test)
             }
             removeTestVideo(test)
