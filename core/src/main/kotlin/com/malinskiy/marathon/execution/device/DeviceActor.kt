@@ -37,6 +37,9 @@ class DeviceActor(private val devicePoolId: DevicePoolId,
             on<DeviceEvent.Terminate> {
                 transitionTo(DeviceState.Terminated, DeviceAction.Terminate())
             }
+            on<DeviceEvent.WakeUp> {
+                dontTransition()
+            }
         }
         state<DeviceState.Initializing> {
             on<DeviceEvent.Complete> {
@@ -44,6 +47,9 @@ class DeviceActor(private val devicePoolId: DevicePoolId,
             }
             on<DeviceEvent.Terminate> {
                 transitionTo(DeviceState.Terminated, DeviceAction.Terminate())
+            }
+            on<DeviceEvent.WakeUp> {
+                dontTransition()
             }
         }
         state<DeviceState.Ready> {
