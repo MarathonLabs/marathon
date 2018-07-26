@@ -10,13 +10,18 @@ import com.malinskiy.marathon.test.Test
 import com.malinskiy.marathon.test.TestBatch
 import com.malinskiy.marathon.execution.TestResult
 import com.malinskiy.marathon.execution.TestStatus
+import com.malinskiy.marathon.test.toTestName
 import kotlinx.coroutines.experimental.CompletableDeferred
+import mu.KotlinLogging
 import com.android.ddmlib.testrunner.TestRunResult as DdmLibTestRunResult
 import com.android.ddmlib.testrunner.TestResult as DdmLibTestResult
 
 class TestRunResultsListener(private val testBatch: TestBatch,
                              private val device: Device,
                              private val deferred: CompletableDeferred<TestBatchResults>) : AbstractTestRunResultListener() {
+
+    private val logger = KotlinLogging.logger("TestRunResultsListener")
+
     override fun handleTestRunResults(runResult: DdmLibTestRunResult) {
         val results = runResult.testResults
         val tests = testBatch.tests.associateBy { it.identifier() }
@@ -33,22 +38,19 @@ class TestRunResultsListener(private val testBatch: TestBatch,
             results[it.test.identifier()]?.isSuccessful() ?: false
         }
 
-        val notExecuted = tests.filterNot {
+        val skipped = tests.filterNot {
             results.containsKey(it.key)
         }.values.map {
             TestResult(it, device.toDeviceInfo(), TestStatus.INCOMPLETE, 0, 0, null)
         }
 
-        val incomplete = runResult.getNumTestsInState(DdmLibTestResult.TestStatus.INCOMPLETE)
-        println("""
-            batch size = ${testBatch.tests.size}
-            finished size = ${finished.size}
-            failed size = ${failed.size}
-            ddm incomplete = $incomplete
-            manual check = ${notExecuted.size}
-        """)
+        if (skipped.isNotEmpty()) {
+            skipped.forEach {
+                logger.warn { "skipped = ${it.test.toTestName()}" }
+            }
+        }
 
-        deferred.complete(TestBatchResults(device, finished, failed + notExecuted))
+        deferred.complete(TestBatchResults(device, finished, failed + skipped))
     }
 
     fun Map.Entry<TestIdentifier, DdmLibTestResult>.toTestResult(device: Device): TestResult {
