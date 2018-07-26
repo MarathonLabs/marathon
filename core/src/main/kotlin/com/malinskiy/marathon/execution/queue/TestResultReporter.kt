@@ -54,6 +54,9 @@ class TestResultReporter(private val poolId: DevicePoolId,
         state<TestState.Failed> {
         }
         state<TestState.Passed> {
+            on<TestEvent.Failed> {
+                dontTransition()
+            }
         }
         onTransition {
             val validTransition = it as? StateMachine.Transition.Valid
