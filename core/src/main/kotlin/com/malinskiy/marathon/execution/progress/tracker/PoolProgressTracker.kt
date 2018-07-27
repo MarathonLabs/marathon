@@ -23,6 +23,12 @@ class PoolProgressTracker {
             }
         }
         state<ProgressTestState.Passed> {
+            on<ProgressEvent.Failed> {
+                dontTransition()
+            }
+            on<ProgressEvent.Ignored> {
+                dontTransition()
+            }
         }
         state<ProgressTestState.Failed> {
             on<ProgressEvent.Passed> {
