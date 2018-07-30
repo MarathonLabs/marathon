@@ -2,7 +2,7 @@ object Versions {
     val marathon = "0.2.1"
 
     val kotlin = "1.2.51"
-    val coroutines = "0.21"
+    val coroutines = "0.24.0"
 
     val ddmlib = "26.1.3"
     val dexTestParser = "1.1.0"
@@ -16,7 +16,7 @@ object Versions {
     val spek = "1.1.5"
     val kluent = "1.35"
 
-    val kakao = "1.2.1"
+    val kakao = "1.4.0"
     val espresso = "3.0.1"
     val espressoRules = "1.0.1"
     val espressoRunner = "1.0.1"
