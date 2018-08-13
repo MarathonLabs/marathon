@@ -26,6 +26,10 @@ abstract class Actor<in T>(parent: Job? = null) : SendChannel<T> {
     override val onSend: SelectClause2<T, SendChannel<T>>
         get() = delegate.onSend
 
+    override fun invokeOnClose(handler: (cause: Throwable?) -> Unit) {
+        delegate.invokeOnClose(handler)
+    }
+
     override fun close(cause: Throwable?): Boolean = delegate.close(cause)
 
     override fun offer(element: T): Boolean = delegate.offer(element)
