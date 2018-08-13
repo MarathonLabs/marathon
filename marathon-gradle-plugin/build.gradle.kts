@@ -3,9 +3,10 @@ plugins {
     `kotlin-dsl`
 }
 
+
 gradlePlugin {
     (plugins) {
-        "marathon-gradle-plugin" {
+        create("marathon-gradle-plugin") {
             id = "marathon"
             implementationClass = "com.malinskiy.marathon.MarathonPlugin"
         }

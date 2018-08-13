@@ -77,7 +77,7 @@ object Deployment {
                         username = Deployment.user
                         password = Deployment.password
                     }
-                    setUrl(Deployment.deployUrl)
+//                    setUrl(Deployment.deployUrl)
                 }
             }
         }
