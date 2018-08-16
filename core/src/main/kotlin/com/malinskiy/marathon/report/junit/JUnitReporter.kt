@@ -41,7 +41,7 @@ class JUnitReporter(private val fileManager: FileManager) {
 
         writer.document {
             element("testsuite") {
-                attribute("name", "${test.clazz}.${test.method}")
+                attribute("name", "common")
                 attribute("tests", "1")
                 attribute("failures", "$failures")
                 attribute("errors", "0")
