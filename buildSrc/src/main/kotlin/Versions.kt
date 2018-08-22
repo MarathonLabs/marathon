@@ -1,5 +1,5 @@
 object Versions {
-    val marathon = "0.2.1"
+    val marathon = "0.2.2"
 
     val kotlin = "1.2.51"
     val coroutines = "0.21"
@@ -11,7 +11,7 @@ object Versions {
     val axmlParser = "1.0"
 
     val junitGradle = "1.0.0"
-    val androidGradleVersion = "3.0.1"
+    val androidGradleVersion = "3.1.4"
 
     val spek = "1.1.5"
     val kluent = "1.35"
