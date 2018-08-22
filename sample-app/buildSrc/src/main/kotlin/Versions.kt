@@ -1,7 +1,7 @@
 object Versions {
     val kotlin = "1.2.51"
 
-    val androidGradleVersion = "3.1.3"
+    val androidGradleVersion = "3.1.4"
 
     val kakao = "1.2.1"
     val espresso = "3.0.1"
