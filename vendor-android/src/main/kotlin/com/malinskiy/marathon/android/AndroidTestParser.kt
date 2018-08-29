@@ -10,7 +10,7 @@ class AndroidTestParser : TestParser {
         val tests = DexParser.findTestMethods(file.absolutePath)
         return tests.map {
             val testName = it.testName
-            val annotationNames = it.annotationNames
+            val annotationNames = it.annotations.map { it.name }
             val split = testName.split("#")
 
             if (split.size != 2) throw IllegalStateException("Can't parse test $testName")
