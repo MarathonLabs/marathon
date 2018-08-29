@@ -11,6 +11,7 @@ import org.gradle.kotlin.dsl.the
 import org.gradle.kotlin.dsl.getValue
 import org.gradle.kotlin.dsl.provideDelegate
 import org.gradle.plugins.signing.SigningExtension
+import java.net.URI
 
 object Deployment {
     val user = System.getenv("SONATYPE_USERNAME")
@@ -77,7 +78,7 @@ object Deployment {
                         username = Deployment.user
                         password = Deployment.password
                     }
-                    setUrl(Deployment.deployUrl)
+                    setUrl(URI.create(Deployment.deployUrl))
                 }
             }
         }

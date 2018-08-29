@@ -3,16 +3,17 @@ package com.malinskiy.marathon.execution
 import com.malinskiy.marathon.analytics.Analytics
 import com.malinskiy.marathon.device.DevicePoolId
 import com.malinskiy.marathon.device.DeviceProvider
+import com.malinskiy.marathon.exceptions.NoDevicesException
 import com.malinskiy.marathon.execution.DevicePoolMessage.FromScheduler
 import com.malinskiy.marathon.execution.DevicePoolMessage.FromScheduler.AddDevice
 import com.malinskiy.marathon.execution.DevicePoolMessage.FromScheduler.RemoveDevice
 import com.malinskiy.marathon.execution.progress.ProgressReporter
 import com.malinskiy.marathon.test.Test
-import kotlinx.coroutines.experimental.Job
+import kotlinx.coroutines.experimental.*
 import kotlinx.coroutines.experimental.channels.SendChannel
-import kotlinx.coroutines.experimental.joinChildren
-import kotlinx.coroutines.experimental.launch
 import mu.KotlinLogging
+import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.TimeUnit
 
 /**
  * The logic of scheduler:
@@ -26,7 +27,7 @@ class Scheduler(private val deviceProvider: DeviceProvider,
                 private val tests: Collection<Test>,
                 private val progressReporter: ProgressReporter) {
 
-    private val pools = mutableMapOf<DevicePoolId, SendChannel<FromScheduler>>()
+    private val pools = ConcurrentHashMap<DevicePoolId, SendChannel<FromScheduler>>()
     private val poolingStrategy = configuration.poolingStrategy
 
     private val logger = KotlinLogging.logger("Scheduler")
@@ -34,7 +35,15 @@ class Scheduler(private val deviceProvider: DeviceProvider,
     suspend fun execute() {
         val job = Job()
         subscribeOnDevices(job)
-        Thread.sleep(10_000) //TODO: Replace with delay
+        try {
+            withTimeout(10, TimeUnit.SECONDS) {
+                while (pools.isEmpty()) {
+                    delay(100)
+                }
+            }
+        } catch (e: TimeoutCancellationException) {
+            throw NoDevicesException("")
+        }
         job.joinChildren()
     }
 
