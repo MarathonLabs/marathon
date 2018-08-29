@@ -1,8 +1,8 @@
 object Versions {
     val marathon = "0.2.1"
 
-    val kotlin = "1.2.60"
-    val coroutines = "0.24.0"
+    val kotlin = "1.2.61"
+    val coroutines = "0.25.0"
 
     val ddmlib = "26.1.3"
     val dexTestParser = "1.1.0"
