@@ -6,7 +6,6 @@ import com.malinskiy.marathon.device.Device
 import com.malinskiy.marathon.device.DevicePoolId
 import com.malinskiy.marathon.execution.TestResult
 import com.malinskiy.marathon.execution.TestShard
-import com.malinskiy.marathon.execution.TestStatus
 import com.malinskiy.marathon.test.Test
 import com.malinskiy.marathon.test.toTestName
 import mu.KotlinLogging
@@ -18,14 +17,14 @@ class TestResultReporter(private val poolId: DevicePoolId,
 
     private val logger = KotlinLogging.logger("TestResultReporter")
 
-    private fun createState(count: Int) = StateMachine.create<TestState, TestEvent, TestAction> {
-        initialState(TestState.Added(count))
+    private fun createState(initialCount: Int) = StateMachine.create<TestState, TestEvent, TestAction> {
+        initialState(TestState.Added(initialCount))
         state<TestState.Added> {
             on<TestEvent.Passed> {
                 transitionTo(TestState.Passed(it.device, it.testResult), TestAction.SaveReport(it.device, it.testResult))
             }
             on<TestEvent.Failed> {
-                when (count > 1) {
+                when (this.count > 1) {
                     true -> transitionTo(TestState.Executed(it.device, it.testResult, this.count - 1))
                     false -> transitionTo(TestState.Failed(it.device, it.testResult), TestAction.SaveReport(it.device, it.testResult))
                 }
@@ -36,7 +35,7 @@ class TestResultReporter(private val poolId: DevicePoolId,
         }
         state<TestState.Executed> {
             on<TestEvent.Failed> {
-                when (count > 1) {
+                when (this.count > 1) {
                     true -> transitionTo(this.copy(device = it.device, testResult = it.testResult, count = this.count - 1))
                     false -> transitionTo(TestState.Failed(it.device, it.testResult), TestAction.SaveReport(it.device, it.testResult))
                 }
