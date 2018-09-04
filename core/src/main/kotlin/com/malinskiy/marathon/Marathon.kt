@@ -88,6 +88,8 @@ class Marathon(val configuration: Configuration) {
             summaryPrinter.print(summary)
         }
 
+        testResultReporter.flush()
+
         val hours = TimeUnit.MICROSECONDS.toHours(timeMillis)
         val minutes = TimeUnit.MICROSECONDS.toMinutes(timeMillis)
         val seconds = TimeUnit.MICROSECONDS.toSeconds(timeMillis)

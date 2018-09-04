@@ -1,6 +1,5 @@
 package com.malinskiy.marathon.device
 
-import com.malinskiy.marathon.analytics.Analytics
 import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.execution.TestBatchResults
 import com.malinskiy.marathon.execution.progress.ProgressReporter
