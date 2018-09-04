@@ -10,4 +10,16 @@ data class TestResult(val test: Test,
                       val endTime: Long,
                       val stacktrace: String? = null) {
     fun durationMillis() = endTime - startTime
+
+    val isIgnored: Boolean
+        get() = when (status) {
+            TestStatus.IGNORED, TestStatus.ASSUMPTION_FAILURE -> true
+            else -> false
+        }
+
+    val isSuccess: Boolean
+        get() = when (status) {
+            TestStatus.PASSED -> true
+            else -> false
+        }
 }

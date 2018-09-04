@@ -25,6 +25,10 @@ class FileManager(private val output: File) {
         return createFile(directory, filename)
     }
 
+    fun createTestResultFile(filename: String): File {
+        return File(get(output.absolutePath, FileType.TEST_RESULT.dir).toFile(), filename)
+    }
+
     fun getFiles(fileType: FileType, pool: DevicePoolId): Array<File> {
         val fileFilter: FileFilter = SuffixFileFilter(fileType.suffix)
         val deviceDirectory = get(output.absolutePath, fileType.dir, pool.name).toFile()
