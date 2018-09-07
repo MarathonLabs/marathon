@@ -30,6 +30,7 @@ object Versions {
     val jacksonKotlin = "2.9.4.1"
     val jacksonYaml = "2.9.6"
     val jacksonJSR310 = "2.9.6"
+    val ddPlist = "1.21"
 }
 
 object BuildPlugins {
@@ -57,6 +58,7 @@ object Libraries {
     val jacksonKotlin = "com.fasterxml.jackson.module:jackson-module-kotlin:${Versions.jacksonKotlin}"
     val jacksonYaml = "com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:${Versions.jacksonYaml}"
     val jacksonJSR310 = "com.fasterxml.jackson.datatype:jackson-datatype-jsr310:${Versions.jacksonJSR310}"
+    val ddPlist = "com.googlecode.plist:dd-plist:${Versions.ddPlist}"
 }
 
 object TestLibraries {
