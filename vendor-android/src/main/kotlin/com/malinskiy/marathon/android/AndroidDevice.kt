@@ -2,7 +2,6 @@ package com.malinskiy.marathon.android
 
 import com.android.ddmlib.IDevice
 import com.android.ddmlib.NullOutputReceiver
-import com.malinskiy.marathon.analytics.Analytics
 import com.malinskiy.marathon.android.executor.AndroidAppInstaller
 import com.malinskiy.marathon.android.executor.AndroidDeviceTestRunner
 import com.malinskiy.marathon.device.Device

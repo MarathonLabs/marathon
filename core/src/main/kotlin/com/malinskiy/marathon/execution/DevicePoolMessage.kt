@@ -1,7 +1,6 @@
 package com.malinskiy.marathon.execution
 
 import com.malinskiy.marathon.device.Device
-import com.malinskiy.marathon.device.DevicePoolId
 import com.malinskiy.marathon.test.TestBatch
 
 sealed class DevicePoolMessage {

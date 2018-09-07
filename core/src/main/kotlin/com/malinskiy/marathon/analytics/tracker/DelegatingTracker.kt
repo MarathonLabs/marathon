@@ -1,19 +1,22 @@
 package com.malinskiy.marathon.analytics.tracker
 
+import com.malinskiy.marathon.actor.StateMachine
 import com.malinskiy.marathon.device.Device
 import com.malinskiy.marathon.device.DevicePoolId
-import com.malinskiy.marathon.execution.TestResult
+import com.malinskiy.marathon.execution.queue.TestAction
+import com.malinskiy.marathon.execution.queue.TestEvent
+import com.malinskiy.marathon.execution.queue.TestState
 
 internal class DelegatingTracker(private val trackers: List<Tracker>) : Tracker {
-    override fun terminate() {
+    override fun trackTestTransition(poolId: DevicePoolId, transition: StateMachine.Transition<TestState, TestEvent, TestAction>) {
         trackers.forEach {
-            it.terminate()
+            it.trackTestTransition(poolId, transition)
         }
     }
 
-    override fun trackTestResult(poolId: DevicePoolId, device: Device, testResult: TestResult) {
+    override fun terminate() {
         trackers.forEach {
-            it.trackTestResult(poolId, device, testResult)
+            it.terminate()
         }
     }
 

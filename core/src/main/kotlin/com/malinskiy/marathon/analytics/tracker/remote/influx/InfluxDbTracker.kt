@@ -11,7 +11,8 @@ import org.influxdb.dto.Point
 import java.util.concurrent.TimeUnit
 
 internal class InfluxDbTracker(private val influxDb: InfluxDB) : NoOpTracker() {
-    override fun trackTestResult(poolId: DevicePoolId, device: Device, testResult: TestResult) {
+
+    override fun trackRawTestRun(poolId: DevicePoolId, device: Device, testResult: TestResult) {
         influxDb.write(Point.measurement("tests")
                 .time(System.currentTimeMillis(), TimeUnit.MILLISECONDS)
                 .tag("testname", testResult.test.toSafeTestName())

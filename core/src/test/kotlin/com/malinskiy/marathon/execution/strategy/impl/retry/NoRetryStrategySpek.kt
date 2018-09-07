@@ -1,6 +1,7 @@
 package com.malinskiy.marathon.execution.strategy.impl.retry
 
 import com.malinskiy.marathon.TestGenerator
+import com.malinskiy.marathon.TestResultsGenerator
 import com.malinskiy.marathon.device.DevicePoolId
 import com.malinskiy.marathon.execution.TestShard
 import org.amshove.kluent.shouldBeEmpty
@@ -12,10 +13,11 @@ class NoRetryStrategySpek : Spek({
     describe("no retry strategy test") {
         it("should return empty list") {
             val tests = TestGenerator().create(50)
+            val testResults = TestResultsGenerator().create(tests)
             val strategy = NoRetryStrategy()
             val devicePoolId = DevicePoolId("devicePoolId")
             val testShard = TestShard(tests)
-            val result = strategy.process(devicePoolId, tests, testShard)
+            val result = strategy.process(devicePoolId, testResults, testShard)
             result.shouldBeEmpty()
         }
     }
