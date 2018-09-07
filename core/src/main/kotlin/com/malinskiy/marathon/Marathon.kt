@@ -74,7 +74,7 @@ class Marathon(val configuration: Configuration) {
         val deviceProvider = loadDeviceProvider(configuration.vendorConfiguration)
         val analytics = analyticsFactory.create()
 
-        val parsedTests = testParser.extract(configuration.testApplicationOutput)
+        val parsedTests = testParser.extract(configuration)
         val tests = applyTestFilters(parsedTests)
 
         println("${tests.size} test methods after filters")

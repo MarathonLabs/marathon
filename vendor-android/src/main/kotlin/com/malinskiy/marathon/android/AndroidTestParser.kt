@@ -1,13 +1,13 @@
 package com.malinskiy.marathon.android
 
 import com.linkedin.dex.parser.DexParser
+import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.execution.TestParser
 import com.malinskiy.marathon.test.Test
-import java.io.File
 
 class AndroidTestParser : TestParser {
-    override fun extract(file: File): List<Test> {
-        val tests = DexParser.findTestMethods(file.absolutePath)
+    override fun extract(configuration: Configuration): List<Test> {
+        val tests = DexParser.findTestMethods(configuration.testApplicationOutput.absolutePath)
         return tests.map {
             val testName = it.testName
             val annotationNames = it.annotations.map { it.name }
@@ -25,7 +25,7 @@ class AndroidTestParser : TestParser {
             Test(packageName, className, methodName, annotationNames)
         }.also {
             if (it.isEmpty()) {
-                throw NoTestCasesFoundException("No tests cases were found in the test APK: ${file.absolutePath}")
+                throw NoTestCasesFoundException("No tests cases were found in the test APK: ${configuration.testApplicationOutput.absolutePath}")
             }
         }
     }
