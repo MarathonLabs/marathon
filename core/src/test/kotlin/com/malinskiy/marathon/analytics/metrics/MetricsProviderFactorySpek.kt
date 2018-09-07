@@ -1,7 +1,9 @@
 package com.malinskiy.marathon.analytics.metrics
 
+import com.malinskiy.marathon.device.DeviceProvider
 import com.malinskiy.marathon.execution.AnalyticsConfiguration
 import com.malinskiy.marathon.execution.Configuration
+import com.malinskiy.marathon.execution.TestParser
 import com.malinskiy.marathon.vendor.VendorConfiguration
 import org.amshove.kluent.shouldBeInstanceOf
 import org.jetbrains.spek.api.Spek
@@ -16,6 +18,7 @@ class MetricsProviderFactorySpek : Spek({
                     outputDir = File(""),
                     applicationOutput = File(""),
                     testApplicationOutput = File(""),
+                    sourceRoot = File(""),
                     analyticsConfiguration = AnalyticsConfiguration.DisabledAnalytics,
                     poolingStrategy = null,
                     shardingStrategy = null,
@@ -33,7 +36,10 @@ class MetricsProviderFactorySpek : Spek({
                     testOutputTimeoutMillis = null,
                     debug = null,
                     autoGrantPermission = null,
-                    vendorConfiguration = object : VendorConfiguration {})
+                    vendorConfiguration = object : VendorConfiguration {
+                        override fun testParser(): TestParser? = null
+                        override fun deviceProvider(): DeviceProvider? = null
+                    })
             val factory = MetricsProviderFactory(configuration)
             val metricsProvider = factory.create()
             metricsProvider shouldBeInstanceOf NoOpMetricsProvider::class
