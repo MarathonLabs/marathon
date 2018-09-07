@@ -17,6 +17,7 @@ import com.malinskiy.marathon.report.html.HtmlSummaryPrinter
 import com.malinskiy.marathon.report.internal.DeviceInfoReporter
 import com.malinskiy.marathon.report.internal.TestResultReporter
 import com.malinskiy.marathon.test.Test
+import com.malinskiy.marathon.vendor.VendorConfiguration
 import kotlinx.coroutines.experimental.runBlocking
 import mu.KotlinLogging
 import java.util.ServiceLoader
@@ -49,20 +50,28 @@ class Marathon(val configuration: Configuration) {
         return htmlSummaryPrinter
     }
 
-    private fun loadDeviceProvider(): DeviceProvider {
+    private fun loadDeviceProvider(vendorConfiguration: VendorConfiguration): DeviceProvider {
+        val vendorDeviceProvider = vendorConfiguration.deviceProvider()
+        if (vendorDeviceProvider != null) {
+            return vendorDeviceProvider
+        }
         val deviceProvider = ServiceLoader.load(DeviceProvider::class.java).first()
         deviceProvider.initialize(configuration.vendorConfiguration)
         return deviceProvider
     }
 
-    private fun loadTestParser(): TestParser {
+    private fun loadTestParser(vendorConfiguration: VendorConfiguration): TestParser {
+        val vendorTestParser = vendorConfiguration.testParser()
+        if (vendorTestParser != null) {
+            return vendorTestParser
+        }
         val loader = ServiceLoader.load(TestParser::class.java)
         return loader.first()
     }
 
     fun run(): Boolean = runBlocking {
-        val testParser = loadTestParser()
-        val deviceProvider = loadDeviceProvider()
+        val testParser = loadTestParser(configuration.vendorConfiguration)
+        val deviceProvider = loadDeviceProvider(configuration.vendorConfiguration)
         val analytics = analyticsFactory.create()
 
         val parsedTests = testParser.extract(configuration.testApplicationOutput)
