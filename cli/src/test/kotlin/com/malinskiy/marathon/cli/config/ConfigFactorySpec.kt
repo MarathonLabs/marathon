@@ -14,6 +14,7 @@ import com.malinskiy.marathon.execution.strategy.impl.sharding.CountShardingStra
 import com.malinskiy.marathon.execution.strategy.impl.sharding.ParallelShardingStrategy
 import com.malinskiy.marathon.execution.strategy.impl.sorting.NoSortingStrategy
 import com.malinskiy.marathon.execution.strategy.impl.sorting.SuccessRateSortingStrategy
+import com.malinskiy.marathon.ios.IOSConfiguration
 import org.amshove.kluent.*
 import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.given
@@ -31,44 +32,45 @@ object ConfigFactorySpec: Spek({
             val file = File(ConfigFactorySpec::class.java.getResource("/fixture/config/sample_1.yaml").file)
 
             it("should deserialize") {
-                val configuration = parser.create(file, File("/local/android"))
+                val configuration = parser.create(file, File("/local/android"), null)
 
                 configuration.name shouldEqual "sample-app tests"
-                configuration.outputDir  shouldEqual File("./marathon")
+                configuration.outputDir shouldEqual File("./marathon")
                 configuration.applicationOutput shouldEqual File("kotlin-buildscript/build/outputs/apk/debug/kotlin-buildscript-debug.apk")
-                configuration.testApplicationOutput shouldEqual  File("kotlin-buildscript/build/outputs/apk/androidTest/debug/kotlin-buildscript-debug-androidTest.apk")
+                configuration.testApplicationOutput shouldEqual File("kotlin-buildscript/build/outputs/apk/androidTest/debug/kotlin-buildscript-debug-androidTest.apk")
+                configuration.sourceRoot shouldEqual File("kotlin-buildscript/src")
                 configuration.analyticsConfiguration shouldEqual AnalyticsConfiguration.InfluxDbConfiguration(
-                                url = "http://influx.svc.cluster.local:8086",
-                                user = "root",
-                                password = "root",
-                                dbName = "marathon",
-                                retentionPolicyConfiguration = AnalyticsConfiguration.InfluxDbConfiguration.RetentionPolicyConfiguration.default
-                        )
+                        url = "http://influx.svc.cluster.local:8086",
+                        user = "root",
+                        password = "root",
+                        dbName = "marathon",
+                        retentionPolicyConfiguration = AnalyticsConfiguration.InfluxDbConfiguration.RetentionPolicyConfiguration.default
+                )
                 configuration.poolingStrategy shouldEqual ComboPoolingStrategy(
-                                listOf(
-                                        OmniPoolingStrategy(),
-                                        ModelPoolingStrategy(),
-                                        OperatingSystemVersionPoolingStrategy(),
-                                        ManufacturerPoolingStrategy(),
-                                        AbiPoolingStrategy()
-                                )
+                        listOf(
+                                OmniPoolingStrategy(),
+                                ModelPoolingStrategy(),
+                                OperatingSystemVersionPoolingStrategy(),
+                                ManufacturerPoolingStrategy(),
+                                AbiPoolingStrategy()
                         )
-                configuration.shardingStrategy shouldEqual  CountShardingStrategy(5)
-                configuration.sortingStrategy shouldEqual  SuccessRateSortingStrategy(Instant.from(DateTimeFormatter.ISO_DATE_TIME.parse("2015-03-14T09:26:53.590Z")))
-                configuration.batchingStrategy shouldEqual  FixedSizeBatchingStrategy(5)
-                configuration.flakinessStrategy shouldEqual  ProbabilityBasedFlakinessStrategy(0.7, 3, Instant.from(DateTimeFormatter.ISO_DATE_TIME.parse("2015-03-14T09:26:53.590Z")))
+                )
+                configuration.shardingStrategy shouldEqual CountShardingStrategy(5)
+                configuration.sortingStrategy shouldEqual SuccessRateSortingStrategy(Instant.from(DateTimeFormatter.ISO_DATE_TIME.parse("2015-03-14T09:26:53.590Z")))
+                configuration.batchingStrategy shouldEqual FixedSizeBatchingStrategy(5)
+                configuration.flakinessStrategy shouldEqual ProbabilityBasedFlakinessStrategy(0.7, 3, Instant.from(DateTimeFormatter.ISO_DATE_TIME.parse("2015-03-14T09:26:53.590Z")))
                 configuration.retryStrategy shouldEqual FixedQuotaRetryStrategy(100, 2)
-                SimpleClassnameFilter(".*".toRegex()) shouldEqual  SimpleClassnameFilter(".*".toRegex())
+                SimpleClassnameFilter(".*".toRegex()) shouldEqual SimpleClassnameFilter(".*".toRegex())
 
                 configuration.filteringConfiguration.whitelist shouldContainAll listOf(
-                                        SimpleClassnameFilter(".*".toRegex()),
-                                        FullyQualifiedClassnameFilter(".*".toRegex())
-                                )
+                        SimpleClassnameFilter(".*".toRegex()),
+                        FullyQualifiedClassnameFilter(".*".toRegex())
+                )
 
                 configuration.filteringConfiguration.blacklist shouldContainAll listOf(
-                                        TestPackageFilter(".*".toRegex()),
-                                        AnnotationFilter(".*".toRegex())
-                                )
+                        TestPackageFilter(".*".toRegex()),
+                        AnnotationFilter(".*".toRegex())
+                )
                 configuration.testClassRegexes.map { it.toString() } shouldContainAll listOf("^((?!Abstract).)*Test$")
 
 
@@ -83,17 +85,18 @@ object ConfigFactorySpec: Spek({
                 configuration.vendorConfiguration shouldEqual AndroidConfiguration(File("/local/android"))
             }
         }
-
         on("sample config 2") {
+
             val file = File(ConfigFactorySpec::class.java.getResource("/fixture/config/sample_2.yaml").file)
 
             it("should deserialize with minimal configuration") {
-                val configuration = parser.create(file, File("/local/android"))
+                val configuration = parser.create(file, File("/local/android"), null)
 
                 configuration.name shouldEqual "sample-app tests"
-                configuration.outputDir  shouldEqual File("./marathon")
+                configuration.outputDir shouldEqual File("./marathon")
                 configuration.applicationOutput shouldEqual File("kotlin-buildscript/build/outputs/apk/debug/kotlin-buildscript-debug.apk")
-                configuration.testApplicationOutput shouldEqual  File("kotlin-buildscript/build/outputs/apk/androidTest/debug/kotlin-buildscript-debug-androidTest.apk")
+                configuration.testApplicationOutput shouldEqual File("kotlin-buildscript/build/outputs/apk/androidTest/debug/kotlin-buildscript-debug-androidTest.apk")
+                configuration.sourceRoot shouldEqual File(".")
                 configuration.analyticsConfiguration shouldEqual AnalyticsConfiguration.DisabledAnalytics
                 configuration.poolingStrategy shouldEqual OmniPoolingStrategy()
                 configuration.shardingStrategy shouldEqual ParallelShardingStrategy()
@@ -101,7 +104,7 @@ object ConfigFactorySpec: Spek({
                 configuration.batchingStrategy shouldEqual IsolateBatchingStrategy()
                 configuration.flakinessStrategy shouldEqual IgnoreFlakinessStrategy()
                 configuration.retryStrategy shouldEqual NoRetryStrategy()
-                SimpleClassnameFilter(".*".toRegex()) shouldEqual  SimpleClassnameFilter(".*".toRegex())
+                SimpleClassnameFilter(".*".toRegex()) shouldEqual SimpleClassnameFilter(".*".toRegex())
 
                 configuration.filteringConfiguration.whitelist.shouldBeEmpty()
                 configuration.filteringConfiguration.blacklist.shouldBeEmpty()
@@ -117,6 +120,16 @@ object ConfigFactorySpec: Spek({
                 configuration.debug shouldEqual true
                 configuration.autoGrantPermission shouldEqual false
                 configuration.vendorConfiguration shouldEqual AndroidConfiguration(File("/local/android"))
+            }
+        }
+
+        on("config with xctestrun path") {
+            val file = File(ConfigFactorySpec::class.java.getResource("/fixture/config/sample_2.yaml").file)
+
+            it("should initialize a specific vendor configuration") {
+                val configuration = parser.create(file, null, File("build.xctestrun"))
+
+                configuration.vendorConfiguration shouldEqual IOSConfiguration(File("build.xctestrun"))
             }
         }
     }

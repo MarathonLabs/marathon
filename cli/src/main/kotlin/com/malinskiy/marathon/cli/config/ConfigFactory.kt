@@ -10,13 +10,14 @@ import com.malinskiy.marathon.android.AndroidConfiguration
 import com.malinskiy.marathon.cli.args.EnvironmentConfiguration
 import com.malinskiy.marathon.cli.args.FileConfiguration
 import com.malinskiy.marathon.execution.Configuration
+import com.malinskiy.marathon.ios.IOSConfiguration
 import mu.KotlinLogging
 import java.io.File
 
 private val logger = KotlinLogging.logger {}
 
 class ConfigFactory {
-    fun create(marathonfile: File, androidSdkDir: File?): Configuration {
+    fun create(marathonfile: File, androidSdkDir: File?, xctestrunPath: File?): Configuration {
         logger.info { "Checking $marathonfile config" }
 
         if (!marathonfile.isFile) {
@@ -26,11 +27,25 @@ class ConfigFactory {
 
         val config = readConfigFile(marathonfile) ?: throw ConfigurationException("Invalid config format")
 
+        val vendorConfiguration = if (xctestrunPath != null) {
+            logger.info { "xctestrun file is specified, assuming iOS platform."  }
+            IOSConfiguration(
+                    xctestrunPath
+            )
+        } else {
+            AndroidConfiguration(androidSdkDir
+                    ?: readEnvironment().androidSdkDir
+                    ?: throw ConfigurationException("Android SDK not found")
+            )
+        }
+
         return Configuration(
                 config.name,
                 config.outputDir,
                 config.applicationOutput,
                 config.testApplicationOutput,
+
+                config.sourceRoot,
 
                 config.analyticsConfiguration,
                 config.poolingStrategy,
@@ -49,11 +64,7 @@ class ConfigFactory {
                 config.testOutputTimeoutMillis,
                 config.debug,
                 config.autoGrantPermission,
-                vendorConfiguration = AndroidConfiguration(
-                        androidSdkDir
-                                ?: readEnvironment().androidSdkDir
-                                ?: throw ConfigurationException("Android SDK not found")
-                )
+                vendorConfiguration = vendorConfiguration
         )
     }
 

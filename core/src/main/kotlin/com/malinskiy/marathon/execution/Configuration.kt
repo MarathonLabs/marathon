@@ -22,6 +22,7 @@ data class Configuration constructor(
         val outputDir: File,
         val applicationOutput: File,
         val testApplicationOutput: File,
+        val sourceRoot: File,
 
         val analyticsConfiguration: AnalyticsConfiguration,
         val poolingStrategy: PoolingStrategy,
@@ -51,6 +52,8 @@ data class Configuration constructor(
                 applicationOutput: File,
                 testApplicationOutput: File,
 
+                sourceRoot: File?,
+
                 analyticsConfiguration: AnalyticsConfiguration?,
                 poolingStrategy: PoolingStrategy?,
                 shardingStrategy: ShardingStrategy?,
@@ -78,6 +81,7 @@ data class Configuration constructor(
                     outputDir = outputDir,
                     applicationOutput = applicationOutput,
                     testApplicationOutput = testApplicationOutput,
+                    sourceRoot = sourceRoot ?: File("."),
                     analyticsConfiguration = analyticsConfiguration ?: AnalyticsConfiguration.DisabledAnalytics,
                     poolingStrategy = poolingStrategy ?: OmniPoolingStrategy(),
                     shardingStrategy = shardingStrategy ?: ParallelShardingStrategy(),

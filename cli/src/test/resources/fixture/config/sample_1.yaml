@@ -2,6 +2,7 @@ name: "sample-app tests"
 outputDir: "./marathon"
 applicationOutput: "kotlin-buildscript/build/outputs/apk/debug/kotlin-buildscript-debug.apk"
 testApplicationOutput: "kotlin-buildscript/build/outputs/apk/androidTest/debug/kotlin-buildscript-debug-androidTest.apk"
+sourceRoot: "kotlin-buildscript/src"
 analyticsConfiguration:
   influx:
     url: "http://influx.svc.cluster.local:8086"

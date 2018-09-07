@@ -16,6 +16,8 @@ data class FileConfiguration(
         var applicationOutput: File,
         var testApplicationOutput: File,
 
+        var sourceRoot: File?,
+
         var analyticsConfiguration: AnalyticsConfiguration?,
         var poolingStrategy: PoolingStrategy?,
         var shardingStrategy: ShardingStrategy?,

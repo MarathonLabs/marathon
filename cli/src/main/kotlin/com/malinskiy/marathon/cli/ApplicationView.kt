@@ -16,7 +16,7 @@ fun main(args: Array<String>): Unit = mainBody(
     ArgParser(args).parseInto(::MarathonCliConfiguration).run {
         logger.info { "Starting marathon" }
 
-        val configuration = ConfigFactory().create(marathonfile, androidSdkDir)
+        val configuration = ConfigFactory().create(marathonfile, androidSdkDir, xctestrunPath)
         val marathon = Marathon(configuration = configuration)
         marathon.run()
     }
