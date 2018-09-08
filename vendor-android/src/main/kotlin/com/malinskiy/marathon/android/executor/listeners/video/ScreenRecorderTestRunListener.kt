@@ -15,6 +15,8 @@ import com.malinskiy.marathon.io.FileType
 import mu.KotlinLogging
 import kotlin.system.measureTimeMillis
 
+const val MS_IN_SECOND: Long = 1_000L
+
 internal class ScreenRecorderTestRunListener(private val fileManager: FileManager,
                                              private val pool: DevicePoolId,
                                              private val device: AndroidDevice) : NoOpTestRunListener() {
@@ -27,7 +29,7 @@ internal class ScreenRecorderTestRunListener(private val fileManager: FileManage
     private var recorder: Thread? = null
     private var receiver: CollectingOutputReceiver? = null
 
-    private val awaitMillis = 1_000L
+    private val awaitMillis = MS_IN_SECOND
 
     override fun testStarted(test: TestIdentifier) {
         hasFailed = false

@@ -109,20 +109,20 @@ class QueueActor(configuration: Configuration,
     private suspend fun handleFailedTests(failed: Collection<TestResult>,
                                           device: Device) {
         logger.debug { "handle failed tests ${device.serialNumber}" }
-        val retryList = retry.process(poolId, failed.map { it.test }, testShard)
+        val retryList = retry.process(poolId, failed, testShard)
 
         progressReporter.addTests(poolId, retryList.size)
-        queue.addAll(retryList)
+        queue.addAll(retryList.map { it.test })
         if (retryList.isNotEmpty()) {
             pool.send(FromQueue.Notify)
         }
 
         retryList.forEach {
-            testResultReporter.retryTest(it)
+            testResultReporter.retryTest(device, it)
         }
 
         failed.filterNot {
-            retryList.contains(it.test)
+            retryList.map { it.test }.contains(it.test)
         }.forEach {
             testResultReporter.testFailed(device, it)
         }

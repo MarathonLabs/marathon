@@ -4,7 +4,6 @@ import com.malinskiy.marathon.actor.Actor
 import com.malinskiy.marathon.analytics.Analytics
 import com.malinskiy.marathon.device.Device
 import com.malinskiy.marathon.device.DevicePoolId
-import com.malinskiy.marathon.execution.DevicePoolMessage.*
 import com.malinskiy.marathon.execution.device.DeviceActor
 import com.malinskiy.marathon.execution.device.DeviceEvent
 import com.malinskiy.marathon.execution.progress.ProgressReporter
@@ -27,15 +26,15 @@ class DevicePoolActor(private val poolId: DevicePoolId,
 
     override suspend fun receive(msg: DevicePoolMessage) {
         when (msg) {
-            is FromScheduler.AddDevice -> addDevice(msg.device)
-            is FromScheduler.RemoveDevice -> removeDevice(msg.device)
-            is FromScheduler.Terminate -> terminate()
-            is FromDevice.RequestNextBatch -> deviceReady(msg)
-            is FromDevice.CompletedTestBatch -> deviceCompleted(msg.device, msg.results)
-            is FromDevice.ReturnTestBatch -> deviceReturnedTestBatch(msg.device, msg.batch)
-            is FromQueue.Notify -> notifyDevices()
-            is FromQueue.Terminated -> onQueueTerminated()
-            is FromQueue.ExecuteBatch -> executeBatch(msg.device, msg.batch)
+            is DevicePoolMessage.FromScheduler.AddDevice -> addDevice(msg.device)
+            is DevicePoolMessage.FromScheduler.RemoveDevice -> removeDevice(msg.device)
+            is DevicePoolMessage.FromScheduler.Terminate -> terminate()
+            is DevicePoolMessage.FromDevice.RequestNextBatch -> deviceReady(msg)
+            is DevicePoolMessage.FromDevice.CompletedTestBatch -> deviceCompleted(msg.device, msg.results)
+            is DevicePoolMessage.FromDevice.ReturnTestBatch -> deviceReturnedTestBatch(msg.device, msg.batch)
+            is DevicePoolMessage.FromQueue.Notify -> notifyDevices()
+            is DevicePoolMessage.FromQueue.Terminated -> onQueueTerminated()
+            is DevicePoolMessage.FromQueue.ExecuteBatch -> executeBatch(msg.device, msg.batch)
         }
     }
 
@@ -75,7 +74,7 @@ class DevicePoolActor(private val poolId: DevicePoolId,
         queue.send(QueueMessage.Completed(device, results))
     }
 
-    private suspend fun deviceReady(msg: FromDevice.RequestNextBatch) {
+    private suspend fun deviceReady(msg: DevicePoolMessage.FromDevice.RequestNextBatch) {
         queue.send(QueueMessage.RequestBatch(msg.device))
     }
 

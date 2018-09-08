@@ -13,6 +13,7 @@ import mu.KotlinLogging
 class TestResultReporter(private val poolId: DevicePoolId,
                          private val analytics: Analytics,
                          shard: TestShard) {
+
     private val tests: HashMap<String, StateMachine<TestState, TestEvent, TestAction>> = HashMap()
 
     private val logger = KotlinLogging.logger("TestResultReporter")
@@ -58,22 +59,11 @@ class TestResultReporter(private val poolId: DevicePoolId,
             }
         }
         onTransition {
-            val validTransition = it as? StateMachine.Transition.Valid
-            if (validTransition !is StateMachine.Transition.Valid) {
+            if (it as? StateMachine.Transition.Valid !is StateMachine.Transition.Valid) {
                 logger.error { "from ${it.fromState} event ${it.event}" }
-                return@onTransition
             }
-            val sideEffect = validTransition.sideEffect
-            when (sideEffect) {
-                is TestAction.SaveReport -> {
-                    saveReport(sideEffect.device, sideEffect.testResult)
-                }
-            }
+            analytics.trackTestTransition(poolId, it)
         }
-    }
-
-    private fun saveReport(device: Device, testResult: TestResult) {
-        analytics.trackTestResult(poolId, device, testResult)
     }
 
     init {
@@ -94,8 +84,8 @@ class TestResultReporter(private val poolId: DevicePoolId,
         tests[testResult.test.toTestName()]?.transition(TestEvent.Failed(device, testResult))
     }
 
-    fun retryTest(test: Test) {
-        tests[test.toTestName()]?.transition(TestEvent.Retry)
+    fun retryTest(device: Device, testResult: TestResult) {
+        tests[testResult.test.toTestName()]?.transition(TestEvent.Retry(device, testResult))
     }
 
     fun removeTest(test: Test, diff: Int) {

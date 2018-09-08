@@ -1,13 +1,11 @@
 package com.malinskiy.marathon.analytics.tracker
 
+import com.malinskiy.marathon.actor.StateMachine
 import com.malinskiy.marathon.device.Device
-import com.malinskiy.marathon.device.DeviceInfo
 import com.malinskiy.marathon.device.DevicePoolId
-import com.malinskiy.marathon.device.NetworkState
-import com.malinskiy.marathon.device.OperatingSystem
-import com.malinskiy.marathon.execution.TestResult
-import com.malinskiy.marathon.execution.TestStatus
-import com.malinskiy.marathon.test.Test
+import com.malinskiy.marathon.execution.queue.TestAction
+import com.malinskiy.marathon.execution.queue.TestEvent
+import com.malinskiy.marathon.execution.queue.TestState
 import com.nhaarman.mockito_kotlin.mock
 import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.describe
@@ -19,19 +17,9 @@ class NoOpTrackerSpek : Spek({
             val tracker = NoOpTracker()
             val poolId = DevicePoolId("id")
             val device: Device = mock()
-            val test = Test("pkg", "clazz", "method", emptyList())
-            val deviceInfo = DeviceInfo(
-                    OperatingSystem("23"),
-                    "serial",
-                    "model",
-                    "manufacturer",
-                    NetworkState.CONNECTED,
-                    emptyList(),
-                    true
-            )
-            val testResult = TestResult(test, deviceInfo, TestStatus.PASSED, 200, 400, null)
+            val transition: StateMachine.Transition<TestState, TestEvent, TestAction> = mock()
             tracker.trackDeviceConnected(poolId, device)
-            tracker.trackTestResult(poolId, device, testResult)
+            tracker.trackTestTransition(poolId, transition)
         }
     }
 })

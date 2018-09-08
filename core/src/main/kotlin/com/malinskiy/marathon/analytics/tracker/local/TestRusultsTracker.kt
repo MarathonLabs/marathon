@@ -7,7 +7,8 @@ import com.malinskiy.marathon.execution.TestResult
 import com.malinskiy.marathon.report.internal.TestResultReporter
 
 internal class TestRusultsTracker(private val testResultReporter: TestResultReporter) : NoOpTracker() {
-    override fun trackTestResult(poolId: DevicePoolId, device: Device, testResult: TestResult) {
+
+    override fun trackTestFinished(poolId: DevicePoolId, device: Device, testResult: TestResult) {
         testResultReporter.testFinished(poolId, device, testResult)
     }
 }

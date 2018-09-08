@@ -8,6 +8,8 @@ import com.malinskiy.marathon.test.toTestName
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.math.roundToInt
 
+const val HUNDRED_PERCENT_IN_FLOAT: Float = 100.0f
+
 class ProgressReporter {
     private val reporters = ConcurrentHashMap<DevicePoolId, PoolProgressTracker>()
 
@@ -19,7 +21,7 @@ class ProgressReporter {
     }
 
     private fun toPercent(float: Float): String {
-        val percent = (float * 100.0).roundToInt()
+        val percent = (float * HUNDRED_PERCENT_IN_FLOAT).roundToInt()
         val format = "%02d%%"
         return String.format(format, percent)
     }

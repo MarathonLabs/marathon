@@ -32,7 +32,8 @@ class Marathon(val configuration: Configuration) {
 
     private val testResultReporter = TestResultReporter(fileManager, gson)
     private val deviceInfoReporter = DeviceInfoReporter(fileManager, gson)
-    private val analyticsFactory = AnalyticsFactory(configuration, fileManager, deviceInfoReporter, testResultReporter)
+    private val analyticsFactory = AnalyticsFactory(configuration, fileManager, deviceInfoReporter, testResultReporter,
+                                                    gson)
 
     private val summaryCompiler = SummaryCompiler(deviceInfoReporter, testResultReporter, configuration)
 
@@ -87,8 +88,6 @@ class Marathon(val configuration: Configuration) {
             val summary = summaryCompiler.compile(scheduler.getPools())
             summaryPrinter.print(summary)
         }
-
-        testResultReporter.flush()
 
         val hours = TimeUnit.MICROSECONDS.toHours(timeMillis)
         val minutes = TimeUnit.MICROSECONDS.toMinutes(timeMillis)
