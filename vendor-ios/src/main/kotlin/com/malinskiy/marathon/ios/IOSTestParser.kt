@@ -3,10 +3,8 @@ package com.malinskiy.marathon.ios
 import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.execution.TestParser
 import com.malinskiy.marathon.test.Test
-import com.malinskiy.marathon.test.toTestName
 import mu.KotlinLogging
 import java.io.File
-import java.io.FileNotFoundException
 
 private val logger = KotlinLogging.logger { }
 
@@ -21,10 +19,9 @@ class IOSTestParser : TestParser {
      *  marked as skipped in `xctestrun` file.
      */
     override fun extract(configuration: Configuration): List<Test> {
-        val vendorConfiguration = configuration.vendorConfiguration
-        if (vendorConfiguration !is IOSConfiguration) {
-            throw IllegalStateException("Expected IOS configuration")
-        }
+        val vendorConfiguration = configuration.vendorConfiguration as? IOSConfiguration
+                ?: throw IllegalStateException("Expected IOS configuration")
+
         if (!configuration.sourceRoot.isDirectory) {
             throw IllegalArgumentException("Expected a directory at $vendorConfiguration.sourceRoot")
         }
@@ -55,7 +52,7 @@ class IOSTestParser : TestParser {
         val filteredTests = implementedTests.filter { !xctestrun.isSkipped(it) }
 
         logger.debug { filteredTests.map { "${it.clazz}.${it.method}" }.joinToString() }
-        logger.info { "Found $filteredTests.size tests in $swiftFilesWithTests.size files"}
+        logger.info { "Found ${filteredTests.size} tests in ${swiftFilesWithTests.count()} files"}
 
         return filteredTests
     }

@@ -103,7 +103,8 @@ class MarathonPlugin : Plugin<Project> {
                             config.testOutputTimeoutMillis,
                             config.debug,
                             config.autoGrantPermission,
-                            AndroidConfiguration(sdkDirectory)
+                            AndroidConfiguration(sdkDirectory),
+                            sourceRoot = null
                     )
 
                     dependsOn(variant.testedVariant.assemble, variant.assemble)

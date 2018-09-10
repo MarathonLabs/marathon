@@ -45,8 +45,6 @@ class ConfigFactory {
                 config.applicationOutput,
                 config.testApplicationOutput,
 
-                config.sourceRoot,
-
                 config.analyticsConfiguration,
                 config.poolingStrategy,
                 config.shardingStrategy,
@@ -64,7 +62,8 @@ class ConfigFactory {
                 config.testOutputTimeoutMillis,
                 config.debug,
                 config.autoGrantPermission,
-                vendorConfiguration = vendorConfiguration
+                vendorConfiguration = vendorConfiguration,
+                sourceRoot = config.sourceRoot
         )
     }
 

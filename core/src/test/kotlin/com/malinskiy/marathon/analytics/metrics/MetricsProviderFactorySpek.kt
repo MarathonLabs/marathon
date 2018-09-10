@@ -18,7 +18,6 @@ class MetricsProviderFactorySpek : Spek({
                     outputDir = File(""),
                     applicationOutput = File(""),
                     testApplicationOutput = File(""),
-                    sourceRoot = File(""),
                     analyticsConfiguration = AnalyticsConfiguration.DisabledAnalytics,
                     poolingStrategy = null,
                     shardingStrategy = null,
@@ -39,7 +38,9 @@ class MetricsProviderFactorySpek : Spek({
                     vendorConfiguration = object : VendorConfiguration {
                         override fun testParser(): TestParser? = null
                         override fun deviceProvider(): DeviceProvider? = null
-                    })
+                    },
+                    sourceRoot = File("")
+            )
             val factory = MetricsProviderFactory(configuration)
             val metricsProvider = factory.create()
             metricsProvider shouldBeInstanceOf NoOpMetricsProvider::class

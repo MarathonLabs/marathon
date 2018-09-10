@@ -22,7 +22,6 @@ data class Configuration constructor(
         val outputDir: File,
         val applicationOutput: File,
         val testApplicationOutput: File,
-        val sourceRoot: File,
 
         val analyticsConfiguration: AnalyticsConfiguration,
         val poolingStrategy: PoolingStrategy,
@@ -45,14 +44,13 @@ data class Configuration constructor(
         val debug: Boolean,
 
         val autoGrantPermission: Boolean,
-        val vendorConfiguration: VendorConfiguration) {
+        val vendorConfiguration: VendorConfiguration,
+        val sourceRoot: File) {
 
     constructor(name: String,
                 outputDir: File,
                 applicationOutput: File,
                 testApplicationOutput: File,
-
-                sourceRoot: File?,
 
                 analyticsConfiguration: AnalyticsConfiguration?,
                 poolingStrategy: PoolingStrategy?,
@@ -75,13 +73,13 @@ data class Configuration constructor(
                 debug: Boolean?,
 
                 autoGrantPermission: Boolean?,
-                vendorConfiguration: VendorConfiguration) :
+                vendorConfiguration: VendorConfiguration,
+                sourceRoot: File?) :
 
             this(name = name,
                     outputDir = outputDir,
                     applicationOutput = applicationOutput,
                     testApplicationOutput = testApplicationOutput,
-                    sourceRoot = sourceRoot ?: File("."),
                     analyticsConfiguration = analyticsConfiguration ?: AnalyticsConfiguration.DisabledAnalytics,
                     poolingStrategy = poolingStrategy ?: OmniPoolingStrategy(),
                     shardingStrategy = shardingStrategy ?: ParallelShardingStrategy(),
@@ -99,6 +97,7 @@ data class Configuration constructor(
                     testOutputTimeoutMillis = testOutputTimeoutMillis ?: DEFAULT_OUTPUT_TIMEOUT_MILLIS,
                     debug = debug ?: true,
                     autoGrantPermission = autoGrantPermission ?: false,
-                    vendorConfiguration = vendorConfiguration
+                    vendorConfiguration = vendorConfiguration,
+                    sourceRoot = sourceRoot ?: File(".")
             )
 }

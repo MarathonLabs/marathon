@@ -15,8 +15,30 @@ class AndroidTestParserSpek : Spek({
 
         on("android test apk") {
             val apkFile = File(javaClass.classLoader.getResource("android_test_1.apk").file)
-
-            val configuration = Configuration("name", File(""), File(""), apkFile, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, AndroidConfiguration(File("")))
+            val configuration = Configuration(name = "",
+                    outputDir = File(""),
+                    applicationOutput = File(""),
+                    testApplicationOutput = apkFile,
+                    analyticsConfiguration = null,
+                    poolingStrategy = null,
+                    shardingStrategy = null,
+                    sortingStrategy = null,
+                    batchingStrategy = null,
+                    flakinessStrategy = null,
+                    retryStrategy = null,
+                    filteringConfiguration = null,
+                    ignoreFailures = null,
+                    isCodeCoverageEnabled = null,
+                    fallbackToScreenshots = null,
+                    testClassRegexes = null,
+                    includeSerialRegexes = null,
+                    excludeSerialRegexes = null,
+                    testOutputTimeoutMillis = null,
+                    debug = null,
+                    autoGrantPermission = null,
+                    vendorConfiguration = AndroidConfiguration(File("")),
+                    sourceRoot = File("")
+            )
 
             it("should return proper list of test methods") {
                 val extractedTests = parser.extract(configuration)
