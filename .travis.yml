@@ -32,28 +32,7 @@ jobs:
     script: ./gradlew clean test
   - stage: detekt
     script: ./gradlew clean detektCheck
-  - stage: deploy
-    script: skip
-    deploy:
-    - provider: script
-      script: bash .buildsystem/deploy.sh
-      on:
-        branch: develop
-    - provider: script
-      script: bash .buildsystem/deploy.sh
-      on:
-        tags: true
-  - stage: deploy-cli
-    script: ./gradlew :cli:assembleDist
-    deploy:
-      provider: releases
-      api_key: $GITHUB_OAUTH_TOKEN
-      file: "cli/build/distributions/marathon-*.zip"
-      file_glob: "true"
-      skip_cleanup: true
-      on:
-        repo: Malinskiy/marathon
-        tags: true
+
 
 language: java
 after_success:
