@@ -54,3 +54,7 @@ jobs:
       on:
         repo: Malinskiy/marathon
         tags: true
+
+language: java
+after_success:
+  - bash <(curl -s https://codecov.io/bash)
