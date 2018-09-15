@@ -6,7 +6,7 @@ import org.junit.platform.gradle.plugin.EnginesExtension
 import org.junit.platform.gradle.plugin.JUnitPlatformExtension
 
 plugins {
-    `idea`
+    idea
     `java-library`
     id("org.jetbrains.kotlin.jvm")
     id("org.junit.platform.gradle.plugin")
@@ -28,6 +28,8 @@ dependencies {
     testCompile(TestLibraries.kluent)
     testCompile(TestLibraries.spekAPI)
     testRuntime(TestLibraries.spekJUnitPlatformEngine)
+    testCompile(TestLibraries.testContainers)
+    testCompile(TestLibraries.testContainersInflux)
 }
 
 Deployment.initialize(project)

@@ -30,6 +30,8 @@ object Versions {
     val jacksonKotlin = "2.9.4.1"
     val jacksonYaml = "2.9.6"
     val jacksonJSR310 = "2.9.6"
+
+    val testContainers = "1.9.0-rc1"
 }
 
 object BuildPlugins {
@@ -73,4 +75,6 @@ object TestLibraries {
     val espressoIntents = "com.android.support.test.espresso:espresso-intents:${Versions.espresso}"
     val junit = "junit:junit:${Versions.junit}"
 
+    val testContainers = "org.testcontainers:testcontainers:${Versions.testContainers}"
+    val testContainersInflux = "org.testcontainers:influxdb:${Versions.testContainers}"
 }
