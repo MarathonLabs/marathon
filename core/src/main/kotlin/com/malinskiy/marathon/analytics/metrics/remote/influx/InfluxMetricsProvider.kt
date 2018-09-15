@@ -45,7 +45,7 @@ internal class InfluxMetricsProvider(private val influxDb: InfluxDB,
         val results = influxDb.query(Query("""
             SELECT MEAN("success")
             FROM "tests"
-            WHERE time >= ${limit.toEpochMilli()}
+            WHERE time >= '$limit'
             GROUP BY "testname"
         """, dbName))
         return mapper.toPOJO(results, SuccessRate::class.java)
@@ -70,7 +70,7 @@ internal class InfluxMetricsProvider(private val influxDb: InfluxDB,
         val results = influxDb.query(Query("""
             SELECT PERCENTILE("duration",$percentile)
             FROM "tests"
-            WHERE time >= ${limit.toEpochMilli()}
+            WHERE time >= '$limit'
             GROUP BY "testname"
         """, dbName))
         return mapper.toPOJO(results, ExecutionTime::class.java)
