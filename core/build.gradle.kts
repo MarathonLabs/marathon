@@ -17,8 +17,13 @@ kotlin.experimental.coroutines = Coroutines.ENABLE
 
 sourceSets {
     create("integrationTest") {
-        compileClasspath += sourceSets["main"].output + sourceSets["test"].output + configurations.testCompileClasspath + configurations.testRuntimeClasspath
-        runtimeClasspath += sourceSets["main"].output + sourceSets["test"].output + configurations.testCompileClasspath + configurations.testRuntimeClasspath
+        compileClasspath += sourceSets["main"].output
+        compileClasspath += sourceSets["test"].output
+        compileClasspath += configurations.testCompileClasspath
+
+        runtimeClasspath += sourceSets["main"].output
+        runtimeClasspath += sourceSets["test"].output
+        runtimeClasspath += configurations.testRuntimeClasspath
         withConvention(KotlinSourceSet::class) {
             kotlin.srcDirs("src/integrationTest/kotlin")
         }
