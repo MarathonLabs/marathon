@@ -59,8 +59,6 @@ val integrationTest = task<Test>("integrationTest") {
 
     exclude("**/resources/**")
 
-    systemProperty("unroll.extension.lib.jar.path", "${project.buildDir.absolutePath}/libs/${project.name}.jar")
-
     shouldRunAfter("test")
 }
 
