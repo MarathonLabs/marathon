@@ -52,7 +52,7 @@ class InfluxMetricsProviderIntegrationSpec : Spek({
                 result shouldEqualTo 0.0
             }
         }
-        group("execution time for last two days") {
+        group("execution time") {
             beforeGroup {
                 prepareData(influxDB.invoke(), test)
             }
@@ -63,6 +63,14 @@ class InfluxMetricsProviderIntegrationSpec : Spek({
             it("90 percentile for last two days") {
                 val result = provider.invoke().executionTime(test, 90.0, Instant.now().minus(2, ChronoUnit.DAYS))
                 result shouldEqualTo 9000.0
+            }
+            it("50 percentile for 25 minutes") {
+                val result = provider.invoke().executionTime(test, 50.0, Instant.now().minus(25, ChronoUnit.MINUTES))
+                result shouldEqualTo 2000.0
+            }
+            it("90 percentile for 25 minutes") {
+                val result = provider.invoke().executionTime(test, 90.0, Instant.now().minus(35, ChronoUnit.MINUTES))
+                result shouldEqualTo 4000.0
             }
         }
         group("test success rate") {
