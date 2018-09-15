@@ -18,7 +18,7 @@ class ExecutionTime(@Column(name = "testname", tag = true) var testName: String?
 class SuccessRate(@Column(name = "testname", tag = true) var testName: String? = null,
                   @Column(name = "mean") var mean: Double? = null)
 
-internal class InfluxMetricsProvider(private val influxDb: InfluxDB,
+class InfluxMetricsProvider(private val influxDb: InfluxDB,
                                      private val dbName: String) : MetricsProvider {
     private val mapper = InfluxDBResultMapper()
 
