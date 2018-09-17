@@ -1,5 +1,6 @@
 package com.malinskiy.marathon
 
+import ch.qos.logback.classic.Level
 import com.google.gson.Gson
 import com.malinskiy.marathon.analytics.AnalyticsFactory
 import com.malinskiy.marathon.device.DeviceProvider
@@ -8,6 +9,7 @@ import com.malinskiy.marathon.execution.Scheduler
 import com.malinskiy.marathon.execution.TestParser
 import com.malinskiy.marathon.execution.progress.ProgressReporter
 import com.malinskiy.marathon.io.FileManager
+import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.report.CompositeSummaryPrinter
 import com.malinskiy.marathon.report.SummaryCompiler
 import com.malinskiy.marathon.report.SummaryPrinter
@@ -19,12 +21,11 @@ import com.malinskiy.marathon.report.internal.TestResultReporter
 import com.malinskiy.marathon.test.Test
 import com.malinskiy.marathon.vendor.VendorConfiguration
 import kotlinx.coroutines.experimental.runBlocking
-import mu.KotlinLogging
 import java.util.ServiceLoader
 import java.util.concurrent.TimeUnit
 import kotlin.system.measureTimeMillis
 
-private val log = KotlinLogging.logger {}
+private val log = MarathonLogging.logger {}
 
 class Marathon(val configuration: Configuration) {
 
@@ -34,7 +35,7 @@ class Marathon(val configuration: Configuration) {
     private val testResultReporter = TestResultReporter(fileManager, gson)
     private val deviceInfoReporter = DeviceInfoReporter(fileManager, gson)
     private val analyticsFactory = AnalyticsFactory(configuration, fileManager, deviceInfoReporter, testResultReporter,
-                                                    gson)
+            gson)
 
     private val summaryCompiler = SummaryCompiler(deviceInfoReporter, testResultReporter, configuration)
 
@@ -51,13 +52,11 @@ class Marathon(val configuration: Configuration) {
     }
 
     private fun loadDeviceProvider(vendorConfiguration: VendorConfiguration): DeviceProvider {
-        val vendorDeviceProvider = vendorConfiguration.deviceProvider()
-        if (vendorDeviceProvider != null) {
-            return vendorDeviceProvider
-        }
-        val deviceProvider = ServiceLoader.load(DeviceProvider::class.java).first()
-        deviceProvider.initialize(configuration.vendorConfiguration)
-        return deviceProvider
+        var vendorDeviceProvider = vendorConfiguration.deviceProvider()
+                ?: ServiceLoader.load(DeviceProvider::class.java).first()
+
+        vendorDeviceProvider.initialize(configuration.vendorConfiguration)
+        return vendorDeviceProvider
     }
 
     private fun loadTestParser(vendorConfiguration: VendorConfiguration): TestParser {
@@ -70,6 +69,8 @@ class Marathon(val configuration: Configuration) {
     }
 
     fun run(): Boolean = runBlocking {
+        MarathonLogging.debug = configuration.debug
+
         val testParser = loadTestParser(configuration.vendorConfiguration)
         val deviceProvider = loadDeviceProvider(configuration.vendorConfiguration)
         val analytics = analyticsFactory.create()

@@ -6,30 +6,30 @@
 	<dict>
 		<key>BundleIdentifiersForCrashReportEmphasis</key>
 		<array>
-			<string>com.agoda.sample-app</string>
 			<string>com.agoga.sample-appUITests</string>
+			<string>com.agoda.sample-app</string>
 		</array>
 		<key>CommandLineArguments</key>
 		<array/>
 		<key>DependentProductPaths</key>
 		<array>
-			<string>__TESTROOT__/Debug-iphonesimulator/sample-app.app</string>
 			<string>__TESTROOT__/Debug-iphonesimulator/sample-appUITests-Runner.app/PlugIns/sample-appUITests.xctest</string>
+			<string>__TESTROOT__/Debug-iphonesimulator/sample-app.app</string>
 		</array>
 		<key>EnvironmentVariables</key>
 		<dict>
 			<key>DYLD_FRAMEWORK_PATH</key>
-			<string>/Users/ypanforov/Developer/sample-app/.build/Build/Products/Debug-iphonesimulator</string>
+			<string>/Users/pkunzip/Development/marathon/vendor-ios/src/test/resources/src/sample-xcworkspace/a/Build/Products/Debug-iphonesimulator</string>
 			<key>DYLD_LIBRARY_PATH</key>
-			<string>/Users/ypanforov/Developer/sample-app/.build/Build/Products/Debug-iphonesimulator</string>
+			<string>/Users/pkunzip/Development/marathon/vendor-ios/src/test/resources/src/sample-xcworkspace/a/Build/Products/Debug-iphonesimulator</string>
 			<key>OS_ACTIVITY_DT_MODE</key>
 			<string>YES</string>
 			<key>__XCODE_BUILT_PRODUCTS_DIR_PATHS</key>
-			<string>/Users/ypanforov/Developer/sample-app/.build/Build/Products/Debug-iphonesimulator</string>
+			<string>/Users/pkunzip/Development/marathon/vendor-ios/src/test/resources/src/sample-xcworkspace/a/Build/Products/Debug-iphonesimulator</string>
 			<key>__XPC_DYLD_FRAMEWORK_PATH</key>
-			<string>/Users/ypanforov/Developer/sample-app/.build/Build/Products/Debug-iphonesimulator</string>
+			<string>/Users/pkunzip/Development/marathon/vendor-ios/src/test/resources/src/sample-xcworkspace/a/Build/Products/Debug-iphonesimulator</string>
 			<key>__XPC_DYLD_LIBRARY_PATH</key>
-			<string>/Users/ypanforov/Developer/sample-app/.build/Build/Products/Debug-iphonesimulator</string>
+			<string>/Users/pkunzip/Development/marathon/vendor-ios/src/test/resources/src/sample-xcworkspace/a/Build/Products/Debug-iphonesimulator</string>
 		</dict>
 		<key>IsUITestBundle</key>
 		<true/>

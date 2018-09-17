@@ -17,8 +17,6 @@ class AndroidTestParserSpek : Spek({
             val apkFile = File(javaClass.classLoader.getResource("android_test_1.apk").file)
             val configuration = Configuration(name = "",
                     outputDir = File(""),
-                    applicationOutput = File(""),
-                    testApplicationOutput = apkFile,
                     analyticsConfiguration = null,
                     poolingStrategy = null,
                     shardingStrategy = null,
@@ -35,9 +33,11 @@ class AndroidTestParserSpek : Spek({
                     excludeSerialRegexes = null,
                     testOutputTimeoutMillis = null,
                     debug = null,
-                    autoGrantPermission = null,
-                    vendorConfiguration = AndroidConfiguration(File("")),
-                    sourceRoot = File("")
+                    vendorConfiguration = AndroidConfiguration(
+                            File(""),
+                            applicationOutput = File(""),
+                            testApplicationOutput = apkFile
+                    )
             )
 
             it("should return proper list of test methods") {

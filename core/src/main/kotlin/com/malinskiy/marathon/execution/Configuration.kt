@@ -20,8 +20,6 @@ private const val DEFAULT_OUTPUT_TIMEOUT_MILLIS = 60_000
 data class Configuration constructor(
         val name: String,
         val outputDir: File,
-        val applicationOutput: File,
-        val testApplicationOutput: File,
 
         val analyticsConfiguration: AnalyticsConfiguration,
         val poolingStrategy: PoolingStrategy,
@@ -43,14 +41,10 @@ data class Configuration constructor(
         val testOutputTimeoutMillis: Int,
         val debug: Boolean,
 
-        val autoGrantPermission: Boolean,
-        val vendorConfiguration: VendorConfiguration,
-        val sourceRoot: File) {
+        val vendorConfiguration: VendorConfiguration) {
 
     constructor(name: String,
                 outputDir: File,
-                applicationOutput: File,
-                testApplicationOutput: File,
 
                 analyticsConfiguration: AnalyticsConfiguration?,
                 poolingStrategy: PoolingStrategy?,
@@ -72,14 +66,10 @@ data class Configuration constructor(
                 testOutputTimeoutMillis: Int?,
                 debug: Boolean?,
 
-                autoGrantPermission: Boolean?,
-                vendorConfiguration: VendorConfiguration,
-                sourceRoot: File?) :
+                vendorConfiguration: VendorConfiguration) :
 
             this(name = name,
                     outputDir = outputDir,
-                    applicationOutput = applicationOutput,
-                    testApplicationOutput = testApplicationOutput,
                     analyticsConfiguration = analyticsConfiguration ?: AnalyticsConfiguration.DisabledAnalytics,
                     poolingStrategy = poolingStrategy ?: OmniPoolingStrategy(),
                     shardingStrategy = shardingStrategy ?: ParallelShardingStrategy(),
@@ -96,8 +86,6 @@ data class Configuration constructor(
                     excludeSerialRegexes = excludeSerialRegexes ?: emptyList(),
                     testOutputTimeoutMillis = testOutputTimeoutMillis ?: DEFAULT_OUTPUT_TIMEOUT_MILLIS,
                     debug = debug ?: true,
-                    autoGrantPermission = autoGrantPermission ?: false,
-                    vendorConfiguration = vendorConfiguration,
-                    sourceRoot = sourceRoot ?: File(".")
+                    vendorConfiguration = vendorConfiguration
             )
 }

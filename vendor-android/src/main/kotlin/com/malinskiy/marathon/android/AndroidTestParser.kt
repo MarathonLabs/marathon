@@ -7,7 +7,9 @@ import com.malinskiy.marathon.test.Test
 
 class AndroidTestParser : TestParser {
     override fun extract(configuration: Configuration): List<Test> {
-        val tests = DexParser.findTestMethods(configuration.testApplicationOutput.absolutePath)
+        val androidConfiguration = configuration.vendorConfiguration as AndroidConfiguration
+
+        val tests = DexParser.findTestMethods(androidConfiguration.testApplicationOutput.absolutePath)
         return tests.map {
             val testName = it.testName
             val annotationNames = it.annotations.map { it.name }
@@ -25,7 +27,7 @@ class AndroidTestParser : TestParser {
             Test(packageName, className, methodName, annotationNames)
         }.also {
             if (it.isEmpty()) {
-                throw NoTestCasesFoundException("No tests cases were found in the test APK: ${configuration.testApplicationOutput.absolutePath}")
+                throw NoTestCasesFoundException("No tests cases were found in the test APK: ${androidConfiguration.testApplicationOutput.absolutePath}")
             }
         }
     }

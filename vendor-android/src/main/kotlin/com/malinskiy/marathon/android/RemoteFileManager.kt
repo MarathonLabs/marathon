@@ -6,13 +6,13 @@ import com.android.ddmlib.NullOutputReceiver
 import com.android.ddmlib.ShellCommandUnresponsiveException
 import com.android.ddmlib.TimeoutException
 import com.android.ddmlib.testrunner.TestIdentifier
-import mu.KotlinLogging
+import com.malinskiy.marathon.log.MarathonLogging
 
 import java.io.IOException
 
 object RemoteFileManager {
 
-    private val logger = KotlinLogging.logger("RemoteFileManager")
+    private val logger = MarathonLogging.logger("RemoteFileManager")
 
     private const val OUTPUT_DIR = "/sdcard/marathon"
     private val NO_OP_RECEIVER = NullOutputReceiver()

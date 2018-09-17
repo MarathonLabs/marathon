@@ -4,6 +4,7 @@ import com.android.ddmlib.AdbCommandRejectedException
 import com.android.ddmlib.ShellCommandUnresponsiveException
 import com.android.ddmlib.TimeoutException
 import com.android.ddmlib.testrunner.RemoteAndroidTestRunner
+import com.malinskiy.marathon.android.AndroidConfiguration
 import com.malinskiy.marathon.android.AndroidDevice
 import com.malinskiy.marathon.android.ApkParser
 import com.malinskiy.marathon.android.executor.listeners.CompositeTestRunListener
@@ -17,24 +18,26 @@ import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.execution.TestBatchResults
 import com.malinskiy.marathon.execution.progress.ProgressReporter
 import com.malinskiy.marathon.io.FileManager
+import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.report.logs.LogWriter
 import com.malinskiy.marathon.test.TestBatch
 import com.malinskiy.marathon.test.toTestName
 import kotlinx.coroutines.experimental.CompletableDeferred
-import mu.KotlinLogging
 import java.io.IOException
 import java.util.concurrent.TimeUnit
 
 class AndroidDeviceTestRunner(private val device: AndroidDevice) {
 
-    private val logger = KotlinLogging.logger("AndroidDeviceTestRunner")
+    private val logger = MarathonLogging.logger("AndroidDeviceTestRunner")
 
     fun execute(configuration: Configuration,
                 devicePoolId: DevicePoolId,
                 testBatch: TestBatch,
                 deferred: CompletableDeferred<TestBatchResults>,
                 progressReporter: ProgressReporter) {
-        val info = ApkParser().parseInstrumentationInfo(configuration.testApplicationOutput)
+
+        val androidConfiguration = configuration.vendorConfiguration as AndroidConfiguration
+        val info = ApkParser().parseInstrumentationInfo(androidConfiguration.testApplicationOutput)
         val runner = RemoteAndroidTestRunner(info.instrumentationPackage, info.testRunnerClass, device.ddmsDevice)
         runner.setRunName("TestRunName")
         runner.setMaxTimeToOutputResponse(configuration.testOutputTimeoutMillis.toLong() * testBatch.tests.size, TimeUnit.MILLISECONDS)

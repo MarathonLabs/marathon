@@ -1,13 +1,14 @@
 package com.malinskiy.marathon
 
+import com.malinskiy.marathon.android.AndroidConfiguration
 import com.malinskiy.marathon.execution.Configuration
-import mu.KotlinLogging
+import com.malinskiy.marathon.log.MarathonLogging
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
 import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.VerificationTask
 
-private val log = KotlinLogging.logger {}
+private val log = MarathonLogging.logger {}
 
 open class MarathonRunTask : DefaultTask(), VerificationTask {
 
@@ -16,8 +17,9 @@ open class MarathonRunTask : DefaultTask(), VerificationTask {
     @TaskAction
     fun runMarathon() {
         val cnf = configuration!!
+        val androidConfiguration = cnf.vendorConfiguration as? AndroidConfiguration
 
-        log.info { "Run instrumentation tests ${cnf.testApplicationOutput} for app ${cnf.applicationOutput}" }
+        log.info { "Run instrumentation tests ${androidConfiguration?.testApplicationOutput} for app ${androidConfiguration?.applicationOutput}" }
         log.debug { "Output: ${cnf.outputDir}" }
         log.debug { "Ignore failures: ${cnf.ignoreFailures}" }
 

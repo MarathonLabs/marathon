@@ -24,7 +24,7 @@ import java.io.File
 import java.time.Instant
 import java.time.format.DateTimeFormatter
 
-object ConfigFactorySpec: Spek({
+object ConfigFactorySpec : Spek({
     given("ConfigFactory") {
         val parser = ConfigFactory()
 
@@ -36,9 +36,6 @@ object ConfigFactorySpec: Spek({
 
                 configuration.name shouldEqual "sample-app tests"
                 configuration.outputDir shouldEqual File("./marathon")
-                configuration.applicationOutput shouldEqual File("kotlin-buildscript/build/outputs/apk/debug/kotlin-buildscript-debug.apk")
-                configuration.testApplicationOutput shouldEqual File("kotlin-buildscript/build/outputs/apk/androidTest/debug/kotlin-buildscript-debug-androidTest.apk")
-                configuration.sourceRoot shouldEqual File("kotlin-buildscript/src")
                 configuration.analyticsConfiguration shouldEqual AnalyticsConfiguration.InfluxDbConfiguration(
                         url = "http://influx.svc.cluster.local:8086",
                         user = "root",
@@ -81,8 +78,14 @@ object ConfigFactorySpec: Spek({
                 configuration.fallbackToScreenshots shouldEqual false
                 configuration.testOutputTimeoutMillis shouldEqual 30000
                 configuration.debug shouldEqual true
-                configuration.autoGrantPermission shouldEqual true
-                configuration.vendorConfiguration shouldEqual AndroidConfiguration(File("/local/android"))
+
+                configuration.vendorConfiguration shouldEqual AndroidConfiguration(
+                        File("/local/android"),
+                        File("kotlin-buildscript/build/outputs/apk/debug/kotlin-buildscript-debug.apk"),
+                        File("kotlin-buildscript/build/outputs/apk/androidTest/debug/kotlin-buildscript-debug-androidTest.apk"),
+                        true,
+                        30_000
+                )
             }
         }
         on("sample config 2") {
@@ -94,9 +97,6 @@ object ConfigFactorySpec: Spek({
 
                 configuration.name shouldEqual "sample-app tests"
                 configuration.outputDir shouldEqual File("./marathon")
-                configuration.applicationOutput shouldEqual File("kotlin-buildscript/build/outputs/apk/debug/kotlin-buildscript-debug.apk")
-                configuration.testApplicationOutput shouldEqual File("kotlin-buildscript/build/outputs/apk/androidTest/debug/kotlin-buildscript-debug-androidTest.apk")
-                configuration.sourceRoot shouldEqual File(".")
                 configuration.analyticsConfiguration shouldEqual AnalyticsConfiguration.DisabledAnalytics
                 configuration.poolingStrategy shouldEqual OmniPoolingStrategy()
                 configuration.shardingStrategy shouldEqual ParallelShardingStrategy()
@@ -118,18 +118,35 @@ object ConfigFactorySpec: Spek({
                 configuration.fallbackToScreenshots shouldEqual false
                 configuration.testOutputTimeoutMillis shouldEqual 60000
                 configuration.debug shouldEqual true
-                configuration.autoGrantPermission shouldEqual false
-                configuration.vendorConfiguration shouldEqual AndroidConfiguration(File("/local/android"))
+                configuration.vendorConfiguration shouldEqual AndroidConfiguration(
+                        File("/local/android"),
+                        File("kotlin-buildscript/build/outputs/apk/debug/kotlin-buildscript-debug.apk"),
+                        File("kotlin-buildscript/build/outputs/apk/androidTest/debug/kotlin-buildscript-debug-androidTest.apk"),
+                        false,
+                        30_000
+                )
             }
         }
 
-        on("config with xctestrun path") {
-            val file = File(ConfigFactorySpec::class.java.getResource("/fixture/config/sample_2.yaml").file)
+        on("config with ios vendor configuration") {
+            val file = File(ConfigFactorySpec::class.java.getResource("/fixture/config/sample_3.yaml").file)
+
+            it("should initialize a specific vendor configuration") {
+                assert(false)
+                val configuration = parser.create(file, null, null)
+                configuration.vendorConfiguration shouldEqual IOSConfiguration(File("a/Build/Products/UITesting_iphonesimulator11.0-x86_64.xctestrun"),
+                        "testuser",
+                        File("/home/testuser/.ssh/id_rsa"))
+            }
+        }
+
+        on("config with xctestrun path overridden") {
+            val file = File(ConfigFactorySpec::class.java.getResource("/fixture/config/sample_4.yaml").file)
 
             it("should initialize a specific vendor configuration") {
                 val configuration = parser.create(file, null, File("build.xctestrun"))
 
-                configuration.vendorConfiguration shouldEqual IOSConfiguration(File("build.xctestrun"))
+                configuration.vendorConfiguration shouldEqual IOSConfiguration(File("build.xctestrun"), "testuser", File("/home/testuser/.ssh/id_rsa"))
             }
         }
     }

@@ -9,7 +9,7 @@ import com.android.build.gradle.api.BaseVariantOutput
 import com.android.build.gradle.api.TestVariant
 import com.malinskiy.marathon.android.AndroidConfiguration
 import com.malinskiy.marathon.execution.Configuration
-import mu.KotlinLogging
+import com.malinskiy.marathon.log.MarathonLogging
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.Task
@@ -17,7 +17,7 @@ import org.gradle.api.plugins.JavaBasePlugin
 import org.gradle.kotlin.dsl.closureOf
 import java.io.File
 
-private val log = KotlinLogging.logger {}
+private val log = MarathonLogging.logger {}
 
 class MarathonPlugin : Plugin<Project> {
 
@@ -80,12 +80,15 @@ class MarathonPlugin : Plugin<Project> {
                     val applicationApk = File(applicationOutput.packageApplication.outputDirectory.path, applicationOutput.outputFileName)
                     val baseOutputDir = if (config.baseOutputDir != null) File(config.baseOutputDir) else File(project.buildDir, "reports/marathon")
                     val output = File(baseOutputDir, variant.name)
+                    val autoGrantPermission = config.autoGrantPermission
+                    val vendorConfiguration = when(autoGrantPermission) {
+                        null -> AndroidConfiguration(sdkDirectory, applicationApk, instrumentationApk)
+                        else -> AndroidConfiguration(sdkDirectory, applicationApk, instrumentationApk, autoGrantPermission)
+                    }
 
                     configuration = Configuration(
                             config.name,
                             output,
-                            applicationApk,
-                            instrumentationApk,
                             config.analyticsConfiguration?.toAnalyticsConfiguration(),
                             config.poolingStrategy?.toStrategy(),
                             config.shardingStrategy?.toStrategy(),
@@ -102,9 +105,7 @@ class MarathonPlugin : Plugin<Project> {
                             config.excludeSerialRegexes?.map { it.toRegex() },
                             config.testOutputTimeoutMillis,
                             config.debug,
-                            config.autoGrantPermission,
-                            AndroidConfiguration(sdkDirectory),
-                            sourceRoot = null
+                            vendorConfiguration
                     )
 
                     dependsOn(variant.testedVariant.assemble, variant.assemble)

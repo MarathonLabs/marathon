@@ -8,15 +8,12 @@ import com.malinskiy.marathon.execution.strategy.PoolingStrategy
 import com.malinskiy.marathon.execution.strategy.RetryStrategy
 import com.malinskiy.marathon.execution.strategy.ShardingStrategy
 import com.malinskiy.marathon.execution.strategy.SortingStrategy
+import com.malinskiy.marathon.vendor.VendorConfiguration
 import java.io.File
 
 data class FileConfiguration(
         var name: String,
         var outputDir: File,
-        var applicationOutput: File,
-        var testApplicationOutput: File,
-
-        var sourceRoot: File?,
 
         var analyticsConfiguration: AnalyticsConfiguration?,
         var poolingStrategy: PoolingStrategy?,
@@ -38,5 +35,5 @@ data class FileConfiguration(
         var testOutputTimeoutMillis: Int?,
         var debug: Boolean?,
 
-        var autoGrantPermission: Boolean?
+        var vendorConfiguration: FileVendorConfiguration?
 )

@@ -12,9 +12,9 @@ import com.malinskiy.marathon.device.OperatingSystem
 import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.execution.TestBatchResults
 import com.malinskiy.marathon.execution.progress.ProgressReporter
+import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.test.TestBatch
 import kotlinx.coroutines.experimental.CompletableDeferred
-import mu.KotlinLogging
 import java.util.*
 
 class AndroidDevice(val ddmsDevice: IDevice) : Device {
@@ -92,7 +92,7 @@ class AndroidDevice(val ddmsDevice: IDevice) : Device {
     }
 
     private fun clearLogcat(device: IDevice) {
-        val logger = KotlinLogging.logger("AndroidDevice.clearLogcat")
+        val logger = MarathonLogging.logger("AndroidDevice.clearLogcat")
         try {
             device.executeShellCommand("logcat -c", NullOutputReceiver())
         } catch (e: Throwable) {

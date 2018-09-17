@@ -1,0 +1,13 @@
+name: "sample-ios-app tests"
+outputDir: "a/Marathon"
+testClassRegexes: ["^((?!Abstract).)*Tests$"]
+batchingStrategy:
+  type: "fixed-size"
+  size: 5
+debug: true
+vendorConfiguration:
+  type: "iOS"
+  xctestrunPath: "a/Build/Products/UITesting_iphonesimulator11.0-x86_64.xctestrun"
+  sourceRoot: "sample-appUITests"
+  remoteUsername: "amalinskiy"
+  remotePublicKey: "/Users/amalinskiy/.ssh/id_rsa"

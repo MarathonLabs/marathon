@@ -9,6 +9,7 @@ import com.malinskiy.marathon.execution.DevicePoolMessage
 import com.malinskiy.marathon.execution.DevicePoolMessage.FromDevice.RequestNextBatch
 import com.malinskiy.marathon.execution.TestBatchResults
 import com.malinskiy.marathon.execution.progress.ProgressReporter
+import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.test.TestBatch
 import kotlinx.coroutines.experimental.CompletableDeferred
 import kotlinx.coroutines.experimental.Job
@@ -16,7 +17,6 @@ import kotlinx.coroutines.experimental.async
 import kotlinx.coroutines.experimental.channels.SendChannel
 import kotlinx.coroutines.experimental.launch
 import kotlinx.coroutines.experimental.newSingleThreadContext
-import mu.KotlinLogging
 import kotlin.properties.Delegates
 
 class DeviceActor(private val devicePoolId: DevicePoolId,
@@ -108,7 +108,7 @@ class DeviceActor(private val devicePoolId: DevicePoolId,
             }
         }
     }
-    private val logger = KotlinLogging.logger("DevicePool[${devicePoolId.name}]_DeviceActor[${device.serialNumber}]")
+    private val logger = MarathonLogging.logger("DevicePool[${devicePoolId.name}]_DeviceActor[${device.serialNumber}]")
 
     override suspend fun receive(msg: DeviceEvent) {
         when (msg) {

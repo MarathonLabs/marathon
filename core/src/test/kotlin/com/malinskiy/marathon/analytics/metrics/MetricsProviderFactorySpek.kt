@@ -16,8 +16,6 @@ class MetricsProviderFactorySpek : Spek({
         it("should return noop metrics provider when analytics configuration is disabled") {
             val configuration = Configuration(name = "",
                     outputDir = File(""),
-                    applicationOutput = File(""),
-                    testApplicationOutput = File(""),
                     analyticsConfiguration = AnalyticsConfiguration.DisabledAnalytics,
                     poolingStrategy = null,
                     shardingStrategy = null,
@@ -34,12 +32,10 @@ class MetricsProviderFactorySpek : Spek({
                     excludeSerialRegexes = null,
                     testOutputTimeoutMillis = null,
                     debug = null,
-                    autoGrantPermission = null,
                     vendorConfiguration = object : VendorConfiguration {
                         override fun testParser(): TestParser? = null
                         override fun deviceProvider(): DeviceProvider? = null
-                    },
-                    sourceRoot = File("")
+                    }
             )
             val factory = MetricsProviderFactory(configuration)
             val metricsProvider = factory.create()

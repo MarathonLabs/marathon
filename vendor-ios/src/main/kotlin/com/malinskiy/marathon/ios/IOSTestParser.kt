@@ -2,11 +2,11 @@ package com.malinskiy.marathon.ios
 
 import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.execution.TestParser
+import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.test.Test
-import mu.KotlinLogging
 import java.io.File
 
-private val logger = KotlinLogging.logger { }
+private val logger = MarathonLogging.logger { }
 
 class IOSTestParser : TestParser {
     private val swiftTestClassRegex = """class ([^:\s]+)\s*:\s*XCTestCase""".toRegex()
@@ -22,14 +22,14 @@ class IOSTestParser : TestParser {
         val vendorConfiguration = configuration.vendorConfiguration as? IOSConfiguration
                 ?: throw IllegalStateException("Expected IOS configuration")
 
-        if (!configuration.sourceRoot.isDirectory) {
+        if (!vendorConfiguration.sourceRoot.isDirectory) {
             throw IllegalArgumentException("Expected a directory at $vendorConfiguration.sourceRoot")
         }
 
         val xctestrun = XCTestRun(vendorConfiguration.xctestrunPath)
         val moduleName = xctestrun.moduleName
 
-        val swiftFilesWithTests = configuration
+        val swiftFilesWithTests = vendorConfiguration
                 .sourceRoot
                 .listFiles("swift")
                 .filter(swiftTestClassRegex)

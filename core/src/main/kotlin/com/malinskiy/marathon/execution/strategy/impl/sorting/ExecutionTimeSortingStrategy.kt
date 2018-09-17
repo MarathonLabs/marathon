@@ -5,6 +5,7 @@ import com.malinskiy.marathon.analytics.metrics.MetricsProvider
 import com.malinskiy.marathon.execution.strategy.SortingStrategy
 import com.malinskiy.marathon.test.Test
 import java.time.Instant
+import java.util.*
 
 class ExecutionTimeSortingStrategy(@JsonProperty("percentile") private val percentile: Double,
                                    @JsonProperty("limit") private val limit: Instant) : SortingStrategy {

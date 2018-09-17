@@ -1,46 +1,119 @@
 package com.malinskiy.marathon.ios
 
 
+import com.google.gson.Gson
+import com.malinskiy.marathon.device.Device
 import com.malinskiy.marathon.device.DeviceFeature
 import com.malinskiy.marathon.device.DevicePoolId
-import com.malinskiy.marathon.device.Device
 import com.malinskiy.marathon.device.NetworkState
 import com.malinskiy.marathon.device.OperatingSystem
 import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.execution.TestBatchResults
 import com.malinskiy.marathon.execution.progress.ProgressReporter
+import com.malinskiy.marathon.io.FileManager
+import com.malinskiy.marathon.ios.cmd.remote.CommandExecutor
+import com.malinskiy.marathon.ios.simctl.Simctl
+import com.malinskiy.marathon.ios.xcrun.CompositeLogParser
+import com.malinskiy.marathon.ios.xcrun.DebugLoggingParser
+import com.malinskiy.marathon.ios.xcrun.TestRunProgressParser
+import com.malinskiy.marathon.ios.xcrun.listener.ProgressReportingListener
+import com.malinskiy.marathon.ios.xcrun.listener.TestLogListener
+import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.test.TestBatch
-
+import com.malinskiy.marathon.time.SystemTimer
 import kotlinx.coroutines.experimental.CompletableDeferred
-import mu.KotlinLogging
 
-private val logger = KotlinLogging.logger { }
+class IOSDevice(val udid: String,
+                val hostCommandExecutor: CommandExecutor,
+                val gson: Gson) : Device {
 
-class IOSDevice : Device {
+    val logger = MarathonLogging.logger(javaClass.simpleName)
+    val simctl = Simctl()
+    val runtime: String?
+    val name: String?
+
+    init {
+        val device = simctl.list(this, gson).find { it.udid == udid }
+        runtime = device?.runtime
+        name = device?.name
+    }
+
     override val operatingSystem: OperatingSystem
-        get() = TODO("not implemented") //To change initializer of created properties use File | Settings | File Templates.
+        get() = OperatingSystem(runtime ?: "Unknown")
     override val serialNumber: String
-        get() = TODO("not implemented") //To change initializer of created properties use File | Settings | File Templates.
+        get() = udid
     override val model: String
-        get() = TODO("not implemented") //To change initializer of created properties use File | Settings | File Templates.
+        get() = name ?: "Unknown"
     override val manufacturer: String
-        get() = TODO("not implemented") //To change initializer of created properties use File | Settings | File Templates.
+        get() = "Apple"
     override val networkState: NetworkState
-        get() = TODO("not implemented") //To change initializer of created properties use File | Settings | File Templates.
+        get() = NetworkState.CONNECTED
     override val deviceFeatures: Collection<DeviceFeature>
-        get() = TODO("not implemented") //To change initializer of created properties use File | Settings | File Templates.
+        get() = emptyList()
     override val healthy: Boolean
-        get() = TODO("not implemented") //To change initializer of created properties use File | Settings | File Templates.
+        get() = true
     override val abi: String
-        get() = TODO("not implemented") //To change initializer of created properties use File | Settings | File Templates.
+        get() = "Simulator"
 
     override fun execute(configuration: Configuration,
                          devicePoolId: DevicePoolId,
                          testBatch: TestBatch,
                          deferred: CompletableDeferred<TestBatchResults>,
                          progressReporter: ProgressReporter) {
+
+        val iosConfiguration = configuration.vendorConfiguration as IOSConfiguration
+        val fileManager = FileManager(configuration.outputDir)
+        val testLogListener = TestLogListener()
+
+        val logParser = CompositeLogParser(listOf(
+                //Order matters here: first grab the log with log listener,
+                //then use this log to insert into the test report
+                testLogListener,
+                TestRunProgressParser(SystemTimer(),
+                        listOf(
+                        ProgressReportingListener(
+                                this,
+                                devicePoolId,
+                                progressReporter,
+                                deferred,
+                                testBatch,
+                                testLogListener
+                        ),
+                        testLogListener
+                )),
+                DebugLoggingParser()
+        ))
+
+        val tests = testBatch.tests.map {
+            "${it.pkg}.${it.clazz}#${it.method}"
+        }.toTypedArray()
+
+        logger.debug { "tests = ${tests.toList()}" }
+
+        val testBatchToArguments = testBatch.tests
+                .map { "-only-testing:\"${it.pkg}/${it.clazz}/${it.method}\"" }
+                .joinToString(separator = " ")
+
+        val session = hostCommandExecutor.startSession()
+        val command = session.exec("export NSUnbufferedIO=YES && " +
+                "cd /Users/amalinskiy/Development/marathon/vendor-ios/src/test/resources/src/sample-xcworkspace && " +
+                "xcodebuild -derivedDataPath a test-without-building " +
+                "-xctestrun ${iosConfiguration.xctestrunPath} " +
+                "$testBatchToArguments " +
+                "-destination 'platform=iOS simulator,id=${udid}'")
+
+        command.join()
+
+        command.inputStream.reader().forEachLine {
+            logParser.onLine(it)
+        }
+
+        logParser.close()
+
+        session.close()
     }
 
     override fun prepare(configuration: Configuration) {
+        //rsync
     }
 }

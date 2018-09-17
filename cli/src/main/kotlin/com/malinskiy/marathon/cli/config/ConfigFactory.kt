@@ -6,15 +6,16 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
 import com.fasterxml.jackson.dataformat.yaml.YAMLGenerator
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.KotlinModule
-import com.malinskiy.marathon.android.AndroidConfiguration
 import com.malinskiy.marathon.cli.args.EnvironmentConfiguration
+import com.malinskiy.marathon.cli.args.FileAndroidConfiguration
 import com.malinskiy.marathon.cli.args.FileConfiguration
+import com.malinskiy.marathon.cli.args.FileIOSConfiguration
 import com.malinskiy.marathon.execution.Configuration
-import com.malinskiy.marathon.ios.IOSConfiguration
-import mu.KotlinLogging
+import com.malinskiy.marathon.log.MarathonLogging
+import com.malinskiy.marathon.vendor.VendorConfiguration
 import java.io.File
 
-private val logger = KotlinLogging.logger {}
+private val logger = MarathonLogging.logger {}
 
 class ConfigFactory {
     fun create(marathonfile: File, androidSdkDir: File?, xctestrunPath: File?): Configuration {
@@ -27,23 +28,16 @@ class ConfigFactory {
 
         val config = readConfigFile(marathonfile) ?: throw ConfigurationException("Invalid config format")
 
-        val vendorConfiguration = if (xctestrunPath != null) {
-            logger.info { "xctestrun file is specified, assuming iOS platform."  }
-            IOSConfiguration(
-                    xctestrunPath
-            )
-        } else {
-            AndroidConfiguration(androidSdkDir
-                    ?: readEnvironment().androidSdkDir
-                    ?: throw ConfigurationException("Android SDK not found")
-            )
+        var fileVendorConfiguration = config.vendorConfiguration
+        val vendorConfiguration = when (fileVendorConfiguration) {
+            is FileIOSConfiguration -> fileVendorConfiguration.toIOSConfiguration(xctestrunPath)
+            is FileAndroidConfiguration -> fileVendorConfiguration.toAndroidConfiguration(androidSdkDir)
+            else -> throw ConfigurationException("No vendor config present in ${marathonfile.absolutePath}")
         }
 
         return Configuration(
                 config.name,
                 config.outputDir,
-                config.applicationOutput,
-                config.testApplicationOutput,
 
                 config.analyticsConfiguration,
                 config.poolingStrategy,
@@ -61,9 +55,7 @@ class ConfigFactory {
                 config.excludeSerialRegexes,
                 config.testOutputTimeoutMillis,
                 config.debug,
-                config.autoGrantPermission,
-                vendorConfiguration = vendorConfiguration,
-                sourceRoot = config.sourceRoot
+                vendorConfiguration
         )
     }
 

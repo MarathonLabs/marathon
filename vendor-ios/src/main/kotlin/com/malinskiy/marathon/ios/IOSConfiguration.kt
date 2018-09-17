@@ -5,11 +5,16 @@ import com.malinskiy.marathon.execution.TestParser
 import com.malinskiy.marathon.vendor.VendorConfiguration
 import java.io.File
 
-data class IOSConfiguration(val xctestrunPath: File) : VendorConfiguration {
+data class IOSConfiguration(val xctestrunPath: File,
+                            val remoteUsername: String,
+                            val remotePublicKey: File,
+                            val sourceRoot: File = File(".")) : VendorConfiguration {
+
     override fun testParser(): TestParser? {
         return IOSTestParser()
     }
-    override fun deviceProvider(): DeviceProvider?  {
+
+    override fun deviceProvider(): DeviceProvider? {
         return IOSDeviceProvider()
     }
 }

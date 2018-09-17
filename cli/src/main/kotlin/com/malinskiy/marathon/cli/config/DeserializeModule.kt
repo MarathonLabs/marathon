@@ -1,8 +1,10 @@
 package com.malinskiy.marathon.cli.config
 
 import com.fasterxml.jackson.databind.module.SimpleModule
+import com.malinskiy.marathon.cli.args.FileVendorConfiguration
 import com.malinskiy.marathon.cli.config.deserialize.AnalyticsConfigurationDeserializer
 import com.malinskiy.marathon.cli.config.deserialize.BatchingStrategyDeserializer
+import com.malinskiy.marathon.cli.config.deserialize.FileVendorConfigurationDeserializer
 import com.malinskiy.marathon.cli.config.deserialize.FlakinessStrategyDeserializer
 import com.malinskiy.marathon.cli.config.deserialize.InfluxDbConfigurationDeserializer
 import com.malinskiy.marathon.cli.config.deserialize.PoolingStrategyDeserializer
@@ -30,5 +32,6 @@ class DeserializeModule: SimpleModule() {
         addDeserializer(FlakinessStrategy::class.java, FlakinessStrategyDeserializer())
         addDeserializer(RetryStrategy::class.java, RetryStrategyDeserializer())
         addDeserializer(TestFilter::class.java, TestFilterDeserializer())
+        addDeserializer(FileVendorConfiguration::class.java, FileVendorConfigurationDeserializer())
     }
 }

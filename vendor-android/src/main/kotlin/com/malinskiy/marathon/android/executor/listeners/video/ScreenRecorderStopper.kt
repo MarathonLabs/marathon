@@ -2,7 +2,7 @@ package com.malinskiy.marathon.android.executor.listeners.video
 
 import com.android.ddmlib.IDevice
 import com.android.ddmlib.NullOutputReceiver
-import mu.KotlinLogging
+import com.malinskiy.marathon.log.MarathonLogging
 
 internal class ScreenRecorderStopper(private val deviceInterface: IDevice) {
     private val nullOutputReceiver = NullOutputReceiver()
@@ -53,7 +53,7 @@ internal class ScreenRecorderStopper(private val deviceInterface: IDevice) {
     }
 
     companion object {
-        private val logger = KotlinLogging.logger("ScreenRecorderStopper")
+        private val logger = MarathonLogging.logger("ScreenRecorderStopper")
         private const val SCREEN_RECORD_KILL_ATTEMPTS = 100
         private const val PAUSE_BETWEEN_RECORDER_PROCESS_KILL = 50
     }
