@@ -19,7 +19,7 @@ cache:
   - $HOME/.android/build-cache
 
 before_install:
-  - docker pull axiom/rsync
+  - docker pull axiom/rsync-server
 
 env:
  global:
