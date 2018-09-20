@@ -7,12 +7,17 @@ import javax.naming.ConfigurationException
 
 data class FileIOSConfiguration(
         @JsonProperty("xctestrunPath") val xctestrunPath: File?,
+        @JsonProperty("derivedDataDir") val derivedDataDir: File?,
         @JsonProperty("remoteUsername") val remoteUsername: String,
         @JsonProperty("remotePublicKey") val remotePublicKey: File,
         @JsonProperty("sourceRoot") val sourceRoot: File?) : FileVendorConfiguration {
 
     fun toIOSConfiguration(xctestrunPathOverride: File? = null,
                            sourceRootOverride: File? = null): IOSConfiguration {
+
+        if (derivedDataDir == null) {
+            throw ConfigurationException("A path to derived data folder is required")
+        }
 
         val finalXCTestRunPath = xctestrunPathOverride
                 ?: xctestrunPath
@@ -21,9 +26,9 @@ data class FileIOSConfiguration(
         val optionalSourceRoot = sourceRootOverride ?: sourceRoot
 
         return if (optionalSourceRoot == null) {
-            IOSConfiguration(finalXCTestRunPath, remoteUsername, remotePublicKey)
+            IOSConfiguration(finalXCTestRunPath, derivedDataDir, remoteUsername, remotePublicKey)
         } else {
-            IOSConfiguration(finalXCTestRunPath, remoteUsername, remotePublicKey, optionalSourceRoot)
+            IOSConfiguration(finalXCTestRunPath, derivedDataDir, remoteUsername, remotePublicKey, optionalSourceRoot)
         }
     }
 }

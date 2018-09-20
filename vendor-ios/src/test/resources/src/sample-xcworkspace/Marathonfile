@@ -8,6 +8,7 @@ debug: true
 vendorConfiguration:
   type: "iOS"
   xctestrunPath: "a/Build/Products/UITesting_iphonesimulator11.0-x86_64.xctestrun"
+  derivedDataDir: "a"
   sourceRoot: "sample-appUITests"
   remoteUsername: "amalinskiy"
   remotePublicKey: "/Users/amalinskiy/.ssh/id_rsa"

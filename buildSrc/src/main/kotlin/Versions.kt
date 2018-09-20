@@ -35,6 +35,7 @@ object Versions {
     val guava = "26.0-jre"
     val rsync4j = "3.1.2-12"
     val sshj = "0.26.0"
+    val testContainers = "1.8.3"
 }
 
 object BuildPlugins {
@@ -83,4 +84,5 @@ object TestLibraries {
     val espressoContrib = "com.android.support.test.espresso:espresso-contrib:${Versions.espresso}"
     val espressoIntents = "com.android.support.test.espresso:espresso-intents:${Versions.espresso}"
     val junit = "junit:junit:${Versions.junit}"
+    val testContainers = "org.testcontainers:testcontainers:${Versions.testContainers}"
 }

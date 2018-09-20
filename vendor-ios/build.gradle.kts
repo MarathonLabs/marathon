@@ -29,14 +29,12 @@ dependencies {
     testImplementation(TestLibraries.kluent)
     testImplementation(TestLibraries.spekAPI)
     testRuntime(TestLibraries.spekJUnitPlatformEngine)
+    testImplementation(TestLibraries.testContainers)
 }
 
 Deployment.initialize(project)
 
-val compileKotlin by tasks.getting(KotlinCompile::class) {
-    kotlinOptions.jvmTarget = "1.8"
-}
-val compileTestKotlin by tasks.getting(KotlinCompile::class) {
+tasks.withType<KotlinCompile> {
     kotlinOptions.jvmTarget = "1.8"
 }
 

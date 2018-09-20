@@ -23,6 +23,8 @@ import com.malinskiy.marathon.test.TestBatch
 import com.malinskiy.marathon.time.SystemTimer
 import kotlinx.coroutines.experimental.CompletableDeferred
 
+private const val REMOTE_DIR = "/tmp/marathon"
+
 class IOSDevice(val udid: String,
                 val hostCommandExecutor: CommandExecutor,
                 val gson: Gson) : Device {
@@ -49,7 +51,23 @@ class IOSDevice(val udid: String,
     override val networkState: NetworkState
         get() = NetworkState.CONNECTED
     override val deviceFeatures: Collection<DeviceFeature>
-        get() = emptyList()
+        get() {
+            val session = hostCommandExecutor.startSession()
+            val command = session.exec(
+                    "/usr/sbin/system_profiler -detailLevel mini -xml SPDisplaysDataType"
+            )
+            command.join()
+
+            val result =
+            if (command.inputStream.bufferedReader().readLines().any { it.contains("spdisplays_metalfeatureset") }) {
+                logger.debug("${udid} has DeviceFeature.VIDEO")
+                listOf(DeviceFeature.VIDEO, DeviceFeature.SCREENSHOT)
+            } else
+                listOf(DeviceFeature.SCREENSHOT)
+
+            session.close()
+            return result
+        }
     override val healthy: Boolean
         get() = true
     override val abi: String
@@ -96,11 +114,11 @@ class IOSDevice(val udid: String,
 
         val session = hostCommandExecutor.startSession()
         val command = session.exec("export NSUnbufferedIO=YES && " +
-                "cd /Users/amalinskiy/Development/marathon/vendor-ios/src/test/resources/src/sample-xcworkspace && " +
-                "xcodebuild -derivedDataPath a test-without-building " +
-                "-xctestrun ${iosConfiguration.xctestrunPath} " +
+                "cd $REMOTE_DIR/$udid && " +
+                "xcodebuild test-without-building " +
+                "-xctestrun ${iosConfiguration.xctestrunPath.absolutePath} " +
                 "$testBatchToArguments " +
-                "-destination 'platform=iOS simulator,id=${udid}'")
+                "-destination 'platform=iOS simulator,id=$udid'")
 
         command.join()
 
@@ -108,12 +126,26 @@ class IOSDevice(val udid: String,
             logParser.onLine(it)
         }
 
+        command.errorStream.bufferedReader().forEachLine { logger.error(it) }
+
         logParser.close()
 
         session.close()
     }
 
     override fun prepare(configuration: Configuration) {
-        //rsync
+        val iosConfiguration = configuration.vendorConfiguration as IOSConfiguration
+
+        val productsDir = iosConfiguration
+                .derivedDataDir
+                .toPath()
+                .resolve("Build/Products/")
+                .toFile()
+        val remoteDir = "$REMOTE_DIR/$udid/"
+
+        val derivedDataManager = DerivedDataManager(configuration,"localhost", 22)
+
+        logger.debug("Will copy from $productsDir to remote $remoteDir")
+        derivedDataManager.send(productsDir, remoteDir)
     }
 }

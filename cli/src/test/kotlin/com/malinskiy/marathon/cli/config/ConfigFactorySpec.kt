@@ -135,6 +135,7 @@ object ConfigFactorySpec : Spek({
                 assert(false)
                 val configuration = parser.create(file, null, null)
                 configuration.vendorConfiguration shouldEqual IOSConfiguration(File("a/Build/Products/UITesting_iphonesimulator11.0-x86_64.xctestrun"),
+                        File("a"),
                         "testuser",
                         File("/home/testuser/.ssh/id_rsa"))
             }
@@ -146,7 +147,7 @@ object ConfigFactorySpec : Spek({
             it("should initialize a specific vendor configuration") {
                 val configuration = parser.create(file, null, File("build.xctestrun"))
 
-                configuration.vendorConfiguration shouldEqual IOSConfiguration(File("build.xctestrun"), "testuser", File("/home/testuser/.ssh/id_rsa"))
+                configuration.vendorConfiguration shouldEqual IOSConfiguration(File("build.xctestrun"), File("a"),"testuser", File("/home/testuser/.ssh/id_rsa"))
             }
         }
     }

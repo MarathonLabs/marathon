@@ -6,6 +6,7 @@ import com.malinskiy.marathon.vendor.VendorConfiguration
 import java.io.File
 
 data class IOSConfiguration(val xctestrunPath: File,
+                            val derivedDataDir: File,
                             val remoteUsername: String,
                             val remotePublicKey: File,
                             val sourceRoot: File = File(".")) : VendorConfiguration {
