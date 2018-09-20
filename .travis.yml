@@ -1,8 +1,13 @@
 language: android
+
 jdk:
   - oraclejdk8
 
+services:
+  - docker
+
 sudo: required
+
 before_cache:
   - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
   - rm -rf $HOME/.gradle/caches/*/plugin-resolution/
@@ -12,6 +17,10 @@ cache:
   - $HOME/.gradle/caches/
   - $HOME/.gradle/wrapper/
   - $HOME/.android/build-cache
+
+before_install:
+  - docker pull axiom/rsync
+
 env:
  global:
  - ANDROID_API=26
