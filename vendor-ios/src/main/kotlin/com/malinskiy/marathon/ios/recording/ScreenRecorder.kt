@@ -8,7 +8,7 @@ class ScreenRecorder(private val device: IOSDevice,
                      private val test: Test) : Thread() {
 
     override fun run() {
-        val command = device.hostCommandExecutor.startSession().exec("io ${device.udid} recordVideo /tmp/${RemoteFileManager.remoteVideoForTest(test)}")
+        val command = device.hostCommandExecutor.startSession().exec("xcrun simctl io ${device.udid} recordVideo ${RemoteFileManager.remoteVideoForTest(test)}")
         while(!interrupted()) {
             Thread.sleep(500)
         }
