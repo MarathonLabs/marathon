@@ -30,7 +30,7 @@ class FileVendorConfigurationDeserializer : StdDeserializer<FileVendorConfigurat
                 (node as ObjectNode).remove("type")
                 codec.treeToValue<FileAndroidConfiguration>(node)
             }
-            else -> throw ConfigurationException("Unrecognized sorting strategy $type")
+            else -> throw ConfigurationException("Unrecognized vendor type $type")
         }
     }
 }

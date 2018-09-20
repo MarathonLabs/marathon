@@ -37,7 +37,7 @@ class TestFilterDeserializer : StdDeserializer<TestFilter>(TestFilter::class.jav
                 (node as ObjectNode).remove("type")
                 codec.treeToValue<AnnotationFilter>(node)
             }
-            else -> throw ConfigurationException("Unrecognized sorting strategy $type")
+            else -> throw ConfigurationException("Unrecognized filter type $type")
         }
     }
 }
