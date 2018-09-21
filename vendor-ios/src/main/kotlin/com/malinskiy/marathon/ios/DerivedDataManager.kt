@@ -13,7 +13,14 @@ class DerivedDataManager(val configuration: Configuration,
     private val iosConfiguration: IOSConfiguration = configuration.vendorConfiguration as? IOSConfiguration
             ?: throw IllegalStateException("Expected an iOS configuration")
 
-    private  val logger = MarathonLogging.logger(javaClass.simpleName)
+    private val logger = MarathonLogging.logger(javaClass.simpleName)
+
+    private val xctestrun: File
+        get() {
+            return iosConfiguration.derivedDataDir
+                    .walkTopDown()
+                    .first { it.extension == "xctestrun" }
+        }
 
     fun receive(remoteDir: String, localDir: File) {
         if (!localDir.isDirectory) {

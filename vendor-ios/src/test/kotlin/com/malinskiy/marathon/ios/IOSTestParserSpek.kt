@@ -36,7 +36,7 @@ class IOSTestParserSpek : Spek({
                     excludeSerialRegexes = null,
                     testOutputTimeoutMillis = null,
                     debug = null,
-                    vendorConfiguration =  IOSConfiguration(xctestrunPath, derivedDataPath, "testuser", File("/home/fakekey"), sourceRoot)
+                    vendorConfiguration =  IOSConfiguration(derivedDataPath, xctestrunPath, "testuser", File("/home/fakekey"), sourceRoot)
             )
 
             it("should return accurate list of tests") {

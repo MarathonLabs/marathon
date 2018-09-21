@@ -59,7 +59,7 @@ class DerivedDataManagerSpek: Spek({
                     excludeSerialRegexes = null,
                     testOutputTimeoutMillis = null,
                     debug = null,
-                    vendorConfiguration =  IOSConfiguration(xctestrunPath, derivedDataPath, "root", privateKey, sourceRoot)
+                    vendorConfiguration =  IOSConfiguration(derivedDataPath, xctestrunPath, "root", privateKey, sourceRoot)
             )
 
             it("should send all files") {

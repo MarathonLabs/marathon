@@ -1,6 +1,8 @@
 package com.malinskiy.marathon.cli.config
 
 import com.malinskiy.marathon.android.AndroidConfiguration
+import com.malinskiy.marathon.cli.args.FileIOSConfiguration
+import com.malinskiy.marathon.cli.args.FileListProvider
 import com.malinskiy.marathon.execution.*
 import com.malinskiy.marathon.execution.strategy.impl.batching.FixedSizeBatchingStrategy
 import com.malinskiy.marathon.execution.strategy.impl.batching.IsolateBatchingStrategy
@@ -15,6 +17,7 @@ import com.malinskiy.marathon.execution.strategy.impl.sharding.ParallelShardingS
 import com.malinskiy.marathon.execution.strategy.impl.sorting.NoSortingStrategy
 import com.malinskiy.marathon.execution.strategy.impl.sorting.SuccessRateSortingStrategy
 import com.malinskiy.marathon.ios.IOSConfiguration
+import com.nhaarman.mockito_kotlin.whenever
 import org.amshove.kluent.*
 import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.given
@@ -134,8 +137,9 @@ object ConfigFactorySpec : Spek({
             it("should initialize a specific vendor configuration") {
                 assert(false)
                 val configuration = parser.create(file, null, null)
-                configuration.vendorConfiguration shouldEqual IOSConfiguration(File("a/Build/Products/UITesting_iphonesimulator11.0-x86_64.xctestrun"),
+                configuration.vendorConfiguration shouldEqual IOSConfiguration(
                         File("a"),
+                        File("a/Build/Products/UITesting_iphonesimulator11.0-x86_64.xctestrun"),
                         "testuser",
                         File("/home/testuser/.ssh/id_rsa"))
             }
@@ -147,7 +151,17 @@ object ConfigFactorySpec : Spek({
             it("should initialize a specific vendor configuration") {
                 val configuration = parser.create(file, null, File("build.xctestrun"))
 
-                configuration.vendorConfiguration shouldEqual IOSConfiguration(File("build.xctestrun"), File("a"),"testuser", File("/home/testuser/.ssh/id_rsa"))
+                configuration.vendorConfiguration shouldEqual IOSConfiguration(File("a"), File("build.xctestrun"), "testuser", File("/home/testuser/.ssh/id_rsa"))
+            }
+        }
+
+        on("configuration without an explicit xctestrun path") {
+            val file = File(ConfigFactorySpec::class.java.getResource("/fixture/config/sample_5.yaml").file)
+
+            it("should throw an exception") {
+                val create = { parser.create(file, null, null) }
+
+                create shouldThrow ConfigurationException::class
             }
         }
     }
