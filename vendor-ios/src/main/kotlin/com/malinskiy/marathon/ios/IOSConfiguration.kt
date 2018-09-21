@@ -5,8 +5,8 @@ import com.malinskiy.marathon.execution.TestParser
 import com.malinskiy.marathon.vendor.VendorConfiguration
 import java.io.File
 
-data class IOSConfiguration(val xctestrunPath: File,
-                            val derivedDataDir: File,
+data class IOSConfiguration(val derivedDataDir: File,
+                            val xctestrunPath: File,
                             val remoteUsername: String,
                             val remotePublicKey: File,
                             val sourceRoot: File = File(".")) : VendorConfiguration {

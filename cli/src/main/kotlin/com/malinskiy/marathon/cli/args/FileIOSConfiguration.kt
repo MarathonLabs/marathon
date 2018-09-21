@@ -1,9 +1,9 @@
 package com.malinskiy.marathon.cli.args
 
 import com.fasterxml.jackson.annotation.JsonProperty
+import com.malinskiy.marathon.cli.config.ConfigurationException
 import com.malinskiy.marathon.ios.IOSConfiguration
 import java.io.File
-import javax.naming.ConfigurationException
 
 data class FileIOSConfiguration(
         @JsonProperty("xctestrunPath") val xctestrunPath: File?,

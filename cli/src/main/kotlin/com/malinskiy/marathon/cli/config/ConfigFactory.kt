@@ -12,7 +12,6 @@ import com.malinskiy.marathon.cli.args.FileConfiguration
 import com.malinskiy.marathon.cli.args.FileIOSConfiguration
 import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.log.MarathonLogging
-import com.malinskiy.marathon.vendor.VendorConfiguration
 import java.io.File
 
 private val logger = MarathonLogging.logger {}
