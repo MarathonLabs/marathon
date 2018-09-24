@@ -3,6 +3,7 @@ package com.malinskiy.marathon.ios
 import com.google.gson.GsonBuilder
 import com.malinskiy.marathon.device.DevicePoolId
 import com.malinskiy.marathon.ios.cmd.remote.CommandExecutor
+import com.malinskiy.marathon.ios.cmd.remote.CommandResult
 import com.malinskiy.marathon.ios.simctl.model.SimctlDeviceList
 import com.malinskiy.marathon.ios.simctl.model.SimctlDeviceListDeserializer
 import net.schmizz.sshj.connection.channel.direct.Session
@@ -16,6 +17,9 @@ class Mocks {
             val DEFAULT = object : com.malinskiy.marathon.ios.cmd.remote.CommandExecutor {
                 val mock = mock(Session::class)
                 override fun startSession(): Session = mock
+                override fun exec(command: String, timeout: Long): CommandResult {
+                    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+                }
             }
         }
     }
