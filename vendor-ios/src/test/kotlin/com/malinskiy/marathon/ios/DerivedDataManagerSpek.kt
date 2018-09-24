@@ -76,6 +76,14 @@ class DerivedDataManagerSpek: Spek({
                 manager.xctestrunPath shouldEqual relativePath
             }
 
+            it("should be able to use a key") {
+                val uploadResults = container.execInContainer("/bin/cat", "/root/.ssh/authorized_keys").stdout
+                        .split("\n")
+                        .filter { it.isNotEmpty() }
+                logger.debug { uploadResults.joinToString("\n") }
+                uploadResults shouldEqual listOf("empty")
+            }
+
             it("should send all files") {
                 val manager = DerivedDataManager(configuration = configuration)
 

@@ -87,7 +87,7 @@ class DerivedDataManager(val configuration: Configuration) {
 
     private fun getSshString(port: Int): String {
         return "ssh -o 'StrictHostKeyChecking no' -F /dev/null " +
-                "${if (configuration.debug) "-vvv" else ""} " +
+                "-vvv " +
                 "-i ${iosConfiguration.remotePublicKey} " +
                 "-l ${iosConfiguration.remoteUsername} " +
                 "-p ${port.toString()}"
@@ -109,4 +109,10 @@ private fun RSync.a(): RSync {
             .owner(true)
             .devices(true)
             .specials(true)
+}
+
+private fun File.isDescendantOf(dir: File): Boolean {
+    if (!dir.exists() || !dir.isDirectory) return false
+
+    return canonicalFile.toPath().toAbsolutePath().startsWith(dir.canonicalFile.toPath().toAbsolutePath())
 }
