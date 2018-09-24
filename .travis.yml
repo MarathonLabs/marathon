@@ -23,7 +23,6 @@ before_install:
 
 install:
   - echo 'localhost ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBMaFQFXjCQRbvc8XQpz3DZHF/spSHqqpfNgiFp+KUHtaysaHn2kpx2dpurkx7TvM9bxBgxoNj4WNwce4UqwJgSo=' >> $HOME/.ssh/known_hosts
-  - chmod 0600 vendor-ios/src/test/resources/test_key
 
 env:
  global:
@@ -42,7 +41,9 @@ android:
 jobs:
   include:
   - stage: test
-    script: ./gradlew clean test
+    script:
+    - chmod 0600 vendor-ios/src/test/resources/test_key
+    - ./gradlew clean test
   - stage: detekt
     script: ./gradlew clean detektCheck
   - stage: deploy
