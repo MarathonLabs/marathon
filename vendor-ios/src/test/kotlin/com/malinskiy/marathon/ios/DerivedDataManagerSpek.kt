@@ -68,6 +68,13 @@ class DerivedDataManagerSpek: Spek({
                 manager.productsDir shouldEqual File(derivedDataPath.absolutePath + File.separator + "Build/Products/")
             }
 
+            it("should relativize xctestrun path") {
+                val manager = DerivedDataManager(configuration = configuration)
+                val relativePath = File(derivedDataPath.path + File.separatorChar + "Build/Products/").toPath().relativize(xctestrunPath.toPath()).toFile()
+
+                manager.xctestrunPath shouldEqual relativePath
+            }
+
             it("should send all files") {
                 val manager = DerivedDataManager(configuration = configuration)
 

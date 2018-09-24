@@ -22,24 +22,20 @@ object RemoteFileManager {
 
     fun createRemoteDirectory(device: Device) {
         executeCommand(device,
-                """mkdir -p "$OUTPUT_DIR"""",
-                "Could not create remote directory $OUTPUT_DIR")
+                """mkdir -p "${remoteDirectory(device)}"""",
+                "Could not create remote directory ${remoteDirectory(device)}")
     }
 
     fun removeRemoteDirectory(device: Device) {
         executeCommand(device,
-                """rm -rf "$OUTPUT_DIR"""",
-                "Unable to remove directory $OUTPUT_DIR")
-    }
-
-    fun remoteVideoForTest(test: Test): String {
-        return remoteFileForTest(videoFileName(test))
+                """rm -rf "${remoteDirectory(device)}"""",
+                "Unable to remove directory ${remoteDirectory(device)}")
     }
 
     private fun executeCommand(device: Device, command: String, errorMessage: String) {
         val iosDevice = device as? IOSDevice
         if (iosDevice == null) {
-            logger.error("Device  ${device.serialNumber}")
+            logger.error("Incorrect device type (serial = ${device.serialNumber})")
             return
         }
 
@@ -55,9 +51,17 @@ object RemoteFileManager {
         }
 
         if (output != null) {
-            logger.info(output.stdout)
-            logger.error(output.stderr)
+            if (output.stdout.isNotEmpty()) {
+                logger.info(output.stdout)
+            }
+            if (output.stderr.isNotEmpty()) {
+                logger.error(output.stderr)
+            }
         }
+    }
+
+    fun remoteVideoForTest(test: Test): String {
+        return remoteFileForTest(videoFileName(test))
     }
 
     private fun remoteFileForTest(filename: String): String {

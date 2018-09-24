@@ -23,8 +23,6 @@ import com.malinskiy.marathon.test.TestBatch
 import com.malinskiy.marathon.time.SystemTimer
 import kotlinx.coroutines.experimental.CompletableDeferred
 
-private const val REMOTE_DIR = "/tmp/marathon"
-
 class IOSDevice(val udid: String,
                 val hostCommandExecutor: CommandExecutor,
                 val gson: Gson) : Device {
@@ -108,15 +106,21 @@ class IOSDevice(val udid: String,
 
         logger.debug { "tests = ${tests.toList()}" }
 
+        val remoteDir = RemoteFileManager.remoteDirectory(this)
+        val derivedDataManager = DerivedDataManager(configuration)
+        val xctestrunPath = derivedDataManager.xctestrunPath
+
+        logger.debug { "using xctestrun ${xctestrunPath}" }
+
         val testBatchToArguments = testBatch.tests
                 .map { "-only-testing:\"${it.pkg}/${it.clazz}/${it.method}\"" }
                 .joinToString(separator = " ")
 
         val session = hostCommandExecutor.startSession()
         val command = session.exec("export NSUnbufferedIO=YES && " +
-                "cd $REMOTE_DIR/$udid && " +
+                "cd $remoteDir && " +
                 "xcodebuild test-without-building " +
-                "-xctestrun ${iosConfiguration.xctestrunPath.absolutePath} " +
+                "-xctestrun $xctestrunPath " +
                 "$testBatchToArguments " +
                 "-destination 'platform=iOS simulator,id=$udid'")
 
@@ -134,14 +138,14 @@ class IOSDevice(val udid: String,
     }
 
     override fun prepare(configuration: Configuration) {
-        val iosConfiguration = configuration.vendorConfiguration as IOSConfiguration
-
         val derivedDataManager = DerivedDataManager(configuration)
 
         val productsDir = derivedDataManager.productsDir
-        val remoteDir = "$REMOTE_DIR/$udid"
+
+        RemoteFileManager.createRemoteDirectory(this)
+        val remoteDir = RemoteFileManager.remoteDirectory(this)
 
         logger.debug("Sending files from $productsDir to $remoteDir")
-        derivedDataManager.send(productsDir, remoteDir, "localhost")
+        derivedDataManager.send(productsDir, remoteDir.path, "localhost")
     }
 }

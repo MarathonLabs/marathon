@@ -1,5 +1,5 @@
 name: "sample-ios-app tests"
-outputDir: "a/Marathon"
+outputDir: "derived-data/Marathon"
 testClassRegexes: ["^((?!Abstract).)*Tests$"]
 batchingStrategy:
   type: "fixed-size"
@@ -7,8 +7,7 @@ batchingStrategy:
 debug: false 
 vendorConfiguration:
   type: "iOS"
-  xctestrunPath: "a/Build/Products/UITesting_iphonesimulator11.2-x86_64.xctestrun"
-  derivedDataDir: "a"
+  derivedDataDir: "derived-data"
   sourceRoot: "sample-appUITests"
   remoteUsername: "ypanforov"
   remotePublicKey: "/Users/ypanforov/Developer/marathon/vendor-ios/src/test/resources/src/test_rsa"

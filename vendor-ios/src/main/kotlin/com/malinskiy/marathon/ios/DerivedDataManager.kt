@@ -16,8 +16,17 @@ class DerivedDataManager(val configuration: Configuration) {
 
     private val logger = MarathonLogging.logger(javaClass.simpleName)
 
-    private val xctestrun: File = iosConfiguration.xctestrunPath
-
+    val xctestrunPath: File
+        get() {
+            return productsDir
+                .toPath()
+                .relativize(
+                    iosConfiguration
+                        .xctestrunPath
+                        .toPath()
+                )
+                .toFile()
+        }
     val productsDir: File
         get() {
             return iosConfiguration
