@@ -6,75 +6,85 @@ import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.log.MarathonLogging
 import java.io.File
 
-class DerivedDataManager(val configuration: Configuration,
-                         val hostname: String,
-                         val sshPort: Int) {
+private const val STANDARD_SSH_PORT = 22
+private const val PRODUCTS_PATH = "Build/Products"
+
+class DerivedDataManager(val configuration: Configuration) {
 
     private val iosConfiguration: IOSConfiguration = configuration.vendorConfiguration as? IOSConfiguration
             ?: throw IllegalStateException("Expected an iOS configuration")
 
     private val logger = MarathonLogging.logger(javaClass.simpleName)
 
-    private val xctestrun: File
+    private val xctestrun: File = iosConfiguration.xctestrunPath
+
+    val productsDir: File
         get() {
-            return iosConfiguration.derivedDataDir
-                    .walkTopDown()
-                    .first { it.extension == "xctestrun" }
+            return iosConfiguration
+                .derivedDataDir
+                .toPath()
+                .resolve(PRODUCTS_PATH)
+                .toFile()
         }
 
-    fun receive(remoteDir: String, localDir: File) {
-        if (!localDir.isDirectory) {
-            throw IllegalArgumentException("Expected a directory at ${localDir.toString()}")
+    fun send(localPath: File, remotePath: String, hostname: String, port: Int = STANDARD_SSH_PORT) {
+
+        val source= if (localPath.isDirectory) {
+            localPath.absolutePathWithTrailingSeparator
+        } else {
+            localPath.absolutePath
         }
+        val destination = "$hostname:$remotePath"
 
-        val sourceString = "$hostname:$remoteDir"
-
-        val rsync = rsyncBase
-                .source(sourceString)
-                .destination(localDir.absolutePath.withTrailingFileSeparator())
+        val rsync = getRsyncBase()
+                .rsh(getSshString(port))
+                .source(source)
+                .destination(destination)
 
         val output = CollectingProcessOutput()
         output.monitor(rsync.builder())
+        if (output.stdErr.isNotEmpty()) {
+            logger.error(output.stdErr)
+        }
     }
 
-    fun send(localDir: File, remoteDir: String) {
-        if (!localDir.isDirectory) {
-            throw IllegalArgumentException("Expected a directory at ${localDir.toString()}")
-        }
+    fun receive(remotePath: String, hostname: String, port: Int = STANDARD_SSH_PORT, localPath: File) {
+        val source = "$hostname:$remotePath"
+        val destination = localPath.absolutePath
 
-        val destinationString = "$hostname:$remoteDir"
-
-        val rsync = rsyncBase
-                .source(localDir.absolutePath.withTrailingFileSeparator())
-                .destination(destinationString)
+        val rsync = getRsyncBase()
+                .rsh(getSshString(port))
+                .source(source)
+                .destination(destination)
 
         val output = CollectingProcessOutput()
         output.monitor(rsync.builder())
+        if (output.stdErr.isNotEmpty()) {
+            logger.error(output.stdErr)
+        }
     }
 
-    private val sshString: String
-        get() {
-            return "ssh -o 'UpdateHostKeys yes' -o 'StrictHostKeyChecking no' -F /dev/null " +
+    private fun getRsyncBase(): RSync {
+        return RSync()
+                .a()
+                .partial(true)
+                .delete(true)
+                .verbose(configuration.debug)
+    }
+
+    private fun getSshString(port: Int): String {
+        return "ssh -o 'UpdateHostKeys yes' -o 'StrictHostKeyChecking no' -F /dev/null " +
                 "${if (configuration.debug) "-vvv" else ""} " +
                 "-i ${iosConfiguration.remotePublicKey} " +
                 "-l ${iosConfiguration.remoteUsername} " +
-                "-p ${sshPort}"
-        }
-
-    private val rsyncBase: RSync
-        get() {
-            return RSync()
-                    .a()
-                    .partial(true)
-                    .delete(true)
-                    .rsh(sshString)
-                    .verbose(configuration.debug)
-        }
+                "-p ${port.toString()}"
+    }
 }
 
-private fun String.withTrailingFileSeparator(): String {
-    return this.dropLastWhile { it == File.separatorChar } + File.separatorChar
-}
+private val File.absolutePathWithTrailingSeparator: String
+    get() {
+        return absolutePath.dropLastWhile { it == File.separatorChar } + File.separatorChar
+    }
 
 private fun RSync.a(): RSync {
     return this

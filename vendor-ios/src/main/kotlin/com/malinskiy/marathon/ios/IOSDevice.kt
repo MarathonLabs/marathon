@@ -136,16 +136,12 @@ class IOSDevice(val udid: String,
     override fun prepare(configuration: Configuration) {
         val iosConfiguration = configuration.vendorConfiguration as IOSConfiguration
 
-        val productsDir = iosConfiguration
-                .derivedDataDir
-                .toPath()
-                .resolve("Build/Products/")
-                .toFile()
-        val remoteDir = "$REMOTE_DIR/$udid/"
+        val derivedDataManager = DerivedDataManager(configuration)
 
-        val derivedDataManager = DerivedDataManager(configuration,"localhost", 22)
+        val productsDir = derivedDataManager.productsDir
+        val remoteDir = "$REMOTE_DIR/$udid"
 
-        logger.debug("Will copy from $productsDir to remote $remoteDir")
-        derivedDataManager.send(productsDir, remoteDir)
+        logger.debug("Sending files from $productsDir to $remoteDir")
+        derivedDataManager.send(productsDir, remoteDir, "localhost")
     }
 }

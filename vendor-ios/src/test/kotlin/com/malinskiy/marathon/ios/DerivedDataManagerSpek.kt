@@ -62,19 +62,25 @@ class DerivedDataManagerSpek: Spek({
                     vendorConfiguration =  IOSConfiguration(derivedDataPath, xctestrunPath, "root", privateKey, sourceRoot)
             )
 
+            it("should determine products location") {
+                val manager = DerivedDataManager(configuration = configuration)
+
+                manager.productsDir shouldEqual File(derivedDataPath.absolutePath + File.separator + "Build/Products/")
+            }
+
             it("should send all files") {
-                val manager = DerivedDataManager(
-                        configuration = configuration,
-                        hostname = containerHost,
-                        sshPort = sshPort
-                )
+                val manager = DerivedDataManager(configuration = configuration)
 
                 val productsDir = File(derivedDataPath.absolutePath + File.separator + "Build/Products/")
                 val remoteDir = "/data/${device.udid}/"
 
                 // Upload
-                manager.send(localDir = productsDir,
-                        remoteDir = remoteDir)
+                manager.send(
+                        localPath = productsDir,
+                        remotePath = remoteDir,
+                        hostname = containerHost,
+                        port = sshPort
+                )
 
                 val uploadResults = container.execInContainer("/usr/bin/find", remoteDir).stdout
                         .split("\n")
@@ -90,11 +96,7 @@ class DerivedDataManagerSpek: Spek({
 
             it("should receive all files") {
 
-                val manager = DerivedDataManager(
-                        configuration = configuration,
-                        hostname = containerHost,
-                        sshPort = sshPort
-                )
+                val manager = DerivedDataManager(configuration = configuration)
 
                 val productsDir = File(derivedDataPath.absolutePath + File.separator + "Build/Products/")
                 val remoteDir = "/data/${device.udid}/"
@@ -102,7 +104,12 @@ class DerivedDataManagerSpek: Spek({
                 // Download
                 val tempDir = createTempDir()
 
-                manager.receive(remoteDir = remoteDir, localDir = tempDir)
+                manager.receive(
+                        remotePath = remoteDir,
+                        localPath = tempDir,
+                        hostname = containerHost,
+                        port = sshPort
+                )
 
                 val tempFiles = tempDir.walkTopDown().map { it.relativePathTo(tempDir) }.toSet()
                 val expectedFiles = productsDir.walkTopDown().map { it.relativePathTo(productsDir) }.toSet()
