@@ -58,7 +58,7 @@ class DerivedDataManagerSpek: Spek({
                     includeSerialRegexes = null,
                     excludeSerialRegexes = null,
                     testOutputTimeoutMillis = null,
-                    debug = null,
+                    debug = true,
                     vendorConfiguration =  IOSConfiguration(derivedDataPath, xctestrunPath, "root", privateKey, sourceRoot)
             )
 
