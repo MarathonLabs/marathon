@@ -3,10 +3,9 @@ language: android
 jdk:
   - oraclejdk8
 
+sudo: required
 services:
   - docker
-
-sudo: required
 
 before_cache:
   - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
@@ -20,9 +19,11 @@ cache:
 
 before_install:
   - docker pull axiom/rsync-server
+  - echo -e "Host localhost\n\tStrictHostKeyChecking no\n" >> $HOME/.ssh/config
 
 install:
   - echo 'localhost ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBMaFQFXjCQRbvc8XQpz3DZHF/spSHqqpfNgiFp+KUHtaysaHn2kpx2dpurkx7TvM9bxBgxoNj4WNwce4UqwJgSo=' >> $HOME/.ssh/known_hosts
+  - chmod 0600 vendor-ios/src/test/resources/test_key
 
 env:
  global:
