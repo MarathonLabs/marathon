@@ -3,7 +3,6 @@ package com.malinskiy.marathon.ios
 import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.test.Test
 import org.amshove.kluent.shouldContainSame
-import org.amshove.kluent.shouldEqual
 import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.describe
 import org.jetbrains.spek.api.dsl.it
@@ -15,9 +14,9 @@ class IOSTestParserSpek : Spek({
         val parser = IOSTestParser()
 
         on("project sources") {
-            val sourceRoot = File(javaClass.classLoader.getResource("src/sample-xcworkspace/sample-appUITests").file)
-            val derivedDataPath = File(javaClass.classLoader.getResource("build").file)
-            val xctestrunPath = File(javaClass.classLoader.getResource("src/UITesting_iphonesimulator11.2-x86_64.xctestrun").file)
+            val sourceRoot = File(javaClass.classLoader.getResource("sample-xcworkspace/sample-appUITests").file)
+            val derivedDataPath = File(javaClass.classLoader.getResource("sample-xcworkspace/derived-data").file)
+            val xctestrunPath = File(javaClass.classLoader.getResource("sample-xcworkspace/derived-data/Build/Products/UITesting_iphonesimulator11.2-x86_64.xctestrun").file)
             val configuration = Configuration(name = "",
                     outputDir = File(""),
                     analyticsConfiguration = null,

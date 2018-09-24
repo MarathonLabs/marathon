@@ -25,8 +25,8 @@ class DerivedDataManagerSpek: Spek({
         val device: IOSDevice = mock()
         whenever(device.udid).thenReturn(UUID.randomUUID().toString())
 
-        val privateKey = File(javaClass.classLoader.getResource("src/test_rsa").file)
-        val publicKeyResourcePath = "src/test_rsa.pub"
+        val privateKey = File(javaClass.classLoader.getResource("test_rsa").file)
+        val publicKeyResourcePath = "test_rsa.pub"
 
         val container = KGenericContainer("axiom/rsync-server")
                 .withClasspathResourceMapping(publicKeyResourcePath, "/root/.ssh/authorized_keys", BindMode.READ_WRITE)
@@ -38,9 +38,9 @@ class DerivedDataManagerSpek: Spek({
         val sshPort = container.getMappedPort(22)
 
         given("what follows") {
-            val sourceRoot = File(javaClass.classLoader.getResource("src/sample-xcworkspace/sample-appUITests").file)
-            val derivedDataPath = File(javaClass.classLoader.getResource("build").file)
-            val xctestrunPath = File(javaClass.classLoader.getResource("src/UITesting_iphonesimulator11.2-x86_64.xctestrun").file)
+            val sourceRoot = File(javaClass.classLoader.getResource("sample-xcworkspace/sample-appUITests").file)
+            val derivedDataPath = File(javaClass.classLoader.getResource("sample-xcworkspace/derived-data").file)
+            val xctestrunPath = File(javaClass.classLoader.getResource("sample-xcworkspace/derived-data/Build/Products/UITesting_iphonesimulator11.2-x86_64.xctestrun").file)
             val configuration = Configuration(name = "",
                     outputDir = File(""),
                     analyticsConfiguration = null,
@@ -71,7 +71,7 @@ class DerivedDataManagerSpek: Spek({
             it("should send all files") {
                 val manager = DerivedDataManager(configuration = configuration)
 
-                val productsDir = File(derivedDataPath.absolutePath + File.separator + "Build/Products/")
+                val productsDir = manager.productsDir
                 val remoteDir = "/data/${device.udid}/"
 
                 // Upload
@@ -98,7 +98,7 @@ class DerivedDataManagerSpek: Spek({
 
                 val manager = DerivedDataManager(configuration = configuration)
 
-                val productsDir = File(derivedDataPath.absolutePath + File.separator + "Build/Products/")
+                val productsDir = manager.productsDir
                 val remoteDir = "/data/${device.udid}/"
 
                 // Download

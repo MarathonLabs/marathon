@@ -11,7 +11,7 @@ import java.io.File
 class XCTestRunSpek : Spek({
     describe("XCTestRun") {
         on("parsing") {
-            val file = File(javaClass.classLoader.getResource("src/UITesting_iphonesimulator11.2-x86_64.xctestrun").file)
+            val file = File(javaClass.classLoader.getResource("fixtures/xctestrun/UITesting_iphonesimulator11.2-x86_64.xctestrun").file)
             val xctestrun = XCTestRun(file)
 
             it("should load properties") {
