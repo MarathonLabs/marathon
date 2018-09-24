@@ -26,6 +26,7 @@ class DerivedDataManagerSpek: Spek({
         whenever(device.udid).thenReturn(UUID.randomUUID().toString())
 
         val privateKey = File(javaClass.classLoader.getResource("test_rsa").file)
+        logger.debug { "Using private key ${privateKey}" }
         val publicKeyResourcePath = "test_rsa.pub"
 
         val container = KGenericContainer("axiom/rsync-server")
