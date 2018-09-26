@@ -29,7 +29,7 @@ android:
 jobs:
   include:
   - stage: test
-    script: ./gradlew clean test
+    script: ./gradlew clean test integrationTest
   - stage: detekt
     script: ./gradlew clean detektCheck
   - stage: deploy

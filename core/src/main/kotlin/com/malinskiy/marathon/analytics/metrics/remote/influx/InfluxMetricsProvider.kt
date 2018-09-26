@@ -18,7 +18,7 @@ class ExecutionTime(@Column(name = "testname", tag = true) var testName: String?
 class SuccessRate(@Column(name = "testname", tag = true) var testName: String? = null,
                   @Column(name = "mean") var mean: Double? = null)
 
-internal class InfluxMetricsProvider(private val influxDb: InfluxDB,
+class InfluxMetricsProvider(private val influxDb: InfluxDB,
                                      private val dbName: String) : MetricsProvider {
     private val mapper = InfluxDBResultMapper()
 
@@ -45,7 +45,7 @@ internal class InfluxMetricsProvider(private val influxDb: InfluxDB,
         val results = influxDb.query(Query("""
             SELECT MEAN("success")
             FROM "tests"
-            WHERE time >= ${limit.toEpochMilli()}
+            WHERE time >= '$limit'
             GROUP BY "testname"
         """, dbName))
         return mapper.toPOJO(results, SuccessRate::class.java)
@@ -70,7 +70,7 @@ internal class InfluxMetricsProvider(private val influxDb: InfluxDB,
         val results = influxDb.query(Query("""
             SELECT PERCENTILE("duration",$percentile)
             FROM "tests"
-            WHERE time >= ${limit.toEpochMilli()}
+            WHERE time >= '$limit'
             GROUP BY "testname"
         """, dbName))
         return mapper.toPOJO(results, ExecutionTime::class.java)
