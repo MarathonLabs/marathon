@@ -19,7 +19,7 @@ data class FileIOSConfiguration(
         @JsonProperty("derivedDataDir") val derivedDataDir: File,
         @JsonProperty("xctestrunPath") val xctestrunPath: File?,
         @JsonProperty("remoteUsername") val remoteUsername: String,
-        @JsonProperty("remotePublicKey") val remotePublicKey: File,
+        @JsonProperty("remotePrivateKey") val remotePrivateKey: File,
         @JsonProperty("sourceRoot") val sourceRoot: File?,
         val fileListProvider: FileListProvider = DerivedDataFileListProvider) : FileVendorConfiguration {
 
@@ -35,9 +35,9 @@ data class FileIOSConfiguration(
         val optionalSourceRoot = sourceRootOverride ?: sourceRoot
 
         return if (optionalSourceRoot == null) {
-            IOSConfiguration(derivedDataDir, finalXCTestRunPath, remoteUsername, remotePublicKey)
+            IOSConfiguration(derivedDataDir, finalXCTestRunPath, remoteUsername, remotePrivateKey)
         } else {
-            IOSConfiguration(derivedDataDir, finalXCTestRunPath, remoteUsername, remotePublicKey, optionalSourceRoot)
+            IOSConfiguration(derivedDataDir, finalXCTestRunPath, remoteUsername, remotePrivateKey, optionalSourceRoot)
         }
     }
 }

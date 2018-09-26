@@ -88,7 +88,7 @@ class DerivedDataManager(val configuration: Configuration) {
     private fun getSshString(port: Int): String {
         return "ssh -o 'StrictHostKeyChecking no' -F /dev/null " +
                 "-vvv " +
-                "-i ${iosConfiguration.remotePublicKey} " +
+                "-i ${iosConfiguration.remotePrivateKey} " +
                 "-l ${iosConfiguration.remoteUsername} " +
                 "-p ${port.toString()}"
     }

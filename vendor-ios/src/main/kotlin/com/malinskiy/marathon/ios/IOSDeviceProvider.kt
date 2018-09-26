@@ -8,15 +8,12 @@ import com.google.gson.GsonBuilder
 import com.malinskiy.marathon.actor.unboundedChannel
 import com.malinskiy.marathon.device.Device
 import com.malinskiy.marathon.device.DeviceProvider
-import com.malinskiy.marathon.ios.cmd.remote.SshjCommandExecutor
 import com.malinskiy.marathon.ios.device.LocalListSimulatorProvider
 import com.malinskiy.marathon.ios.device.SimulatorProvider
 import com.malinskiy.marathon.ios.simctl.model.SimctlDeviceList
 import com.malinskiy.marathon.ios.simctl.model.SimctlDeviceListDeserializer
 import com.malinskiy.marathon.vendor.VendorConfiguration
 import kotlinx.coroutines.experimental.channels.Channel
-import kotlinx.coroutines.experimental.launch
-import java.net.InetAddress
 
 class IOSDeviceProvider : DeviceProvider {
     override fun terminate() {
@@ -35,7 +32,7 @@ class IOSDeviceProvider : DeviceProvider {
 
         val simulatorProvider: SimulatorProvider = LocalListSimulatorProvider(channel,
                 vendorConfiguration.remoteUsername,
-                vendorConfiguration.remotePublicKey,
+                vendorConfiguration.remotePrivateKey,
                 mapper,
                 gson)
 

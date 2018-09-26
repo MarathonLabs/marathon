@@ -8,7 +8,7 @@ import java.io.File
 data class IOSConfiguration(val derivedDataDir: File,
                             val xctestrunPath: File,
                             val remoteUsername: String,
-                            val remotePublicKey: File,
+                            val remotePrivateKey: File,
                             val sourceRoot: File = File(".")) : VendorConfiguration {
 
     override fun testParser(): TestParser? {

@@ -4,4 +4,4 @@ vendorConfiguration:
   type: "iOS"
   derivedDataDir: "a"
   remoteUsername: "testuser"
-  remotePublicKey: "/home/testuser/.ssh/id_rsa"
+  remotePrivateKey: "/home/testuser/.ssh/id_rsa"

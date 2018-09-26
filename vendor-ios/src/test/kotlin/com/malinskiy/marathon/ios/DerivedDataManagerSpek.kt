@@ -25,9 +25,9 @@ class DerivedDataManagerSpek: Spek({
         val device: IOSDevice = mock()
         whenever(device.udid).thenReturn(UUID.randomUUID().toString())
 
-        val privateKey = File(javaClass.classLoader.getResource("test_rsa").file)
+        val privateKey = File(javaClass.classLoader.getResource("fixtures/derived-data-manager/test_rsa").file)
         logger.debug { "Using private key ${privateKey}" }
-        val publicKeyResourcePath = "test_rsa.pub"
+        val publicKeyResourcePath = "fixtures/derived-data-manager/test_rsa.pub"
 
         val container = KGenericContainer("axiom/rsync-server")
                 .withClasspathResourceMapping(publicKeyResourcePath, "/root/.ssh/authorized_keys", BindMode.READ_WRITE)
