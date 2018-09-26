@@ -10,10 +10,12 @@ import java.io.File
 import java.net.InetAddress
 import java.util.concurrent.TimeUnit
 
+private const val defaultPort = 22
+
 class SshjCommandExecutor(val hostAddress: InetAddress,
                           val remoteUsername: String,
                           val remotePublicKey: File,
-                          val sshPort: Int = 22) : CommandExecutor {
+                          val port: Int = defaultPort) : CommandExecutor {
 
     val ssh: SSHClient
 
@@ -28,7 +30,7 @@ class SshjCommandExecutor(val hostAddress: InetAddress,
         ssh = SSHClient(config)
         ssh.loadKnownHosts()
         val keys = ssh.loadKeys(remotePublicKey.absolutePath)
-        ssh.connect("localhost")
+        ssh.connect(hostAddress, port)
         ssh.authPublickey(remoteUsername, keys)
     }
 
