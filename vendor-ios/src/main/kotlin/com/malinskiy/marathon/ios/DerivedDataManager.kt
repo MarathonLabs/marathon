@@ -5,16 +5,23 @@ import com.github.fracpete.rsync4j.RSync
 import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.log.MarathonLogging
 import java.io.File
-import java.net.InetAddress
+import java.io.FileNotFoundException
 
 private const val PRODUCTS_PATH = "Build/Products"
 
 class DerivedDataManager(val configuration: Configuration) {
 
-    private val iosConfiguration: IOSConfiguration = configuration.vendorConfiguration as? IOSConfiguration
-            ?: throw IllegalStateException("Expected an iOS configuration")
-
     private val logger = MarathonLogging.logger(javaClass.simpleName)
+
+    private val iosConfiguration: IOSConfiguration
+
+    init {
+        iosConfiguration = configuration.vendorConfiguration as? IOSConfiguration
+                ?: throw IllegalStateException("Expected an iOS configuration")
+        if (!iosConfiguration.remotePrivateKey.exists()) {
+            throw FileNotFoundException("Private key not found at ${iosConfiguration.remotePrivateKey}")
+        }
+    }
 
     val xctestrunPath: File
         get() {
@@ -87,7 +94,7 @@ class DerivedDataManager(val configuration: Configuration) {
 
     private fun getSshString(port: Int): String {
         return "ssh -o 'StrictHostKeyChecking no' -F /dev/null " +
-                "-vvv " +
+                "${if (configuration.debug) "-vvv" else ""} " +
                 "-i ${iosConfiguration.remotePrivateKey} " +
                 "-l ${iosConfiguration.remoteUsername} " +
                 "-p ${port.toString()}"
