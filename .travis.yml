@@ -42,8 +42,7 @@ jobs:
   include:
   - stage: test
     script:
-    - chmod -R 0600 $HOME/.ssh/
-    - chmod 0600 vendor-ios/src/test/resources/test_key
+    - chmod 0600 $TRAVIS_BUILD_DIR/vendor-ios/src/test/resources/test_key
     - ./gradlew clean test
   - stage: detekt
     script: ./gradlew clean detektCheck
