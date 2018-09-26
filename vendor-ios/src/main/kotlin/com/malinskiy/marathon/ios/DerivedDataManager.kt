@@ -5,8 +5,8 @@ import com.github.fracpete.rsync4j.RSync
 import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.log.MarathonLogging
 import java.io.File
+import java.net.InetAddress
 
-private const val STANDARD_SSH_PORT = 22
 private const val PRODUCTS_PATH = "Build/Products"
 
 class DerivedDataManager(val configuration: Configuration) {
@@ -36,14 +36,14 @@ class DerivedDataManager(val configuration: Configuration) {
                 .toFile()
         }
 
-    fun send(localPath: File, remotePath: String, hostname: String, port: Int = STANDARD_SSH_PORT) {
+    fun send(localPath: File, remotePath: String, hostName: String, port: Int) {
 
         val source= if (localPath.isDirectory) {
             localPath.absolutePathWithTrailingSeparator
         } else {
             localPath.absolutePath
         }
-        val destination = "$hostname:$remotePath"
+        val destination = "$hostName:$remotePath"
 
         val sshString = getSshString(port)
         logger.debug { "Using ssh string ${sshString}" }
@@ -59,8 +59,8 @@ class DerivedDataManager(val configuration: Configuration) {
         }
     }
 
-    fun receive(remotePath: String, hostname: String, port: Int = STANDARD_SSH_PORT, localPath: File) {
-        val source = "$hostname:$remotePath"
+    fun receive(remotePath: String, hostName: String, port: Int, localPath: File) {
+        val source = "$hostName:$remotePath"
         val destination = localPath.absolutePath
 
         val sshString = getSshString(port)

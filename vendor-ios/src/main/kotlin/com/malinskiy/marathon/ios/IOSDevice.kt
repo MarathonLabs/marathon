@@ -12,6 +12,7 @@ import com.malinskiy.marathon.execution.TestBatchResults
 import com.malinskiy.marathon.execution.progress.ProgressReporter
 import com.malinskiy.marathon.io.FileManager
 import com.malinskiy.marathon.ios.cmd.remote.CommandExecutor
+import com.malinskiy.marathon.ios.cmd.remote.SshjCommandExecutor
 import com.malinskiy.marathon.ios.simctl.Simctl
 import com.malinskiy.marathon.ios.xcrun.CompositeLogParser
 import com.malinskiy.marathon.ios.xcrun.DebugLoggingParser
@@ -22,6 +23,9 @@ import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.test.TestBatch
 import com.malinskiy.marathon.time.SystemTimer
 import kotlinx.coroutines.experimental.CompletableDeferred
+import java.net.InetAddress
+
+private const val HOSTNAME = "localhost"
 
 class IOSDevice(val udid: String,
                 val hostCommandExecutor: CommandExecutor,
@@ -106,9 +110,10 @@ class IOSDevice(val udid: String,
 
         logger.debug { "tests = ${tests.toList()}" }
 
-        val remoteDir = RemoteFileManager.remoteDirectory(this)
         val derivedDataManager = DerivedDataManager(configuration)
-        val xctestrunPath = derivedDataManager.xctestrunPath
+
+        val remoteDir = RemoteFileManager.remoteDirectory(this)
+        val xctestrunPath = RemoteFileManager.remoteFile(this, derivedDataManager.xctestrunPath)
 
         logger.debug { "using xctestrun ${xctestrunPath}" }
 
@@ -138,14 +143,32 @@ class IOSDevice(val udid: String,
     }
 
     override fun prepare(configuration: Configuration) {
+        val hostAddress = hostAddress
+        val port = port
+        if (hostAddress == null || port == null) {
+            throw IllegalStateException("Unable to infer host address and TCP port")
+        }
+
         val derivedDataManager = DerivedDataManager(configuration)
 
         val productsDir = derivedDataManager.productsDir
+        val xctestrunPath = productsDir.resolve(derivedDataManager.xctestrunPath)
 
         RemoteFileManager.createRemoteDirectory(this)
         val remoteDir = RemoteFileManager.remoteDirectory(this)
 
+        // copy an xctestrun
+        logger.debug("Sending xctestrun file from ${derivedDataManager.xctestrunPath} to $remoteDir")
+        derivedDataManager.send(xctestrunPath, remoteDir.path, hostAddress.hostName, port)
+
         logger.debug("Sending files from $productsDir to $remoteDir")
-        derivedDataManager.send(productsDir, remoteDir.path, "localhost")
+        derivedDataManager.send(productsDir, remoteDir.path, hostAddress.hostName, port)
     }
+
+    private val sshjCommandExecutor: SshjCommandExecutor?
+        get() = hostCommandExecutor as? SshjCommandExecutor
+    private val hostAddress: InetAddress?
+        get() = sshjCommandExecutor?.hostAddress
+    private val port: Int?
+        get() = sshjCommandExecutor?.port
 }

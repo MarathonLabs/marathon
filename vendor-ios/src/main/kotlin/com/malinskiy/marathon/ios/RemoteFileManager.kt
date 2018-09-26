@@ -16,7 +16,7 @@ object RemoteFileManager {
     fun remoteDirectory(device: Device): File {
         return File("$OUTPUT_DIR/${device.hashCode()}")
     }
-    fun resolveInRemoteDirectory(device: Device, file: File = File("")): File {
+    fun remoteFile(device: Device, file: File = File("")): File {
         return remoteDirectory(device = device).resolve(file)
     }
 
