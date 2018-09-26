@@ -20,8 +20,6 @@ cache:
 before_install:
   - docker pull axiom/rsync-server
   - echo -e "Host localhost\n\tStrictHostKeyChecking no\n" >> $HOME/.ssh/config
-
-install:
   - echo 'localhost ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBMaFQFXjCQRbvc8XQpz3DZHF/spSHqqpfNgiFp+KUHtaysaHn2kpx2dpurkx7TvM9bxBgxoNj4WNwce4UqwJgSo=' >> $HOME/.ssh/known_hosts
 
 env:
@@ -42,7 +40,7 @@ jobs:
   include:
   - stage: test
     script:
-    - chmod 0600 $TRAVIS_BUILD_DIR/vendor-ios/src/test/resources/test_key
+    - chmod 0600 $TRAVIS_BUILD_DIR/vendor-ios/src/test/resources/fixtures/derived-data-manager/test_rsa
     - ./gradlew clean test
   - stage: detekt
     script: ./gradlew clean detektCheck
