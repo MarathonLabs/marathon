@@ -6,12 +6,12 @@ import com.malinskiy.marathon.ios.IOSConfiguration
 import java.io.File
 
 interface FileListProvider {
-    fun fileList(root: File = File(".")): Sequence<File>
+    fun fileList(root: File = File(".")): Iterable<File>
 }
 
 object DerivedDataFileListProvider: FileListProvider {
-    override fun fileList(root: File): Sequence<File> {
-        return root.walkTopDown()
+    override fun fileList(root: File): Iterable<File> {
+        return root.walkTopDown().asIterable()
     }
 }
 
@@ -23,25 +23,27 @@ data class FileIOSConfiguration(
         @JsonProperty("sourceRoot") val sourceRoot: File?,
         val fileListProvider: FileListProvider = DerivedDataFileListProvider) : FileVendorConfiguration {
 
-    fun toIOSConfiguration(xctestrunPathOverride: File? = null,
+    fun toIOSConfiguration(marathonfileDir: File,
+                           xctestrunPathOverride: File? = null,
                            sourceRootOverride: File? = null): IOSConfiguration {
-
+        // Any relative path specified in Marathonfile should be resolved against the directory it's in
+        val resolvedDerivedDataDir = marathonfileDir.resolve(derivedDataDir)
         val finalXCTestRunPath = xctestrunPathOverride
-                ?: xctestrunPath
+                ?: xctestrunPath?.resolveAgainst(marathonfileDir)
                 ?: fileListProvider
-                        .fileList(derivedDataDir)
-                        .firstOrNull(extension = "xctestrun")
-                ?: throw ConfigurationException("Unable to find xctestrun file in derived data folder")
-        val optionalSourceRoot = sourceRootOverride ?: sourceRoot
+                        .fileList(resolvedDerivedDataDir)
+                        .firstOrNull { it.extension == "xctestrun" }
+                ?: throw ConfigurationException("Unable to find an xctestrun file in derived data folder")
+        val optionalSourceRoot = sourceRootOverride
+                ?: sourceRoot?.resolveAgainst(marathonfileDir)
 
         return if (optionalSourceRoot == null) {
-            IOSConfiguration(derivedDataDir, finalXCTestRunPath, remoteUsername, remotePrivateKey)
+            IOSConfiguration(resolvedDerivedDataDir, finalXCTestRunPath, remoteUsername, remotePrivateKey)
         } else {
-            IOSConfiguration(derivedDataDir, finalXCTestRunPath, remoteUsername, remotePrivateKey, optionalSourceRoot)
+            IOSConfiguration(resolvedDerivedDataDir, finalXCTestRunPath, remoteUsername, remotePrivateKey, optionalSourceRoot)
         }
     }
 }
 
-private fun Sequence<File>.firstOrNull(extension: String): File? {
-    return firstOrNull { it.extension == extension }
-}
+// inverted [resolve] call allows to avoid too many if expressions
+private fun File.resolveAgainst(file: File): File = file.resolve(this)

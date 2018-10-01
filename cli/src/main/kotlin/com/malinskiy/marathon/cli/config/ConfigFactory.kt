@@ -27,10 +27,10 @@ class ConfigFactory {
 
         val config = readConfigFile(marathonfile) ?: throw ConfigurationException("Invalid config format")
 
-        var fileVendorConfiguration = config.vendorConfiguration
+        val fileVendorConfiguration = config.vendorConfiguration
         val vendorConfiguration = when (fileVendorConfiguration) {
-            is FileIOSConfiguration -> fileVendorConfiguration.toIOSConfiguration(xctestrunPath)
-            is FileAndroidConfiguration -> fileVendorConfiguration.toAndroidConfiguration(androidSdkDir)
+            is FileIOSConfiguration -> fileVendorConfiguration.toIOSConfiguration(marathonfile.parentFile, xctestrunPath)
+            is FileAndroidConfiguration -> fileVendorConfiguration.toAndroidConfiguration(androidSdkDir ?: readEnvironment().androidSdkDir)
             else -> throw ConfigurationException("No vendor config present in ${marathonfile.absolutePath}")
         }
 
