@@ -3,6 +3,7 @@ package com.malinskiy.marathon.cli
 import com.malinskiy.marathon.BuildConfig
 import com.malinskiy.marathon.Marathon
 import com.malinskiy.marathon.cli.args.MarathonCliConfiguration
+import com.malinskiy.marathon.cli.args.environment.SystemEnvironmentReader
 import com.malinskiy.marathon.cli.config.ConfigFactory
 import com.malinskiy.marathon.log.MarathonLogging
 import com.xenomachina.argparser.ArgParser
@@ -16,7 +17,11 @@ fun main(args: Array<String>): Unit = mainBody(
     ArgParser(args).parseInto(::MarathonCliConfiguration).run {
         logger.info { "Starting marathon" }
 
-        val configuration = ConfigFactory().create(marathonfile, androidSdkDir, xctestrunPath)
+        val configuration = ConfigFactory().create(
+                marathonfile = marathonfile,
+                environmentReader = SystemEnvironmentReader(),
+                xctestrunPath = xctestrunPath
+        )
         val marathon = Marathon(configuration = configuration)
         marathon.run()
     }

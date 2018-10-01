@@ -1,13 +1,23 @@
 package com.malinskiy.marathon.cli.config
 
 import com.malinskiy.marathon.android.AndroidConfiguration
-import com.malinskiy.marathon.execution.*
+import com.malinskiy.marathon.cli.args.EnvironmentConfiguration
+import com.malinskiy.marathon.cli.args.environment.EnvironmentReader
+import com.malinskiy.marathon.execution.AnalyticsConfiguration
+import com.malinskiy.marathon.execution.AnnotationFilter
+import com.malinskiy.marathon.execution.FullyQualifiedClassnameFilter
+import com.malinskiy.marathon.execution.SimpleClassnameFilter
+import com.malinskiy.marathon.execution.TestPackageFilter
 import com.malinskiy.marathon.execution.strategy.impl.batching.FixedSizeBatchingStrategy
 import com.malinskiy.marathon.execution.strategy.impl.batching.IsolateBatchingStrategy
 import com.malinskiy.marathon.execution.strategy.impl.flakiness.IgnoreFlakinessStrategy
 import com.malinskiy.marathon.execution.strategy.impl.flakiness.ProbabilityBasedFlakinessStrategy
 import com.malinskiy.marathon.execution.strategy.impl.pooling.OmniPoolingStrategy
-import com.malinskiy.marathon.execution.strategy.impl.pooling.parameterized.*
+import com.malinskiy.marathon.execution.strategy.impl.pooling.parameterized.AbiPoolingStrategy
+import com.malinskiy.marathon.execution.strategy.impl.pooling.parameterized.ComboPoolingStrategy
+import com.malinskiy.marathon.execution.strategy.impl.pooling.parameterized.ManufacturerPoolingStrategy
+import com.malinskiy.marathon.execution.strategy.impl.pooling.parameterized.ModelPoolingStrategy
+import com.malinskiy.marathon.execution.strategy.impl.pooling.parameterized.OperatingSystemVersionPoolingStrategy
 import com.malinskiy.marathon.execution.strategy.impl.retry.NoRetryStrategy
 import com.malinskiy.marathon.execution.strategy.impl.retry.fixedquota.FixedQuotaRetryStrategy
 import com.malinskiy.marathon.execution.strategy.impl.sharding.CountShardingStrategy
@@ -15,7 +25,14 @@ import com.malinskiy.marathon.execution.strategy.impl.sharding.ParallelShardingS
 import com.malinskiy.marathon.execution.strategy.impl.sorting.NoSortingStrategy
 import com.malinskiy.marathon.execution.strategy.impl.sorting.SuccessRateSortingStrategy
 import com.malinskiy.marathon.ios.IOSConfiguration
-import org.amshove.kluent.*
+import com.nhaarman.mockito_kotlin.whenever
+import org.amshove.kluent.`it returns`
+import org.amshove.kluent.mock
+import org.amshove.kluent.shouldBeEmpty
+import org.amshove.kluent.shouldEqual
+import org.amshove.kluent.shouldContainAll
+import org.amshove.kluent.shouldNotThrow
+import org.amshove.kluent.shouldThrow
 import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.given
 import org.jetbrains.spek.api.dsl.it
@@ -28,11 +45,17 @@ object ConfigFactorySpec : Spek({
     given("ConfigFactory") {
         val parser = ConfigFactory()
 
+        fun mockEnvironmentReader(path: String? = null): EnvironmentReader {
+            val environmentReader: EnvironmentReader =  mock()
+            whenever(environmentReader.read()) `it returns` EnvironmentConfiguration(path?.let { File(it) })
+            return environmentReader
+        }
+
         on("sample config 1") {
             val file = File(ConfigFactorySpec::class.java.getResource("/fixture/config/sample_1.yaml").file)
 
             it("should deserialize") {
-                val configuration = parser.create(file, File("/local/android"), null)
+                val configuration = parser.create(file, mockEnvironmentReader(), null)
 
                 configuration.name shouldEqual "sample-app tests"
                 configuration.outputDir shouldEqual File("./marathon")
@@ -93,7 +116,7 @@ object ConfigFactorySpec : Spek({
             val file = File(ConfigFactorySpec::class.java.getResource("/fixture/config/sample_2.yaml").file)
 
             it("should deserialize with minimal configuration") {
-                val configuration = parser.create(file, File("/local/android"), null)
+                val configuration = parser.create(file, mockEnvironmentReader(), null)
 
                 configuration.name shouldEqual "sample-app tests"
                 configuration.outputDir shouldEqual File("./marathon")
@@ -132,7 +155,7 @@ object ConfigFactorySpec : Spek({
             val file = File(ConfigFactorySpec::class.java.getResource("/fixture/config/sample_3.yaml").file)
 
             it("should initialize a specific vendor configuration") {
-                val configuration = parser.create(file, null, null)
+                val configuration = parser.create(file, mockEnvironmentReader(), null)
 
                 configuration.vendorConfiguration shouldEqual IOSConfiguration(
                         derivedDataDir = file.parentFile.resolve("a"),
@@ -146,7 +169,7 @@ object ConfigFactorySpec : Spek({
             val file = File(ConfigFactorySpec::class.java.getResource("/fixture/config/sample_4.yaml").file)
 
             it("should initialize a specific vendor configuration") {
-                val configuration = parser.create(file, null, File("build.xctestrun"))
+                val configuration = parser.create(file, mockEnvironmentReader(), File("build.xctestrun"))
 
                 configuration.vendorConfiguration shouldEqual IOSConfiguration(
                         derivedDataDir = file.parentFile.resolve("a"),
@@ -161,9 +184,36 @@ object ConfigFactorySpec : Spek({
             val file = File(ConfigFactorySpec::class.java.getResource("/fixture/config/sample_5.yaml").file)
 
             it("should throw an exception") {
-                val create = { parser.create(file, null, null) }
+                val create = { parser.create(file, mockEnvironmentReader(), null) }
 
                 create shouldThrow ConfigurationException::class
+            }
+        }
+
+        on("configuration without androidSdk value") {
+            val file = File(ConfigFactorySpec::class.java.getResource("/fixture/config/sample_6.yaml").file)
+            val environmentReader = mockEnvironmentReader("/android/home")
+
+            it("should use value provided by environment") {
+                val configuration = parser.create(file, environmentReader, null)
+
+                configuration.vendorConfiguration shouldEqual AndroidConfiguration(
+                        environmentReader.read().androidSdk!!,
+                        File("kotlin-buildscript/build/outputs/apk/debug/kotlin-buildscript-debug.apk"),
+                        File("kotlin-buildscript/build/outputs/apk/androidTest/debug/kotlin-buildscript-debug-androidTest.apk"),
+                        false,
+                        30_000
+                )
+            }
+        }
+
+        on("configuration without androidSdk value") {
+            val file = File(ConfigFactorySpec::class.java.getResource("/fixture/config/sample_7.yaml").file)
+
+            it("should throw an exception when ANDROID_HOME is not set") {
+                val create = { parser.create(file, mockEnvironmentReader(null), null) }
+
+                create shouldNotThrow ConfigurationException::class
             }
         }
     }

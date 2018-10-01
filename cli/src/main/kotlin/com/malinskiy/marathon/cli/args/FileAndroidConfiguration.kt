@@ -13,9 +13,9 @@ data class FileAndroidConfiguration(@JsonProperty("androidSdk") val androidSdk: 
     : FileVendorConfiguration {
 
 
-    fun toAndroidConfiguration(androidSdkOverride: File?): AndroidConfiguration {
-        val finalAndroidSdk = androidSdkOverride
-                ?: androidSdk
+    fun toAndroidConfiguration(environmentAndroidSdk: File?): AndroidConfiguration {
+        val finalAndroidSdk = androidSdk
+                ?: environmentAndroidSdk
                 ?: throw ConfigurationException("No android SDK path specified")
 
         if (autoGrantPermission != null && adbInitTimeoutMillis != null) {

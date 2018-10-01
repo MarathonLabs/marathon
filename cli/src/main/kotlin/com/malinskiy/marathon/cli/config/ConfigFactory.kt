@@ -6,10 +6,10 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
 import com.fasterxml.jackson.dataformat.yaml.YAMLGenerator
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.KotlinModule
-import com.malinskiy.marathon.cli.args.EnvironmentConfiguration
 import com.malinskiy.marathon.cli.args.FileAndroidConfiguration
 import com.malinskiy.marathon.cli.args.FileConfiguration
 import com.malinskiy.marathon.cli.args.FileIOSConfiguration
+import com.malinskiy.marathon.cli.args.environment.EnvironmentReader
 import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.log.MarathonLogging
 import java.io.File
@@ -17,7 +17,7 @@ import java.io.File
 private val logger = MarathonLogging.logger {}
 
 class ConfigFactory {
-    fun create(marathonfile: File, androidSdkDir: File?, xctestrunPath: File?): Configuration {
+    fun create(marathonfile: File, environmentReader: EnvironmentReader, xctestrunPath: File?): Configuration {
         logger.info { "Checking $marathonfile config" }
 
         if (!marathonfile.isFile) {
@@ -29,8 +29,13 @@ class ConfigFactory {
 
         val fileVendorConfiguration = config.vendorConfiguration
         val vendorConfiguration = when (fileVendorConfiguration) {
-            is FileIOSConfiguration -> fileVendorConfiguration.toIOSConfiguration(marathonfile.parentFile, xctestrunPath)
-            is FileAndroidConfiguration -> fileVendorConfiguration.toAndroidConfiguration(androidSdkDir ?: readEnvironment().androidSdkDir)
+            is FileIOSConfiguration -> fileVendorConfiguration.toIOSConfiguration(
+                    marathonfile.canonicalFile.parentFile,
+                    xctestrunPath
+            )
+            is FileAndroidConfiguration -> {
+                fileVendorConfiguration.toAndroidConfiguration(environmentReader.read().androidSdk)
+            }
             else -> throw ConfigurationException("No vendor config present in ${marathonfile.absolutePath}")
         }
 
@@ -55,13 +60,6 @@ class ConfigFactory {
                 config.testOutputTimeoutMillis,
                 config.debug,
                 vendorConfiguration
-        )
-    }
-
-    private fun readEnvironment(): EnvironmentConfiguration {
-        val androidSdkDir = System.getenv("ANDROID_HOME")
-        return EnvironmentConfiguration(
-                androidSdkDir = androidSdkDir?.let { File(it) }
         )
     }
 
