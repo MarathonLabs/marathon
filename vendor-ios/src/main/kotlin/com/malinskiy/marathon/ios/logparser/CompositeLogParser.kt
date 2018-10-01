@@ -1,4 +1,4 @@
-package com.malinskiy.marathon.ios.xcrun
+package com.malinskiy.marathon.ios.logparser
 
 class CompositeLogParser(val parsers: Collection<StreamingLogParser>) : StreamingLogParser {
     override fun close() {

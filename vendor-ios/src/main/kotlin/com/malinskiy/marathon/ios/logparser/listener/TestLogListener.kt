@@ -1,6 +1,6 @@
-package com.malinskiy.marathon.ios.xcrun.listener
+package com.malinskiy.marathon.ios.logparser.listener
 
-import com.malinskiy.marathon.ios.xcrun.StreamingLogParser
+import com.malinskiy.marathon.ios.logparser.StreamingLogParser
 import com.malinskiy.marathon.test.Test
 
 class TestLogListener : TestRunListener, StreamingLogParser {

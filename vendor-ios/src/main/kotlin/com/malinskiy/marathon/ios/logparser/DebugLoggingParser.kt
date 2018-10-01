@@ -1,4 +1,4 @@
-package com.malinskiy.marathon.ios.xcrun
+package com.malinskiy.marathon.ios.logparser
 
 import com.malinskiy.marathon.log.MarathonLogging
 

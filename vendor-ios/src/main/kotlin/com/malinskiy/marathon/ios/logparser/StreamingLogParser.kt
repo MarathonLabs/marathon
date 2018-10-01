@@ -1,4 +1,4 @@
-package com.malinskiy.marathon.ios.xcrun
+package com.malinskiy.marathon.ios.logparser
 
 interface StreamingLogParser {
     fun onLine(line: String)

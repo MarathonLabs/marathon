@@ -14,11 +14,11 @@ import com.malinskiy.marathon.io.FileManager
 import com.malinskiy.marathon.ios.cmd.remote.CommandExecutor
 import com.malinskiy.marathon.ios.cmd.remote.SshjCommandExecutor
 import com.malinskiy.marathon.ios.simctl.Simctl
-import com.malinskiy.marathon.ios.xcrun.CompositeLogParser
-import com.malinskiy.marathon.ios.xcrun.DebugLoggingParser
-import com.malinskiy.marathon.ios.xcrun.TestRunProgressParser
-import com.malinskiy.marathon.ios.xcrun.listener.ProgressReportingListener
-import com.malinskiy.marathon.ios.xcrun.listener.TestLogListener
+import com.malinskiy.marathon.ios.logparser.CompositeLogParser
+import com.malinskiy.marathon.ios.logparser.DebugLoggingParser
+import com.malinskiy.marathon.ios.logparser.TestRunProgressParser
+import com.malinskiy.marathon.ios.logparser.listener.ProgressReportingListener
+import com.malinskiy.marathon.ios.logparser.listener.TestLogListener
 import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.test.TestBatch
 import com.malinskiy.marathon.time.SystemTimer

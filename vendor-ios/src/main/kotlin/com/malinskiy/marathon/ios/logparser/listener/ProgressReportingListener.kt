@@ -1,4 +1,4 @@
-package com.malinskiy.marathon.ios.xcrun.listener
+package com.malinskiy.marathon.ios.logparser.listener
 
 import com.malinskiy.marathon.device.Device
 import com.malinskiy.marathon.device.DevicePoolId

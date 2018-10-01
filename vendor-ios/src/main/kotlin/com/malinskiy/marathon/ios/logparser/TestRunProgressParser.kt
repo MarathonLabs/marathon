@@ -1,6 +1,6 @@
-package com.malinskiy.marathon.ios.xcrun
+package com.malinskiy.marathon.ios.logparser
 
-import com.malinskiy.marathon.ios.xcrun.listener.TestRunListener
+import com.malinskiy.marathon.ios.logparser.listener.TestRunListener
 import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.test.Test
 import com.malinskiy.marathon.time.Timer
