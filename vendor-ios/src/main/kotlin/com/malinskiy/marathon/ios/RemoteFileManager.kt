@@ -12,36 +12,30 @@ object RemoteFileManager {
 
     private const val OUTPUT_DIR = "/tmp/marathon"
 
-    fun remoteDirectory(device: Device): File = File("$OUTPUT_DIR")
+    fun remoteDirectory(device: IOSDevice): File = File("$OUTPUT_DIR")
 
-    fun createRemoteDirectory(device: Device) {
+    fun createRemoteDirectory(device: IOSDevice) {
         executeCommand(device,
                 """mkdir -p "${remoteDirectory(device)}"""",
                 "Could not create remote directory ${remoteDirectory(device)}")
     }
 
-    fun removeRemoteDirectory(device: Device) {
+    fun removeRemoteDirectory(device: IOSDevice) {
         executeCommand(device,
                 """rm -rf "${remoteDirectory(device)}"""",
                 "Unable to remove directory ${remoteDirectory(device)}")
     }
 
-    fun remoteXctestrunFile(device: Device): File =  remoteFile(device, File(xctestrunFileName(device)))
+    fun remoteXctestrunFile(device: IOSDevice): File =  remoteFile(device, File(xctestrunFileName(device)))
 
-    private fun xctestrunFileName(device: Device): String = "${device.hashCode()}.xctestrun"
+    private fun xctestrunFileName(device: IOSDevice): String = "${device.udid}.xctestrun"
 
-    private fun remoteFile(device: Device, file: File): File = remoteDirectory(device = device).resolve(file)
+    private fun remoteFile(device: IOSDevice, file: File): File = remoteDirectory(device = device).resolve(file)
 
-    private fun executeCommand(device: Device, command: String, errorMessage: String): String? {
-        val iosDevice = device as? IOSDevice
-        if (iosDevice == null) {
-            logger.error("Incorrect device type (serial = ${device.serialNumber})")
-            return null
-        }
-
+    private fun executeCommand(device: IOSDevice, command: String, errorMessage: String): String? {
         var output: CommandResult? = null
         try {
-            output = iosDevice.hostCommandExecutor.exec(command)
+            output = device.hostCommandExecutor.exec(command)
         } catch (e: Exception) {
             logger.error(errorMessage, e)
         }

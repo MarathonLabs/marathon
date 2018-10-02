@@ -18,10 +18,7 @@ class InvalidKeypathException(
 }
 
 private typealias Keypath = String
-private fun PropertyListMap.valueForKeypath(vararg elements: String): Any? = valueForKeypath(keypath = elements.joinToString(separator = "."))
-
 private fun Keypath.keypathRoot(): String = substringBefore(".")
-
 private fun Keypath.keypathTail(): Keypath? = substringAfterOrNull(".")
 
 private fun PropertyListMap.valueForKeypath(keypath: Keypath): Any? {
