@@ -8,8 +8,6 @@ import com.malinskiy.marathon.ios.simctl.model.SimctlDeviceList
 import com.malinskiy.marathon.ios.simctl.model.SimctlDeviceListDeserializer
 import net.schmizz.sshj.connection.channel.direct.Session
 import org.amshove.kluent.mock
-import java.io.File
-import java.net.InetAddress
 
 class Mocks {
     class CommandExecutor {

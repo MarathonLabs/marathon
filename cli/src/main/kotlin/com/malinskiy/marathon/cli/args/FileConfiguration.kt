@@ -8,7 +8,6 @@ import com.malinskiy.marathon.execution.strategy.PoolingStrategy
 import com.malinskiy.marathon.execution.strategy.RetryStrategy
 import com.malinskiy.marathon.execution.strategy.ShardingStrategy
 import com.malinskiy.marathon.execution.strategy.SortingStrategy
-import com.malinskiy.marathon.vendor.VendorConfiguration
 import java.io.File
 
 data class FileConfiguration(

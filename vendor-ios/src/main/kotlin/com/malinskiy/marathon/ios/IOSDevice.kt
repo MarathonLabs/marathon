@@ -12,7 +12,6 @@ import com.malinskiy.marathon.execution.TestBatchResults
 import com.malinskiy.marathon.execution.progress.ProgressReporter
 import com.malinskiy.marathon.io.FileManager
 import com.malinskiy.marathon.ios.cmd.remote.CommandExecutor
-import com.malinskiy.marathon.ios.cmd.remote.CommandResult
 import com.malinskiy.marathon.ios.cmd.remote.SshjCommandExecutor
 import com.malinskiy.marathon.ios.simctl.Simctl
 import com.malinskiy.marathon.ios.logparser.CompositeLogParser

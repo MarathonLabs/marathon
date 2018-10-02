@@ -1,7 +1,6 @@
 package com.malinskiy.marathon.ios
 
 import com.malinskiy.marathon.device.Device
-import com.malinskiy.marathon.ios.cmd.remote.CommandExecutor
 import com.malinskiy.marathon.ios.cmd.remote.CommandResult
 import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.test.Test

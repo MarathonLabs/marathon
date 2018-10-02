@@ -1,7 +1,6 @@
 package com.malinskiy.marathon.ios.simctl.model
 
 import com.google.gson.GsonBuilder
-import com.malinskiy.marathon.test.Test
 import org.amshove.kluent.`should be equal to`
 import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.describe
