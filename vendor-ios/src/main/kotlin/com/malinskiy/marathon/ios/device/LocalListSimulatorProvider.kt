@@ -14,7 +14,7 @@ import java.net.InetAddress
 
 class LocalListSimulatorProvider(private val channel: Channel<DeviceProvider.DeviceEvent>,
                                  val remoteUsername: String,
-                                 val remotePublicKey: File,
+                                 val remotePrivateKey: File,
                                  val yamlObjectMapper: ObjectMapper,
                                  private val gson: Gson) : SimulatorProvider {
 
@@ -32,8 +32,8 @@ class LocalListSimulatorProvider(private val channel: Channel<DeviceProvider.Dev
                         IOSDevice(udid = it.udid,
                                 hostCommandExecutor = SshjCommandExecutor(
                                         hostAddress = InetAddress.getByName(it.host),
-                                        remoteUsername = remoteUsername,
-                                        remotePublicKey = remotePublicKey),
+                                        remoteUsername = it.username ?: remoteUsername,
+                                        remotePrivateKey = remotePrivateKey),
                                 gson = gson)
                 ))
             }
