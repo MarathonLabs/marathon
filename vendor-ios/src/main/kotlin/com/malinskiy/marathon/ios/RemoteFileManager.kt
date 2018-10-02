@@ -13,12 +13,7 @@ object RemoteFileManager {
 
     private const val OUTPUT_DIR = "/tmp/marathon"
 
-    fun remoteDirectory(device: Device): File {
-        return File("$OUTPUT_DIR/${device.hashCode()}")
-    }
-    fun remoteFile(device: Device, file: File = File("")): File {
-        return remoteDirectory(device = device).resolve(file)
-    }
+    fun remoteDirectory(device: Device): File = File("$OUTPUT_DIR")
 
     fun createRemoteDirectory(device: Device) {
         executeCommand(device,
@@ -32,11 +27,17 @@ object RemoteFileManager {
                 "Unable to remove directory ${remoteDirectory(device)}")
     }
 
-    private fun executeCommand(device: Device, command: String, errorMessage: String) {
+    fun remoteXctestrunFile(device: Device): File =  remoteFile(device, File(xctestrunFileName(device)))
+
+    private fun xctestrunFileName(device: Device): String = "${device.hashCode()}.xctestrun"
+
+    private fun remoteFile(device: Device, file: File): File = remoteDirectory(device = device).resolve(file)
+
+    private fun executeCommand(device: Device, command: String, errorMessage: String): String? {
         val iosDevice = device as? IOSDevice
         if (iosDevice == null) {
             logger.error("Incorrect device type (serial = ${device.serialNumber})")
-            return
+            return null
         }
 
         var output: CommandResult? = null
@@ -51,13 +52,15 @@ object RemoteFileManager {
         }
 
         if (output != null) {
-            if (output.stdout.isNotEmpty()) {
-                logger.info(output.stdout)
-            }
             if (output.stderr.isNotEmpty()) {
                 logger.error(output.stderr)
             }
+            if (output.stdout.isNotEmpty()) {
+                logger.info(output.stdout)
+                return output.stdout
+            }
         }
+        return null
     }
 
     fun remoteVideoForTest(test: Test): String {

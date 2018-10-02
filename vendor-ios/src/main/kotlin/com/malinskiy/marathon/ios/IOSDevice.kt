@@ -12,6 +12,7 @@ import com.malinskiy.marathon.execution.TestBatchResults
 import com.malinskiy.marathon.execution.progress.ProgressReporter
 import com.malinskiy.marathon.io.FileManager
 import com.malinskiy.marathon.ios.cmd.remote.CommandExecutor
+import com.malinskiy.marathon.ios.cmd.remote.CommandResult
 import com.malinskiy.marathon.ios.cmd.remote.SshjCommandExecutor
 import com.malinskiy.marathon.ios.simctl.Simctl
 import com.malinskiy.marathon.ios.logparser.CompositeLogParser
@@ -19,11 +20,13 @@ import com.malinskiy.marathon.ios.logparser.DebugLoggingParser
 import com.malinskiy.marathon.ios.logparser.TestRunProgressParser
 import com.malinskiy.marathon.ios.logparser.listener.ProgressReportingListener
 import com.malinskiy.marathon.ios.logparser.listener.TestLogListener
+import com.malinskiy.marathon.ios.xctestrun.Xctestrun
 import com.malinskiy.marathon.log.MarathonLogging
+import com.malinskiy.marathon.report.html.relativePathTo
 import com.malinskiy.marathon.test.TestBatch
 import com.malinskiy.marathon.time.SystemTimer
 import kotlinx.coroutines.experimental.CompletableDeferred
-import java.net.InetAddress
+import java.io.FileNotFoundException
 
 private const val HOSTNAME = "localhost"
 
@@ -112,10 +115,10 @@ class IOSDevice(val udid: String,
 
         val derivedDataManager = DerivedDataManager(configuration)
 
-        val remoteDir = RemoteFileManager.remoteDirectory(this)
-        val xctestrunPath = RemoteFileManager.remoteFile(this, derivedDataManager.xctestrunPath)
+        val remoteXctestrunFile = RemoteFileManager.remoteXctestrunFile(this)
+        val remoteDir = remoteXctestrunFile.parent
 
-        logger.debug { "using xctestrun ${xctestrunPath}" }
+        logger.debug { "using xctestrun ${remoteXctestrunFile}" }
 
         val testBatchToArguments = testBatch.tests
                 .map { "-only-testing:\"${it.pkg}/${it.clazz}/${it.method}\"" }
@@ -125,7 +128,7 @@ class IOSDevice(val udid: String,
         val command = session.exec("export NSUnbufferedIO=YES && " +
                 "cd $remoteDir && " +
                 "xcodebuild test-without-building " +
-                "-xctestrun $xctestrunPath " +
+                "-xctestrun ${remoteXctestrunFile.path} " +
                 "$testBatchToArguments " +
                 "-destination 'platform=iOS simulator,id=$udid'")
 
@@ -143,32 +146,60 @@ class IOSDevice(val udid: String,
     }
 
     override fun prepare(configuration: Configuration) {
-        val hostAddress = hostAddress
-        val port = port
-        if (hostAddress == null || port == null) {
-            throw IllegalStateException("Unable to infer host address and TCP port")
-        }
+        val sshjCommandExecutor = hostCommandExecutor as SshjCommandExecutor
 
         val derivedDataManager = DerivedDataManager(configuration)
-
-        val productsDir = derivedDataManager.productsDir
-        val xctestrunPath = productsDir.resolve(derivedDataManager.xctestrunPath)
-
         RemoteFileManager.createRemoteDirectory(this)
-        val remoteDir = RemoteFileManager.remoteDirectory(this)
 
-        // copy an xctestrun
-        logger.debug("Sending xctestrun file from ${derivedDataManager.xctestrunPath} to $remoteDir")
-        derivedDataManager.send(xctestrunPath, remoteDir.path, hostAddress.hostName, port)
+        // 1. remote paths
+        val remoteProductsDir = RemoteFileManager.remoteDirectory(this)
+        val remoteXctestrunFile = RemoteFileManager.remoteXctestrunFile(this)
 
-        logger.debug("Sending files from $productsDir to $remoteDir")
-        derivedDataManager.send(productsDir, remoteDir.path, hostAddress.hostName, port)
+        // 2. local paths
+        val productsDir = derivedDataManager.productsDir
+        val xctestrunPath = (configuration.vendorConfiguration as IOSConfiguration).xctestrunPath
+        if (xctestrunPath.relativePathTo(productsDir) != xctestrunPath.name) {
+            throw FileNotFoundException("xctestrun file must be located in build products directory.")
+        }
+        val xctestrunFile = productsDir.resolve(remoteXctestrunFile.name)
+
+        // 3. a port
+        val remotePort = availablePort()
+
+        // 4. Update xctestrun environment
+        val xctestrun = Xctestrun(xctestrunPath)
+        xctestrun.environment("TEST_HTTP_SERVER_PORT", "${remotePort}")
+
+        // 5. Save under the new name
+        xctestrunFile.writeBytes(xctestrun.toXMLByteArray())
+
+        // send the prepared xctestrun
+        logger.debug("Sending xctestrun file from ${xctestrunFile} to $remoteXctestrunFile")
+        derivedDataManager.send(
+                localPath = xctestrunFile,
+                remotePath = remoteXctestrunFile.absolutePath,
+                hostName = sshjCommandExecutor.hostAddress.hostName,
+                port = sshjCommandExecutor.port
+        )
+
+        // copy build products
+        logger.debug("Sending files from $productsDir to $remoteProductsDir")
+        derivedDataManager.send(
+                localPath = productsDir,
+                remotePath = remoteProductsDir.path,
+                hostName = sshjCommandExecutor.hostAddress.hostName,
+                port = sshjCommandExecutor.port
+        )
     }
 
-    private val sshjCommandExecutor: SshjCommandExecutor?
-        get() = hostCommandExecutor as? SshjCommandExecutor
-    private val hostAddress: InetAddress?
-        get() = sshjCommandExecutor?.hostAddress
-    private val port: Int?
-        get() = sshjCommandExecutor?.port
+    private fun availablePort(): Int {
+        val commandResult = hostCommandExecutor.exec(
+                """ruby -e 'require "socket"; puts Addrinfo.tcp("", 0).bind {|s| s.local_address.ip_port }'"""
+        )
+        return when {
+            commandResult.exitStatus == 0 -> commandResult.stdout.toIntOrNull()
+            else -> null
+        } ?: throw Exception(commandResult.stderr)
+    }
+
 }

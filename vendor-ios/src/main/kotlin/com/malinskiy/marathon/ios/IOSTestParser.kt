@@ -2,6 +2,7 @@ package com.malinskiy.marathon.ios
 
 import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.execution.TestParser
+import com.malinskiy.marathon.ios.xctestrun.Xctestrun
 import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.test.Test
 import java.io.File
@@ -26,8 +27,8 @@ class IOSTestParser : TestParser {
             throw IllegalArgumentException("Expected a directory at $vendorConfiguration.sourceRoot")
         }
 
-        val xctestrun = XCTestRun(vendorConfiguration.xctestrunPath)
-        val moduleName = xctestrun.moduleName
+        val xctestrun = Xctestrun(vendorConfiguration.xctestrunPath)
+        val moduleName = xctestrun.targetName
 
         val swiftFilesWithTests = vendorConfiguration
                 .sourceRoot

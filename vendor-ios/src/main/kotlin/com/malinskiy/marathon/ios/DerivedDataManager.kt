@@ -23,17 +23,6 @@ class DerivedDataManager(val configuration: Configuration) {
         }
     }
 
-    val xctestrunPath: File
-        get() {
-            return productsDir
-                .toPath()
-                .relativize(
-                    iosConfiguration
-                        .xctestrunPath
-                        .toPath()
-                )
-                .toFile()
-        }
     val productsDir: File
         get() {
             return iosConfiguration
