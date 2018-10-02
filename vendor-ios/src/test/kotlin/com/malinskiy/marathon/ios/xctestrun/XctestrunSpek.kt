@@ -1,7 +1,9 @@
 package com.malinskiy.marathon.ios.xctestrun
 
 import com.malinskiy.marathon.test.Test
-import org.amshove.kluent.*
+import org.amshove.kluent.shouldEqual
+import org.amshove.kluent.shouldHaveKey
+import org.amshove.kluent.shouldNotHaveKey
 import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.describe
 import org.jetbrains.spek.api.dsl.given
@@ -35,16 +37,27 @@ object XctestrunSpek : Spek({
         given("A valid instance") {
             val xctestrun by memoized { Xctestrun(file) }
 
-            it("should accurately serialize and deserialize") {
-                val xctestrunString = xctestrun.toXMLString()
+            it("should verify equality ignoring key order") {
+                val reorderedFile = File(javaClass.classLoader.getResource("fixtures/xctestrun/UITesting_iphonesimulator11.2-x86_64-reordered.xctestrun").file)
+                val reordered = Xctestrun(reorderedFile)
 
-                val otherXctestrun = Xctestrun(
+                reordered shouldEqual xctestrun
+            }
+
+            it("should accurately serialize and deserialize") {
+                val other = Xctestrun(
                         ByteArrayInputStream(
-                                xctestrunString.toByteArray()
+                                xctestrun.toXMLString().toByteArray()
                         )
                 )
 
-                otherXctestrun shouldEqual xctestrun
+                other shouldEqual xctestrun
+            }
+
+            it("should be equal to its clone") {
+                val clone = xctestrun.clone()
+
+                clone shouldEqual xctestrun
             }
 
             it("should be able to modify environment variables") {
@@ -61,14 +74,7 @@ object XctestrunSpek : Spek({
                 xctestrun.testingEnvironmentVariables["SPEK_DEBUG"] shouldEqual "YES"
             }
 
-            it("should be equal to itself") {
-                xctestrun.equals(xctestrun) shouldEqual true
-            }
-        }
-        given("an xctestrun clone") {
-            val xctestrun by memoized { Xctestrun(file) }
-
-            it("should not change when source instance changes") {
+            it("should not update clone when source changes") {
                 val clone = xctestrun.clone()
 
                 xctestrun.environment("SPEK_DEBUG", "YES")

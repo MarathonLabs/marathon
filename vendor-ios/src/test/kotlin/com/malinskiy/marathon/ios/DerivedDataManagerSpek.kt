@@ -1,10 +1,10 @@
 package com.malinskiy.marathon.ios
 
 import com.malinskiy.marathon.execution.Configuration
+import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.report.html.relativePathTo
 import com.nhaarman.mockito_kotlin.mock
 import com.nhaarman.mockito_kotlin.whenever
-import mu.KotlinLogging
 import org.amshove.kluent.shouldEqual
 import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.describe
@@ -13,14 +13,11 @@ import org.jetbrains.spek.api.dsl.it
 import org.testcontainers.containers.BindMode
 import org.testcontainers.containers.GenericContainer
 import java.io.File
-import java.util.*
+import java.util.UUID
 
-private val logger = KotlinLogging.logger { }
+object DerivedDataManagerSpek: Spek({
+    val logger = MarathonLogging.logger(javaClass.simpleName)
 
-// https://github.com/testcontainers/testcontainers-java/issues/318
-class KGenericContainer(imageName: String) : GenericContainer<KGenericContainer>(imageName)
-
-class DerivedDataManagerSpek: Spek({
     describe("DerivedDataManager") {
         val device: IOSDevice = mock()
         whenever(device.udid).thenReturn(UUID.randomUUID().toString())
@@ -28,6 +25,9 @@ class DerivedDataManagerSpek: Spek({
         val privateKey = File(javaClass.classLoader.getResource("fixtures/derived-data-manager/test_rsa").file)
         logger.debug { "Using private key ${privateKey}" }
         val publicKeyResourcePath = "fixtures/derived-data-manager/test_rsa.pub"
+
+        // https://github.com/testcontainers/testcontainers-java/issues/318
+        class KGenericContainer(imageName: String) : GenericContainer<KGenericContainer>(imageName)
 
         val container = KGenericContainer("axiom/rsync-server")
                 .withClasspathResourceMapping(publicKeyResourcePath, "/root/.ssh/authorized_keys", BindMode.READ_WRITE)
@@ -59,7 +59,7 @@ class DerivedDataManagerSpek: Spek({
                     includeSerialRegexes = null,
                     excludeSerialRegexes = null,
                     testOutputTimeoutMillis = null,
-                    debug = true,
+                    debug = false,
                     vendorConfiguration =  IOSConfiguration(derivedDataPath, xctestrunPath, "root", privateKey, sourceRoot)
             )
 
