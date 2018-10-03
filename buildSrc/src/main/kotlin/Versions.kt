@@ -31,7 +31,7 @@ object Versions {
     val jacksonYaml = "2.9.6"
     val jacksonJSR310 = "2.9.6"
 
-    val testContainers = "1.9.0-rc1"
+    val testContainers = "1.9.1"
     val jupiterEngine = "5.1.0"
 }
 
