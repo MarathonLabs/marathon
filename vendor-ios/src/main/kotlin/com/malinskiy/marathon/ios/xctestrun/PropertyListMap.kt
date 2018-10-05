@@ -2,9 +2,9 @@ package com.malinskiy.marathon.ios.xctestrun
 
 typealias PropertyListMap = MutableMap<String, Any>
 
-fun PropertyListMap.valueForKeypath(vararg keys: PropertyListKey): Any? = valueForKeypath(keypath = keys.map { it.toKeyString() }.joinToString(separator = "."))
+fun PropertyListMap.valueForKeypath(vararg keys: PropertyListKey): Any? = valueForKeypath(keypath = keys.map { it.toKeyString() }.joinToString(separator = Keypath.separator))
 fun PropertyListMap.valueForKeypath(module: String, vararg keys: PropertyListKey): Any? {
-    val keypath: Keypath = module + "." + keys.map { it.toKeyString() }.joinToString(".")
+    val keypath: Keypath = module + Keypath.separator + keys.map { it.toKeyString() }.joinToString(separator = Keypath.separator)
     return valueForKeypath(keypath = keypath)
 }
 
@@ -18,8 +18,10 @@ class InvalidKeypathException(
 }
 
 private typealias Keypath = String
-private fun Keypath.keypathRoot(): String = substringBefore(".")
-private fun Keypath.keypathTail(): Keypath? = substringAfterOrNull(".")
+private val String.Companion.separator: String
+    get() = ":"
+private fun Keypath.keypathRoot(): String = substringBefore(Keypath.separator)
+private fun Keypath.keypathTail(): Keypath? = substringAfterOrNull(Keypath.separator)
 
 private fun PropertyListMap.valueForKeypath(keypath: Keypath): Any? {
     return when {
@@ -44,9 +46,8 @@ private fun PropertyListMap.valueForKeypath(keypath: Keypath): Any? {
 }
 
 private fun String.substringAfterOrNull(delimiter: String): String? {
-    return when (contains(".")) {
+    return when (contains(Keypath.separator)) {
         false -> null
         true -> substringAfter(delimiter)
     }
 }
-
