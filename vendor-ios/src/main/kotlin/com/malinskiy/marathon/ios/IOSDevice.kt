@@ -168,12 +168,13 @@ class IOSDevice(val udid: String,
         // 4. Update xctestrun environment
         val xctestrun = Xctestrun(xctestrunPath)
         xctestrun.environment("TEST_HTTP_SERVER_PORT", "${remotePort}")
+        logger.debug("Updating xctestrun environment with TEST_HTTP_SERVER_PORT=${remotePort}")
 
         // 5. Save under the new name
         xctestrunFile.writeBytes(xctestrun.toXMLByteArray())
 
         // send the prepared xctestrun
-        logger.debug("Sending xctestrun file from ${xctestrunFile} to $remoteXctestrunFile")
+        logger.debug("Sending xctestrun file from ${xctestrunFile} to ${remoteXctestrunFile}")
         derivedDataManager.send(
                 localPath = xctestrunFile,
                 remotePath = remoteXctestrunFile.absolutePath,
@@ -196,7 +197,7 @@ class IOSDevice(val udid: String,
                 """ruby -e 'require "socket"; puts Addrinfo.tcp("", 0).bind {|s| s.local_address.ip_port }'"""
         )
         return when {
-            commandResult.exitStatus == 0 -> commandResult.stdout.toIntOrNull()
+            commandResult.exitStatus == 0 -> commandResult.stdout.toIntOrNull().also { logger.debug("Using TCP port ${it} on device ${udid}") }
             else -> null
         } ?: throw Exception(commandResult.stderr)
     }
