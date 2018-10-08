@@ -36,6 +36,8 @@ filteringConfiguration:
     regex: ".*"
   - type: "fully-qualified-class-name"
     regex: ".*"
+  - type: "method"
+    regex: ".*"
   blacklist:
   - type: "package"
     regex: ".*"

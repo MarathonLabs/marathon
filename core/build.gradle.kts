@@ -6,7 +6,7 @@ import org.junit.platform.gradle.plugin.EnginesExtension
 import org.junit.platform.gradle.plugin.JUnitPlatformExtension
 
 plugins {
-    `idea`
+    idea
     `java-library`
     id("org.jetbrains.kotlin.jvm")
     id("org.junit.platform.gradle.plugin")
@@ -34,10 +34,7 @@ dependencies {
 
 Deployment.initialize(project)
 
-val compileKotlin by tasks.getting(KotlinCompile::class) {
-    kotlinOptions.jvmTarget = "1.8"
-}
-val compileTestKotlin by tasks.getting(KotlinCompile::class) {
+tasks.withType<KotlinCompile> {
     kotlinOptions.jvmTarget = "1.8"
 }
 

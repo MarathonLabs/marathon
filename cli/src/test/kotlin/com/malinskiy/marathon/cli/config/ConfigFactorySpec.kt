@@ -7,6 +7,7 @@ import com.malinskiy.marathon.execution.AnalyticsConfiguration
 import com.malinskiy.marathon.execution.AnnotationFilter
 import com.malinskiy.marathon.execution.FullyQualifiedClassnameFilter
 import com.malinskiy.marathon.execution.SimpleClassnameFilter
+import com.malinskiy.marathon.execution.TestMethodFilter
 import com.malinskiy.marathon.execution.TestPackageFilter
 import com.malinskiy.marathon.execution.strategy.impl.batching.FixedSizeBatchingStrategy
 import com.malinskiy.marathon.execution.strategy.impl.batching.IsolateBatchingStrategy
@@ -29,7 +30,6 @@ import com.nhaarman.mockito_kotlin.whenever
 import org.amshove.kluent.`it returns`
 import org.amshove.kluent.mock
 import org.amshove.kluent.shouldBeEmpty
-import org.amshove.kluent.shouldEqual
 import org.amshove.kluent.shouldContainAll
 import org.amshove.kluent.shouldNotThrow
 import org.amshove.kluent.shouldThrow
@@ -84,7 +84,8 @@ object ConfigFactorySpec : Spek({
 
                 configuration.filteringConfiguration.whitelist shouldContainAll listOf(
                         SimpleClassnameFilter(".*".toRegex()),
-                        FullyQualifiedClassnameFilter(".*".toRegex())
+                        FullyQualifiedClassnameFilter(".*".toRegex()),
+                        TestMethodFilter(".*".toRegex())
                 )
 
                 configuration.filteringConfiguration.blacklist shouldContainAll listOf(
