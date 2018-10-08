@@ -9,6 +9,7 @@ data class IOSConfiguration(val derivedDataDir: File,
                             val xctestrunPath: File,
                             val remoteUsername: String,
                             val remotePrivateKey: File,
+                            val debugSsh: Boolean,
                             val sourceRoot: File = File(".")) : VendorConfiguration {
 
     override fun testParser(): TestParser? {

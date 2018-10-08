@@ -31,6 +31,7 @@ import org.amshove.kluent.`it returns`
 import org.amshove.kluent.mock
 import org.amshove.kluent.shouldBeEmpty
 import org.amshove.kluent.shouldContainAll
+import org.amshove.kluent.shouldEqual
 import org.amshove.kluent.shouldNotThrow
 import org.amshove.kluent.shouldThrow
 import org.jetbrains.spek.api.Spek
@@ -162,7 +163,8 @@ object ConfigFactorySpec : Spek({
                         derivedDataDir = file.parentFile.resolve("a"),
                         xctestrunPath = file.parentFile.resolve("a/Build/Products/UITesting_iphonesimulator11.0-x86_64.xctestrun"),
                         remoteUsername = "testuser",
-                        remotePrivateKey = File("/home/testuser/.ssh/id_rsa"))
+                        remotePrivateKey = File("/home/testuser/.ssh/id_rsa"),
+                        debugSsh = true)
             }
         }
 
@@ -176,7 +178,8 @@ object ConfigFactorySpec : Spek({
                         derivedDataDir = file.parentFile.resolve("a"),
                         xctestrunPath = File("build.xctestrun"),
                         remoteUsername = "testuser",
-                        remotePrivateKey = File("/home/testuser/.ssh/id_rsa")
+                        remotePrivateKey = File("/home/testuser/.ssh/id_rsa"),
+                        debugSsh = false
                 )
             }
         }

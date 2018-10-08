@@ -9,22 +9,29 @@ object MarathonLogging {
     var debug = true
 
     fun logger(func: () -> Unit): KLogger {
+        return logger(level = null, func = func)
+    }
+
+    fun logger(name: String) :KLogger {
+        return logger(level = null, name = name)
+    }
+
+    fun logger(level: Level?, func: () -> Unit): KLogger {
         val logger = KotlinLogging.logger(func)
-        return changeInternalLogLevel(logger)
+        return changeInternalLogLevel(logger, level = level)
     }
 
-    fun logger(name: String): KLogger {
+    fun logger(level: Level?, name: String): KLogger {
         val logger = KotlinLogging.logger(name)
-        return changeInternalLogLevel(logger)
+        return changeInternalLogLevel(logger, level = level)
     }
 
-    private fun changeInternalLogLevel(logger: KLogger): KLogger {
+    private fun changeInternalLogLevel(logger: KLogger, level: Level?): KLogger {
         val internalLogger = logger.underlyingLogger as Logger
-
-        if (debug) {
-            internalLogger.level = Level.DEBUG
-        } else {
-            internalLogger.level = Level.ERROR
+        internalLogger.level = level
+        ?: when {
+            debug -> Level.DEBUG
+            else -> Level.ERROR
         }
 
         return logger

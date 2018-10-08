@@ -9,13 +9,13 @@ import org.jetbrains.spek.api.dsl.it
 import org.jetbrains.spek.api.dsl.on
 import java.io.File
 
-class IOSTestParserSpek : Spek({
+object IOSTestParserSpek : Spek({
     describe("iOS test parser") {
         val parser = IOSTestParser()
 
         on("project sources") {
             val sourceRoot = File(javaClass.classLoader.getResource("sample-xcworkspace/sample-appUITests").file)
-            val derivedDataPath = File(javaClass.classLoader.getResource("sample-xcworkspace/derived-data").file)
+            val derivedDataDir = File(javaClass.classLoader.getResource("sample-xcworkspace/derived-data").file)
             val xctestrunPath = File(javaClass.classLoader.getResource("sample-xcworkspace/derived-data/Build/Products/UITesting_iphonesimulator11.2-x86_64.xctestrun").file)
             val configuration = Configuration(name = "",
                     outputDir = File(""),
@@ -35,7 +35,13 @@ class IOSTestParserSpek : Spek({
                     excludeSerialRegexes = null,
                     testOutputTimeoutMillis = null,
                     debug = null,
-                    vendorConfiguration =  IOSConfiguration(derivedDataPath, xctestrunPath, "testuser", File("/home/fakekey"), sourceRoot)
+                    vendorConfiguration =  IOSConfiguration(
+                            derivedDataDir = derivedDataDir,
+                            xctestrunPath = xctestrunPath,
+                            remoteUsername = "testuser",
+                            remotePrivateKey = File("/home/fakekey"),
+                            sourceRoot = sourceRoot,
+                            debugSsh = false)
             )
 
             it("should return accurate list of tests") {

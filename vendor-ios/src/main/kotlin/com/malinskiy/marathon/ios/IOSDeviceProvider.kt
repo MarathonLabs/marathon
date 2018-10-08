@@ -31,8 +31,7 @@ class IOSDeviceProvider : DeviceProvider {
                 .registerModule(KotlinModule())
 
         val simulatorProvider: SimulatorProvider = LocalListSimulatorProvider(channel,
-                vendorConfiguration.remoteUsername,
-                vendorConfiguration.remotePrivateKey,
+                vendorConfiguration,
                 mapper,
                 gson)
 

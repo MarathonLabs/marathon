@@ -23,12 +23,13 @@ object FileIOSConfigurationSpek : Spek({
 
         context("when xctestrun is not specified") {
             val fileIOSConfiguration = FileIOSConfiguration(
-                    File("a"),
-                    null,
-                    "user",
-                    File("key"),
-                    File("sourceRoot"),
-                    mockFileListProvider)
+                    derivedDataDir = File("a"),
+                    xctestrunPath = null,
+                    remoteUsername = "user",
+                    remotePrivateKey = File("key"),
+                    sourceRoot = File("sourceRoot"),
+                    fileListProvider = mockFileListProvider,
+                    debugSsh = null)
 
             it("should search for such file under derived data folder") {
                 mockDerivedDataFiles = { sequenceOf(File("."), mockXctestrunFile, File("runner.app")) }

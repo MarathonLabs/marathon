@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.google.gson.Gson
 import com.malinskiy.marathon.device.DeviceProvider
+import com.malinskiy.marathon.ios.IOSConfiguration
 import com.malinskiy.marathon.ios.IOSDevice
 import com.malinskiy.marathon.ios.cmd.remote.SshjCommandExecutor
 import com.malinskiy.marathon.log.MarathonLogging
@@ -13,8 +14,7 @@ import java.io.File
 import java.net.InetAddress
 
 class LocalListSimulatorProvider(private val channel: Channel<DeviceProvider.DeviceEvent>,
-                                 val remoteUsername: String,
-                                 val remotePrivateKey: File,
+                                 private val configuration: IOSConfiguration,
                                  val yamlObjectMapper: ObjectMapper,
                                  private val gson: Gson) : SimulatorProvider {
 
@@ -32,8 +32,9 @@ class LocalListSimulatorProvider(private val channel: Channel<DeviceProvider.Dev
                         IOSDevice(udid = it.udid,
                                 hostCommandExecutor = SshjCommandExecutor(
                                         hostAddress = InetAddress.getByName(it.host),
-                                        remoteUsername = it.username ?: remoteUsername,
-                                        remotePrivateKey = remotePrivateKey),
+                                        remoteUsername = it.username ?: configuration.remoteUsername,
+                                        remotePrivateKey = configuration.remotePrivateKey,
+                                        verbose = configuration.debugSsh),
                                 gson = gson)
                 ))
             }

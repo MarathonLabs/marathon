@@ -1,5 +1,6 @@
 package com.malinskiy.marathon.ios.cmd.remote
 
+import ch.qos.logback.classic.Level
 import com.malinskiy.marathon.log.MarathonLogging
 import net.schmizz.sshj.DefaultConfig
 import net.schmizz.sshj.SSHClient
@@ -15,15 +16,23 @@ private const val DEFAULT_PORT = 22
 class SshjCommandExecutor(val hostAddress: InetAddress,
                           val remoteUsername: String,
                           val remotePrivateKey: File,
-                          val port: Int = DEFAULT_PORT) : CommandExecutor {
+                          val port: Int = DEFAULT_PORT,
+                          verbose: Boolean = false) : CommandExecutor {
 
     val ssh: SSHClient
 
     init {
         val config = DefaultConfig()
         val loggerFactory = object : LoggerFactory {
-            override fun getLogger(clazz: Class<*>?): Logger = MarathonLogging.logger(clazz?.simpleName ?: SshjCommandExecutor::class.java.simpleName)
-            override fun getLogger(name: String?): Logger = MarathonLogging.logger(name ?: "")
+            override fun getLogger(clazz: Class<*>?): Logger = MarathonLogging.logger(
+                    name = clazz?.simpleName ?: SshjCommandExecutor::class.java.simpleName,
+                    level = if (verbose) { Level.DEBUG } else { Level.ERROR }
+            )
+
+            override fun getLogger(name: String?): Logger = MarathonLogging.logger(
+                    name = name ?: "",
+                    level = if (verbose) { Level.DEBUG } else { Level.ERROR }
+            )
         }
         config.loggerFactory = loggerFactory
 

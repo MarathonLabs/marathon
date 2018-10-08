@@ -21,6 +21,7 @@ data class FileIOSConfiguration(
         @JsonProperty("remoteUsername") val remoteUsername: String,
         @JsonProperty("remotePrivateKey") val remotePrivateKey: File,
         @JsonProperty("sourceRoot") val sourceRoot: File?,
+        @JsonProperty("debugSsh") val debugSsh: Boolean?,
         val fileListProvider: FileListProvider = DerivedDataFileListProvider) : FileVendorConfiguration {
 
     fun toIOSConfiguration(marathonfileDir: File,
@@ -36,11 +37,12 @@ data class FileIOSConfiguration(
                 ?: throw ConfigurationException("Unable to find an xctestrun file in derived data folder")
         val optionalSourceRoot = sourceRootOverride
                 ?: sourceRoot?.resolveAgainst(marathonfileDir)
+        val optionalDebugSsh = debugSsh ?: false
 
         return if (optionalSourceRoot == null) {
-            IOSConfiguration(resolvedDerivedDataDir, finalXCTestRunPath, remoteUsername, remotePrivateKey)
+            IOSConfiguration(resolvedDerivedDataDir, finalXCTestRunPath, remoteUsername, remotePrivateKey, optionalDebugSsh)
         } else {
-            IOSConfiguration(resolvedDerivedDataDir, finalXCTestRunPath, remoteUsername, remotePrivateKey, optionalSourceRoot)
+            IOSConfiguration(resolvedDerivedDataDir, finalXCTestRunPath, remoteUsername, remotePrivateKey, optionalDebugSsh, optionalSourceRoot)
         }
     }
 }
