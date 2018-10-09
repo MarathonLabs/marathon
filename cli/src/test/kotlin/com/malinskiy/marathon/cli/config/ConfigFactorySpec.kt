@@ -29,6 +29,7 @@ import com.malinskiy.marathon.ios.IOSConfiguration
 import com.nhaarman.mockito_kotlin.whenever
 import org.amshove.kluent.`it returns`
 import org.amshove.kluent.mock
+import org.amshove.kluent.shouldBe
 import org.amshove.kluent.shouldBeEmpty
 import org.amshove.kluent.shouldContainAll
 import org.amshove.kluent.shouldEqual
@@ -218,6 +219,34 @@ object ConfigFactorySpec : Spek({
                 val create = { parser.create(file, mockEnvironmentReader(null), null) }
 
                 create shouldNotThrow ConfigurationException::class
+            }
+        }
+
+        on("configuration with whitelist but no blacklist") {
+            val file = File(ConfigFactorySpec::class.java.getResource("/fixture/config/sample_8.yaml").file)
+
+            it("should initialize an empty blacklist") {
+                val configuration = parser.create(file, mockEnvironmentReader(), null)
+
+                configuration.filteringConfiguration.whitelist shouldEqual listOf(
+                        SimpleClassnameFilter(".*".toRegex())
+                )
+
+                configuration.filteringConfiguration.blacklist shouldBe emptyList()
+            }
+        }
+
+        on("configuration with blacklist but no whitelist") {
+            val file = File(ConfigFactorySpec::class.java.getResource("/fixture/config/sample_9.yaml").file)
+
+            it("should initialize an empty whitelist") {
+                val configuration = parser.create(file, mockEnvironmentReader(), null)
+
+                configuration.filteringConfiguration.whitelist shouldBe emptyList()
+
+                configuration.filteringConfiguration.blacklist shouldEqual listOf(
+                        SimpleClassnameFilter(".*".toRegex())
+                )
             }
         }
     }
