@@ -14,6 +14,13 @@ class Simctl {
         return deviceList.devices.devices
     }
 
+    fun deviceType(device: IOSDevice): String? {
+        return exec("getenv ${device.udid} SIMULATOR_VERSION_INFO", device)
+                .split(" - ")
+                .associate { it.substringBefore(": ") to it.substringAfter(": ").trim() }
+                .get("DeviceType")
+    }
+
 //    fun boot(device: IOSDevice) {}
 //    fun shutdown(device: IOSDevice) {}
 //    fun erase(device: IOSDevice) {}

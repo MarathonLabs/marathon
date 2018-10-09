@@ -33,15 +33,17 @@ class IOSDevice(val udid: String,
                 val hostCommandExecutor: CommandExecutor,
                 val gson: Gson) : Device {
 
-    val logger = MarathonLogging.logger(javaClass.simpleName)
+    val logger = MarathonLogging.logger("${javaClass.simpleName}(${udid})")
     val simctl = Simctl()
     val runtime: String?
     val name: String?
+    val deviceType: String?
 
     init {
         val device = simctl.list(this, gson).find { it.udid == udid }
         runtime = device?.runtime
         name = device?.name
+        deviceType = simctl.deviceType(this)
     }
 
     override val operatingSystem: OperatingSystem
@@ -49,7 +51,7 @@ class IOSDevice(val udid: String,
     override val serialNumber: String
         get() = udid
     override val model: String
-        get() = name ?: "Unknown"
+        get() = deviceType ?: "Unknown"
     override val manufacturer: String
         get() = "Apple"
     override val networkState: NetworkState
@@ -64,7 +66,7 @@ class IOSDevice(val udid: String,
 
             val result =
             if (command.inputStream.bufferedReader().readLines().any { it.contains("spdisplays_metalfeatureset") }) {
-                logger.debug("${udid} has DeviceFeature.VIDEO")
+                logger.debug("$udid has DeviceFeature.VIDEO")
                 listOf(DeviceFeature.VIDEO, DeviceFeature.SCREENSHOT)
             } else
                 listOf(DeviceFeature.SCREENSHOT)
