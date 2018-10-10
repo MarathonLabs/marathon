@@ -7,6 +7,7 @@ import com.malinskiy.marathon.execution.TestBatchResults
 import com.malinskiy.marathon.execution.TestResult
 import com.malinskiy.marathon.execution.TestStatus
 import com.malinskiy.marathon.execution.progress.ProgressReporter
+import com.malinskiy.marathon.ios.IOSDevice
 import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.test.Test
 import com.malinskiy.marathon.test.TestBatch
@@ -23,7 +24,7 @@ class ProgressReportingListener(private val device: Device,
     val success: MutableList<TestResult> = mutableListOf()
     val failure: MutableList<TestResult> = mutableListOf()
 
-    val logger = MarathonLogging.logger(javaClass.simpleName)
+    val logger = MarathonLogging.logger("ProgressReportingListener<${(device as IOSDevice).udid}>")
 
     override fun batchFinished() {
         val received = (success + failure).map { it.test.toSafeTestName() }.toHashSet()
@@ -46,7 +47,7 @@ class ProgressReportingListener(private val device: Device,
     override fun testFailed(test: Test, startTime: Long, endTime: Long) {
         progressTracker.testFailed(poolId, device, test)
         failure.add(TestResult(test, device.toDeviceInfo(), TestStatus.FAILURE, startTime, endTime, testLogListener.getLastLog()))
-        logger.debug { "Test failed " + test.toSafeTestName() }
+        logger.debug { "Test failed     " + test.toSafeTestName() }
     }
 
     override fun testPassed(test: Test, startTime: Long, endTime: Long) {
