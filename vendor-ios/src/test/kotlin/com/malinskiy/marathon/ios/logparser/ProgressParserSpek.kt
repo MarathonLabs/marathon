@@ -5,6 +5,7 @@ import com.malinskiy.marathon.ios.logparser.listener.TestRunListener
 import com.malinskiy.marathon.test.Test
 import com.malinskiy.marathon.time.Timer
 import com.nhaarman.mockito_kotlin.atLeastOnce
+import com.nhaarman.mockito_kotlin.reset
 import com.nhaarman.mockito_kotlin.verify
 import org.amshove.kluent.Verify
 import org.amshove.kluent.When
@@ -39,6 +40,8 @@ class ProgressParserSpek : Spek({
 
         val progressParser = TestRunProgressParser(mockTimer, listOf(mockListener), mockFormatter)
 
+        afterEachTest { reset(mockListener) }
+
         on("parsing testing output") {
             val testOutputFile = File(javaClass.classLoader.getResource("fixtures/test_output/success_0.log").file)
 
@@ -59,8 +62,8 @@ class ProgressParserSpek : Spek({
                     progressParser.onLine(it)
                 }
 
-                Verify on mockListener that mockListener.testStarted(Test("sample-appUITests", "MoreTests", "testPresentModal", emptyList())) was called
-                Verify on mockListener that mockListener.testPassed(Test("sample-appUITests", "MoreTests", "testPresentModal", emptyList()),
+                Verify on mockListener that mockListener.testStarted(Test("sample_appUITests", "MoreTests", "testPresentModal", emptyList())) was called
+                Verify on mockListener that mockListener.testPassed(Test("sample_appUITests", "MoreTests", "testPresentModal", emptyList()),
                         mockedTimeMillis - 5315,
                         mockedTimeMillis) was called
             }
@@ -74,13 +77,13 @@ class ProgressParserSpek : Spek({
                     progressParser.onLine(it)
                 }
 
-                Verify on mockListener that mockListener.testStarted(Test("sample-appUITests", "FlakyTests", "testTextFlaky1", emptyList())) was called
-                Verify on mockListener that mockListener.testStarted(Test("sample-appUITests", "FlakyTests", "testTextFlaky2", emptyList())) was called
+                Verify on mockListener that mockListener.testStarted(Test("sample_appUITests", "FlakyTests", "testTextFlaky1", emptyList())) was called
+                Verify on mockListener that mockListener.testStarted(Test("sample_appUITests", "FlakyTests", "testTextFlaky2", emptyList())) was called
 
-                Verify on mockListener that mockListener.testPassed(Test("sample-appUITests", "FlakyTests", "testTextFlaky1", emptyList()),
+                Verify on mockListener that mockListener.testPassed(Test("sample_appUITests", "FlakyTests", "testTextFlaky1", emptyList()),
                         mockedTimeMillis - 4415,
                         mockedTimeMillis) was called
-                Verify on mockListener that mockListener.testPassed(Test("sample-appUITests", "FlakyTests", "testTextFlaky2", emptyList()),
+                Verify on mockListener that mockListener.testPassed(Test("sample_appUITests", "FlakyTests", "testTextFlaky2", emptyList()),
                         mockedTimeMillis - 4118,
                         mockedTimeMillis) was called
             }

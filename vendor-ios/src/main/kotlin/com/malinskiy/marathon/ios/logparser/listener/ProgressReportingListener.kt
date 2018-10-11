@@ -24,14 +24,8 @@ class ProgressReportingListener(private val device: Device,
     val success: MutableList<TestResult> = mutableListOf()
     val failure: MutableList<TestResult> = mutableListOf()
 
-    val logger = MarathonLogging.logger("ProgressReportingListener<${(device as IOSDevice).udid}>")
-
     override fun batchFinished() {
         val received = (success + failure).map { it.test.toSafeTestName() }.toHashSet()
-
-        logger.debug { "Batch: " + testBatch.tests.map { it.toSafeTestName() }.joinToString(", ") }
-        logger.debug { "  success: " + success.map { it.test.toSafeTestName() }.joinToString(", ") }
-        logger.debug { "  failure: " + failure.map { it.test.toSafeTestName() }.joinToString(", ") }
 
         val incompleteTests = testBatch.tests.filter {
             !received.contains(it.toSafeTestName())
@@ -47,17 +41,14 @@ class ProgressReportingListener(private val device: Device,
     override fun testFailed(test: Test, startTime: Long, endTime: Long) {
         progressTracker.testFailed(poolId, device, test)
         failure.add(TestResult(test, device.toDeviceInfo(), TestStatus.FAILURE, startTime, endTime, testLogListener.getLastLog()))
-        logger.debug { "Test failed " + test.toSafeTestName() }
     }
 
     override fun testPassed(test: Test, startTime: Long, endTime: Long) {
         progressTracker.testPassed(poolId, device, test)
         success.add(TestResult(test, device.toDeviceInfo(), TestStatus.PASSED, startTime, endTime, testLogListener.getLastLog()))
-        logger.debug { "Test passed " + test.toSafeTestName() }
-        }
+    }
 
     override fun testStarted(test: Test) {
         progressTracker.testStarted(poolId, device, test)
-        logger.debug { "Test started " + test.toSafeTestName() }
     }
 }
