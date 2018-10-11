@@ -25,12 +25,10 @@ data class FileIOSConfiguration(
         val fileListProvider: FileListProvider = DerivedDataFileListProvider) : FileVendorConfiguration {
 
     fun toIOSConfiguration(marathonfileDir: File,
-                           xctestrunPathOverride: File? = null,
                            sourceRootOverride: File? = null): IOSConfiguration {
-        // Any relative path specified in Marathonfile should be resolved against the directory it's in
+        // Any relative path specified in Marathonfile should be resolved against the directory Marathonfile is in
         val resolvedDerivedDataDir = marathonfileDir.resolve(derivedDataDir)
-        val finalXCTestRunPath = xctestrunPathOverride
-                ?: xctestrunPath?.resolveAgainst(marathonfileDir)
+        val finalXCTestRunPath = xctestrunPath?.resolveAgainst(marathonfileDir)
                 ?: fileListProvider
                         .fileList(resolvedDerivedDataDir)
                         .firstOrNull { it.extension == "xctestrun" }

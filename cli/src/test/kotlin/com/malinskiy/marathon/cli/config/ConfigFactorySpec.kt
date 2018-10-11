@@ -57,7 +57,7 @@ object ConfigFactorySpec : Spek({
             val file = File(ConfigFactorySpec::class.java.getResource("/fixture/config/sample_1.yaml").file)
 
             it("should deserialize") {
-                val configuration = parser.create(file, mockEnvironmentReader(), null)
+                val configuration = parser.create(file, mockEnvironmentReader())
 
                 configuration.name shouldEqual "sample-app tests"
                 configuration.outputDir shouldEqual File("./marathon")
@@ -119,7 +119,7 @@ object ConfigFactorySpec : Spek({
             val file = File(ConfigFactorySpec::class.java.getResource("/fixture/config/sample_2.yaml").file)
 
             it("should deserialize with minimal configuration") {
-                val configuration = parser.create(file, mockEnvironmentReader(), null)
+                val configuration = parser.create(file, mockEnvironmentReader())
 
                 configuration.name shouldEqual "sample-app tests"
                 configuration.outputDir shouldEqual File("./marathon")
@@ -158,7 +158,7 @@ object ConfigFactorySpec : Spek({
             val file = File(ConfigFactorySpec::class.java.getResource("/fixture/config/sample_3.yaml").file)
 
             it("should initialize a specific vendor configuration") {
-                val configuration = parser.create(file, mockEnvironmentReader(), null)
+                val configuration = parser.create(file, mockEnvironmentReader())
 
                 configuration.vendorConfiguration shouldEqual IOSConfiguration(
                         derivedDataDir = file.parentFile.resolve("a"),
@@ -169,27 +169,11 @@ object ConfigFactorySpec : Spek({
             }
         }
 
-        on("config with xctestrun path overridden") {
-            val file = File(ConfigFactorySpec::class.java.getResource("/fixture/config/sample_4.yaml").file)
-
-            it("should initialize a specific vendor configuration") {
-                val configuration = parser.create(file, mockEnvironmentReader(), File("build.xctestrun"))
-
-                configuration.vendorConfiguration shouldEqual IOSConfiguration(
-                        derivedDataDir = file.parentFile.resolve("a"),
-                        xctestrunPath = File("build.xctestrun"),
-                        remoteUsername = "testuser",
-                        remotePrivateKey = File("/home/testuser/.ssh/id_rsa"),
-                        debugSsh = false
-                )
-            }
-        }
-
         on("configuration without an explicit xctestrun path") {
             val file = File(ConfigFactorySpec::class.java.getResource("/fixture/config/sample_5.yaml").file)
 
             it("should throw an exception") {
-                val create = { parser.create(file, mockEnvironmentReader(), null) }
+                val create = { parser.create(file, mockEnvironmentReader()) }
 
                 create shouldThrow ConfigurationException::class
             }
@@ -200,7 +184,7 @@ object ConfigFactorySpec : Spek({
             val environmentReader = mockEnvironmentReader("/android/home")
 
             it("should use value provided by environment") {
-                val configuration = parser.create(file, environmentReader, null)
+                val configuration = parser.create(file, environmentReader)
 
                 configuration.vendorConfiguration shouldEqual AndroidConfiguration(
                         environmentReader.read().androidSdk!!,
@@ -216,7 +200,7 @@ object ConfigFactorySpec : Spek({
             val file = File(ConfigFactorySpec::class.java.getResource("/fixture/config/sample_7.yaml").file)
 
             it("should throw an exception when ANDROID_HOME is not set") {
-                val create = { parser.create(file, mockEnvironmentReader(null), null) }
+                val create = { parser.create(file, mockEnvironmentReader(null)) }
 
                 create shouldNotThrow ConfigurationException::class
             }
@@ -226,7 +210,7 @@ object ConfigFactorySpec : Spek({
             val file = File(ConfigFactorySpec::class.java.getResource("/fixture/config/sample_8.yaml").file)
 
             it("should initialize an empty blacklist") {
-                val configuration = parser.create(file, mockEnvironmentReader(), null)
+                val configuration = parser.create(file, mockEnvironmentReader())
 
                 configuration.filteringConfiguration.whitelist shouldEqual listOf(
                         SimpleClassnameFilter(".*".toRegex())
@@ -240,7 +224,7 @@ object ConfigFactorySpec : Spek({
             val file = File(ConfigFactorySpec::class.java.getResource("/fixture/config/sample_9.yaml").file)
 
             it("should initialize an empty whitelist") {
-                val configuration = parser.create(file, mockEnvironmentReader(), null)
+                val configuration = parser.create(file, mockEnvironmentReader())
 
                 configuration.filteringConfiguration.whitelist shouldBe emptyList()
 

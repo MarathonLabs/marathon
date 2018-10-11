@@ -17,7 +17,7 @@ import java.io.File
 private val logger = MarathonLogging.logger {}
 
 class ConfigFactory {
-    fun create(marathonfile: File, environmentReader: EnvironmentReader, xctestrunPath: File?): Configuration {
+    fun create(marathonfile: File, environmentReader: EnvironmentReader): Configuration {
         logger.info { "Checking $marathonfile config" }
 
         if (!marathonfile.isFile) {
@@ -30,8 +30,7 @@ class ConfigFactory {
         val fileVendorConfiguration = config.vendorConfiguration
         val vendorConfiguration = when (fileVendorConfiguration) {
             is FileIOSConfiguration -> fileVendorConfiguration.toIOSConfiguration(
-                    marathonfile.canonicalFile.parentFile,
-                    xctestrunPath
+                    marathonfile.canonicalFile.parentFile
             )
             is FileAndroidConfiguration -> {
                 fileVendorConfiguration.toAndroidConfiguration(environmentReader.read().androidSdk)

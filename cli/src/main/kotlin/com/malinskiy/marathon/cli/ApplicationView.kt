@@ -19,8 +19,7 @@ fun main(args: Array<String>): Unit = mainBody(
 
         val configuration = ConfigFactory().create(
                 marathonfile = marathonfile,
-                environmentReader = SystemEnvironmentReader(),
-                xctestrunPath = xctestrunPath
+                environmentReader = SystemEnvironmentReader()
         )
         val marathon = Marathon(configuration = configuration)
         marathon.run()

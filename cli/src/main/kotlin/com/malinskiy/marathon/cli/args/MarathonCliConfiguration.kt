@@ -11,8 +11,4 @@ class MarathonCliConfiguration(parser: ArgParser) {
     val androidSdkDir: File? by parser
             .storing("--android-sdk", help = "Android sdk location") { File(this) }
             .default<File?>(null)
-
-    val xctestrunPath: File? by parser
-            .storing("--xctestrun-path", help = "xctestrun file path") { File(this) }
-            .default<File?>(null)
 }
