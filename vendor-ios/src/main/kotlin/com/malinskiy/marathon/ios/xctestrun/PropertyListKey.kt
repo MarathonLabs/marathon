@@ -1,7 +1,7 @@
 package com.malinskiy.marathon.ios.xctestrun
 
 sealed class PropertyListKey(private val value: String) {
-    class ModuleName(val moduleName: String): PropertyListKey(moduleName)
+    class TargetName(targetName: String): PropertyListKey(targetName)
 
     object ProductModuleName: PropertyListKey("ProductModuleName")
     object IsUITestBundle: PropertyListKey("IsUITestBundle")

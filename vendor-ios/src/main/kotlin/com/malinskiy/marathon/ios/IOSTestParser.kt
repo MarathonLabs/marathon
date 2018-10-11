@@ -28,7 +28,7 @@ class IOSTestParser : TestParser {
         }
 
         val xctestrun = Xctestrun(vendorConfiguration.xctestrunPath)
-        val moduleName = xctestrun.targetName
+        val targetName = xctestrun.targetName
 
         val swiftFilesWithTests = vendorConfiguration
                 .sourceRoot
@@ -45,7 +45,7 @@ class IOSTestParser : TestParser {
                 if (className != null) { testClassName = className }
 
                 if (testClassName != null && methodName != null) {
-                    implementedTests.add(Test(moduleName, testClassName, methodName, emptyList()))
+                    implementedTests.add(Test(targetName, testClassName, methodName, emptyList()))
                 }
             }
         }

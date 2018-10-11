@@ -25,15 +25,20 @@ class Xctestrun(inputStream: InputStream) {
 
     // testable target properties
 
-    private val target = PropertyListKey.ModuleName(
+    private val target = PropertyListKey.TargetName(
             propertyList.keys.firstOrNull()
                     ?: throw IllegalArgumentException("xctestrun file does not define any testable targets")
     )
 
     /**
-     * Indentifier
+     * Test target identifier. Used in test names specified with -onlyTesting: option passed to xcodebuild
      */
-    val targetName = this.target.toKeyString()
+    val targetName = target.toKeyString()
+
+    /**
+     * Testable product module name. Appears in testing logs as a test identifier prefix.
+     */
+    val productModuleName = propertyList.valueForKeypath(target, PropertyListKey.ProductModuleName) as String
 
     /**
      * @see <a href="x-man-page://5/xcodebuild.xctestrun">xcodebuild.xctestrun(5)</a>
