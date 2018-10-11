@@ -47,7 +47,7 @@ class ProgressReportingListener(private val device: Device,
     override fun testFailed(test: Test, startTime: Long, endTime: Long) {
         progressTracker.testFailed(poolId, device, test)
         failure.add(TestResult(test, device.toDeviceInfo(), TestStatus.FAILURE, startTime, endTime, testLogListener.getLastLog()))
-        logger.debug { "Test failed     " + test.toSafeTestName() }
+        logger.debug { "Test failed " + test.toSafeTestName() }
     }
 
     override fun testPassed(test: Test, startTime: Long, endTime: Long) {

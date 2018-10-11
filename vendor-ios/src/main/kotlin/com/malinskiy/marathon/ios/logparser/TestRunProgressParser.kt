@@ -1,12 +1,14 @@
 package com.malinskiy.marathon.ios.logparser
 
+import com.malinskiy.marathon.ios.logparser.formatter.PackageNameFormatter
 import com.malinskiy.marathon.ios.logparser.listener.TestRunListener
 import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.test.Test
 import com.malinskiy.marathon.time.Timer
 
 class TestRunProgressParser(private val timer: Timer,
-                            private val listeners: Collection<TestRunListener>) : StreamingLogParser {
+                            private val listeners: Collection<TestRunListener>,
+                            private val packageNameFormatter: PackageNameFormatter) : StreamingLogParser {
 
     override fun close() {
         listeners.forEach { it.batchFinished() }
@@ -14,8 +16,8 @@ class TestRunProgressParser(private val timer: Timer,
 
     val logger = MarathonLogging.logger(TestRunProgressParser::class.java.simpleName)
 
-    val TEST_CASE_STARTED = """Test Case '-\[([a-zA-Z0-9_]+)\.([a-zA-Z0-9_]+) ([a-zA-Z0-9_]+)]' started\.""".toRegex()
-    val TEST_CASE_FINISHED = """Test Case '-\[([a-zA-Z0-9_]+)\.([a-zA-Z0-9_]+) ([a-zA-Z0-9_]+)]' (passed|failed) \(([\d\.]+) seconds\)\.""".toRegex()
+    val TEST_CASE_STARTED = """Test Case '-\[([a-zA-Z0-9_.]+)\.([a-zA-Z0-9_]+) ([a-zA-Z0-9_]+)]' started\.""".toRegex()
+    val TEST_CASE_FINISHED = """Test Case '-\[([a-zA-Z0-9_.]+)\.([a-zA-Z0-9_]+) ([a-zA-Z0-9_]+)]' (passed|failed) \(([\d\.]+) seconds\)\.""".toRegex()
 
     override fun onLine(line: String) {
         if (line.matches(TEST_CASE_STARTED)) {
@@ -27,7 +29,7 @@ class TestRunProgressParser(private val timer: Timer,
 
     fun notifyTestFinished(line: String) {
         val matchResult = TEST_CASE_FINISHED.find(line)
-        val pkg = matchResult?.groups?.get(1)?.value?.replace('_', '-')
+        val pkg = packageNameFormatter.format(matchResult?.groups?.get(1)?.value)
         val clazz = matchResult?.groups?.get(2)?.value
         val method = matchResult?.groups?.get(3)?.value
         val result = matchResult?.groups?.get(4)?.value
@@ -41,7 +43,7 @@ class TestRunProgressParser(private val timer: Timer,
             val endTime = timer.currentTimeMillis()
             val startTime = endTime - Math.round(duration * 1000)
 
-            logger.debug { "Test $clazz.$method finished with result $result" }
+            logger.debug { "Test $clazz.$method finished with result <$result> after $duration seconds" }
 
             when (result) {
                 "passed" -> {
@@ -57,7 +59,7 @@ class TestRunProgressParser(private val timer: Timer,
 
     fun notifyTestStarted(line: String) {
         val matchResult = TEST_CASE_STARTED.find(line)
-        val pkg = matchResult?.groups?.get(1)?.value?.replace('_', '-')
+        val pkg = packageNameFormatter.format(matchResult?.groups?.get(1)?.value)
         val clazz = matchResult?.groups?.get(2)?.value
         val method = matchResult?.groups?.get(3)?.value
 

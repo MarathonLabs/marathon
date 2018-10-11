@@ -17,6 +17,7 @@ import com.malinskiy.marathon.ios.simctl.Simctl
 import com.malinskiy.marathon.ios.logparser.CompositeLogParser
 import com.malinskiy.marathon.ios.logparser.DebugLoggingParser
 import com.malinskiy.marathon.ios.logparser.TestRunProgressParser
+import com.malinskiy.marathon.ios.logparser.formatter.TestLogPackageNameFormatter
 import com.malinskiy.marathon.ios.logparser.listener.ProgressReportingListener
 import com.malinskiy.marathon.ios.logparser.listener.TestLogListener
 import com.malinskiy.marathon.ios.xctestrun.Xctestrun
@@ -89,6 +90,14 @@ class IOSDevice(val udid: String,
         val fileManager = FileManager(configuration.outputDir)
         val testLogListener = TestLogListener()
 
+        val remoteXctestrunFile = RemoteFileManager.remoteXctestrunFile(this)
+        val remoteDir = remoteXctestrunFile.parent
+
+        logger.debug { "remote xctestrun = ${remoteXctestrunFile}" }
+
+        val xctestrun = Xctestrun(iosConfiguration.xctestrunPath)
+        val packageNameFormatter = TestLogPackageNameFormatter(xctestrun.productModuleName, xctestrun.targetName)
+
         val logParser = CompositeLogParser(listOf(
                 //Order matters here: first grab the log with log listener,
                 //then use this log to insert into the test report
@@ -104,7 +113,9 @@ class IOSDevice(val udid: String,
                                 testLogListener
                         ),
                         testLogListener
-                )),
+                        ),
+                        packageNameFormatter
+                ),
                 DebugLoggingParser()
         ))
 
@@ -113,13 +124,6 @@ class IOSDevice(val udid: String,
         }.toTypedArray()
 
         logger.debug { "tests = ${tests.toList()}" }
-
-        val derivedDataManager = DerivedDataManager(configuration)
-
-        val remoteXctestrunFile = RemoteFileManager.remoteXctestrunFile(this)
-        val remoteDir = remoteXctestrunFile.parent
-
-        logger.debug { "using xctestrun ${remoteXctestrunFile}" }
 
         val testBatchToArguments = testBatch.tests
                 .map { "-only-testing:\"${it.pkg}/${it.clazz}/${it.method}\"" }
