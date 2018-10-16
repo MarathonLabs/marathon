@@ -26,9 +26,17 @@ object RemoteFileManager {
                 "Unable to remove directory ${remoteDirectory(device)}")
     }
 
+    fun createRemoteOutputDirectory(device: IOSDevice) {
+        executeCommand(device,
+                """mkdir -p ${remoteOutputDirectory(device)}""",
+                "Could not create remote output directory ${remoteOutputDirectory(device)}")
+    }
+    fun remoteOutputDirectory(device: IOSDevice): File = remoteFile(device, File(outputDirName(device)))
+
     fun remoteXctestrunFile(device: IOSDevice): File =  remoteFile(device, File(xctestrunFileName(device)))
 
     private fun xctestrunFileName(device: IOSDevice): String = "${device.udid}.xctestrun"
+    private fun outputDirName(device: IOSDevice): String = "${device.udid}"
 
     private fun remoteFile(device: IOSDevice, file: File): File = remoteDirectory(device = device).resolve(file)
 
