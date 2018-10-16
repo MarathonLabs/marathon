@@ -97,7 +97,6 @@ object DerivedDataManagerSpek: Spek({
 
                 val expectedFiles = productsDir.walkTopDown().map { it.relativePathTo(productsDir) }.toSet()
 
-                uploadResults.size shouldEqual expectedFiles.size
                 uploadResults shouldEqual expectedFiles
             }
 
@@ -122,7 +121,6 @@ object DerivedDataManagerSpek: Spek({
                 val expectedFiles = productsDir.walkTopDown().map { it.relativePathTo(productsDir) }.toSet()
 
                 // Compare
-                tempFiles.size shouldEqual expectedFiles.size
                 tempFiles shouldEqual expectedFiles
 
                 tempDir.deleteRecursively()
