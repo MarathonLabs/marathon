@@ -90,6 +90,7 @@ class IOSDevice(val udid: String,
         val fileManager = FileManager(configuration.outputDir)
         val testLogListener = TestLogListener()
 
+        val remoteXcresultPath = RemoteFileManager.remoteXcresultFile(this)
         val remoteXctestrunFile = RemoteFileManager.remoteXctestrunFile(this)
         val remoteDir = remoteXctestrunFile.parent
 
@@ -133,8 +134,8 @@ class IOSDevice(val udid: String,
         val command = session.exec("export NSUnbufferedIO=YES && " +
                 "cd $remoteDir && " +
                 "xcodebuild test-without-building " +
-                "-derivedDataPath '${RemoteFileManager.remoteOutputDirectory(this).canonicalPath}' " +
                 "-xctestrun ${remoteXctestrunFile.path} " +
+                "-resultBundlePath ${remoteXcresultPath.canonicalPath} " +
                 "$testBatchToArguments " +
                 "-destination 'platform=iOS simulator,id=$udid'")
 
@@ -197,9 +198,6 @@ class IOSDevice(val udid: String,
                 hostName = sshjCommandExecutor.hostAddress.hostName,
                 port = sshjCommandExecutor.port
         )
-
-        // 6. make output directory
-        RemoteFileManager.createRemoteOutputDirectory(this)
     }
 
     private fun availablePort(): Int {
