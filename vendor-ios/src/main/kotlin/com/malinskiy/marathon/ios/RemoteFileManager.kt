@@ -12,7 +12,7 @@ object RemoteFileManager {
 
     private const val OUTPUT_DIR = "/tmp/marathon"
 
-    fun remoteDirectory(device: IOSDevice): File = File("$OUTPUT_DIR")
+    fun remoteDirectory(device: IOSDevice): File = File(OUTPUT_DIR)
 
     fun createRemoteDirectory(device: IOSDevice) {
         executeCommand(device,

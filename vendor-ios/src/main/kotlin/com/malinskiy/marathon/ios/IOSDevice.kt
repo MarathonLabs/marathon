@@ -13,6 +13,7 @@ import com.malinskiy.marathon.execution.progress.ProgressReporter
 import com.malinskiy.marathon.io.FileManager
 import com.malinskiy.marathon.ios.cmd.remote.CommandExecutor
 import com.malinskiy.marathon.ios.cmd.remote.SshjCommandExecutor
+import com.malinskiy.marathon.ios.device.RemoteSimulatorFeatureProvider
 import com.malinskiy.marathon.ios.simctl.Simctl
 import com.malinskiy.marathon.ios.logparser.CompositeLogParser
 import com.malinskiy.marathon.ios.logparser.DebugLoggingParser
@@ -34,7 +35,7 @@ class IOSDevice(val udid: String,
                 val hostCommandExecutor: CommandExecutor,
                 val gson: Gson) : Device {
 
-    val logger = MarathonLogging.logger("${javaClass.simpleName}(${udid})")
+    val logger = MarathonLogging.logger("${javaClass.simpleName}($udid)")
     val simctl = Simctl()
     val runtime: String?
     val name: String?
@@ -58,23 +59,7 @@ class IOSDevice(val udid: String,
     override val networkState: NetworkState
         get() = NetworkState.CONNECTED
     override val deviceFeatures: Collection<DeviceFeature>
-        get() {
-            val session = hostCommandExecutor.startSession()
-            val command = session.exec(
-                    "/usr/sbin/system_profiler -detailLevel mini -xml SPDisplaysDataType"
-            )
-            command.join()
-
-            val result =
-            if (command.inputStream.bufferedReader().readLines().any { it.contains("spdisplays_metalfeatureset") }) {
-                logger.debug("$udid has DeviceFeature.VIDEO")
-                listOf(DeviceFeature.VIDEO, DeviceFeature.SCREENSHOT)
-            } else
-                listOf(DeviceFeature.SCREENSHOT)
-
-            session.close()
-            return result
-        }
+        get() = RemoteSimulatorFeatureProvider.deviceFeatures(this)
     override val healthy: Boolean
         get() = true
     override val abi: String
@@ -94,7 +79,7 @@ class IOSDevice(val udid: String,
         val remoteXctestrunFile = RemoteFileManager.remoteXctestrunFile(this)
         val remoteDir = remoteXctestrunFile.parent
 
-        logger.debug { "remote xctestrun = ${remoteXctestrunFile}" }
+        logger.debug { "remote xctestrun = $remoteXctestrunFile" }
 
         val xctestrun = Xctestrun(iosConfiguration.xctestrunPath)
         val packageNameFormatter = TestLogPackageNameFormatter(xctestrun.productModuleName, xctestrun.targetName)
@@ -105,15 +90,15 @@ class IOSDevice(val udid: String,
                 testLogListener,
                 TestRunProgressParser(SystemTimer(),
                         listOf(
-                        ProgressReportingListener(
-                                this,
-                                devicePoolId,
-                                progressReporter,
-                                deferred,
-                                testBatch,
+                                ProgressReportingListener(
+                                        this,
+                                    devicePoolId,
+                                    progressReporter,
+                                    deferred,
+                                    testBatch,
+                                    testLogListener
+                                ),
                                 testLogListener
-                        ),
-                        testLogListener
                         ),
                         packageNameFormatter
                 ),
@@ -141,11 +126,9 @@ class IOSDevice(val udid: String,
 
         command.join()
 
-        command.inputStream.reader().forEachLine {
-            logParser.onLine(it)
-        }
 
         command.errorStream.bufferedReader().forEachLine { logger.error(it) }
+        command.inputStream.reader().forEachLine(logParser::onLine)
 
         logParser.close()
 
@@ -171,18 +154,19 @@ class IOSDevice(val udid: String,
         val xctestrunFile = productsDir.resolve(remoteXctestrunFile.name)
 
         // 3. a port
-        val remotePort = availablePort()
+        val remotePort = RemoteSimulatorFeatureProvider.availablePort(this)
+                .also { logger.debug("Using TCP port $it on device $udid") }
 
         // 4. Update xctestrun environment
         val xctestrun = Xctestrun(xctestrunPath)
-        xctestrun.environment("TEST_HTTP_SERVER_PORT", "${remotePort}")
-        logger.debug("Updating xctestrun environment with TEST_HTTP_SERVER_PORT=${remotePort}")
+        xctestrun.environment("TEST_HTTP_SERVER_PORT", "$remotePort")
+        logger.debug("Updating xctestrun environment with TEST_HTTP_SERVER_PORT=$remotePort")
 
         // 5. Save under the new name
         xctestrunFile.writeBytes(xctestrun.toXMLByteArray())
 
         // send the prepared xctestrun
-        logger.debug("Sending xctestrun file from ${xctestrunFile} to ${remoteXctestrunFile}")
+        logger.debug("Sending xctestrun file from $xctestrunFile to $remoteXctestrunFile")
         derivedDataManager.send(
                 localPath = xctestrunFile,
                 remotePath = remoteXctestrunFile.absolutePath,
@@ -191,7 +175,7 @@ class IOSDevice(val udid: String,
         )
 
         // copy build products
-        logger.debug("Sending files from $productsDir to $remoteProductsDir")
+        logger.debug("Sending build products from $productsDir to $remoteProductsDir")
         derivedDataManager.send(
                 localPath = productsDir,
                 remotePath = remoteProductsDir.path,
@@ -199,15 +183,4 @@ class IOSDevice(val udid: String,
                 port = sshjCommandExecutor.port
         )
     }
-
-    private fun availablePort(): Int {
-        val commandResult = hostCommandExecutor.exec(
-                """ruby -e 'require "socket"; puts Addrinfo.tcp("", 0).bind {|s| s.local_address.ip_port }'"""
-        )
-        return when {
-            commandResult.exitStatus == 0 -> commandResult.stdout.toIntOrNull().also { logger.debug("Using TCP port ${it} on device ${udid}") }
-            else -> null
-        } ?: throw Exception(commandResult.stderr)
-    }
-
 }
