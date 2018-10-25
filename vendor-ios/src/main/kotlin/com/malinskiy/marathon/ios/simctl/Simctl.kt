@@ -21,6 +21,11 @@ class Simctl {
                 .get("DeviceType")
     }
 
+    fun isRunning(device: IOSDevice): Boolean {
+        val output = exec("spawn ${device.udid} launchctl print system | grep com.apple.springboard.services", device)
+        return output.contains("M   A   com.apple.springboard.services")
+    }
+
 //    fun boot(device: IOSDevice) {}
 //    fun shutdown(device: IOSDevice) {}
 //    fun erase(device: IOSDevice) {}
