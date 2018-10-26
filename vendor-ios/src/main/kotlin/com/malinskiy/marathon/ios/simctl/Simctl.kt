@@ -1,10 +1,13 @@
 package com.malinskiy.marathon.ios.simctl
 
+import com.dd.plist.PropertyListParser
 import com.malinskiy.marathon.ios.IOSDevice
 import com.google.gson.Gson
 import com.malinskiy.marathon.ios.simctl.model.SimctlDevice
+import com.malinskiy.marathon.ios.simctl.model.SimctlDeviceType
 import com.malinskiy.marathon.ios.simctl.model.SimctlListDevicesOutput
 import java.io.BufferedReader
+import java.io.File
 
 
 class Simctl {
@@ -29,6 +32,30 @@ class Simctl {
 //    fun boot(device: IOSDevice) {}
 //    fun shutdown(device: IOSDevice) {}
 //    fun erase(device: IOSDevice) {}
+
+    fun modelIdentifier(device: IOSDevice): String? {
+        return exec("getenv ${device.udid} SIMULATOR_MODEL_IDENTIFIER", device)
+                .trim()
+                .takeIf { it.isNotBlank() }
+    }
+
+    fun simctlDeviceType(device: IOSDevice): SimctlDeviceType {
+        val deviceHome: String = exec("getenv ${device.udid} HOME", device)
+                .trim()
+                .takeIf { it.isNotBlank() }
+                ?: return SimctlDeviceType("Unknown", "Unknown")
+        val devicePlist = File(deviceHome).resolveSibling("device.plist")
+        val devicePlistContents = device.hostCommandExecutor.exec("cat ${devicePlist.canonicalPath}")
+        if (devicePlistContents.exitStatus != 0) {
+            return SimctlDeviceType("Unknown", "Unknown")
+        }
+        val deviceDescriptor = PropertyListParser.parse(devicePlistContents.stdout.toByteArray()).toJavaObject() as Map<*, *>
+        if (device.udid != deviceDescriptor["UDID"] as String) {
+            return SimctlDeviceType("Unknown", "Unknown")
+        }
+        val deviceType = deviceDescriptor["deviceType"] as String
+        return SimctlDeviceType(deviceType, deviceType)
+    }
 
 //    fun screenshot(device: IOSDevice) {}
 //    fun video(device: IOSDevice) {}
