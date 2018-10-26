@@ -122,13 +122,18 @@ class IOSDevice(val udid: String,
                 "-xctestrun ${remoteXctestrunFile.path} " +
                 "-resultBundlePath ${remoteXcresultPath.canonicalPath} " +
                 "$testBatchToArguments " +
-                "-destination 'platform=iOS simulator,id=$udid'")
+                "-destination 'platform=iOS simulator,id=$udid'; " +
+                "exit")
 
         command.join()
 
+        try {
+            command.inputStream.reader().forEachLine { logParser.onLine(it) }
+        } catch (e: Exception) {
+            logger.error { "Exception $e" }
+        }
 
-        command.errorStream.bufferedReader().forEachLine { logger.error(it) }
-        command.inputStream.reader().forEachLine(logParser::onLine)
+        command.errorStream.reader().forEachLine { logger.error(it) }
 
         logParser.close()
 

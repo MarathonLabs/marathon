@@ -35,13 +35,13 @@ class TestRunProgressParser(private val timer: Timer,
         val result = matchResult?.groups?.get(4)?.value
         val duration = matchResult?.groups?.get(5)?.value?.toFloat()
 
+        logger.debug { "Test $pkg.$clazz.$method finished with result <$result> after $duration seconds" }
+
         if (pkg != null && clazz != null && method != null && result != null && duration != null) {
             val test = Test(pkg, clazz, method, emptyList())
 
             val endTime = timer.currentTimeMillis()
             val startTime = endTime - Math.round(duration * 1000)
-
-            logger.trace { "Test $pkg.$clazz.$method finished with result <$result> after $duration seconds" }
 
             when (result) {
                 "passed" -> {
