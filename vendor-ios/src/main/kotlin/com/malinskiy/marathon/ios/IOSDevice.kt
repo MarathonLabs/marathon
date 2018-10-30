@@ -89,6 +89,7 @@ class IOSDevice(val udid: String,
                 //then use this log to insert into the test report
                 testLogListener,
                 TestRunProgressParser(SystemTimer(),
+                        packageNameFormatter,
                         listOf(
                                 ProgressReportingListener(
                                         this,
@@ -99,8 +100,7 @@ class IOSDevice(val udid: String,
                                     testLogListener
                                 ),
                                 testLogListener
-                        ),
-                        packageNameFormatter
+                        )
                 ),
                 DebugLoggingParser()
         ))
@@ -116,16 +116,15 @@ class IOSDevice(val udid: String,
                 .joinToString(separator = " ")
 
         val session = hostCommandExecutor.startSession()
-        val command = session.exec("export NSUnbufferedIO=YES && " +
-                "cd $remoteDir && " +
-                "xcodebuild test-without-building " +
-                "-xctestrun ${remoteXctestrunFile.path} " +
-                "-resultBundlePath ${remoteXcresultPath.canonicalPath} " +
-                "$testBatchToArguments " +
-                "-destination 'platform=iOS simulator,id=$udid'; " +
-                "exit")
-
-        command.join()
+        val exec = listOf(
+                "cd '$remoteDir' &&",
+                "NSUnbufferedIO=YES",
+                "xcodebuild test-without-building",
+                "-xctestrun ${remoteXctestrunFile.path}",
+                "-resultBundlePath ${remoteXcresultPath.canonicalPath} ",
+                testBatchToArguments,
+                "-destination 'platform=iOS simulator,id=$udid'").joinToString(" ").also { logger.debug(it) }
+        val command = session.exec(exec)
 
         try {
             command.inputStream.reader().forEachLine { logParser.onLine(it) }

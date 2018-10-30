@@ -7,8 +7,8 @@ import com.malinskiy.marathon.test.Test
 import com.malinskiy.marathon.time.Timer
 
 class TestRunProgressParser(private val timer: Timer,
-                            private val listeners: Collection<TestRunListener>,
-                            private val packageNameFormatter: PackageNameFormatter) : StreamingLogParser {
+                            private val packageNameFormatter: PackageNameFormatter,
+                            private val listeners: Collection<TestRunListener>) : StreamingLogParser {
 
     override fun close() {
         listeners.forEach { it.batchFinished() }

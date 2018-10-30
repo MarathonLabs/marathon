@@ -99,9 +99,9 @@ class Marathon(val configuration: Configuration) {
             summaryPrinter.print(summary)
         }
 
-        val hours = TimeUnit.MICROSECONDS.toHours(timeMillis)
-        val minutes = TimeUnit.MICROSECONDS.toMinutes(timeMillis)
-        val seconds = TimeUnit.MICROSECONDS.toSeconds(timeMillis)
+        val hours = TimeUnit.MILLISECONDS.toHours(timeMillis)
+        val minutes = TimeUnit.MILLISECONDS.toMinutes(timeMillis)
+        val seconds = TimeUnit.MILLISECONDS.toSeconds(timeMillis)
 
         log.info { "Total time: ${hours}H ${minutes}m ${seconds}s" }
         analytics.terminate()

@@ -38,9 +38,9 @@ class ProgressParserSpek : Spek({
         val mockedTimeMillis = 1537187696000L
         When calling mockTimer.currentTimeMillis() itReturns mockedTimeMillis
 
-        val progressParser = TestRunProgressParser(mockTimer, listOf(mockListener), mockFormatter)
+        val progressParser = TestRunProgressParser(mockTimer, mockFormatter, listOf(mockListener))
 
-        afterEachTest { reset(mockListener) }
+        afterEachTest { reset(mockListener, mockFormatter) }
 
         on("parsing testing output") {
             val testOutputFile = File(javaClass.classLoader.getResource("fixtures/test_output/success_0.log").file)
