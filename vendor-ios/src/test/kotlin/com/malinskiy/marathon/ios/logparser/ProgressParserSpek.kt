@@ -32,7 +32,6 @@ class ProgressParserSpek : Spek({
 //        When calling commandMock.inputStream itReturns javaClass.classLoader.getResource("fixtures/simctl/list_output.json").openStream()
 
         val mockFormatter = mock(PackageNameFormatter::class)
-        When calling mockFormatter.format(any()) itAnswers withFirstArg()
         val mockListener = mock(TestRunListener::class)
         val mockTimer = mock(Timer::class)
         val mockedTimeMillis = 1537187696000L
@@ -40,6 +39,7 @@ class ProgressParserSpek : Spek({
 
         val progressParser = TestRunProgressParser(mockTimer, mockFormatter, listOf(mockListener))
 
+        beforeEachTest { When calling mockFormatter.format(any()) itAnswers withFirstArg() }
         afterEachTest { reset(mockListener, mockFormatter) }
 
         on("parsing testing output") {
