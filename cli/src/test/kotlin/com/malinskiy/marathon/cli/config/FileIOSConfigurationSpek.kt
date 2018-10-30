@@ -29,7 +29,8 @@ object FileIOSConfigurationSpek : Spek({
                     remotePrivateKey = File("key"),
                     sourceRoot = File("sourceRoot"),
                     fileListProvider = mockFileListProvider,
-                    debugSsh = null)
+                    debugSsh = null,
+                    devices = null)
 
             it("should search for such file under derived data folder") {
                 mockDerivedDataFiles = { sequenceOf(File("."), mockXctestrunFile, File("runner.app")) }

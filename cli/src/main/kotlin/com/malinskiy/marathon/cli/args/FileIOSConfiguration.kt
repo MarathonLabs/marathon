@@ -22,6 +22,7 @@ data class FileIOSConfiguration(
         @JsonProperty("remotePrivateKey") val remotePrivateKey: File,
         @JsonProperty("sourceRoot") val sourceRoot: File?,
         @JsonProperty("debugSsh") val debugSsh: Boolean?,
+        @JsonProperty("devices") val devices: File?,
         val fileListProvider: FileListProvider = DerivedDataFileListProvider) : FileVendorConfiguration {
 
     fun toIOSConfiguration(marathonfileDir: File,
@@ -36,11 +37,12 @@ data class FileIOSConfiguration(
         val optionalSourceRoot = sourceRootOverride
                 ?: sourceRoot?.resolveAgainst(marathonfileDir)
         val optionalDebugSsh = debugSsh ?: false
+        val optionalDevices = devices ?: marathonfileDir.resolve("Marathondevices")
 
         return if (optionalSourceRoot == null) {
-            IOSConfiguration(resolvedDerivedDataDir, finalXCTestRunPath, remoteUsername, remotePrivateKey, optionalDebugSsh)
+            IOSConfiguration(resolvedDerivedDataDir, finalXCTestRunPath, remoteUsername, remotePrivateKey, optionalDebugSsh, optionalDevices)
         } else {
-            IOSConfiguration(resolvedDerivedDataDir, finalXCTestRunPath, remoteUsername, remotePrivateKey, optionalDebugSsh, optionalSourceRoot)
+            IOSConfiguration(resolvedDerivedDataDir, finalXCTestRunPath, remoteUsername, remotePrivateKey, optionalDebugSsh, optionalDevices, optionalSourceRoot)
         }
     }
 }

@@ -22,7 +22,7 @@ class LocalListSimulatorProvider(private val channel: Channel<DeviceProvider.Dev
 
     override fun start() {
         launch {
-            val file = File(System.getProperty("user.dir"), "Marathondevices")
+            val file = configuration.devicesFile ?: File(System.getProperty("user.dir"), "Marathondevices")
             val simulators: List<RemoteSimulator>? = yamlObjectMapper.readValue(file)
 
             simulators?.forEach {
