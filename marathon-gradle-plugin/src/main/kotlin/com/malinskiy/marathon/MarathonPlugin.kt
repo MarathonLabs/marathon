@@ -6,6 +6,7 @@ import com.android.build.gradle.LibraryExtension
 import com.android.build.gradle.LibraryPlugin
 import com.android.build.gradle.api.ApkVariantOutput
 import com.android.build.gradle.api.BaseVariantOutput
+import com.android.build.gradle.api.LibraryVariantOutput
 import com.android.build.gradle.api.TestVariant
 import com.malinskiy.marathon.android.AndroidConfiguration
 import com.malinskiy.marathon.execution.Configuration
@@ -16,6 +17,7 @@ import org.gradle.api.Task
 import org.gradle.api.plugins.JavaBasePlugin
 import org.gradle.kotlin.dsl.closureOf
 import java.io.File
+import java.lang.RuntimeException
 
 private val log = KotlinLogging.logger {}
 
@@ -74,10 +76,34 @@ class MarathonPlugin : Plugin<Project> {
                             "variation and generates a report with screenshots"
                     outputs.upToDateWhen { false }
 
-                    val firstOutput = variant.outputs.first() as ApkVariantOutput
-                    val applicationOutput = testedOutput as ApkVariantOutput
-                    val instrumentationApk = File(firstOutput.packageApplication.outputDirectory.path, firstOutput.outputFileName)
-                    val applicationApk = File(applicationOutput.packageApplication.outputDirectory.path, applicationOutput.outputFileName)
+                    val firstOutput = variant.outputs.first()/* as ApkVariantOutput*/
+
+                    val instrumentation = when (firstOutput) {
+                        is ApkVariantOutput -> {
+                            File(firstOutput.packageApplication.outputDirectory.path, firstOutput.outputFileName).path
+                        }
+                        is LibraryVariantOutput -> {
+                            firstOutput.outputFile.path
+                        }
+                        else -> {
+                            throw RuntimeException("Can't find instrumentationApk")
+                        }
+                    }
+                    val instrumentationApk = File(instrumentation)
+                    println("library instr apk = $instrumentationApk")
+                    val apk = when (testedOutput) {
+                        is ApkVariantOutput -> {
+                            File(testedOutput.packageApplication.outputDirectory.path, testedOutput.outputFileName).path
+                        }
+                        is LibraryVariantOutput -> {
+                            null
+                        }
+                        else -> {
+                            throw RuntimeException("Can't find apk")
+                        }
+                    }
+                    val applicationApk = apk?.let { File(apk) }
+
                     val baseOutputDir = if (config.baseOutputDir != null) File(config.baseOutputDir) else File(project.buildDir, "reports/marathon")
                     val output = File(baseOutputDir, variant.name)
 
