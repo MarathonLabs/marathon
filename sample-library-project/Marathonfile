@@ -1,4 +1,3 @@
-name: "sample-app tests"
+name: "sample-library-project tests"
 outputDir: "build/reports/marathon"
-applicationOutput: "kotlin-buildscript/build/outputs/apk/debug/kotlin-buildscript-debug.apk"
 testApplicationOutput: "kotlin-buildscript/build/outputs/apk/androidTest/debug/kotlin-buildscript-debug-androidTest.apk"
