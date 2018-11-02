@@ -79,14 +79,17 @@ class DerivedDataManager(val configuration: Configuration) {
                 .partial(true)
                 .delete(true)
                 .verbose(configuration.debug)
+                .partialDir(".rsync-partial")
+                .delayUpdates(true)
+                .deleteDelay(true)
     }
 
     private fun getSshString(port: Int): String {
         return "ssh -o 'StrictHostKeyChecking no' -F /dev/null " +
-                "${if (configuration.debug && iosConfiguration.debugSsh) "-vvv" else ""} " +
                 "-i ${iosConfiguration.remotePrivateKey} " +
                 "-l ${iosConfiguration.remoteUsername} " +
-                "-p ${port.toString()}"
+                "-p ${port.toString()}" +
+                when (configuration.debug && iosConfiguration.debugSsh) { true -> "-vvv" else -> ""}
     }
 }
 
