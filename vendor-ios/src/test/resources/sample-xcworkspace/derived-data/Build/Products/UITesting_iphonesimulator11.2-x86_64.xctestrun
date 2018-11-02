@@ -18,18 +18,8 @@
 		</array>
 		<key>EnvironmentVariables</key>
 		<dict>
-			<key>DYLD_FRAMEWORK_PATH</key>
-			<string>/Users/ypanforov/Developer/marathon/vendor-ios/src/test/resources/src/sample-xcworkspace/a/Build/Products/Debug-iphonesimulator</string>
-			<key>DYLD_LIBRARY_PATH</key>
-			<string>/Users/ypanforov/Developer/marathon/vendor-ios/src/test/resources/src/sample-xcworkspace/a/Build/Products/Debug-iphonesimulator</string>
 			<key>OS_ACTIVITY_DT_MODE</key>
 			<string>YES</string>
-			<key>__XCODE_BUILT_PRODUCTS_DIR_PATHS</key>
-			<string>/Users/ypanforov/Developer/marathon/vendor-ios/src/test/resources/src/sample-xcworkspace/a/Build/Products/Debug-iphonesimulator</string>
-			<key>__XPC_DYLD_FRAMEWORK_PATH</key>
-			<string>/Users/ypanforov/Developer/marathon/vendor-ios/src/test/resources/src/sample-xcworkspace/a/Build/Products/Debug-iphonesimulator</string>
-			<key>__XPC_DYLD_LIBRARY_PATH</key>
-			<string>/Users/ypanforov/Developer/marathon/vendor-ios/src/test/resources/src/sample-xcworkspace/a/Build/Products/Debug-iphonesimulator</string>
 		</dict>
 		<key>IsUITestBundle</key>
 		<true/>
@@ -54,9 +44,13 @@
 		<key>TestingEnvironmentVariables</key>
 		<dict>
 			<key>DYLD_FRAMEWORK_PATH</key>
-			<string>__TESTROOT__/Debug-iphonesimulator:__PLATFORMS__/iPhoneSimulator.platform/Developer/Library/Frameworks</string>
+			<string>__TESTROOT__/Debug-iphonesimulator:__PLATFORMS__/iPhoneSimulator.platform/Developer/Library/Frameworks:/Library/Developer/CoreSimulator/Profiles/Runtimes/iOS 11.1.simruntime/Contents/Resources/RuntimeRoot/Developer/Library/PrivateFrameworks</string>
+			<key>DYLD_INSERT_LIBRARIES</key>
+			<string>/Library/Developer/CoreSimulator/Profiles/Runtimes/iOS 11.1.simruntime/Contents/Resources/RuntimeRoot/usr/lib/libMainThreadChecker.dylib</string>
 			<key>DYLD_LIBRARY_PATH</key>
-			<string>__TESTROOT__/Debug-iphonesimulator:__PLATFORMS__/iPhoneSimulator.platform/Developer/Library/Frameworks</string>
+			<string>__TESTROOT__/Debug-iphonesimulator:__PLATFORMS__/iPhoneSimulator.platform/Developer/Library/Frameworks:/Library/Developer/CoreSimulator/Profiles/Runtimes/iOS 11.1.simruntime/Contents/Resources/RuntimeRoot/Developer/Library/PrivateFrameworks</string>
+			<key>MTC_CRASH_ON_REPORT</key>
+			<string>1</string>
 			<key>XCODE_DBG_XPC_EXCLUSIONS</key>
 			<string>com.apple.dt.xctestSymbolicator</string>
 		</dict>
