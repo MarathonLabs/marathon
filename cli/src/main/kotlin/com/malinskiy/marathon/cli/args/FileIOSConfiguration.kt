@@ -1,7 +1,7 @@
 package com.malinskiy.marathon.cli.args
 
 import com.fasterxml.jackson.annotation.JsonProperty
-import com.malinskiy.marathon.cli.config.ConfigurationException
+import com.malinskiy.marathon.exceptions.ConfigurationException
 import com.malinskiy.marathon.ios.IOSConfiguration
 import java.io.File
 

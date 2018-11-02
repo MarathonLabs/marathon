@@ -3,6 +3,7 @@ package com.malinskiy.marathon.cli.config
 import com.malinskiy.marathon.android.AndroidConfiguration
 import com.malinskiy.marathon.cli.args.EnvironmentConfiguration
 import com.malinskiy.marathon.cli.args.environment.EnvironmentReader
+import com.malinskiy.marathon.exceptions.ConfigurationException
 import com.malinskiy.marathon.execution.AnalyticsConfiguration
 import com.malinskiy.marathon.execution.AnnotationFilter
 import com.malinskiy.marathon.execution.FullyQualifiedClassnameFilter
@@ -23,14 +24,17 @@ import com.malinskiy.marathon.execution.strategy.impl.retry.NoRetryStrategy
 import com.malinskiy.marathon.execution.strategy.impl.retry.fixedquota.FixedQuotaRetryStrategy
 import com.malinskiy.marathon.execution.strategy.impl.sharding.CountShardingStrategy
 import com.malinskiy.marathon.execution.strategy.impl.sharding.ParallelShardingStrategy
+import com.malinskiy.marathon.execution.strategy.impl.sorting.ExecutionTimeSortingStrategy
 import com.malinskiy.marathon.execution.strategy.impl.sorting.NoSortingStrategy
 import com.malinskiy.marathon.execution.strategy.impl.sorting.SuccessRateSortingStrategy
 import com.malinskiy.marathon.ios.IOSConfiguration
 import com.nhaarman.mockito_kotlin.whenever
 import org.amshove.kluent.`it returns`
+import org.amshove.kluent.`should be instance of`
 import org.amshove.kluent.mock
 import org.amshove.kluent.shouldBe
 import org.amshove.kluent.shouldBeEmpty
+import org.amshove.kluent.shouldBeInRange
 import org.amshove.kluent.shouldContainAll
 import org.amshove.kluent.shouldEqual
 import org.amshove.kluent.shouldNotThrow
@@ -232,6 +236,22 @@ object ConfigFactorySpec : Spek({
                 configuration.filteringConfiguration.blacklist shouldEqual listOf(
                         SimpleClassnameFilter(".*".toRegex())
                 )
+            }
+        }
+
+        on("configuration time limits specified in milliseconds") {
+            val file = File(ConfigFactorySpec::class.java.getResource("/fixture/config/sample_10.yaml").file)
+
+            it("should use relative time limits") {
+                val configuration = parser.create(file, mockEnvironmentReader())
+
+                configuration.sortingStrategy `should be instance of` ExecutionTimeSortingStrategy::class
+                val sortingStrategy = configuration.sortingStrategy as ExecutionTimeSortingStrategy
+                sortingStrategy.timeLimit.toEpochMilli() - Instant.now().toEpochMilli() shouldBeInRange LongRange(990, 1010)
+
+                configuration.flakinessStrategy `should be instance of` ProbabilityBasedFlakinessStrategy::class
+                val flakinessStrategy = configuration.flakinessStrategy as ProbabilityBasedFlakinessStrategy
+                flakinessStrategy.timeLimit.toEpochMilli() - Instant.now().toEpochMilli() shouldBeInRange LongRange(990, 1010)
             }
         }
     }

@@ -7,7 +7,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer
 import com.fasterxml.jackson.databind.node.ObjectNode
 import com.fasterxml.jackson.module.kotlin.treeToValue
-import com.malinskiy.marathon.cli.config.ConfigurationException
+import com.malinskiy.marathon.exceptions.ConfigurationException
 import com.malinskiy.marathon.execution.strategy.SortingStrategy
 import com.malinskiy.marathon.execution.strategy.impl.sorting.ExecutionTimeSortingStrategy
 import com.malinskiy.marathon.execution.strategy.impl.sorting.NoSortingStrategy

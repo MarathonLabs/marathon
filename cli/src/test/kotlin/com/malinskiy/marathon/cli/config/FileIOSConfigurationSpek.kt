@@ -3,6 +3,7 @@ package com.malinskiy.marathon.cli.config
 
 import com.malinskiy.marathon.cli.args.FileIOSConfiguration
 import com.malinskiy.marathon.cli.args.FileListProvider
+import com.malinskiy.marathon.exceptions.ConfigurationException
 import org.amshove.kluent.shouldEqual
 import org.amshove.kluent.shouldThrow
 import org.jetbrains.spek.api.Spek

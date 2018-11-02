@@ -1,4 +1,4 @@
-package com.malinskiy.marathon.cli.config
+package com.malinskiy.marathon.exceptions
 
 class ConfigurationException: RuntimeException {
     constructor(cause: Throwable): super(cause)

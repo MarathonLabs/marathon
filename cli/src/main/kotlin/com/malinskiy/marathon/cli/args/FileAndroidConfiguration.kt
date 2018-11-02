@@ -2,7 +2,7 @@ package com.malinskiy.marathon.cli.args
 
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.malinskiy.marathon.android.AndroidConfiguration
-import com.malinskiy.marathon.cli.config.ConfigurationException
+import com.malinskiy.marathon.exceptions.ConfigurationException
 import java.io.File
 
 data class FileAndroidConfiguration(@JsonProperty("androidSdk") val androidSdk: File?,

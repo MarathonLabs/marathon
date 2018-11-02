@@ -7,7 +7,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer
 import com.fasterxml.jackson.databind.node.ObjectNode
 import com.fasterxml.jackson.module.kotlin.treeToValue
-import com.malinskiy.marathon.cli.config.ConfigurationException
+import com.malinskiy.marathon.exceptions.ConfigurationException
 import com.malinskiy.marathon.execution.strategy.FlakinessStrategy
 import com.malinskiy.marathon.execution.strategy.impl.flakiness.IgnoreFlakinessStrategy
 import com.malinskiy.marathon.execution.strategy.impl.flakiness.ProbabilityBasedFlakinessStrategy

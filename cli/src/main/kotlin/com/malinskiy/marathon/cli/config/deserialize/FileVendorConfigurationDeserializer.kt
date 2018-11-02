@@ -10,7 +10,7 @@ import com.fasterxml.jackson.module.kotlin.treeToValue
 import com.malinskiy.marathon.cli.args.FileAndroidConfiguration
 import com.malinskiy.marathon.cli.args.FileIOSConfiguration
 import com.malinskiy.marathon.cli.args.FileVendorConfiguration
-import com.malinskiy.marathon.cli.config.ConfigurationException
+import com.malinskiy.marathon.exceptions.ConfigurationException
 
 class FileVendorConfigurationDeserializer : StdDeserializer<FileVendorConfiguration>(FileVendorConfiguration::class.java) {
     override fun deserialize(p: JsonParser?, ctxt: DeserializationContext?): FileVendorConfiguration {

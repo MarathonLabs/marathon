@@ -42,7 +42,7 @@ class DerivedDataManager(val configuration: Configuration) {
         val destination = "$hostName:$remotePath"
 
         val sshString = getSshString(port)
-        logger.debug { "Using ssh string ${sshString}" }
+        logger.debug("Using ssh string $sshString")
         val rsync = getRsyncBase()
                 .rsh(sshString)
                 .source(source)
@@ -60,7 +60,7 @@ class DerivedDataManager(val configuration: Configuration) {
         val destination = localPath.absolutePath
 
         val sshString = getSshString(port)
-        logger.debug { "Using ssh string ${sshString}" }
+        logger.debug("Using ssh string $sshString")
         val rsync = getRsyncBase()
                 .rsh(sshString)
                 .source(source)
