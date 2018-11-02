@@ -4,7 +4,7 @@ object Versions {
     val kotlin = "1.2.61"
     val coroutines = "0.25.0"
 
-    val ddmlib = "26.1.3"
+    val ddmlib = "26.2.0"
     val dexTestParser = "2.0.0"
     val kotlinLogging = "1.4.9"
     val slf4jAPI = "1.0.0"
@@ -25,7 +25,7 @@ object Versions {
     val gson = "2.8.5"
     val apacheCommonsText = "1.3"
     val apacheCommonsIO = "2.6"
-    val influxDbClient = "2.10"
+    val influxDbClient = "2.13"
     val argParser = "2.0.7"
     val jacksonDatabind = "2.9.5"
     val jacksonKotlin = "2.9.4.1"
@@ -35,7 +35,8 @@ object Versions {
     val guava = "26.0-jre"
     val rsync4j = "3.1.2-12"
     val sshj = "0.26.0"
-    val testContainers = "1.8.3"
+    val testContainers = "1.9.1"
+    val jupiterEngine = "5.1.0"
 }
 
 object BuildPlugins {
@@ -84,5 +85,8 @@ object TestLibraries {
     val espressoContrib = "com.android.support.test.espresso:espresso-contrib:${Versions.espresso}"
     val espressoIntents = "com.android.support.test.espresso:espresso-intents:${Versions.espresso}"
     val junit = "junit:junit:${Versions.junit}"
+    val jupiterEngine = "org.junit.jupiter:junit-jupiter-engine:${Versions.jupiterEngine}"
+
     val testContainers = "org.testcontainers:testcontainers:${Versions.testContainers}"
+    val testContainersInflux = "org.testcontainers:influxdb:${Versions.testContainers}"
 }

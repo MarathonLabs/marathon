@@ -41,7 +41,7 @@ jobs:
   - stage: test
     script:
     - chmod 0600 $TRAVIS_BUILD_DIR/vendor-ios/src/test/resources/fixtures/derived-data-manager/test_rsa
-    - ./gradlew clean test
+    - ./gradlew clean test integrationTest
   - stage: detekt
     script: ./gradlew clean detektCheck
   - stage: deploy

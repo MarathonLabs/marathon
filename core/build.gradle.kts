@@ -1,6 +1,7 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import org.jetbrains.kotlin.gradle.dsl.Coroutines
 import org.gradle.api.plugins.ExtensionAware
+import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet
 import org.junit.platform.gradle.plugin.FiltersExtension
 import org.junit.platform.gradle.plugin.EnginesExtension
 import org.junit.platform.gradle.plugin.JUnitPlatformExtension
@@ -13,6 +14,21 @@ plugins {
 }
 
 kotlin.experimental.coroutines = Coroutines.ENABLE
+
+sourceSets {
+    create("integrationTest") {
+        compileClasspath += sourceSets["main"].output
+        compileClasspath += sourceSets["test"].output
+        compileClasspath += configurations.testCompileClasspath
+
+        runtimeClasspath += sourceSets["main"].output
+        runtimeClasspath += sourceSets["test"].output
+        runtimeClasspath += configurations.testRuntimeClasspath
+        withConvention(KotlinSourceSet::class) {
+            kotlin.srcDirs("src/integrationTest/kotlin")
+        }
+    }
+}
 
 dependencies {
     implementation(project(":marathon-html-report"))
@@ -30,6 +46,27 @@ dependencies {
     testCompile(TestLibraries.kluent)
     testCompile(TestLibraries.spekAPI)
     testRuntime(TestLibraries.spekJUnitPlatformEngine)
+    testRuntime(TestLibraries.jupiterEngine)
+    testCompile(TestLibraries.testContainers)
+    testCompile(TestLibraries.testContainersInflux)
+}
+
+
+val integrationTest = task<Test>("integrationTest") {
+    description = "Runs integration tests."
+    group = "verification"
+
+    testClassesDirs = sourceSets["integrationTest"].output.classesDirs
+    classpath = sourceSets["integrationTest"].runtimeClasspath
+
+    exclude("**/resources/**")
+
+    shouldRunAfter("test")
+}
+
+tasks.withType<Test>().all {
+    tasks.getByName("check").dependsOn(this)
+    useJUnitPlatform()
 }
 
 Deployment.initialize(project)
