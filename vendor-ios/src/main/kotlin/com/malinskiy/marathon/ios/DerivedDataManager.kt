@@ -81,6 +81,7 @@ class DerivedDataManager(val configuration: Configuration) {
                 .verbose(configuration.debug)
                 .partialDir(".rsync-partial")
                 .delayUpdates(true)
+                .deleteDelay(true)
     }
 
     private fun getSshString(port: Int): String {
