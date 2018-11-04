@@ -171,7 +171,7 @@ class IOSDevice(val udid: String,
 
         // send the prepared xctestrun
         logger.debug("Sending xctestrun file from $xctestrunFile to $remoteXctestrunFile")
-        derivedDataManager.send(
+        derivedDataManager.sendSynchronized(
                 localPath = xctestrunFile,
                 remotePath = remoteXctestrunFile.absolutePath,
                 hostName = sshjCommandExecutor.hostAddress.hostName,

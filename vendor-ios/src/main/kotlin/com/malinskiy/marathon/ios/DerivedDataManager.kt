@@ -6,10 +6,16 @@ import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.log.MarathonLogging
 import java.io.File
 import java.io.FileNotFoundException
+import java.util.concurrent.locks.Lock
+import java.util.concurrent.locks.ReentrantLock
 
 private const val PRODUCTS_PATH = "Build/Products"
 
 class DerivedDataManager(val configuration: Configuration) {
+    companion object {
+        private val hostnameLocksMapLock: Lock = ReentrantLock()
+        private val hostnameLocksMap = mutableMapOf<String, Lock>()
+    }
 
     private val logger = MarathonLogging.logger(javaClass.simpleName)
 
@@ -26,14 +32,29 @@ class DerivedDataManager(val configuration: Configuration) {
     val productsDir: File
         get() {
             return iosConfiguration
-                .derivedDataDir
-                .toPath()
-                .resolve(PRODUCTS_PATH)
-                .toFile()
+                    .derivedDataDir
+                    .toPath()
+                    .resolve(PRODUCTS_PATH)
+                    .toFile()
         }
 
-    fun send(localPath: File, remotePath: String, hostName: String, port: Int) {
+    fun sendSynchronized(localPath: File, remotePath: String, hostName: String, port: Int) {
+        val hostnameLock: Lock
+        hostnameLocksMapLock.lock()
+        try {
+            hostnameLock = hostnameLocksMap.getOrPut(hostName) { ReentrantLock() }
+        } finally {
+            hostnameLocksMapLock.unlock()
+        }
+        hostnameLock.lock()
+        try {
+            send(localPath, remotePath, hostName, port)
+        } finally {
+            hostnameLock.unlock()
+        }
+    }
 
+    fun send(localPath: File, remotePath: String, hostName: String, port: Int) {
         val source= if (localPath.isDirectory) {
             localPath.absolutePathWithTrailingSeparator
         } else {
