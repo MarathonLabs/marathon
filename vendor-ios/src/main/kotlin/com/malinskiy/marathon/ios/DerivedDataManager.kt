@@ -100,6 +100,7 @@ class DerivedDataManager(val configuration: Configuration) {
                 .partial(true)
                 .delete(true)
                 .verbose(configuration.debug)
+                .rsyncPath("/usr/local/bin/rsync")
                 .partialDir(".rsync-partial")
                 .delayUpdates(true)
                 .deleteDelay(true)

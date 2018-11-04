@@ -14,13 +14,13 @@ import com.malinskiy.marathon.io.FileManager
 import com.malinskiy.marathon.ios.cmd.remote.CommandExecutor
 import com.malinskiy.marathon.ios.cmd.remote.SshjCommandExecutor
 import com.malinskiy.marathon.ios.device.RemoteSimulatorFeatureProvider
-import com.malinskiy.marathon.ios.simctl.Simctl
 import com.malinskiy.marathon.ios.logparser.CompositeLogParser
 import com.malinskiy.marathon.ios.logparser.DebugLoggingParser
 import com.malinskiy.marathon.ios.logparser.TestRunProgressParser
 import com.malinskiy.marathon.ios.logparser.formatter.TestLogPackageNameFormatter
 import com.malinskiy.marathon.ios.logparser.listener.ProgressReportingListener
 import com.malinskiy.marathon.ios.logparser.listener.TestLogListener
+import com.malinskiy.marathon.ios.simctl.Simctl
 import com.malinskiy.marathon.ios.xctestrun.Xctestrun
 import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.report.html.relativePathTo
@@ -121,7 +121,7 @@ class IOSDevice(val udid: String,
                 "NSUnbufferedIO=YES",
                 "xcodebuild test-without-building",
                 "-xctestrun ${remoteXctestrunFile.path}",
-                "-resultBundlePath ${remoteXcresultPath.canonicalPath} ",
+                // "-resultBundlePath ${remoteXcresultPath.canonicalPath} ",
                 testBatchToArguments,
                 "-destination 'platform=iOS simulator,id=$udid'").joinToString(" ").also { logger.debug(it) }
         val command = session.exec(exec)
