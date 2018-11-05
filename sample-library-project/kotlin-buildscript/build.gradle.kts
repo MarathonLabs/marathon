@@ -1,7 +1,6 @@
 plugins {
-    id("com.android.application")
+    id("com.android.library")
     id("kotlin-android")
-    id("kotlin-android-extensions")
     id("marathon") version "0.2.2"
 }
 
@@ -13,7 +12,6 @@ android {
         minSdkVersion(16)
         targetSdkVersion(27)
 
-        applicationId = "com.example"
         versionCode = 1
         versionName = "1.0"
 
@@ -34,5 +32,4 @@ dependencies {
     implementation(Libraries.kotlinStdLib)
     implementation(TestLibraries.espressoRunner)
     implementation(TestLibraries.espressoCore)
-    androidTestImplementation(TestLibraries.kakao)
 }

@@ -20,7 +20,7 @@ private const val DEFAULT_OUTPUT_TIMEOUT_MILLIS = 60_000
 data class Configuration constructor(
         val name: String,
         val outputDir: File,
-        val applicationOutput: File,
+        val applicationOutput: File?,
         val testApplicationOutput: File,
 
         val analyticsConfiguration: AnalyticsConfiguration,
@@ -48,7 +48,7 @@ data class Configuration constructor(
 
     constructor(name: String,
                 outputDir: File,
-                applicationOutput: File,
+                applicationOutput: File?,
                 testApplicationOutput: File,
 
                 analyticsConfiguration: AnalyticsConfiguration?,
