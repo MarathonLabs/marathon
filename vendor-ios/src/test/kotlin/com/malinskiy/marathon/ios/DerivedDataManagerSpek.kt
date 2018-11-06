@@ -65,6 +65,7 @@ object DerivedDataManagerSpek: Spek({
                             xctestrunPath = xctestrunPath,
                             remoteUsername = "root",
                             remotePrivateKey = privateKey,
+                            remoteRsyncPath = "/usr/bin/rsync",
                             sourceRoot = sourceRoot,
                             debugSsh = false)
             )

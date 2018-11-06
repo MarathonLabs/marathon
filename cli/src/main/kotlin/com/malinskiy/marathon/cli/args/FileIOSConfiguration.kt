@@ -20,6 +20,7 @@ data class FileIOSConfiguration(
         @JsonProperty("xctestrunPath") val xctestrunPath: File?,
         @JsonProperty("remoteUsername") val remoteUsername: String,
         @JsonProperty("remotePrivateKey") val remotePrivateKey: File,
+        @JsonProperty("remoteRsyncPath") val remoteRsyncPath: String = "/usr/bin/rsync",
         @JsonProperty("sourceRoot") val sourceRoot: File?,
         @JsonProperty("debugSsh") val debugSsh: Boolean?,
         @JsonProperty("devices") val devices: File?,
@@ -40,9 +41,24 @@ data class FileIOSConfiguration(
         val optionalDevices = devices ?: marathonfileDir.resolve("Marathondevices")
 
         return if (optionalSourceRoot == null) {
-            IOSConfiguration(resolvedDerivedDataDir, finalXCTestRunPath, remoteUsername, remotePrivateKey, optionalDebugSsh, optionalDevices)
+            IOSConfiguration(
+                    derivedDataDir = resolvedDerivedDataDir,
+                    xctestrunPath = finalXCTestRunPath,
+                    remoteUsername = remoteUsername,
+                    remotePrivateKey = remotePrivateKey,
+                    remoteRsyncPath = remoteRsyncPath,
+                    debugSsh = optionalDebugSsh,
+                    devicesFile = optionalDevices)
         } else {
-            IOSConfiguration(resolvedDerivedDataDir, finalXCTestRunPath, remoteUsername, remotePrivateKey, optionalDebugSsh, optionalDevices, optionalSourceRoot)
+            IOSConfiguration(
+                    derivedDataDir = resolvedDerivedDataDir,
+                    xctestrunPath = finalXCTestRunPath,
+                    remoteUsername = remoteUsername,
+                    remotePrivateKey = remotePrivateKey,
+                    remoteRsyncPath = remoteRsyncPath,
+                    debugSsh = optionalDebugSsh,
+                    devicesFile = optionalDevices,
+                    sourceRoot = optionalSourceRoot)
         }
     }
 }

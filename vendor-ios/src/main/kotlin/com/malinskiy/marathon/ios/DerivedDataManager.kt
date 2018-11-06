@@ -98,12 +98,10 @@ class DerivedDataManager(val configuration: Configuration) {
         return RSync()
                 .a()
                 .partial(true)
-                .delete(true)
-                .verbose(configuration.debug)
-                .rsyncPath("/usr/local/bin/rsync")
                 .partialDir(".rsync-partial")
                 .delayUpdates(true)
-                .deleteDelay(true)
+                .rsyncPath(iosConfiguration.remoteRsyncPath)
+                .verbose(configuration.debug)
     }
 
     private fun getSshString(port: Int): String {

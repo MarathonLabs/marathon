@@ -6,5 +6,4 @@ vendorConfiguration:
   derivedDataDir: "a"
   remoteUsername: "testuser"
   remotePrivateKey: "/home/testuser/.ssh/id_rsa"
-  remoteRsyncPath: "/usr/local/bin/rsync"
   debugSsh: true

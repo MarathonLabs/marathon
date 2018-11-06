@@ -169,8 +169,20 @@ object ConfigFactorySpec : Spek({
                         xctestrunPath = file.parentFile.resolve("a/Build/Products/UITesting_iphonesimulator11.0-x86_64.xctestrun"),
                         remoteUsername = "testuser",
                         remotePrivateKey = File("/home/testuser/.ssh/id_rsa"),
+                        remoteRsyncPath = "/usr/local/bin/rsync",
                         debugSsh = true,
                         devicesFile = file.parentFile.resolve("Marathondevices"))
+            }
+        }
+
+        on("configuration without an explicit remote rsync path") {
+            val file = File(ConfigFactorySpec::class.java.getResource("/fixture/config/sample_4.yaml").file)
+
+            it("should initialize a default one") {
+                val configuration = parser.create(file, mockEnvironmentReader())
+
+                val iosConfiguration = configuration.vendorConfiguration as IOSConfiguration
+                iosConfiguration.remoteRsyncPath shouldEqual "/usr/bin/rsync"
             }
         }
 
