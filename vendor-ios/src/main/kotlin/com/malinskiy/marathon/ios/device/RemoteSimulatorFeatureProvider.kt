@@ -12,15 +12,11 @@ object RemoteSimulatorFeatureProvider {
         return when (feature) {
             DeviceFeature.SCREENSHOT -> true
             DeviceFeature.VIDEO -> {
-                val session = device.hostCommandExecutor.startSession()
-                val command = session.exec(
+                val commandResult = device.hostCommandExecutor.exec(
                         "/usr/sbin/system_profiler -detailLevel mini -xml SPDisplaysDataType"
                 )
-                command.join()
-
-                return command.inputStream.bufferedReader().readLines()
-                        .any { it.contains("spdisplays_metalfeatureset") }
-                        .also { session.close() }
+                return commandResult.exitStatus == 0
+                        && commandResult.stdout.contains("spdisplays_metalfeatureset")
             }
         }
     }

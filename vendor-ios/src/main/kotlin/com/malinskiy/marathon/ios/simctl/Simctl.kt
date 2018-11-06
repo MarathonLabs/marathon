@@ -65,7 +65,7 @@ class Simctl {
         val command = session.exec("/Applications/Xcode.app/Contents/Developer/usr/bin/simctl $args")
         command.join()
         val output = command.inputStream.reader().buffered().use(BufferedReader::readText)
-        command.close()
+        session.close()
         return output
     }
 }
