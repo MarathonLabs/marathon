@@ -34,12 +34,11 @@ private const val HOSTNAME = "localhost"
 class IOSDevice(val udid: String,
                 val hostCommandExecutor: CommandExecutor,
                 val gson: Gson) : Device {
-
     val logger = MarathonLogging.logger("${javaClass.simpleName}($udid)")
     val simctl = Simctl()
-    val runtime: String?
+    private val runtime: String?
     val name: String?
-    val deviceType: String?
+    private val deviceType: String?
 
     init {
         val device = simctl.list(this, gson).find { it.udid == udid }
@@ -116,27 +115,24 @@ class IOSDevice(val udid: String,
                 .joinToString(separator = " ")
 
         val session = hostCommandExecutor.startSession()
-        val exec = listOf(
-                "cd '$remoteDir' &&",
-                "NSUnbufferedIO=YES",
-                "xcodebuild test-without-building",
-                "-xctestrun ${remoteXctestrunFile.path}",
-                // "-resultBundlePath ${remoteXcresultPath.canonicalPath} ",
-                testBatchToArguments,
-                "-destination 'platform=iOS simulator,id=$udid'").joinToString(" ").also { logger.debug(it) }
-        val command = session.exec(exec)
-
         try {
+            val exec = listOf(
+                    "cd '$remoteDir' &&",
+                    "NSUnbufferedIO=YES",
+                    "xcodebuild test-without-building",
+                    "-xctestrun ${remoteXctestrunFile.path}",
+                    // "-resultBundlePath ${remoteXcresultPath.canonicalPath} ",
+                    testBatchToArguments,
+                    "-destination 'platform=iOS simulator,id=$udid'").joinToString(" ").also { logger.debug(it) }
+            val command = session.exec(exec)
+
             command.inputStream.reader().forEachLine { logParser.onLine(it) }
-        } catch (e: Exception) {
-            logger.error { "Exception $e" }
+            command.errorStream.reader().forEachLine { logger.error(it) }
+        } finally {
+            logParser.close()
+
+            session.close()
         }
-
-        command.errorStream.reader().forEachLine { logger.error(it) }
-
-        logParser.close()
-
-        session.close()
     }
 
     override fun prepare(configuration: Configuration) {
@@ -186,5 +182,9 @@ class IOSDevice(val udid: String,
                 hostName = sshjCommandExecutor.hostAddress.hostName,
                 port = sshjCommandExecutor.port
         )
+    }
+
+    override fun dispose() {
+        hostCommandExecutor.disconnect()
     }
 }

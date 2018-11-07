@@ -15,7 +15,7 @@ import com.malinskiy.marathon.execution.progress.ProgressReporter
 import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.test.TestBatch
 import kotlinx.coroutines.experimental.CompletableDeferred
-import java.util.*
+import java.util.UUID
 
 class AndroidDevice(val ddmsDevice: IDevice) : Device {
     override val abi: String by lazy {
@@ -90,6 +90,8 @@ class AndroidDevice(val ddmsDevice: IDevice) : Device {
         RemoteFileManager.createRemoteDirectory(ddmsDevice)
         clearLogcat(ddmsDevice)
     }
+
+    override fun dispose() {}
 
     private fun clearLogcat(device: IDevice) {
         val logger = MarathonLogging.logger("AndroidDevice.clearLogcat")

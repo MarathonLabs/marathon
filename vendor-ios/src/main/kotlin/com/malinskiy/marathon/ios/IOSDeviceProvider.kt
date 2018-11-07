@@ -16,7 +16,11 @@ import com.malinskiy.marathon.vendor.VendorConfiguration
 import kotlinx.coroutines.experimental.channels.Channel
 
 class IOSDeviceProvider : DeviceProvider {
+
+    private lateinit var simulatorProvider: SimulatorProvider
+
     override fun terminate() {
+        simulatorProvider.stop()
     }
 
     override fun initialize(vendorConfiguration: VendorConfiguration) {
@@ -30,7 +34,7 @@ class IOSDeviceProvider : DeviceProvider {
         val mapper = ObjectMapper(YAMLFactory().disable(YAMLGenerator.Feature.USE_NATIVE_TYPE_ID))
                 .registerModule(KotlinModule())
 
-        val simulatorProvider: SimulatorProvider = LocalListSimulatorProvider(channel,
+        simulatorProvider = LocalListSimulatorProvider(channel,
                 vendorConfiguration,
                 mapper,
                 gson)

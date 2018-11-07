@@ -46,13 +46,11 @@ class SshjCommandExecutor(val hostAddress: InetAddress,
     override fun startSession() = ssh.startSession()
 
     override fun exec(command: String, timeout: Long): CommandResult {
-        var session: Session? = null
+        var session = ssh.startSession()
         var sshCommand: Session.Command? = null
         val stdout: String
         val stderr: String
-        var exitStatus = 1
         try {
-            session = ssh.startSession()
             sshCommand = session.exec(command)
 
             sshCommand.join(timeout, TimeUnit.SECONDS)
@@ -60,18 +58,15 @@ class SshjCommandExecutor(val hostAddress: InetAddress,
             stdout = sshCommand.inputStream.bufferedReader().lineSequence().fold("") { acc, line -> acc + line }
             stderr = sshCommand.errorStream.bufferedReader().lineSequence().fold("") { acc, line -> acc + line }
         } finally {
-            if (session != null) {
-                session.close()
-            }
-            if (sshCommand != null) {
-                exitStatus = sshCommand.exitStatus
-            }
+            session?.close()
         }
 
         return CommandResult(
                 stdout = stdout,
                 stderr = stderr,
-                exitStatus = exitStatus
+                exitStatus = sshCommand?.exitStatus ?: 1
         )
     }
+
+    override fun disconnect() = ssh.disconnect()
 }

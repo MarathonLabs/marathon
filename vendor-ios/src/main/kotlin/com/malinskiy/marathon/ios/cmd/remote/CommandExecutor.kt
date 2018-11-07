@@ -9,4 +9,5 @@ data class CommandResult(val stdout: String, val stderr: String, val exitStatus:
 interface CommandExecutor {
     fun startSession(): Session
     fun exec(command: String, timeout: Long = DEFAULT_TIMEOUT): CommandResult
+    fun disconnect()
 }
