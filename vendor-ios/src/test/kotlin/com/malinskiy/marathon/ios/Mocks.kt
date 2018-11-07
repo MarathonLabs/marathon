@@ -16,7 +16,10 @@ class Mocks {
                 val mock = mock(Session::class)
                 override fun startSession(): Session = mock
                 override fun exec(command: String, timeout: Long): CommandResult {
-                    TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+                    TODO("not implemented")
+                }
+                override fun disconnect() {
+                    TODO("not implemented")
                 }
             }
         }
