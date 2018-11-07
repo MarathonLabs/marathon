@@ -17,7 +17,7 @@ shardingStrategy:
   count: 5
 sortingStrategy:
   type: "success-rate"
-  limit: "2015-03-14T09:26:53.590Z"
+  timeLimit: "2015-03-14T09:26:53.590Z"
 batchingStrategy:
   type: "fixed-size"
   size: 5

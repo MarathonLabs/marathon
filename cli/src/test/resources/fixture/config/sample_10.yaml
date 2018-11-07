@@ -8,9 +8,9 @@ vendorConfiguration:
 sortingStrategy:
   type: "execution-time"
   percentile: 80.0
-  timeLimitMillis: 1000
+  timeLimit: "-PT1H"
 flakinessStrategy:
   type: "probability"
   minSuccessRate: 0.7
   maxCount: 3
-  timeLimitMillis: 1000
+  timeLimit: "-P30D"

@@ -1,8 +1,14 @@
 package com.malinskiy.marathon.cli.config
 
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
+import com.fasterxml.jackson.dataformat.yaml.YAMLGenerator
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
+import com.fasterxml.jackson.module.kotlin.KotlinModule
 import com.malinskiy.marathon.android.AndroidConfiguration
 import com.malinskiy.marathon.cli.args.EnvironmentConfiguration
 import com.malinskiy.marathon.cli.args.environment.EnvironmentReader
+import com.malinskiy.marathon.cli.config.time.InstantTimeProvider
 import com.malinskiy.marathon.exceptions.ConfigurationException
 import com.malinskiy.marathon.execution.AnalyticsConfiguration
 import com.malinskiy.marathon.execution.AnnotationFilter
@@ -44,12 +50,25 @@ import org.jetbrains.spek.api.dsl.given
 import org.jetbrains.spek.api.dsl.it
 import org.jetbrains.spek.api.dsl.on
 import java.io.File
+import java.time.Duration
 import java.time.Instant
 import java.time.format.DateTimeFormatter
 
 object ConfigFactorySpec : Spek({
     given("ConfigFactory") {
-        val parser = ConfigFactory()
+        val referenceInstant = Instant.ofEpochSecond(1000000)
+        val mockInstantTimeProvider = object : InstantTimeProvider {
+            override fun referenceTime(): Instant = referenceInstant
+        }
+
+        lateinit var parser: ConfigFactory
+        beforeEachTest {
+            val mapper = ObjectMapper(YAMLFactory().disable(YAMLGenerator.Feature.USE_NATIVE_TYPE_ID))
+            mapper.registerModule(DeserializeModule(mockInstantTimeProvider))
+                    .registerModule(KotlinModule())
+                    .registerModule(JavaTimeModule())
+            parser = ConfigFactory(mapper)
+        }
 
         fun mockEnvironmentReader(path: String? = null): EnvironmentReader {
             val environmentReader: EnvironmentReader =  mock()
@@ -251,19 +270,19 @@ object ConfigFactorySpec : Spek({
             }
         }
 
-        on("configuration time limits specified in milliseconds") {
+        on("configuration time limits specified as Duration") {
             val file = File(ConfigFactorySpec::class.java.getResource("/fixture/config/sample_10.yaml").file)
 
-            it("should use relative time limits") {
+            it("should be used as relative values") {
                 val configuration = parser.create(file, mockEnvironmentReader())
 
                 configuration.sortingStrategy `should be instance of` ExecutionTimeSortingStrategy::class
                 val sortingStrategy = configuration.sortingStrategy as ExecutionTimeSortingStrategy
-                sortingStrategy.timeLimit.toEpochMilli() - Instant.now().toEpochMilli() shouldBeInRange LongRange(990, 1010)
+                sortingStrategy.timeLimit shouldEqual referenceInstant.minus(Duration.ofHours(1))
 
                 configuration.flakinessStrategy `should be instance of` ProbabilityBasedFlakinessStrategy::class
                 val flakinessStrategy = configuration.flakinessStrategy as ProbabilityBasedFlakinessStrategy
-                flakinessStrategy.timeLimit.toEpochMilli() - Instant.now().toEpochMilli() shouldBeInRange LongRange(990, 1010)
+                flakinessStrategy.timeLimit shouldEqual referenceInstant.minus(Duration.ofDays(30))
             }
         }
     }

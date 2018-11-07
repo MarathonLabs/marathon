@@ -1,8 +1,6 @@
 package com.malinskiy.marathon.execution.strategy.impl.flakiness
 
-import com.fasterxml.jackson.annotation.JsonProperty
 import com.malinskiy.marathon.analytics.metrics.MetricsProvider
-import com.malinskiy.marathon.exceptions.ConfigurationException
 import com.malinskiy.marathon.execution.TestShard
 import com.malinskiy.marathon.execution.strategy.FlakinessStrategy
 import com.malinskiy.marathon.test.Test
@@ -16,14 +14,9 @@ import java.time.Instant
  * (0.5 x 0.5 x 0.5 = 0.125 is the probability of all tests failing, so with probability 0.875 > 0.8 at least one of tests will pass).
  */
 
-class ProbabilityBasedFlakinessStrategy(@JsonProperty("minSuccessRate") private val minSuccessRate: Double,
-                                        @JsonProperty("maxCount") private val maxCount: Int,
-                                        @JsonProperty("timeLimit") private val timeLimitInstant: Instant? = null,
-                                        @JsonProperty("timeLimitMillis") private val timeLimitMillis: Long? = null) : FlakinessStrategy {
-
-    val timeLimit: Instant = timeLimitInstant
-            ?: timeLimitMillis?.toInstant()
-            ?: throw ConfigurationException("Either timeLimit or timeLimitMillis must be specified")
+class ProbabilityBasedFlakinessStrategy(val minSuccessRate: Double,
+                                        val maxCount: Int,
+                                        val timeLimit: Instant) : FlakinessStrategy {
 
     override fun process(testShard: TestShard,
                          metricsProvider: MetricsProvider): TestShard {
@@ -67,4 +60,3 @@ class ProbabilityBasedFlakinessStrategy(@JsonProperty("minSuccessRate") private 
     }
 }
 
-private fun Long.toInstant(): Instant = Instant.now().plusMillis(this)

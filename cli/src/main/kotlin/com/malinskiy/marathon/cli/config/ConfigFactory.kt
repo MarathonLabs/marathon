@@ -17,7 +17,7 @@ import java.io.File
 
 private val logger = MarathonLogging.logger {}
 
-class ConfigFactory {
+class ConfigFactory(val mapper: ObjectMapper) {
     fun create(marathonfile: File, environmentReader: EnvironmentReader): Configuration {
         logger.info { "Checking $marathonfile config" }
 
@@ -65,11 +65,6 @@ class ConfigFactory {
 
     private fun readConfigFile(configFile: File): FileConfiguration? {
         try {
-            val mapper = ObjectMapper(YAMLFactory().disable(YAMLGenerator.Feature.USE_NATIVE_TYPE_ID))
-            mapper.registerModule(DeserializeModule())
-                    .registerModule(KotlinModule())
-                    .registerModule(JavaTimeModule())
-
             return mapper.readValue(configFile.bufferedReader(), FileConfiguration::class.java)
         } catch (e: MismatchedInputException) {
             logger.error { "Invalid config file ${configFile.absolutePath}. Error parsing ${e.targetType.canonicalName}" }
