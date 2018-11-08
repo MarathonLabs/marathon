@@ -46,7 +46,7 @@ class SshjCommandExecutor(val hostAddress: InetAddress,
     override fun startSession() = ssh.startSession()
 
     override fun exec(command: String, timeout: Long): CommandResult {
-        var session = ssh.startSession()
+        val session = ssh.startSession()
         var sshCommand: Session.Command? = null
         val stdout: String
         val stderr: String

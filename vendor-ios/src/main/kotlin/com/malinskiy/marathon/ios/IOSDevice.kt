@@ -114,20 +114,24 @@ class IOSDevice(val udid: String,
                 .map { "-only-testing:\"${it.pkg}/${it.clazz}/${it.method}\"" }
                 .joinToString(separator = " ")
 
+        val remoteCommand =
+                listOf("cd '$remoteDir' &&",
+                        "NSUnbufferedIO=YES",
+                        "xcodebuild test-without-building",
+                        "-xctestrun ${remoteXctestrunFile.path}",
+                        // "-resultBundlePath ${remoteXcresultPath.canonicalPath} ",
+                        testBatchToArguments,
+                        "-destination 'platform=iOS simulator,id=$udid'")
+                        .joinToString(" ")
+                        .also { logger.debug(it) }
         val session = hostCommandExecutor.startSession()
         try {
-            val exec = listOf(
-                    "cd '$remoteDir' &&",
-                    "NSUnbufferedIO=YES",
-                    "xcodebuild test-without-building",
-                    "-xctestrun ${remoteXctestrunFile.path}",
-                    // "-resultBundlePath ${remoteXcresultPath.canonicalPath} ",
-                    testBatchToArguments,
-                    "-destination 'platform=iOS simulator,id=$udid'").joinToString(" ").also { logger.debug(it) }
-            val command = session.exec(exec)
+            val command = session.exec(remoteCommand)
 
-            command.inputStream.reader().forEachLine { logParser.onLine(it) }
-            command.errorStream.reader().forEachLine { logger.error(it) }
+            command.inputStream.reader().forEachLine {  logParser.onLine(it)  }
+            command.errorStream.reader().forEachLine {  logger.error(it) }
+
+            command.join()
         } finally {
             logParser.close()
 
