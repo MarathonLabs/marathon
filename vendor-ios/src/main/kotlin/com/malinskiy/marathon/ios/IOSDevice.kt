@@ -28,6 +28,7 @@ import com.malinskiy.marathon.test.TestBatch
 import com.malinskiy.marathon.time.SystemTimer
 import kotlinx.coroutines.experimental.CompletableDeferred
 import java.io.FileNotFoundException
+import java.util.concurrent.TimeUnit
 
 private const val HOSTNAME = "localhost"
 
@@ -131,7 +132,7 @@ class IOSDevice(val udid: String,
             command.inputStream.reader().forEachLine {  logParser.onLine(it)  }
             command.errorStream.reader().forEachLine {  logger.error(it) }
 
-            command.join()
+            command.join(configuration.testOutputTimeoutMillis, TimeUnit.MILLISECONDS)
         } finally {
             logParser.close()
 
