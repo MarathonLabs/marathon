@@ -1,4 +1,5 @@
 [![Build Status](https://travis-ci.org/Malinskiy/marathon.svg?branch=develop)](https://travis-ci.org/Malinskiy/marathon)
+[![Slack](https://img.shields.io/badge/slack-chat-green.svg?logo=slack&longCache=true&style=flat)](https://join.slack.com/t/marathon-test-runner/shared_invite/enQtNDczODU5MDUzOTg0LTNhYjRhOGRhMjMwMGZjMjY5MTY3MDI3ZmMzNTRjYzhmOGRkNDQ5OTIzMzA4ODQ5YjZmMWNiZjljMzcyY2VhMzE)
 
 # Marathon
 Cross-platform test runner written for Android and iOS projects

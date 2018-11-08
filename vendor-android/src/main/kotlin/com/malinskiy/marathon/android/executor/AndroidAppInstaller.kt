@@ -21,7 +21,9 @@ class AndroidAppInstaller(private val configuration: Configuration) {
 
     fun prepareInstallation(device: IDevice) {
         val applicationInfo = ApkParser().parseInstrumentationInfo(androidConfiguration.testApplicationOutput)
-        reinstall(device, applicationInfo.applicationPackage, androidConfiguration.applicationOutput)
+        androidConfiguration.applicationOutput?.let {
+            reinstall(device, applicationInfo.applicationPackage, it)
+        }
         reinstall(device, applicationInfo.instrumentationPackage, androidConfiguration.testApplicationOutput)
     }
 

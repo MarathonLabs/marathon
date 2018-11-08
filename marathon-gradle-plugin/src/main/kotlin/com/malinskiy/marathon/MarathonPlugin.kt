@@ -6,6 +6,7 @@ import com.android.build.gradle.LibraryExtension
 import com.android.build.gradle.LibraryPlugin
 import com.android.build.gradle.api.ApkVariantOutput
 import com.android.build.gradle.api.BaseVariantOutput
+import com.android.build.gradle.api.LibraryVariantOutput
 import com.android.build.gradle.api.TestVariant
 import com.malinskiy.marathon.android.AndroidConfiguration
 import com.malinskiy.marathon.execution.Configuration
@@ -16,6 +17,7 @@ import org.gradle.api.Task
 import org.gradle.api.plugins.JavaBasePlugin
 import org.gradle.kotlin.dsl.closureOf
 import java.io.File
+import java.lang.RuntimeException
 
 private val log = MarathonLogging.logger {}
 
@@ -58,6 +60,31 @@ class MarathonPlugin : Plugin<Project> {
     }
 
     companion object {
+        private fun extractInstrumentationApk(output: BaseVariantOutput) = File(when (output) {
+            is ApkVariantOutput -> {
+                File(output.packageApplication.outputDirectory.path, output.outputFileName).path
+            }
+            is LibraryVariantOutput -> {
+                output.outputFile.path
+            }
+            else -> {
+                throw RuntimeException("Can't find instrumentationApk")
+            }
+        })
+
+        private fun extractApplicationApk(output: BaseVariantOutput) = when (output) {
+            is ApkVariantOutput -> {
+                File(output.packageApplication.outputDirectory.path, output.outputFileName)
+            }
+            is LibraryVariantOutput -> {
+                null
+            }
+            else -> {
+                throw RuntimeException("Can't find apk")
+            }
+        }
+
+
         private fun createTask(variant: TestVariant, project: Project, config: MarathonExtension, sdkDirectory: File): MarathonRunTask {
             checkTestVariants(variant)
 
@@ -73,11 +100,9 @@ class MarathonPlugin : Plugin<Project> {
                     description = "Runs instrumentation tests on all the connected devices for '${variant.name}' " +
                             "variation and generates a report with screenshots"
                     outputs.upToDateWhen { false }
+                    val instrumentationApk = extractInstrumentationApk(variant.outputs.first())
+                    val applicationApk = extractApplicationApk(testedOutput)
 
-                    val firstOutput = variant.outputs.first() as ApkVariantOutput
-                    val applicationOutput = testedOutput as ApkVariantOutput
-                    val instrumentationApk = File(firstOutput.packageApplication.outputDirectory.path, firstOutput.outputFileName)
-                    val applicationApk = File(applicationOutput.packageApplication.outputDirectory.path, applicationOutput.outputFileName)
                     val baseOutputDir = if (config.baseOutputDir != null) File(config.baseOutputDir) else File(project.buildDir, "reports/marathon")
                     val output = File(baseOutputDir, variant.name)
                     val autoGrantPermission = config.autoGrantPermission
