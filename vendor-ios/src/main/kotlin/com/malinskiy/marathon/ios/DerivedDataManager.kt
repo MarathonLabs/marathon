@@ -19,15 +19,23 @@ class DerivedDataManager(val configuration: Configuration) {
 
     private val logger = MarathonLogging.logger(javaClass.simpleName)
 
-    private val iosConfiguration: IOSConfiguration
+    private val iosConfiguration: IOSConfiguration = configuration.vendorConfiguration as IOSConfiguration
 
     init {
-        iosConfiguration = configuration.vendorConfiguration as? IOSConfiguration
-                ?: throw IllegalStateException("Expected an iOS configuration")
+        if (configuration.debug) {
+            logger.debug(rsyncVersion)
+        }
         if (!iosConfiguration.remotePrivateKey.exists()) {
             throw FileNotFoundException("Private key not found at ${iosConfiguration.remotePrivateKey}")
         }
     }
+
+    private val rsyncVersion: String
+        get() {
+            val output = CollectingProcessOutput()
+            output.monitor(RSync().source("/tmp").destination("/tmp").version(true).builder())
+            return output.stdOut
+        }
 
     val productsDir: File
         get() {
