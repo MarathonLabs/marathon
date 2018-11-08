@@ -105,9 +105,8 @@ class Marathon(val configuration: Configuration) {
 
         log.info { "Total time: ${hours}H ${minutes}m ${seconds}s" }
         analytics.terminate()
-        log.debug { "Terminated analytics" }
+        analytics.close()
         deviceProvider.terminate()
-        log.debug { "Terminated device provider" }
         progressReporter.aggregateResult()
     }
 

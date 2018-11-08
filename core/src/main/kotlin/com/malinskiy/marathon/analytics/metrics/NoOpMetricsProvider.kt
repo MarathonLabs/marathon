@@ -11,4 +11,6 @@ internal class NoOpMetricsProvider : MetricsProvider {
     override fun successRate(test: Test, limit: Instant): Double {
         return 0.0
     }
+
+    override fun close() { }
 }
