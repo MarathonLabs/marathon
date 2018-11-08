@@ -13,4 +13,6 @@ class MetricsProviderStub(val successRate: Double = 0.5,
     override fun executionTime(test: Test, percentile: Double, limit: Instant): Double {
         return executionTime
     }
+
+    override fun close() { }
 }
