@@ -27,10 +27,6 @@ import java.io.File
 
 class ProgressParserSpek : Spek({
     describe("TestRunProgressParser") {
-//        val commandMock = mock(Session.Command::class)
-//        When calling Mocks.CommandExecutor.DEFAULT.startSession().exec("/Applications/Xcode.app/Contents/Developer/usr/bin/simctl list --json") itReturns commandMock
-//        When calling commandMock.inputStream itReturns javaClass.classLoader.getResource("fixtures/simctl/list_output.json").openStream()
-
         val mockFormatter = mock(PackageNameFormatter::class)
         val mockListener = mock(TestRunListener::class)
         val mockTimer = mock(Timer::class)
