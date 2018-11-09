@@ -28,6 +28,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 package com.malinskiy.marathon.actor
 
 
+import java.util.*
 import java.util.concurrent.atomic.AtomicReference
 
 class StateMachine<STATE : Any, EVENT : Any, SIDE_EFFECT : Any> private constructor(
@@ -183,7 +184,7 @@ class StateMachine<STATE : Any, EVENT : Any, SIDE_EFFECT : Any> private construc
         }
 
         fun build(): Graph<STATE, EVENT, SIDE_EFFECT> {
-            return Graph(requireNotNull(initialState), stateDefinitions.toMap(), onTransitionListeners.toList())
+            return Graph(requireNotNull(initialState), stateDefinitions, onTransitionListeners.toList())
         }
 
         inner class StateDefinitionBuilder<S : STATE> {

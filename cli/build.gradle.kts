@@ -7,6 +7,7 @@ import org.junit.platform.gradle.plugin.JUnitPlatformExtension
 
 plugins {
     `application`
+    id("idea")
     id("org.jetbrains.kotlin.jvm")
     id("org.junit.platform.gradle.plugin")
     id("de.fuerstenau.buildconfig") version "1.1.8"
@@ -27,13 +28,16 @@ kotlin.experimental.coroutines = Coroutines.ENABLE
 
 dependencies {
     implementation(project(":core"))
+    implementation(project(":vendor-ios"))
     implementation(project(":vendor-android"))
     implementation(Libraries.kotlinStdLib)
     implementation(Libraries.kotlinCoroutines)
     implementation(Libraries.kotlinLogging)
-    implementation(Libraries.slf4j)
+    implementation(Libraries.slf4jAPI)
+    implementation(Libraries.logbackClassic)
     implementation(Libraries.argParser)
     implementation(Libraries.jacksonDatabind)
+    implementation(Libraries.jacksonAnnotations)
     implementation(Libraries.jacksonKotlin)
     implementation(Libraries.jacksonYaml)
     implementation(Libraries.jacksonJSR310)
@@ -54,6 +58,15 @@ val compileTestKotlin by tasks.getting(KotlinCompile::class) {
 buildConfig {
     appName = project.name
     version = Versions.marathon
+}
+
+// At the moment for non-Android projects you need to explicitly
+// mark the generated code for correct highlighting in IDE.
+idea {
+    module {
+        sourceDirs = sourceDirs + file("build/gen/buildconfig/src/main")
+        generatedSourceDirs = generatedSourceDirs + file("build/gen/buildconfig/src/main")
+    }
 }
 
 junitPlatform {

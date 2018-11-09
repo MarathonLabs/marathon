@@ -1,4 +1,7 @@
 name: "sample-app tests"
 outputDir: "build/reports/marathon"
-applicationOutput: "kotlin-buildscript/build/outputs/apk/debug/kotlin-buildscript-debug.apk"
-testApplicationOutput: "kotlin-buildscript/build/outputs/apk/androidTest/debug/kotlin-buildscript-debug-androidTest.apk"
+vendorConfiguration:
+  type: "Android"
+  applicationApk: "kotlin-buildscript/build/outputs/apk/debug/kotlin-buildscript-debug.apk"
+  testApplicationApk: "kotlin-buildscript/build/outputs/apk/androidTest/debug/kotlin-buildscript-debug-androidTest.apk"
+  autoGrantPermission: true

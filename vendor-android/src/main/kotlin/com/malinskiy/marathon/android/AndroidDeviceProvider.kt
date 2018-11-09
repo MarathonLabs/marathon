@@ -10,10 +10,10 @@ import com.malinskiy.marathon.device.DeviceProvider
 import com.malinskiy.marathon.device.DeviceProvider.DeviceEvent.DeviceConnected
 import com.malinskiy.marathon.device.DeviceProvider.DeviceEvent.DeviceDisconnected
 import com.malinskiy.marathon.exceptions.NoDevicesException
+import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.vendor.VendorConfiguration
 import kotlinx.coroutines.experimental.channels.Channel
 import kotlinx.coroutines.experimental.launch
-import mu.KotlinLogging
 import java.nio.file.Paths
 
 private const val DEFAULT_DDM_LIB_TIMEOUT = 30000
@@ -21,7 +21,7 @@ private const val DEFAULT_DDM_LIB_SLEEP_TIME = 500
 
 class AndroidDeviceProvider : DeviceProvider {
 
-    private val logger = KotlinLogging.logger("AndroidDeviceProvider")
+    private val logger = MarathonLogging.logger("AndroidDeviceProvider")
 
     private lateinit var adb: AndroidDebugBridge
 

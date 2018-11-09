@@ -13,13 +13,16 @@
       </configuration>
     </facet>
     <facet type="kotlin-language" name="Kotlin">
-      <configuration version="3" platform="JVM 1.6" useProjectSettings="false">
-        <compilerSettings />
+      <configuration version="3" platform="JVM 1.8" useProjectSettings="false">
+        <compilerSettings>
+          <option name="additionalArguments" value="-java-parameters -Xjsr305=strict -XXLanguage:+NewInference -XXLanguage:+SamConversionForKotlinFunctions" />
+        </compilerSettings>
         <compilerArguments>
           <option name="destination" value="$MODULE_DIR$/build/classes/kotlin/main" />
           <option name="noStdlib" value="true" />
           <option name="noReflect" value="true" />
           <option name="moduleName" value="buildSrc" />
+          <option name="jvmTarget" value="1.8" />
           <option name="addCompilerBuiltIns" value="true" />
           <option name="loadBuiltInsFromDependencies" value="true" />
           <option name="languageVersion" value="1.2" />
@@ -31,7 +34,6 @@
           </option>
           <option name="pluginClasspaths">
             <array>
-              <option value="$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-scripting-gradle/1.2.51/ba083f1a77caf84bbf1cd43e86e935681cc2a26d/kotlin-scripting-gradle-1.2.51.jar" />
               <option value="$KOTLIN_BUNDLED$/lib/sam-with-receiver-compiler-plugin.jar" />
             </array>
           </option>
@@ -48,25 +50,26 @@
       <sourceFolder url="file://$MODULE_DIR$/src/main/groovy" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/main/java" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/main/resources" type="java-resource" />
+      <sourceFolder url="file://$MODULE_DIR$/src/test/java" isTestSource="true" />
       <sourceFolder url="file://$MODULE_DIR$/src/test/kotlin" isTestSource="true" />
       <sourceFolder url="file://$MODULE_DIR$/src/test/groovy" isTestSource="true" />
-      <sourceFolder url="file://$MODULE_DIR$/src/test/java" isTestSource="true" />
       <sourceFolder url="file://$MODULE_DIR$/src/test/resources" type="java-test-resource" />
       <excludeFolder url="file://$MODULE_DIR$/.gradle" />
       <excludeFolder url="file://$MODULE_DIR$/build" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="library" exported="" scope="PROVIDED" name="kotlin-stdlib-jdk8-1.2.31" level="project" />
-    <orderEntry type="library" exported="" scope="PROVIDED" name="kotlin-reflect-1.2.31" level="project" />
-    <orderEntry type="library" exported="" scope="PROVIDED" name="kotlin-stdlib-jdk7-1.2.31" level="project" />
-    <orderEntry type="library" exported="" scope="PROVIDED" name="kotlin-stdlib-1.2.31" level="project" />
-    <orderEntry type="library" exported="" scope="PROVIDED" name="annotations-13.0" level="project" />
-    <orderEntry type="library" exported="" name="gradle-api-4.7" level="project" />
-    <orderEntry type="library" exported="" name="groovy-all-2.4.12" level="project" />
-    <orderEntry type="library" exported="" name="gradle-installation-beacon-4.7" level="project" />
-    <orderEntry type="library" exported="" scope="PROVIDED" name="gradle-kotlin-dsl-extensions-0.16.3-4.7" level="project" />
-    <orderEntry type="library" exported="" scope="PROVIDED" name="gradle-kotlin-dsl-0.16.3" level="project" />
-    <orderEntry type="library" exported="" scope="PROVIDED" name="gradle-kotlin-dsl-tooling-models-0.16.3" level="project" />
+    <orderEntry type="library" exported="" scope="PROVIDED" name="Gradle: kotlin-stdlib-jdk8-1.2.61" level="project" />
+    <orderEntry type="library" exported="" scope="PROVIDED" name="Gradle: kotlin-reflect-1.2.61" level="project" />
+    <orderEntry type="library" exported="" scope="PROVIDED" name="Gradle: kotlin-stdlib-jdk7-1.2.61" level="project" />
+    <orderEntry type="library" exported="" scope="PROVIDED" name="Gradle: kotlin-stdlib-1.2.61" level="project" />
+    <orderEntry type="library" exported="" scope="PROVIDED" name="Gradle: annotations-13.0" level="project" />
+    <orderEntry type="library" exported="" name="Gradle: gradle-api-4.10.2" level="project" />
+    <orderEntry type="library" exported="" name="Gradle: groovy-all-2.4.15" level="project" />
+    <orderEntry type="library" exported="" name="Gradle: gradle-installation-beacon-4.10.2" level="project" />
+    <orderEntry type="library" exported="" scope="PROVIDED" name="Gradle: gradle-kotlin-dsl-extensions-1.0-rc-6-4.10.2" level="project" />
+    <orderEntry type="library" exported="" scope="PROVIDED" name="Gradle: gradle-kotlin-dsl-1.0-rc-6" level="project" />
+    <orderEntry type="library" exported="" scope="PROVIDED" name="Gradle: gradle-kotlin-dsl-tooling-models-1.0-rc-6" level="project" />
+    <orderEntry type="library" exported="" scope="PROVIDED" name="Gradle: kotlin-stdlib-common-1.2.61" level="project" />
   </component>
 </module>

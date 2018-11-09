@@ -7,7 +7,8 @@ object Versions {
     val ddmlib = "26.2.0"
     val dexTestParser = "2.0.0"
     val kotlinLogging = "1.4.9"
-    val slf4j = "1.7.25"
+    val slf4jAPI = "1.0.0"
+    val logbackClassic = "1.2.3"
     val axmlParser = "1.0"
 
     val junitGradle = "1.0.0"
@@ -30,7 +31,10 @@ object Versions {
     val jacksonKotlin = "2.9.4.1"
     val jacksonYaml = "2.9.6"
     val jacksonJSR310 = "2.9.6"
-
+    val ddPlist = "1.21"
+    val guava = "26.0-jre"
+    val rsync4j = "3.1.2-12"
+    val sshj = "0.26.0"
     val testContainers = "1.9.1"
     val jupiterEngine = "5.1.0"
 }
@@ -45,9 +49,11 @@ object Libraries {
     val ddmlib = "com.android.tools.ddms:ddmlib:${Versions.ddmlib}"
     val dexTestParser = "com.linkedin.dextestparser:parser:${Versions.dexTestParser}"
     val kotlinStdLib = "org.jetbrains.kotlin:kotlin-stdlib-jdk8:${Versions.kotlin}"
+    val kotlinStdLibCommon = "org.jetbrains.kotlin:kotlin-stdlib-common:${Versions.kotlin}"
     val kotlinReflect = "org.jetbrains.kotlin:kotlin-reflect:${Versions.kotlin}"
     val kotlinLogging = "io.github.microutils:kotlin-logging:${Versions.kotlinLogging}"
-    val slf4j = "org.slf4j:slf4j-simple:${Versions.slf4j}"
+    val slf4jAPI = "ch.frankel.log4k:slf4k-api:${Versions.slf4jAPI}"
+    val logbackClassic = "ch.qos.logback:logback-classic:${Versions.logbackClassic}"
     val kotlinCoroutines = "org.jetbrains.kotlinx:kotlinx-coroutines-core:${Versions.coroutines}"
     val axmlParser = "com.shazam:axmlparser:${Versions.axmlParser}"
     val gson = "com.google.code.gson:gson:${Versions.gson}"
@@ -60,6 +66,10 @@ object Libraries {
     val jacksonKotlin = "com.fasterxml.jackson.module:jackson-module-kotlin:${Versions.jacksonKotlin}"
     val jacksonYaml = "com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:${Versions.jacksonYaml}"
     val jacksonJSR310 = "com.fasterxml.jackson.datatype:jackson-datatype-jsr310:${Versions.jacksonJSR310}"
+    val ddPlist = "com.googlecode.plist:dd-plist:${Versions.ddPlist}"
+    val guava = "com.google.guava:guava:${Versions.guava}"
+    val rsync4j = "com.github.fracpete:rsync4j-all:${Versions.rsync4j}"
+    val sshj = "com.hierynomus:sshj:${Versions.sshj}"
 }
 
 object TestLibraries {

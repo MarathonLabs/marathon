@@ -19,6 +19,7 @@ dependencies {
     implementation(Libraries.ddmlib)
     implementation(Libraries.dexTestParser)
     implementation(Libraries.axmlParser)
+    implementation(Libraries.jacksonAnnotations)
     implementation(project(":core"))
     testImplementation(TestLibraries.kluent)
     testImplementation(TestLibraries.spekAPI)

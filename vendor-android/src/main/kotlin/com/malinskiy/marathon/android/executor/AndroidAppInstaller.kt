@@ -2,10 +2,11 @@ package com.malinskiy.marathon.android.executor
 
 import com.android.ddmlib.IDevice
 import com.android.ddmlib.InstallException
+import com.malinskiy.marathon.android.AndroidConfiguration
 import com.malinskiy.marathon.android.ApkParser
 import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.execution.withRetry
-import mu.KotlinLogging
+import com.malinskiy.marathon.log.MarathonLogging
 import java.io.File
 
 class AndroidAppInstaller(private val configuration: Configuration) {
@@ -15,14 +16,15 @@ class AndroidAppInstaller(private val configuration: Configuration) {
         private const val MARSHMALLOW_VERSION_CODE = 23
     }
 
-    private val logger = KotlinLogging.logger("AndroidAppInstaller")
+    private val logger = MarathonLogging.logger("AndroidAppInstaller")
+    private val androidConfiguration = configuration.vendorConfiguration as AndroidConfiguration
 
     fun prepareInstallation(device: IDevice) {
-        val applicationInfo = ApkParser().parseInstrumentationInfo(configuration.testApplicationOutput)
-        configuration.applicationOutput?.let {
+        val applicationInfo = ApkParser().parseInstrumentationInfo(androidConfiguration.testApplicationOutput)
+        androidConfiguration.applicationOutput?.let {
             reinstall(device, applicationInfo.applicationPackage, it)
         }
-        reinstall(device, applicationInfo.instrumentationPackage, configuration.testApplicationOutput)
+        reinstall(device, applicationInfo.instrumentationPackage, androidConfiguration.testApplicationOutput)
     }
 
     @Suppress("TooGenericExceptionThrown")
@@ -40,7 +42,7 @@ class AndroidAppInstaller(private val configuration: Configuration) {
     }
 
     private fun optionalParams(device: IDevice): String {
-        return if (device.version.apiLevel >= MARSHMALLOW_VERSION_CODE && configuration.autoGrantPermission) {
+        return if (device.version.apiLevel >= MARSHMALLOW_VERSION_CODE && androidConfiguration.autoGrantPermission) {
             "-g"
         } else {
             ""

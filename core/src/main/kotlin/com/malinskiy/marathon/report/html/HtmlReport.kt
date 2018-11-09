@@ -171,7 +171,7 @@ fun TestResult.toHtmlFullTest(poolId: String) = HtmlFullTest(
 fun TestStatus.toHtmlStatus() = when (this) {
     TestStatus.PASSED -> Status.Passed
     TestStatus.FAILURE -> Status.Failed
-    TestStatus.IGNORED -> Status.Ignored
+    TestStatus.IGNORED, TestStatus.ASSUMPTION_FAILURE -> Status.Ignored
     else -> Status.Failed
 }
 

@@ -22,8 +22,15 @@ class SummaryCompiler(private val deviceInfoSerializer: DeviceInfoReporter,
         }.filter { it.status != TestStatus.INCOMPLETE }
 
         val passed = tests.count { it.status == TestStatus.PASSED }
-        val ignored = tests.count { it.status == TestStatus.IGNORED }
-        val failed = tests.count { it.status != TestStatus.PASSED && it.status != TestStatus.IGNORED }
+        val ignored = tests.count {
+            it.status == TestStatus.IGNORED
+                    || it.status == TestStatus.ASSUMPTION_FAILURE
+        }
+        val failed = tests.count {
+            it.status != TestStatus.PASSED
+                    && it.status != TestStatus.IGNORED
+                    && it.status != TestStatus.ASSUMPTION_FAILURE
+        }
         val duration = tests.sumByDouble { it.durationMillis() * 1.0 }.toLong()
         return PoolSummary(poolId = poolId,
                 tests = tests,

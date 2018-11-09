@@ -19,7 +19,7 @@ class SuccessRate(@Column(name = "testname", tag = true) var testName: String? =
                   @Column(name = "mean") var mean: Double? = null)
 
 class InfluxMetricsProvider(private val influxDb: InfluxDB,
-                                     private val dbName: String) : MetricsProvider {
+                            private val dbName: String) : MetricsProvider {
     private val mapper = InfluxDBResultMapper()
 
     private val successRate = mutableMapOf<String, Double>()
@@ -74,5 +74,9 @@ class InfluxMetricsProvider(private val influxDb: InfluxDB,
             GROUP BY "testname"
         """, dbName))
         return mapper.toPOJO(results, ExecutionTime::class.java)
+    }
+
+    override fun close() {
+        influxDb.close()
     }
 }

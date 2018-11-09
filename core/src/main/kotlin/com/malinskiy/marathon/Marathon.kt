@@ -8,6 +8,7 @@ import com.malinskiy.marathon.execution.Scheduler
 import com.malinskiy.marathon.execution.TestParser
 import com.malinskiy.marathon.execution.progress.ProgressReporter
 import com.malinskiy.marathon.io.FileManager
+import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.report.CompositeSummaryPrinter
 import com.malinskiy.marathon.report.SummaryCompiler
 import com.malinskiy.marathon.report.SummaryPrinter
@@ -17,13 +18,13 @@ import com.malinskiy.marathon.report.html.HtmlSummaryPrinter
 import com.malinskiy.marathon.report.internal.DeviceInfoReporter
 import com.malinskiy.marathon.report.internal.TestResultReporter
 import com.malinskiy.marathon.test.Test
+import com.malinskiy.marathon.vendor.VendorConfiguration
 import kotlinx.coroutines.experimental.runBlocking
-import mu.KotlinLogging
 import java.util.ServiceLoader
 import java.util.concurrent.TimeUnit
 import kotlin.system.measureTimeMillis
 
-private val log = KotlinLogging.logger {}
+private val log = MarathonLogging.logger {}
 
 class Marathon(val configuration: Configuration) {
 
@@ -33,7 +34,7 @@ class Marathon(val configuration: Configuration) {
     private val testResultReporter = TestResultReporter(fileManager, gson)
     private val deviceInfoReporter = DeviceInfoReporter(fileManager, gson)
     private val analyticsFactory = AnalyticsFactory(configuration, fileManager, deviceInfoReporter, testResultReporter,
-                                                    gson)
+            gson)
 
     private val summaryCompiler = SummaryCompiler(deviceInfoReporter, testResultReporter, configuration)
 
@@ -49,23 +50,31 @@ class Marathon(val configuration: Configuration) {
         return htmlSummaryPrinter
     }
 
-    private fun loadDeviceProvider(): DeviceProvider {
-        val deviceProvider = ServiceLoader.load(DeviceProvider::class.java).first()
-        deviceProvider.initialize(configuration.vendorConfiguration)
-        return deviceProvider
+    private fun loadDeviceProvider(vendorConfiguration: VendorConfiguration): DeviceProvider {
+        var vendorDeviceProvider = vendorConfiguration.deviceProvider()
+                ?: ServiceLoader.load(DeviceProvider::class.java).first()
+
+        vendorDeviceProvider.initialize(configuration.vendorConfiguration)
+        return vendorDeviceProvider
     }
 
-    private fun loadTestParser(): TestParser {
+    private fun loadTestParser(vendorConfiguration: VendorConfiguration): TestParser {
+        val vendorTestParser = vendorConfiguration.testParser()
+        if (vendorTestParser != null) {
+            return vendorTestParser
+        }
         val loader = ServiceLoader.load(TestParser::class.java)
         return loader.first()
     }
 
     fun run(): Boolean = runBlocking {
-        val testParser = loadTestParser()
-        val deviceProvider = loadDeviceProvider()
+        MarathonLogging.debug = configuration.debug
+
+        val testParser = loadTestParser(configuration.vendorConfiguration)
+        val deviceProvider = loadDeviceProvider(configuration.vendorConfiguration)
         val analytics = analyticsFactory.create()
 
-        val parsedTests = testParser.extract(configuration.testApplicationOutput)
+        val parsedTests = testParser.extract(configuration)
         val tests = applyTestFilters(parsedTests)
 
         println("${tests.size} test methods after filters")
@@ -89,14 +98,14 @@ class Marathon(val configuration: Configuration) {
             summaryPrinter.print(summary)
         }
 
-        val hours = TimeUnit.MICROSECONDS.toHours(timeMillis)
-        val minutes = TimeUnit.MICROSECONDS.toMinutes(timeMillis)
-        val seconds = TimeUnit.MICROSECONDS.toSeconds(timeMillis)
+        val hours = TimeUnit.MILLISECONDS.toHours(timeMillis)
+        val minutes = TimeUnit.MILLISECONDS.toMinutes(timeMillis)
+        val seconds = TimeUnit.MILLISECONDS.toSeconds(timeMillis)
 
         log.info { "Total time: ${hours}H ${minutes}m ${seconds}s" }
         analytics.terminate()
+        analytics.close()
         deviceProvider.terminate()
-
         progressReporter.aggregateResult()
     }
 

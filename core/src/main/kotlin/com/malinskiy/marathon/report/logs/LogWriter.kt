@@ -11,4 +11,9 @@ class LogWriter(private val fileManager: FileManager) {
         val logFile = fileManager.createFile(FileType.LOG, devicePoolId, device, test)
         logFile.writeText(logs.joinToString("\n"))
     }
+
+    fun appendLogs(test: Test, devicePoolId: DevicePoolId, device: Device, log: String) {
+        val logFile = fileManager.createFile(FileType.LOG, devicePoolId, device, test)
+        logFile.appendText("$log\n")
+    }
 }

@@ -16,6 +16,8 @@ data class SimpleClassnameFilter(@JsonProperty("regex") val regex: Regex) : Test
         if(other !is SimpleClassnameFilter) return false
         return regex.toString().contentEquals(other.regex.toString())
     }
+
+    override fun hashCode(): Int = regex.hashCode()
 }
 
 data class FullyQualifiedClassnameFilter(@JsonProperty("regex") val regex: Regex) : TestFilter {
@@ -26,24 +28,42 @@ data class FullyQualifiedClassnameFilter(@JsonProperty("regex") val regex: Regex
         if(other !is FullyQualifiedClassnameFilter) return false
         return regex.toString().contentEquals(other.regex.toString())
     }
+
+    override fun hashCode(): Int = regex.hashCode()
 }
 
 data class TestPackageFilter(@JsonProperty("regex") val regex: Regex) : TestFilter {
-    override fun filter(tests: List<Test>): List<Test> = tests.filter { regex.matches("${it.pkg}") }
-    override fun filterNot(tests: List<Test>): List<Test> = tests.filterNot { regex.matches("${it.pkg}") }
+    override fun filter(tests: List<Test>): List<Test> = tests.filter { regex.matches(it.pkg) }
+    override fun filterNot(tests: List<Test>): List<Test> = tests.filterNot { regex.matches(it.pkg) }
 
     override fun equals(other: Any?): Boolean {
         if(other !is TestPackageFilter) return false
         return regex.toString().contentEquals(other.regex.toString())
     }
+
+    override fun hashCode(): Int = regex.hashCode()
 }
 
 data class AnnotationFilter(@JsonProperty("regex") val regex: Regex) : TestFilter {
-    override fun filter(tests: List<Test>): List<Test> = tests.filter { it.annotations.any { regex.matches("$it") } }
-    override fun filterNot(tests: List<Test>): List<Test> = tests.filterNot { it.annotations.any { regex.matches("$it") } }
+    override fun filter(tests: List<Test>): List<Test> = tests.filter { it.annotations.any(regex::matches) }
+    override fun filterNot(tests: List<Test>): List<Test> = tests.filterNot { it.annotations.any(regex::matches) }
 
     override fun equals(other: Any?): Boolean {
         if(other !is AnnotationFilter) return false
         return regex.toString().contentEquals(other.regex.toString())
     }
+
+    override fun hashCode(): Int = regex.hashCode()
+}
+
+data class TestMethodFilter(@JsonProperty("regex") val regex: Regex): TestFilter {
+    override fun filter(tests: List<Test>): List<Test> = tests.filter { regex.matches(it.method) }
+    override fun filterNot(tests: List<Test>): List<Test> = tests.filterNot { regex.matches(it.method) }
+
+    override fun equals(other: Any?): Boolean {
+        if(other !is TestMethodFilter) return false
+        return regex.toString().contentEquals(other.regex.toString())
+    }
+
+    override fun hashCode(): Int = regex.hashCode()
 }

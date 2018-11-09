@@ -1,6 +1,5 @@
 package com.malinskiy.marathon.execution.strategy.impl.flakiness
 
-import com.fasterxml.jackson.annotation.JsonProperty
 import com.malinskiy.marathon.analytics.metrics.MetricsProvider
 import com.malinskiy.marathon.execution.TestShard
 import com.malinskiy.marathon.execution.strategy.FlakinessStrategy
@@ -15,9 +14,10 @@ import java.time.Instant
  * (0.5 x 0.5 x 0.5 = 0.125 is the probability of all tests failing, so with probability 0.875 > 0.8 at least one of tests will pass).
  */
 
-class ProbabilityBasedFlakinessStrategy(@JsonProperty("minSuccessRate") private val minSuccessRate: Double,
-                                        @JsonProperty("maxCount") private  val maxCount: Int,
-                                        @JsonProperty("timeLimit") private  val timeLimit: Instant) : FlakinessStrategy {
+class ProbabilityBasedFlakinessStrategy(val minSuccessRate: Double,
+                                        val maxCount: Int,
+                                        val timeLimit: Instant) : FlakinessStrategy {
+
     override fun process(testShard: TestShard,
                          metricsProvider: MetricsProvider): TestShard {
         val tests = testShard.tests
@@ -58,6 +58,5 @@ class ProbabilityBasedFlakinessStrategy(@JsonProperty("minSuccessRate") private 
         result = 31 * result + timeLimit.hashCode()
         return result
     }
-
-
 }
+

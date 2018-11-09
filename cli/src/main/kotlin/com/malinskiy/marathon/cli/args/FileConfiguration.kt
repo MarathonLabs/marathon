@@ -13,8 +13,6 @@ import java.io.File
 data class FileConfiguration(
         var name: String,
         var outputDir: File,
-        var applicationOutput: File?,
-        var testApplicationOutput: File,
 
         var analyticsConfiguration: AnalyticsConfiguration?,
         var poolingStrategy: PoolingStrategy?,
@@ -33,8 +31,8 @@ data class FileConfiguration(
         var includeSerialRegexes: Collection<Regex>?,
         var excludeSerialRegexes: Collection<Regex>?,
 
-        var testOutputTimeoutMillis: Int?,
+        var testOutputTimeoutMillis: Long?,
         var debug: Boolean?,
 
-        var autoGrantPermission: Boolean?
+        var vendorConfiguration: FileVendorConfiguration?
 )

@@ -6,9 +6,9 @@ import com.malinskiy.marathon.device.Device
 import com.malinskiy.marathon.device.DevicePoolId
 import com.malinskiy.marathon.execution.TestResult
 import com.malinskiy.marathon.execution.TestShard
+import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.test.Test
 import com.malinskiy.marathon.test.toTestName
-import mu.KotlinLogging
 
 class TestResultReporter(private val poolId: DevicePoolId,
                          private val analytics: Analytics,
@@ -16,7 +16,7 @@ class TestResultReporter(private val poolId: DevicePoolId,
 
     private val tests: HashMap<String, StateMachine<TestState, TestEvent, TestAction>> = HashMap()
 
-    private val logger = KotlinLogging.logger("TestResultReporter")
+    private val logger = MarathonLogging.logger("TestResultReporter")
 
     private fun createState(initialCount: Int) = StateMachine.create<TestState, TestEvent, TestAction> {
         initialState(TestState.Added(initialCount))
