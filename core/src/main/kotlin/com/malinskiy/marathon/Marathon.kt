@@ -1,6 +1,5 @@
 package com.malinskiy.marathon
 
-import ch.qos.logback.classic.Level
 import com.google.gson.Gson
 import com.malinskiy.marathon.analytics.AnalyticsFactory
 import com.malinskiy.marathon.device.DeviceProvider

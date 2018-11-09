@@ -7,12 +7,13 @@ import mu.KotlinLogging
 
 object MarathonLogging {
     var debug = true
+    var warningPrinted = false
 
     fun logger(func: () -> Unit): KLogger {
         return logger(level = null, func = func)
     }
 
-    fun logger(name: String) :KLogger {
+    fun logger(name: String): KLogger {
         return logger(level = null, name = name)
     }
 
@@ -27,11 +28,21 @@ object MarathonLogging {
     }
 
     private fun changeInternalLogLevel(logger: KLogger, level: Level?): KLogger {
-        val internalLogger = logger.underlyingLogger as Logger
-        internalLogger.level = level
-        ?: when {
-            debug -> Level.DEBUG
-            else -> Level.ERROR
+        val internalLogger = logger.underlyingLogger as? Logger
+
+        if (internalLogger == null) {
+            if (debug && !warningPrinted) {
+                println("Can't change log level during runtime for " +
+                        "${logger.underlyingLogger.javaClass.simpleName}. " +
+                        "Please configure your logger separately.")
+                warningPrinted = true
+            }
+        } else {
+            internalLogger.level = level
+                    ?: when {
+                debug -> Level.DEBUG
+                else -> Level.ERROR
+            }
         }
 
         return logger
