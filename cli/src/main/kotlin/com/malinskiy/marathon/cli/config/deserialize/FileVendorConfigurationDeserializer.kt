@@ -12,6 +12,9 @@ import com.malinskiy.marathon.cli.args.FileIOSConfiguration
 import com.malinskiy.marathon.cli.args.FileVendorConfiguration
 import com.malinskiy.marathon.exceptions.ConfigurationException
 
+const val TYPE_ANDROID = "Android"
+const val TYPE_IOS = "iOS"
+
 class FileVendorConfigurationDeserializer : StdDeserializer<FileVendorConfiguration>(FileVendorConfiguration::class.java) {
     override fun deserialize(p: JsonParser?, ctxt: DeserializationContext?): FileVendorConfiguration {
         val codec = p?.codec as ObjectMapper
@@ -19,15 +22,16 @@ class FileVendorConfigurationDeserializer : StdDeserializer<FileVendorConfigurat
         val type = node.get("type").asText()
 
         return when (type) {
-            "iOS" -> {
+            TYPE_IOS -> {
                 (node as ObjectNode).remove("type")
                 codec.treeToValue<FileIOSConfiguration>(node)
             }
-            "Android" -> {
+            TYPE_ANDROID -> {
                 (node as ObjectNode).remove("type")
                 codec.treeToValue<FileAndroidConfiguration>(node)
             }
-            else -> throw ConfigurationException("Unrecognized vendor type $type")
+            else -> throw ConfigurationException("Unrecognized vendor type $type. " +
+                    "Valid options are $TYPE_ANDROID and $TYPE_IOS")
         }
     }
 }
