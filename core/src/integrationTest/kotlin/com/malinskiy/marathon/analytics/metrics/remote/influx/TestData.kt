@@ -10,5 +10,10 @@ data class TestData(val test: Test,
                     val status: TestStatus,
                     val duration: Long,
                     val whenWasSent: Instant) {
-    val isIgnored get() = status == TestStatus.IGNORED
+    val isIgnored
+        get() = when (status) {
+            TestStatus.IGNORED, TestStatus.ASSUMPTION_FAILURE -> true
+            else -> false
+        }
+
 }

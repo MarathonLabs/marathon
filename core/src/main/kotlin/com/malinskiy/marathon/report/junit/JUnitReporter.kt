@@ -19,7 +19,7 @@ class JUnitReporter(private val fileManager: FileManager) {
         val file = fileManager.createFile(FileType.TEST, devicePoolId, device, testResult.test)
         file.createNewFile()
 
-        val writer = XMLOutputFactory.newFactory().createXMLStreamWriter(FileOutputStream(file),"UTF-8")
+        val writer = XMLOutputFactory.newFactory().createXMLStreamWriter(FileOutputStream(file), "UTF-8")
 
         generateXml(writer, testResult)
         writer.flush()
@@ -34,7 +34,7 @@ class JUnitReporter(private val fileManager: FileManager) {
         val test = testResult.test
 
         val failures = if (testResult.status == TestStatus.FAILURE) 1 else 0
-        val ignored = if (testResult.status == TestStatus.IGNORED) 1 else 0
+        val ignored = if (testResult.status == TestStatus.IGNORED || testResult.status == TestStatus.ASSUMPTION_FAILURE) 1 else 0
 
         val formattedTimestamp = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.US).apply {
             timeZone = TimeZone.getTimeZone("UTC")
@@ -55,7 +55,7 @@ class JUnitReporter(private val fileManager: FileManager) {
                     attribute("name", test.method)
                     attribute("time", testResult.durationMillis().toJUnitSeconds())
                     when (testResult.status) {
-                        TestStatus.IGNORED -> {
+                        TestStatus.IGNORED, TestStatus.ASSUMPTION_FAILURE -> {
                             element("skipped") {
                                 testResult.stacktrace?.let {
                                     writeCData(it)
@@ -65,13 +65,6 @@ class JUnitReporter(private val fileManager: FileManager) {
                         TestStatus.FAILURE -> {
                             element("failure") {
                                 writeCData(testResult.stacktrace!!)
-                            }
-                        }
-                        TestStatus.ASSUMPTION_FAILURE -> {
-                            element("skipped") {
-                                testResult.stacktrace?.let {
-                                    writeCData(it)
-                                }
                             }
                         }
                         else -> {
