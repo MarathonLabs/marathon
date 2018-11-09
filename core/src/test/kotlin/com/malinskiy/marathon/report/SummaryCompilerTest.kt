@@ -18,8 +18,9 @@ import java.io.File
 
 
 class SummaryCompilerTest : Spek({
+
     val configuration = Configuration(name = "",
-            outputDir = File("core/src/test/resources/output/"),
+            outputDir = File("src/test/resources/output/"),
             applicationOutput = File(""),
             testApplicationOutput = File(""),
             analyticsConfiguration = AnalyticsConfiguration.DisabledAnalytics,
@@ -45,6 +46,7 @@ class SummaryCompilerTest : Spek({
     val gson = Gson()
     val testResultReporter = TestResultReporter(fileManager, gson)
     val deviceInfoReporter = DeviceInfoReporter(fileManager, gson)
+    println(configuration.outputDir.absolutePath)
 
     given("a summary compiler ") {
         val summaryCompiler = SummaryCompiler(deviceInfoSerializer = deviceInfoReporter,
