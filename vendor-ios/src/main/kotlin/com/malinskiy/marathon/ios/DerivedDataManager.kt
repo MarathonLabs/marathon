@@ -4,6 +4,7 @@ import com.github.fracpete.processoutput4j.output.CollectingProcessOutput
 import com.github.fracpete.rsync4j.RSync
 import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.log.MarathonLogging
+import com.malinskiy.marathon.report.html.relativePathTo
 import java.io.File
 import java.io.FileNotFoundException
 import java.util.concurrent.locks.Lock
@@ -21,12 +22,21 @@ class DerivedDataManager(val configuration: Configuration) {
 
     private val iosConfiguration: IOSConfiguration = configuration.vendorConfiguration as IOSConfiguration
 
+    val productsDir: File
+        get() = iosConfiguration.derivedDataDir.resolve(PRODUCTS_PATH)
+
+    val xctestrunFile: File
+        get() = iosConfiguration.xctestrunPath
+
     init {
         if (configuration.debug) {
             logger.debug(rsyncVersion)
         }
         if (!iosConfiguration.remotePrivateKey.exists()) {
             throw FileNotFoundException("Private key not found at ${iosConfiguration.remotePrivateKey}")
+        }
+        if (xctestrunFile.relativePathTo(productsDir) != xctestrunFile.name) {
+            throw FileNotFoundException("xctestrun file must be located in build products directory.")
         }
     }
 
@@ -35,15 +45,6 @@ class DerivedDataManager(val configuration: Configuration) {
             val output = CollectingProcessOutput()
             output.monitor(RSync().source("/tmp").destination("/tmp").version(true).builder())
             return output.stdOut
-        }
-
-    val productsDir: File
-        get() {
-            return iosConfiguration
-                    .derivedDataDir
-                    .toPath()
-                    .resolve(PRODUCTS_PATH)
-                    .toFile()
         }
 
     fun sendSynchronized(localPath: File, remotePath: String, hostName: String, port: Int) {
