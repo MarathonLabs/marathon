@@ -1,0 +1,25 @@
+{
+  "test": {
+    "pkg": "com.marathon.summary",
+    "clazz": "SummaryFailedTest",
+    "method": "testFailed",
+    "annotations": []
+  },
+  "device": {
+    "operatingSystem": {
+      "version": "23"
+    },
+    "serialNumber": "xxyyzz",
+    "model": "Android SDK built for x86",
+    "manufacturer": "unknown",
+    "networkState": "CONNECTED",
+    "deviceFeatures": [
+      "VIDEO",
+      "SCREENSHOT"
+    ],
+    "healthy": true
+  },
+  "status": "FAILURE",
+  "startTime": 1541675987476,
+  "endTime": 1541675988162
+}
