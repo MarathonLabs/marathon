@@ -1,4 +1,4 @@
-language: android
+language: java
 
 jdk:
   - oraclejdk8
@@ -15,26 +15,11 @@ cache:
   directories:
   - $HOME/.gradle/caches/
   - $HOME/.gradle/wrapper/
-  - $HOME/.android/build-cache
 
 before_install:
   - docker pull axiom/rsync-server
   - echo -e "Host localhost\n\tStrictHostKeyChecking no\n" >> $HOME/.ssh/config
   - echo 'localhost ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBMaFQFXjCQRbvc8XQpz3DZHF/spSHqqpfNgiFp+KUHtaysaHn2kpx2dpurkx7TvM9bxBgxoNj4WNwce4UqwJgSo=' >> $HOME/.ssh/known_hosts
-
-env:
- global:
- - ANDROID_API=26
- - ANDROID_BUILD_TOOLS=26.0.2
-
-android:
-  components:
-    - tools
-    - tools # Running this twice get's the latest build tools (https://github.com/codepath/android_guides/wiki/Setting-up-Travis-CI)
-    - platform-tools
-    - android-${ANDROID_API}
-    - build-tools-${ANDROID_BUILD_TOOLS}
-    - extra
 
 jobs:
   include:
