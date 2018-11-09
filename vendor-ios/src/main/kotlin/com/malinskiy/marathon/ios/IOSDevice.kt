@@ -23,10 +23,10 @@ import com.malinskiy.marathon.ios.logparser.listener.TestLogListener
 import com.malinskiy.marathon.ios.simctl.Simctl
 import com.malinskiy.marathon.ios.xctestrun.Xctestrun
 import com.malinskiy.marathon.log.MarathonLogging
-import com.malinskiy.marathon.report.html.relativePathTo
 import com.malinskiy.marathon.test.TestBatch
 import com.malinskiy.marathon.time.SystemTimer
 import kotlinx.coroutines.experimental.CompletableDeferred
+import java.io.File
 import java.io.FileNotFoundException
 import java.util.concurrent.TimeUnit
 
@@ -37,8 +37,9 @@ class IOSDevice(val udid: String,
                 val gson: Gson) : Device {
     val logger = MarathonLogging.logger("${javaClass.simpleName}($udid)")
     val simctl = Simctl()
-    private val runtime: String?
+
     val name: String?
+    private val runtime: String?
     private val deviceType: String?
 
     init {
@@ -142,37 +143,14 @@ class IOSDevice(val udid: String,
     }
 
     override fun prepare(configuration: Configuration) {
-        val sshjCommandExecutor = hostCommandExecutor as SshjCommandExecutor
-
-        val derivedDataManager = DerivedDataManager(configuration)
         RemoteFileManager.createRemoteDirectory(this)
 
-        // 1. remote paths
-        val remoteProductsDir = RemoteFileManager.remoteDirectory(this)
+        val sshjCommandExecutor = hostCommandExecutor as SshjCommandExecutor
+        val derivedDataManager = DerivedDataManager(configuration)
+
         val remoteXctestrunFile = RemoteFileManager.remoteXctestrunFile(this)
+        val xctestrunFile = prepareXctestrunFile(derivedDataManager, remoteXctestrunFile)
 
-        // 2. local paths
-        val productsDir = derivedDataManager.productsDir
-        val xctestrunPath = (configuration.vendorConfiguration as IOSConfiguration).xctestrunPath
-        if (xctestrunPath.relativePathTo(productsDir) != xctestrunPath.name) {
-            throw FileNotFoundException("xctestrun file must be located in build products directory.")
-        }
-        val xctestrunFile = productsDir.resolve(remoteXctestrunFile.name)
-
-        // 3. a port
-        val remotePort = RemoteSimulatorFeatureProvider.availablePort(this)
-                .also { logger.debug("Using TCP port $it on device $udid") }
-
-        // 4. Update xctestrun environment
-        val xctestrun = Xctestrun(xctestrunPath)
-        xctestrun.environment("TEST_HTTP_SERVER_PORT", "$remotePort")
-        logger.debug("Updating xctestrun environment with TEST_HTTP_SERVER_PORT=$remotePort")
-
-        // 5. Save under the new name
-        xctestrunFile.writeBytes(xctestrun.toXMLByteArray())
-
-        // send the prepared xctestrun
-        logger.debug("Sending xctestrun file from $xctestrunFile to $remoteXctestrunFile")
         derivedDataManager.sendSynchronized(
                 localPath = xctestrunFile,
                 remotePath = remoteXctestrunFile.absolutePath,
@@ -180,14 +158,24 @@ class IOSDevice(val udid: String,
                 port = sshjCommandExecutor.port
         )
 
-        // copy build products
-        logger.debug("Sending build products from $productsDir to $remoteProductsDir")
         derivedDataManager.send(
-                localPath = productsDir,
-                remotePath = remoteProductsDir.path,
+                localPath = derivedDataManager.productsDir,
+                remotePath = RemoteFileManager.remoteDirectory(this).path,
                 hostName = sshjCommandExecutor.hostAddress.hostName,
                 port = sshjCommandExecutor.port
         )
+    }
+
+    private fun prepareXctestrunFile(derivedDataManager: DerivedDataManager, remoteXctestrunFile: File): File {
+        val remotePort = RemoteSimulatorFeatureProvider.availablePort(this)
+                .also { logger.debug("Using TCP port $it on device $udid") }
+
+        val xctestrun = Xctestrun(derivedDataManager.xctestrunFile)
+        xctestrun.environment("TEST_HTTP_SERVER_PORT", "$remotePort")
+
+        return derivedDataManager.xctestrunFile.
+                resolveSibling(remoteXctestrunFile.name)
+                .also { it.writeBytes(xctestrun.toXMLByteArray()) }
     }
 
     override fun dispose() {
