@@ -2,8 +2,10 @@ package com.malinskiy.marathon.report
 
 import com.google.gson.Gson
 import com.malinskiy.marathon.device.DevicePoolId
+import com.malinskiy.marathon.device.DeviceProvider
 import com.malinskiy.marathon.execution.AnalyticsConfiguration
 import com.malinskiy.marathon.execution.Configuration
+import com.malinskiy.marathon.execution.TestParser
 import com.malinskiy.marathon.execution.TestStatus
 import com.malinskiy.marathon.io.FileManager
 import com.malinskiy.marathon.report.internal.DeviceInfoReporter
@@ -21,8 +23,6 @@ class SummaryCompilerTest : Spek({
 
     val configuration = Configuration(name = "",
             outputDir = File("src/test/resources/output/"),
-            applicationOutput = File(""),
-            testApplicationOutput = File(""),
             analyticsConfiguration = AnalyticsConfiguration.DisabledAnalytics,
             poolingStrategy = null,
             shardingStrategy = null,
@@ -39,8 +39,10 @@ class SummaryCompilerTest : Spek({
             excludeSerialRegexes = null,
             testOutputTimeoutMillis = null,
             debug = null,
-            autoGrantPermission = null,
-            vendorConfiguration = object : VendorConfiguration {})
+            vendorConfiguration = object : VendorConfiguration {
+                override fun testParser(): TestParser? = null
+                override fun deviceProvider(): DeviceProvider? = null
+            })
 
     val fileManager = FileManager(configuration.outputDir)
     val gson = Gson()
