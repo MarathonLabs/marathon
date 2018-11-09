@@ -1,0 +1,14 @@
+{
+  "operatingSystem": {
+    "version": "23"
+  },
+  "serialNumber": "xxyyzz",
+  "model": "Android SDK built for x86",
+  "manufacturer": "unknown",
+  "networkState": "CONNECTED",
+  "deviceFeatures": [
+    "VIDEO",
+    "SCREENSHOT"
+  ],
+  "healthy": true
+}

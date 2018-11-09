@@ -1,0 +1,25 @@
+{
+  "test": {
+    "pkg": "com.marathon.summary",
+    "clazz": "SummaryTest",
+    "method": "checkRedesignRequestTab",
+    "annotations": []
+  },
+  "device": {
+    "operatingSystem": {
+      "version": "23"
+    },
+    "serialNumber": "xxyyzz",
+    "model": "Android SDK built for x86",
+    "manufacturer": "unknown",
+    "networkState": "CONNECTED",
+    "deviceFeatures": [
+      "VIDEO",
+      "SCREENSHOT"
+    ],
+    "healthy": true
+  },
+  "status": "PASSED",
+  "startTime": 1541675929849,
+  "endTime": 1541675941768
+}

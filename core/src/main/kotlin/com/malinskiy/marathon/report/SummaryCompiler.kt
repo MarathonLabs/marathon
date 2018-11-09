@@ -19,7 +19,8 @@ class SummaryCompiler(private val deviceInfoSerializer: DeviceInfoReporter,
         val devices = deviceInfoSerializer.getDevices(poolId)
         val tests = devices.flatMap {
             testResultSerializer.readTests(poolId, it)
-        }
+        }.filter { it.status != TestStatus.INCOMPLETE }
+
         val passed = tests.count { it.status == TestStatus.PASSED }
         val ignored = tests.count { it.status == TestStatus.IGNORED }
         val failed = tests.count { it.status != TestStatus.PASSED && it.status != TestStatus.IGNORED }
