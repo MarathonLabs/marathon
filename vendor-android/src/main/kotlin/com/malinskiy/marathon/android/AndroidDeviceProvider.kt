@@ -37,13 +37,29 @@ class AndroidDeviceProvider : DeviceProvider {
         val absolutePath = Paths.get(vendorConfiguration.androidSdk.absolutePath, "platform-tools", "adb").toFile().absolutePath
 
         val listener = object : AndroidDebugBridge.IDeviceChangeListener {
-            override fun deviceChanged(device: IDevice?, changeMask: Int) {}
+            override fun deviceChanged(device: IDevice?, changeMask: Int) {
+                device?.let {
+                    val androidDevice = AndroidDevice(it)
+                    val healthy = androidDevice.healthy
+
+                    logger.debug { "Device ${device.serialNumber} changed state. Healthy = $healthy" }
+                    if (healthy) {
+                        notifyConnected(androidDevice)
+                    } else {
+                        //This shouldn't have any side effects even if device was previously removed
+                        notifyDisconnected(androidDevice)
+                    }
+                }
+            }
 
             override fun deviceConnected(device: IDevice?) {
                 device?.let {
-                    logger.debug { "Device ${device.serialNumber} connected channel.isFull = ${channel.isFull}" }
-                    launch {
-                        channel.send(DeviceConnected(AndroidDevice(it)))
+                    val androidDevice = AndroidDevice(it)
+                    val healthy = androidDevice.healthy
+                    logger.debug { "Device ${device.serialNumber} connected channel.isFull = ${channel.isFull}. Healthy = $healthy" }
+
+                    if (healthy) {
+                        notifyConnected(androidDevice)
                     }
                 }
             }
@@ -51,9 +67,20 @@ class AndroidDeviceProvider : DeviceProvider {
             override fun deviceDisconnected(device: IDevice?) {
                 device?.let {
                     logger.debug { "Device ${device.serialNumber} disconnected" }
-                    launch {
-                        channel.send(DeviceDisconnected(AndroidDevice(it)))
-                    }
+                    val androidDevice = AndroidDevice(it)
+                    notifyDisconnected(androidDevice)
+                }
+            }
+
+            private fun notifyConnected(device: AndroidDevice) {
+                launch {
+                    channel.send(DeviceConnected(device))
+                }
+            }
+
+            private fun notifyDisconnected(device: AndroidDevice) {
+                launch {
+                    channel.send(DeviceDisconnected(device))
                 }
             }
         }

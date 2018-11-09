@@ -85,6 +85,11 @@ class AndroidDevice(val ddmsDevice: IDevice) : Device {
     }
 
     override fun prepare(configuration: Configuration) {
+        while(ddmsDevice.getProperty("sys.boot_completed") == null) {
+            Thread.sleep(1000)
+            if(Thread.interrupted()) return
+        }
+
         AndroidAppInstaller(configuration).prepareInstallation(ddmsDevice)
         RemoteFileManager.removeRemoteDirectory(ddmsDevice)
         RemoteFileManager.createRemoteDirectory(ddmsDevice)

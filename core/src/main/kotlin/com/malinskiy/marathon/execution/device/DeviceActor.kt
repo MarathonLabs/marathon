@@ -4,6 +4,7 @@ import com.malinskiy.marathon.actor.Actor
 import com.malinskiy.marathon.actor.StateMachine
 import com.malinskiy.marathon.device.Device
 import com.malinskiy.marathon.device.DevicePoolId
+import com.malinskiy.marathon.exceptions.TestBatchExecutionException
 import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.execution.DevicePoolMessage
 import com.malinskiy.marathon.execution.DevicePoolMessage.FromDevice.RequestNextBatch
@@ -157,7 +158,11 @@ class DeviceActor(private val devicePoolId: DevicePoolId,
     private fun executeBatch(batch: TestBatch, result: CompletableDeferred<TestBatchResults>) {
         logger.debug { "executeBatch" }
         job = async(context, parent = deviceJob) {
-            device.execute(configuration, devicePoolId, batch, result, progressReporter)
+            try {
+                device.execute(configuration, devicePoolId, batch, result, progressReporter)
+            } catch (e: TestBatchExecutionException) {
+                returnBatch(batch)
+            }
         }
     }
 
