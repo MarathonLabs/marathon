@@ -3,11 +3,11 @@ package com.malinskiy.marathon.android.executor.listeners
 import com.android.ddmlib.IDevice
 import com.android.ddmlib.testrunner.ITestRunListener
 import com.android.ddmlib.testrunner.TestIdentifier
-import mu.KotlinLogging
+import com.malinskiy.marathon.log.MarathonLogging
 
 class DebugTestRunListener(private val device: IDevice) : ITestRunListener {
 
-    private val logger = KotlinLogging.logger("DebugTestRunListener")
+    private val logger = MarathonLogging.logger("DebugTestRunListener")
 
     override fun testRunStarted(runName: String?, testCount: Int) {
         logger.info { "testRunStarted ${device.serialNumber}" }

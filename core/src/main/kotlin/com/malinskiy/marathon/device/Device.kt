@@ -23,5 +23,6 @@ interface Device {
                 progressReporter: ProgressReporter)
 
     fun prepare(configuration: Configuration)
+    fun dispose()
 }
 

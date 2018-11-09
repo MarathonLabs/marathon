@@ -7,11 +7,12 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer
 import com.fasterxml.jackson.databind.node.ObjectNode
 import com.fasterxml.jackson.module.kotlin.treeToValue
-import com.malinskiy.marathon.cli.config.ConfigurationException
+import com.malinskiy.marathon.exceptions.ConfigurationException
 import com.malinskiy.marathon.execution.AnnotationFilter
 import com.malinskiy.marathon.execution.FullyQualifiedClassnameFilter
 import com.malinskiy.marathon.execution.SimpleClassnameFilter
 import com.malinskiy.marathon.execution.TestFilter
+import com.malinskiy.marathon.execution.TestMethodFilter
 import com.malinskiy.marathon.execution.TestPackageFilter
 
 class TestFilterDeserializer : StdDeserializer<TestFilter>(TestFilter::class.java) {
@@ -37,7 +38,11 @@ class TestFilterDeserializer : StdDeserializer<TestFilter>(TestFilter::class.jav
                 (node as ObjectNode).remove("type")
                 codec.treeToValue<AnnotationFilter>(node)
             }
-            else -> throw ConfigurationException("Unrecognized sorting strategy $type")
+            "method" -> {
+                (node as ObjectNode).remove("type")
+                codec.treeToValue<TestMethodFilter>(node)
+            }
+            else -> throw ConfigurationException("Unrecognized filter type $type")
         }
     }
 }

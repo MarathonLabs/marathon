@@ -15,13 +15,11 @@ import com.malinskiy.marathon.execution.strategy.impl.sorting.NoSortingStrategy
 import com.malinskiy.marathon.vendor.VendorConfiguration
 import java.io.File
 
-private const val DEFAULT_OUTPUT_TIMEOUT_MILLIS = 60_000
+private const val DEFAULT_OUTPUT_TIMEOUT_MILLIS: Long = 60_000
 
 data class Configuration constructor(
         val name: String,
         val outputDir: File,
-        val applicationOutput: File?,
-        val testApplicationOutput: File,
 
         val analyticsConfiguration: AnalyticsConfiguration,
         val poolingStrategy: PoolingStrategy,
@@ -40,16 +38,13 @@ data class Configuration constructor(
         val includeSerialRegexes: Collection<Regex>,
         val excludeSerialRegexes: Collection<Regex>,
 
-        val testOutputTimeoutMillis: Int,
+        val testOutputTimeoutMillis: Long,
         val debug: Boolean,
 
-        val autoGrantPermission: Boolean,
         val vendorConfiguration: VendorConfiguration) {
 
     constructor(name: String,
                 outputDir: File,
-                applicationOutput: File?,
-                testApplicationOutput: File,
 
                 analyticsConfiguration: AnalyticsConfiguration?,
                 poolingStrategy: PoolingStrategy?,
@@ -68,16 +63,13 @@ data class Configuration constructor(
                 includeSerialRegexes: Collection<Regex>?,
                 excludeSerialRegexes: Collection<Regex>?,
 
-                testOutputTimeoutMillis: Int?,
+                testOutputTimeoutMillis: Long?,
                 debug: Boolean?,
 
-                autoGrantPermission: Boolean?,
                 vendorConfiguration: VendorConfiguration) :
 
             this(name = name,
                     outputDir = outputDir,
-                    applicationOutput = applicationOutput,
-                    testApplicationOutput = testApplicationOutput,
                     analyticsConfiguration = analyticsConfiguration ?: AnalyticsConfiguration.DisabledAnalytics,
                     poolingStrategy = poolingStrategy ?: OmniPoolingStrategy(),
                     shardingStrategy = shardingStrategy ?: ParallelShardingStrategy(),
@@ -94,7 +86,6 @@ data class Configuration constructor(
                     excludeSerialRegexes = excludeSerialRegexes ?: emptyList(),
                     testOutputTimeoutMillis = testOutputTimeoutMillis ?: DEFAULT_OUTPUT_TIMEOUT_MILLIS,
                     debug = debug ?: true,
-                    autoGrantPermission = autoGrantPermission ?: false,
                     vendorConfiguration = vendorConfiguration
             )
 }

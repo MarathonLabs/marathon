@@ -10,9 +10,9 @@ import com.malinskiy.marathon.test.Test
 import com.malinskiy.marathon.test.TestBatch
 import com.malinskiy.marathon.execution.TestResult
 import com.malinskiy.marathon.execution.TestStatus
+import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.test.toTestName
 import kotlinx.coroutines.experimental.CompletableDeferred
-import mu.KotlinLogging
 import com.android.ddmlib.testrunner.TestRunResult as DdmLibTestRunResult
 import com.android.ddmlib.testrunner.TestResult as DdmLibTestResult
 
@@ -20,7 +20,7 @@ class TestRunResultsListener(private val testBatch: TestBatch,
                              private val device: Device,
                              private val deferred: CompletableDeferred<TestBatchResults>) : AbstractTestRunResultListener() {
 
-    private val logger = KotlinLogging.logger("TestRunResultsListener")
+    private val logger = MarathonLogging.logger("TestRunResultsListener")
 
     override fun handleTestRunResults(runResult: DdmLibTestRunResult) {
         val results = runResult.testResults

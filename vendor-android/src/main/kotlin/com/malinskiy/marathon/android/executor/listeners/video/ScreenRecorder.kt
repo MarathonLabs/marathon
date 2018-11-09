@@ -5,7 +5,7 @@ import com.android.ddmlib.IDevice
 import com.android.ddmlib.ScreenRecorderOptions
 import com.android.ddmlib.testrunner.TestIdentifier
 import com.malinskiy.marathon.android.RemoteFileManager
-import mu.KotlinLogging
+import com.malinskiy.marathon.log.MarathonLogging
 import java.util.concurrent.TimeUnit.SECONDS
 import kotlin.system.measureTimeMillis
 
@@ -31,7 +31,7 @@ internal class ScreenRecorder(private val device: IDevice,
     }
 
     companion object {
-        private val logger = KotlinLogging.logger("ScreenRecorder")
+        private val logger = MarathonLogging.logger("ScreenRecorder")
         private const val DURATION = 60
         private const val BITRATE_MB_PER_SECOND = 1
         private val options = ScreenRecorderOptions.Builder()

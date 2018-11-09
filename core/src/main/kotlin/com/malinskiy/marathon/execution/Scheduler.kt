@@ -8,6 +8,7 @@ import com.malinskiy.marathon.execution.DevicePoolMessage.FromScheduler
 import com.malinskiy.marathon.execution.DevicePoolMessage.FromScheduler.AddDevice
 import com.malinskiy.marathon.execution.DevicePoolMessage.FromScheduler.RemoveDevice
 import com.malinskiy.marathon.execution.progress.ProgressReporter
+import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.test.Test
 import kotlinx.coroutines.experimental.Job
 import kotlinx.coroutines.experimental.TimeoutCancellationException
@@ -16,7 +17,6 @@ import kotlinx.coroutines.experimental.delay
 import kotlinx.coroutines.experimental.joinChildren
 import kotlinx.coroutines.experimental.launch
 import kotlinx.coroutines.experimental.withTimeout
-import mu.KotlinLogging
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.TimeUnit
 
@@ -35,7 +35,7 @@ class Scheduler(private val deviceProvider: DeviceProvider,
     private val pools = ConcurrentHashMap<DevicePoolId, SendChannel<FromScheduler>>()
     private val poolingStrategy = configuration.poolingStrategy
 
-    private val logger = KotlinLogging.logger("Scheduler")
+    private val logger = MarathonLogging.logger("Scheduler")
 
     suspend fun execute() {
         val job = Job()

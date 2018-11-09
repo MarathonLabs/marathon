@@ -11,12 +11,12 @@ import com.malinskiy.marathon.execution.TestBatchResults
 import com.malinskiy.marathon.execution.TestResult
 import com.malinskiy.marathon.execution.TestShard
 import com.malinskiy.marathon.execution.progress.ProgressReporter
+import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.test.Test
 import com.malinskiy.marathon.test.TestBatch
 import kotlinx.coroutines.experimental.CompletableDeferred
 import kotlinx.coroutines.experimental.Job
 import kotlinx.coroutines.experimental.channels.SendChannel
-import mu.KotlinLogging
 import java.util.*
 
 class QueueActor(configuration: Configuration,
@@ -27,7 +27,7 @@ class QueueActor(configuration: Configuration,
                  private val progressReporter: ProgressReporter,
                  poolJob: Job) : Actor<QueueMessage>(parent = poolJob) {
 
-    private val logger = KotlinLogging.logger("QueueActor[$poolId]")
+    private val logger = MarathonLogging.logger("QueueActor[$poolId]")
 
     private val sorting = configuration.sortingStrategy
 

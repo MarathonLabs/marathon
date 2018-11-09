@@ -12,7 +12,7 @@ import com.malinskiy.marathon.android.toTest
 import com.malinskiy.marathon.device.DevicePoolId
 import com.malinskiy.marathon.io.FileManager
 import com.malinskiy.marathon.io.FileType
-import mu.KotlinLogging
+import com.malinskiy.marathon.log.MarathonLogging
 import kotlin.system.measureTimeMillis
 
 const val MS_IN_SECOND: Long = 1_000L
@@ -20,7 +20,7 @@ const val MS_IN_SECOND: Long = 1_000L
 internal class ScreenRecorderTestRunListener(private val fileManager: FileManager,
                                              private val pool: DevicePoolId,
                                              private val device: AndroidDevice) : NoOpTestRunListener() {
-    private val logger = KotlinLogging.logger("ScreenRecorder")
+    private val logger = MarathonLogging.logger("ScreenRecorder")
 
     private val deviceInterface: IDevice = device.ddmsDevice
     private val screenRecorderStopper = ScreenRecorderStopper(deviceInterface)

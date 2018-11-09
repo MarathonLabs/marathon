@@ -5,11 +5,12 @@ import com.malinskiy.marathon.analytics.metrics.MetricsProvider
 import com.malinskiy.marathon.execution.strategy.SortingStrategy
 import com.malinskiy.marathon.test.Test
 import java.time.Instant
+import java.util.*
 
-class SuccessRateSortingStrategy(@JsonProperty("limit") private val limit: Instant) : SortingStrategy {
+class SuccessRateSortingStrategy(@JsonProperty("timeLimit") private val timeLimit: Instant) : SortingStrategy {
     override fun process(metricsProvider: MetricsProvider): Comparator<Test> =
             Comparator.comparingDouble<Test> {
-                metricsProvider.successRate(it, limit)
+                metricsProvider.successRate(it, timeLimit)
             }.reversed()
 
     override fun equals(other: Any?): Boolean {
@@ -18,13 +19,13 @@ class SuccessRateSortingStrategy(@JsonProperty("limit") private val limit: Insta
 
         other as SuccessRateSortingStrategy
 
-        if (limit != other.limit) return false
+        if (timeLimit != other.timeLimit) return false
 
         return true
     }
 
     override fun hashCode(): Int {
-        return limit.hashCode()
+        return timeLimit.hashCode()
     }
 
 

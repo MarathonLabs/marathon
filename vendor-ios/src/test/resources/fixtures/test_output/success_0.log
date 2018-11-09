@@ -1,0 +1,35 @@
+User defaults from command line:
+    IDEDerivedDataPathOverride = /Users/pkunzip/Development/marathon/vendor-ios/src/test/resources/src/sample-xcworkspace/a
+    IDETestRunOnlyIdentifiers = (
+    "sample-appUITests/MoreTests/testPresentModal"
+)
+    IDETestRunSpecificationPath = /Users/pkunzip/Development/marathon/vendor-ios/src/test/resources/src/sample-xcworkspace/a/Build/Products/UITesting_iphonesimulator11.2-x86_64.xctestrun
+
+2018-09-15 01:08:49.715033+0700 sample-appUITests-Runner[26010:493593] +[CATransaction synchronize] called within transaction
+2018-09-15 01:08:49.725248+0700 sample-appUITests-Runner[26010:493593] Running tests...
+Test Suite 'Selected tests' started at 2018-09-15 01:08:51.146
+Test Suite 'sample-appUITests.xctest' started at 2018-09-15 01:08:51.147
+Test Suite 'MoreTests' started at 2018-09-15 01:08:51.147
+Test Case '-[sample_appUITests.MoreTests testPresentModal]' started.
+    t =     0.00s Start Test at 2018-09-15 01:08:51.148
+    t =     0.03s Set Up
+    t =     0.03s     Open com.agoda.sample-app
+    t =     0.06s         Launch com.agoda.sample-app
+    t =     2.61s             Wait for com.agoda.sample-app to idle
+    t =     3.85s Waiting 30.0s for Button to exist
+    t =     4.85s     Checking `Expect predicate `exists == 1` for object Button`
+    t =     4.86s Tap Button
+    t =     4.86s     Wait for com.agoda.sample-app to idle
+    t =     4.87s     Find the Button
+    t =     4.98s         Wait for com.agoda.sample-app to idle
+    t =     4.99s     Synthesize event
+    t =     5.07s     Wait for com.agoda.sample-app to idle
+    t =     5.11s Tear Down
+Test Case '-[sample_appUITests.MoreTests testPresentModal]' passed (5.315 seconds).
+Test Suite 'MoreTests' passed at 2018-09-15 01:08:56.463.
+	 Executed 1 test, with 0 failures (0 unexpected) in 5.315 (5.316) seconds
+Test Suite 'sample-appUITests.xctest' passed at 2018-09-15 01:08:56.464.
+	 Executed 1 test, with 0 failures (0 unexpected) in 5.315 (5.317) seconds
+Test Suite 'Selected tests' passed at 2018-09-15 01:08:56.464.
+	 Executed 1 test, with 0 failures (0 unexpected) in 5.315 (5.318) seconds
+** TEST EXECUTE SUCCEEDED **

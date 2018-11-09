@@ -40,6 +40,8 @@ dependencies {
     implementation(Libraries.kotlinStdLib)
     implementation(Libraries.kotlinCoroutines)
     implementation(Libraries.kotlinLogging)
+    implementation(Libraries.slf4jAPI)
+    implementation(Libraries.logbackClassic)
     implementation(Libraries.influxDbClient)
     testCompile(TestLibraries.kluent)
     testCompile(TestLibraries.spekAPI)
@@ -69,10 +71,7 @@ tasks.withType<Test>().all {
 
 Deployment.initialize(project)
 
-val compileKotlin by tasks.getting(KotlinCompile::class) {
-    kotlinOptions.jvmTarget = "1.8"
-}
-val compileTestKotlin by tasks.getting(KotlinCompile::class) {
+tasks.withType<KotlinCompile> {
     kotlinOptions.jvmTarget = "1.8"
 }
 

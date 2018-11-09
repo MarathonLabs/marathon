@@ -6,17 +6,19 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
 import com.fasterxml.jackson.dataformat.yaml.YAMLGenerator
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.KotlinModule
-import com.malinskiy.marathon.android.AndroidConfiguration
-import com.malinskiy.marathon.cli.args.EnvironmentConfiguration
+import com.malinskiy.marathon.cli.args.FileAndroidConfiguration
 import com.malinskiy.marathon.cli.args.FileConfiguration
+import com.malinskiy.marathon.cli.args.FileIOSConfiguration
+import com.malinskiy.marathon.cli.args.environment.EnvironmentReader
+import com.malinskiy.marathon.exceptions.ConfigurationException
 import com.malinskiy.marathon.execution.Configuration
-import mu.KotlinLogging
+import com.malinskiy.marathon.log.MarathonLogging
 import java.io.File
 
-private val logger = KotlinLogging.logger {}
+private val logger = MarathonLogging.logger {}
 
-class ConfigFactory {
-    fun create(marathonfile: File, androidSdkDir: File?): Configuration {
+class ConfigFactory(val mapper: ObjectMapper) {
+    fun create(marathonfile: File, environmentReader: EnvironmentReader): Configuration {
         logger.info { "Checking $marathonfile config" }
 
         if (!marathonfile.isFile) {
@@ -26,11 +28,20 @@ class ConfigFactory {
 
         val config = readConfigFile(marathonfile) ?: throw ConfigurationException("Invalid config format")
 
+        val fileVendorConfiguration = config.vendorConfiguration
+        val vendorConfiguration = when (fileVendorConfiguration) {
+            is FileIOSConfiguration -> fileVendorConfiguration.toIOSConfiguration(
+                    marathonfile.canonicalFile.parentFile
+            )
+            is FileAndroidConfiguration -> {
+                fileVendorConfiguration.toAndroidConfiguration(environmentReader.read().androidSdk)
+            }
+            else -> throw ConfigurationException("No vendor config present in ${marathonfile.absolutePath}")
+        }
+
         return Configuration(
                 config.name,
                 config.outputDir,
-                config.applicationOutput,
-                config.testApplicationOutput,
 
                 config.analyticsConfiguration,
                 config.poolingStrategy,
@@ -48,29 +59,12 @@ class ConfigFactory {
                 config.excludeSerialRegexes,
                 config.testOutputTimeoutMillis,
                 config.debug,
-                config.autoGrantPermission,
-                vendorConfiguration = AndroidConfiguration(
-                        androidSdkDir
-                                ?: readEnvironment().androidSdkDir
-                                ?: throw ConfigurationException("Android SDK not found")
-                )
-        )
-    }
-
-    private fun readEnvironment(): EnvironmentConfiguration {
-        val androidSdkDir = System.getenv("ANDROID_HOME")
-        return EnvironmentConfiguration(
-                androidSdkDir = androidSdkDir?.let { File(it) }
+                vendorConfiguration
         )
     }
 
     private fun readConfigFile(configFile: File): FileConfiguration? {
         try {
-            val mapper = ObjectMapper(YAMLFactory().disable(YAMLGenerator.Feature.USE_NATIVE_TYPE_ID))
-            mapper.registerModule(DeserializeModule())
-                    .registerModule(KotlinModule())
-                    .registerModule(JavaTimeModule())
-
             return mapper.readValue(configFile.bufferedReader(), FileConfiguration::class.java)
         } catch (e: MismatchedInputException) {
             logger.error { "Invalid config file ${configFile.absolutePath}. Error parsing ${e.targetType.canonicalName}" }

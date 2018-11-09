@@ -1,9 +1,9 @@
 language: android
+
 jdk:
   - oraclejdk8
 
 sudo: required
-
 services:
   - docker
 
@@ -16,6 +16,12 @@ cache:
   - $HOME/.gradle/caches/
   - $HOME/.gradle/wrapper/
   - $HOME/.android/build-cache
+
+before_install:
+  - docker pull axiom/rsync-server
+  - echo -e "Host localhost\n\tStrictHostKeyChecking no\n" >> $HOME/.ssh/config
+  - echo 'localhost ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBMaFQFXjCQRbvc8XQpz3DZHF/spSHqqpfNgiFp+KUHtaysaHn2kpx2dpurkx7TvM9bxBgxoNj4WNwce4UqwJgSo=' >> $HOME/.ssh/known_hosts
+
 env:
  global:
  - ANDROID_API=26
@@ -33,7 +39,9 @@ android:
 jobs:
   include:
   - stage: test
-    script: ./gradlew clean test integrationTest
+    script:
+    - chmod 0600 $TRAVIS_BUILD_DIR/vendor-ios/src/test/resources/fixtures/derived-data-manager/test_rsa
+    - ./gradlew clean test integrationTest
   - stage: detekt
     script: ./gradlew clean detektCheck
   - stage: deploy

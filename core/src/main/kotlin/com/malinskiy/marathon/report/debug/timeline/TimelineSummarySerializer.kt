@@ -4,12 +4,14 @@ import com.malinskiy.marathon.device.DeviceInfo
 import com.malinskiy.marathon.device.DevicePoolId
 import com.malinskiy.marathon.execution.TestResult
 import com.malinskiy.marathon.execution.TestStatus
+import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.report.PoolSummary
 import com.malinskiy.marathon.report.Summary
 import com.malinskiy.marathon.report.internal.TestResultReporter
 import com.malinskiy.marathon.test.Test
 
 class TimelineSummarySerializer(private val testResultSerializer: TestResultReporter) {
+    val logger = MarathonLogging.logger(TimelineSummarySerializer::class.java.simpleName)
 
     private fun prepareTestName(fullTestName: String): String {
         return fullTestName.substring(fullTestName.lastIndexOf('.') + 1)
@@ -17,7 +19,7 @@ class TimelineSummarySerializer(private val testResultSerializer: TestResultRepo
 
     private fun parseData(poolId: DevicePoolId, device: DeviceInfo): List<Data> {
         val executions = testResultSerializer.readTests(poolId, device)
-        return executions.map { this.convertToData(it) }
+        return executions.map { this.convertToData(it) }.sortedBy { it.startDate }
     }
 
     private fun convertToData(testResult: TestResult): Data {
@@ -105,9 +107,14 @@ class TimelineSummarySerializer(private val testResultSerializer: TestResultRepo
     }
 
     fun parse(summary: Summary): ExecutionResult {
+        logger.debug { summary }
         val failedTests = summary.pools.sumBy { it.failed }
         val passedTestCount = passedTestCount(summary)
         val measures = parseList(summary.pools)
-        return ExecutionResult(passedTestCount, failedTests, aggregateExecutionStats(measures), measures)
+        logger.debug { measures }
+        val executionStats = aggregateExecutionStats(measures)
+        logger.debug { executionStats }
+
+        return ExecutionResult(passedTestCount, failedTests, executionStats, measures)
     }
 }
