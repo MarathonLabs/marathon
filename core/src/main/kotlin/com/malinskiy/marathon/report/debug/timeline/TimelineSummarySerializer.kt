@@ -9,13 +9,10 @@ import com.malinskiy.marathon.report.PoolSummary
 import com.malinskiy.marathon.report.Summary
 import com.malinskiy.marathon.report.internal.TestResultReporter
 import com.malinskiy.marathon.test.Test
+import com.malinskiy.marathon.test.toSimpleSafeTestName
 
 class TimelineSummarySerializer(private val testResultSerializer: TestResultReporter) {
     val logger = MarathonLogging.logger(TimelineSummarySerializer::class.java.simpleName)
-
-    private fun prepareTestName(fullTestName: String): String {
-        return fullTestName.substring(fullTestName.lastIndexOf('.') + 1)
-    }
 
     private fun parseData(poolId: DevicePoolId, device: DeviceInfo): List<Data> {
         val executions = testResultSerializer.readTests(poolId, device)
@@ -23,7 +20,7 @@ class TimelineSummarySerializer(private val testResultSerializer: TestResultRepo
     }
 
     private fun convertToData(testResult: TestResult): Data {
-        val preparedTestName = prepareTestName(testResult.test.toString())
+        val preparedTestName = testResult.test.toSimpleSafeTestName()
         val testMetric = getTestMetric(testResult)
         return createData(testResult, testResult.status, preparedTestName, testMetric)
     }
