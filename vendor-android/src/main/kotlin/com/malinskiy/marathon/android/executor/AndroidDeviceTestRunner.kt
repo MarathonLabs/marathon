@@ -69,10 +69,10 @@ class AndroidDeviceTestRunner(private val device: AndroidDevice) {
             logger.warn("Test got stuck. You can increase the timeout in settings if it's too strict")
             throw TestBatchExecutionException(e)
         } catch (e: AdbCommandRejectedException) {
-            logger.error { "Error while running tests ${testBatch.tests.map { it.toTestName() }}" }
+            logger.error(e) { "adb error while running tests ${testBatch.tests.map { it.toTestName() }}" }
             throw TestBatchExecutionException(e)
         } catch (e: IOException) {
-            logger.error { "Error while running tests ${testBatch.tests.map { it.toTestName() }}" }
+            logger.error(e) { "Error while running tests ${testBatch.tests.map { it.toTestName() }}" }
             throw TestBatchExecutionException(e)
         } finally {
 
