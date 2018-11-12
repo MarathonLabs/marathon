@@ -16,7 +16,10 @@ class TimelineSummarySerializer(private val testResultSerializer: TestResultRepo
 
     private fun parseData(poolId: DevicePoolId, device: DeviceInfo): List<Data> {
         val executions = testResultSerializer.readTests(poolId, device)
-        return executions.map { this.convertToData(it) }.sortedBy { it.startDate }
+        return executions
+                .filter { it.isTimeInfoAvailable } //Used for INCOMPLETE tests
+                .map { this.convertToData(it) }
+                .sortedBy { it.startDate }
     }
 
     private fun convertToData(testResult: TestResult): Data {
