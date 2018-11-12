@@ -101,10 +101,10 @@ class DeviceActor(private val devicePoolId: DevicePoolId,
                 }
                 is DeviceAction.Terminate -> {
                     val batch = sideEffect.batch
+                    terminate()
                     batch?.let {
                         returnBatch(it)
                     }
-                    terminate()
                 }
             }
         }
