@@ -15,6 +15,8 @@ import com.malinskiy.marathon.vendor.VendorConfiguration
 import kotlinx.coroutines.experimental.channels.Channel
 import kotlinx.coroutines.experimental.launch
 import java.nio.file.Paths
+import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.ConcurrentMap
 
 private const val DEFAULT_DDM_LIB_TIMEOUT = 30000
 private const val DEFAULT_DDM_LIB_SLEEP_TIME = 500
@@ -26,6 +28,7 @@ class AndroidDeviceProvider : DeviceProvider {
     private lateinit var adb: AndroidDebugBridge
 
     private val channel: Channel<DeviceProvider.DeviceEvent> = unboundedChannel()
+    private val devices: ConcurrentMap<String, AndroidDevice> = ConcurrentHashMap()
 
     override fun initialize(vendorConfiguration: VendorConfiguration) {
         if (vendorConfiguration !is AndroidConfiguration) {
@@ -39,7 +42,7 @@ class AndroidDeviceProvider : DeviceProvider {
         val listener = object : AndroidDebugBridge.IDeviceChangeListener {
             override fun deviceChanged(device: IDevice?, changeMask: Int) {
                 device?.let {
-                    val androidDevice = AndroidDevice(it)
+                    val androidDevice = getDeviceOrCreate(it)
                     val healthy = androidDevice.healthy
 
                     logger.debug { "Device ${device.serialNumber} changed state. Healthy = $healthy" }
@@ -54,7 +57,7 @@ class AndroidDeviceProvider : DeviceProvider {
 
             override fun deviceConnected(device: IDevice?) {
                 device?.let {
-                    val androidDevice = AndroidDevice(it)
+                    val androidDevice = getDeviceOrCreate(it)
                     val healthy = androidDevice.healthy
                     logger.debug { "Device ${device.serialNumber} connected channel.isFull = ${channel.isFull}. Healthy = $healthy" }
 
@@ -67,7 +70,7 @@ class AndroidDeviceProvider : DeviceProvider {
             override fun deviceDisconnected(device: IDevice?) {
                 device?.let {
                     logger.debug { "Device ${device.serialNumber} disconnected" }
-                    val androidDevice = AndroidDevice(it)
+                    val androidDevice = getDeviceOrCreate(it)
                     notifyDisconnected(androidDevice)
                 }
             }
@@ -99,6 +102,12 @@ class AndroidDeviceProvider : DeviceProvider {
         }
         if (!adb.hasInitialDeviceList() || !adb.hasDevices()) {
             throw NoDevicesException("No devices found.")
+        }
+    }
+
+    private fun getDeviceOrCreate(ddmlibDevice: IDevice): AndroidDevice {
+        return devices.getOrPut(ddmlibDevice.serialNumber) {
+            AndroidDevice(ddmlibDevice)
         }
     }
 
