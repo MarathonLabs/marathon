@@ -44,7 +44,7 @@ class Marathon(val configuration: Configuration) {
         if (configuration.debug) {
             return CompositeSummaryPrinter(listOf(
                     htmlSummaryPrinter,
-                    TimelineSummaryPrinter(TimelineSummarySerializer(testResultReporter), gson, outputDir)
+                    TimelineSummaryPrinter(TimelineSummarySerializer(analyticsFactory.rawTestResultTracker), gson, outputDir)
             ))
         }
         return htmlSummaryPrinter
