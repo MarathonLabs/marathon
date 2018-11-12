@@ -13,7 +13,7 @@ then
     exit 1
 fi
 
-if [ -z "GPG_PASSPHRASE" ]
+if [ -z "$GPG_PASSPHRASE" ]
 then
     echo "error: please set GPG_PASSPHRASE environment variable"
     exit 1
