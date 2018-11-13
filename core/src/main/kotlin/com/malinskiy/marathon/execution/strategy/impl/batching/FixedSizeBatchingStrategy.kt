@@ -8,8 +8,8 @@ import com.malinskiy.marathon.test.TestBatch
 import java.time.Instant
 import java.util.*
 
-class FixedSizeBatchingStrategy(@JsonProperty("size") private val size: Int,
-                                @JsonProperty("duration") private val duration: Int? = null,
+class FixedSizeBatchingStrategy(private val size: Int,
+                                private val durationMillis: Long? = null,
                                 @JsonProperty("percentile") val percentile: Double? = null,
                                 @JsonProperty("timeLimit") val timeLimit: Instant? = null) : BatchingStrategy {
 
@@ -27,13 +27,13 @@ class FixedSizeBatchingStrategy(@JsonProperty("size") private val size: Int,
                 result.add(item)
             }
 
-            if(duration != null && percentile != null && timeLimit != null) {
+            if(durationMillis != null && percentile != null && timeLimit != null) {
                 //Check for expected batch duration. If we hit the duration limit - break
                 //Important part is to add at least one test so that if one test is longer than a batch
                 //We still have at least one test
                 val expectedTestDuration = analytics.metricsProvider.executionTime(item, percentile, timeLimit)
                 expectedBatchDuration += expectedTestDuration
-                if(expectedBatchDuration >= duration) break
+                if(expectedBatchDuration >= durationMillis) break
             }
         }
         if (duplicates.isNotEmpty()) {
