@@ -32,5 +32,3 @@ class ExecutionTimeSortingStrategy(val percentile: Double,
         return result
     }
 }
-
-private fun Long.toInstant(): Instant = Instant.now().plusMillis(this)
