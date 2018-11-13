@@ -24,6 +24,7 @@ class FixedSizeBatchingStrategyDeserializer(private val instantTimeProvider: Ins
 
         val durationMillis = node.findValue("durationMillis")?.asLong()
         val percentile = node.findValue("percentile")?.asDouble()
+        val lastMileLength = node.findValue("lastMileLength")?.asInt()
 
         val timeLimitValue: JsonNode? = node.findValue("timeLimit")
         val instant = timeLimitValue?.let {
@@ -31,7 +32,7 @@ class FixedSizeBatchingStrategyDeserializer(private val instantTimeProvider: Ins
                     ?: codec.treeToValueOrNull(timeLimitValue, Duration::class.java)?.addToInstant(instantTimeProvider.referenceTime())
         }
 
-        return FixedSizeBatchingStrategy(size, durationMillis, percentile, instant)
+        return FixedSizeBatchingStrategy(size, durationMillis, percentile, instant, lastMileLength ?: 0)
     }
 }
 

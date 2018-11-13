@@ -10,9 +10,16 @@ import java.util.*
 class FixedSizeBatchingStrategy(private val size: Int,
                                 private val durationMillis: Long? = null,
                                 private val percentile: Double? = null,
-                                private val timeLimit: Instant? = null) : BatchingStrategy {
+                                private val timeLimit: Instant? = null,
+                                private val lastMileLength: Int = 0) : BatchingStrategy {
 
     override fun process(queue: Queue<Test>, analytics: Analytics): TestBatch {
+        if(queue.size < lastMileLength && queue.isNotEmpty()) {
+            //We optimize last mile by disabling batching completely.
+            // This allows us to parallelize the test runs at the end instead of running batches in series
+            return TestBatch(listOf(queue.poll()))
+        }
+
         var counter = 0
         var expectedBatchDuration = 0.0
         val duplicates = mutableListOf<Test>()

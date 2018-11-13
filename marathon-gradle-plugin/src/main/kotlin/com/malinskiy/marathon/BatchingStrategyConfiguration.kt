@@ -25,8 +25,9 @@ class FixedSizeBatchingStrategyConfiguration {
     var durationMillis: Long? = null
     var percentile: Double? = null
     var timeLimit: Instant? = null
+    var lastMileLength: Int = 0
 }
 
 fun BatchingStrategyConfiguration.toStrategy(): BatchingStrategy = fixedSize?.let {
-    FixedSizeBatchingStrategy(it.size, it.durationMillis, it.percentile, it.timeLimit)
+    FixedSizeBatchingStrategy(it.size, it.durationMillis, it.percentile, it.timeLimit, it.lastMileLength)
 } ?: IsolateBatchingStrategy()
