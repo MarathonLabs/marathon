@@ -16,7 +16,6 @@ class ExecutionTimeSortingStrategy(val percentile: Double,
     override fun process(metricsProvider: MetricsProvider): Comparator<Test> =
             Comparator.comparingDouble<Test> {
                 val expectedDuration = metricsProvider.executionTime(it, percentile, timeLimit)
-                logger.debug { "Expecting duration of $expectedDuration for ${it.toSimpleSafeTestName()}" }
                 expectedDuration
             }.reversed()
 
