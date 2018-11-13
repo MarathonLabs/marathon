@@ -31,9 +31,9 @@ class AndroidAppInstaller(private val configuration: Configuration) {
     private fun reinstall(device: IDevice, appPackage: String, appApk: File) {
         withRetry(attempts = MAX_RETIRES, delay = 1000) {
             try {
-                logger.info("Uninstalling $appPackage from $device.serialNumber")
+                logger.info("Uninstalling $appPackage from ${device.serialNumber}")
                 device.uninstallPackage(appPackage)
-                logger.info("Installing $appPackage to $device.serialNumber")
+                logger.info("Installing $appPackage to ${device.serialNumber}")
                 device.installPackage(appApk.absolutePath, true, optionalParams(device))
             } catch (e: InstallException) {
                 throw RuntimeException("Error while installing $appPackage on ${device.serialNumber}", e)
