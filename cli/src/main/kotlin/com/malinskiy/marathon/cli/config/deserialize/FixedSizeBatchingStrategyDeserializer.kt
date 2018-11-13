@@ -13,27 +13,23 @@ import com.malinskiy.marathon.execution.strategy.impl.batching.FixedSizeBatching
 import java.time.Duration
 import java.time.Instant
 
-class FixedSizeBatchingStrategyDeserializer(private val instantTimeProvider: InstantTimeProvider):
+class FixedSizeBatchingStrategyDeserializer(private val instantTimeProvider: InstantTimeProvider) :
         StdDeserializer<FixedSizeBatchingStrategy>(FixedSizeBatchingStrategy::class.java) {
     override fun deserialize(p: JsonParser?, ctxt: DeserializationContext?): FixedSizeBatchingStrategy {
         val codec = p?.codec as ObjectMapper
         val node: JsonNode = codec.readTree(p) ?: throw ConfigurationException("Invalid sorting strategy")
 
-        val size = node.findValue("percentile")?.asInt()
+        val size = node.findValue("size")?.asInt()
                 ?: throw ConfigurationException("Missing size value")
 
         val durationMillis = node.findValue("durationMillis")?.asLong()
-                ?: throw ConfigurationException("Missing durationMillis value")
-
         val percentile = node.findValue("percentile")?.asDouble()
-                ?: throw ConfigurationException("Missing percentile value")
 
-        val timeLimitValue = node.findValue("timeLimit")
-                ?: throw ConfigurationException("Missing time limit value")
-        val instant = codec.treeToValueOrNull(timeLimitValue, Instant::class.java)
-                ?: codec.treeToValueOrNull(timeLimitValue, Duration::class.java)?.
-                        addToInstant(instantTimeProvider.referenceTime())
-                ?: throw ConfigurationException("Can't deserialize timeLimit")
+        val timeLimitValue: JsonNode? = node.findValue("timeLimit")
+        val instant = timeLimitValue?.let {
+            codec.treeToValueOrNull(timeLimitValue, Instant::class.java)
+                    ?: codec.treeToValueOrNull(timeLimitValue, Duration::class.java)?.addToInstant(instantTimeProvider.referenceTime())
+        }
 
         return FixedSizeBatchingStrategy(size, durationMillis, percentile, instant)
     }
@@ -44,6 +40,8 @@ private fun <T> ObjectMapper.treeToValueOrNull(node: TreeNode, clazz: Class<T>):
     val result: T
     try {
         result = treeToValue(node, clazz)
-    } catch (e: InvalidFormatException) { return null }
+    } catch (e: InvalidFormatException) {
+        return null
+    }
     return result
 }

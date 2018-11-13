@@ -44,7 +44,7 @@ class InfluxMetricsProvider(private val influxDb: InfluxDB,
 
         val successRate = successRate[test.toSafeTestName()]
         return if(successRate == null) {
-            logger.warn { "No success rate found for ${test.toSafeTestName()}. Using 0" }
+            logger.warn { "No success rate found for ${test.toSafeTestName()}. Using 0 i.e. fails all the time" }
             0.0
         } else {
             successRate
@@ -75,8 +75,8 @@ class InfluxMetricsProvider(private val influxDb: InfluxDB,
 
         val executionTime = executionTime[test.toSafeTestName()]
         return if(executionTime == null) {
-            logger.warn { "No execution time found for ${test.toSafeTestName()}. Using 0" }
-            0.0
+            logger.warn { "No execution time found for ${test.toSafeTestName()}. Using 300_000 seconds i.e. long test" }
+            300_000.0
         } else {
             executionTime
         }
