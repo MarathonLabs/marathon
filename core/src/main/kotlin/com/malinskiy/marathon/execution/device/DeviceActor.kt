@@ -151,7 +151,11 @@ class DeviceActor(private val devicePoolId: DevicePoolId,
     private fun initialize() {
         logger.debug { "initialize" }
         job = async(context, parent = deviceJob) {
-            device.prepare(configuration)
+            try {
+                device.prepare(configuration)
+            } catch (e: Exception) {
+                terminate()
+            }
         }
     }
 
