@@ -1,6 +1,5 @@
 package com.malinskiy.marathon.execution.strategy.impl.batching
 
-import com.fasterxml.jackson.annotation.JsonProperty
 import com.malinskiy.marathon.analytics.Analytics
 import com.malinskiy.marathon.execution.strategy.BatchingStrategy
 import com.malinskiy.marathon.test.Test
@@ -10,8 +9,8 @@ import java.util.*
 
 class FixedSizeBatchingStrategy(private val size: Int,
                                 private val durationMillis: Long? = null,
-                                @JsonProperty("percentile") val percentile: Double? = null,
-                                @JsonProperty("timeLimit") val timeLimit: Instant? = null) : BatchingStrategy {
+                                private val percentile: Double? = null,
+                                private val timeLimit: Instant? = null) : BatchingStrategy {
 
     override fun process(queue: Queue<Test>, analytics: Analytics): TestBatch {
         var counter = 0

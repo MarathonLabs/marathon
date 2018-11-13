@@ -4,6 +4,7 @@ import com.malinskiy.marathon.execution.strategy.BatchingStrategy
 import com.malinskiy.marathon.execution.strategy.impl.batching.FixedSizeBatchingStrategy
 import com.malinskiy.marathon.execution.strategy.impl.batching.IsolateBatchingStrategy
 import groovy.lang.Closure
+import java.time.Instant
 
 class BatchingStrategyConfiguration {
     var fixedSize: FixedSizeBatchingStrategyConfiguration? = null
@@ -21,8 +22,11 @@ class BatchingStrategyConfiguration {
 
 class FixedSizeBatchingStrategyConfiguration {
     var size = 1
+    var durationMillis: Long? = null
+    var percentile: Double? = null
+    var timeLimit: Instant? = null
 }
 
 fun BatchingStrategyConfiguration.toStrategy(): BatchingStrategy = fixedSize?.let {
-    FixedSizeBatchingStrategy(it.size)
+    FixedSizeBatchingStrategy(it.size, it.durationMillis, it.percentile, it.timeLimit)
 } ?: IsolateBatchingStrategy()
