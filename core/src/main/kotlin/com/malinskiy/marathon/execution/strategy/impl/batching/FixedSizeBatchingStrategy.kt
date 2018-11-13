@@ -1,14 +1,21 @@
 package com.malinskiy.marathon.execution.strategy.impl.batching
 
 import com.fasterxml.jackson.annotation.JsonProperty
+import com.malinskiy.marathon.analytics.Analytics
 import com.malinskiy.marathon.execution.strategy.BatchingStrategy
 import com.malinskiy.marathon.test.Test
 import com.malinskiy.marathon.test.TestBatch
+import java.time.Instant
 import java.util.*
 
-class FixedSizeBatchingStrategy(@JsonProperty("size") private val size: Int) : BatchingStrategy {
-    override fun process(queue: Queue<Test>): TestBatch {
+class FixedSizeBatchingStrategy(@JsonProperty("size") private val size: Int,
+                                @JsonProperty("duration") private val duration: Int? = null,
+                                @JsonProperty("percentile") val percentile: Double? = null,
+                                @JsonProperty("timeLimit") val timeLimit: Instant? = null) : BatchingStrategy {
+
+    override fun process(queue: Queue<Test>, analytics: Analytics): TestBatch {
         var counter = 0
+        var expectedBatchDuration = 0.0
         val duplicates = mutableListOf<Test>()
         val result = mutableSetOf<Test>()
         while (counter < size && queue.isNotEmpty()) {
@@ -18,6 +25,15 @@ class FixedSizeBatchingStrategy(@JsonProperty("size") private val size: Int) : B
                 duplicates.add(item)
             } else {
                 result.add(item)
+            }
+
+            if(duration != null && percentile != null && timeLimit != null) {
+                //Check for expected batch duration. If we hit the duration limit - break
+                //Important part is to add at least one test so that if one test is longer than a batch
+                //We still have at least one test
+                val expectedTestDuration = analytics.metricsProvider.executionTime(item, percentile, timeLimit)
+                expectedBatchDuration += expectedTestDuration
+                if(expectedBatchDuration >= duration) break
             }
         }
         if (duplicates.isNotEmpty()) {

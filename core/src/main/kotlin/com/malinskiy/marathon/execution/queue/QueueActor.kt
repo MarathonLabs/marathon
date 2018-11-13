@@ -21,7 +21,7 @@ import java.util.*
 
 class QueueActor(configuration: Configuration,
                  private val testShard: TestShard,
-                 analytics: Analytics,
+                 private val analytics: Analytics,
                  private val pool: SendChannel<FromQueue>,
                  private val poolId: DevicePoolId,
                  private val progressReporter: ProgressReporter,
@@ -148,7 +148,7 @@ class QueueActor(configuration: Configuration,
     }
 
     private suspend fun sendBatch(device: Device) {
-        val batch = batching.process(queue)
+        val batch = batching.process(queue, analytics)
         activeBatches[device] = batch
         pool.send(FromQueue.ExecuteBatch(device, batch))
     }
