@@ -97,6 +97,7 @@ class DevicePoolActor(private val poolId: DevicePoolId,
         actor?.send(DeviceEvent.Terminate)
         logger.debug { "devices.size = ${devices.size}" }
         if (noActiveDevices()) {
+            //TODO check if we still have tests and timeout if nothing available
             terminate()
         }
     }
