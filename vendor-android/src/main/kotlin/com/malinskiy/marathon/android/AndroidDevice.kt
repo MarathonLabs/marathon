@@ -91,7 +91,7 @@ class AndroidDevice(val ddmsDevice: IDevice) : Device {
     override fun prepare(configuration: Configuration) {
         if (!waitForBoot()) throw TimeoutException("Timeout waiting for device $serialNumber to boot")
 
-        AndroidAppInstaller(configuration).prepareInstallation(ddmsDevice)
+        AndroidAppInstaller(configuration).prepareInstallation(this)
         RemoteFileManager.removeRemoteDirectory(ddmsDevice)
         RemoteFileManager.createRemoteDirectory(ddmsDevice)
         clearLogcat(ddmsDevice)
