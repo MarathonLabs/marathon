@@ -1,11 +1,11 @@
 package com.malinskiy.marathon.android.executor.listeners
 
-import com.android.ddmlib.IDevice
 import com.android.ddmlib.testrunner.ITestRunListener
 import com.android.ddmlib.testrunner.TestIdentifier
+import com.malinskiy.marathon.android.AndroidDevice
 import com.malinskiy.marathon.log.MarathonLogging
 
-class DebugTestRunListener(private val device: IDevice) : ITestRunListener {
+class DebugTestRunListener(private val device: AndroidDevice) : ITestRunListener {
 
     private val logger = MarathonLogging.logger("DebugTestRunListener")
 

@@ -55,7 +55,7 @@ class AndroidDeviceTestRunner(private val device: AndroidDevice) {
                 listOf(
                         TestRunResultsListener(testBatch, device, deferred),
                         ScreenRecorderTestRunListener(fileManager, devicePoolId, device),
-                        DebugTestRunListener(device.ddmsDevice),
+                        DebugTestRunListener(device),
                         ProgressTestRunListener(device, devicePoolId, progressReporter),
                         LogCatListener(device, devicePoolId, LogWriter(fileManager))
                 )
