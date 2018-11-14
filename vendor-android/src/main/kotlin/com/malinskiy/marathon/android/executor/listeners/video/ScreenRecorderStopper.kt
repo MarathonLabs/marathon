@@ -2,6 +2,7 @@ package com.malinskiy.marathon.android.executor.listeners.video
 
 import com.android.ddmlib.IDevice
 import com.android.ddmlib.NullOutputReceiver
+import com.malinskiy.marathon.android.safeExecuteShellCommand
 import com.malinskiy.marathon.log.MarathonLogging
 
 internal class ScreenRecorderStopper(private val deviceInterface: IDevice) {
@@ -19,11 +20,11 @@ internal class ScreenRecorderStopper(private val deviceInterface: IDevice) {
     private fun attemptToGracefullyKillScreenRecord(): Boolean {
         val receiver = CollectingShellOutputReceiver()
         try {
-            deviceInterface.executeShellCommand("ps |grep screenrecord", receiver)
+            deviceInterface.safeExecuteShellCommand("ps |grep screenrecord", receiver)
             val pid = extractPidOfScreenRecordProcess(receiver)
             if (pid.isNotBlank()) {
                 logger.trace("Killing PID {} on {}", pid, deviceInterface.serialNumber)
-                deviceInterface.executeShellCommand("kill -2 $pid", nullOutputReceiver)
+                deviceInterface.safeExecuteShellCommand("kill -2 $pid", nullOutputReceiver)
                 return true
             }
             logger.trace("Did not kill any screen recording process")

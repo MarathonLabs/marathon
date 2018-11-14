@@ -101,7 +101,7 @@ class AndroidDevice(val ddmsDevice: IDevice) : Device {
     private fun clearLogcat(device: IDevice) {
         val logger = MarathonLogging.logger("AndroidDevice.clearLogcat")
         try {
-            device.executeShellCommand("logcat -c", NullOutputReceiver())
+            device.safeExecuteShellCommand("logcat -c", NullOutputReceiver())
         } catch (e: Throwable) {
             logger.warn("Could not clear logcat on device: ${device.serialNumber}", e)
         }

@@ -4,6 +4,8 @@ import com.android.ddmlib.IDevice
 import com.android.ddmlib.InstallException
 import com.malinskiy.marathon.android.AndroidConfiguration
 import com.malinskiy.marathon.android.ApkParser
+import com.malinskiy.marathon.android.safeInstallPackage
+import com.malinskiy.marathon.android.safeUninstallPackage
 import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.execution.withRetry
 import com.malinskiy.marathon.log.MarathonLogging
@@ -32,9 +34,9 @@ class AndroidAppInstaller(private val configuration: Configuration) {
         withRetry(attempts = MAX_RETIRES, delay = 1000) {
             try {
                 logger.info("Uninstalling $appPackage from ${device.serialNumber}")
-                device.uninstallPackage(appPackage)
+                device.safeUninstallPackage(appPackage)
                 logger.info("Installing $appPackage to ${device.serialNumber}")
-                device.installPackage(appApk.absolutePath, true, optionalParams(device))
+                device.safeInstallPackage(appApk.absolutePath, true, optionalParams(device))
             } catch (e: InstallException) {
                 throw RuntimeException("Error while installing $appPackage on ${device.serialNumber}", e)
             }
