@@ -14,7 +14,7 @@ import java.util.concurrent.TimeUnit
 
 const val ADB_INSTALL_TIMEOUT_MINUTES = 4L
 const val ADB_SHORT_TIMEOUT_SECONDS = 20L
-const val ADB_SCREEN_RECORD_TIMOUT = 10L
+const val ADB_SCREEN_RECORD_TIMEOUT = 10L
 
 fun IDevice.safeUninstallPackage(packageName: String): String? {
     try {
@@ -57,7 +57,7 @@ fun IDevice.safeExecuteShellCommand(command: String, receiver: IShellOutputRecei
 
 fun IDevice.safeStartScreenRecorder(remoteFilePath: String, options: ScreenRecorderOptions, receiver: IShellOutputReceiver) {
     val screenRecorderCommand = getScreenRecorderCommand(remoteFilePath, options)
-    executeShellCommand(screenRecorderCommand, receiver, ADB_SCREEN_RECORD_TIMOUT, ADB_SCREEN_RECORD_TIMOUT, TimeUnit.MINUTES)
+    executeShellCommand(screenRecorderCommand, receiver, ADB_SCREEN_RECORD_TIMEOUT, ADB_SCREEN_RECORD_TIMEOUT, TimeUnit.MINUTES)
 }
 
 fun getScreenRecorderCommand(@NonNull remoteFilePath: String,
