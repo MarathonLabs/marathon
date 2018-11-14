@@ -105,6 +105,11 @@ class DevicePoolActor(private val poolId: DevicePoolId,
     private fun noActiveDevices() = devices.isEmpty() || devices.all { it.value.isClosedForSend }
 
     private suspend fun addDevice(device: Device) {
+        if (devices.containsKey(device.serialNumber)) {
+            logger.warn { "device ${device.serialNumber} already present in pool ${poolId.name}" }
+            return
+        }
+
         logger.debug { "add device ${device.serialNumber}" }
         val actor = DeviceActor(poolId, this, configuration, device, progressReporter, poolJob)
         devices[device.serialNumber] = actor
