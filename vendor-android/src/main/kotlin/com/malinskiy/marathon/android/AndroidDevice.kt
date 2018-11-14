@@ -2,6 +2,7 @@ package com.malinskiy.marathon.android
 
 import com.android.ddmlib.IDevice
 import com.android.ddmlib.NullOutputReceiver
+import com.android.ddmlib.TimeoutException
 import com.malinskiy.marathon.android.executor.AndroidAppInstaller
 import com.malinskiy.marathon.android.executor.AndroidDeviceTestRunner
 import com.malinskiy.marathon.device.Device
@@ -18,6 +19,9 @@ import kotlinx.coroutines.experimental.CompletableDeferred
 import java.util.UUID
 
 class AndroidDevice(val ddmsDevice: IDevice) : Device {
+
+    val logger = MarathonLogging.logger(AndroidDevice::class.java.simpleName)
+
     override val abi: String by lazy {
         ddmsDevice.getProperty("ro.product.cpu.abi") ?: "Unknown"
     }
@@ -85,15 +89,30 @@ class AndroidDevice(val ddmsDevice: IDevice) : Device {
     }
 
     override fun prepare(configuration: Configuration) {
-        while(ddmsDevice.getProperty("sys.boot_completed") == null) {
-            Thread.sleep(1000)
-            if(Thread.interrupted()) return
-        }
+        if (!waitForBoot()) throw TimeoutException("Timeout waiting for device $serialNumber to boot")
 
         AndroidAppInstaller(configuration).prepareInstallation(ddmsDevice)
         RemoteFileManager.removeRemoteDirectory(ddmsDevice)
         RemoteFileManager.createRemoteDirectory(ddmsDevice)
         clearLogcat(ddmsDevice)
+    }
+
+    private fun waitForBoot(): Boolean {
+        var booted = false
+        for (i in 1..30) {
+            if (ddmsDevice.getProperty("sys.boot_completed") == null) {
+                Thread.sleep(1000)
+                logger.debug { "Device $serialNumber is still booting..." }
+            } else {
+                logger.debug { "Device $serialNumber booted!" }
+                booted = true
+                break
+            }
+
+            if (Thread.interrupted()) return true
+        }
+
+        return booted
     }
 
     override fun dispose() {}

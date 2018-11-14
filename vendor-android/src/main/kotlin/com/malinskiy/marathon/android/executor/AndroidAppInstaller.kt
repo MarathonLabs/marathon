@@ -11,7 +11,7 @@ import com.malinskiy.marathon.execution.withRetry
 import com.malinskiy.marathon.log.MarathonLogging
 import java.io.File
 
-class AndroidAppInstaller(private val configuration: Configuration) {
+class AndroidAppInstaller(configuration: Configuration) {
 
     companion object {
         private const val MAX_RETIRES = 3
@@ -23,10 +23,13 @@ class AndroidAppInstaller(private val configuration: Configuration) {
 
     fun prepareInstallation(device: IDevice) {
         val applicationInfo = ApkParser().parseInstrumentationInfo(androidConfiguration.testApplicationOutput)
+        logger.debug { "Installing application output to ${device.serialNumber}" }
         androidConfiguration.applicationOutput?.let {
             reinstall(device, applicationInfo.applicationPackage, it)
         }
+        logger.debug { "Installing instrumentation package to ${device.serialNumber}" }
         reinstall(device, applicationInfo.instrumentationPackage, androidConfiguration.testApplicationOutput)
+        logger.debug { "Prepare installation finished for ${device.serialNumber}" }
     }
 
     @Suppress("TooGenericExceptionThrown")
