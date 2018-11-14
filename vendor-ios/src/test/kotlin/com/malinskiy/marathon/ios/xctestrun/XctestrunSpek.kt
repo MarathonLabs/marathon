@@ -84,5 +84,13 @@ object XctestrunSpek : Spek({
                 clone.testingEnvironmentVariables shouldNotHaveKey "SPEK_DEBUG"
             }
         }
+        given("A valid file with metadata key") {
+            val updatedFile = File(javaClass.classLoader.getResource("fixtures/xctestrun/UITesting_iphonesimulator12.1-x86_64.xctestrun").file)
+            val xctestrun by memoized { Xctestrun(updatedFile) }
+
+            it("should accurately determine the testable target key") {
+                xctestrun.targetName shouldEqual "sample-appUITests"
+            }
+        }
     }
 })
