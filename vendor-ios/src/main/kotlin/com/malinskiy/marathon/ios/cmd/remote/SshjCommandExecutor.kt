@@ -38,7 +38,7 @@ class SshjCommandExecutor(val hostAddress: InetAddress,
         config.loggerFactory = loggerFactory
 
         ssh = SSHClient(config)
-        knownHostsPath.let { ssh.loadKnownHosts(knownHostsPath) }
+        knownHostsPath?.let { ssh.loadKnownHosts(it) }
         ssh.loadKnownHosts()
         val keys = ssh.loadKeys(remotePrivateKey.path)
         ssh.connect(hostAddress, port)
