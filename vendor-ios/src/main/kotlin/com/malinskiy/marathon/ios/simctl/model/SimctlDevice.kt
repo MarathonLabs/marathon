@@ -7,6 +7,7 @@ data class SimctlDevice(val runtime: String,
                         val name: String,
                         val udid: String) {
     enum class State {
+        Unknown,
         @SerializedName("Booted")
         Booted,
         @SerializedName("Shutdown")
@@ -15,7 +16,7 @@ data class SimctlDevice(val runtime: String,
         Creating,
         @SerializedName("Booting")
         Booting,
-        @SerializedName("Shutting-Down")
+        @SerializedName("Shutting Down")
         ShuttingDown
     }
 }

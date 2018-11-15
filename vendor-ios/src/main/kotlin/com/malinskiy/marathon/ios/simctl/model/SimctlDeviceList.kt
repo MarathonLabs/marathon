@@ -3,6 +3,7 @@ package com.malinskiy.marathon.ios.simctl.model
 import com.google.gson.JsonDeserializationContext
 import com.google.gson.JsonDeserializer
 import com.google.gson.JsonElement
+import com.google.gson.JsonSyntaxException
 import java.lang.reflect.Type
 
 data class SimctlDeviceList(val devices: List<SimctlDevice>)
@@ -24,7 +25,12 @@ class SimctlDeviceListDeserializer : JsonDeserializer<SimctlDeviceList> {
                 val udid = deviceJson?.get("udid")?.asString
 
                 if (stateJson != null && context != null && name != null && udid != null) {
-                    val state: SimctlDevice.State = context.deserialize(stateJson, SimctlDevice.State::class.java)
+                    val state: SimctlDevice.State = try {
+                        context.deserialize(stateJson, SimctlDevice.State::class.java) ?: SimctlDevice.State.Unknown
+                    } catch (e: JsonSyntaxException) {
+                        SimctlDevice.State.Unknown
+                    }
+
                     devices.add(SimctlDevice(runtime, state, name, udid))
                 }
             }
