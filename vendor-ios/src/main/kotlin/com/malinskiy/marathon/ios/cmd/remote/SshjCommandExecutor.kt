@@ -17,6 +17,7 @@ class SshjCommandExecutor(val hostAddress: InetAddress,
                           val remoteUsername: String,
                           val remotePrivateKey: File,
                           val port: Int = DEFAULT_PORT,
+                          val knownHostsPath: File?,
                           verbose: Boolean = false) : CommandExecutor {
 
     val ssh: SSHClient
@@ -37,6 +38,7 @@ class SshjCommandExecutor(val hostAddress: InetAddress,
         config.loggerFactory = loggerFactory
 
         ssh = SSHClient(config)
+        knownHostsPath.let { ssh.loadKnownHosts(knownHostsPath) }
         ssh.loadKnownHosts()
         val keys = ssh.loadKeys(remotePrivateKey.path)
         ssh.connect(hostAddress, port)
@@ -47,7 +49,7 @@ class SshjCommandExecutor(val hostAddress: InetAddress,
 
     override fun exec(command: String, timeout: Long): CommandResult {
         val session = ssh.startSession()
-        var sshCommand: Session.Command? = null
+        var sshCommand: Session.Command?
         val stdout: String
         val stderr: String
         try {

@@ -188,6 +188,7 @@ object ConfigFactorySpec : Spek({
                         xctestrunPath = file.parentFile.resolve("a/Build/Products/UITesting_iphonesimulator11.0-x86_64.xctestrun"),
                         remoteUsername = "testuser",
                         remotePrivateKey = File("/home/testuser/.ssh/id_rsa"),
+                        knownHostsPath = file.parentFile.resolve("known_hosts"),
                         remoteRsyncPath = "/usr/local/bin/rsync",
                         debugSsh = true,
                         devicesFile = file.parentFile.resolve("Marathondevices"))
