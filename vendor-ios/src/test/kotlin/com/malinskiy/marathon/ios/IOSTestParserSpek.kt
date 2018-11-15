@@ -40,6 +40,7 @@ object IOSTestParserSpek : Spek({
                             xctestrunPath = xctestrunPath,
                             remoteUsername = "testuser",
                             remotePrivateKey = File("/home/fakekey"),
+                            knownHostsPath = null,
                             remoteRsyncPath = "/remote/rsync",
                             sourceRoot = sourceRoot,
                             debugSsh = false)
