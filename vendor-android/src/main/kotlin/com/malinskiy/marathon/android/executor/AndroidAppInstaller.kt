@@ -40,10 +40,13 @@ class AndroidAppInstaller(configuration: Configuration) {
         withRetry(attempts = MAX_RETIRES, delay = 1000) {
             try {
                 logger.info("Uninstalling $appPackage from ${device.serialNumber}")
-                ddmsDevice.safeUninstallPackage(appPackage)
+                val uninstallMessage = ddmsDevice.safeUninstallPackage(appPackage)
+                uninstallMessage?.let { logger.debug { it } }
                 logger.info("Installing $appPackage to ${device.serialNumber}")
-                ddmsDevice.safeInstallPackage(appApk.absolutePath, true, optionalParams(ddmsDevice))
+                val installMessage = ddmsDevice.safeInstallPackage(appApk.absolutePath, true, optionalParams(ddmsDevice))
+                installMessage?.let { logger.debug { it } }
             } catch (e: InstallException) {
+                logger.error(e) { "Error while installing $appPackage on ${device.serialNumber}" }
                 throw RuntimeException("Error while installing $appPackage on ${device.serialNumber}", e)
             }
         }

@@ -10,6 +10,7 @@ import com.malinskiy.marathon.execution.DevicePoolMessage
 import com.malinskiy.marathon.execution.DevicePoolMessage.FromDevice.RequestNextBatch
 import com.malinskiy.marathon.execution.TestBatchResults
 import com.malinskiy.marathon.execution.progress.ProgressReporter
+import com.malinskiy.marathon.execution.withRetry
 import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.test.TestBatch
 import kotlinx.coroutines.experimental.CompletableDeferred
@@ -51,9 +52,6 @@ class DeviceActor(private val devicePoolId: DevicePoolId,
             }
             on<DeviceEvent.WakeUp> {
                 dontTransition()
-            }
-            on<DeviceEvent.Initialize> {
-                transitionTo(DeviceState.Initializing, DeviceAction.Initialize)
             }
         }
         state<DeviceState.Ready> {
@@ -154,11 +152,13 @@ class DeviceActor(private val devicePoolId: DevicePoolId,
     private fun initialize() {
         logger.debug { "initialize ${device.serialNumber}" }
         job = async(context, parent = deviceJob) {
-            try {
-                device.prepare(configuration)
-            } catch (e: Exception) {
-                logger.debug { "device ${device.serialNumber} initialization failed. Retrying" }
-                state.transition(DeviceEvent.Initialize)
+            withRetry(10, 1000) {
+                try {
+                    device.prepare(configuration)
+                } catch (e: Exception) {
+                    logger.debug { "device ${device.serialNumber} initialization failed. Retrying" }
+                    throw e
+                }
             }
         }
     }
