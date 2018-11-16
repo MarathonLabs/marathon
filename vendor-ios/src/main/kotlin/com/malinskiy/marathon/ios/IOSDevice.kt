@@ -132,8 +132,8 @@ class IOSDevice(val udid: String,
         try {
             val command = session.exec(remoteCommand)
 
-            command.inputStream.reader().forEachLine {  logParser.onLine(it)  }
-            command.errorStream.reader().forEachLine {  logger.error(it) }
+            command.inputStream.bufferedReader().forEachLine {  logParser.onLine(it)  }
+            command.errorStream.bufferedReader().forEachLine {  logger.error(it) }
 
             command.join(configuration.testOutputTimeoutMillis, TimeUnit.MILLISECONDS)
         } finally {

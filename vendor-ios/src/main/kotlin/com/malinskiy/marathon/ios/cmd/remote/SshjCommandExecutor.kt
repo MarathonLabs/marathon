@@ -55,10 +55,10 @@ class SshjCommandExecutor(val hostAddress: InetAddress,
         try {
             sshCommand = session.exec(command)
 
-            sshCommand.join(timeout, TimeUnit.SECONDS)
-
             stdout = sshCommand.inputStream.bufferedReader().lineSequence().fold("") { acc, line -> acc + line }
             stderr = sshCommand.errorStream.bufferedReader().lineSequence().fold("") { acc, line -> acc + line }
+
+            sshCommand.join(timeout, TimeUnit.SECONDS)
         } finally {
             session?.close()
         }
