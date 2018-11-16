@@ -9,7 +9,7 @@ import com.malinskiy.marathon.execution.queue.TestAction
 import com.malinskiy.marathon.execution.queue.TestEvent
 import com.malinskiy.marathon.execution.queue.TestState
 
-internal open class NoOpTracker : Tracker {
+open class NoOpTracker : Tracker {
 
     override fun terminate() {}
 

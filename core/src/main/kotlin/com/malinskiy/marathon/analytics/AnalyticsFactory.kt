@@ -19,4 +19,6 @@ class AnalyticsFactory(configuration: Configuration,
             gson)
 
     fun create(): Analytics = Analytics(trackerFactory.create(), metricsFactory.create())
+
+    val rawTestResultTracker = trackerFactory.rawTestResultTracker
 }

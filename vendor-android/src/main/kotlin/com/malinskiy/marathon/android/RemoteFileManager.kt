@@ -9,6 +9,7 @@ import com.android.ddmlib.testrunner.TestIdentifier
 import com.malinskiy.marathon.log.MarathonLogging
 
 import java.io.IOException
+import java.util.concurrent.TimeUnit
 
 object RemoteFileManager {
 
@@ -31,7 +32,7 @@ object RemoteFileManager {
 
     private fun executeCommand(device: IDevice, command: String, errorMessage: String) {
         try {
-            device.executeShellCommand(command, NO_OP_RECEIVER)
+            device.safeExecuteShellCommand(command, NO_OP_RECEIVER)
         } catch (e: TimeoutException) {
             logger.error(errorMessage, e)
         } catch (e: AdbCommandRejectedException) {

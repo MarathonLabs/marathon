@@ -1,6 +1,7 @@
 package com.malinskiy.marathon.analytics.metrics.remote.influx
 
 import com.malinskiy.marathon.analytics.metrics.MetricsProvider
+import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.test.Test
 import com.malinskiy.marathon.test.toSafeTestName
 import org.influxdb.InfluxDB
@@ -20,6 +21,8 @@ class SuccessRate(@Column(name = "testname", tag = true) var testName: String? =
 
 class InfluxMetricsProvider(private val influxDb: InfluxDB,
                             private val dbName: String) : MetricsProvider {
+
+    private val logger = MarathonLogging.logger(InfluxMetricsProvider::class.java.simpleName)
     private val mapper = InfluxDBResultMapper()
 
     private val successRate = mutableMapOf<String, Double>()
@@ -38,7 +41,14 @@ class InfluxMetricsProvider(private val influxDb: InfluxDB,
             }
             successRateInitialized = true
         }
-        return successRate[test.toSafeTestName()] ?: 0.0
+
+        val successRate = successRate[test.toSafeTestName()]
+        return if(successRate == null) {
+            logger.warn { "No success rate found for ${test.toSafeTestName()}. Using 0 i.e. fails all the time" }
+            0.0
+        } else {
+            successRate
+        }
     }
 
     private fun requestAllSuccessRates(limit: Instant): List<SuccessRate> {
@@ -62,7 +72,14 @@ class InfluxMetricsProvider(private val influxDb: InfluxDB,
             }
             executionTimeInitialized = true
         }
-        return executionTime[test.toSafeTestName()] ?: 0.0
+
+        val executionTime = executionTime[test.toSafeTestName()]
+        return if(executionTime == null) {
+            logger.warn { "No execution time found for ${test.toSafeTestName()}. Using 300_000 seconds i.e. long test" }
+            300_000.0
+        } else {
+            executionTime
+        }
     }
 
     private fun requestAllExecutionTimes(percentile: Double,

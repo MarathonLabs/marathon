@@ -46,7 +46,7 @@ class TestRunResultsListener(private val testBatch: TestBatch,
 
         if (skipped.isNotEmpty()) {
             skipped.forEach {
-                logger.warn { "skipped = ${it.test.toTestName()}" }
+                logger.warn { "skipped = ${it.test.toTestName()}, ${device.serialNumber}" }
             }
         }
 

@@ -6,6 +6,7 @@ import com.malinskiy.marathon.cli.config.deserialize.AnalyticsConfigurationDeser
 import com.malinskiy.marathon.cli.config.deserialize.BatchingStrategyDeserializer
 import com.malinskiy.marathon.cli.config.deserialize.ExecutionTimeSortingStrategyDeserializer
 import com.malinskiy.marathon.cli.config.deserialize.FileVendorConfigurationDeserializer
+import com.malinskiy.marathon.cli.config.deserialize.FixedSizeBatchingStrategyDeserializer
 import com.malinskiy.marathon.cli.config.deserialize.FlakinessStrategyDeserializer
 import com.malinskiy.marathon.cli.config.deserialize.InfluxDbConfigurationDeserializer
 import com.malinskiy.marathon.cli.config.deserialize.PoolingStrategyDeserializer
@@ -23,6 +24,7 @@ import com.malinskiy.marathon.execution.strategy.PoolingStrategy
 import com.malinskiy.marathon.execution.strategy.RetryStrategy
 import com.malinskiy.marathon.execution.strategy.ShardingStrategy
 import com.malinskiy.marathon.execution.strategy.SortingStrategy
+import com.malinskiy.marathon.execution.strategy.impl.batching.FixedSizeBatchingStrategy
 import com.malinskiy.marathon.execution.strategy.impl.flakiness.ProbabilityBasedFlakinessStrategy
 import com.malinskiy.marathon.execution.strategy.impl.sorting.ExecutionTimeSortingStrategy
 
@@ -39,6 +41,8 @@ class DeserializeModule(instantTimeProvider: InstantTimeProvider): SimpleModule(
         addDeserializer(FlakinessStrategy::class.java, FlakinessStrategyDeserializer())
         addDeserializer(ProbabilityBasedFlakinessStrategy::class.java,
                 ProbabilityBasedFlakinessStrategyDeserializer(instantTimeProvider))
+        addDeserializer(FixedSizeBatchingStrategy::class.java,
+                FixedSizeBatchingStrategyDeserializer(instantTimeProvider))
         addDeserializer(RetryStrategy::class.java, RetryStrategyDeserializer())
         addDeserializer(TestFilter::class.java, TestFilterDeserializer())
         addDeserializer(FileVendorConfiguration::class.java, FileVendorConfigurationDeserializer())

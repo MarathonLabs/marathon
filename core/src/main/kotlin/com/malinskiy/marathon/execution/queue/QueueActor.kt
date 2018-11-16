@@ -21,7 +21,7 @@ import java.util.*
 
 class QueueActor(configuration: Configuration,
                  private val testShard: TestShard,
-                 analytics: Analytics,
+                 private val analytics: Analytics,
                  private val pool: SendChannel<FromQueue>,
                  private val poolId: DevicePoolId,
                  private val progressReporter: ProgressReporter,
@@ -79,6 +79,7 @@ class QueueActor(configuration: Configuration,
     }
 
     private fun onReturnBatch(device: Device, batch: TestBatch) {
+        logger.debug { "onReturnBatch ${device.serialNumber}" }
         returnTests(batch.tests)
         activeBatches.remove(device)
     }
@@ -133,17 +134,21 @@ class QueueActor(configuration: Configuration,
         logger.debug { "request next batch for device ${device.serialNumber}" }
         val queueIsEmpty = queue.isEmpty()
         if (queue.isNotEmpty() && !activeBatches.containsKey(device)) {
+            logger.debug { "sending next batch for device ${device.serialNumber}" }
             sendBatch(device)
             return
         }
         if (queueIsEmpty && activeBatches.isEmpty()) {
             pool.send(DevicePoolMessage.FromQueue.Terminated)
             onTerminate()
+        } else {
+            logger.debug { "queue is empty but there are active batches present for " +
+                    "${activeBatches.keys.joinToString { it.serialNumber }}" }
         }
     }
 
     private suspend fun sendBatch(device: Device) {
-        val batch = batching.process(queue)
+        val batch = batching.process(queue, analytics)
         activeBatches[device] = batch
         pool.send(FromQueue.ExecuteBatch(device, batch))
     }

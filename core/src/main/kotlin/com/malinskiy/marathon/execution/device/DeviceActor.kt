@@ -4,11 +4,13 @@ import com.malinskiy.marathon.actor.Actor
 import com.malinskiy.marathon.actor.StateMachine
 import com.malinskiy.marathon.device.Device
 import com.malinskiy.marathon.device.DevicePoolId
+import com.malinskiy.marathon.exceptions.TestBatchExecutionException
 import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.execution.DevicePoolMessage
 import com.malinskiy.marathon.execution.DevicePoolMessage.FromDevice.RequestNextBatch
 import com.malinskiy.marathon.execution.TestBatchResults
 import com.malinskiy.marathon.execution.progress.ProgressReporter
+import com.malinskiy.marathon.execution.withRetry
 import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.test.TestBatch
 import kotlinx.coroutines.experimental.CompletableDeferred
@@ -100,10 +102,10 @@ class DeviceActor(private val devicePoolId: DevicePoolId,
                 }
                 is DeviceAction.Terminate -> {
                     val batch = sideEffect.batch
+                    terminate()
                     batch?.let {
                         returnBatch(it)
                     }
-                    terminate()
                 }
             }
         }
@@ -148,16 +150,27 @@ class DeviceActor(private val devicePoolId: DevicePoolId,
     }
 
     private fun initialize() {
-        logger.debug { "initialize" }
+        logger.debug { "initialize ${device.serialNumber}" }
         job = async(context, parent = deviceJob) {
-            device.prepare(configuration)
+            withRetry(30, 10000) {
+                try {
+                    device.prepare(configuration)
+                } catch (e: Exception) {
+                    logger.debug { "device ${device.serialNumber} initialization failed. Retrying" }
+                    throw e
+                }
+            }
         }
     }
 
     private fun executeBatch(batch: TestBatch, result: CompletableDeferred<TestBatchResults>) {
-        logger.debug { "executeBatch" }
+        logger.debug { "executeBatch ${device.serialNumber}" }
         job = async(context, parent = deviceJob) {
-            device.execute(configuration, devicePoolId, batch, result, progressReporter)
+            try {
+                device.execute(configuration, devicePoolId, batch, result, progressReporter)
+            } catch (e: TestBatchExecutionException) {
+                returnBatch(batch)
+            }
         }
     }
 
@@ -168,7 +181,7 @@ class DeviceActor(private val devicePoolId: DevicePoolId,
     }
 
     private fun terminate() {
-        logger.debug { "terminate" }
+        logger.debug { "terminate ${device.serialNumber}" }
         job?.cancel()
         context.close()
         deviceJob.cancel()

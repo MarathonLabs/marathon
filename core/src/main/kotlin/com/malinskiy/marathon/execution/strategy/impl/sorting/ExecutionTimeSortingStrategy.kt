@@ -2,16 +2,21 @@ package com.malinskiy.marathon.execution.strategy.impl.sorting
 
 import com.malinskiy.marathon.analytics.metrics.MetricsProvider
 import com.malinskiy.marathon.execution.strategy.SortingStrategy
+import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.test.Test
+import com.malinskiy.marathon.test.toSimpleSafeTestName
 import java.time.Instant
-import java.util.Comparator
+import java.util.*
 
 class ExecutionTimeSortingStrategy(val percentile: Double,
                                    val timeLimit: Instant) : SortingStrategy {
 
+    val logger = MarathonLogging.logger(ExecutionTimeSortingStrategy::class.java.simpleName)
+
     override fun process(metricsProvider: MetricsProvider): Comparator<Test> =
             Comparator.comparingDouble<Test> {
-                metricsProvider.executionTime(it, percentile, timeLimit)
+                val expectedDuration = metricsProvider.executionTime(it, percentile, timeLimit)
+                expectedDuration
             }.reversed()
 
     override fun equals(other: Any?): Boolean {
@@ -32,5 +37,3 @@ class ExecutionTimeSortingStrategy(val percentile: Double,
         return result
     }
 }
-
-private fun Long.toInstant(): Instant = Instant.now().plusMillis(this)

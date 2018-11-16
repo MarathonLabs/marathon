@@ -47,9 +47,9 @@ class InfluxMetricsProviderIntegrationSpec : Spek({
                 val result = provider.invoke().successRate(test, Instant.now())
                 result shouldEqualTo 0.0
             }
-            it("execution time default value is 0.0") {
+            it("execution time default value is 300_000.0") {
                 val result = provider.invoke().executionTime(test, 90.0, Instant.now())
-                result shouldEqualTo 0.0
+                result shouldEqualTo 300_000.0
             }
         }
         group("execution time") {
