@@ -156,6 +156,7 @@ class DeviceActor(private val devicePoolId: DevicePoolId,
         logger.debug { "initialize ${device.serialNumber}" }
         job = async(context, parent = deviceJob) {
             withRetry(30, 10000) {
+                if(!isActive) return@async
                 try {
                     device.prepare(configuration)
                 } catch (e: Exception) {
