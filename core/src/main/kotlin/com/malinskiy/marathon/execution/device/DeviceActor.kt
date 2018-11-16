@@ -52,6 +52,9 @@ class DeviceActor(private val devicePoolId: DevicePoolId,
             on<DeviceEvent.WakeUp> {
                 dontTransition()
             }
+            on<DeviceEvent.Initialize> {
+                transitionTo(DeviceState.Initializing, DeviceAction.Initialize)
+            }
         }
         state<DeviceState.Ready> {
             on<DeviceEvent.Execute> {
@@ -149,18 +152,19 @@ class DeviceActor(private val devicePoolId: DevicePoolId,
     }
 
     private fun initialize() {
-        logger.debug { "initialize" }
+        logger.debug { "initialize ${device.serialNumber}" }
         job = async(context, parent = deviceJob) {
             try {
                 device.prepare(configuration)
             } catch (e: Exception) {
-                terminate()
+                logger.debug { "device ${device.serialNumber} initialization failed. Retrying" }
+                state.transition(DeviceEvent.Initialize)
             }
         }
     }
 
     private fun executeBatch(batch: TestBatch, result: CompletableDeferred<TestBatchResults>) {
-        logger.debug { "executeBatch" }
+        logger.debug { "executeBatch ${device.serialNumber}" }
         job = async(context, parent = deviceJob) {
             try {
                 device.execute(configuration, devicePoolId, batch, result, progressReporter)
@@ -177,7 +181,7 @@ class DeviceActor(private val devicePoolId: DevicePoolId,
     }
 
     private fun terminate() {
-        logger.debug { "terminate" }
+        logger.debug { "terminate ${device.serialNumber}" }
         job?.cancel()
         context.close()
         deviceJob.cancel()
