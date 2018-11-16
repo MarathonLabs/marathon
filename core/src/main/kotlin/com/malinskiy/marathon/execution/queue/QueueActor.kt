@@ -67,12 +67,16 @@ class QueueActor(configuration: Configuration,
     private suspend fun onBatchCompleted(device: Device, results: TestBatchResults) {
         val finished = results.finished
         val failed = results.failed
+        val uncompleted = results.uncompleted
         logger.debug { "handle test results ${device.serialNumber}" }
         if (finished.isNotEmpty()) {
             handleFinishedTests(finished, device)
         }
         if (failed.isNotEmpty()) {
             handleFailedTests(failed, device)
+        }
+        if (uncompleted.isNotEmpty()) {
+            returnTests(uncompleted)
         }
         activeBatches.remove(device.serialNumber)
         onRequestBatch(device)
@@ -142,8 +146,10 @@ class QueueActor(configuration: Configuration,
             pool.send(DevicePoolMessage.FromQueue.Terminated)
             onTerminate()
         } else {
-            logger.debug { "queue is empty but there are active batches present for " +
-                    "${activeBatches.keys.joinToString { it }}" }
+            logger.debug {
+                "queue is empty but there are active batches present for " +
+                        "${activeBatches.keys.joinToString { it }}"
+            }
         }
     }
 

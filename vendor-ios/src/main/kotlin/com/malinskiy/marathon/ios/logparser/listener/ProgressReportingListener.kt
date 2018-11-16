@@ -7,8 +7,6 @@ import com.malinskiy.marathon.execution.TestBatchResults
 import com.malinskiy.marathon.execution.TestResult
 import com.malinskiy.marathon.execution.TestStatus
 import com.malinskiy.marathon.execution.progress.ProgressReporter
-import com.malinskiy.marathon.ios.IOSDevice
-import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.test.Test
 import com.malinskiy.marathon.test.TestBatch
 import com.malinskiy.marathon.test.toSafeTestName
@@ -31,11 +29,7 @@ class ProgressReportingListener(private val device: Device,
             !received.contains(it.toSafeTestName())
         }
 
-        val incomplete = incompleteTests.map {
-            TestResult(it, device.toDeviceInfo(), TestStatus.INCOMPLETE, 0, 0, null)
-        }
-
-        deferred.complete(TestBatchResults(device, success, failure + incomplete))
+        deferred.complete(TestBatchResults(device, success, failure, incompleteTests))
     }
 
     override fun testFailed(test: Test, startTime: Long, endTime: Long) {
