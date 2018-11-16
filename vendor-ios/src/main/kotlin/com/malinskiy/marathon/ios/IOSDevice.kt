@@ -139,7 +139,9 @@ class IOSDevice(val udid: String,
         } finally {
             logParser.close()
 
-            // session.close()
+            if (session.isOpen) {
+                session.close()
+            }
         }
     }
 
