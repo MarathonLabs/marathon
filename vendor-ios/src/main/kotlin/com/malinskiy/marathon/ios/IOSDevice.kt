@@ -124,7 +124,8 @@ class IOSDevice(val udid: String,
                         "-xctestrun ${remoteXctestrunFile.path}",
                         // "-resultBundlePath ${remoteXcresultPath.canonicalPath} ",
                         testBatchToArguments,
-                        "-destination 'platform=iOS simulator,id=$udid'")
+                        "-destination 'platform=iOS simulator,id=$udid' ;",
+                        "exit")
                         .joinToString(" ")
                         .also { logger.debug(it) }
         val session = hostCommandExecutor.startSession()
