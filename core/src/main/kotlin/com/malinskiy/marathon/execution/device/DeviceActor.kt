@@ -102,9 +102,12 @@ class DeviceActor(private val devicePoolId: DevicePoolId,
                 }
                 is DeviceAction.Terminate -> {
                     val batch = sideEffect.batch
-                    terminate()
-                    batch?.let {
-                        returnBatch(it)
+                    if(batch == null) {
+                        terminate()
+                    } else {
+                        returnBatch(batch).invokeOnCompletion {
+                            terminate()
+                        }
                     }
                 }
             }
@@ -174,8 +177,8 @@ class DeviceActor(private val devicePoolId: DevicePoolId,
         }
     }
 
-    private fun returnBatch(batch: TestBatch) {
-        launch(parent = deviceJob) {
+    private fun returnBatch(batch: TestBatch): Job {
+        return launch(parent = deviceJob) {
             pool.send(DevicePoolMessage.FromDevice.ReturnTestBatch(device, batch))
         }
     }
