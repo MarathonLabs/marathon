@@ -152,7 +152,7 @@ class DeviceActor(private val devicePoolId: DevicePoolId,
     private fun initialize() {
         logger.debug { "initialize ${device.serialNumber}" }
         job = async(context, parent = deviceJob) {
-            withRetry(10, 1000) {
+            withRetry(30, 10000) {
                 try {
                     device.prepare(configuration)
                 } catch (e: Exception) {
