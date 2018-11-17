@@ -26,7 +26,7 @@ object RemoteSimulatorFeatureProvider {
                 """ruby -e 'require "socket"; puts Addrinfo.tcp("", 0).bind {|s| s.local_address.ip_port }'"""
         )
         return when {
-            commandResult.exitStatus == 0 -> commandResult.stdout.toIntOrNull()
+            commandResult.exitStatus == 0 -> commandResult.stdout.trim().toIntOrNull()
             else -> null
         } ?: throw Exception(commandResult.stderr)
     }
