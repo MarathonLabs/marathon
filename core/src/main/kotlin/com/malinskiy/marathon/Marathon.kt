@@ -44,7 +44,7 @@ class Marathon(val configuration: Configuration) {
         if (configuration.debug) {
             return CompositeSummaryPrinter(listOf(
                     htmlSummaryPrinter,
-                    TimelineSummaryPrinter(TimelineSummarySerializer(testResultReporter), gson, outputDir)
+                    TimelineSummaryPrinter(TimelineSummarySerializer(analyticsFactory.rawTestResultTracker), gson, outputDir)
             ))
         }
         return htmlSummaryPrinter
@@ -99,8 +99,8 @@ class Marathon(val configuration: Configuration) {
         }
 
         val hours = TimeUnit.MILLISECONDS.toHours(timeMillis)
-        val minutes = TimeUnit.MILLISECONDS.toMinutes(timeMillis)
-        val seconds = TimeUnit.MILLISECONDS.toSeconds(timeMillis)
+        val minutes = TimeUnit.MILLISECONDS.toMinutes(timeMillis) % 60
+        val seconds = TimeUnit.MILLISECONDS.toSeconds(timeMillis) % 60
 
         log.info { "Total time: ${hours}H ${minutes}m ${seconds}s" }
         analytics.terminate()

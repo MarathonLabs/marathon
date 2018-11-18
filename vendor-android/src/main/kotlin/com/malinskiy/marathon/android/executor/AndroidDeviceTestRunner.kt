@@ -14,6 +14,7 @@ import com.malinskiy.marathon.android.executor.listeners.ProgressTestRunListener
 import com.malinskiy.marathon.android.executor.listeners.video.ScreenRecorderTestRunListener
 import com.malinskiy.marathon.android.executor.listeners.TestRunResultsListener
 import com.malinskiy.marathon.device.DevicePoolId
+import com.malinskiy.marathon.exceptions.TestBatchExecutionException
 import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.execution.TestBatchResults
 import com.malinskiy.marathon.execution.progress.ProgressReporter
@@ -50,23 +51,29 @@ class AndroidDeviceTestRunner(private val device: AndroidDevice) {
 
         runner.setClassNames(tests)
         val fileManager = FileManager(configuration.outputDir)
-        val listeners = CompositeTestRunListener(listOf(
-                TestRunResultsListener(testBatch, device, deferred),
-                ScreenRecorderTestRunListener(fileManager, devicePoolId, device),
-                DebugTestRunListener(device.ddmsDevice),
-                ProgressTestRunListener(device, devicePoolId, progressReporter),
-                LogCatListener(device, devicePoolId, LogWriter(fileManager)))
+        val listeners = CompositeTestRunListener(
+                listOf(
+                        TestRunResultsListener(testBatch, device, deferred),
+                        ScreenRecorderTestRunListener(fileManager, devicePoolId, device),
+                        DebugTestRunListener(device),
+                        ProgressTestRunListener(device, devicePoolId, progressReporter),
+                        LogCatListener(device, devicePoolId, LogWriter(fileManager))
+                )
         )
         try {
             runner.run(listeners)
         } catch (e: ShellCommandUnresponsiveException) {
             logger.warn("Test got stuck. You can increase the timeout in settings if it's too strict")
+            throw TestBatchExecutionException(e)
         } catch (e: TimeoutException) {
             logger.warn("Test got stuck. You can increase the timeout in settings if it's too strict")
+            throw TestBatchExecutionException(e)
         } catch (e: AdbCommandRejectedException) {
-            throw RuntimeException("Error while running tests ${testBatch.tests.map { it.toTestName() }}", e)
+            logger.error(e) { "adb error while running tests ${testBatch.tests.map { it.toTestName() }}" }
+            throw TestBatchExecutionException(e)
         } catch (e: IOException) {
-            throw RuntimeException("Error while running tests ${testBatch.tests.map { it.toTestName() }}", e)
+            logger.error(e) { "Error while running tests ${testBatch.tests.map { it.toTestName() }}" }
+            throw TestBatchExecutionException(e)
         } finally {
 
         }

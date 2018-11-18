@@ -21,7 +21,7 @@ import java.util.*
 
 class QueueActor(configuration: Configuration,
                  private val testShard: TestShard,
-                 analytics: Analytics,
+                 private val analytics: Analytics,
                  private val pool: SendChannel<FromQueue>,
                  private val poolId: DevicePoolId,
                  private val progressReporter: ProgressReporter,
@@ -35,7 +35,7 @@ class QueueActor(configuration: Configuration,
     private val batching = configuration.batchingStrategy
     private val retry = configuration.retryStrategy
 
-    private val activeBatches = mutableMapOf<Device, TestBatch>()
+    private val activeBatches = mutableMapOf<String, TestBatch>()
 
     private val testResultReporter = TestResultReporter(poolId, analytics, testShard)
 
@@ -67,6 +67,7 @@ class QueueActor(configuration: Configuration,
     private suspend fun onBatchCompleted(device: Device, results: TestBatchResults) {
         val finished = results.finished
         val failed = results.failed
+        val uncompleted = results.uncompleted
         logger.debug { "handle test results ${device.serialNumber}" }
         if (finished.isNotEmpty()) {
             handleFinishedTests(finished, device)
@@ -74,13 +75,17 @@ class QueueActor(configuration: Configuration,
         if (failed.isNotEmpty()) {
             handleFailedTests(failed, device)
         }
-        activeBatches.remove(device)
+        if (uncompleted.isNotEmpty()) {
+            returnTests(uncompleted)
+        }
+        activeBatches.remove(device.serialNumber)
         onRequestBatch(device)
     }
 
     private fun onReturnBatch(device: Device, batch: TestBatch) {
+        logger.debug { "onReturnBatch ${device.serialNumber}" }
         returnTests(batch.tests)
-        activeBatches.remove(device)
+        activeBatches.remove(device.serialNumber)
     }
 
     private fun returnTests(tests: Collection<Test>) {
@@ -132,19 +137,25 @@ class QueueActor(configuration: Configuration,
     private suspend fun onRequestBatch(device: Device) {
         logger.debug { "request next batch for device ${device.serialNumber}" }
         val queueIsEmpty = queue.isEmpty()
-        if (queue.isNotEmpty() && !activeBatches.containsKey(device)) {
+        if (queue.isNotEmpty() && !activeBatches.containsKey(device.serialNumber)) {
+            logger.debug { "sending next batch for device ${device.serialNumber}" }
             sendBatch(device)
             return
         }
         if (queueIsEmpty && activeBatches.isEmpty()) {
             pool.send(DevicePoolMessage.FromQueue.Terminated)
             onTerminate()
+        } else {
+            logger.debug {
+                "queue is empty but there are active batches present for " +
+                        "${activeBatches.keys.joinToString { it }}"
+            }
         }
     }
 
     private suspend fun sendBatch(device: Device) {
-        val batch = batching.process(queue)
-        activeBatches[device] = batch
+        val batch = batching.process(queue, analytics)
+        activeBatches[device.serialNumber] = batch
         pool.send(FromQueue.ExecuteBatch(device, batch))
     }
 }

@@ -6,15 +6,14 @@ import com.malinskiy.marathon.android.toTest
 import com.malinskiy.marathon.device.Device
 import com.malinskiy.marathon.device.toDeviceInfo
 import com.malinskiy.marathon.execution.TestBatchResults
+import com.malinskiy.marathon.execution.TestResult
+import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.test.Test
 import com.malinskiy.marathon.test.TestBatch
-import com.malinskiy.marathon.execution.TestResult
-import com.malinskiy.marathon.execution.TestStatus
-import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.test.toTestName
 import kotlinx.coroutines.experimental.CompletableDeferred
-import com.android.ddmlib.testrunner.TestRunResult as DdmLibTestRunResult
 import com.android.ddmlib.testrunner.TestResult as DdmLibTestResult
+import com.android.ddmlib.testrunner.TestRunResult as DdmLibTestRunResult
 
 class TestRunResultsListener(private val testBatch: TestBatch,
                              private val device: Device,
@@ -40,17 +39,15 @@ class TestRunResultsListener(private val testBatch: TestBatch,
 
         val skipped = tests.filterNot {
             results.containsKey(it.key)
-        }.values.map {
-            TestResult(it, device.toDeviceInfo(), TestStatus.INCOMPLETE, 0, 0, null)
-        }
+        }.values
 
         if (skipped.isNotEmpty()) {
             skipped.forEach {
-                logger.warn { "skipped = ${it.test.toTestName()}" }
+                logger.warn { "skipped = ${it.toTestName()}, ${device.serialNumber}" }
             }
         }
 
-        deferred.complete(TestBatchResults(device, finished, failed + skipped))
+        deferred.complete(TestBatchResults(device, finished, failed, skipped))
     }
 
     fun Map.Entry<TestIdentifier, DdmLibTestResult>.toTestResult(device: Device): TestResult {

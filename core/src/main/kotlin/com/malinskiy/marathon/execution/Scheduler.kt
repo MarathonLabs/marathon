@@ -83,9 +83,11 @@ class Scheduler(private val deviceProvider: DeviceProvider,
         val poolId = poolingStrategy.associate(device)
         logger.debug { "device ${device.serialNumber} associated with poolId ${poolId.name}" }
         pools.computeIfAbsent(poolId) { id ->
+            logger.debug { "pool actor ${id.name} is being created" }
             DevicePoolActor(id, configuration, analytics, tests, progressReporter, parent)
         }
-        pools[poolId]?.send(AddDevice(device))
+        pools[poolId]?.send(AddDevice(device)) ?: logger.debug { "not sending the AddDevice event " +
+                "to device pool for ${device.serialNumber}" }
         analytics.trackDeviceConnected(poolId, device)
     }
 }

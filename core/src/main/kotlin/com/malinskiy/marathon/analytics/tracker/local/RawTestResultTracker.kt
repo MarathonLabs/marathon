@@ -8,7 +8,7 @@ import com.malinskiy.marathon.device.DevicePoolId
 import com.malinskiy.marathon.execution.TestResult
 import com.malinskiy.marathon.io.FileManager
 
-internal class RawTestResultTracker(private val fileManager: FileManager,
+class RawTestResultTracker(private val fileManager: FileManager,
                                     private val gson: Gson) : NoOpTracker() {
 
     var testResults: MutableList<RawTestRun> = mutableListOf()
@@ -27,15 +27,17 @@ internal class RawTestResultTracker(private val fileManager: FileManager,
                 device.serialNumber,
                 testResult.isIgnored,
                 testResult.isSuccess,
-                testResult.startTime
+                testResult.startTime,
+                testResult.durationMillis()
         ))
     }
 
-    data class RawTestRun(@SerializedName("package") private val pkg: String,
-                          @SerializedName("class") private val clazz: String,
-                          @SerializedName("method") private val method: String,
-                          @SerializedName("deviceSerial") private val deviceSerial: String,
-                          @SerializedName("ignored") private val ignored: Boolean,
-                          @SerializedName("success") private val success: Boolean,
-                          @SerializedName("timestamp") private val timestamp: Long)
+    data class RawTestRun(@SerializedName("package") val pkg: String,
+                          @SerializedName("class") val clazz: String,
+                          @SerializedName("method") val method: String,
+                          @SerializedName("deviceSerial") val deviceSerial: String,
+                          @SerializedName("ignored") val ignored: Boolean,
+                          @SerializedName("success") val success: Boolean,
+                          @SerializedName("timestamp") val timestamp: Long,
+                          @SerializedName("duration") val duration: Long)
 }

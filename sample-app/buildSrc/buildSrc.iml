@@ -37,6 +37,7 @@
               <option value="$KOTLIN_BUNDLED$/lib/sam-with-receiver-compiler-plugin.jar" />
             </array>
           </option>
+          <option name="coroutinesState" value="warn" />
         </compilerArguments>
       </configuration>
     </facet>

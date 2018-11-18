@@ -19,12 +19,15 @@ internal class TrackerFactory(private val configuration: Configuration,
                               private val deviceInfoReporter: DeviceInfoReporter,
                               private val testResultReporter: TestResultReporter,
                               private val gson: Gson) {
+
+    val rawTestResultTracker = RawTestResultTracker(fileManager, gson)
+
     fun create(): Tracker {
         val defaultTrackers = listOf(
                 JUnitTracker(JUnitReporter(fileManager)),
                 DeviceTracker(deviceInfoReporter),
                 TestRusultsTracker(testResultReporter),
-                RawTestResultTracker(fileManager, gson)
+                rawTestResultTracker
         )
         return when {
             configuration.analyticsConfiguration is InfluxDbConfiguration -> {

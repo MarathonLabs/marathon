@@ -1,31 +1,24 @@
 package com.malinskiy.marathon.report.debug.timeline
 
-import com.malinskiy.marathon.device.DeviceInfo
-import com.malinskiy.marathon.device.DevicePoolId
-import com.malinskiy.marathon.execution.TestResult
+import com.malinskiy.marathon.analytics.tracker.local.RawTestResultTracker
 import com.malinskiy.marathon.execution.TestStatus
 import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.report.PoolSummary
 import com.malinskiy.marathon.report.Summary
-import com.malinskiy.marathon.report.internal.TestResultReporter
 import com.malinskiy.marathon.test.Test
 
-class TimelineSummarySerializer(private val testResultSerializer: TestResultReporter) {
+class TimelineSummarySerializer(private val rawTestResultTracker: RawTestResultTracker) {
     val logger = MarathonLogging.logger(TimelineSummarySerializer::class.java.simpleName)
 
-    private fun prepareTestName(fullTestName: String): String {
-        return fullTestName.substring(fullTestName.lastIndexOf('.') + 1)
+    private fun parseData(runs: List<RawTestResultTracker.RawTestRun>): List<Data> {
+        return runs.map { this.convertToData(it) }
+                .sortedBy { it.startDate }
     }
 
-    private fun parseData(poolId: DevicePoolId, device: DeviceInfo): List<Data> {
-        val executions = testResultSerializer.readTests(poolId, device)
-        return executions.map { this.convertToData(it) }.sortedBy { it.startDate }
-    }
-
-    private fun convertToData(testResult: TestResult): Data {
-        val preparedTestName = prepareTestName(testResult.test.toString())
+    private fun convertToData(testResult: RawTestResultTracker.RawTestRun): Data {
+        val preparedTestName = "${testResult.clazz}.${testResult.method}"
         val testMetric = getTestMetric(testResult)
-        return createData(testResult, testResult.status, preparedTestName, testMetric)
+        return createData(testResult, testResult.success, preparedTestName, testMetric)
     }
 
     private fun TestStatus.toStatus(): Status = when (this) {
@@ -38,15 +31,15 @@ class TimelineSummarySerializer(private val testResultSerializer: TestResultRepo
 
     data class TestMetric(val expectedValue: Double, val variance: Double)
 
-    private fun createData(execution: TestResult, status: TestStatus, preparedTestName: String, testMetric: TestMetric): Data {
+    private fun createData(execution: RawTestResultTracker.RawTestRun, status: Boolean, preparedTestName: String, testMetric: TestMetric): Data {
         return Data(preparedTestName,
-                status.toStatus(),
-                execution.startTime,
-                execution.endTime,
+                if (status) Status.PASSED else Status.FAILURE,
+                execution.timestamp,
+                execution.timestamp + execution.duration,
                 testMetric.expectedValue, testMetric.variance)
     }
 
-    private fun getTestMetric(execution: TestResult): TestMetric {
+    private fun getTestMetric(execution: RawTestResultTracker.RawTestRun): TestMetric {
         return TestMetric(0.0, 0.0)
     }
 
@@ -67,20 +60,6 @@ class TimelineSummarySerializer(private val testResultSerializer: TestResultRepo
             acc + (list[1].startDate - list[0].endDate)
         })
     }
-
-    private fun parsePoolSummary(poolSummary: PoolSummary): List<Measure> {
-        return poolSummary.tests
-                .map { it.device }
-                .distinct()
-                .map { createMeasure(poolSummary.poolId, it) }
-    }
-
-    private fun createMeasure(pool: DevicePoolId, device: DeviceInfo): Measure {
-        val data = parseData(pool, device)
-        return Measure(device.serialNumber, calculateExecutionStats(data), data)
-    }
-
-    private fun parseList(pools: List<PoolSummary>): List<Measure> = pools.flatMap { this.parsePoolSummary(it) }
 
     private fun extractIdentifiers(summary: PoolSummary): List<Test> {
         return summary.tests
@@ -108,9 +87,16 @@ class TimelineSummarySerializer(private val testResultSerializer: TestResultRepo
 
     fun parse(summary: Summary): ExecutionResult {
         logger.debug { summary }
-        val failedTests = summary.pools.sumBy { it.failed }
-        val passedTestCount = passedTestCount(summary)
-        val measures = parseList(summary.pools)
+
+        val passedTestCount = rawTestResultTracker.testResults.count { it.success }
+        val failedTests = rawTestResultTracker.testResults.count { !it.success }
+
+        val measures = rawTestResultTracker.testResults.groupBy { it.deviceSerial }
+                .map {
+                    val data = parseData(it.value)
+                    Measure(it.key, calculateExecutionStats(data), data)
+                }
+
         logger.debug { measures }
         val executionStats = aggregateExecutionStats(measures)
         logger.debug { executionStats }

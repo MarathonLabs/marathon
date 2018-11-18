@@ -22,4 +22,6 @@ data class TestResult(val test: Test,
             TestStatus.PASSED -> true
             else -> false
         }
+
+    val isTimeInfoAvailable = startTime != 0L && endTime != 0L
 }
