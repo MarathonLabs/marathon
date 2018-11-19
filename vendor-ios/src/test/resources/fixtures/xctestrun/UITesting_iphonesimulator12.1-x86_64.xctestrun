@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>sample-appUITests</key>
+	<dict>
+		<key>BundleIdentifiersForCrashReportEmphasis</key>
+		<array>
+			<string>com.agoga.sample-appUITests</string>
+			<string>com.agoda.sample-app</string>
+		</array>
+		<key>CommandLineArguments</key>
+		<array/>
+		<key>DependentProductPaths</key>
+		<array>
+			<string>__TESTROOT__/Debug-iphonesimulator/sample-appUITests-Runner.app/PlugIns/sample-appUITests.xctest</string>
+			<string>__TESTROOT__/Debug-iphonesimulator/sample-app.app</string>
+		</array>
+		<key>EnvironmentVariables</key>
+		<dict>
+			<key>DYLD_FRAMEWORK_PATH</key>
+			<string>/Users/pkunzip/Development/marathon/vendor-ios/src/test/resources/src/sample-xcworkspace/a/Build/Products/Debug-iphonesimulator</string>
+			<key>DYLD_LIBRARY_PATH</key>
+			<string>/Users/pkunzip/Development/marathon/vendor-ios/src/test/resources/src/sample-xcworkspace/a/Build/Products/Debug-iphonesimulator</string>
+			<key>OS_ACTIVITY_DT_MODE</key>
+			<string>YES</string>
+			<key>__XCODE_BUILT_PRODUCTS_DIR_PATHS</key>
+			<string>/Users/pkunzip/Development/marathon/vendor-ios/src/test/resources/src/sample-xcworkspace/a/Build/Products/Debug-iphonesimulator</string>
+			<key>__XPC_DYLD_FRAMEWORK_PATH</key>
+			<string>/Users/pkunzip/Development/marathon/vendor-ios/src/test/resources/src/sample-xcworkspace/a/Build/Products/Debug-iphonesimulator</string>
+			<key>__XPC_DYLD_LIBRARY_PATH</key>
+			<string>/Users/pkunzip/Development/marathon/vendor-ios/src/test/resources/src/sample-xcworkspace/a/Build/Products/Debug-iphonesimulator</string>
+		</dict>
+		<key>IsUITestBundle</key>
+		<true/>
+		<key>IsXCTRunnerHostedTestBundle</key>
+		<true/>
+		<key>ProductModuleName</key>
+		<string>sample_appUITests</string>
+		<key>SkipTestIdentifiers</key>
+		<array>
+			<string>SkippedSuite</string>
+			<string>StoryboardTests/testDisabledButton</string>
+			<string>MoreTests/testDismissModal</string>
+		</array>
+		<key>SystemAttachmentLifetime</key>
+		<string>deleteOnSuccess</string>
+		<key>TestBundlePath</key>
+		<string>__TESTHOST__/PlugIns/sample-appUITests.xctest</string>
+		<key>TestHostBundleIdentifier</key>
+		<string>com.apple.test.sample-appUITests-Runner</string>
+		<key>TestHostPath</key>
+		<string>__TESTROOT__/Debug-iphonesimulator/sample-appUITests-Runner.app</string>
+		<key>TestingEnvironmentVariables</key>
+		<dict>
+			<key>DYLD_FRAMEWORK_PATH</key>
+			<string>__TESTROOT__/Debug-iphonesimulator:__PLATFORMS__/iPhoneSimulator.platform/Developer/Library/Frameworks:/Library/Developer/CoreSimulator/Profiles/Runtimes/iOS 11.1.simruntime/Contents/Resources/RuntimeRoot/Developer/Library/PrivateFrameworks</string>
+			<key>DYLD_INSERT_LIBRARIES</key>
+			<string>/Library/Developer/CoreSimulator/Profiles/Runtimes/iOS 11.1.simruntime/Contents/Resources/RuntimeRoot/usr/lib/libMainThreadChecker.dylib</string>
+			<key>DYLD_LIBRARY_PATH</key>
+			<string>__TESTROOT__/Debug-iphonesimulator:__PLATFORMS__/iPhoneSimulator.platform/Developer/Library/Frameworks:/Library/Developer/CoreSimulator/Profiles/Runtimes/iOS 11.1.simruntime/Contents/Resources/RuntimeRoot/Developer/Library/PrivateFrameworks</string>
+			<key>MTC_CRASH_ON_REPORT</key>
+			<string>1</string>
+			<key>XCODE_DBG_XPC_EXCLUSIONS</key>
+			<string>com.apple.dt.xctestSymbolicator</string>
+		</dict>
+		<key>ToolchainsSettingValue</key>
+		<array/>
+		<key>UITargetAppCommandLineArguments</key>
+		<array/>
+		<key>UITargetAppMainThreadCheckerEnabled</key>
+		<true/>
+		<key>UITargetAppPath</key>
+		<string>__TESTROOT__/Debug-iphonesimulator/sample-app.app</string>
+		<key>UserAttachmentLifetime</key>
+		<string>deleteOnSuccess</string>
+	</dict>
+	<key>__xctestrun_metadata__</key>
+    <dict>
+      <key>FormatVersion</key>
+      <integer>1</integer>
+    </dict>
+</dict>
+</plist>

@@ -8,6 +8,6 @@ class DebugLoggingParser() : StreamingLogParser {
     val logger = MarathonLogging.logger(DebugLoggingParser::class.java.simpleName)
 
     override fun onLine(line: String) {
-        logger.debug { line }
+        logger.trace { line }
     }
 }

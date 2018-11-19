@@ -16,7 +16,7 @@ import java.net.InetAddress
 
 class LocalListSimulatorProvider(private val channel: Channel<DeviceProvider.DeviceEvent>,
                                  private val configuration: IOSConfiguration,
-                                 private val yamlObjectMapper: ObjectMapper,
+                                 yamlObjectMapper: ObjectMapper,
                                  private val gson: Gson) : SimulatorProvider {
 
     private val logger = MarathonLogging.logger(LocalListSimulatorProvider::class.java.simpleName)
@@ -31,11 +31,11 @@ class LocalListSimulatorProvider(private val channel: Channel<DeviceProvider.Dev
                             hostAddress = InetAddress.getByName(it.host),
                             remoteUsername = it.username ?: configuration.remoteUsername,
                             remotePrivateKey = configuration.remotePrivateKey,
+                            knownHostsPath = configuration.knownHostsPath,
                             verbose = configuration.debugSsh),
                     gson = gson)
         }
         ?: emptyList()
-
     }
 
     override fun stop() {

@@ -18,6 +18,7 @@ import com.malinskiy.marathon.report.html.HtmlSummaryPrinter
 import com.malinskiy.marathon.report.internal.DeviceInfoReporter
 import com.malinskiy.marathon.report.internal.TestResultReporter
 import com.malinskiy.marathon.test.Test
+import com.malinskiy.marathon.test.toTestName
 import com.malinskiy.marathon.vendor.VendorConfiguration
 import kotlinx.coroutines.experimental.runBlocking
 import java.util.ServiceLoader
@@ -77,7 +78,8 @@ class Marathon(val configuration: Configuration) {
         val parsedTests = testParser.extract(configuration)
         val tests = applyTestFilters(parsedTests)
 
-        println("${tests.size} test methods after filters")
+        log.info("Scheduling ${tests.size} tests")
+        log.debug(tests.map { it.toTestName() }.joinToString(", "))
         val progressReporter = ProgressReporter()
         val scheduler = Scheduler(deviceProvider, analytics, configuration, tests, progressReporter)
 

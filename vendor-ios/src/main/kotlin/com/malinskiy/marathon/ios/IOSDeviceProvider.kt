@@ -12,14 +12,18 @@ import com.malinskiy.marathon.ios.device.LocalListSimulatorProvider
 import com.malinskiy.marathon.ios.device.SimulatorProvider
 import com.malinskiy.marathon.ios.simctl.model.SimctlDeviceList
 import com.malinskiy.marathon.ios.simctl.model.SimctlDeviceListDeserializer
+import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.vendor.VendorConfiguration
 import kotlinx.coroutines.experimental.channels.Channel
 
 class IOSDeviceProvider : DeviceProvider {
 
+    private val logger = MarathonLogging.logger(IOSDeviceProvider::class.java.simpleName)
+
     private lateinit var simulatorProvider: SimulatorProvider
 
     override fun terminate() {
+        logger.debug { "Terminating IOS device provider" }
         simulatorProvider.stop()
     }
 

@@ -26,8 +26,11 @@ import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.test.TestBatch
 import com.malinskiy.marathon.time.SystemTimer
 import kotlinx.coroutines.experimental.CompletableDeferred
+import net.schmizz.sshj.connection.ConnectionException
+import net.schmizz.sshj.transport.TransportException
 import java.io.File
 import java.io.FileNotFoundException
+import java.io.IOException
 import java.util.concurrent.TimeUnit
 
 private const val HOSTNAME = "localhost"
@@ -124,7 +127,8 @@ class IOSDevice(val udid: String,
                         "-xctestrun ${remoteXctestrunFile.path}",
                         // "-resultBundlePath ${remoteXcresultPath.canonicalPath} ",
                         testBatchToArguments,
-                        "-destination 'platform=iOS simulator,id=$udid'")
+                        "-destination 'platform=iOS simulator,id=$udid' ;",
+                        "exit")
                         .joinToString(" ")
                         .also { logger.debug(it) }
         val session = hostCommandExecutor.startSession()
@@ -135,10 +139,18 @@ class IOSDevice(val udid: String,
             command.errorStream.reader().forEachLine {  logger.error(it) }
 
             command.join(configuration.testOutputTimeoutMillis, TimeUnit.MILLISECONDS)
+        } catch(e: ConnectionException) {
+            logger.error("Ssh exception: ${e}")
+        } catch(e: TransportException) {
+            logger.error("Ssh exception: ${e}")
         } finally {
             logParser.close()
 
-            session.close()
+            if (session.isOpen) {
+                try {
+                    session.close()
+                } catch (e: IOException) { }
+            }
         }
     }
 
@@ -152,17 +164,17 @@ class IOSDevice(val udid: String,
         val xctestrunFile = prepareXctestrunFile(derivedDataManager, remoteXctestrunFile)
 
         derivedDataManager.sendSynchronized(
-                localPath = xctestrunFile,
-                remotePath = remoteXctestrunFile.absolutePath,
-                hostName = sshjCommandExecutor.hostAddress.hostName,
-                port = sshjCommandExecutor.port
+            localPath = xctestrunFile,
+            remotePath = remoteXctestrunFile.absolutePath,
+            hostName = sshjCommandExecutor.hostAddress.hostName,
+            port = sshjCommandExecutor.port
         )
 
-        derivedDataManager.send(
-                localPath = derivedDataManager.productsDir,
-                remotePath = RemoteFileManager.remoteDirectory(this).path,
-                hostName = sshjCommandExecutor.hostAddress.hostName,
-                port = sshjCommandExecutor.port
+        derivedDataManager.sendSynchronized(
+            localPath = derivedDataManager.productsDir,
+            remotePath = RemoteFileManager.remoteDirectory(this).path,
+            hostName = sshjCommandExecutor.hostAddress.hostName,
+            port = sshjCommandExecutor.port
         )
     }
 

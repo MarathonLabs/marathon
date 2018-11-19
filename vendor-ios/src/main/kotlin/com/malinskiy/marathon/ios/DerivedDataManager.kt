@@ -117,7 +117,7 @@ class DerivedDataManager(val configuration: Configuration) {
         return "ssh -o 'StrictHostKeyChecking no' -F /dev/null " +
                 "-i ${iosConfiguration.remotePrivateKey} " +
                 "-l ${iosConfiguration.remoteUsername} " +
-                "-p ${port.toString()}" +
+                "-p ${port.toString()} " +
                 when (configuration.debug && iosConfiguration.debugSsh) { true -> "-vvv" else -> ""}
     }
 }

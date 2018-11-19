@@ -4,10 +4,14 @@ import ch.qos.logback.classic.Level
 import com.malinskiy.marathon.log.MarathonLogging
 import net.schmizz.sshj.DefaultConfig
 import net.schmizz.sshj.SSHClient
+import net.schmizz.sshj.common.IOUtils
 import net.schmizz.sshj.common.LoggerFactory
+import net.schmizz.sshj.connection.ConnectionException
 import net.schmizz.sshj.connection.channel.direct.Session
+import net.schmizz.sshj.transport.TransportException
 import org.slf4j.Logger
 import java.io.File
+import java.io.IOException
 import java.net.InetAddress
 import java.util.concurrent.TimeUnit
 
@@ -17,6 +21,7 @@ class SshjCommandExecutor(val hostAddress: InetAddress,
                           val remoteUsername: String,
                           val remotePrivateKey: File,
                           val port: Int = DEFAULT_PORT,
+                          val knownHostsPath: File?,
                           verbose: Boolean = false) : CommandExecutor {
 
     val ssh: SSHClient
@@ -37,6 +42,7 @@ class SshjCommandExecutor(val hostAddress: InetAddress,
         config.loggerFactory = loggerFactory
 
         ssh = SSHClient(config)
+        knownHostsPath?.let { ssh.loadKnownHosts(it) }
         ssh.loadKnownHosts()
         val keys = ssh.loadKeys(remotePrivateKey.path)
         ssh.connect(hostAddress, port)
@@ -48,22 +54,34 @@ class SshjCommandExecutor(val hostAddress: InetAddress,
     override fun exec(command: String, timeout: Long): CommandResult {
         val session = ssh.startSession()
         var sshCommand: Session.Command? = null
-        val stdout: String
-        val stderr: String
+        var stdout: String? = null
+        var stderr: String? = null
         try {
             sshCommand = session.exec(command)
 
-            sshCommand.join(timeout, TimeUnit.SECONDS)
+            stdout = IOUtils.readFully(sshCommand.inputStream, ssh.transport.config.loggerFactory)
+                    .toString("UTF-8")
+            stderr = IOUtils.readFully(sshCommand.errorStream, ssh.transport.config.loggerFactory)
+                    .toString("UTF-8")
 
-            stdout = sshCommand.inputStream.bufferedReader().lineSequence().fold("") { acc, line -> acc + line }
-            stderr = sshCommand.errorStream.bufferedReader().lineSequence().fold("") { acc, line -> acc + line }
+            sshCommand.join(timeout, TimeUnit.SECONDS)
+        } catch(e: ConnectionException) {
+            ssh.transport.config.loggerFactory.
+                    getLogger(SshjCommandExecutor::class.java).
+                    debug("${this} exception when executing command ${command} ${e}")
+        } catch(e: TransportException) {
+            ssh.transport.config.loggerFactory.
+                    getLogger(SshjCommandExecutor::class.java).
+                    debug("${this} exception when executing command ${command} ${e}")
         } finally {
-            session?.close()
+            try {
+                session?.close()
+            } catch (e: IOException) { }
         }
 
         return CommandResult(
-                stdout = stdout,
-                stderr = stderr,
+                stdout = stdout ?: "",
+                stderr = stderr ?: "",
                 exitStatus = sshCommand?.exitStatus ?: 1
         )
     }

@@ -24,4 +24,11 @@ data class TestResult(val test: Test,
         }
 
     val isTimeInfoAvailable = startTime != 0L && endTime != 0L
+
+    override fun toString(): String {
+        return "TestResult(test=${test}, " +
+                "device=${device}, status=${status}, " +
+                "startTime=${startTime}, endTime=${endTime}, " +
+                "stacktrace=${stacktrace?.take(24)})"
+    }
 }

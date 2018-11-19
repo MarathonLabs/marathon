@@ -20,6 +20,7 @@ data class FileIOSConfiguration(
         @JsonProperty("xctestrunPath") val xctestrunPath: File?,
         @JsonProperty("remoteUsername") val remoteUsername: String,
         @JsonProperty("remotePrivateKey") val remotePrivateKey: File,
+        @JsonProperty("knownHostsPath") val knownHostsPath: File?,
         @JsonProperty("remoteRsyncPath") val remoteRsyncPath: String = "/usr/bin/rsync",
         @JsonProperty("sourceRoot") val sourceRoot: File?,
         @JsonProperty("debugSsh") val debugSsh: Boolean?,
@@ -39,6 +40,7 @@ data class FileIOSConfiguration(
                 ?: sourceRoot?.resolveAgainst(marathonfileDir)
         val optionalDebugSsh = debugSsh ?: false
         val optionalDevices = devices ?: marathonfileDir.resolve("Marathondevices")
+        val optionalKnownHostsPath = knownHostsPath?.resolveAgainst(marathonfileDir)
 
         return if (optionalSourceRoot == null) {
             IOSConfiguration(
@@ -46,6 +48,7 @@ data class FileIOSConfiguration(
                     xctestrunPath = finalXCTestRunPath,
                     remoteUsername = remoteUsername,
                     remotePrivateKey = remotePrivateKey,
+                    knownHostsPath = optionalKnownHostsPath,
                     remoteRsyncPath = remoteRsyncPath,
                     debugSsh = optionalDebugSsh,
                     devicesFile = optionalDevices)
@@ -55,6 +58,7 @@ data class FileIOSConfiguration(
                     xctestrunPath = finalXCTestRunPath,
                     remoteUsername = remoteUsername,
                     remotePrivateKey = remotePrivateKey,
+                    knownHostsPath = optionalKnownHostsPath,
                     remoteRsyncPath = remoteRsyncPath,
                     debugSsh = optionalDebugSsh,
                     devicesFile = optionalDevices,

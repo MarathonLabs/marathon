@@ -52,7 +52,7 @@ class IOSTestParser : TestParser {
 
         val filteredTests = implementedTests.filter { !xctestrun.isSkipped(it) }
 
-        logger.debug { filteredTests.map { "${it.clazz}.${it.method}" }.joinToString() }
+        logger.trace { filteredTests.map { "${it.clazz}.${it.method}" }.joinToString() }
         logger.info { "Found ${filteredTests.size} tests in ${swiftFilesWithTests.count()} files"}
 
         return filteredTests

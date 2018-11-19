@@ -41,7 +41,7 @@ class Scheduler(private val deviceProvider: DeviceProvider,
         val job = Job()
         subscribeOnDevices(job)
         try {
-            withTimeout(10, TimeUnit.SECONDS) {
+            withTimeout(60, TimeUnit.SECONDS) {
                 while (pools.isEmpty()) {
                     delay(100)
                 }

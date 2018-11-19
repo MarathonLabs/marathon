@@ -158,7 +158,7 @@
   "devices" : {
     "iOS 11.2" : [
       {
-        "state" : "Shutdown",
+        "state" : "Shutting Down",
         "availability" : "(available)",
         "name" : "iPhone 5s",
         "udid" : "9356723A-4CFD-4950-B3E8-7C7F15B59C24"

@@ -28,6 +28,7 @@ object FileIOSConfigurationSpek : Spek({
                     xctestrunPath = null,
                     remoteUsername = "user",
                     remotePrivateKey = File("key"),
+                    knownHostsPath = null,
                     sourceRoot = File("sourceRoot"),
                     fileListProvider = mockFileListProvider,
                     debugSsh = null,

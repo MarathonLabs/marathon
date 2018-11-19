@@ -26,7 +26,7 @@ class Xctestrun(inputStream: InputStream) {
     // testable target properties
 
     private val target = PropertyListKey.TargetName(
-            propertyList.keys.firstOrNull()
+            propertyList.keys.firstOrNull { it != PropertyListKey.__xctestrun_metadata__.toKeyString() }
                     ?: throw IllegalArgumentException("xctestrun file does not define any testable targets")
     )
 
