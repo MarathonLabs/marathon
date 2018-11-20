@@ -1,8 +1,12 @@
 package com.malinskiy.marathon.analytics.tracker.remote.influx
 
 import com.malinskiy.marathon.execution.AnalyticsConfiguration
+import okhttp3.OkHttpClient
 import org.influxdb.InfluxDB
 import org.influxdb.InfluxDBFactory
+import java.util.concurrent.TimeUnit
+
+const val TIMEOUT_SEC = 60L
 
 class InfluxDbProvider(configuration: AnalyticsConfiguration.InfluxDbConfiguration) {
 
@@ -13,10 +17,15 @@ class InfluxDbProvider(configuration: AnalyticsConfiguration.InfluxDbConfigurati
     private val retentionPolicyConfiguration = configuration.retentionPolicyConfiguration
 
     fun createDb(): InfluxDB {
+        val okHttpBuilder = OkHttpClient.Builder()
+                .connectTimeout(TIMEOUT_SEC, TimeUnit.MINUTES)
+                .readTimeout(TIMEOUT_SEC, TimeUnit.MINUTES)
+                .writeTimeout(TIMEOUT_SEC, TimeUnit.MINUTES)
+
         val influxDb = if (user.isNotEmpty() && password.isNotEmpty()) {
-            InfluxDBFactory.connect(url, user, password)
+            InfluxDBFactory.connect(url, user, password, okHttpBuilder)
         } else {
-            InfluxDBFactory.connect(url)
+            InfluxDBFactory.connect(url, okHttpBuilder)
         }
         influxDb.setLogLevel(InfluxDB.LogLevel.BASIC)
 
