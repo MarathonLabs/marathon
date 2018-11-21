@@ -15,9 +15,9 @@ object CompositionFilterSpec : Spek({
 
     given("a CompositionFilter with different Filters and Union Operation") {
         val filterUnion = CompositionFilter(
-                arrayOf(
-                        SimpleClassnameFilter("Cat".toRegex()),
-                        AnnotationFilter("""com\.example\.BestAnimal.*""".toRegex())),
+                listOf(
+                        SimpleClassnameFilter(".*Cat.*".toRegex()),
+                        AnnotationFilter("com.example.BestAnimal".toRegex())),
                 CompositionFilter.OPERATION.UNION)
 
         on("a bunch of tests") {
@@ -27,7 +27,7 @@ object CompositionFilterSpec : Spek({
                     horseTest
             )
             it("should filter properly the union") {
-                filterUnion.filter(tests) shouldEqual listOf(dogTest, catTest)
+                filterUnion.filter(tests) shouldEqual listOf(catTest, dogTest)
             }
             it("should filterNot properly the union") {
                 filterUnion.filterNot(tests) shouldEqual listOf(horseTest)
@@ -36,10 +36,10 @@ object CompositionFilterSpec : Spek({
     }
 
     given("a CompositionFilter with different Filters and Intersection Operation") {
-        val filterUnion = CompositionFilter(
-                arrayOf(
-                        SimpleClassnameFilter("Dog".toRegex()),
-                        SimpleClassnameFilter("Cat".toRegex())),
+        val filterIntersection = CompositionFilter(
+                listOf(
+                        SimpleClassnameFilter(".*Dog.*".toRegex()),
+                        AnnotationFilter("com.example.BestAnimal".toRegex())),
                 CompositionFilter.OPERATION.INTERSECTION)
 
         on("a bunch of tests") {
@@ -48,11 +48,33 @@ object CompositionFilterSpec : Spek({
                     catTest,
                     horseTest
             )
-            it("should filter properly the union") {
-                filterUnion.filter(tests) shouldEqual emptyList()
+            it("should filter properly the intersection") {
+                filterIntersection.filter(tests) shouldEqual listOf(dogTest)
             }
-            it("should filterNot properly the union") {
-                filterUnion.filterNot(tests) shouldEqual listOf(dogTest, catTest, horseTest)
+            it("should filterNot properly the intersection") {
+                filterIntersection.filterNot(tests) shouldEqual listOf(catTest, horseTest)
+            }
+        }
+    }
+
+    given("a CompositionFilter with different Filters and Subtract Operation") {
+        val filterIntersection = CompositionFilter(
+                listOf(
+                        SimpleClassnameFilter(".*Dog.*".toRegex()),
+                        AnnotationFilter("com.example.BestAnimal".toRegex())),
+                CompositionFilter.OPERATION.SUBTRACT)
+
+        on("a bunch of tests") {
+            val tests = listOf(
+                    dogTest,
+                    catTest,
+                    horseTest
+            )
+            it("should filter properly the subtract") {
+                filterIntersection.filter(tests) shouldEqual listOf(catTest, horseTest)
+            }
+            it("should filterNot properly the subtract") {
+                filterIntersection.filterNot(tests) shouldEqual listOf(dogTest)
             }
         }
     }
@@ -60,5 +82,5 @@ object CompositionFilterSpec : Spek({
 
 })
 
-private fun stubTest(className: String,
-                     vararg annotations: String) = Test("com.example", className, "fakeMethod", listOf(*annotations))
+private fun stubTest(className: String, vararg annotations: String) = Test("com.example", className, "fakeMethod",
+        listOf(*annotations))

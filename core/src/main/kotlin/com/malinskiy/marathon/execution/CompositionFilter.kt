@@ -2,31 +2,52 @@ package com.malinskiy.marathon.execution
 
 import com.malinskiy.marathon.test.Test
 
-class CompositionFilter(val filters: Array<TestFilter>, private val op: OPERATION) : TestFilter {
+class CompositionFilter(private val filters: List<TestFilter>, private val op: OPERATION) : TestFilter {
     override fun filter(tests: List<Test>): List<Test> {
-        var initial = filters[0].filter(tests)
-        filters.forEach {
-            initial = when (op) {
-                OPERATION.UNION -> initial.union(it.filter(tests)).toList()
-                OPERATION.INTERSECTION -> initial.intersect(it.filter(tests)).toList()
-            }
+        return when (op) {
+            OPERATION.UNION -> filterWithUnionOperation(tests)
+            OPERATION.INTERSECTION -> filterWithIntersectionOperation(tests)
+            OPERATION.SUBTRACT -> filterWithSubstractOperation(tests)
         }
-        return initial
     }
 
     override fun filterNot(tests: List<Test>): List<Test> {
-        var initial = filters[0].filterNot(tests)
-        filters.forEach {
-            initial = when (op) {
-                OPERATION.UNION -> initial.union(it.filterNot(tests)).toList()
-                OPERATION.INTERSECTION -> initial.intersect(it.filterNot(tests)).toList()
-            }
+        val filteredTests = filter(tests)
+        return when (op) {
+            OPERATION.UNION -> tests.subtract(filteredTests).toList()
+            OPERATION.INTERSECTION -> tests.subtract(filteredTests).toList()
+            OPERATION.SUBTRACT -> tests.subtract(filteredTests).toList()
         }
-        return initial
+    }
+
+    private fun filterWithUnionOperation(tests: List<Test>): List<Test> {
+        var filteredTests = filters[0].filter(tests)
+        filters.drop(1).forEach {
+            filteredTests = filteredTests.union(it.filter(tests)).toList()
+        }
+        return filteredTests
+    }
+
+    private fun filterWithIntersectionOperation(tests: List<Test>): List<Test> {
+        var filteredTests = filters[0].filter(tests)
+        filters.drop(1).forEach {
+            filteredTests = tests.intersect(it.filter(filteredTests)).toList()
+        }
+        return filteredTests
+    }
+
+
+    private fun filterWithSubstractOperation(tests: List<Test>): List<Test> {
+        var filteredTests = filters[0].filter(tests)
+        filters.drop(1).forEach {
+            filteredTests = tests.subtract(it.filter(filteredTests)).toList()
+        }
+        return filteredTests
     }
 
     enum class OPERATION {
         UNION,
-        INTERSECTION
+        INTERSECTION,
+        SUBTRACT
     }
 }
