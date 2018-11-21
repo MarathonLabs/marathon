@@ -21,7 +21,7 @@ class CompositionFilter(private val filters: List<TestFilter>, private val op: O
     }
 
     private fun filterWithUnionOperation(tests: List<Test>): List<Test> {
-        return  filters.fold(emptySet<Test>()) { acc, f ->
+        return filters.fold(emptySet<Test>()) { acc, f ->
             acc.union(f.filter(tests))
         }.toList()
     }
