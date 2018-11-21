@@ -7,7 +7,7 @@ class CompositionFilter(private val filters: List<TestFilter>, private val op: O
         return when (op) {
             OPERATION.UNION -> filterWithUnionOperation(tests)
             OPERATION.INTERSECTION -> filterWithIntersectionOperation(tests)
-            OPERATION.SUBTRACT -> filterWithSubstractOperation(tests)
+            OPERATION.SUBTRACT -> filterWithSubtractOperation(tests)
         }
     }
 
@@ -21,28 +21,23 @@ class CompositionFilter(private val filters: List<TestFilter>, private val op: O
     }
 
     private fun filterWithUnionOperation(tests: List<Test>): List<Test> {
-        var filteredTests = filters[0].filter(tests)
-        filters.drop(1).forEach {
-            filteredTests = filteredTests.union(it.filter(tests)).toList()
-        }
-        return filteredTests
+        return  filters.fold(emptySet<Test>()) { acc, f ->
+            acc.union(f.filter(tests))
+        }.toList()
     }
 
     private fun filterWithIntersectionOperation(tests: List<Test>): List<Test> {
-        var filteredTests = filters[0].filter(tests)
-        filters.drop(1).forEach {
-            filteredTests = tests.intersect(it.filter(filteredTests)).toList()
-        }
-        return filteredTests
+        return filters.fold(tests.toSet()) { acc, f ->
+            acc.intersect(f.filter(tests))
+        }.toList()
     }
 
 
-    private fun filterWithSubstractOperation(tests: List<Test>): List<Test> {
-        var filteredTests = filters[0].filter(tests)
-        filters.drop(1).forEach {
-            filteredTests = tests.subtract(it.filter(filteredTests)).toList()
-        }
-        return filteredTests
+    private fun filterWithSubtractOperation(tests: List<Test>): List<Test> {
+        return filters.fold(tests.toSet()) { acc, f ->
+            acc.subtract(f.filter(tests))
+
+        }.toList()
     }
 
     enum class OPERATION {
