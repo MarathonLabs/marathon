@@ -54,11 +54,13 @@ class AndroidDevice(val ddmsDevice: IDevice) : Device {
         }
 
     override val serialNumber: String by lazy {
+        val marathonSerialProp: String = ddmsDevice.getProperty("marathon.serialno") ?: ""
         val serialProp: String = ddmsDevice.getProperty("ro.boot.serialno") ?: ""
         val hostName: String = ddmsDevice.getProperty("net.hostname") ?: ""
         val serialNumber = ddmsDevice.serialNumber
 
-        serialProp.takeIf { it.isNotEmpty() }
+        marathonSerialProp.takeIf { it.isNotEmpty() }
+                ?: serialProp.takeIf { it.isNotEmpty() }
                 ?: hostName.takeIf { it.isNotEmpty() }
                 ?: serialNumber.takeIf { it.isNotEmpty() }
                 ?: UUID.randomUUID().toString()
