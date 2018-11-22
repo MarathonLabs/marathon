@@ -10,9 +10,12 @@ import com.malinskiy.marathon.android.ApkParser
 import com.malinskiy.marathon.android.executor.listeners.CompositeTestRunListener
 import com.malinskiy.marathon.android.executor.listeners.DebugTestRunListener
 import com.malinskiy.marathon.android.executor.listeners.LogCatListener
+import com.malinskiy.marathon.android.executor.listeners.NoOpTestRunListener
 import com.malinskiy.marathon.android.executor.listeners.ProgressTestRunListener
 import com.malinskiy.marathon.android.executor.listeners.video.ScreenRecorderTestRunListener
 import com.malinskiy.marathon.android.executor.listeners.TestRunResultsListener
+import com.malinskiy.marathon.android.executor.listeners.screenshot.ScreenCapturerTestRunListener
+import com.malinskiy.marathon.device.DeviceFeature
 import com.malinskiy.marathon.device.DevicePoolId
 import com.malinskiy.marathon.exceptions.TestBatchExecutionException
 import com.malinskiy.marathon.execution.Configuration
@@ -51,10 +54,18 @@ class AndroidDeviceTestRunner(private val device: AndroidDevice) {
 
         runner.setClassNames(tests)
         val fileManager = FileManager(configuration.outputDir)
+
+        val features = device.deviceFeatures
+        val recorderListener = when {
+            features.contains(DeviceFeature.VIDEO) -> ScreenRecorderTestRunListener(fileManager, devicePoolId, device)
+            features.contains(DeviceFeature.SCREENSHOT) -> ScreenCapturerTestRunListener(fileManager, devicePoolId, device)
+            else -> NoOpTestRunListener()
+        }
+
         val listeners = CompositeTestRunListener(
                 listOf(
                         TestRunResultsListener(testBatch, device, deferred),
-                        ScreenRecorderTestRunListener(fileManager, devicePoolId, device),
+                        recorderListener,
                         DebugTestRunListener(device),
                         ProgressTestRunListener(device, devicePoolId, progressReporter),
                         LogCatListener(device, devicePoolId, LogWriter(fileManager))

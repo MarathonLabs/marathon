@@ -37,6 +37,7 @@ object Versions {
     val sshj = "0.26.0"
     val testContainers = "1.9.1"
     val jupiterEngine = "5.1.0"
+    val scalr = "4.2"
 }
 
 object BuildPlugins {
@@ -70,6 +71,7 @@ object Libraries {
     val guava = "com.google.guava:guava:${Versions.guava}"
     val rsync4j = "com.github.fracpete:rsync4j-all:${Versions.rsync4j}"
     val sshj = "com.hierynomus:sshj:${Versions.sshj}"
+    val scalr = "org.imgscalr:imgscalr-lib:${Versions.scalr}"
 }
 
 object TestLibraries {
