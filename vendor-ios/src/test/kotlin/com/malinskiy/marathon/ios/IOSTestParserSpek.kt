@@ -53,6 +53,7 @@ object IOSTestParserSpek : Spek({
                     Test("sample-appUITests", "StoryboardTests", "testButton", emptyList()),
                     Test("sample-appUITests", "StoryboardTests", "testLabel", emptyList()),
                     Test("sample-appUITests", "MoreTests", "testPresentModal", emptyList()),
+                    Test("sample-appUITests", "CrashingTests", "testButton", emptyList()),
                     Test("sample-appUITests", "FailingTests", "testAlwaysFailing", emptyList()),
                     Test("sample-appUITests", "FlakyTests", "testTextFlaky", emptyList()),
                     Test("sample-appUITests", "FlakyTests", "testTextFlaky1", emptyList()),
