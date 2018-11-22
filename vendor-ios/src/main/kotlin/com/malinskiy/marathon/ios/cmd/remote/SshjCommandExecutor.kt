@@ -4,16 +4,15 @@ import ch.qos.logback.classic.Level
 import com.malinskiy.marathon.log.MarathonLogging
 import net.schmizz.sshj.DefaultConfig
 import net.schmizz.sshj.SSHClient
-import net.schmizz.sshj.common.IOUtils
 import net.schmizz.sshj.common.LoggerFactory
 import net.schmizz.sshj.connection.ConnectionException
-import net.schmizz.sshj.connection.channel.direct.Session
 import net.schmizz.sshj.transport.TransportException
 import org.slf4j.Logger
 import java.io.File
-import java.io.IOException
 import java.net.InetAddress
-import java.util.concurrent.TimeUnit
+import java.util.*
+import java.util.concurrent.TimeoutException
+import kotlin.concurrent.thread
 
 private const val DEFAULT_PORT = 22
 
@@ -24,8 +23,7 @@ class SshjCommandExecutor(val hostAddress: InetAddress,
                           val knownHostsPath: File?,
                           verbose: Boolean = false) : CommandExecutor {
 
-    val ssh: SSHClient
-
+    private val ssh: SSHClient
     init {
         val config = DefaultConfig()
         val loggerFactory = object : LoggerFactory {
@@ -49,42 +47,58 @@ class SshjCommandExecutor(val hostAddress: InetAddress,
         ssh.authPublickey(remoteUsername, keys)
     }
 
-    override fun startSession() = ssh.startSession()
-
-    override fun exec(command: String, timeout: Long): CommandResult {
-        val session = ssh.startSession()
-        var sshCommand: Session.Command? = null
-        var stdout: String? = null
-        var stderr: String? = null
-        try {
-            sshCommand = session.exec(command)
-
-            stdout = IOUtils.readFully(sshCommand.inputStream, ssh.transport.config.loggerFactory)
-                    .toString("UTF-8")
-            stderr = IOUtils.readFully(sshCommand.errorStream, ssh.transport.config.loggerFactory)
-                    .toString("UTF-8")
-
-            sshCommand.join(timeout, TimeUnit.SECONDS)
-        } catch(e: ConnectionException) {
-            ssh.transport.config.loggerFactory.
-                    getLogger(SshjCommandExecutor::class.java).
-                    debug("${this} exception when executing command ${command} ${e}")
-        } catch(e: TransportException) {
-            ssh.transport.config.loggerFactory.
-                    getLogger(SshjCommandExecutor::class.java).
-                    debug("${this} exception when executing command ${command} ${e}")
-        } finally {
-            try {
-                session?.close()
-            } catch (e: IOException) { }
-        }
-
-        return CommandResult(
-                stdout = stdout ?: "",
-                stderr = stderr ?: "",
-                exitStatus = sshCommand?.exitStatus ?: 1
+    override fun startSession(command: String, timeoutMillis: Long): CommandSession {
+        return SshjCommandSession(
+            executableLine = command,
+            ssh = ssh,
+            timeoutMillis = timeoutMillis
         )
     }
 
-    override fun disconnect() = ssh.disconnect()
+    override fun exec(command: String, timeoutMillis: Long): CommandResult {
+        val session = startSession(command, timeoutMillis)
+        session.connect(timeoutMillis)
+        val outputCollector = object {
+            var stdout = arrayListOf<String>()
+            var stderr = arrayListOf<String>()
+            fun onStdout(line: String) = stdout.add(line)
+            fun onStderr(line: String) = stderr.add(line)
+        }
+        thread {
+            try {
+                session.inputStream.reader().forEachLine { outputCollector.onStdout(it) }
+            } catch (e: TransportException) { }
+        }
+        thread {
+            try {
+                session.errorStream.reader().forEachLine { outputCollector.onStderr(it) }
+            } catch (e: TransportException) { }
+        }
+        try {
+            session.use { it.join(timeoutMillis) }
+        } catch (e: ConnectionException) {
+            if (e.cause is TimeoutException) {
+                ssh.logger.debug("Execution timeout expired")
+            }
+        }
+
+        return CommandResult(
+                stdout = outputCollector.stdout.joinToString("\n"),
+                stderr = outputCollector.stderr.joinToString("\n"),
+                exitStatus = session.exitStatus ?: 1
+        )
+    }
+
+    override fun disconnect() {
+        if (ssh.isConnected) {
+            try {
+                ssh.disconnect()
+            } catch (e: Exception) {
+            }
+        }
+
+    }
 }
+
+private val SSHClient.logger: Logger
+    get() { return transport.config.loggerFactory.getLogger(SshjCommandExecutor::class.java) }

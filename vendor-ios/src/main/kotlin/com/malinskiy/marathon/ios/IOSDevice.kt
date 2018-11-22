@@ -26,12 +26,12 @@ import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.test.TestBatch
 import com.malinskiy.marathon.time.SystemTimer
 import kotlinx.coroutines.experimental.CompletableDeferred
+import net.schmizz.sshj.common.DisconnectReason
 import net.schmizz.sshj.connection.ConnectionException
 import net.schmizz.sshj.transport.TransportException
 import java.io.File
-import java.io.FileNotFoundException
-import java.io.IOException
-import java.util.concurrent.TimeUnit
+import java.util.concurrent.TimeoutException
+import kotlin.concurrent.thread
 
 private const val HOSTNAME = "localhost"
 
@@ -120,7 +120,7 @@ class IOSDevice(val udid: String,
                 .map { "-only-testing:\"${it.pkg}/${it.clazz}/${it.method}\"" }
                 .joinToString(separator = " ")
 
-        val remoteCommand =
+        val command =
                 listOf("cd '$remoteDir' &&",
                         "NSUnbufferedIO=YES",
                         "xcodebuild test-without-building",
@@ -131,27 +131,44 @@ class IOSDevice(val udid: String,
                         "exit")
                         .joinToString(" ")
                         .also { logger.debug(it) }
-        val session = hostCommandExecutor.startSession()
-        try {
-            val command = session.exec(remoteCommand)
 
-            command.inputStream.reader().forEachLine {  logParser.onLine(it)  }
-            command.errorStream.reader().forEachLine {  logger.error(it) }
+        val timeoutMillis = configuration.testOutputTimeoutMillis
+        val session = hostCommandExecutor.startSession(command)
+        val stdoutStream = session.inputStream
+        val stderrStream = session.errorStream
+        session.connect(timeoutMillis)
 
-            command.join(configuration.testOutputTimeoutMillis, TimeUnit.MILLISECONDS)
-        } catch(e: ConnectionException) {
-            logger.error("Ssh exception: ${e}")
-        } catch(e: TransportException) {
-            logger.error("Ssh exception: ${e}")
-        } finally {
-            logParser.close()
+        thread {
+            try {
+                stdoutStream.reader().forEachLine(logParser::onLine)
+            } catch (e: TransportException) {
+                if (e.disconnectReason != DisconnectReason.BY_APPLICATION) {
+                    logger.debug("disconnected with error ${e::class.java}: $e")
+                }
+            }
 
-            if (session.isOpen) {
-                try {
-                    session.close()
-                } catch (e: IOException) { }
+        }
+        thread {
+            try {
+                stderrStream.reader().forEachLine(logParser::onLine)
+            } catch (e: TransportException) {
+                if (e.disconnectReason != DisconnectReason.BY_APPLICATION) {
+                    logger.debug("disconnected with error ${e::class.java}: $e")
+                }
             }
         }
+
+        try {
+            session.use { it.join(timeoutMillis) }
+        } catch(e: ConnectionException) {
+            if (e.cause is TimeoutException) {
+                logger.error("Timeout expired")
+            }
+        }
+        // 70 = no devices
+        // 65 = ** TEST EXECUTE FAILED **: crash
+        logger.debug("finished test batch execution with exit status ${session.exitStatus}")
+        logParser.close()
     }
 
     override fun prepare(configuration: Configuration) {

@@ -61,10 +61,11 @@ class Simctl {
 //    fun video(device: IOSDevice) {}
 
     fun exec(args: String, device: IOSDevice): String {
-        val session = device.hostCommandExecutor.startSession()
-        val command = session.exec("/Applications/Xcode.app/Contents/Developer/usr/bin/simctl $args")
-        command.join()
-        val output = command.inputStream.reader().buffered().use(BufferedReader::readText)
+        val command = "xcrun simctl $args"
+        val session = device.hostCommandExecutor.startSession(command)
+        session.connect()
+        val output = session.inputStream.reader().buffered().use(BufferedReader::readText)
+        session.join()
         session.close()
         return output
     }
