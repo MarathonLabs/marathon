@@ -13,6 +13,8 @@ import org.jetbrains.spek.api.dsl.it
 import org.testcontainers.containers.BindMode
 import org.testcontainers.containers.GenericContainer
 import java.io.File
+import java.nio.file.Files
+import java.nio.file.attribute.PosixFilePermissions
 import java.util.UUID
 
 object DerivedDataManagerSpek: Spek({
@@ -23,6 +25,7 @@ object DerivedDataManagerSpek: Spek({
         whenever(device.udid).thenReturn(UUID.randomUUID().toString())
 
         val privateKey = File(javaClass.classLoader.getResource("fixtures/derived-data-manager/test_rsa").file)
+        Files.setPosixFilePermissions(privateKey.toPath(), PosixFilePermissions.fromString("rw-------"))
         logger.debug { "Using private key $privateKey" }
         val publicKeyResourcePath = "fixtures/derived-data-manager/test_rsa.pub"
 
