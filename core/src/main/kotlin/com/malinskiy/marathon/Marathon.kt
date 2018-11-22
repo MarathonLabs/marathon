@@ -115,7 +115,8 @@ class Marathon(val configuration: Configuration) {
         var tests = parsedTests.filter { test ->
             configuration.testClassRegexes.all { it.matches(test.clazz) }
         }
-        configuration.filteringConfiguration.whitelist.forEach { tests = it.filter(tests) }
+
+        tests = configuration.filteringConfiguration.whitelist.map { it.filter(tests) }.flatten().toSet().toList()
         configuration.filteringConfiguration.blacklist.forEach { tests = it.filterNot(tests) }
         return tests
     }
