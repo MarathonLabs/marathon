@@ -10,6 +10,7 @@ import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.test.toSimpleSafeTestName
 import kotlinx.coroutines.experimental.Job
 import kotlinx.coroutines.experimental.async
+import kotlinx.coroutines.experimental.newFixedThreadPoolContext
 
 class ScreenCapturerTestRunListener(private val fileManager: FileManager,
                                     private val pool: DevicePoolId,
@@ -17,11 +18,12 @@ class ScreenCapturerTestRunListener(private val fileManager: FileManager,
 
     private var screenCapturerJob: Job? = null
     private val logger = MarathonLogging.logger(ScreenCapturerTestRunListener::class.java.simpleName)
+    private val threadPoolDispatcher = newFixedThreadPoolContext(1, "ScreenCapturer - ${device.serialNumber}")
 
     override fun testStarted(test: TestIdentifier) {
         super.testStarted(test)
         logger.debug { "Starting recording for ${test.toTest().toSimpleSafeTestName()}" }
-        screenCapturerJob = async {
+        screenCapturerJob = async(context = threadPoolDispatcher) {
             ScreenCapturer(device, pool, fileManager, test).start()
         }
     }
