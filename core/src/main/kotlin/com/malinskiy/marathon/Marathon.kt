@@ -116,7 +116,9 @@ class Marathon(val configuration: Configuration) {
             configuration.testClassRegexes.all { it.matches(test.clazz) }
         }
 
-        tests = configuration.filteringConfiguration.whitelist.map { it.filter(tests) }.flatten().toSet().toList()
+        if (configuration.filteringConfiguration.whitelist.size > 0) {
+            tests = configuration.filteringConfiguration.whitelist.map { it.filter(tests) }.flatten().toSet().toList()
+        }
         configuration.filteringConfiguration.blacklist.forEach { tests = it.filterNot(tests) }
         return tests
     }
