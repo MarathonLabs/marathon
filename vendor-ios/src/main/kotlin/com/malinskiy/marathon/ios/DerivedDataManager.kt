@@ -45,7 +45,7 @@ class DerivedDataManager(val configuration: Configuration) {
         get() {
             val output = CollectingProcessOutput()
             output.monitor(RSync().source("/tmp").destination("/tmp").version(true).builder())
-            output.stdOut.replace("""(?s)\n.*\z""".toRegex(), "")
+            return output.stdOut.replace("""(?s)\n.*\z""".toRegex(), "")
         }
 
     fun sendSynchronized(localPath: File, remotePath: String, hostName: String, port: Int) {
