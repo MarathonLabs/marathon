@@ -123,7 +123,7 @@ class IOSDevice(val udid: String,
         val command =
                 listOf("cd '$remoteDir' &&",
                         "NSUnbufferedIO=YES",
-                        "xcodebuild test-without-building",
+                        "xcodebuild 2>&1 test-without-building",
                         "-xctestrun ${remoteXctestrunFile.path}",
                         // "-resultBundlePath ${remoteXcresultPath.canonicalPath} ",
                         testBatchToArguments,
@@ -180,14 +180,14 @@ class IOSDevice(val udid: String,
         val remoteXctestrunFile = RemoteFileManager.remoteXctestrunFile(this)
         val xctestrunFile = prepareXctestrunFile(derivedDataManager, remoteXctestrunFile)
 
-        derivedDataManager.sendSynchronized(
+        derivedDataManager.send(
             localPath = xctestrunFile,
             remotePath = remoteXctestrunFile.absolutePath,
             hostName = sshjCommandExecutor.hostAddress.hostName,
             port = sshjCommandExecutor.port
         )
 
-        derivedDataManager.sendSynchronized(
+        derivedDataManager.send(
             localPath = derivedDataManager.productsDir,
             remotePath = RemoteFileManager.remoteDirectory(this).path,
             hostName = sshjCommandExecutor.hostAddress.hostName,
