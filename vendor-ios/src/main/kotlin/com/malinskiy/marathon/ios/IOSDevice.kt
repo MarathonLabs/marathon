@@ -180,14 +180,14 @@ class IOSDevice(val udid: String,
         val remoteXctestrunFile = RemoteFileManager.remoteXctestrunFile(this)
         val xctestrunFile = prepareXctestrunFile(derivedDataManager, remoteXctestrunFile)
 
-        derivedDataManager.send(
+        derivedDataManager.sendSynchronized(
             localPath = xctestrunFile,
             remotePath = remoteXctestrunFile.absolutePath,
             hostName = sshjCommandExecutor.hostAddress.hostName,
             port = sshjCommandExecutor.port
         )
 
-        derivedDataManager.send(
+        derivedDataManager.sendSynchronized(
             localPath = derivedDataManager.productsDir,
             remotePath = RemoteFileManager.remoteDirectory(this).path,
             hostName = sshjCommandExecutor.hostAddress.hostName,

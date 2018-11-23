@@ -7,15 +7,16 @@ import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.report.html.relativePathTo
 import java.io.File
 import java.io.FileNotFoundException
+import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.locks.Lock
 import java.util.concurrent.locks.ReentrantLock
+import kotlin.concurrent.withLock
 
 private const val PRODUCTS_PATH = "Build/Products"
 
 class DerivedDataManager(val configuration: Configuration) {
     companion object {
-        private val hostnameLocksMapLock: Lock = ReentrantLock()
-        private val hostnameLocksMap = mutableMapOf<String, Lock>()
+        private val hostnameLocksMap = ConcurrentHashMap<String, Lock>()
     }
 
     private val logger = MarathonLogging.logger(javaClass.simpleName)
@@ -44,22 +45,12 @@ class DerivedDataManager(val configuration: Configuration) {
         get() {
             val output = CollectingProcessOutput()
             output.monitor(RSync().source("/tmp").destination("/tmp").version(true).builder())
-            return output.stdOut
+            output.stdOut.replace("""(?s)\n.*\z""".toRegex(), "")
         }
 
     fun sendSynchronized(localPath: File, remotePath: String, hostName: String, port: Int) {
-        val hostnameLock: Lock
-        hostnameLocksMapLock.lock()
-        try {
-            hostnameLock = hostnameLocksMap.getOrPut(hostName) { ReentrantLock() }
-        } finally {
-            hostnameLocksMapLock.unlock()
-        }
-        hostnameLock.lock()
-        try {
+        hostnameLocksMap.getOrPut(hostName) { ReentrantLock() }.withLock {
             send(localPath, remotePath, hostName, port)
-        } finally {
-            hostnameLock.unlock()
         }
     }
 
