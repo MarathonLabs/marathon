@@ -7,7 +7,7 @@ import mu.KotlinLogging
 
 object MarathonLogging {
     var debug = true
-    var warningPrinted = false
+    private var warningPrinted = false
 
     fun logger(func: () -> Unit): KLogger {
         return logger(level = null, func = func)
@@ -16,7 +16,7 @@ object MarathonLogging {
     fun logger(name: String): KLogger {
         return logger(level = null, name = name)
     }
-
+    
     fun logger(level: Level?, func: () -> Unit): KLogger {
         val logger = KotlinLogging.logger(func)
         return changeInternalLogLevel(logger, level = level)
