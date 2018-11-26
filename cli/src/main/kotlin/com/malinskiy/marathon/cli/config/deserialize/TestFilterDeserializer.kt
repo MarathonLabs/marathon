@@ -8,7 +8,13 @@ import com.fasterxml.jackson.databind.deser.std.StdDeserializer
 import com.fasterxml.jackson.databind.node.ObjectNode
 import com.fasterxml.jackson.module.kotlin.treeToValue
 import com.malinskiy.marathon.exceptions.ConfigurationException
-import com.malinskiy.marathon.execution.*
+import com.malinskiy.marathon.execution.AnnotationFilter
+import com.malinskiy.marathon.execution.CompositionFilter
+import com.malinskiy.marathon.execution.FullyQualifiedClassnameFilter
+import com.malinskiy.marathon.execution.SimpleClassnameFilter
+import com.malinskiy.marathon.execution.TestFilter
+import com.malinskiy.marathon.execution.TestMethodFilter
+import com.malinskiy.marathon.execution.TestPackageFilter
 
 class TestFilterDeserializer : StdDeserializer<TestFilter>(TestFilter::class.java) {
     override fun deserialize(p: JsonParser?, ctxt: DeserializationContext?): TestFilter {

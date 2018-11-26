@@ -10,7 +10,13 @@ import com.malinskiy.marathon.cli.args.EnvironmentConfiguration
 import com.malinskiy.marathon.cli.args.environment.EnvironmentReader
 import com.malinskiy.marathon.cli.config.time.InstantTimeProvider
 import com.malinskiy.marathon.exceptions.ConfigurationException
-import com.malinskiy.marathon.execution.*
+import com.malinskiy.marathon.execution.AnalyticsConfiguration
+import com.malinskiy.marathon.execution.AnnotationFilter
+import com.malinskiy.marathon.execution.CompositionFilter
+import com.malinskiy.marathon.execution.FullyQualifiedClassnameFilter
+import com.malinskiy.marathon.execution.SimpleClassnameFilter
+import com.malinskiy.marathon.execution.TestMethodFilter
+import com.malinskiy.marathon.execution.TestPackageFilter
 import com.malinskiy.marathon.execution.strategy.impl.batching.FixedSizeBatchingStrategy
 import com.malinskiy.marathon.execution.strategy.impl.batching.IsolateBatchingStrategy
 import com.malinskiy.marathon.execution.strategy.impl.flakiness.IgnoreFlakinessStrategy
