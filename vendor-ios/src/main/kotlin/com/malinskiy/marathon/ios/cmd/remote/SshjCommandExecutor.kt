@@ -4,7 +4,6 @@ import ch.qos.logback.classic.Level
 import com.malinskiy.marathon.log.MarathonLogging
 import kotlinx.coroutines.experimental.delay
 import kotlinx.coroutines.experimental.launch
-import kotlinx.coroutines.experimental.withTimeout
 import net.schmizz.sshj.DefaultConfig
 import net.schmizz.sshj.SSHClient
 import net.schmizz.sshj.common.LoggerFactory
@@ -12,6 +11,8 @@ import org.slf4j.Logger
 import java.io.BufferedReader
 import java.io.File
 import java.net.InetAddress
+import java.util.concurrent.TimeoutException
+import java.util.concurrent.atomic.AtomicLong
 
 private const val DEFAULT_PORT = 22
 private const val CONNECTION_TIMEOUT_MILLIS = 7200L
@@ -69,20 +70,25 @@ class SshjCommandExecutor(val hostAddress: InetAddress,
         }
     }
 
-    override fun exec(command: String, testOutputTimeoutMilliss: Long, reader: (String) -> Unit): Int? {
+    override fun exec(command: String, testOutputTimeoutMillis: Long, reader: (String) -> Unit): Int? {
         val session = startSession(command, timeoutMillis)
-        val timeout= launch {
-            withTimeout(timeoutMillis) {
-                while (isActive) {
-                    delay(50)
+        val lastOutputTime = AtomicLong(System.currentTimeMillis())
+        val timeoutJob= if (testOutputTimeoutMillis == 0L) null else launch {
+            while (isActive) {
+                if (System.currentTimeMillis() - testOutputTimeoutMillis > lastOutputTime.get()) {
+                    throw TimeoutException("No output for a long time. Aborting")
                 }
+                delay(50)
             }
         }
         session.use {
-            it.inputStream.bufferedReader().forEachLine(reader)
-            println("done reading stdout lines")
+            it.inputStream.bufferedReader().forEachLine {
+                lastOutputTime.lazySet(System.currentTimeMillis())
+                reader(it)
+            }
+            ssh.logger.debug("Done reading stdout")
         }
-        timeout.cancel()
+        timeoutJob?.cancel()
 
         return session.exitStatus
     }

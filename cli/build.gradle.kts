@@ -16,7 +16,8 @@ plugins {
 application {
     mainClassName = "com.malinskiy.marathon.cli.ApplicationViewKt"
     applicationName = "marathon"
-    applicationDefaultJvmArgs = listOf("-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=1044")
+    applicationDefaultJvmArgs = listOf("-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=1044",
+        "-Dkotlinx.coroutines.debug")
 }
 
 distributions {

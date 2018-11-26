@@ -120,13 +120,13 @@ class IOSDevice(val udid: String,
             logger.info("InterruptedIOException")
             0
         } catch (e: TransportException) {
-            logger.error("$e")
-            0
+            logger.error("TransportException $e, cause ${e.cause}")
+            throw TestBatchExecutionException(e)
         }
 
         // 70 = no devices
         // 65 = ** TEST EXECUTE FAILED **: crash
-        logger.debug("finished test batch execution with exit status ${exitStatus}")
+        logger.debug("finished test batch execution with exit status $exitStatus")
         logParser.close()
     }
 
