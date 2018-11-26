@@ -25,11 +25,9 @@ dependencies {
 
 Deployment.initialize(project)
 
-val compileKotlin by tasks.getting(KotlinCompile::class) {
+tasks.withType<KotlinCompile> {
     kotlinOptions.jvmTarget = "1.8"
-}
-val compileTestKotlin by tasks.getting(KotlinCompile::class) {
-    kotlinOptions.jvmTarget = "1.8"
+    kotlinOptions.apiVersion = "1.3"
 }
 
 junitPlatform {

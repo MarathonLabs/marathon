@@ -17,6 +17,7 @@ import com.malinskiy.marathon.android.executor.listeners.TestRunResultsListener
 import com.malinskiy.marathon.android.executor.listeners.screenshot.ScreenCapturerTestRunListener
 import com.malinskiy.marathon.device.DeviceFeature
 import com.malinskiy.marathon.device.DevicePoolId
+import com.malinskiy.marathon.exceptions.DeviceLostException
 import com.malinskiy.marathon.exceptions.TestBatchExecutionException
 import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.execution.TestBatchResults
@@ -81,7 +82,11 @@ class AndroidDeviceTestRunner(private val device: AndroidDevice) {
             throw TestBatchExecutionException(e)
         } catch (e: AdbCommandRejectedException) {
             logger.error(e) { "adb error while running tests ${testBatch.tests.map { it.toTestName() }}" }
-            throw TestBatchExecutionException(e)
+            if (e.isDeviceOffline) {
+                throw DeviceLostException(e)
+            } else {
+                throw TestBatchExecutionException(e)
+            }
         } catch (e: IOException) {
             logger.error(e) { "Error while running tests ${testBatch.tests.map { it.toTestName() }}" }
             throw TestBatchExecutionException(e)

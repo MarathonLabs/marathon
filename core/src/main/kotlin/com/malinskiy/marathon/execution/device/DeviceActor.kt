@@ -4,6 +4,7 @@ import com.malinskiy.marathon.actor.Actor
 import com.malinskiy.marathon.actor.StateMachine
 import com.malinskiy.marathon.device.Device
 import com.malinskiy.marathon.device.DevicePoolId
+import com.malinskiy.marathon.exceptions.DeviceLostException
 import com.malinskiy.marathon.exceptions.TestBatchExecutionException
 import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.execution.DevicePoolMessage
@@ -172,6 +173,10 @@ class DeviceActor(private val devicePoolId: DevicePoolId,
         job = async(context, parent = deviceJob) {
             try {
                 device.execute(configuration, devicePoolId, batch, result, progressReporter)
+            } catch (e: DeviceLostException) {
+                logger.error(e) { "Critical error during execution" }
+                returnBatch(batch)
+//                terminate()
             } catch (e: TestBatchExecutionException) {
                 returnBatch(batch)
             }

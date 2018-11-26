@@ -1,13 +1,21 @@
 package com.malinskiy.marathon.ios
 
+import com.google.common.io.Files
 import com.google.gson.GsonBuilder
 import com.malinskiy.marathon.device.DevicePoolId
+import com.malinskiy.marathon.device.DeviceProvider
+import com.malinskiy.marathon.execution.AnalyticsConfiguration
+import com.malinskiy.marathon.execution.Configuration
+import com.malinskiy.marathon.execution.TestParser
+import com.malinskiy.marathon.execution.strategy.impl.batching.IsolateBatchingStrategy
 import com.malinskiy.marathon.ios.cmd.remote.CommandExecutor
 import com.malinskiy.marathon.ios.cmd.remote.CommandResult
 import com.malinskiy.marathon.ios.simctl.model.SimctlDeviceList
 import com.malinskiy.marathon.ios.simctl.model.SimctlDeviceListDeserializer
+import com.malinskiy.marathon.vendor.VendorConfiguration
 import net.schmizz.sshj.connection.channel.direct.Session
 import org.amshove.kluent.mock
+import java.io.File
 
 class Mocks {
     class CommandExecutor {
@@ -18,6 +26,7 @@ class Mocks {
                 override fun exec(command: String, timeout: Long): CommandResult {
                     TODO("not implemented")
                 }
+
                 override fun disconnect() {
                     TODO("not implemented")
                 }
