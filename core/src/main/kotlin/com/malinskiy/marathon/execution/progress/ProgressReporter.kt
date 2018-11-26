@@ -3,6 +3,7 @@ package com.malinskiy.marathon.execution.progress
 import com.malinskiy.marathon.device.Device
 import com.malinskiy.marathon.device.DevicePoolId
 import com.malinskiy.marathon.execution.progress.tracker.PoolProgressTracker
+import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.test.Test
 import com.malinskiy.marathon.test.toTestName
 import java.util.concurrent.ConcurrentHashMap
@@ -11,6 +12,7 @@ import kotlin.math.roundToInt
 const val HUNDRED_PERCENT_IN_FLOAT: Float = 100.0f
 
 class ProgressReporter {
+    private val logger = MarathonLogging.logger(ProgressReporter::class.java.simpleName)
     private val reporters = ConcurrentHashMap<DevicePoolId, PoolProgressTracker>()
 
     private inline fun <T> execute(poolId: DevicePoolId, f: (PoolProgressTracker) -> T): T {
@@ -28,17 +30,17 @@ class ProgressReporter {
 
     fun testStarted(poolId: DevicePoolId, device: Device, test: Test) {
         execute(poolId) { it.testStarted(test, device) }
-        println("${toPercent(progress(poolId))} | [${poolId.name}]-[${device.serialNumber}] ${test.toTestName()} started")
+        logger.info("${toPercent(progress(poolId))} | [${poolId.name}]-[${device.serialNumber}] ${test.toTestName()} started")
     }
 
     fun testFailed(poolId: DevicePoolId, device: Device, test: Test) {
         execute(poolId) { it.testFailed(test, device) }
-        println("${toPercent(progress(poolId))} | [${poolId.name}]-[${device.serialNumber}] ${test.toTestName()} failed")
+        logger.info("${toPercent(progress(poolId))} | [${poolId.name}]-[${device.serialNumber}] ${test.toTestName()} failed")
     }
 
     fun testPassed(poolId: DevicePoolId, device: Device, test: Test) {
         execute(poolId) { it.testPassed(test, device) }
-        println("${toPercent(progress(poolId))} | [${poolId.name}]-[${device.serialNumber}] ${test.toTestName()} ended")
+        logger.info("${toPercent(progress(poolId))} | [${poolId.name}]-[${device.serialNumber}] ${test.toTestName()} ended")
     }
 
     fun testIgnored(poolId: DevicePoolId, device: Device, test: Test) {
