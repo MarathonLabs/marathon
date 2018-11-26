@@ -10,12 +10,7 @@ import com.malinskiy.marathon.cli.args.EnvironmentConfiguration
 import com.malinskiy.marathon.cli.args.environment.EnvironmentReader
 import com.malinskiy.marathon.cli.config.time.InstantTimeProvider
 import com.malinskiy.marathon.exceptions.ConfigurationException
-import com.malinskiy.marathon.execution.AnalyticsConfiguration
-import com.malinskiy.marathon.execution.AnnotationFilter
-import com.malinskiy.marathon.execution.FullyQualifiedClassnameFilter
-import com.malinskiy.marathon.execution.SimpleClassnameFilter
-import com.malinskiy.marathon.execution.TestMethodFilter
-import com.malinskiy.marathon.execution.TestPackageFilter
+import com.malinskiy.marathon.execution.*
 import com.malinskiy.marathon.execution.strategy.impl.batching.FixedSizeBatchingStrategy
 import com.malinskiy.marathon.execution.strategy.impl.batching.IsolateBatchingStrategy
 import com.malinskiy.marathon.execution.strategy.impl.flakiness.IgnoreFlakinessStrategy
@@ -40,7 +35,6 @@ import org.amshove.kluent.`should be instance of`
 import org.amshove.kluent.mock
 import org.amshove.kluent.shouldBe
 import org.amshove.kluent.shouldBeEmpty
-import org.amshove.kluent.shouldBeInRange
 import org.amshove.kluent.shouldContainAll
 import org.amshove.kluent.shouldEqual
 import org.amshove.kluent.shouldNotThrow
@@ -110,7 +104,9 @@ object ConfigFactorySpec : Spek({
                 configuration.filteringConfiguration.whitelist shouldContainAll listOf(
                         SimpleClassnameFilter(".*".toRegex()),
                         FullyQualifiedClassnameFilter(".*".toRegex()),
-                        TestMethodFilter(".*".toRegex())
+                        TestMethodFilter(".*".toRegex()),
+                        CompositionFilter(listOf(TestPackageFilter(".*".toRegex()),
+                                TestMethodFilter(".*".toRegex())), CompositionFilter.OPERATION.UNION)
                 )
 
                 configuration.filteringConfiguration.blacklist shouldContainAll listOf(

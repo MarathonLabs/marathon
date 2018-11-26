@@ -1,8 +1,10 @@
 package com.malinskiy.marathon.execution
 
+import com.google.gson.annotations.SerializedName
 import com.malinskiy.marathon.test.Test
 
-class CompositionFilter(private val filters: List<TestFilter>, private val op: OPERATION) : TestFilter {
+class CompositionFilter(@SerializedName("filters") private val filters: List<TestFilter>,
+                        @SerializedName("op") private val op: OPERATION) : TestFilter {
     override fun filter(tests: List<Test>): List<Test> {
         return when (op) {
             OPERATION.UNION -> filterWithUnionOperation(tests)
@@ -39,6 +41,18 @@ class CompositionFilter(private val filters: List<TestFilter>, private val op: O
 
         }.toList()
     }
+
+    override fun equals(other: Any?): Boolean {
+        if (other !is CompositionFilter) return false
+        if (filters.count() != other.filters.count()) return false
+        if (op != other.op) return false
+        filters.forEach {
+            if (!other.filters.contains(it)) return false
+        }
+        return true
+    }
+
+    override fun hashCode(): Int = filters.hashCode() + op.hashCode()
 
     enum class OPERATION {
         UNION,
