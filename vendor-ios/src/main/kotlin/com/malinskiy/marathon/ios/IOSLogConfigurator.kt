@@ -3,6 +3,7 @@ package com.malinskiy.marathon.ios
 import ch.qos.logback.classic.Level
 import ch.qos.logback.classic.Logger
 import ch.qos.logback.classic.LoggerContext
+import ch.qos.logback.classic.PatternLayout
 import ch.qos.logback.classic.layout.TTLLLayout
 import ch.qos.logback.classic.spi.Configurator
 import ch.qos.logback.classic.spi.ILoggingEvent
@@ -15,10 +16,8 @@ class IOSLogConfigurator: ContextAwareBase(), Configurator  {
         loggerContext?.also {
             addInfo("Setting up default configuration.")
 
-            // same as
-            // PatternLayout layout = new PatternLayout();
-            // layout.setPattern("%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n");
-            val layout = TTLLLayout()
+            val layout = PatternLayout()
+            layout.pattern = "%-48(%d{HH:mm:ss.SSS} [%thread]) %-24(<%logger{36}> %.-1level) %msg%n"
             layout.context = loggerContext
             layout.start();
 
