@@ -9,8 +9,5 @@ interface CommandSession: Closeable {
     val errorStream: InputStream
     val outputStream: OutputStream
 
-    fun connect(timeoutMillis: Long = CommandExecutor.DEFAULT_SSH_CONNECTION_TIMEOUT_MILLIS)
-    fun join(timeoutMillis: Long = CommandExecutor.DEFAULT_SSH_CONNECTION_TIMEOUT_MILLIS)
-
     val exitStatus: Int?
 }

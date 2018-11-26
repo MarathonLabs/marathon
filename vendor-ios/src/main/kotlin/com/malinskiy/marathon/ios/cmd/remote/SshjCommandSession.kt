@@ -18,13 +18,7 @@ class SshjCommandSession(executableLine: String, ssh: SSHClient, private val tim
     override val outputStream: OutputStream
         get() = command.outputStream
 
-    override fun connect(timeoutMillis: Long) {}
-
-    override fun join(timeoutMillis: Long) {
-        command.join(timeoutMillis, TimeUnit.MILLISECONDS)
-    }
-
-    override fun close() = command.close()
+    override fun close() { command.close() }
 
     override val exitStatus: Int?
         get() = command.exitStatus

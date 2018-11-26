@@ -16,7 +16,10 @@ class Mocks {
             val DEFAULT = object : com.malinskiy.marathon.ios.cmd.remote.CommandExecutor {
                 val mock = mock(CommandSession::class)
                 override fun startSession(command: String, timeoutMillis: Long): CommandSession = mock
-                override fun exec(command: String, timeoutMillis: Long): CommandResult {
+                override fun exec(command: String, testOutputTimeoutMillis: Long): CommandResult {
+                    TODO("not implemented")
+                }
+                override fun exec(command: String, testOutputTimeoutMilliss: Long, reader: (String) -> Unit): Int? {
                     TODO("not implemented")
                 }
                 override fun disconnect() {

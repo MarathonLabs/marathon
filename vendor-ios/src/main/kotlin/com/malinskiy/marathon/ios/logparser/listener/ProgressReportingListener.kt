@@ -14,13 +14,13 @@ import kotlinx.coroutines.experimental.CompletableDeferred
 
 class ProgressReportingListener(private val device: Device,
                                 private val poolId: DevicePoolId,
-                                private val progressTracker: ProgressReporter,
-                                private val deferred: CompletableDeferred<TestBatchResults>,
                                 private val testBatch: TestBatch,
+                                private val deferredResults: CompletableDeferred<TestBatchResults>,
+                                private val progressReporter: ProgressReporter,
                                 private val testLogListener: TestLogListener): TestRunListener {
 
-    val success: MutableList<TestResult> = mutableListOf()
-    val failure: MutableList<TestResult> = mutableListOf()
+    private val success: MutableList<TestResult> = mutableListOf()
+    private val failure: MutableList<TestResult> = mutableListOf()
 
     override fun batchFinished() {
         val received = (success + failure).map { it.test.toSafeTestName() }.toHashSet()
@@ -29,20 +29,20 @@ class ProgressReportingListener(private val device: Device,
             !received.contains(it.toSafeTestName())
         }
 
-        deferred.complete(TestBatchResults(device, success, failure, incompleteTests))
+        deferredResults.complete(TestBatchResults(device, success, failure, incompleteTests))
     }
 
     override fun testFailed(test: Test, startTime: Long, endTime: Long) {
-        progressTracker.testFailed(poolId, device, test)
+        progressReporter.testFailed(poolId, device, test)
         failure.add(TestResult(test, device.toDeviceInfo(), TestStatus.FAILURE, startTime, endTime, testLogListener.getLastLog()))
     }
 
     override fun testPassed(test: Test, startTime: Long, endTime: Long) {
-        progressTracker.testPassed(poolId, device, test)
+        progressReporter.testPassed(poolId, device, test)
         success.add(TestResult(test, device.toDeviceInfo(), TestStatus.PASSED, startTime, endTime, testLogListener.getLastLog()))
     }
 
     override fun testStarted(test: Test) {
-        progressTracker.testStarted(poolId, device, test)
+        progressReporter.testStarted(poolId, device, test)
     }
 }

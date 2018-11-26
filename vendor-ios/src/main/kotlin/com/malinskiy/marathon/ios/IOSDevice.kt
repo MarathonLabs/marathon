@@ -7,6 +7,7 @@ import com.malinskiy.marathon.device.DeviceFeature
 import com.malinskiy.marathon.device.DevicePoolId
 import com.malinskiy.marathon.device.NetworkState
 import com.malinskiy.marathon.device.OperatingSystem
+import com.malinskiy.marathon.exceptions.TestBatchExecutionException
 import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.execution.TestBatchResults
 import com.malinskiy.marathon.execution.progress.ProgressReporter
@@ -14,31 +15,25 @@ import com.malinskiy.marathon.io.FileManager
 import com.malinskiy.marathon.ios.cmd.remote.CommandExecutor
 import com.malinskiy.marathon.ios.cmd.remote.SshjCommandExecutor
 import com.malinskiy.marathon.ios.device.RemoteSimulatorFeatureProvider
-import com.malinskiy.marathon.ios.logparser.CompositeLogParser
-import com.malinskiy.marathon.ios.logparser.DebugLoggingParser
-import com.malinskiy.marathon.ios.logparser.TestRunProgressParser
+import com.malinskiy.marathon.ios.logparser.IOSDeviceLogParser
 import com.malinskiy.marathon.ios.logparser.formatter.TestLogPackageNameFormatter
-import com.malinskiy.marathon.ios.logparser.listener.ProgressReportingListener
-import com.malinskiy.marathon.ios.logparser.listener.TestLogListener
+import com.malinskiy.marathon.ios.logparser.parser.DeviceFailureException
 import com.malinskiy.marathon.ios.simctl.Simctl
 import com.malinskiy.marathon.ios.xctestrun.Xctestrun
 import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.test.TestBatch
-import com.malinskiy.marathon.time.SystemTimer
-import kotlinx.coroutines.experimental.CompletableDeferred
-import net.schmizz.sshj.common.DisconnectReason
-import net.schmizz.sshj.connection.ConnectionException
+import kotlinx.coroutines.experimental.*
 import net.schmizz.sshj.transport.TransportException
 import java.io.File
-import java.util.concurrent.TimeoutException
-import kotlin.concurrent.thread
+import java.io.InterruptedIOException
+import kotlin.coroutines.experimental.coroutineContext
 
 private const val HOSTNAME = "localhost"
 
 class IOSDevice(val udid: String,
                 val hostCommandExecutor: CommandExecutor,
                 val gson: Gson) : Device {
-    val logger = MarathonLogging.logger("${javaClass.simpleName}($udid)")
+    val logger = MarathonLogging.logger(udid)
     val simctl = Simctl()
 
     val name: String?
@@ -65,8 +60,7 @@ class IOSDevice(val udid: String,
     override val deviceFeatures: Collection<DeviceFeature> by lazy {
         RemoteSimulatorFeatureProvider.deviceFeatures(this)
     }
-    override val healthy: Boolean
-        get() = true
+    override var healthy: Boolean = true
     override val abi: String
         get() = "Simulator"
 
@@ -76,9 +70,13 @@ class IOSDevice(val udid: String,
                          deferred: CompletableDeferred<TestBatchResults>,
                          progressReporter: ProgressReporter) {
 
+        if (!healthy) {
+            logger.error("Device $udid seems to be having issues running")
+            throw TestBatchExecutionException("Device $udid seems to be failing")
+        }
+
         val iosConfiguration = configuration.vendorConfiguration as IOSConfiguration
         val fileManager = FileManager(configuration.outputDir)
-        val testLogListener = TestLogListener()
 
         val remoteXcresultPath = RemoteFileManager.remoteXcresultFile(this)
         val remoteXctestrunFile = RemoteFileManager.remoteXctestrunFile(this)
@@ -89,85 +87,46 @@ class IOSDevice(val udid: String,
         val xctestrun = Xctestrun(iosConfiguration.xctestrunPath)
         val packageNameFormatter = TestLogPackageNameFormatter(xctestrun.productModuleName, xctestrun.targetName)
 
-        val logParser = CompositeLogParser(listOf(
-                //Order matters here: first grab the log with log listener,
-                //then use this log to insert into the test report
-                testLogListener,
-                TestRunProgressParser(SystemTimer(),
-                        packageNameFormatter,
-                        listOf(
-                                ProgressReportingListener(
-                                        this,
-                                    devicePoolId,
-                                    progressReporter,
-                                    deferred,
-                                    testBatch,
-                                    testLogListener
-                                ),
-                                testLogListener
-                        )
-                ),
-                DebugLoggingParser()
-        ))
+        logger.debug("tests = ${testBatch.tests.toList()}")
 
-        val tests = testBatch.tests.map {
-            "${it.pkg}.${it.clazz}#${it.method}"
-        }.toTypedArray()
+        val logParser = IOSDeviceLogParser(this,
+            packageNameFormatter,
+            devicePoolId,
+            testBatch,
+            deferred,
+            progressReporter
+        )
 
-        logger.debug { "tests = ${tests.toList()}" }
+        val command = listOf("cd '$remoteDir' &&",
+            "NSUnbufferedIO=YES",
+            "xcodebuild 2>&1 test-without-building",
+            "-xctestrun ${remoteXctestrunFile.path}",
+            // "-resultBundlePath ${remoteXcresultPath.canonicalPath} ",
+            testBatch.toXcodebuildArguments(),
+            "-destination 'platform=iOS simulator,id=$udid' ;",
+            "exit")
+                .joinToString(" ")
+                .also { logger.debug(it) }
 
-        val testBatchToArguments = testBatch.tests
-                .map { "-only-testing:\"${it.pkg}/${it.clazz}/${it.method}\"" }
-                .joinToString(separator = " ")
-
-        val command =
-                listOf("cd '$remoteDir' &&",
-                        "NSUnbufferedIO=YES",
-                        "xcodebuild 2>&1 test-without-building",
-                        "-xctestrun ${remoteXctestrunFile.path}",
-                        // "-resultBundlePath ${remoteXcresultPath.canonicalPath} ",
-                        testBatchToArguments,
-                        "-destination 'platform=iOS simulator,id=$udid' ;",
-                        "exit")
-                        .joinToString(" ")
-                        .also { logger.debug(it) }
-
-        val timeoutMillis = configuration.testOutputTimeoutMillis
-        val session = hostCommandExecutor.startSession(command)
-        val stdoutStream = session.inputStream
-        val stderrStream = session.errorStream
-        session.connect(timeoutMillis)
-
-        thread {
-            try {
-                stdoutStream.reader().forEachLine(logParser::onLine)
-            } catch (e: TransportException) {
-                if (e.disconnectReason != DisconnectReason.BY_APPLICATION) {
-                    logger.debug("disconnected with error ${e::class.java}: $e")
-                }
-            }
-
-        }
-        thread {
-            try {
-                stderrStream.reader().forEachLine(logParser::onLine)
-            } catch (e: TransportException) {
-                if (e.disconnectReason != DisconnectReason.BY_APPLICATION) {
-                    logger.debug("disconnected with error ${e::class.java}: $e")
-                }
-            }
+        val exitStatus = try {
+            hostCommandExecutor.exec(command, configuration.testOutputTimeoutMillis, logParser::onLine)
+        } catch (e: TimeoutCancellationException) {
+            throw TestBatchExecutionException(e)
+        } catch(e: DeviceFailureException) {
+            logger.error("$e")
+            healthy = false
+            throw TestBatchExecutionException(e)
+        } catch (e: InterruptedIOException) {
+            logger.info("InterruptedIOException")
+            0
+        } catch (e: TransportException) {
+            logger.error("$e")
+            0
         }
 
-        try {
-            session.use { it.join(timeoutMillis) }
-        } catch(e: ConnectionException) {
-            if (e.cause is TimeoutException) {
-                logger.error("Timeout expired")
-            }
-        }
         // 70 = no devices
         // 65 = ** TEST EXECUTE FAILED **: crash
-        logger.debug("finished test batch execution with exit status ${session.exitStatus}")
+        logger.debug("finished test batch execution with exit status ${exitStatus}")
         logParser.close()
     }
 
@@ -210,4 +169,12 @@ class IOSDevice(val udid: String,
     override fun dispose() {
         hostCommandExecutor.disconnect()
     }
+
+    override fun toString(): String {
+        return "IOSDevice"
+    }
 }
+
+private fun TestBatch.toXcodebuildArguments(): String = tests
+        .map { "-only-testing:\"${it.pkg}/${it.clazz}/${it.method}\"" }
+        .joinToString(separator = " ")

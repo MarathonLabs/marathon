@@ -3,12 +3,12 @@ package com.malinskiy.marathon.ios.logparser.listener
 import com.malinskiy.marathon.ios.logparser.StreamingLogParser
 import com.malinskiy.marathon.test.Test
 
-class TestLogListener : TestRunListener, StreamingLogParser {
+class TestLogListener : TestRunListener, StreamingLogParser, TestLogCollector {
 
-    var buffer: StringBuffer? = null
-    var lastLine: String? = null
+    private var buffer: StringBuffer? = null
+    private var lastLine: String? = null
 
-    fun getLastLog() = buffer?.toString() ?: ""
+    override fun getLastLog() = buffer?.toString() ?: ""
 
     override fun onLine(line: String) {
         buffer?.appendln(line)

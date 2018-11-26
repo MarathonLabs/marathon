@@ -62,11 +62,6 @@ class Simctl {
 
     fun exec(args: String, device: IOSDevice): String {
         val command = "xcrun simctl $args"
-        val session = device.hostCommandExecutor.startSession(command)
-        session.connect()
-        val output = session.inputStream.reader().buffered().use(BufferedReader::readText)
-        session.join()
-        session.close()
-        return output
+        return device.hostCommandExecutor.exec(command).stdout
     }
 }
