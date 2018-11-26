@@ -2,7 +2,6 @@ package com.malinskiy.marathon.android
 
 import com.android.ddmlib.IDevice
 import com.android.ddmlib.NullOutputReceiver
-import com.android.ddmlib.TimeoutException
 import com.malinskiy.marathon.android.executor.AndroidAppInstaller
 import com.malinskiy.marathon.android.executor.AndroidDeviceTestRunner
 import com.malinskiy.marathon.device.Device
@@ -53,7 +52,10 @@ class AndroidDevice(val ddmsDevice: IDevice) : Device {
             return features
         }
 
-    override val serialNumber: String by lazy {
+    /**
+     * We can only call this after the device finished booting
+     */
+    private val realSerialNumber: String by lazy {
         val marathonSerialProp: String = ddmsDevice.getProperty("marathon.serialno") ?: ""
         val serialProp: String = ddmsDevice.getProperty("ro.boot.serialno") ?: ""
         val hostName: String = ddmsDevice.getProperty("net.hostname") ?: ""
@@ -64,6 +66,14 @@ class AndroidDevice(val ddmsDevice: IDevice) : Device {
                 ?: hostName.takeIf { it.isNotEmpty() }
                 ?: serialNumber.takeIf { it.isNotEmpty() }
                 ?: UUID.randomUUID().toString()
+    }
+
+    val booted: Boolean
+        get() = ddmsDevice.getProperty("sys.boot_completed") != null
+
+    override val serialNumber: String = when {
+        booted -> realSerialNumber
+        else -> ddmsDevice.serialNumber
     }
 
     override val operatingSystem: OperatingSystem by lazy {
@@ -91,30 +101,10 @@ class AndroidDevice(val ddmsDevice: IDevice) : Device {
     }
 
     override fun prepare(configuration: Configuration) {
-        if (!waitForBoot()) throw TimeoutException("Timeout waiting for device $serialNumber to boot")
-
         AndroidAppInstaller(configuration).prepareInstallation(this)
         RemoteFileManager.removeRemoteDirectory(ddmsDevice)
         RemoteFileManager.createRemoteDirectory(ddmsDevice)
         clearLogcat(ddmsDevice)
-    }
-
-    private fun waitForBoot(): Boolean {
-        var booted = false
-        for (i in 1..30) {
-            if (ddmsDevice.getProperty("sys.boot_completed") == null) {
-                Thread.sleep(1000)
-                logger.debug { "Device $serialNumber is still booting..." }
-            } else {
-                logger.debug { "Device $serialNumber booted!" }
-                booted = true
-                break
-            }
-
-            if (Thread.interrupted()) return true
-        }
-
-        return booted
     }
 
     override fun dispose() {}

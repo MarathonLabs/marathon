@@ -12,8 +12,10 @@ import com.malinskiy.marathon.device.DeviceProvider.DeviceEvent.DeviceDisconnect
 import com.malinskiy.marathon.exceptions.NoDevicesException
 import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.vendor.VendorConfiguration
+import kotlinx.coroutines.experimental.NonCancellable.isActive
 import kotlinx.coroutines.experimental.channels.Channel
 import kotlinx.coroutines.experimental.launch
+import kotlinx.coroutines.experimental.newFixedThreadPoolContext
 import java.nio.file.Paths
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ConcurrentMap
@@ -29,6 +31,7 @@ class AndroidDeviceProvider : DeviceProvider {
 
     private val channel: Channel<DeviceProvider.DeviceEvent> = unboundedChannel()
     private val devices: ConcurrentMap<String, AndroidDevice> = ConcurrentHashMap()
+    private val bootWaitContext = newFixedThreadPoolContext(4, "AndroidDeviceProvider-BootWait")
 
     override fun initialize(vendorConfiguration: VendorConfiguration) {
         if (vendorConfiguration !is AndroidConfiguration) {
@@ -42,27 +45,35 @@ class AndroidDeviceProvider : DeviceProvider {
         val listener = object : AndroidDebugBridge.IDeviceChangeListener {
             override fun deviceChanged(device: IDevice?, changeMask: Int) {
                 device?.let {
-                    val androidDevice = getDeviceOrCreate(it)
-                    val healthy = androidDevice.healthy
+                    launch(context = bootWaitContext) {
+                        val maybeNewAndroidDevice = AndroidDevice(it)
+                        val healthy = maybeNewAndroidDevice.healthy
 
-                    logger.debug { "Device ${device.serialNumber} changed state. Healthy = $healthy" }
-                    if (healthy) {
-                        notifyConnected(androidDevice)
-                    } else {
-                        //This shouldn't have any side effects even if device was previously removed
-                        notifyDisconnected(androidDevice)
+                        logger.debug { "Device ${device.serialNumber} changed state. Healthy = $healthy" }
+                        if (healthy) {
+                            verifyBooted(maybeNewAndroidDevice)
+                            val androidDevice = getDeviceOrPut(maybeNewAndroidDevice)
+                            notifyConnected(androidDevice)
+                        } else {
+                            //This shouldn't have any side effects even if device was previously removed
+                            notifyDisconnected(maybeNewAndroidDevice)
+                        }
                     }
                 }
             }
 
             override fun deviceConnected(device: IDevice?) {
                 device?.let {
-                    val androidDevice = getDeviceOrCreate(it)
-                    val healthy = androidDevice.healthy
-                    logger.debug { "Device ${device.serialNumber} connected channel.isFull = ${channel.isFull}. Healthy = $healthy" }
+                    launch(context = bootWaitContext) {
+                        val maybeNewAndroidDevice = AndroidDevice(it)
+                        val healthy = maybeNewAndroidDevice.healthy
+                        logger.debug { "Device ${maybeNewAndroidDevice.serialNumber} connected channel.isFull = ${channel.isFull}. Healthy = $healthy" }
 
-                    if (healthy) {
-                        notifyConnected(androidDevice)
+                        if (healthy) {
+                            verifyBooted(maybeNewAndroidDevice)
+                            val androidDevice = getDeviceOrPut(maybeNewAndroidDevice)
+                            notifyConnected(androidDevice)
+                        }
                     }
                 }
             }
@@ -70,9 +81,32 @@ class AndroidDeviceProvider : DeviceProvider {
             override fun deviceDisconnected(device: IDevice?) {
                 device?.let {
                     logger.debug { "Device ${device.serialNumber} disconnected" }
-                    val androidDevice = getDeviceOrCreate(it)
-                    notifyDisconnected(androidDevice)
+                    matchDdmsToDevice(it)?.let {
+                        notifyDisconnected(it)
+                    }
                 }
+            }
+
+            private fun verifyBooted(device: AndroidDevice) {
+                if (!waitForBoot(device)) throw TimeoutException("Timeout waiting for device ${device.serialNumber} to boot")
+            }
+
+            private fun waitForBoot(device: AndroidDevice): Boolean {
+                var booted = false
+                for (i in 1..30) {
+                    if (device.booted) {
+                        logger.debug { "Device ${device.serialNumber} booted!" }
+                        booted = true
+                        break
+                    } else {
+                        Thread.sleep(1000)
+                        logger.debug { "Device ${device.serialNumber} is still booting..." }
+                    }
+
+                    if (Thread.interrupted() || !isActive) return true
+                }
+
+                return booted
             }
 
             private fun notifyConnected(device: AndroidDevice) {
@@ -105,9 +139,17 @@ class AndroidDeviceProvider : DeviceProvider {
         }
     }
 
-    private fun getDeviceOrCreate(ddmlibDevice: IDevice): AndroidDevice {
-        return devices.getOrPut(ddmlibDevice.serialNumber) {
-            AndroidDevice(ddmlibDevice)
+    private fun getDeviceOrPut(androidDevice: AndroidDevice): AndroidDevice {
+        return devices.getOrPut(androidDevice.serialNumber) {
+            androidDevice
+        }
+    }
+
+    private fun matchDdmsToDevice(device: IDevice): AndroidDevice? {
+        val observedDevices = devices.values
+        return observedDevices.findLast {
+            device == it.ddmsDevice ||
+                    device.serialNumber == it.ddmsDevice.serialNumber
         }
     }
 
