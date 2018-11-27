@@ -26,6 +26,7 @@ import kotlinx.coroutines.experimental.*
 import net.schmizz.sshj.transport.TransportException
 import java.io.File
 import java.io.InterruptedIOException
+import java.util.concurrent.TimeoutException
 import kotlin.coroutines.experimental.coroutineContext
 
 private const val HOSTNAME = "localhost"
@@ -121,6 +122,9 @@ class IOSDevice(val udid: String,
             0
         } catch (e: TransportException) {
             logger.error("TransportException $e, cause ${e.cause}")
+            throw TestBatchExecutionException(e)
+        } catch (e: TimeoutException) {
+            logger.error("Timeout exception")
             throw TestBatchExecutionException(e)
         }
 
