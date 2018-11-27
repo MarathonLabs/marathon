@@ -14,6 +14,7 @@ import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.vendor.VendorConfiguration
 import kotlinx.coroutines.experimental.NonCancellable.isActive
 import kotlinx.coroutines.experimental.channels.Channel
+import kotlinx.coroutines.experimental.delay
 import kotlinx.coroutines.experimental.launch
 import kotlinx.coroutines.experimental.newFixedThreadPoolContext
 import java.nio.file.Paths
@@ -87,11 +88,11 @@ class AndroidDeviceProvider : DeviceProvider {
                 }
             }
 
-            private fun verifyBooted(device: AndroidDevice) {
+            private suspend fun verifyBooted(device: AndroidDevice) {
                 if (!waitForBoot(device)) throw TimeoutException("Timeout waiting for device ${device.serialNumber} to boot")
             }
 
-            private fun waitForBoot(device: AndroidDevice): Boolean {
+            private suspend fun waitForBoot(device: AndroidDevice): Boolean {
                 var booted = false
                 for (i in 1..30) {
                     if (device.booted) {
@@ -99,7 +100,7 @@ class AndroidDeviceProvider : DeviceProvider {
                         booted = true
                         break
                     } else {
-                        Thread.sleep(1000)
+                        delay(1000)
                         logger.debug { "Device ${device.serialNumber} is still booting..." }
                     }
 
