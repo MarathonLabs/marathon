@@ -14,6 +14,7 @@ import com.malinskiy.marathon.execution.progress.ProgressReporter
 import com.malinskiy.marathon.io.FileManager
 import com.malinskiy.marathon.ios.cmd.remote.CommandExecutor
 import com.malinskiy.marathon.ios.cmd.remote.SshjCommandExecutor
+import com.malinskiy.marathon.ios.cmd.remote.SshjCommandUnresponsiveException
 import com.malinskiy.marathon.ios.device.RemoteSimulatorFeatureProvider
 import com.malinskiy.marathon.ios.logparser.IOSDeviceLogParser
 import com.malinskiy.marathon.ios.logparser.formatter.TestLogPackageNameFormatter
@@ -22,12 +23,10 @@ import com.malinskiy.marathon.ios.simctl.Simctl
 import com.malinskiy.marathon.ios.xctestrun.Xctestrun
 import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.test.TestBatch
-import kotlinx.coroutines.experimental.*
+import kotlinx.coroutines.experimental.CompletableDeferred
 import net.schmizz.sshj.transport.TransportException
 import java.io.File
-import java.io.InterruptedIOException
 import java.util.concurrent.TimeoutException
-import kotlin.coroutines.experimental.coroutineContext
 
 private const val HOSTNAME = "localhost"
 
@@ -111,20 +110,18 @@ class IOSDevice(val udid: String,
 
         val exitStatus = try {
             hostCommandExecutor.exec(command, configuration.testOutputTimeoutMillis, logParser::onLine)
-        } catch (e: TimeoutCancellationException) {
+        } catch (e: SshjCommandUnresponsiveException) {
+            logger.error("No output from remote shell")
+            throw TestBatchExecutionException(e)
+        } catch (e: TimeoutException) {
+            logger.error("Connection timeout")
             throw TestBatchExecutionException(e)
         } catch(e: DeviceFailureException) {
             logger.error("$e")
             healthy = false
             throw TestBatchExecutionException(e)
-        } catch (e: InterruptedIOException) {
-            logger.info("InterruptedIOException")
-            0
         } catch (e: TransportException) {
             logger.error("TransportException $e, cause ${e.cause}")
-            throw TestBatchExecutionException(e)
-        } catch (e: TimeoutException) {
-            logger.error("Timeout exception")
             throw TestBatchExecutionException(e)
         }
 

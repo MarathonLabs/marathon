@@ -5,7 +5,6 @@ import java.io.InputStream
 import java.io.OutputStream
 
 class SshjCommandSession(executableLine: String, ssh: SSHClient, private val timeoutMillis: Long): CommandSession {
-
     private val session = ssh.startSession()
     private val command = session.exec(executableLine)
 
@@ -15,6 +14,13 @@ class SshjCommandSession(executableLine: String, ssh: SSHClient, private val tim
         get() = command.errorStream
     override val outputStream: OutputStream
         get() = command.outputStream
+
+    override val isEOF: Boolean
+        get() = command.isEOF()
+
+    override val isOpen: Boolean
+        get() = command.isOpen()
+
 
     override fun close() { command.close() }
 
