@@ -1,13 +1,15 @@
 package com.malinskiy.marathon.test
 
 import com.malinskiy.marathon.actor.unboundedChannel
-import com.malinskiy.marathon.device.Device
 import com.malinskiy.marathon.device.DeviceProvider
 import com.malinskiy.marathon.vendor.VendorConfiguration
 import kotlinx.coroutines.experimental.channels.Channel
 import kotlinx.coroutines.experimental.launch
+import kotlin.coroutines.experimental.CoroutineContext
 
-class StubDeviceProvider : DeviceProvider {
+class StubDeviceProvider() : DeviceProvider {
+    lateinit var coroutineContext: CoroutineContext
+
     private val channel: Channel<DeviceProvider.DeviceEvent> = unboundedChannel()
     var providingLogic: (suspend (Channel<DeviceProvider.DeviceEvent>) -> Unit)? = null
 
@@ -16,7 +18,7 @@ class StubDeviceProvider : DeviceProvider {
 
     override fun subscribe(): Channel<DeviceProvider.DeviceEvent> {
         providingLogic?.let {
-            launch {
+            launch(context = coroutineContext) {
                 providingLogic?.invoke(channel)
             }
         }
@@ -24,14 +26,7 @@ class StubDeviceProvider : DeviceProvider {
         return channel
     }
 
-    override fun lockDevice(device: Device): Boolean {
-        TODO("Not implemented")
-    }
-
-    override fun unlockDevice(device: Device): Boolean {
-        TODO("Not implemented")
-    }
-
     override fun terminate() {
+        channel.close()
     }
 }

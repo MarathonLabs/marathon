@@ -5,14 +5,17 @@ import kotlinx.coroutines.experimental.channels.Channel
 import kotlinx.coroutines.experimental.channels.SendChannel
 import kotlinx.coroutines.experimental.channels.actor
 import kotlinx.coroutines.experimental.selects.SelectClause2
+import kotlin.coroutines.experimental.CoroutineContext
 
-abstract class Actor<in T>(parent: Job? = null) : SendChannel<T> {
-
+abstract class Actor<in T>(parent: Job? = null,
+                           context: CoroutineContext) : SendChannel<T> {
     protected abstract suspend fun receive(msg: T)
+    private val actorJob = Job(parent)
 
     private val delegate = actor<T>(
             capacity = Channel.UNLIMITED,
-            parent = parent
+            parent = actorJob,
+            context = context
     ) {
         for (msg in channel) {
             receive(msg)
@@ -30,7 +33,7 @@ abstract class Actor<in T>(parent: Job? = null) : SendChannel<T> {
         delegate.invokeOnClose(handler)
     }
 
-    override fun close(cause: Throwable?): Boolean = delegate.close(cause)
+    override fun close(cause: Throwable?): Boolean = actorJob.cancel()
 
     override fun offer(element: T): Boolean = delegate.offer(element)
 

@@ -18,6 +18,7 @@ import kotlinx.coroutines.experimental.CompletableDeferred
 import kotlinx.coroutines.experimental.Job
 import kotlinx.coroutines.experimental.channels.SendChannel
 import java.util.*
+import kotlin.coroutines.experimental.CoroutineContext
 
 class QueueActor(configuration: Configuration,
                  private val testShard: TestShard,
@@ -25,7 +26,9 @@ class QueueActor(configuration: Configuration,
                  private val pool: SendChannel<FromQueue>,
                  private val poolId: DevicePoolId,
                  private val progressReporter: ProgressReporter,
-                 poolJob: Job) : Actor<QueueMessage>(parent = poolJob) {
+                 poolJob: Job,
+                 private val coroutineContext: CoroutineContext) :
+        Actor<QueueMessage>(parent = poolJob, context = coroutineContext) {
 
     private val logger = MarathonLogging.logger("QueueActor[$poolId]")
 

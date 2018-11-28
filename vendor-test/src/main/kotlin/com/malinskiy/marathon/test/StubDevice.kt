@@ -11,6 +11,7 @@ import com.malinskiy.marathon.execution.TestBatchResults
 import com.malinskiy.marathon.execution.TestResult
 import com.malinskiy.marathon.execution.TestStatus
 import com.malinskiy.marathon.execution.progress.ProgressReporter
+import com.malinskiy.marathon.log.MarathonLogging
 import kotlinx.coroutines.experimental.CompletableDeferred
 
 class StubDevice(override val operatingSystem: OperatingSystem = OperatingSystem("25"),
@@ -21,6 +22,8 @@ class StubDevice(override val operatingSystem: OperatingSystem = OperatingSystem
                  override val abi: String = "test",
                  override val serialNumber: String = "serial-1",
                  override val healthy: Boolean = true) : Device {
+
+    val logger = MarathonLogging.logger(StubDevice::class.java.simpleName)
 
     lateinit var executionResults: Map<Test, Array<TestStatus>>
     var executionIndexMap: MutableMap<Test, Int> = mutableMapOf()
@@ -43,8 +46,10 @@ class StubDevice(override val operatingSystem: OperatingSystem = OperatingSystem
     }
 
     override fun prepare(configuration: Configuration) {
+        logger.debug { "Preparing" }
     }
 
     override fun dispose() {
+        logger.debug { "Disposing" }
     }
 }

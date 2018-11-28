@@ -5,7 +5,6 @@ import com.android.ddmlib.DdmPreferences
 import com.android.ddmlib.IDevice
 import com.android.ddmlib.TimeoutException
 import com.malinskiy.marathon.actor.unboundedChannel
-import com.malinskiy.marathon.device.Device
 import com.malinskiy.marathon.device.DeviceProvider
 import com.malinskiy.marathon.device.DeviceProvider.DeviceEvent.DeviceConnected
 import com.malinskiy.marathon.device.DeviceProvider.DeviceEvent.DeviceDisconnected
@@ -81,9 +80,11 @@ class AndroidDeviceProvider : DeviceProvider {
 
             override fun deviceDisconnected(device: IDevice?) {
                 device?.let {
-                    logger.debug { "Device ${device.serialNumber} disconnected" }
-                    matchDdmsToDevice(it)?.let {
-                        notifyDisconnected(it)
+                    launch(context = bootWaitContext) {
+                        logger.debug { "Device ${device.serialNumber} disconnected" }
+                        matchDdmsToDevice(it)?.let {
+                            notifyDisconnected(it)
+                        }
                     }
                 }
             }
@@ -159,15 +160,9 @@ class AndroidDeviceProvider : DeviceProvider {
     override fun terminate() {
         AndroidDebugBridge.disconnectBridge()
         AndroidDebugBridge.terminate()
+        bootWaitContext.close()
     }
 
     override fun subscribe() = channel
 
-    override fun lockDevice(device: Device): Boolean {
-        TODO("not implemented")
-    }
-
-    override fun unlockDevice(device: Device): Boolean {
-        TODO("not implemented")
-    }
 }
