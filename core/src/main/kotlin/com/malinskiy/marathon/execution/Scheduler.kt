@@ -90,8 +90,10 @@ class Scheduler(private val deviceProvider: DeviceProvider,
             logger.debug { "pool actor ${id.name} is being created" }
             DevicePoolActor(id, configuration, analytics, tests, progressReporter, parent, context)
         }
-        pools[poolId]?.send(AddDevice(device)) ?: logger.debug { "not sending the AddDevice event " +
-                "to device pool for ${device.serialNumber}" }
+        pools[poolId]?.send(AddDevice(device)) ?: logger.debug {
+            "not sending the AddDevice event " +
+                    "to device pool for ${device.serialNumber}"
+        }
         analytics.trackDeviceConnected(poolId, device)
     }
 }

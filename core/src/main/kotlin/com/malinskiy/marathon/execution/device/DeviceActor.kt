@@ -156,7 +156,7 @@ class DeviceActor(private val devicePoolId: DevicePoolId,
     private fun initialize() {
         logger.debug { "initialize ${device.serialNumber}" }
         job = launch(context = coroutineContext, parent = deviceJob) {
-//            withRetry(30, 10000) {
+            withRetry(30, 10000) {
                 if(isActive) {
                     try {
                         device.prepare(configuration)
@@ -165,7 +165,7 @@ class DeviceActor(private val devicePoolId: DevicePoolId,
                         throw e
                     }
                 }
-//            }
+            }
         }
     }
 

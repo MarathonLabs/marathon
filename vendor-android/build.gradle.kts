@@ -22,6 +22,7 @@ dependencies {
     implementation(Libraries.jacksonAnnotations)
     implementation(Libraries.scalr)
     implementation(project(":core"))
+    testImplementation(project(":vendor-test"))
     testImplementation(TestLibraries.kluent)
     testImplementation(TestLibraries.spekAPI)
     testRuntime(TestLibraries.spekJUnitPlatformEngine)

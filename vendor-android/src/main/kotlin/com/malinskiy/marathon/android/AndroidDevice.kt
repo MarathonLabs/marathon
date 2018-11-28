@@ -15,11 +15,14 @@ import com.malinskiy.marathon.execution.progress.ProgressReporter
 import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.test.TestBatch
 import kotlinx.coroutines.experimental.CompletableDeferred
+import kotlinx.coroutines.experimental.launch
+import kotlinx.coroutines.experimental.newFixedThreadPoolContext
 import java.util.UUID
 
 class AndroidDevice(val ddmsDevice: IDevice) : Device {
 
     val logger = MarathonLogging.logger(AndroidDevice::class.java.simpleName)
+    private val deviceContext = newFixedThreadPoolContext(1, ddmsDevice.serialNumber)
 
     override val abi: String by lazy {
         ddmsDevice.getProperty("ro.product.cpu.abi") ?: "Unknown"
@@ -36,7 +39,6 @@ class AndroidDevice(val ddmsDevice: IDevice) : Device {
     override val manufacturer: String by lazy {
         ddmsDevice.getProperty("ro.product.manufacturer") ?: "Unknown"
     }
-
 
     override val deviceFeatures: Collection<DeviceFeature>
         get() {
@@ -92,22 +94,29 @@ class AndroidDevice(val ddmsDevice: IDevice) : Device {
             else -> false
         }
 
-    override fun execute(configuration: Configuration,
-                         devicePoolId: DevicePoolId,
-                         testBatch: TestBatch,
-                         deferred: CompletableDeferred<TestBatchResults>,
-                         progressReporter: ProgressReporter) {
-        AndroidDeviceTestRunner(this@AndroidDevice).execute(configuration, devicePoolId, testBatch, deferred, progressReporter)
+    override suspend fun execute(configuration: Configuration,
+                                 devicePoolId: DevicePoolId,
+                                 testBatch: TestBatch,
+                                 deferred: CompletableDeferred<TestBatchResults>,
+                                 progressReporter: ProgressReporter) {
+
+        launch(deviceContext) {
+            AndroidDeviceTestRunner(this@AndroidDevice).execute(configuration, devicePoolId, testBatch, deferred, progressReporter)
+        }
     }
 
-    override fun prepare(configuration: Configuration) {
-        AndroidAppInstaller(configuration).prepareInstallation(this)
-        RemoteFileManager.removeRemoteDirectory(ddmsDevice)
-        RemoteFileManager.createRemoteDirectory(ddmsDevice)
-        clearLogcat(ddmsDevice)
+    override suspend fun prepare(configuration: Configuration) {
+        launch(deviceContext) {
+            AndroidAppInstaller(configuration).prepareInstallation(this@AndroidDevice)
+            RemoteFileManager.removeRemoteDirectory(ddmsDevice)
+            RemoteFileManager.createRemoteDirectory(ddmsDevice)
+            clearLogcat(ddmsDevice)
+        }
     }
 
-    override fun dispose() {}
+    override fun dispose() {
+        deviceContext.close()
+    }
 
     private fun clearLogcat(device: IDevice) {
         val logger = MarathonLogging.logger("AndroidDevice.clearLogcat")

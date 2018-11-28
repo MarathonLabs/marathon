@@ -22,7 +22,7 @@ class AndroidAppInstaller(configuration: Configuration) {
     private val logger = MarathonLogging.logger("AndroidAppInstaller")
     private val androidConfiguration = configuration.vendorConfiguration as AndroidConfiguration
 
-    fun prepareInstallation(device: AndroidDevice) {
+    suspend fun prepareInstallation(device: AndroidDevice) {
         val applicationInfo = ApkParser().parseInstrumentationInfo(androidConfiguration.testApplicationOutput)
         logger.debug { "Installing application output to ${device.serialNumber}" }
         androidConfiguration.applicationOutput?.let {
@@ -34,10 +34,10 @@ class AndroidAppInstaller(configuration: Configuration) {
     }
 
     @Suppress("TooGenericExceptionThrown")
-    private fun reinstall(device: AndroidDevice, appPackage: String, appApk: File) {
+    private suspend fun reinstall(device: AndroidDevice, appPackage: String, appApk: File) {
         val ddmsDevice = device.ddmsDevice
 
-        withRetry(attempts = MAX_RETIRES, delay = 1000) {
+        withRetry(attempts = MAX_RETIRES, delayTime = 1000) {
             try {
                 logger.info("Uninstalling $appPackage from ${device.serialNumber}")
                 val uninstallMessage = ddmsDevice.safeUninstallPackage(appPackage)

@@ -1,7 +1,9 @@
 package com.malinskiy.marathon.execution
 
+import kotlinx.coroutines.experimental.delay
+
 @Suppress("TooGenericExceptionCaught")
-inline fun withRetry(attempts: Int, delay: Long = 0, f: () -> Unit) {
+suspend fun withRetry(attempts: Int, delayTime: Long = 0, f: suspend () -> Unit) {
     var attempt = 1
     while (true) {
         try {
@@ -11,7 +13,7 @@ inline fun withRetry(attempts: Int, delay: Long = 0, f: () -> Unit) {
             if (attempt == attempts) {
                 throw th
             } else {
-                Thread.sleep(delay)
+                delay(delayTime)
             }
         }
         ++attempt

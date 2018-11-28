@@ -22,6 +22,7 @@ import com.malinskiy.marathon.test.toTestName
 import com.malinskiy.marathon.vendor.VendorConfiguration
 import kotlinx.coroutines.experimental.IO
 import kotlinx.coroutines.experimental.delay
+import kotlinx.coroutines.experimental.launch
 import kotlinx.coroutines.experimental.newFixedThreadPoolContext
 import kotlinx.coroutines.experimental.runBlocking
 import kotlinx.coroutines.experimental.withContext
@@ -75,10 +76,9 @@ class Marathon(val configuration: Configuration) {
 
     fun run() = runBlocking {
         runAsync()
-        log.debug { "Return from runAsync" }
     }
 
-    suspend fun runAsync() {
+    suspend fun runAsync(): Boolean {
         MarathonLogging.debug = configuration.debug
 
         val testParser = loadTestParser(configuration.vendorConfiguration)
@@ -119,8 +119,7 @@ class Marathon(val configuration: Configuration) {
         analytics.terminate()
         analytics.close()
         deviceProvider.terminate()
-        val result = progressReporter.aggregateResult()
-        log.debug { "Result is $result" }
+        return progressReporter.aggregateResult()
     }
 
     private fun applyTestFilters(parsedTests: List<Test>): List<Test> {

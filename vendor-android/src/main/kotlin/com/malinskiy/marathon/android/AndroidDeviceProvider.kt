@@ -84,6 +84,7 @@ class AndroidDeviceProvider : DeviceProvider {
                         logger.debug { "Device ${device.serialNumber} disconnected" }
                         matchDdmsToDevice(it)?.let {
                             notifyDisconnected(it)
+                            it.dispose()
                         }
                     }
                 }
@@ -161,6 +162,7 @@ class AndroidDeviceProvider : DeviceProvider {
         AndroidDebugBridge.disconnectBridge()
         AndroidDebugBridge.terminate()
         bootWaitContext.close()
+        channel.close()
     }
 
     override fun subscribe() = channel

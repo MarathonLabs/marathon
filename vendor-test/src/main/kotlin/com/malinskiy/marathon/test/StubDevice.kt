@@ -28,7 +28,7 @@ class StubDevice(override val operatingSystem: OperatingSystem = OperatingSystem
     lateinit var executionResults: Map<Test, Array<TestStatus>>
     var executionIndexMap: MutableMap<Test, Int> = mutableMapOf()
 
-    override fun execute(configuration: Configuration, devicePoolId: DevicePoolId, testBatch: TestBatch, deferred: CompletableDeferred<TestBatchResults>, progressReporter: ProgressReporter) {
+    override suspend fun execute(configuration: Configuration, devicePoolId: DevicePoolId, testBatch: TestBatch, deferred: CompletableDeferred<TestBatchResults>, progressReporter: ProgressReporter) {
         val results = testBatch.tests.map {
             val i = executionIndexMap.getOrDefault(it, 0)
             val result = executionResults[it]!![i]
@@ -45,7 +45,7 @@ class StubDevice(override val operatingSystem: OperatingSystem = OperatingSystem
         )
     }
 
-    override fun prepare(configuration: Configuration) {
+    override suspend fun prepare(configuration: Configuration) {
         logger.debug { "Preparing" }
     }
 
