@@ -4,6 +4,7 @@ import com.malinskiy.marathon.actor.Actor
 import com.malinskiy.marathon.actor.StateMachine
 import com.malinskiy.marathon.device.Device
 import com.malinskiy.marathon.device.DevicePoolId
+import com.malinskiy.marathon.exceptions.DeviceLostException
 import com.malinskiy.marathon.exceptions.TestBatchExecutionException
 import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.execution.DevicePoolMessage
@@ -18,7 +19,7 @@ import kotlinx.coroutines.experimental.Job
 import kotlinx.coroutines.experimental.async
 import kotlinx.coroutines.experimental.channels.SendChannel
 import kotlinx.coroutines.experimental.launch
-import kotlinx.coroutines.experimental.newSingleThreadContext
+import kotlin.coroutines.experimental.CoroutineContext
 import kotlin.properties.Delegates
 
 class DeviceActor(private val devicePoolId: DevicePoolId,
@@ -26,7 +27,9 @@ class DeviceActor(private val devicePoolId: DevicePoolId,
                   private val configuration: Configuration,
                   private val device: Device,
                   private val progressReporter: ProgressReporter,
-                  parent: Job) : Actor<DeviceEvent>(parent = parent) {
+                  parent: Job,
+                  private val coroutineContext: CoroutineContext) :
+        Actor<DeviceEvent>(parent = parent, context = coroutineContext) {
 
     private val deviceJob = Job(parent)
 
@@ -127,7 +130,7 @@ class DeviceActor(private val devicePoolId: DevicePoolId,
     }
 
     private fun requestNextBatch(result: CompletableDeferred<TestBatchResults>?) {
-        launch(parent = deviceJob) {
+        launch(parent = deviceJob, context = coroutineContext) {
             if (result != null) {
                 val testResults = result.await()
                 pool.send(DevicePoolMessage.FromDevice.CompletedTestBatch(device, testResults))
@@ -136,8 +139,6 @@ class DeviceActor(private val devicePoolId: DevicePoolId,
             }
         }
     }
-
-    private val context = newSingleThreadContext(device.toString())
 
     private var job by Delegates.observable<Job?>(null) { _, _, newValue ->
         newValue?.invokeOnCompletion {
@@ -154,14 +155,15 @@ class DeviceActor(private val devicePoolId: DevicePoolId,
 
     private fun initialize() {
         logger.debug { "initialize ${device.serialNumber}" }
-        job = async(context, parent = deviceJob) {
+        job = launch(context = coroutineContext, parent = deviceJob) {
             withRetry(30, 10000) {
-                if(!isActive) return@async
-                try {
-                    device.prepare(configuration)
-                } catch (e: Exception) {
-                    logger.debug { "device ${device.serialNumber} initialization failed. Retrying" }
-                    throw e
+                if(isActive) {
+                    try {
+                        device.prepare(configuration)
+                    } catch (e: Exception) {
+                        logger.debug { "device ${device.serialNumber} initialization failed. Retrying" }
+                        throw e
+                    }
                 }
             }
         }
@@ -169,9 +171,12 @@ class DeviceActor(private val devicePoolId: DevicePoolId,
 
     private fun executeBatch(batch: TestBatch, result: CompletableDeferred<TestBatchResults>) {
         logger.debug { "executeBatch ${device.serialNumber}" }
-        job = async(context, parent = deviceJob) {
+        job = async(coroutineContext, parent = deviceJob) {
             try {
                 device.execute(configuration, devicePoolId, batch, result, progressReporter)
+            } catch (e: DeviceLostException) {
+                logger.error(e) { "Critical error during execution" }
+                returnBatch(batch)
             } catch (e: TestBatchExecutionException) {
                 returnBatch(batch)
             }
@@ -179,7 +184,7 @@ class DeviceActor(private val devicePoolId: DevicePoolId,
     }
 
     private fun returnBatch(batch: TestBatch): Job {
-        return launch(parent = deviceJob) {
+        return launch(parent = deviceJob, context = coroutineContext) {
             pool.send(DevicePoolMessage.FromDevice.ReturnTestBatch(device, batch))
         }
     }
@@ -187,7 +192,6 @@ class DeviceActor(private val devicePoolId: DevicePoolId,
     private fun terminate() {
         logger.debug { "terminate ${device.serialNumber}" }
         job?.cancel()
-        context.close()
         deviceJob.cancel()
         close()
     }

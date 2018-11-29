@@ -28,6 +28,9 @@ import net.schmizz.sshj.transport.TransportException
 import java.io.File
 import java.util.concurrent.TimeoutException
 
+import kotlinx.coroutines.experimental.launch
+import kotlinx.coroutines.experimental.newFixedThreadPoolContext
+
 private const val HOSTNAME = "localhost"
 
 class IOSDevice(val udid: String,
@@ -39,6 +42,8 @@ class IOSDevice(val udid: String,
     val name: String?
     private val runtime: String?
     private val deviceType: String?
+
+    private val deviceContext = newFixedThreadPoolContext(1, udid)
 
     init {
         val device = simctl.list(this, gson).find { it.udid == udid }
@@ -64,95 +69,105 @@ class IOSDevice(val udid: String,
     override val abi: String
         get() = "Simulator"
 
-    override fun execute(configuration: Configuration,
-                         devicePoolId: DevicePoolId,
-                         testBatch: TestBatch,
-                         deferred: CompletableDeferred<TestBatchResults>,
-                         progressReporter: ProgressReporter) {
+    override suspend fun execute(configuration: Configuration,
+                                 devicePoolId: DevicePoolId,
+                                 testBatch: TestBatch,
+                                 deferred: CompletableDeferred<TestBatchResults>,
+                                 progressReporter: ProgressReporter) {
 
         if (!healthy) {
             logger.error("Device $udid seems to be having issues running")
             throw TestBatchExecutionException("Device $udid seems to be failing")
         }
 
-        val iosConfiguration = configuration.vendorConfiguration as IOSConfiguration
-        val fileManager = FileManager(configuration.outputDir)
+        launch(deviceContext) {
+            val iosConfiguration = configuration.vendorConfiguration as IOSConfiguration
+            val fileManager = FileManager(configuration.outputDir)
 
-        val remoteXcresultPath = RemoteFileManager.remoteXcresultFile(this)
-        val remoteXctestrunFile = RemoteFileManager.remoteXctestrunFile(this)
-        val remoteDir = remoteXctestrunFile.parent
+            val remoteXcresultPath = RemoteFileManager.remoteXcresultFile(this@IOSDevice)
+            val remoteXctestrunFile = RemoteFileManager.remoteXctestrunFile(this@IOSDevice)
+            val remoteDir = remoteXctestrunFile.parent
 
-        logger.debug { "remote xctestrun = $remoteXctestrunFile" }
+            logger.debug { "remote xctestrun = $remoteXctestrunFile" }
 
-        val xctestrun = Xctestrun(iosConfiguration.xctestrunPath)
-        val packageNameFormatter = TestLogPackageNameFormatter(xctestrun.productModuleName, xctestrun.targetName)
+            val xctestrun = Xctestrun(iosConfiguration.xctestrunPath)
+            val packageNameFormatter = TestLogPackageNameFormatter(xctestrun.productModuleName, xctestrun.targetName)
 
-        logger.debug("tests = ${testBatch.tests.toList()}")
+            logger.debug("tests = ${testBatch.tests.toList()}")
 
-        val logParser = IOSDeviceLogParser(this,
-            packageNameFormatter,
-            devicePoolId,
-            testBatch,
-            deferred,
-            progressReporter
-        )
+            val logParser = IOSDeviceLogParser(this@IOSDevice,
+                packageNameFormatter,
+                devicePoolId,
+                testBatch,
+                deferred,
+                progressReporter
+            )
 
-        val command = listOf("cd '$remoteDir' &&",
-            "NSUnbufferedIO=YES",
-            "xcodebuild 2>&1 test-without-building",
-            "-xctestrun ${remoteXctestrunFile.path}",
-            // "-resultBundlePath ${remoteXcresultPath.canonicalPath} ",
-            testBatch.toXcodebuildArguments(),
-            "-destination 'platform=iOS simulator,id=$udid' ;",
-            "exit")
-                .joinToString(" ")
-                .also { logger.debug(it) }
+            val command =
+                    listOf("cd '$remoteDir' &&",
+                            "NSUnbufferedIO=YES",
+                            "xcodebuild 2>&1 test-without-building",
+                            "-xctestrun ${remoteXctestrunFile.path}",
+                            // "-resultBundlePath ${remoteXcresultPath.canonicalPath} ",
+                            testBatch.toXcodebuildArguments(),
+                            "-destination 'platform=iOS simulator,id=$udid' ;",
+                            "exit")
+                            .joinToString(" ")
+                            .also { logger.debug(it) }
 
-        val exitStatus = try {
-            hostCommandExecutor.exec(command, configuration.testOutputTimeoutMillis, logParser::onLine)
-        } catch (e: SshjCommandUnresponsiveException) {
-            logger.error("No output from remote shell")
-            throw TestBatchExecutionException(e)
-        } catch (e: TimeoutException) {
-            logger.error("Connection timeout")
-            throw TestBatchExecutionException(e)
-        } catch(e: DeviceFailureException) {
-            logger.error("$e")
-            healthy = false
-            throw TestBatchExecutionException(e)
-        } catch (e: TransportException) {
-            logger.error("TransportException $e, cause ${e.cause}")
-            throw TestBatchExecutionException(e)
+            val exitStatus = try {
+                hostCommandExecutor.exec(
+                    command,
+                    configuration.testOutputTimeoutMillis,
+                    logParser::onLine
+                )
+            } catch (e: SshjCommandUnresponsiveException) {
+                logger.error("No output from remote shell")
+                throw TestBatchExecutionException(e)
+            } catch (e: TimeoutException) {
+                logger.error("Connection timeout")
+                throw TestBatchExecutionException(e)
+            } catch (e: TransportException) {
+                logger.error("TransportException $e, cause ${e.cause}")
+                throw TestBatchExecutionException(e)
+            } catch(e: DeviceFailureException) {
+                logger.error("$e")
+                healthy = false
+                throw TestBatchExecutionException(e)
+            } finally {
+                logParser.close()
+            }
+
+            // 70 = no devices
+            // 65 = ** TEST EXECUTE FAILED **: crash
+            logger.debug("finished test batch execution with exit status $exitStatus")
         }
-
-        // 70 = no devices
-        // 65 = ** TEST EXECUTE FAILED **: crash
-        logger.debug("finished test batch execution with exit status $exitStatus")
-        logParser.close()
     }
 
-    override fun prepare(configuration: Configuration) {
-        RemoteFileManager.createRemoteDirectory(this)
+    override suspend fun prepare(configuration: Configuration) {
+        launch(deviceContext) {
+            RemoteFileManager.createRemoteDirectory(this@IOSDevice)
 
-        val sshjCommandExecutor = hostCommandExecutor as SshjCommandExecutor
-        val derivedDataManager = DerivedDataManager(configuration)
+            val sshjCommandExecutor = hostCommandExecutor as SshjCommandExecutor
+            val derivedDataManager = DerivedDataManager(configuration)
 
-        val remoteXctestrunFile = RemoteFileManager.remoteXctestrunFile(this)
-        val xctestrunFile = prepareXctestrunFile(derivedDataManager, remoteXctestrunFile)
+            val remoteXctestrunFile = RemoteFileManager.remoteXctestrunFile(this@IOSDevice)
+            val xctestrunFile = prepareXctestrunFile(derivedDataManager, remoteXctestrunFile)
 
-        derivedDataManager.sendSynchronized(
-            localPath = xctestrunFile,
-            remotePath = remoteXctestrunFile.absolutePath,
-            hostName = sshjCommandExecutor.hostAddress.hostName,
-            port = sshjCommandExecutor.port
-        )
+            derivedDataManager.sendSynchronized(
+                    localPath = xctestrunFile,
+                    remotePath = remoteXctestrunFile.absolutePath,
+                    hostName = sshjCommandExecutor.hostAddress.hostName,
+                    port = sshjCommandExecutor.port
+            )
 
-        derivedDataManager.sendSynchronized(
-            localPath = derivedDataManager.productsDir,
-            remotePath = RemoteFileManager.remoteDirectory(this).path,
-            hostName = sshjCommandExecutor.hostAddress.hostName,
-            port = sshjCommandExecutor.port
-        )
+            derivedDataManager.sendSynchronized(
+                    localPath = derivedDataManager.productsDir,
+                    remotePath = RemoteFileManager.remoteDirectory(this@IOSDevice).path,
+                    hostName = sshjCommandExecutor.hostAddress.hostName,
+                    port = sshjCommandExecutor.port
+            )
+        }
     }
 
     private fun prepareXctestrunFile(derivedDataManager: DerivedDataManager, remoteXctestrunFile: File): File {

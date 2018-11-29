@@ -1,8 +1,6 @@
 package com.malinskiy.marathon.ios
 
 import com.google.gson.GsonBuilder
-import com.malinskiy.marathon.device.DevicePoolId
-import com.malinskiy.marathon.ios.cmd.remote.CommandExecutor
 import com.malinskiy.marathon.ios.cmd.remote.CommandResult
 import com.malinskiy.marathon.ios.cmd.remote.CommandSession
 import com.malinskiy.marathon.ios.simctl.model.SimctlDeviceList
@@ -22,6 +20,7 @@ class Mocks {
                 override fun exec(command: String, testOutputTimeoutMilliss: Long, reader: (String) -> Unit): Int? {
                     TODO("not implemented")
                 }
+
                 override fun disconnect() {
                     TODO("not implemented")
                 }

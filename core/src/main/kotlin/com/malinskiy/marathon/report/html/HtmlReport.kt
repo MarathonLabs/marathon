@@ -157,12 +157,11 @@ fun TestResult.toHtmlFullTest(poolId: String) = HtmlFullTest(
         diagnosticVideo = device.deviceFeatures.contains(DeviceFeature.VIDEO),
         diagnosticScreenshots = device.deviceFeatures.contains(DeviceFeature.SCREENSHOT),
         stacktrace = stacktrace,
-        screenshot = "",
-        /*screenshot = when (device.deviceFeatures.contains(DeviceFeature.SCREENSHOT) && status != Status.Passed) {
-            true -> "../../../../animation/$poolId/${device.serialNumber}/${test.pkg}.${test.clazz}%23${test.method}.gif"
+        screenshot = when (device.deviceFeatures.contains(DeviceFeature.SCREENSHOT)) {
+            true -> "../../../../screenshot/$poolId/${device.serialNumber}/${test.pkg}.${test.clazz}%23${test.method}.gif"
             false -> ""
-        },*/
-        video = when (device.deviceFeatures.contains(DeviceFeature.VIDEO) && status != Status.Passed) {
+        },
+        video = when (device.deviceFeatures.contains(DeviceFeature.VIDEO)) {
             true -> "../../../../video/$poolId/${device.serialNumber}/${test.pkg}.${test.clazz}%23${test.method}.mp4"
             false -> ""
         },

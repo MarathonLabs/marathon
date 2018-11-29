@@ -38,6 +38,7 @@ object Versions {
     val testContainers = "1.9.1"
     val jupiterEngine = "5.1.0"
     val jansi = "1.17.1"
+    val scalr = "4.2"
 }
 
 object BuildPlugins {
@@ -72,6 +73,7 @@ object Libraries {
     val rsync4j = "com.github.fracpete:rsync4j-all:${Versions.rsync4j}"
     val sshj = "com.hierynomus:sshj:${Versions.sshj}"
     val jansi = "org.fusesource.jansi:jansi:${Versions.jansi}"
+    val scalr = "org.imgscalr:imgscalr-lib:${Versions.scalr}"
 }
 
 object TestLibraries {

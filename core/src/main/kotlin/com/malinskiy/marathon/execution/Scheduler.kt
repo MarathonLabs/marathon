@@ -19,6 +19,7 @@ import kotlinx.coroutines.experimental.launch
 import kotlinx.coroutines.experimental.withTimeout
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.TimeUnit
+import kotlin.coroutines.experimental.CoroutineContext
 
 /**
  * The logic of scheduler:
@@ -30,7 +31,8 @@ class Scheduler(private val deviceProvider: DeviceProvider,
                 private val analytics: Analytics,
                 private val configuration: Configuration,
                 private val tests: Collection<Test>,
-                private val progressReporter: ProgressReporter) {
+                private val progressReporter: ProgressReporter,
+                private val coroutineContext: CoroutineContext) {
 
     private val pools = ConcurrentHashMap<DevicePoolId, SendChannel<FromScheduler>>()
     private val poolingStrategy = configuration.poolingStrategy
@@ -56,12 +58,12 @@ class Scheduler(private val deviceProvider: DeviceProvider,
         return pools.keys.toList()
     }
 
-    private fun subscribeOnDevices(job: Job) {
-        launch {
+    private fun subscribeOnDevices(job: Job): Job {
+        return launch(coroutineContext) {
             for (msg in deviceProvider.subscribe()) {
                 when (msg) {
                     is DeviceProvider.DeviceEvent.DeviceConnected -> {
-                        onDeviceConnected(msg, job)
+                        onDeviceConnected(msg, job, coroutineContext)
                     }
                     is DeviceProvider.DeviceEvent.DeviceDisconnected -> {
                         onDeviceDisconnected(msg)
@@ -78,16 +80,20 @@ class Scheduler(private val deviceProvider: DeviceProvider,
         }
     }
 
-    private suspend fun onDeviceConnected(item: DeviceProvider.DeviceEvent.DeviceConnected, parent: Job) {
+    private suspend fun onDeviceConnected(item: DeviceProvider.DeviceEvent.DeviceConnected,
+                                          parent: Job,
+                                          context: CoroutineContext) {
         val device = item.device
         val poolId = poolingStrategy.associate(device)
         logger.debug { "device ${device.serialNumber} associated with poolId ${poolId.name}" }
         pools.computeIfAbsent(poolId) { id ->
             logger.debug { "pool actor ${id.name} is being created" }
-            DevicePoolActor(id, configuration, analytics, tests, progressReporter, parent)
+            DevicePoolActor(id, configuration, analytics, tests, progressReporter, parent, context)
         }
-        pools[poolId]?.send(AddDevice(device)) ?: logger.debug { "not sending the AddDevice event " +
-                "to device pool for ${device.serialNumber}" }
+        pools[poolId]?.send(AddDevice(device)) ?: logger.debug {
+            "not sending the AddDevice event " +
+                    "to device pool for ${device.serialNumber}"
+        }
         analytics.trackDeviceConnected(poolId, device)
     }
 }

@@ -16,13 +16,13 @@ interface Device {
     val healthy: Boolean
     val abi: String
 
-    fun execute(configuration: Configuration,
+    suspend fun execute(configuration: Configuration,
                 devicePoolId: DevicePoolId,
                 testBatch: TestBatch,
                 deferred: CompletableDeferred<TestBatchResults>,
                 progressReporter: ProgressReporter)
 
-    fun prepare(configuration: Configuration)
+    suspend fun prepare(configuration: Configuration)
     fun dispose()
 }
 

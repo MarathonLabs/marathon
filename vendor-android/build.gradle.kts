@@ -20,7 +20,9 @@ dependencies {
     implementation(Libraries.dexTestParser)
     implementation(Libraries.axmlParser)
     implementation(Libraries.jacksonAnnotations)
+    implementation(Libraries.scalr)
     implementation(project(":core"))
+    testImplementation(project(":vendor-test"))
     testImplementation(TestLibraries.kluent)
     testImplementation(TestLibraries.spekAPI)
     testRuntime(TestLibraries.spekJUnitPlatformEngine)
@@ -28,11 +30,9 @@ dependencies {
 
 Deployment.initialize(project)
 
-val compileKotlin by tasks.getting(KotlinCompile::class) {
+tasks.withType<KotlinCompile> {
     kotlinOptions.jvmTarget = "1.8"
-}
-val compileTestKotlin by tasks.getting(KotlinCompile::class) {
-    kotlinOptions.jvmTarget = "1.8"
+    kotlinOptions.apiVersion = "1.2"
 }
 
 junitPlatform {
