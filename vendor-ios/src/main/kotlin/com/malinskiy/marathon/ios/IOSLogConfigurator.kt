@@ -17,7 +17,7 @@ class IOSLogConfigurator: ContextAwareBase(), Configurator  {
             addInfo("Setting up default configuration.")
 
             val layout = PatternLayout()
-            layout.pattern = "%-48(%d{HH:mm:ss.SSS} [%thread]) %-24(<%logger{36}> %.-1level) %msg%n"
+            layout.pattern = "%-48(%d{HH:mm:ss.SSS} [%thread]) %-24(<%logger{36}> %highlight(%.-1level)) %msg%n"
             layout.context = loggerContext
             layout.start();
 
@@ -26,6 +26,7 @@ class IOSLogConfigurator: ContextAwareBase(), Configurator  {
             encoder.layout = layout
 
             val consoleAppender = ConsoleAppender<ILoggingEvent>()
+            consoleAppender.isWithJansi = true
             consoleAppender.context = loggerContext
             consoleAppender.name = "console"
             consoleAppender.encoder = encoder

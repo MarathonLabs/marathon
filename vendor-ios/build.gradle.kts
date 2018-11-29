@@ -25,6 +25,7 @@ dependencies {
     implementation(Libraries.gson)
     implementation(Libraries.jacksonKotlin)
     implementation(Libraries.jacksonYaml)
+    implementation(Libraries.jansi)
     implementation(project(":core"))
     testImplementation(TestLibraries.kluent)
     testImplementation(TestLibraries.spekAPI)
