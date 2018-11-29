@@ -9,6 +9,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode
 import com.fasterxml.jackson.module.kotlin.treeToValue
 import com.malinskiy.marathon.exceptions.ConfigurationException
 import com.malinskiy.marathon.execution.AnnotationFilter
+import com.malinskiy.marathon.execution.CompositionFilter
 import com.malinskiy.marathon.execution.FullyQualifiedClassnameFilter
 import com.malinskiy.marathon.execution.SimpleClassnameFilter
 import com.malinskiy.marathon.execution.TestFilter
@@ -42,6 +43,11 @@ class TestFilterDeserializer : StdDeserializer<TestFilter>(TestFilter::class.jav
                 (node as ObjectNode).remove("type")
                 codec.treeToValue<TestMethodFilter>(node)
             }
+            "composition" -> {
+                (node as ObjectNode).remove("type")
+                codec.treeToValue<CompositionFilter>(node)
+            }
+
             else -> throw ConfigurationException("Unrecognized filter type $type")
         }
     }
