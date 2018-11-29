@@ -16,7 +16,7 @@ import java.util.concurrent.TimeoutException
 private const val DEFAULT_PORT = 22
 private const val CONNECTION_TIMEOUT_MILLIS = 7200L
 
-private const val WAIT_TIME = 5L
+private const val SLEEP_DURATION_MILLIS = 25L
 
 class SshjCommandExecutor(val hostAddress: InetAddress,
                           val remoteUsername: String,
@@ -76,48 +76,51 @@ class SshjCommandExecutor(val hostAddress: InetAddress,
         }
     }
 
-    override fun exec(command: String, testOutputTimeoutMillis: Long, reader: (String) -> Unit): Int? {
+    override fun exec(command: String, testOutputTimeoutMillis: Long, onLine: (String) -> Unit): Int? {
+        val lineBuffer = SshjCommandOutputLineBuffer(onLine)
         val session = startSession(command, timeoutMillis)
 
-        val startTime = System.currentTimeMillis()
-
-        val lineBuffer = LineBuffer(reader)
-        val inputStream = session.inputStream
         val byteArray = ByteArray(16384)
-
+        val startTime = System.currentTimeMillis()
         try {
-            var timeToResponseCount = 0L
+            var timeSinceLastOutputMillis = 0L
             while (true) {
 
-                val available = inputStream.available()
+                val available = session.inputStream.available()
+                // available value is expected to indicate an estimated number of bytes
+                // that can be read without blocking (actually read number may be smaller).
                 val count = when {
-                    available > 0 -> inputStream.read(byteArray, 0, available)
-                    !session.isOpen -> -1
-                    session.isEOF -> -1
+                    available > 0 -> session.inputStream.read(byteArray, 0, available)
                     else -> 0
                 }
-                if (count < 0) {
-                    logger.debug("Remote output stream sent EOF")
-                    break
-                } else if (count == 0) {
-                    val wait = WAIT_TIME * 5
+                // when there is nothing to read
+                if (count == 0) {
+                    // exit if session is closed or received EOF
+                    if (session.isEOF or !session.isOpen) {
+                        logger.trace("Remote command output completed")
+                        break
+                    }
                     if (testOutputTimeoutMillis > 0) {
-                        timeToResponseCount += wait
-                        if (timeToResponseCount > testOutputTimeoutMillis) {
-                            throw SshjCommandUnresponsiveException("command execution timeout after ${testOutputTimeoutMillis}ms")
+                        timeSinceLastOutputMillis +=  SLEEP_DURATION_MILLIS
+                        // if there hasn't been any output for too long, stop execution
+                        if (timeSinceLastOutputMillis > testOutputTimeoutMillis) {
+                            throw SshjCommandUnresponsiveException("Remote command did not send any output over ${testOutputTimeoutMillis}ms")
                         }
                     }
-                    Thread.sleep(wait)
+                    // sleep for a moment
+                    Thread.sleep(SLEEP_DURATION_MILLIS)
                 } else {
-                    timeToResponseCount = 0
+                    timeSinceLastOutputMillis = 0
 
                     lineBuffer.append(byteArray, count)
                 }
 
+                // send any received lines immediately for parsing
                 lineBuffer.flush()
 
+                // make sure total execution time isn't too much
                 if (timeoutMillis > 0 && System.currentTimeMillis() - startTime > timeoutMillis) {
-                    throw TimeoutException("command execution timeout after ${timeoutMillis}ms")
+                    throw TimeoutException("Remote command execution timeout after ${timeoutMillis}ms")
                 }
             }
         } finally {
@@ -127,9 +130,12 @@ class SshjCommandExecutor(val hostAddress: InetAddress,
             } catch (e: IOException) {
             } catch (e: TransportException) {
             } catch (e: ConnectionException) {
+            } finally {
+                logger.debug("Session has been closed after ${System.currentTimeMillis() - closingTime}ms")
             }
 
-            lineBuffer.flush()
+            // write out any leftovers
+            lineBuffer.drain()
         }
 
         return session.exitStatus
@@ -144,48 +150,3 @@ class SshjCommandExecutor(val hostAddress: InetAddress,
     }
 }
 
-private class LineBuffer(private val receiver: (String) -> Unit) {
-    private val stringBuffer = StringBuffer(16384)
-
-    fun append(bytes: ByteArray, count: Int) {
-        synchronized(stringBuffer) {
-            stringBuffer.append(String(bytes, 0, count))
-        }
-    }
-
-    fun flush() {
-        val lines = arrayListOf<String>()
-        synchronized(stringBuffer) {
-            stringBuffer.normalizeEOL()
-            while (stringBuffer.isNotEmpty() && stringBuffer.contains('\n')) {
-                val line = stringBuffer.takeWhile { it != '\n' }
-                stringBuffer.deleteWhile { it != '\n' }.deleteCharAt(0)
-                lines.add(line.toString())
-            }
-        }
-        lines.forEach(receiver)
-    }
-}
-
-private fun StringBuffer.deleteWhile(predicate: (Char) -> Boolean): StringBuffer {
-    while (this.isNotEmpty() && predicate(this.first())) {
-        this.deleteCharAt(0)
-    }
-    return this
-}
-
-// replaces both \r and \r\n with a single \n
-private fun StringBuffer.normalizeEOL(): StringBuffer {
-    var index = 0
-    while (index < length) {
-        if (index + 1 < length && get(index) == '\r' && get(index+1) == '\n') {
-            deleteCharAt(index)
-        } else {
-            if (get(index) == '\r') {
-                setCharAt(index, '\n')
-            }
-            index ++
-        }
-    }
-    return this
-}
