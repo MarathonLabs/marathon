@@ -13,8 +13,11 @@ import com.malinskiy.marathon.execution.TestStatus
 import com.malinskiy.marathon.execution.progress.ProgressReporter
 import com.malinskiy.marathon.log.MarathonLogging
 import kotlinx.coroutines.experimental.CompletableDeferred
+import kotlinx.coroutines.experimental.delay
 
-class StubDevice(override val operatingSystem: OperatingSystem = OperatingSystem("25"),
+class StubDevice(private val prepareTimeMillis: Long = 5000L,
+                 private val testTimeMillis: Long = 5000L,
+                 override val operatingSystem: OperatingSystem = OperatingSystem("25"),
                  override val model: String = "test",
                  override val manufacturer: String = "test",
                  override val networkState: NetworkState = NetworkState.CONNECTED,
@@ -27,13 +30,18 @@ class StubDevice(override val operatingSystem: OperatingSystem = OperatingSystem
 
     lateinit var executionResults: Map<Test, Array<TestStatus>>
     var executionIndexMap: MutableMap<Test, Int> = mutableMapOf()
+    var timeCounter: Long = 0
 
     override suspend fun execute(configuration: Configuration, devicePoolId: DevicePoolId, testBatch: TestBatch, deferred: CompletableDeferred<TestBatchResults>, progressReporter: ProgressReporter) {
+        delay(testTimeMillis)
+
         val results = testBatch.tests.map {
             val i = executionIndexMap.getOrDefault(it, 0)
             val result = executionResults[it]!![i]
             executionIndexMap[it] = i + 1
-            TestResult(it, toDeviceInfo(), result, 0, 1, null)
+            val testResult = TestResult(it, toDeviceInfo(), result, timeCounter, timeCounter + 1, null)
+            timeCounter += 1
+            testResult
         }
 
         deferred.complete(
@@ -47,6 +55,7 @@ class StubDevice(override val operatingSystem: OperatingSystem = OperatingSystem
 
     override suspend fun prepare(configuration: Configuration) {
         logger.debug { "Preparing" }
+        delay(prepareTimeMillis)
     }
 
     override fun dispose() {

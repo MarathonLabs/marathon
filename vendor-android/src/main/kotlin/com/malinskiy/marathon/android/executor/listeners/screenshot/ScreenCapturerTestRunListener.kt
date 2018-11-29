@@ -23,7 +23,7 @@ class ScreenCapturerTestRunListener(private val fileManager: FileManager,
     override fun testStarted(test: TestIdentifier) {
         super.testStarted(test)
         logger.debug { "Starting recording for ${test.toTest().toSimpleSafeTestName()}" }
-        screenCapturerJob = async(context = threadPoolDispatcher) {
+        screenCapturerJob = async (context = threadPoolDispatcher) {
             ScreenCapturer(device, pool, fileManager, test).start()
         }
     }
@@ -32,5 +32,6 @@ class ScreenCapturerTestRunListener(private val fileManager: FileManager,
         super.testEnded(test, testMetrics)
         logger.debug { "Finished recording for ${test.toTest().toSimpleSafeTestName()}" }
         screenCapturerJob?.cancel()
+        threadPoolDispatcher.close()
     }
 }

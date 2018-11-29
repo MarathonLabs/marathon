@@ -15,14 +15,14 @@ import com.malinskiy.marathon.execution.progress.ProgressReporter
 import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.test.TestBatch
 import kotlinx.coroutines.experimental.CompletableDeferred
-import kotlinx.coroutines.experimental.launch
+import kotlinx.coroutines.experimental.async
 import kotlinx.coroutines.experimental.newFixedThreadPoolContext
-import java.util.UUID
+import java.util.*
 
 class AndroidDevice(val ddmsDevice: IDevice) : Device {
 
     val logger = MarathonLogging.logger(AndroidDevice::class.java.simpleName)
-    private val deviceContext = newFixedThreadPoolContext(1, ddmsDevice.serialNumber)
+    private val deviceContext = newFixedThreadPoolContext(1, "AndroidDevice - execution - ${ddmsDevice.serialNumber}")
 
     override val abi: String by lazy {
         ddmsDevice.getProperty("ro.product.cpu.abi") ?: "Unknown"
@@ -100,18 +100,20 @@ class AndroidDevice(val ddmsDevice: IDevice) : Device {
                                  deferred: CompletableDeferred<TestBatchResults>,
                                  progressReporter: ProgressReporter) {
 
-        launch(deviceContext) {
+        val deferredResult = async(deviceContext) {
             AndroidDeviceTestRunner(this@AndroidDevice).execute(configuration, devicePoolId, testBatch, deferred, progressReporter)
         }
+        deferredResult.await()
     }
 
     override suspend fun prepare(configuration: Configuration) {
-        launch(deviceContext) {
+        val deferred = async(deviceContext) {
             AndroidAppInstaller(configuration).prepareInstallation(this@AndroidDevice)
             RemoteFileManager.removeRemoteDirectory(ddmsDevice)
             RemoteFileManager.createRemoteDirectory(ddmsDevice)
             clearLogcat(ddmsDevice)
         }
+        deferred.await()
     }
 
     override fun dispose() {

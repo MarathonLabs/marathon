@@ -143,9 +143,14 @@ class AndroidDeviceProvider : DeviceProvider {
     }
 
     private fun getDeviceOrPut(androidDevice: AndroidDevice): AndroidDevice {
-        return devices.getOrPut(androidDevice.serialNumber) {
+        val newAndroidDevice = devices.getOrPut(androidDevice.serialNumber) {
             androidDevice
         }
+        if (newAndroidDevice != androidDevice) {
+            androidDevice.dispose()
+        }
+
+        return newAndroidDevice
     }
 
     private fun matchDdmsToDevice(device: IDevice): AndroidDevice? {

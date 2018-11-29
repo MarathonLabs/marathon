@@ -16,6 +16,7 @@ class LogCatListener(private val device: AndroidDevice,
     private val receiver = LogCatReceiverTask(device.ddmsDevice)
 
     private val ref = AtomicReference<MutableList<LogCatMessage>>(mutableListOf())
+    private var thread: Thread? = null
 
     private val listener: (MutableList<LogCatMessage>) -> Unit = {
         ref.get().addAll(it)
@@ -23,7 +24,7 @@ class LogCatListener(private val device: AndroidDevice,
 
     override fun testRunStarted(runName: String, testCount: Int) {
         receiver.addLogCatListener(listener)
-        thread(name = "LogCatLogger-$runName-${device.serialNumber}") {
+        thread = thread(name = "LogCatLogger-$runName-${device.serialNumber}") {
             receiver.run()
         }
     }
@@ -38,5 +39,6 @@ class LogCatListener(private val device: AndroidDevice,
     override fun testRunEnded(elapsedTime: Long, runMetrics: Map<String, String>) {
         receiver.stop()
         receiver.removeLogCatListener(listener)
+        thread?.interrupt()
     }
 }

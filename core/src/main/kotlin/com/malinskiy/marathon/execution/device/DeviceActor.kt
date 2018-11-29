@@ -176,7 +176,7 @@ class DeviceActor(private val devicePoolId: DevicePoolId,
                 device.execute(configuration, devicePoolId, batch, result, progressReporter)
             } catch (e: DeviceLostException) {
                 logger.error(e) { "Critical error during execution" }
-                returnBatch(batch)
+                state.transition(DeviceEvent.Terminate)
             } catch (e: TestBatchExecutionException) {
                 returnBatch(batch)
             }

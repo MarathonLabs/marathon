@@ -7,7 +7,7 @@ import kotlinx.coroutines.experimental.channels.Channel
 import kotlinx.coroutines.experimental.launch
 import kotlin.coroutines.experimental.CoroutineContext
 
-class StubDeviceProvider() : DeviceProvider {
+class StubDeviceProvider : DeviceProvider {
     lateinit var coroutineContext: CoroutineContext
 
     private val channel: Channel<DeviceProvider.DeviceEvent> = unboundedChannel()
