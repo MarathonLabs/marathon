@@ -11,7 +11,7 @@ interface CommandExecutor {
     fun startSession(command: String, timeoutMillis: Long = DEFAULT_SSH_CONNECTION_TIMEOUT_MILLIS): CommandSession
 
     fun exec(command: String, testOutputTimeoutMillis: Long = 0): CommandResult
-    fun exec(command: String, testOutputTimeoutMillis: Long = 0, onLine: (String) -> Unit): Int?
+    suspend fun exec(command: String, testOutputTimeoutMillis: Long = 0, onLine: (String) -> Unit): Int?
 
     fun disconnect()
 }

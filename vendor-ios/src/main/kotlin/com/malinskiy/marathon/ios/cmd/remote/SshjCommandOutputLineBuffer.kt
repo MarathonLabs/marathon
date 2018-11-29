@@ -1,15 +1,17 @@
 package com.malinskiy.marathon.ios.cmd.remote
 
-class SshjCommandOutputLineBuffer(private val onLine: (String) -> Unit) {
+import java.io.Closeable
+
+class SshjCommandOutputLineBuffer(private val onLine: (String) -> Unit): Closeable {
     private val stringBuffer = StringBuffer(16384)
 
     fun append(bytes: ByteArray) = append(bytes, bytes.size)
 
-    fun append(bytes: ByteArray, count: Int) {
-        synchronized(stringBuffer) {
-            stringBuffer.append(String(bytes, 0, count))
-        }
-    }
+    fun append(bytes: ByteArray, count: Int) =
+            synchronized(stringBuffer) {
+                stringBuffer.append(String(bytes, 0, count))
+            }
+
 
     fun flush() {
         val lines = arrayListOf<String>()
@@ -25,16 +27,19 @@ class SshjCommandOutputLineBuffer(private val onLine: (String) -> Unit) {
     }
 
     fun drain() {
-        flush()
-        // if last flush hasn't emptied buffer completely, it means that last line
-        // doesn't have a terminating EOL; append it and flush again
+        // ensure the last line will be flushed
         synchronized(stringBuffer) {
             if (stringBuffer.isNotEmpty()) {
-                stringBuffer.append('\n')
+                val last = stringBuffer.last()
+                if (last != '\r' && last != '\n') {
+                    stringBuffer.append('\n')
+                }
             }
-            flush()
         }
+        flush()
     }
+
+    override fun close() = drain()
 }
 
 private fun StringBuffer.deleteWhile(predicate: (Char) -> Boolean): StringBuffer {

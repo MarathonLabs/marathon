@@ -9,10 +9,15 @@ import com.malinskiy.marathon.ios.IOSConfiguration
 import com.malinskiy.marathon.ios.IOSDevice
 import com.malinskiy.marathon.ios.cmd.remote.SshjCommandExecutor
 import com.malinskiy.marathon.log.MarathonLogging
+import kotlinx.coroutines.experimental.Job
+import kotlinx.coroutines.experimental.cancelAndJoin
 import kotlinx.coroutines.experimental.channels.Channel
+import kotlinx.coroutines.experimental.delay
 import kotlinx.coroutines.experimental.launch
 import java.io.File
 import java.net.InetAddress
+import java.util.concurrent.TimeUnit
+import java.util.concurrent.atomic.AtomicReference
 
 class LocalListSimulatorProvider(private val channel: Channel<DeviceProvider.DeviceEvent>,
                                  private val configuration: IOSConfiguration,
@@ -38,7 +43,11 @@ class LocalListSimulatorProvider(private val channel: Channel<DeviceProvider.Dev
         ?: emptyList()
     }
 
+    private lateinit var healthObserver: AtomicReference<Job>
+
     override fun stop() {
+        healthObserver.get().cancel()
+
         launch {
             devices.forEach {
                 logger.debug { "Disconnected simulator: ${it.serialNumber}" }
@@ -58,5 +67,19 @@ class LocalListSimulatorProvider(private val channel: Channel<DeviceProvider.Dev
                 channel.send(element = DeviceProvider.DeviceEvent.DeviceConnected(it))
             }
         }
+        val job = launch {
+            while (true) {
+                delay(1L, TimeUnit.SECONDS)
+
+                devices.filterNot { it.healthy }.forEach {
+                    logger.debug { "Disconnected unhealthy simulator: ${it.serialNumber}" }
+
+                    it.dispose()
+
+                    channel.send(element = DeviceProvider.DeviceEvent.DeviceDisconnected(it))
+                }
+            }
+        }
+        healthObserver = AtomicReference(job)
     }
 }
