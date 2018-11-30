@@ -13,8 +13,6 @@ plugins {
     id("org.junit.platform.gradle.plugin")
 }
 
-kotlin.experimental.coroutines = Coroutines.ENABLE
-
 sourceSets {
     create("integrationTest") {
         compileClasspath += sourceSets["main"].output
@@ -50,6 +48,7 @@ dependencies {
     testRuntime(TestLibraries.jupiterEngine)
     testCompile(TestLibraries.testContainers)
     testCompile(TestLibraries.testContainersInflux)
+    testImplementation(TestLibraries.mockitoKotlin)
 }
 
 
@@ -74,7 +73,7 @@ Deployment.initialize(project)
 
 tasks.withType<KotlinCompile> {
     kotlinOptions.jvmTarget = "1.8"
-    kotlinOptions.apiVersion = "1.2"
+    kotlinOptions.apiVersion = "1.3"
 }
 
 junitPlatform {

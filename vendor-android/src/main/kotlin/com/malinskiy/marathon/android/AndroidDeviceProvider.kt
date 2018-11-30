@@ -11,20 +11,21 @@ import com.malinskiy.marathon.device.DeviceProvider.DeviceEvent.DeviceDisconnect
 import com.malinskiy.marathon.exceptions.NoDevicesException
 import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.vendor.VendorConfiguration
-import kotlinx.coroutines.experimental.NonCancellable.isActive
-import kotlinx.coroutines.experimental.channels.Channel
-import kotlinx.coroutines.experimental.delay
-import kotlinx.coroutines.experimental.launch
-import kotlinx.coroutines.experimental.newFixedThreadPoolContext
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.newFixedThreadPoolContext
 import java.nio.file.Paths
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ConcurrentMap
+import kotlin.coroutines.CoroutineContext
 
 private const val DEFAULT_DDM_LIB_TIMEOUT = 30000
 private const val DEFAULT_DDM_LIB_SLEEP_TIME = 500
 
-class AndroidDeviceProvider : DeviceProvider {
-
+class AndroidDeviceProvider : DeviceProvider, CoroutineScope {
     private val logger = MarathonLogging.logger("AndroidDeviceProvider")
 
     private lateinit var adb: AndroidDebugBridge
@@ -32,6 +33,8 @@ class AndroidDeviceProvider : DeviceProvider {
     private val channel: Channel<DeviceProvider.DeviceEvent> = unboundedChannel()
     private val devices: ConcurrentMap<String, AndroidDevice> = ConcurrentHashMap()
     private val bootWaitContext = newFixedThreadPoolContext(4, "AndroidDeviceProvider-BootWait")
+    override val coroutineContext: CoroutineContext
+        get() = bootWaitContext
 
     override fun initialize(vendorConfiguration: VendorConfiguration) {
         if (vendorConfiguration !is AndroidConfiguration) {
@@ -64,7 +67,7 @@ class AndroidDeviceProvider : DeviceProvider {
 
             override fun deviceConnected(device: IDevice?) {
                 device?.let {
-                    launch(context = bootWaitContext) {
+                    launch {
                         val maybeNewAndroidDevice = AndroidDevice(it)
                         val healthy = maybeNewAndroidDevice.healthy
                         logger.debug { "Device ${maybeNewAndroidDevice.serialNumber} connected channel.isFull = ${channel.isFull}. Healthy = $healthy" }
@@ -80,7 +83,7 @@ class AndroidDeviceProvider : DeviceProvider {
 
             override fun deviceDisconnected(device: IDevice?) {
                 device?.let {
-                    launch(context = bootWaitContext) {
+                    launch {
                         logger.debug { "Device ${device.serialNumber} disconnected" }
                         matchDdmsToDevice(it)?.let {
                             notifyDisconnected(it)

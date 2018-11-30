@@ -10,12 +10,11 @@ plugins {
     id("org.junit.platform.gradle.plugin")
 }
 
-kotlin.experimental.coroutines = Coroutines.ENABLE
-
 dependencies {
     implementation(Libraries.kotlinStdLib)
     implementation(Libraries.kotlinCoroutines)
     implementation(Libraries.kotlinLogging)
+    implementation(Libraries.kotlinReflect)
     implementation(Libraries.slf4jAPI)
     implementation(Libraries.logbackClassic)
     implementation(Libraries.ddPlist)
@@ -27,6 +26,7 @@ dependencies {
     implementation(Libraries.jacksonYaml)
     implementation(project(":core"))
     testImplementation(TestLibraries.kluent)
+    testImplementation(TestLibraries.mockitoKotlin)
     testImplementation(TestLibraries.spekAPI)
     testRuntime(TestLibraries.spekJUnitPlatformEngine)
     testImplementation(TestLibraries.testContainers)
@@ -36,7 +36,7 @@ Deployment.initialize(project)
 
 tasks.withType<KotlinCompile> {
     kotlinOptions.jvmTarget = "1.8"
-    kotlinOptions.apiVersion = "1.2"
+    kotlinOptions.apiVersion = "1.3"
 }
 
 junitPlatform {

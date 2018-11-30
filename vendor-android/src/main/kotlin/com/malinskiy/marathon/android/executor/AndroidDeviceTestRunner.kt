@@ -27,7 +27,7 @@ import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.report.logs.LogWriter
 import com.malinskiy.marathon.test.TestBatch
 import com.malinskiy.marathon.test.toTestName
-import kotlinx.coroutines.experimental.CompletableDeferred
+import kotlinx.coroutines.CompletableDeferred
 import java.io.IOException
 import java.util.concurrent.TimeUnit
 

@@ -25,20 +25,22 @@ import com.malinskiy.marathon.ios.xctestrun.Xctestrun
 import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.test.TestBatch
 import com.malinskiy.marathon.time.SystemTimer
-import kotlinx.coroutines.experimental.CompletableDeferred
-import kotlinx.coroutines.experimental.launch
-import kotlinx.coroutines.experimental.newFixedThreadPoolContext
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.newFixedThreadPoolContext
 import net.schmizz.sshj.connection.ConnectionException
 import net.schmizz.sshj.transport.TransportException
 import java.io.File
 import java.io.IOException
 import java.util.concurrent.TimeUnit
+import kotlin.coroutines.CoroutineContext
 
 private const val HOSTNAME = "localhost"
 
 class IOSDevice(val udid: String,
                 val hostCommandExecutor: CommandExecutor,
-                val gson: Gson) : Device {
+                val gson: Gson) : Device, CoroutineScope {
     val logger = MarathonLogging.logger("${javaClass.simpleName}($udid)")
     val simctl = Simctl()
 
@@ -47,6 +49,8 @@ class IOSDevice(val udid: String,
     private val deviceType: String?
 
     private val deviceContext = newFixedThreadPoolContext(1, udid)
+    override val coroutineContext: CoroutineContext
+        get() = deviceContext
 
     init {
         val device = simctl.list(this, gson).find { it.udid == udid }
@@ -79,7 +83,7 @@ class IOSDevice(val udid: String,
                                  deferred: CompletableDeferred<TestBatchResults>,
                                  progressReporter: ProgressReporter) {
 
-        launch(deviceContext) {
+        launch {
             val iosConfiguration = configuration.vendorConfiguration as IOSConfiguration
             val fileManager = FileManager(configuration.outputDir)
             val testLogListener = TestLogListener()
@@ -160,7 +164,7 @@ class IOSDevice(val udid: String,
     }
 
     override suspend fun prepare(configuration: Configuration) {
-        launch(deviceContext) {
+        launch {
             RemoteFileManager.createRemoteDirectory(this@IOSDevice)
 
             val sshjCommandExecutor = hostCommandExecutor as SshjCommandExecutor

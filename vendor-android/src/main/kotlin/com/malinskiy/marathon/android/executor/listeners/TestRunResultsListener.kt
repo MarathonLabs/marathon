@@ -11,7 +11,7 @@ import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.test.Test
 import com.malinskiy.marathon.test.TestBatch
 import com.malinskiy.marathon.test.toTestName
-import kotlinx.coroutines.experimental.CompletableDeferred
+import kotlinx.coroutines.CompletableDeferred
 import com.android.ddmlib.testrunner.TestResult as DdmLibTestResult
 import com.android.ddmlib.testrunner.TestRunResult as DdmLibTestRunResult
 

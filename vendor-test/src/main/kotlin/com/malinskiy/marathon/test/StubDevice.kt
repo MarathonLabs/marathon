@@ -12,8 +12,8 @@ import com.malinskiy.marathon.execution.TestResult
 import com.malinskiy.marathon.execution.TestStatus
 import com.malinskiy.marathon.execution.progress.ProgressReporter
 import com.malinskiy.marathon.log.MarathonLogging
-import kotlinx.coroutines.experimental.CompletableDeferred
-import kotlinx.coroutines.experimental.delay
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.delay
 
 class StubDevice(private val prepareTimeMillis: Long = 5000L,
                  private val testTimeMillis: Long = 5000L,

@@ -12,9 +12,9 @@ import com.malinskiy.marathon.execution.queue.QueueMessage
 import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.test.Test
 import com.malinskiy.marathon.test.TestBatch
-import kotlinx.coroutines.experimental.Job
-import kotlinx.coroutines.experimental.channels.SendChannel
-import kotlin.coroutines.experimental.CoroutineContext
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.channels.SendChannel
+import kotlin.coroutines.CoroutineContext
 
 class DevicePoolActor(private val poolId: DevicePoolId,
                       private val configuration: Configuration,
@@ -22,7 +22,7 @@ class DevicePoolActor(private val poolId: DevicePoolId,
                       tests: Collection<Test>,
                       private val progressReporter: ProgressReporter,
                       parent: Job,
-                      private val context: CoroutineContext) :
+                      context: CoroutineContext) :
         Actor<DevicePoolMessage>(parent = parent, context = context) {
 
     private val logger = MarathonLogging.logger("DevicePoolActor[${poolId.name}]")
@@ -114,7 +114,7 @@ class DevicePoolActor(private val poolId: DevicePoolId,
         }
 
         logger.debug { "add device ${device.serialNumber}" }
-        val actor = DeviceActor(poolId, this, configuration, device, progressReporter, poolJob, context)
+        val actor = DeviceActor(poolId, this, configuration, device, progressReporter, poolJob, coroutineContext)
         devices[device.serialNumber] = actor
         actor.send(DeviceEvent.Initialize)
     }

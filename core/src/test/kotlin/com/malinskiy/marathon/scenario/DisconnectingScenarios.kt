@@ -6,9 +6,10 @@ import com.malinskiy.marathon.test.StubDevice
 import com.malinskiy.marathon.test.Test
 import com.malinskiy.marathon.test.assert.shouldBeEqualTo
 import com.malinskiy.marathon.test.setupMarathon
-import kotlinx.coroutines.experimental.delay
-import kotlinx.coroutines.experimental.launch
-import kotlinx.coroutines.experimental.test.TestCoroutineContext
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.test.TestCoroutineContext
 import org.amshove.kluent.shouldBe
 import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.given
@@ -37,7 +38,7 @@ class DisconnectingScenarios : Spek({
                             listOf(test1, test2)
                         }
 
-                        vendorConfiguration.deviceProvider.coroutineContext = context
+                        vendorConfiguration.deviceProvider.context = context
 
                         devices {
                             delay(1000)
@@ -59,7 +60,7 @@ class DisconnectingScenarios : Spek({
                     )
                 }
 
-                val job = launch(context = context) {
+                val job = GlobalScope.launch(context = context) {
                     marathon.runAsync()
                 }
 

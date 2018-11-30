@@ -10,16 +10,15 @@ import com.malinskiy.marathon.execution.DevicePoolMessage.FromScheduler.RemoveDe
 import com.malinskiy.marathon.execution.progress.ProgressReporter
 import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.test.Test
-import kotlinx.coroutines.experimental.Job
-import kotlinx.coroutines.experimental.TimeoutCancellationException
-import kotlinx.coroutines.experimental.channels.SendChannel
-import kotlinx.coroutines.experimental.delay
-import kotlinx.coroutines.experimental.joinChildren
-import kotlinx.coroutines.experimental.launch
-import kotlinx.coroutines.experimental.withTimeout
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.TimeoutCancellationException
+import kotlinx.coroutines.channels.SendChannel
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withTimeout
 import java.util.concurrent.ConcurrentHashMap
-import java.util.concurrent.TimeUnit
-import kotlin.coroutines.experimental.CoroutineContext
+import kotlin.coroutines.CoroutineContext
 
 /**
  * The logic of scheduler:
@@ -32,18 +31,18 @@ class Scheduler(private val deviceProvider: DeviceProvider,
                 private val configuration: Configuration,
                 private val tests: Collection<Test>,
                 private val progressReporter: ProgressReporter,
-                private val coroutineContext: CoroutineContext) {
+                override val coroutineContext: CoroutineContext) : CoroutineScope {
 
+    private val job = Job()
     private val pools = ConcurrentHashMap<DevicePoolId, SendChannel<FromScheduler>>()
     private val poolingStrategy = configuration.poolingStrategy
 
     private val logger = MarathonLogging.logger("Scheduler")
 
     suspend fun execute() {
-        val job = Job()
         subscribeOnDevices(job)
         try {
-            withTimeout(60, TimeUnit.SECONDS) {
+            withTimeout(60000) {
                 while (pools.isEmpty()) {
                     delay(100)
                 }
@@ -51,7 +50,9 @@ class Scheduler(private val deviceProvider: DeviceProvider,
         } catch (e: TimeoutCancellationException) {
             throw NoDevicesException("")
         }
-        job.joinChildren()
+        for(child in job.children) {
+            child.join()
+        }
     }
 
     fun getPools(): List<DevicePoolId> {
@@ -59,7 +60,7 @@ class Scheduler(private val deviceProvider: DeviceProvider,
     }
 
     private fun subscribeOnDevices(job: Job): Job {
-        return launch(coroutineContext) {
+        return launch {
             for (msg in deviceProvider.subscribe()) {
                 when (msg) {
                     is DeviceProvider.DeviceEvent.DeviceConnected -> {

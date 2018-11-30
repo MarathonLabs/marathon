@@ -13,10 +13,16 @@ plugins {
     id("de.fuerstenau.buildconfig") version "1.1.8"
 }
 
+val debugCoroutines = true
+val coroutinesJvmOptions = when(debugCoroutines) {
+    true -> "-Dkotlinx.coroutines.debug"
+    else -> ""
+}
+
 application {
     mainClassName = "com.malinskiy.marathon.cli.ApplicationViewKt"
     applicationName = "marathon"
-    applicationDefaultJvmArgs = listOf("-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=1044")
+    applicationDefaultJvmArgs = listOf("-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=1044", coroutinesJvmOptions)
 }
 
 distributions {
@@ -25,7 +31,10 @@ distributions {
     }
 }
 
-kotlin.experimental.coroutines = Coroutines.ENABLE
+tasks.withType<KotlinCompile> {
+    kotlinOptions.jvmTarget = "1.8"
+    kotlinOptions.apiVersion = "1.3"
+}
 
 dependencies {
     implementation(project(":core"))
@@ -34,6 +43,7 @@ dependencies {
     implementation(Libraries.kotlinStdLib)
     implementation(Libraries.kotlinCoroutines)
     implementation(Libraries.kotlinLogging)
+    implementation(Libraries.kotlinReflect)
     implementation(Libraries.slf4jAPI)
     implementation(Libraries.logbackClassic)
     implementation(Libraries.argParser)
@@ -43,16 +53,12 @@ dependencies {
     implementation(Libraries.jacksonYaml)
     implementation(Libraries.jacksonJSR310)
     testCompile(TestLibraries.kluent)
+    testCompile(TestLibraries.mockitoKotlin)
     testCompile(TestLibraries.spekAPI)
     testRuntime(TestLibraries.spekJUnitPlatformEngine)
 }
 
 Deployment.initialize(project)
-
-tasks.withType<KotlinCompile> {
-    kotlinOptions.jvmTarget = "1.8"
-    kotlinOptions.apiVersion = "1.2"
-}
 
 buildConfig {
     appName = project.name

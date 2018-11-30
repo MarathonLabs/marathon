@@ -4,9 +4,9 @@ import com.malinskiy.marathon.ios.logparser.formatter.PackageNameFormatter
 import com.malinskiy.marathon.ios.logparser.listener.TestRunListener
 import com.malinskiy.marathon.test.Test
 import com.malinskiy.marathon.time.Timer
-import com.nhaarman.mockito_kotlin.atLeastOnce
-import com.nhaarman.mockito_kotlin.reset
-import com.nhaarman.mockito_kotlin.verify
+import com.nhaarman.mockitokotlin2.atLeastOnce
+import com.nhaarman.mockitokotlin2.reset
+import com.nhaarman.mockitokotlin2.verify
 import org.amshove.kluent.Verify
 import org.amshove.kluent.When
 import org.amshove.kluent.any
