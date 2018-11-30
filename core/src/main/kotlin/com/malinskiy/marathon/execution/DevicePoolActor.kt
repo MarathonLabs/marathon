@@ -1,6 +1,7 @@
 package com.malinskiy.marathon.execution
 
 import com.malinskiy.marathon.actor.Actor
+import com.malinskiy.marathon.actor.safeSend
 import com.malinskiy.marathon.analytics.Analytics
 import com.malinskiy.marathon.device.Device
 import com.malinskiy.marathon.device.DevicePoolId
@@ -56,7 +57,7 @@ class DevicePoolActor(private val poolId: DevicePoolId,
         devices.filter {
             !it.value.isClosedForSend
         }.forEach {
-            it.value.send(DeviceEvent.WakeUp)
+            it.value.safeSend(DeviceEvent.WakeUp)
         }
     }
 
@@ -64,7 +65,7 @@ class DevicePoolActor(private val poolId: DevicePoolId,
         devices.filterValues {
             !it.isClosedForSend
         }.forEach {
-            it.value.send(DeviceEvent.Terminate)
+            it.value.safeSend(DeviceEvent.Terminate)
         }
         terminate()
     }
@@ -84,7 +85,7 @@ class DevicePoolActor(private val poolId: DevicePoolId,
     private suspend fun executeBatch(device: Device, batch: TestBatch) {
         devices[device.serialNumber]?.run {
             if (!isClosedForSend) {
-                send(DeviceEvent.Execute(batch))
+                safeSend(DeviceEvent.Execute(batch))
             }
         }
     }
@@ -97,7 +98,7 @@ class DevicePoolActor(private val poolId: DevicePoolId,
     private suspend fun removeDevice(device: Device) {
         logger.debug { "remove device ${device.serialNumber}" }
         val actor = devices.remove(device.serialNumber)
-        actor?.send(DeviceEvent.Terminate)
+        actor?.safeSend(DeviceEvent.Terminate)
         logger.debug { "devices.size = ${devices.size}" }
         if (noActiveDevices()) {
             //TODO check if we still have tests and timeout if nothing available
@@ -116,6 +117,6 @@ class DevicePoolActor(private val poolId: DevicePoolId,
         logger.debug { "add device ${device.serialNumber}" }
         val actor = DeviceActor(poolId, this, configuration, device, progressReporter, poolJob, coroutineContext)
         devices[device.serialNumber] = actor
-        actor.send(DeviceEvent.Initialize)
+        actor.safeSend(DeviceEvent.Initialize)
     }
 }

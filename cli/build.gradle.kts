@@ -13,9 +13,9 @@ plugins {
     id("de.fuerstenau.buildconfig") version "1.1.8"
 }
 
-val debugCoroutines = true
+val debugCoroutines = false
 val coroutinesJvmOptions = when(debugCoroutines) {
-    true -> "-Dkotlinx.coroutines.debug"
+    true -> "-Dkotlinx.coroutines.debug=on"
     else -> ""
 }
 
