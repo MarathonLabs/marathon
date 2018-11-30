@@ -54,18 +54,14 @@ class DevicePoolActor(private val poolId: DevicePoolId,
 
     private suspend fun notifyDevices() {
         logger.debug { "Notify devices" }
-        devices.filter {
-            !it.value.isClosedForSend
-        }.forEach {
-            it.value.safeSend(DeviceEvent.WakeUp)
+        devices.values.forEach {
+            it.safeSend(DeviceEvent.WakeUp)
         }
     }
 
     private suspend fun onQueueTerminated() {
-        devices.filterValues {
-            !it.isClosedForSend
-        }.forEach {
-            it.value.safeSend(DeviceEvent.Terminate)
+        devices.values.forEach {
+            it.safeSend(DeviceEvent.Terminate)
         }
         terminate()
     }
@@ -84,9 +80,7 @@ class DevicePoolActor(private val poolId: DevicePoolId,
 
     private suspend fun executeBatch(device: Device, batch: TestBatch) {
         devices[device.serialNumber]?.run {
-            if (!isClosedForSend) {
-                safeSend(DeviceEvent.Execute(batch))
-            }
+            safeSend(DeviceEvent.Execute(batch))
         }
     }
 
