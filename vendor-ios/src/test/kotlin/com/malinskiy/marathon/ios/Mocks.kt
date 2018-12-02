@@ -17,10 +17,9 @@ class Mocks {
                 override fun exec(command: String, testOutputTimeoutMillis: Long): CommandResult {
                     TODO("not implemented")
                 }
-                override fun exec(command: String, testOutputTimeoutMilliss: Long, reader: (String) -> Unit): Int? {
+                override suspend fun exec(command: String, testOutputTimeoutMillis: Long, onLine: (String) -> Unit): Int? {
                     TODO("not implemented")
                 }
-
                 override fun disconnect() {
                     TODO("not implemented")
                 }

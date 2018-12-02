@@ -46,9 +46,7 @@ class IOSDeviceLogParser(device: Device,
                         testLogListener
                     )
                 ),
-                DebugLogPrinter(
-                    prefix = device.serialNumber
-                )
+                DebugLogPrinter()
             )
         )
     }

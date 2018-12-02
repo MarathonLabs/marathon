@@ -5,7 +5,7 @@ import kotlinx.coroutines.experimental.Deferred
 interface CommandExecutor {
     companion object {
         val DEFAULT_SSH_CONNECTION_TIMEOUT_MILLIS: Long
-            get() = 1800000L
+            get() = 900000L
     }
 
     fun startSession(command: String, timeoutMillis: Long = DEFAULT_SSH_CONNECTION_TIMEOUT_MILLIS): CommandSession

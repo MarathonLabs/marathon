@@ -23,7 +23,7 @@ class IOSDeviceProvider : DeviceProvider {
 
     override fun terminate() {
         logger.debug { "Terminating IOS device provider" }
-        simulatorProvider.stop()
+        simulatorProvider?.stop()
         channel.close()
     }
 

@@ -3,7 +3,6 @@ package com.malinskiy.marathon.ios.cmd.remote
 import ch.qos.logback.classic.Level
 import com.malinskiy.marathon.log.MarathonLogging
 import kotlinx.coroutines.experimental.*
-import kotlinx.coroutines.experimental.NonCancellable.isActive
 import net.schmizz.sshj.DefaultConfig
 import net.schmizz.sshj.SSHClient
 import net.schmizz.sshj.common.LoggerFactory
@@ -16,11 +15,10 @@ import java.io.InputStream
 import java.net.InetAddress
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.TimeoutException
+import kotlin.coroutines.experimental.coroutineContext
 
 private const val DEFAULT_PORT = 22
-private const val CONNECTION_TIMEOUT_MILLIS = 7200L
-
-private const val SLEEP_DURATION_MILLIS = 25L
+private const val SLEEP_DURATION_MILLIS = 15L
 
 class SshjCommandExecutor(val hostAddress: InetAddress,
                           val remoteUsername: String,
@@ -64,7 +62,7 @@ class SshjCommandExecutor(val hostAddress: InetAddress,
     }
 
     private val logger by lazy {
-        MarathonLogging.logger(SshjCommandExecutor::javaClass.name)
+        MarathonLogging.logger(SshjCommandExecutor::class.java.name)
     }
 
     override fun startSession(command: String, timeoutMillis: Long): CommandSession {
@@ -82,78 +80,93 @@ class SshjCommandExecutor(val hostAddress: InetAddress,
 
     override suspend fun exec(command: String, testOutputTimeoutMillis: Long, onLine: (String) -> Unit): Int? {
         val session = startSession(command, timeoutMillis)
+        val startTime = System.currentTimeMillis()
         try {
-            val executionTimeout =  if (timeoutMillis == 0L) Long.MAX_VALUE else timeoutMillis
+            val executionTimeout = if (timeoutMillis == 0L) Long.MAX_VALUE else timeoutMillis
+
+            val timeoutHandler = SshjCommandOutputTimeoutHandlerImpl(
+                testOutputTimeoutMillis,
+                SLEEP_DURATION_MILLIS
+            )
+
+            val isSessionReadable = { session.isOpen and !session.isEOF }
+
             withTimeout(executionTimeout) {
-                with(session) {
-                    listOf(inputStream, errorStream)
-                            .map {
-                                launch {
-                                    readLines(
-                                        it,
-                                        testOutputTimeoutMillis,
-                                        { session.isEOF or !session.isOpen },
-                                        onLine
-                                    )
-                                }
+                listOf(
+                    async(context = coroutineContext) {
+                        readLines(session.inputStream,
+                            isSessionReadable,
+                            {
+                                onLine(it)
+                                timeoutHandler.update()
                             }
-                            .joinAll()
-                }
+                        )
+                    },
+                    async(context = coroutineContext) {
+                        readLines(session.errorStream,
+                            isSessionReadable,
+                            {
+                                onLine(it)
+                                timeoutHandler.update()
+                            }
+                        )
+                    },
+                    async(context = coroutineContext) {
+                        while (isSessionReadable()) {
+                            if (timeoutHandler.getIsUnresponsiveAndWait()) {
+                                throw SshjCommandUnresponsiveException("Remote command \n\u001b[1m$command\u001b[0mdid not send any output over ${testOutputTimeoutMillis}ms")
+                            }
+                        }
+                    }
+                ).awaitAll()
             }
         } finally {
-            val closingTime = System.currentTimeMillis()
             try {
                 session.close()
             } catch (e: IOException) {
             } catch (e: TransportException) {
             } catch (e: ConnectionException) {
-            } finally {
-                logger.debug("Session has been closed after ${System.currentTimeMillis() - closingTime}ms")
             }
         }
-
+        logger.debug("Execution complete after ${System.currentTimeMillis() - startTime}ms")
         return session.exitStatus
     }
 
-    private suspend fun readLines(inputStream: InputStream, testOutputTimeoutMillis: Long, isEOF: () -> Boolean, onLine: (String) -> Unit) {
+    private suspend fun readLines(inputStream: InputStream, canRead: () -> Boolean, onLine: (String) -> Unit) {
         SshjCommandOutputLineBuffer(onLine).use { lineBuffer ->
             val byteArray = ByteArray(16384)
-            var timeSinceLastOutputMillis = 0L
             val startTime = System.currentTimeMillis()
-            while (true) {
+            while (coroutineContext.isActive) {
                 val available = inputStream.available()
                 // available value is expected to indicate an estimated number of bytes
-                // that can be read without blocking (actually read number may be smaller).
+                // that can be read without blocking (actual count may be smaller).
+                //
+                // when requesting a zero length, reading from sshj's [ChannelInputStream]
+                // blocks. to accurately handle no output timeout, check if session has
+                // received EOF.
+                //
                 val count = when {
                     available > 0 -> inputStream.read(byteArray, 0, available)
                     else -> 0
                 }
-                // when there is nothing to read
+                // if there was nothing to read
                 if (count == 0) {
-                    // exit if session is closed or received EOF
-                    if (isEOF()) {
+                    // if session received EOF or has been closed, reading stops
+                    if (!canRead()) {
                         logger.trace("Remote command output completed")
                         break
-                    }
-                    if (testOutputTimeoutMillis > 0) {
-                        timeSinceLastOutputMillis += SLEEP_DURATION_MILLIS
-                        // if there hasn't been any output for too long, stop execution
-                        if (timeSinceLastOutputMillis > testOutputTimeoutMillis) {
-                            throw SshjCommandUnresponsiveException("Remote command did not send any output over ${testOutputTimeoutMillis}ms")
-                        }
                     }
                     // sleep for a moment
                     delay(SLEEP_DURATION_MILLIS, TimeUnit.MILLISECONDS)
                 } else {
-                    timeSinceLastOutputMillis = 0
-
                     lineBuffer.append(byteArray, count)
                 }
 
-                // send any received lines immediately for parsing
+                // immediately send any full lines for parsing
                 lineBuffer.flush()
 
                 // make sure total execution time isn't too much
+                // TODO: this is a duplicate timeout handler, already covered by withTimeout() use
                 if (timeoutMillis > 0 && System.currentTimeMillis() - startTime > timeoutMillis) {
                     throw TimeoutException("Remote command execution timeout after ${timeoutMillis}ms")
                 }
@@ -165,13 +178,12 @@ class SshjCommandExecutor(val hostAddress: InetAddress,
         val lines = arrayListOf<String>()
         val exitStatus =
                 runBlocking() {
-                    async {
-                        exec(command, testOutputTimeoutMillis) {
-                            lines.add(it)
-                        }
-                    }.await()
+                    try {
+                        exec(command, testOutputTimeoutMillis) { lines.add(it) }
+                    } catch (e: TimeoutCancellationException) {
+                        throw TimeoutException(e.message)
+                    }
                 }
         return CommandResult(lines.joinToString("\n"), "", exitStatus ?: 1)
     }
 }
-

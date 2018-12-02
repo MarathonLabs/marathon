@@ -7,6 +7,7 @@ import com.malinskiy.marathon.device.DeviceFeature
 import com.malinskiy.marathon.device.DevicePoolId
 import com.malinskiy.marathon.device.NetworkState
 import com.malinskiy.marathon.device.OperatingSystem
+import com.malinskiy.marathon.exceptions.DeviceLostException
 import com.malinskiy.marathon.exceptions.TestBatchExecutionException
 import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.execution.TestBatchResults
@@ -24,26 +25,31 @@ import com.malinskiy.marathon.ios.xctestrun.Xctestrun
 import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.test.TestBatch
 import kotlinx.coroutines.experimental.CompletableDeferred
+import kotlinx.coroutines.experimental.newFixedThreadPoolContext
+import kotlinx.coroutines.experimental.withContext
+import kotlinx.coroutines.experimental.launch
 import net.schmizz.sshj.transport.TransportException
 import java.io.File
 import java.util.concurrent.TimeoutException
 
-import kotlinx.coroutines.experimental.launch
-import kotlinx.coroutines.experimental.newFixedThreadPoolContext
+import kotlin.coroutines.experimental.AbstractCoroutineContextElement
+import kotlin.coroutines.experimental.CoroutineContext
 
 private const val HOSTNAME = "localhost"
 
 class IOSDevice(val udid: String,
                 val hostCommandExecutor: CommandExecutor,
                 val gson: Gson) : Device {
-    val logger = MarathonLogging.logger(udid)
+
+
+    val logger = MarathonLogging.logger(IOSDevice::class.java.name)
     val simctl = Simctl()
 
     val name: String?
     private val runtime: String?
     private val deviceType: String?
 
-    private val deviceContext = newFixedThreadPoolContext(1, udid)
+    private val deviceContext: CoroutineContext = newFixedThreadPoolContext(1, udid)
 
     init {
         val device = simctl.list(this, gson).find { it.udid == udid }
@@ -76,24 +82,23 @@ class IOSDevice(val udid: String,
                                  progressReporter: ProgressReporter) {
 
         if (!healthy) {
-            logger.error("Device $udid seems to be having issues running")
-            throw TestBatchExecutionException("Device $udid seems to be failing")
+            logger.error("Device $udid is unhealthy")
+            throw TestBatchExecutionException("Device $udid is unhealthy")
         }
 
         launch(deviceContext) {
             val iosConfiguration = configuration.vendorConfiguration as IOSConfiguration
             val fileManager = FileManager(configuration.outputDir)
 
-            val remoteXcresultPath = RemoteFileManager.remoteXcresultFile(this@IOSDevice)
             val remoteXctestrunFile = RemoteFileManager.remoteXctestrunFile(this@IOSDevice)
             val remoteDir = remoteXctestrunFile.parent
 
-            logger.debug { "remote xctestrun = $remoteXctestrunFile" }
+            logger.debug("Remote xctestrun = $remoteXctestrunFile")
 
             val xctestrun = Xctestrun(iosConfiguration.xctestrunPath)
             val packageNameFormatter = TestLogPackageNameFormatter(xctestrun.productModuleName, xctestrun.targetName)
 
-            logger.debug("tests = ${testBatch.tests.toList()}")
+            logger.debug("Tests = ${testBatch.tests.toList()}")
 
             val logParser = IOSDeviceLogParser(this@IOSDevice,
                 packageNameFormatter,
@@ -106,21 +111,23 @@ class IOSDevice(val udid: String,
             val command =
                     listOf("cd '$remoteDir' &&",
                             "NSUnbufferedIO=YES",
-                            "xcodebuild 2>&1 test-without-building",
+                            "xcodebuild test-without-building",
                             "-xctestrun ${remoteXctestrunFile.path}",
                             // "-resultBundlePath ${remoteXcresultPath.canonicalPath} ",
                             testBatch.toXcodebuildArguments(),
                             "-destination 'platform=iOS simulator,id=$udid' ;",
                             "exit")
                             .joinToString(" ")
-                            .also { logger.debug(it) }
+                            .also { logger.debug("\u001b[1m$it\u001b[0m") }
 
             val exitStatus = try {
-                hostCommandExecutor.exec(
-                    command,
-                    configuration.testOutputTimeoutMillis,
-                    logParser::onLine
-                )
+                withContext(deviceContext) {
+                    hostCommandExecutor.exec(
+                        command,
+                        configuration.testOutputTimeoutMillis,
+                        logParser::onLine
+                    )
+                }
             } catch (e: SshjCommandUnresponsiveException) {
                 logger.error("No output from remote shell")
                 throw TestBatchExecutionException(e)
@@ -133,14 +140,15 @@ class IOSDevice(val udid: String,
             } catch(e: DeviceFailureException) {
                 logger.error("$e")
                 healthy = false
-                throw TestBatchExecutionException(e)
+                throw DeviceLostException(e)
             } finally {
                 logParser.close()
             }
 
+            logger.info("Diagnostic logs available at ${logParser.diagnosticLogPaths}")
             // 70 = no devices
             // 65 = ** TEST EXECUTE FAILED **: crash
-            logger.debug("finished test batch execution with exit status $exitStatus")
+            logger.debug("Finished test batch execution with exit status $exitStatus")
         }
     }
 
