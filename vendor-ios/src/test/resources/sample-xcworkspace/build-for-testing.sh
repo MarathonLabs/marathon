@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 
-XCODEBUILD_DESTINATION="${1:-${DESTINATION_SIMULATOR_ID}}"
+UDID="$(xcrun simctl list devices -j | jq -r '.devices | flatten | .[] | select(.name == "iPhone 7") | .udid' | head -1)"
+
+XCODEBUILD_DESTINATION="${1:-${UDID}}"
 if [[ -z ${XCODEBUILD_DESTINATION} ]]; then
   echo 1>&2 -e "$(tput setaf 1)ERROR: Required destination simulator id is missing.$(tput sgr0)"
   exit 1

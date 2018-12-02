@@ -2,17 +2,26 @@ name: "sample-ios-app tests"
 outputDir: "derived-data/Marathon"
 testClassRegexes: ["^((?!Abstract).)*Tests$"]
 poolingStrategy:
-- type: "device-model"
-- type: "os-version"
 - type: "omni"
 batchingStrategy:
   type: "fixed-size"
-  size: 5
+  size: 2
+  lastMileLength: 0
+  timeLimit: -P1D
 debug: true
 filteringConfiguration:
   whitelist:
   - type: "simple-class-name"
-    regex: "StoryboardTests"
+    regex: "^(FailingTests|CrashingTests)$" 
+flakinessStrategy:
+  type: "ignore"
+retryStrategy:
+  type: "no-retry"
+sortingStrategy:
+  type: "execution-time"
+  percentile: 99.0
+  timeLimit: -P1D
+testOutputTimeoutMillis: 60000
 vendorConfiguration:
   type: "iOS"
   derivedDataDir: "derived-data"
