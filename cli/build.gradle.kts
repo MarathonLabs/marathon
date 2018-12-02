@@ -17,7 +17,7 @@ application {
     mainClassName = "com.malinskiy.marathon.cli.ApplicationViewKt"
     applicationName = "marathon"
     applicationDefaultJvmArgs = listOf("-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=1044",
-        "-Dkotlinx.coroutines.experimental.debug=onR")
+        "-Dkotlinx.coroutines.debug=on")
 }
 
 distributions {
