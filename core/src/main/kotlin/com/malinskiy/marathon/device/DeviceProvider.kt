@@ -1,7 +1,7 @@
 package com.malinskiy.marathon.device
 
 import com.malinskiy.marathon.vendor.VendorConfiguration
-import kotlinx.coroutines.experimental.channels.Channel
+import kotlinx.coroutines.channels.Channel
 
 interface DeviceProvider {
     sealed class DeviceEvent {

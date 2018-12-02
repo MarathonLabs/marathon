@@ -2,7 +2,14 @@ package com.malinskiy.marathon.ios.cmd.remote
 
 import ch.qos.logback.classic.Level
 import com.malinskiy.marathon.log.MarathonLogging
-import kotlinx.coroutines.experimental.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.TimeoutCancellationException
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withTimeout
 import net.schmizz.sshj.DefaultConfig
 import net.schmizz.sshj.SSHClient
 import net.schmizz.sshj.common.LoggerFactory
@@ -13,20 +20,20 @@ import java.io.File
 import java.io.IOException
 import java.io.InputStream
 import java.net.InetAddress
-import java.util.concurrent.TimeUnit
 import java.util.concurrent.TimeoutException
-import kotlin.coroutines.experimental.coroutineContext
+import kotlin.coroutines.CoroutineContext
 
 private const val DEFAULT_PORT = 22
 private const val SLEEP_DURATION_MILLIS = 15L
 
-class SshjCommandExecutor(val hostAddress: InetAddress,
+class SshjCommandExecutor(override val coroutineContext: CoroutineContext,
+                          val hostAddress: InetAddress,
                           val remoteUsername: String,
                           val remotePrivateKey: File,
                           val port: Int = DEFAULT_PORT,
                           val knownHostsPath: File? = null,
                           private val timeoutMillis: Long = CommandExecutor.DEFAULT_SSH_CONNECTION_TIMEOUT_MILLIS,
-                          verbose: Boolean = false) : CommandExecutor {
+                          verbose: Boolean = false) : CommandExecutor, CoroutineScope {
 
     private val ssh: SSHClient
 
@@ -163,7 +170,7 @@ class SshjCommandExecutor(val hostAddress: InetAddress,
                         break
                     }
                     // sleep for a moment
-                    delay(SLEEP_DURATION_MILLIS, TimeUnit.MILLISECONDS)
+                    delay(SLEEP_DURATION_MILLIS)
                 } else {
                     lineBuffer.append(byteArray, count)
                 }

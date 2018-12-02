@@ -1,6 +1,6 @@
 package com.malinskiy.marathon.ios.cmd.remote
 
-import kotlinx.coroutines.experimental.delay
+import kotlinx.coroutines.delay
 
 class SshjCommandOutputTimeoutHandlerImpl(
         private val testOutputTimeoutMillis: Long,

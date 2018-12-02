@@ -1,21 +1,25 @@
 package com.malinskiy.marathon.actor
 
-import kotlinx.coroutines.experimental.Job
-import kotlinx.coroutines.experimental.channels.Channel
-import kotlinx.coroutines.experimental.channels.SendChannel
-import kotlinx.coroutines.experimental.channels.actor
-import kotlinx.coroutines.experimental.selects.SelectClause2
-import kotlin.coroutines.experimental.CoroutineContext
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.channels.SendChannel
+import kotlinx.coroutines.channels.actor
+import kotlinx.coroutines.selects.SelectClause2
+import kotlin.coroutines.CoroutineContext
 
 abstract class Actor<in T>(parent: Job? = null,
-                           context: CoroutineContext) : SendChannel<T> {
+                           val context: CoroutineContext) : SendChannel<T>, CoroutineScope {
+
     protected abstract suspend fun receive(msg: T)
+    override val coroutineContext: CoroutineContext
+        get() = context + actorJob
+
     private val actorJob = Job(parent)
 
     private val delegate = actor<T>(
             capacity = Channel.UNLIMITED,
-            parent = actorJob,
-            context = context
+            context = coroutineContext
     ) {
         for (msg in channel) {
             receive(msg)
@@ -33,7 +37,10 @@ abstract class Actor<in T>(parent: Job? = null,
         delegate.invokeOnClose(handler)
     }
 
-    override fun close(cause: Throwable?): Boolean = actorJob.cancel()
+    override fun close(cause: Throwable?): Boolean {
+        actorJob.cancel()
+        return true
+    }
 
     override fun offer(element: T): Boolean = delegate.offer(element)
 

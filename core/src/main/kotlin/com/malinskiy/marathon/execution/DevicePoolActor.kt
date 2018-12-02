@@ -1,6 +1,7 @@
 package com.malinskiy.marathon.execution
 
 import com.malinskiy.marathon.actor.Actor
+import com.malinskiy.marathon.actor.safeSend
 import com.malinskiy.marathon.analytics.Analytics
 import com.malinskiy.marathon.device.Device
 import com.malinskiy.marathon.device.DevicePoolId
@@ -12,9 +13,9 @@ import com.malinskiy.marathon.execution.queue.QueueMessage
 import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.test.Test
 import com.malinskiy.marathon.test.TestBatch
-import kotlinx.coroutines.experimental.Job
-import kotlinx.coroutines.experimental.channels.SendChannel
-import kotlin.coroutines.experimental.CoroutineContext
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.channels.SendChannel
+import kotlin.coroutines.CoroutineContext
 
 class DevicePoolActor(private val poolId: DevicePoolId,
                       private val configuration: Configuration,
@@ -22,7 +23,7 @@ class DevicePoolActor(private val poolId: DevicePoolId,
                       tests: Collection<Test>,
                       private val progressReporter: ProgressReporter,
                       parent: Job,
-                      private val context: CoroutineContext) :
+                      context: CoroutineContext) :
         Actor<DevicePoolMessage>(parent = parent, context = context) {
 
     private val logger = MarathonLogging.logger("DevicePoolActor[${poolId.name}]")
@@ -53,18 +54,14 @@ class DevicePoolActor(private val poolId: DevicePoolId,
 
     private suspend fun notifyDevices() {
         logger.debug { "Notify devices" }
-        devices.filter {
-            !it.value.isClosedForSend
-        }.forEach {
-            it.value.send(DeviceEvent.WakeUp)
+        devices.values.forEach {
+            it.safeSend(DeviceEvent.WakeUp)
         }
     }
 
     private suspend fun onQueueTerminated() {
-        devices.filterValues {
-            !it.isClosedForSend
-        }.forEach {
-            it.value.send(DeviceEvent.Terminate)
+        devices.values.forEach {
+            it.safeSend(DeviceEvent.Terminate)
         }
         terminate()
     }
@@ -83,9 +80,7 @@ class DevicePoolActor(private val poolId: DevicePoolId,
 
     private suspend fun executeBatch(device: Device, batch: TestBatch) {
         devices[device.serialNumber]?.run {
-            if (!isClosedForSend) {
-                send(DeviceEvent.Execute(batch))
-            }
+            safeSend(DeviceEvent.Execute(batch))
         }
     }
 
@@ -97,7 +92,7 @@ class DevicePoolActor(private val poolId: DevicePoolId,
     private suspend fun removeDevice(device: Device) {
         logger.debug { "remove device ${device.serialNumber}" }
         val actor = devices.remove(device.serialNumber)
-        actor?.send(DeviceEvent.Terminate)
+        actor?.safeSend(DeviceEvent.Terminate)
         logger.debug { "devices.size = ${devices.size}" }
         if (noActiveDevices()) {
             //TODO check if we still have tests and timeout if nothing available
@@ -114,8 +109,8 @@ class DevicePoolActor(private val poolId: DevicePoolId,
         }
 
         logger.debug { "add device ${device.serialNumber}" }
-        val actor = DeviceActor(poolId, this, configuration, device, progressReporter, poolJob, context)
+        val actor = DeviceActor(poolId, this, configuration, device, progressReporter, poolJob, coroutineContext)
         devices[device.serialNumber] = actor
-        actor.send(DeviceEvent.Initialize)
+        actor.safeSend(DeviceEvent.Initialize)
     }
 }

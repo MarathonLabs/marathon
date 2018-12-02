@@ -11,8 +11,6 @@ plugins {
     id("org.junit.platform.gradle.plugin")
 }
 
-kotlin.experimental.coroutines = Coroutines.ENABLE
-
 dependencies {
     implementation(Libraries.gson)
     implementation(Libraries.kotlinStdLib)
@@ -27,7 +25,7 @@ Deployment.initialize(project)
 
 tasks.withType<KotlinCompile> {
     kotlinOptions.jvmTarget = "1.8"
-    kotlinOptions.apiVersion = "1.2"
+    kotlinOptions.apiVersion = "1.3"
 }
 
 junitPlatform {

@@ -10,8 +10,9 @@ import com.malinskiy.marathon.device.DevicePoolId
 import com.malinskiy.marathon.io.FileManager
 import com.malinskiy.marathon.io.FileType
 import com.malinskiy.marathon.log.MarathonLogging
-import kotlinx.coroutines.experimental.NonCancellable.isActive
-import kotlinx.coroutines.experimental.delay
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
 import org.imgscalr.Scalr
 import java.awt.image.BufferedImage
 import java.awt.image.BufferedImage.TYPE_INT_ARGB
@@ -27,7 +28,7 @@ class ScreenCapturer(val device: AndroidDevice,
                      private val fileManager: FileManager,
                      val test: TestIdentifier) {
 
-    suspend fun start() {
+    suspend fun start() = coroutineScope {
         val outputStream = FileImageOutputStream(fileManager.createFile(FileType.SCREENSHOT, poolId, device, test.toTest()))
         val writer = GifSequenceWriter(outputStream, TYPE_INT_ARGB, DELAY, true)
         while (isActive) {

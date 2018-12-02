@@ -14,12 +14,13 @@ import com.malinskiy.marathon.execution.progress.ProgressReporter
 import com.malinskiy.marathon.execution.withRetry
 import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.test.TestBatch
-import kotlinx.coroutines.experimental.CompletableDeferred
-import kotlinx.coroutines.experimental.Job
-import kotlinx.coroutines.experimental.async
-import kotlinx.coroutines.experimental.channels.SendChannel
-import kotlinx.coroutines.experimental.launch
-import kotlin.coroutines.experimental.CoroutineContext
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.async
+import kotlinx.coroutines.channels.SendChannel
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.launch
+import kotlin.coroutines.CoroutineContext
 import kotlin.properties.Delegates
 
 class DeviceActor(private val devicePoolId: DevicePoolId,
@@ -28,10 +29,8 @@ class DeviceActor(private val devicePoolId: DevicePoolId,
                   private val device: Device,
                   private val progressReporter: ProgressReporter,
                   parent: Job,
-                  private val coroutineContext: CoroutineContext) :
-        Actor<DeviceEvent>(parent = parent, context = coroutineContext) {
-
-    private val deviceJob = Job(parent)
+                  context: CoroutineContext) :
+        Actor<DeviceEvent>(parent = parent, context = context) {
 
     private val state = StateMachine.create<DeviceState, DeviceEvent, DeviceAction> {
         initialState(DeviceState.Connected)
@@ -105,7 +104,7 @@ class DeviceActor(private val devicePoolId: DevicePoolId,
                 }
                 is DeviceAction.Terminate -> {
                     val batch = sideEffect.batch
-                    if(batch == null) {
+                    if (batch == null) {
                         terminate()
                     } else {
                         returnBatch(batch).invokeOnCompletion {
@@ -130,7 +129,7 @@ class DeviceActor(private val devicePoolId: DevicePoolId,
     }
 
     private fun requestNextBatch(result: CompletableDeferred<TestBatchResults>?) {
-        launch(parent = deviceJob, context = coroutineContext) {
+        launch {
             if (result != null) {
                 val testResults = result.await()
                 pool.send(DevicePoolMessage.FromDevice.CompletedTestBatch(device, testResults))
@@ -155,9 +154,9 @@ class DeviceActor(private val devicePoolId: DevicePoolId,
 
     private fun initialize() {
         logger.debug { "initialize ${device.serialNumber}" }
-        job = launch(context = coroutineContext, parent = deviceJob) {
+        job = launch {
             withRetry(30, 10000) {
-                if(isActive) {
+                if (isActive) {
                     try {
                         device.prepare(configuration)
                     } catch (e: Exception) {
@@ -171,12 +170,12 @@ class DeviceActor(private val devicePoolId: DevicePoolId,
 
     private fun executeBatch(batch: TestBatch, result: CompletableDeferred<TestBatchResults>) {
         logger.debug { "executeBatch ${device.serialNumber}" }
-        job = async(coroutineContext, parent = deviceJob) {
+        job = async {
             try {
                 device.execute(configuration, devicePoolId, batch, result, progressReporter)
             } catch (e: DeviceLostException) {
                 logger.error(e) { "Critical error during execution" }
-                returnBatch(batch)
+                state.transition(DeviceEvent.Terminate)
             } catch (e: TestBatchExecutionException) {
                 returnBatch(batch)
             }
@@ -184,7 +183,7 @@ class DeviceActor(private val devicePoolId: DevicePoolId,
     }
 
     private fun returnBatch(batch: TestBatch): Job {
-        return launch(parent = deviceJob, context = coroutineContext) {
+        return launch {
             pool.send(DevicePoolMessage.FromDevice.ReturnTestBatch(device, batch))
         }
     }
@@ -192,7 +191,6 @@ class DeviceActor(private val devicePoolId: DevicePoolId,
     private fun terminate() {
         logger.debug { "terminate ${device.serialNumber}" }
         job?.cancel()
-        deviceJob.cancel()
         close()
     }
 }

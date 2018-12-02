@@ -14,15 +14,21 @@ import com.malinskiy.marathon.execution.TestBatchResults
 import com.malinskiy.marathon.execution.progress.ProgressReporter
 import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.test.TestBatch
-import kotlinx.coroutines.experimental.CompletableDeferred
-import kotlinx.coroutines.experimental.launch
-import kotlinx.coroutines.experimental.newFixedThreadPoolContext
-import java.util.UUID
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.async
+import kotlinx.coroutines.newFixedThreadPoolContext
+import java.util.*
+import kotlin.coroutines.CoroutineContext
 
-class AndroidDevice(val ddmsDevice: IDevice) : Device {
+class AndroidDevice(val ddmsDevice: IDevice) : Device, CoroutineScope {
+    private val dispatcher by lazy {
+        newFixedThreadPoolContext(1, "AndroidDevice - execution - ${ddmsDevice.serialNumber}")
+    }
+
+    override val coroutineContext: CoroutineContext = dispatcher
 
     val logger = MarathonLogging.logger(AndroidDevice::class.java.simpleName)
-    private val deviceContext = newFixedThreadPoolContext(1, ddmsDevice.serialNumber)
 
     override val abi: String by lazy {
         ddmsDevice.getProperty("ro.product.cpu.abi") ?: "Unknown"
@@ -100,22 +106,24 @@ class AndroidDevice(val ddmsDevice: IDevice) : Device {
                                  deferred: CompletableDeferred<TestBatchResults>,
                                  progressReporter: ProgressReporter) {
 
-        launch(deviceContext) {
+        val deferredResult = async {
             AndroidDeviceTestRunner(this@AndroidDevice).execute(configuration, devicePoolId, testBatch, deferred, progressReporter)
         }
+        deferredResult.await()
     }
 
     override suspend fun prepare(configuration: Configuration) {
-        launch(deviceContext) {
+        val deferred = async {
             AndroidAppInstaller(configuration).prepareInstallation(this@AndroidDevice)
             RemoteFileManager.removeRemoteDirectory(ddmsDevice)
             RemoteFileManager.createRemoteDirectory(ddmsDevice)
             clearLogcat(ddmsDevice)
         }
+        deferred.await()
     }
 
     override fun dispose() {
-        deviceContext.close()
+        dispatcher.close()
     }
 
     private fun clearLogcat(device: IDevice) {

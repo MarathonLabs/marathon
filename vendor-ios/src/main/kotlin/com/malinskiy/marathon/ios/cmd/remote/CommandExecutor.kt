@@ -1,7 +1,5 @@
 package com.malinskiy.marathon.ios.cmd.remote
 
-import kotlinx.coroutines.experimental.Deferred
-
 interface CommandExecutor {
     companion object {
         val DEFAULT_SSH_CONNECTION_TIMEOUT_MILLIS: Long

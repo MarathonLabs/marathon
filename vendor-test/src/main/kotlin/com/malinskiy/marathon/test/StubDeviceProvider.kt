@@ -3,12 +3,16 @@ package com.malinskiy.marathon.test
 import com.malinskiy.marathon.actor.unboundedChannel
 import com.malinskiy.marathon.device.DeviceProvider
 import com.malinskiy.marathon.vendor.VendorConfiguration
-import kotlinx.coroutines.experimental.channels.Channel
-import kotlinx.coroutines.experimental.launch
-import kotlin.coroutines.experimental.CoroutineContext
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.launch
+import kotlin.coroutines.CoroutineContext
 
-class StubDeviceProvider() : DeviceProvider {
-    lateinit var coroutineContext: CoroutineContext
+class StubDeviceProvider : DeviceProvider, CoroutineScope {
+    lateinit var context: CoroutineContext
+
+    override val coroutineContext: kotlin.coroutines.CoroutineContext
+        get() = context
 
     private val channel: Channel<DeviceProvider.DeviceEvent> = unboundedChannel()
     var providingLogic: (suspend (Channel<DeviceProvider.DeviceEvent>) -> Unit)? = null

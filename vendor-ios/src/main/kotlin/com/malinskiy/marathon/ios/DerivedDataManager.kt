@@ -5,11 +5,9 @@ import com.github.fracpete.rsync4j.RSync
 import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.report.html.relativePathTo
-import kotlinx.coroutines.experimental.sync.Mutex
 import java.io.File
 import java.io.FileNotFoundException
 import java.util.concurrent.ConcurrentHashMap
-import java.util.concurrent.atomic.AtomicReference
 import java.util.concurrent.locks.Lock
 import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.withLock
@@ -20,7 +18,7 @@ class DerivedDataManager(val configuration: Configuration) {
     companion object {
         private val hostnameLocksMap = ConcurrentHashMap<String, Lock>()
 
-        private val atomicMap = hashMapOf<String, Mutex>()
+        private val atomicMap = hashMapOf<String, Lock>()
     }
 
     private val logger = MarathonLogging.logger(javaClass.simpleName)

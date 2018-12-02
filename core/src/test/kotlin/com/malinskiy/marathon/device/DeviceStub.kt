@@ -4,7 +4,7 @@ import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.execution.TestBatchResults
 import com.malinskiy.marathon.execution.progress.ProgressReporter
 import com.malinskiy.marathon.test.TestBatch
-import kotlinx.coroutines.experimental.CompletableDeferred
+import kotlinx.coroutines.CompletableDeferred
 
 class DeviceStub(override var operatingSystem: OperatingSystem = OperatingSystem("25"),
                  override var serialNumber: String = "serialNumber",

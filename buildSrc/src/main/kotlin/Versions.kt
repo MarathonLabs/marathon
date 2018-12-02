@@ -1,8 +1,8 @@
 object Versions {
     val marathon = System.getenv("DEPLOY_VERSION_OVERRIDE") ?: "0.2.2"
 
-    val kotlin = "1.2.61"
-    val coroutines = "0.25.0"
+    val kotlin = "1.3.10"
+    val coroutines = "1.0.1"
 
     val ddmlib = "26.2.0"
     val dexTestParser = "2.0.0"
@@ -39,6 +39,7 @@ object Versions {
     val jupiterEngine = "5.1.0"
     val jansi = "1.17.1"
     val scalr = "4.2"
+    val mockitoKotlin = "2.0.0"
 }
 
 object BuildPlugins {
@@ -89,6 +90,7 @@ object TestLibraries {
     val espressoContrib = "com.android.support.test.espresso:espresso-contrib:${Versions.espresso}"
     val espressoIntents = "com.android.support.test.espresso:espresso-intents:${Versions.espresso}"
     val junit = "junit:junit:${Versions.junit}"
+    val mockitoKotlin = "com.nhaarman.mockitokotlin2:mockito-kotlin:${Versions.mockitoKotlin}"
     val jupiterEngine = "org.junit.jupiter:junit-jupiter-engine:${Versions.jupiterEngine}"
 
     val testContainers = "org.testcontainers:testcontainers:${Versions.testContainers}"

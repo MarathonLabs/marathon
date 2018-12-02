@@ -10,7 +10,7 @@ import com.malinskiy.marathon.ios.logparser.listener.TestLogListener
 import com.malinskiy.marathon.ios.logparser.parser.*
 import com.malinskiy.marathon.test.TestBatch
 import com.malinskiy.marathon.time.SystemTimer
-import kotlinx.coroutines.experimental.CompletableDeferred
+import kotlinx.coroutines.CompletableDeferred
 
 class IOSDeviceLogParser(device: Device,
                          packageNameFormatter: PackageNameFormatter,

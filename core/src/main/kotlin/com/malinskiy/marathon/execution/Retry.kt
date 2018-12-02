@@ -1,6 +1,6 @@
 package com.malinskiy.marathon.execution
 
-import kotlinx.coroutines.experimental.delay
+import kotlinx.coroutines.delay
 
 @Suppress("TooGenericExceptionCaught")
 suspend fun withRetry(attempts: Int, delayTime: Long = 0, f: suspend () -> Unit) {

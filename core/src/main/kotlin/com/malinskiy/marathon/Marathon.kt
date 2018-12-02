@@ -20,15 +20,10 @@ import com.malinskiy.marathon.report.internal.TestResultReporter
 import com.malinskiy.marathon.test.Test
 import com.malinskiy.marathon.test.toTestName
 import com.malinskiy.marathon.vendor.VendorConfiguration
-import kotlinx.coroutines.experimental.IO
-import kotlinx.coroutines.experimental.delay
-import kotlinx.coroutines.experimental.launch
-import kotlinx.coroutines.experimental.newFixedThreadPoolContext
-import kotlinx.coroutines.experimental.runBlocking
-import kotlinx.coroutines.experimental.withContext
+import kotlinx.coroutines.runBlocking
 import java.util.ServiceLoader
 import java.util.concurrent.TimeUnit
-import kotlin.coroutines.experimental.coroutineContext
+import kotlin.coroutines.coroutineContext
 import kotlin.system.measureTimeMillis
 
 private val log = MarathonLogging.logger {}

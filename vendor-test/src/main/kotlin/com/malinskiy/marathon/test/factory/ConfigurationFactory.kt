@@ -6,8 +6,7 @@ import com.malinskiy.marathon.test.Mocks
 import com.malinskiy.marathon.test.StubDeviceProvider
 import com.malinskiy.marathon.test.Test
 import com.malinskiy.marathon.test.TestVendorConfiguration
-import com.malinskiy.marathon.vendor.VendorConfiguration
-import kotlinx.coroutines.experimental.channels.Channel
+import kotlinx.coroutines.channels.Channel
 import org.amshove.kluent.When
 import org.amshove.kluent.`it returns`
 import org.amshove.kluent.any

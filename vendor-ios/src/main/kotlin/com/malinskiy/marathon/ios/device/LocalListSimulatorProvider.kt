@@ -9,20 +9,20 @@ import com.malinskiy.marathon.ios.IOSConfiguration
 import com.malinskiy.marathon.ios.IOSDevice
 import com.malinskiy.marathon.ios.cmd.remote.SshjCommandExecutor
 import com.malinskiy.marathon.log.MarathonLogging
-import kotlinx.coroutines.experimental.Job
-import kotlinx.coroutines.experimental.cancelAndJoin
-import kotlinx.coroutines.experimental.channels.Channel
-import kotlinx.coroutines.experimental.delay
-import kotlinx.coroutines.experimental.launch
+import kotlinx.coroutines.*
 import java.io.File
 import java.net.InetAddress
-import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicReference
+
+import kotlinx.coroutines.channels.Channel
+import kotlin.coroutines.CoroutineContext
 
 class LocalListSimulatorProvider(private val channel: Channel<DeviceProvider.DeviceEvent>,
                                  private val configuration: IOSConfiguration,
                                  yamlObjectMapper: ObjectMapper,
-                                 private val gson: Gson) : SimulatorProvider {
+                                 private val gson: Gson) : SimulatorProvider, CoroutineScope {
+
+    override val coroutineContext: CoroutineContext by lazy { newFixedThreadPoolContext(1, "LocalListSimulatorProvider") }
 
     private val logger = MarathonLogging.logger(LocalListSimulatorProvider::class.java.simpleName)
 
@@ -31,8 +31,11 @@ class LocalListSimulatorProvider(private val channel: Channel<DeviceProvider.Dev
         val file = configuration.devicesFile ?: File(System.getProperty("user.dir"), "Marathondevices")
         val simulators: List<RemoteSimulator>? = yamlObjectMapper.readValue(file)
         devices = simulators?.map {
-            IOSDevice(udid = it.udid,
+            val deviceContext = newFixedThreadPoolContext(1, it.udid)
+            IOSDevice(deviceContext = deviceContext,
+                    udid = it.udid,
                     hostCommandExecutor = SshjCommandExecutor(
+                            coroutineContext = deviceContext,
                             hostAddress = InetAddress.getByName(it.host),
                             remoteUsername = it.username ?: configuration.remoteUsername,
                             remotePrivateKey = configuration.remotePrivateKey,
@@ -69,7 +72,7 @@ class LocalListSimulatorProvider(private val channel: Channel<DeviceProvider.Dev
         }
         val job = launch {
             while (true) {
-                delay(1L, TimeUnit.SECONDS)
+                delay(1000L)
 
                 devices.filterNot { it.healthy }.forEach {
                     logger.debug { "Disconnected unhealthy simulator: ${it.serialNumber}" }
