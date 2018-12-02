@@ -6,7 +6,7 @@ import org.junit.platform.gradle.plugin.EnginesExtension
 import org.junit.platform.gradle.plugin.JUnitPlatformExtension
 
 plugins {
-    `application`
+    application
     id("idea")
     id("org.jetbrains.kotlin.jvm")
     id("org.junit.platform.gradle.plugin")
@@ -22,7 +22,11 @@ val coroutinesJvmOptions = when(debugCoroutines) {
 application {
     mainClassName = "com.malinskiy.marathon.cli.ApplicationViewKt"
     applicationName = "marathon"
-    applicationDefaultJvmArgs = listOf("-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=1044", coroutinesJvmOptions)
+    applicationDefaultJvmArgs = listOf(
+        "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=1044",
+        coroutinesJvmOptions
+    )
+    .filter { it.isNotBlank() }
 }
 
 distributions {
