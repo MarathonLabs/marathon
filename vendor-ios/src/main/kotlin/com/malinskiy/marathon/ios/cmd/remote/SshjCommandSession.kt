@@ -1,6 +1,7 @@
 package com.malinskiy.marathon.ios.cmd.remote
 
 import net.schmizz.sshj.SSHClient
+import net.schmizz.sshj.connection.channel.direct.Signal
 import java.io.InputStream
 import java.io.OutputStream
 
@@ -21,6 +22,9 @@ class SshjCommandSession(executableLine: String, ssh: SSHClient, private val tim
     override val isOpen: Boolean
         get() = command.isOpen()
 
+    override fun kill() {
+        command.signal(Signal.INT)
+    }
 
     override fun close() { command.close() }
 

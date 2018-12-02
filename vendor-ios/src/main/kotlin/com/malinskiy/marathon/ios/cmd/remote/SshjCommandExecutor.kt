@@ -120,6 +120,12 @@ class SshjCommandExecutor(val hostAddress: InetAddress,
                     }
                 ).awaitAll()
             }
+        } catch (e: TimeoutCancellationException) {
+            try {
+                session.kill()
+            } catch (e: TransportException) {}
+
+            throw TimeoutException(e.message)
         } finally {
             try {
                 session.close()
