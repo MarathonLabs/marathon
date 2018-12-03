@@ -8,9 +8,9 @@ class SshjCommandOutputLineBuffer(private val onLine: (String) -> Unit): Closeab
     fun append(bytes: ByteArray) = append(bytes, bytes.size)
 
     fun append(bytes: ByteArray, count: Int) =
-            synchronized(stringBuffer) {
-                stringBuffer.append(String(bytes, 0, count))
-            }
+        synchronized(stringBuffer) {
+            stringBuffer.append(String(bytes, 0, count))
+        }
 
 
     fun flush() {
