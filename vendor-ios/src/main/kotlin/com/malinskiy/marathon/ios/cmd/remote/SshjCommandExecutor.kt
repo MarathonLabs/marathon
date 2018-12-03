@@ -86,24 +86,20 @@ class SshjCommandExecutor(deviceContext: CoroutineContext,
         logger.debug("Execution starts at ${startTime}ms")
         logger.debug(command)
 
-        val executionTimeout = if (timeoutMillis == 0L) Long.MAX_VALUE else timeoutMillis
-
-        val timeoutHandler = SshjCommandOutputWaiterImpl(
-            testOutputTimeoutMillis,
-            SLEEP_DURATION_MILLIS
-        )
-
-        val isSessionReadable = { session.isOpen and !session.isEOF }
-
         try {
+            val executionTimeout = if (timeoutMillis == 0L) Long.MAX_VALUE else timeoutMillis
             withTimeout(executionTimeout) {
+
+                val timeoutWaiter = SshjCommandOutputWaiterImpl(testOutputTimeoutMillis, SLEEP_DURATION_MILLIS)
+                val isSessionReadable = { session.isOpen and !session.isEOF }
+
                 awaitAll(
                     async {
                         readLines(session.inputStream,
                             isSessionReadable,
                             {
+                                timeoutWaiter.update()
                                 onLine(it)
-                                timeoutHandler.update()
                             }
                         )
                     },
@@ -111,17 +107,17 @@ class SshjCommandExecutor(deviceContext: CoroutineContext,
                         readLines(session.errorStream,
                             isSessionReadable,
                             {
+                                timeoutWaiter.update()
                                 onLine(it)
-                                timeoutHandler.update()
                             }
                         )
                     },
                     async {
                         while (isActive and isSessionReadable()) {
-                            if (timeoutHandler.isExpired) {
+                            if (timeoutWaiter.isExpired) {
                                 throw SshjCommandUnresponsiveException("Remote command \n\u001b[1m$command\u001b[0mdid not send any output over ${testOutputTimeoutMillis}ms")
                             }
-                            timeoutHandler.wait()
+                            timeoutWaiter.wait()
                         }
                     }
                 )
@@ -176,12 +172,6 @@ class SshjCommandExecutor(deviceContext: CoroutineContext,
 
                 // immediately send any full lines for parsing
                 lineBuffer.flush()
-
-                // make sure total execution time isn't too much
-                // TODO: this is a duplicate timeout handler, already covered by withTimeout() use
-                if (timeoutMillis > 0 && System.currentTimeMillis() - startTime > timeoutMillis) {
-                    throw TimeoutException("Remote command execution timeout after ${timeoutMillis}ms")
-                }
             }
         }
     }
