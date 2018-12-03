@@ -30,6 +30,7 @@ class MetricsProviderFactorySpek : Spek({
                     testClassRegexes = null,
                     includeSerialRegexes = null,
                     excludeSerialRegexes = null,
+                    timeoutMillis = null,
                     testOutputTimeoutMillis = null,
                     debug = null,
                     vendorConfiguration = object : VendorConfiguration {

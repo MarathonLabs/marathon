@@ -6,10 +6,14 @@ import com.malinskiy.marathon.report.html.relativePathTo
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
 import org.amshove.kluent.shouldEqual
+import org.amshove.kluent.shouldNotEqual
 import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.describe
 import org.jetbrains.spek.api.dsl.given
 import org.jetbrains.spek.api.dsl.it
+import org.jetbrains.spek.api.dsl.on
+import org.jetbrains.spek.api.dsl.xdescribe
+import org.jetbrains.spek.api.dsl.xon
 import org.testcontainers.containers.BindMode
 import org.testcontainers.containers.GenericContainer
 import java.io.File
@@ -34,16 +38,23 @@ object DerivedDataManagerSpek: Spek({
         // https://github.com/testcontainers/testcontainers-java/issues/318
         class KGenericContainer(imageName: String) : GenericContainer<KGenericContainer>(imageName)
 
-        val container = KGenericContainer("axiom/rsync-server")
-                .withClasspathResourceMapping(publicKeyResourcePath, "/root/.ssh/authorized_keys", BindMode.READ_WRITE)
-                .withExposedPorts(22, 873)
+        lateinit var container: KGenericContainer
+        lateinit var containerHost: String
+        var sshPort: Int = 0
 
-        container.start()
+        beforeGroup {
 
-        val containerHost = container.containerIpAddress
-        val sshPort = container.getMappedPort(22)
+            container = KGenericContainer("axiom/rsync-server")
+                    .withClasspathResourceMapping(publicKeyResourcePath, "/root/.ssh/authorized_keys", BindMode.READ_WRITE)
+                    .withExposedPorts(22, 873)
 
-        given("what follows") {
+            container.start()
+
+            containerHost = container.containerIpAddress
+            sshPort = container.getMappedPort(22)
+        }
+
+        on("connection") {
             val sourceRoot = File(javaClass.classLoader.getResource("sample-xcworkspace/sample-appUITests").file)
             val derivedDataDir = File(javaClass.classLoader.getResource("sample-xcworkspace/derived-data").file)
             val xctestrunPath = File(javaClass.classLoader.getResource("sample-xcworkspace/derived-data/Build/Products/UITesting_iphonesimulator11.2-x86_64.xctestrun").file)
@@ -63,6 +74,7 @@ object DerivedDataManagerSpek: Spek({
                     testClassRegexes = null,
                     includeSerialRegexes = null,
                     excludeSerialRegexes = null,
+                    timeoutMillis = null,
                     testOutputTimeoutMillis = null,
                     debug = false,
                     vendorConfiguration =  IOSConfiguration(
@@ -75,6 +87,8 @@ object DerivedDataManagerSpek: Spek({
                             sourceRoot = sourceRoot,
                             debugSsh = false)
             )
+
+            sshPort shouldNotEqual 0
 
             it("should determine products location") {
                 val manager = DerivedDataManager(configuration = configuration)

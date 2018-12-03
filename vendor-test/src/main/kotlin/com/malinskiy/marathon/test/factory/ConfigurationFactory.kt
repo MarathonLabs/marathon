@@ -32,6 +32,7 @@ class ConfigurationFactory {
     var shardingStrategy = null
     var sortingStrategy = null
     var testClassRegexes = null
+    var timeoutMillis = null
     var testOutputTimeoutMillis = null
 
     fun tests(block: () -> List<Test>) {
@@ -61,6 +62,7 @@ class ConfigurationFactory {
                     testClassRegexes,
                     includeSerialRegexes,
                     excludeSerialRegexes,
+                    timeoutMillis,
                     testOutputTimeoutMillis,
                     debug,
                     vendorConfiguration)
