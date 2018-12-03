@@ -50,6 +50,7 @@ excludeSerialRegexes: []
 ignoreFailures: false
 isCodeCoverageEnabled: false
 fallbackToScreenshots: false
+timeoutMillis: 20000
 testOutputTimeoutMillis: 30000
 debug: true
 vendorConfiguration:

@@ -135,6 +135,7 @@ class IOSDevice(simulator: RemoteSimulator,
             async {
                 hostCommandExecutor.exec(
                     command,
+                    configuration.timeoutMillis,
                     configuration.testOutputTimeoutMillis,
                     logParser::onLine
                 )

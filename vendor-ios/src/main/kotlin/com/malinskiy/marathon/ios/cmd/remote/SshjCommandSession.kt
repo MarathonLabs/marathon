@@ -5,7 +5,7 @@ import net.schmizz.sshj.connection.channel.direct.Signal
 import java.io.InputStream
 import java.io.OutputStream
 
-class SshjCommandSession(executableLine: String, ssh: SSHClient, private val timeoutMillis: Long): CommandSession {
+class SshjCommandSession(executableLine: String, ssh: SSHClient): CommandSession {
     private val session = ssh.startSession()
     private val command = session.exec(executableLine)
 

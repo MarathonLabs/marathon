@@ -25,7 +25,6 @@ class SshjCommandExecutor(deviceContext: CoroutineContext,
                           val remotePrivateKey: File,
                           val port: Int = DEFAULT_PORT,
                           val knownHostsPath: File? = null,
-                          private val timeoutMillis: Long = CommandExecutor.DEFAULT_SSH_CONNECTION_TIMEOUT_MILLIS,
                           verbose: Boolean = false) : CommandExecutor, CoroutineScope {
 
     override val coroutineContext: CoroutineContext = deviceContext
@@ -66,8 +65,8 @@ class SshjCommandExecutor(deviceContext: CoroutineContext,
         MarathonLogging.logger(SshjCommandExecutor::class.java.simpleName)
     }
 
-    override fun startSession(command: String, timeoutMillis: Long): CommandSession {
-        return SshjCommandSession(command, ssh, timeoutMillis)
+    override fun startSession(command: String): CommandSession {
+        return SshjCommandSession(command, ssh)
     }
 
     override fun disconnect() {
@@ -79,8 +78,8 @@ class SshjCommandExecutor(deviceContext: CoroutineContext,
         }
     }
 
-    override suspend fun exec(command: String, testOutputTimeoutMillis: Long, onLine: (String) -> Unit): Int? {
-        val session = startSession(command, timeoutMillis)
+    override suspend fun exec(command: String, timeoutMillis: Long, testOutputTimeoutMillis: Long, onLine: (String) -> Unit): Int? {
+        val session = startSession(command)
 
         val startTime = System.currentTimeMillis()
         logger.debug("Execution starts at ${startTime}ms")
@@ -176,15 +175,11 @@ class SshjCommandExecutor(deviceContext: CoroutineContext,
         }
     }
 
-    override fun exec(command: String, testOutputTimeoutMillis: Long): CommandResult {
+    override fun exec(command: String, timeoutMillis: Long, testOutputTimeoutMillis: Long): CommandResult {
         val lines = arrayListOf<String>()
         val exitStatus =
                 runBlocking() {
-                    try {
-                        exec(command, testOutputTimeoutMillis) { lines.add(it) }
-                    } catch (e: TimeoutCancellationException) {
-                        throw TimeoutException(e.message)
-                    }
+                    exec(command, timeoutMillis, testOutputTimeoutMillis) { lines.add(it) }
                 }
         return CommandResult(lines.joinToString("\n"), "", exitStatus ?: 1)
     }

@@ -124,7 +124,8 @@ object ConfigFactorySpec : Spek({
                 configuration.ignoreFailures shouldEqual false
                 configuration.isCodeCoverageEnabled shouldEqual false
                 configuration.fallbackToScreenshots shouldEqual false
-                configuration.testOutputTimeoutMillis shouldEqual 30000
+                configuration.timeoutMillis shouldEqual 20_000
+                configuration.testOutputTimeoutMillis shouldEqual 30_000
                 configuration.debug shouldEqual true
 
                 configuration.vendorConfiguration shouldEqual AndroidConfiguration(
@@ -164,7 +165,8 @@ object ConfigFactorySpec : Spek({
                 configuration.ignoreFailures shouldEqual false
                 configuration.isCodeCoverageEnabled shouldEqual false
                 configuration.fallbackToScreenshots shouldEqual false
-                configuration.testOutputTimeoutMillis shouldEqual 60000
+                configuration.timeoutMillis shouldEqual 900_000
+                configuration.testOutputTimeoutMillis shouldEqual 60_000
                 configuration.debug shouldEqual true
                 configuration.vendorConfiguration shouldEqual AndroidConfiguration(
                         File("/local/android"),

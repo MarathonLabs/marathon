@@ -15,6 +15,7 @@ import com.malinskiy.marathon.execution.strategy.impl.sorting.NoSortingStrategy
 import com.malinskiy.marathon.vendor.VendorConfiguration
 import java.io.File
 
+private const val DEFAULT_EXECUTION_TIMEOUT_MILLIS: Long = 900_000
 private const val DEFAULT_OUTPUT_TIMEOUT_MILLIS: Long = 60_000
 
 data class Configuration constructor(
@@ -38,6 +39,7 @@ data class Configuration constructor(
         val includeSerialRegexes: Collection<Regex>,
         val excludeSerialRegexes: Collection<Regex>,
 
+        val timeoutMillis: Long,
         val testOutputTimeoutMillis: Long,
         val debug: Boolean,
 
@@ -63,6 +65,7 @@ data class Configuration constructor(
                 includeSerialRegexes: Collection<Regex>?,
                 excludeSerialRegexes: Collection<Regex>?,
 
+                timeoutMillis: Long?,
                 testOutputTimeoutMillis: Long?,
                 debug: Boolean?,
 
@@ -84,6 +87,7 @@ data class Configuration constructor(
                     testClassRegexes = testClassRegexes ?: listOf(Regex("^((?!Abstract).)*Test$")),
                     includeSerialRegexes = includeSerialRegexes ?: emptyList(),
                     excludeSerialRegexes = excludeSerialRegexes ?: emptyList(),
+                    timeoutMillis = timeoutMillis ?: DEFAULT_EXECUTION_TIMEOUT_MILLIS,
                     testOutputTimeoutMillis = testOutputTimeoutMillis ?: DEFAULT_OUTPUT_TIMEOUT_MILLIS,
                     debug = debug ?: true,
                     vendorConfiguration = vendorConfiguration
