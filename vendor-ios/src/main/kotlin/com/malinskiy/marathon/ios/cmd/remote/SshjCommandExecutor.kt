@@ -70,7 +70,7 @@ class SshjCommandExecutor(deviceContext: CoroutineContext,
     }
 
     private val logger by lazy {
-        MarathonLogging.logger(SshjCommandExecutor::class.java.name)
+        MarathonLogging.logger(SshjCommandExecutor::class.java.simpleName)
     }
 
     override fun startSession(command: String, timeoutMillis: Long): CommandSession {

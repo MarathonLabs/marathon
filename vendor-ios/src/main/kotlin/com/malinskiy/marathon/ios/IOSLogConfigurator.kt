@@ -17,7 +17,7 @@ class IOSLogConfigurator: ContextAwareBase(), Configurator  {
             addInfo("Setting up default configuration.")
 
             val layout = PatternLayout()
-            layout.pattern = "%highlight(%.-1level) %-48(%d{HH:mm:ss.SSS} [%thread]) %-24(<%logger{36}>) %msg%n"
+            layout.pattern = "%highlight(%.-1level %d{HH:mm:ss.SSS}) [%thread] <%logger{40}> %msg%n"
             layout.context = loggerContext
             layout.start();
 

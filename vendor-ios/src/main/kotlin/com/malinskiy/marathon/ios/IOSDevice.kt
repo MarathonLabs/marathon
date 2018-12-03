@@ -32,7 +32,6 @@ import kotlinx.coroutines.withContext
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.async
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.newFixedThreadPoolContext
 import kotlin.coroutines.CoroutineContext
 
@@ -190,7 +189,7 @@ class IOSDevice(simulator: RemoteSimulator,
 
     private fun prepareXctestrunFile(derivedDataManager: DerivedDataManager, remoteXctestrunFile: File): File {
         val remotePort = RemoteSimulatorFeatureProvider.availablePort(this)
-                .also { logger.debug("Using TCP port $it on device $udid") }
+                .also { logger.info("Using TCP port $it on device $udid") }
 
         val xctestrun = Xctestrun(derivedDataManager.xctestrunFile)
         xctestrun.environment("TEST_HTTP_SERVER_PORT", "$remotePort")
