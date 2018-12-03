@@ -38,6 +38,13 @@ filteringConfiguration:
     regex: ".*"
   - type: "method"
     regex: ".*"
+  - type: "composition"
+    filters:
+    - type: "package"
+      regex: ".*"
+    - type: "method"
+      regex: ".*"
+    op: "UNION"
   blacklist:
   - type: "package"
     regex: ".*"
