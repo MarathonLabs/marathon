@@ -26,7 +26,7 @@ import kotlin.coroutines.CoroutineContext
 private const val DEFAULT_PORT = 22
 private const val SLEEP_DURATION_MILLIS = 15L
 
-class SshjCommandExecutor(override val coroutineContext: CoroutineContext,
+class SshjCommandExecutor(deviceContext: CoroutineContext,
                           val hostAddress: InetAddress,
                           val remoteUsername: String,
                           val remotePrivateKey: File,
@@ -35,6 +35,7 @@ class SshjCommandExecutor(override val coroutineContext: CoroutineContext,
                           private val timeoutMillis: Long = CommandExecutor.DEFAULT_SSH_CONNECTION_TIMEOUT_MILLIS,
                           verbose: Boolean = false) : CommandExecutor, CoroutineScope {
 
+    override val coroutineContext: CoroutineContext = deviceContext
     private val ssh: SSHClient
 
     init {
@@ -99,8 +100,8 @@ class SshjCommandExecutor(override val coroutineContext: CoroutineContext,
             val isSessionReadable = { session.isOpen and !session.isEOF }
 
             withTimeout(executionTimeout) {
-                listOf(
-                    async(context = coroutineContext) {
+                awaitAll(
+                    async {
                         readLines(session.inputStream,
                             isSessionReadable,
                             {
@@ -109,7 +110,7 @@ class SshjCommandExecutor(override val coroutineContext: CoroutineContext,
                             }
                         )
                     },
-                    async(context = coroutineContext) {
+                    async {
                         readLines(session.errorStream,
                             isSessionReadable,
                             {
@@ -118,14 +119,14 @@ class SshjCommandExecutor(override val coroutineContext: CoroutineContext,
                             }
                         )
                     },
-                    async(context = coroutineContext) {
-                        while (isSessionReadable()) {
+                    async {
+                        while (isActive and isSessionReadable()) {
                             if (timeoutHandler.getIsUnresponsiveAndWait()) {
                                 throw SshjCommandUnresponsiveException("Remote command \n\u001b[1m$command\u001b[0mdid not send any output over ${testOutputTimeoutMillis}ms")
                             }
                         }
                     }
-                ).awaitAll()
+                )
             }
         } catch (e: TimeoutCancellationException) {
             try {
@@ -149,7 +150,7 @@ class SshjCommandExecutor(override val coroutineContext: CoroutineContext,
         SshjCommandOutputLineBuffer(onLine).use { lineBuffer ->
             val byteArray = ByteArray(16384)
             val startTime = System.currentTimeMillis()
-            while (coroutineContext.isActive) {
+            while (isActive) {
                 val available = inputStream.available()
                 // available value is expected to indicate an estimated number of bytes
                 // that can be read without blocking (actual count may be smaller).

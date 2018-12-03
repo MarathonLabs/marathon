@@ -22,7 +22,9 @@ class LocalListSimulatorProvider(private val channel: Channel<DeviceProvider.Dev
                                  yamlObjectMapper: ObjectMapper,
                                  private val gson: Gson) : SimulatorProvider, CoroutineScope {
 
-    override val coroutineContext: CoroutineContext by lazy { newFixedThreadPoolContext(1, "LocalListSimulatorProvider") }
+    private val dispatcher by lazy { newFixedThreadPoolContext(1, "LocalListSimulatorProvider") }
+    override val coroutineContext: CoroutineContext
+        get() = dispatcher
 
     private val logger = MarathonLogging.logger(LocalListSimulatorProvider::class.java.simpleName)
 
@@ -31,17 +33,9 @@ class LocalListSimulatorProvider(private val channel: Channel<DeviceProvider.Dev
         val file = configuration.devicesFile ?: File(System.getProperty("user.dir"), "Marathondevices")
         val simulators: List<RemoteSimulator>? = yamlObjectMapper.readValue(file)
         devices = simulators?.map {
-            val deviceContext = newFixedThreadPoolContext(1, it.udid)
-            IOSDevice(deviceContext = deviceContext,
-                    udid = it.udid,
-                    hostCommandExecutor = SshjCommandExecutor(
-                            coroutineContext = deviceContext,
-                            hostAddress = InetAddress.getByName(it.host),
-                            remoteUsername = it.username ?: configuration.remoteUsername,
-                            remotePrivateKey = configuration.remotePrivateKey,
-                            knownHostsPath = configuration.knownHostsPath,
-                            verbose = configuration.debugSsh),
-                    gson = gson)
+            IOSDevice(simulator = it,
+                      configuration = configuration,
+                      gson = gson)
         }
         ?: emptyList()
     }
@@ -59,6 +53,7 @@ class LocalListSimulatorProvider(private val channel: Channel<DeviceProvider.Dev
 
                 channel.send(element = DeviceProvider.DeviceEvent.DeviceDisconnected(it))
             }
+            dispatcher.close()
         }
     }
 

@@ -23,7 +23,9 @@ class IOSDeviceProvider : DeviceProvider {
 
     override fun terminate() {
         logger.debug { "Terminating IOS device provider" }
-        simulatorProvider?.stop()
+        if (::simulatorProvider.isInitialized) {
+            simulatorProvider.stop()
+        }
         channel.close()
     }
 
@@ -38,12 +40,8 @@ class IOSDeviceProvider : DeviceProvider {
         val mapper = ObjectMapper(YAMLFactory().disable(YAMLGenerator.Feature.USE_NATIVE_TYPE_ID))
                 .registerModule(KotlinModule())
 
-        simulatorProvider = LocalListSimulatorProvider(channel,
-                vendorConfiguration,
-                mapper,
-                gson)
-
-        simulatorProvider.start()
+        simulatorProvider = LocalListSimulatorProvider(channel, vendorConfiguration, mapper, gson)
+                .also { it.start() }
     }
 
     private val channel: Channel<DeviceProvider.DeviceEvent> = unboundedChannel()
