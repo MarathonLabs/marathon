@@ -2,14 +2,7 @@ package com.malinskiy.marathon.ios.cmd.remote
 
 import ch.qos.logback.classic.Level
 import com.malinskiy.marathon.log.MarathonLogging
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.TimeoutCancellationException
-import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.isActive
-import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.withTimeout
+import kotlinx.coroutines.*
 import net.schmizz.sshj.DefaultConfig
 import net.schmizz.sshj.SSHClient
 import net.schmizz.sshj.common.LoggerFactory
@@ -88,17 +81,21 @@ class SshjCommandExecutor(deviceContext: CoroutineContext,
 
     override suspend fun exec(command: String, testOutputTimeoutMillis: Long, onLine: (String) -> Unit): Int? {
         val session = startSession(command, timeoutMillis)
+
         val startTime = System.currentTimeMillis()
+        logger.debug("Execution starts at ${startTime}ms")
+        logger.debug(command)
+
+        val executionTimeout = if (timeoutMillis == 0L) Long.MAX_VALUE else timeoutMillis
+
+        val timeoutHandler = SshjCommandOutputWaiterImpl(
+            testOutputTimeoutMillis,
+            SLEEP_DURATION_MILLIS
+        )
+
+        val isSessionReadable = { session.isOpen and !session.isEOF }
+
         try {
-            val executionTimeout = if (timeoutMillis == 0L) Long.MAX_VALUE else timeoutMillis
-
-            val timeoutHandler = SshjCommandOutputTimeoutHandlerImpl(
-                testOutputTimeoutMillis,
-                SLEEP_DURATION_MILLIS
-            )
-
-            val isSessionReadable = { session.isOpen and !session.isEOF }
-
             withTimeout(executionTimeout) {
                 awaitAll(
                     async {
@@ -121,9 +118,10 @@ class SshjCommandExecutor(deviceContext: CoroutineContext,
                     },
                     async {
                         while (isActive and isSessionReadable()) {
-                            if (timeoutHandler.getIsUnresponsiveAndWait()) {
+                            if (timeoutHandler.isExpired) {
                                 throw SshjCommandUnresponsiveException("Remote command \n\u001b[1m$command\u001b[0mdid not send any output over ${testOutputTimeoutMillis}ms")
                             }
+                            timeoutHandler.wait()
                         }
                     }
                 )
