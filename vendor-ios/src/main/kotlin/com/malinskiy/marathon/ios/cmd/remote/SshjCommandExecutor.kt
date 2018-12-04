@@ -15,6 +15,7 @@ import java.io.InputStream
 import java.net.InetAddress
 import java.util.concurrent.TimeoutException
 import kotlin.coroutines.CoroutineContext
+import kotlin.math.min
 
 private const val DEFAULT_PORT = 22
 private const val SLEEP_DURATION_MILLIS = 15L
@@ -82,8 +83,8 @@ class SshjCommandExecutor(deviceContext: CoroutineContext,
         val session = startSession(command)
 
         val startTime = System.currentTimeMillis()
-        logger.debug("Execution starts at ${startTime}ms")
-        logger.debug(command)
+        logger.trace("Execution starts at ${startTime}ms")
+        logger.trace(command)
 
         try {
             val executionTimeout = if (timeoutMillis == 0L) Long.MAX_VALUE else timeoutMillis
@@ -135,14 +136,13 @@ class SshjCommandExecutor(deviceContext: CoroutineContext,
             } catch (e: ConnectionException) {
             }
         }
-        logger.debug("Execution complete after ${System.currentTimeMillis() - startTime}ms")
+        logger.trace("Execution completed after ${System.currentTimeMillis() - startTime}ms")
         return session.exitStatus
     }
 
     private suspend fun readLines(inputStream: InputStream, canRead: () -> Boolean, onLine: (String) -> Unit) {
         SshjCommandOutputLineBuffer(onLine).use { lineBuffer ->
             val byteArray = ByteArray(16384)
-            val startTime = System.currentTimeMillis()
             while (isActive) {
                 val available = inputStream.available()
                 // available value is expected to indicate an estimated number of bytes
@@ -153,7 +153,7 @@ class SshjCommandExecutor(deviceContext: CoroutineContext,
                 // received EOF.
                 //
                 val count = when {
-                    available > 0 -> inputStream.read(byteArray, 0, available)
+                    available > 0 -> inputStream.read(byteArray, 0, min(available, byteArray.size))
                     else -> 0
                 }
                 // if there was nothing to read
