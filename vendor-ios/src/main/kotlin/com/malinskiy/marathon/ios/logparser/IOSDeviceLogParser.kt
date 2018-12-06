@@ -20,17 +20,20 @@ class IOSDeviceLogParser(device: Device,
                          progressReporter: ProgressReporter): StreamingLogParser {
 
     private val underlyingLogParser: StreamingLogParser
-    private val diagnosticsParser: TestDiagnosticsParser
+    private val diagnosticLogsPathFinder: DiagnosticLogsPathFinder
+    private val sessionResultsPathFinder: SessionResultsPathFinder
     init {
         val testLogListener = TestLogListener()
-        diagnosticsParser = TestDiagnosticsParser()
+        diagnosticLogsPathFinder = DiagnosticLogsPathFinder()
+        sessionResultsPathFinder = SessionResultsPathFinder()
         underlyingLogParser = CompositeLogParser(
             listOf(
                 //Order matters here: first grab the log with log listener,
                 //then use this log to insert into the test report
                 testLogListener,
                 DeviceFailureParser(),
-                diagnosticsParser,
+                diagnosticLogsPathFinder,
+                sessionResultsPathFinder,
                 TestRunProgressParser(
                     SystemTimer(),
                     packageNameFormatter,
@@ -52,7 +55,9 @@ class IOSDeviceLogParser(device: Device,
     }
 
     val diagnosticLogPaths: Collection<String>
-        get() = diagnosticsParser.diagnosticLogPaths
+        get() = diagnosticLogsPathFinder.diagnosticLogPaths
+    val sessionResultPaths: Collection<String>
+        get() = sessionResultsPathFinder.resultPaths
 
     override fun close() = underlyingLogParser.close()
 

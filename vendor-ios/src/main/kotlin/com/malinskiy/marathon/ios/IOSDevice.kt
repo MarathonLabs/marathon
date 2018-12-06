@@ -160,7 +160,12 @@ class IOSDevice(simulator: RemoteSimulator,
             logParser.close()
         }
 
-        logger.info("Diagnostic logs available at ${logParser.diagnosticLogPaths}")
+        if (logParser.diagnosticLogPaths.isNotEmpty())
+            logger.info("Diagnostic logs available at ${logParser.diagnosticLogPaths}")
+
+        if (logParser.sessionResultPaths.isNotEmpty())
+            logger.info("Session results available at ${logParser.sessionResultPaths}")
+        
         // 70 = no devices
         // 65 = ** TEST EXECUTE FAILED **: crash
         logger.debug("Finished test batch execution with exit status $exitStatus")
