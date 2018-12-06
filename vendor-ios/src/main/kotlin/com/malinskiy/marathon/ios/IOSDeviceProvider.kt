@@ -28,6 +28,7 @@ class IOSDeviceProvider : DeviceProvider {
         }
         logger.debug("Closing IOS device provider")
         channel.close()
+        logger.debug("Closed channel")
     }
 
     override fun initialize(vendorConfiguration: VendorConfiguration) {

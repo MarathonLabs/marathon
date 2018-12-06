@@ -18,6 +18,7 @@ import java.io.File
 
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.isActive
+import kotlinx.coroutines.runBlocking
 import kotlin.coroutines.CoroutineContext
 
 class LocalListSimulatorProvider(private val channel: Channel<DeviceProvider.DeviceEvent>,
@@ -45,7 +46,7 @@ class LocalListSimulatorProvider(private val channel: Channel<DeviceProvider.Dev
     }
 
     override fun stop() {
-        launch {
+        runBlocking {
 
             devices.forEach {
                 logger.debug("Disconnecting simulator ${it.serialNumber}")
