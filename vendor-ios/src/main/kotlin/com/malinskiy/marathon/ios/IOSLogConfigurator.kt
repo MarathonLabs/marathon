@@ -4,7 +4,6 @@ import ch.qos.logback.classic.Level
 import ch.qos.logback.classic.Logger
 import ch.qos.logback.classic.LoggerContext
 import ch.qos.logback.classic.PatternLayout
-import ch.qos.logback.classic.layout.TTLLLayout
 import ch.qos.logback.classic.spi.Configurator
 import ch.qos.logback.classic.spi.ILoggingEvent
 import ch.qos.logback.core.ConsoleAppender
@@ -13,11 +12,16 @@ import ch.qos.logback.core.spi.ContextAwareBase
 
 class IOSLogConfigurator: ContextAwareBase(), Configurator  {
     override fun configure(loggerContext: LoggerContext?) {
-        loggerContext?.also {
+        loggerContext?.let {
             addInfo("Setting up default configuration.")
 
+            val shorterOutput = System.getProperty("sun.java.command")?.contains("--shorter-output") ?: false
             val layout = PatternLayout()
-            layout.pattern = "%highlight(%.-1level %d{HH:mm:ss.SSS}) [%thread] <%logger{40}> %msg%n"
+            layout.pattern = if (shorterOutput) {
+                "%highlight(%.-1level) [%thread] <%logger{40}> %msg%n"
+            } else {
+                "%highlight(%.-1level %d{HH:mm:ss.SSS}) [%thread] <%logger{40}> %msg%n"
+            }
             layout.context = loggerContext
             layout.start();
 
