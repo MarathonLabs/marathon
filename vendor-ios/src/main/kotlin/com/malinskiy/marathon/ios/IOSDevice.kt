@@ -92,7 +92,7 @@ class IOSDevice(simulator: RemoteSimulator,
                                  devicePoolId: DevicePoolId,
                                  testBatch: TestBatch,
                                  deferred: CompletableDeferred<TestBatchResults>,
-                                 progressReporter: ProgressReporter) {
+                                 progressReporter: ProgressReporter) = withContext(deviceContext) {
         if (!healthy) {
             logger.error("Device $udid is unhealthy")
             throw TestBatchExecutionException("Device $udid is unhealthy")
@@ -101,7 +101,7 @@ class IOSDevice(simulator: RemoteSimulator,
         val iosConfiguration = configuration.vendorConfiguration as IOSConfiguration
         val fileManager = FileManager(configuration.outputDir)
 
-        val remoteXcresultPath = RemoteFileManager.remoteXcresultFile(this)
+        val remoteXcresultPath = RemoteFileManager.remoteXcresultFile(this@IOSDevice)
         val remoteXctestrunFile = RemoteFileManager.remoteXctestrunFile(this@IOSDevice)
         val remoteDir = remoteXctestrunFile.parent
 
@@ -133,14 +133,12 @@ class IOSDevice(simulator: RemoteSimulator,
                         .also { logger.debug("\u001b[1m$it\u001b[0m") }
 
         val exitStatus = try {
-            async {
-                hostCommandExecutor.exec(
-                    command,
-                    configuration.timeoutMillis,
-                    configuration.testOutputTimeoutMillis,
-                    logParser::onLine
-                )
-            }.await()
+            hostCommandExecutor.exec(
+                command,
+                configuration.timeoutMillis,
+                configuration.testOutputTimeoutMillis,
+                logParser::onLine
+            )
         } catch (e: SshjCommandUnresponsiveException) {
             logger.error("No output from remote shell")
             throw TestBatchExecutionException(e)
@@ -167,29 +165,27 @@ class IOSDevice(simulator: RemoteSimulator,
         logger.debug("Finished test batch execution with exit status $exitStatus")
     }
 
-    override suspend fun prepare(configuration: Configuration) {
-        withContext(coroutineContext) {
-            RemoteFileManager.createRemoteDirectory(this@IOSDevice)
+    override suspend fun prepare(configuration: Configuration) = withContext(coroutineContext) {
+        RemoteFileManager.createRemoteDirectory(this@IOSDevice)
 
-            val derivedDataManager = DerivedDataManager(configuration)
+        val derivedDataManager = DerivedDataManager(configuration)
 
-            val remoteXctestrunFile = RemoteFileManager.remoteXctestrunFile(this@IOSDevice)
-            val xctestrunFile = prepareXctestrunFile(derivedDataManager, remoteXctestrunFile)
+        val remoteXctestrunFile = RemoteFileManager.remoteXctestrunFile(this@IOSDevice)
+        val xctestrunFile = prepareXctestrunFile(derivedDataManager, remoteXctestrunFile)
 
-            derivedDataManager.sendSynchronized(
-                    localPath = xctestrunFile,
-                    remotePath = remoteXctestrunFile.absolutePath,
-                    hostName = hostCommandExecutor.hostAddress.hostName,
-                    port = hostCommandExecutor.port
-            )
+        derivedDataManager.sendSynchronized(
+                localPath = xctestrunFile,
+                remotePath = remoteXctestrunFile.absolutePath,
+                hostName = hostCommandExecutor.hostAddress.hostName,
+                port = hostCommandExecutor.port
+        )
 
-            derivedDataManager.sendSynchronized(
-                    localPath = derivedDataManager.productsDir,
-                    remotePath = RemoteFileManager.remoteDirectory(this@IOSDevice).path,
-                    hostName = hostCommandExecutor.hostAddress.hostName,
-                    port = hostCommandExecutor.port
-            )
-        }
+        derivedDataManager.sendSynchronized(
+                localPath = derivedDataManager.productsDir,
+                remotePath = RemoteFileManager.remoteDirectory(this@IOSDevice).path,
+                hostName = hostCommandExecutor.hostAddress.hostName,
+                port = hostCommandExecutor.port
+        )
     }
 
     private fun prepareXctestrunFile(derivedDataManager: DerivedDataManager, remoteXctestrunFile: File): File {
