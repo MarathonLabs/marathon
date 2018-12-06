@@ -15,11 +15,9 @@ import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.delay
 import java.io.File
-import java.util.concurrent.atomic.AtomicReference
 
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.isActive
-import kotlinx.coroutines.withContext
 import kotlin.coroutines.CoroutineContext
 
 class LocalListSimulatorProvider(private val channel: Channel<DeviceProvider.DeviceEvent>,

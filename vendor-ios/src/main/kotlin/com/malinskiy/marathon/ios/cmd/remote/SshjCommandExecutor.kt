@@ -1,6 +1,7 @@
 package com.malinskiy.marathon.ios.cmd.remote
 
 import ch.qos.logback.classic.Level
+import com.malinskiy.marathon.exceptions.TestBatchExecutionException
 import com.malinskiy.marathon.log.MarathonLogging
 import kotlinx.coroutines.*
 import net.schmizz.sshj.DefaultConfig
@@ -80,7 +81,15 @@ class SshjCommandExecutor(deviceContext: CoroutineContext,
     }
 
     override suspend fun exec(command: String, timeoutMillis: Long, testOutputTimeoutMillis: Long, onLine: (String) -> Unit): Int? {
-        val session = startSession(command)
+        val session = try {
+            startSession(command)
+        } catch (e: ConnectionException) {
+            logger.error("Unable to open a remote shell session")
+            throw TestBatchExecutionException(e)
+        } catch (e: TransportException) {
+            logger.error("Unable to open a remote shell session")
+            throw TestBatchExecutionException(e)
+        }
 
         val startTime = System.currentTimeMillis()
         logger.trace("Execution starts at ${startTime}ms")
