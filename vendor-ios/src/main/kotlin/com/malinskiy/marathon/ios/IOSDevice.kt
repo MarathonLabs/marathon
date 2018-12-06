@@ -25,6 +25,7 @@ import com.malinskiy.marathon.ios.xctestrun.Xctestrun
 import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.test.TestBatch
 import net.schmizz.sshj.transport.TransportException
+import net.schmizz.sshj.connection.channel.OpenFailException
 import java.io.File
 import java.net.InetAddress
 import java.util.concurrent.TimeoutException
@@ -145,6 +146,9 @@ class IOSDevice(simulator: RemoteSimulator,
             throw TestBatchExecutionException(e)
         } catch (e: TimeoutException) {
             logger.error("Connection timeout")
+            throw TestBatchExecutionException(e)
+        } catch (e: OpenFailException) {
+            logger.error("Unable to open session $e")
             throw TestBatchExecutionException(e)
         } catch (e: TransportException) {
             logger.error("TransportException $e, cause ${e.cause}")

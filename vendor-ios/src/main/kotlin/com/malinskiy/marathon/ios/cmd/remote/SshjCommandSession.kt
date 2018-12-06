@@ -7,7 +7,7 @@ import java.io.OutputStream
 
 class SshjCommandSession(executableLine: String, ssh: SSHClient): CommandSession {
     private val session = ssh.startSession()
-    private val command = session.exec(executableLine)
+    private val command = session.use { it.exec(executableLine) }
 
     override val inputStream: InputStream
         get() = command.inputStream
