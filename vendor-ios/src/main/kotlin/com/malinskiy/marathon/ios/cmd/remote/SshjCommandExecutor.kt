@@ -75,7 +75,8 @@ class SshjCommandExecutor(deviceContext: CoroutineContext,
         if (ssh.isConnected) {
             try {
                 ssh.disconnect()
-            } catch (e: Exception) {
+            } catch (e: IOException) {
+                logger.warn("Error disconnecting $e")
             }
         }
     }

@@ -44,16 +44,15 @@ class LocalListSimulatorProvider(private val channel: Channel<DeviceProvider.Dev
                 .toMutableList()
     }
 
-    private lateinit var healthObserver: Job
-
     override fun stop() {
         launch {
-            healthObserver.cancelAndJoin()
 
             devices.forEach {
-                logger.debug { "Disconnected simulator: ${it.serialNumber}" }
+                logger.debug("Disconnecting simulator ${it.serialNumber}")
 
                 it.dispose()
+
+                logger.debug("Disposed simulator ${it.serialNumber}")
 
                 channel.send(element = DeviceProvider.DeviceEvent.DeviceDisconnected(it))
             }
@@ -67,24 +66,6 @@ class LocalListSimulatorProvider(private val channel: Channel<DeviceProvider.Dev
                 logger.debug { "Found new simulator: ${it.serialNumber}" }
 
                 channel.send(element = DeviceProvider.DeviceEvent.DeviceConnected(it))
-            }
-        }
-        healthObserver = launch {
-            while (isActive) {
-                delay(1000L)
-
-                devices.filterNot { it.healthy }.forEach {
-                    logger.debug { "Disconnected unhealthy simulator: ${it.serialNumber}" }
-
-                    it.dispose()
-
-                    channel.send(element = DeviceProvider.DeviceEvent.DeviceDisconnected(it))
-                }
-                devices.removeIf { !it.healthy }
-
-                if (devices.isEmpty()) {
-                    break
-                }
             }
         }
     }

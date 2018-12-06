@@ -26,6 +26,7 @@ class IOSDeviceProvider : DeviceProvider {
         if (::simulatorProvider.isInitialized) {
             simulatorProvider.stop()
         }
+        logger.debug("Closing IOS device provider")
         channel.close()
     }
 
