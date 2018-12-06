@@ -11,6 +11,7 @@ import com.malinskiy.marathon.log.MarathonLogging
 import kotlinx.coroutines.newFixedThreadPoolContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.delay
 import java.io.File
@@ -18,6 +19,7 @@ import java.util.concurrent.atomic.AtomicReference
 
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.isActive
+import kotlinx.coroutines.withContext
 import kotlin.coroutines.CoroutineContext
 
 class LocalListSimulatorProvider(private val channel: Channel<DeviceProvider.DeviceEvent>,
@@ -44,12 +46,12 @@ class LocalListSimulatorProvider(private val channel: Channel<DeviceProvider.Dev
                 .toMutableList()
     }
 
-    private lateinit var healthObserver: AtomicReference<Job>
+    private lateinit var healthObserver: Job
 
     override fun stop() {
-        healthObserver.get().cancel()
-
         launch {
+            healthObserver.cancelAndJoin()
+
             devices.forEach {
                 logger.debug { "Disconnected simulator: ${it.serialNumber}" }
 
@@ -69,7 +71,7 @@ class LocalListSimulatorProvider(private val channel: Channel<DeviceProvider.Dev
                 channel.send(element = DeviceProvider.DeviceEvent.DeviceConnected(it))
             }
         }
-        val job = launch {
+        healthObserver = launch {
             while (isActive) {
                 delay(1000L)
 
@@ -81,8 +83,11 @@ class LocalListSimulatorProvider(private val channel: Channel<DeviceProvider.Dev
                     channel.send(element = DeviceProvider.DeviceEvent.DeviceDisconnected(it))
                 }
                 devices.removeIf { !it.healthy }
+
+                if (devices.isEmpty()) {
+                    break
+                }
             }
         }
-        healthObserver = AtomicReference(job)
     }
 }
