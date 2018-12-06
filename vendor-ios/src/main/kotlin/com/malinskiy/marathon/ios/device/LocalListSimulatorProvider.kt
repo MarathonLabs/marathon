@@ -7,14 +7,17 @@ import com.malinskiy.marathon.device.Device
 import com.malinskiy.marathon.device.DeviceProvider
 import com.malinskiy.marathon.ios.IOSConfiguration
 import com.malinskiy.marathon.ios.IOSDevice
-import com.malinskiy.marathon.ios.cmd.remote.SshjCommandExecutor
 import com.malinskiy.marathon.log.MarathonLogging
-import kotlinx.coroutines.*
+import kotlinx.coroutines.newFixedThreadPoolContext
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.delay
 import java.io.File
-import java.net.InetAddress
 import java.util.concurrent.atomic.AtomicReference
 
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.isActive
 import kotlin.coroutines.CoroutineContext
 
 class LocalListSimulatorProvider(private val channel: Channel<DeviceProvider.DeviceEvent>,
@@ -28,16 +31,17 @@ class LocalListSimulatorProvider(private val channel: Channel<DeviceProvider.Dev
 
     private val logger = MarathonLogging.logger(LocalListSimulatorProvider::class.java.simpleName)
 
-    private val devices: List<Device>
+    private val devices: MutableList<Device>
     init {
         val file = configuration.devicesFile ?: File(System.getProperty("user.dir"), "Marathondevices")
         val simulators: List<RemoteSimulator>? = yamlObjectMapper.readValue(file)
-        devices = simulators?.map {
-            IOSDevice(simulator = it,
-                      configuration = configuration,
-                      gson = gson)
-        }
-        ?: emptyList()
+        devices = (simulators ?: emptyList())
+                .map {
+                    IOSDevice(simulator = it,
+                        configuration = configuration,
+                        gson = gson)
+                }
+                .toMutableList()
     }
 
     private lateinit var healthObserver: AtomicReference<Job>
@@ -66,7 +70,7 @@ class LocalListSimulatorProvider(private val channel: Channel<DeviceProvider.Dev
             }
         }
         val job = launch {
-            while (true) {
+            while (isActive) {
                 delay(1000L)
 
                 devices.filterNot { it.healthy }.forEach {
@@ -76,6 +80,7 @@ class LocalListSimulatorProvider(private val channel: Channel<DeviceProvider.Dev
 
                     channel.send(element = DeviceProvider.DeviceEvent.DeviceDisconnected(it))
                 }
+                devices.removeIf { !it.healthy }
             }
         }
         healthObserver = AtomicReference(job)
