@@ -145,12 +145,13 @@ class IOSDevice(simulator: RemoteSimulator,
         } catch (e: TimeoutException) {
             logger.error("Connection timeout")
             throw TestBatchExecutionException(e)
-        } catch (e: OpenFailException) {
-            logger.error("Unable to open session $e")
-            throw TestBatchExecutionException(e)
         } catch (e: TransportException) {
             logger.error("TransportException $e, cause ${e.cause}")
             throw TestBatchExecutionException(e)
+        } catch (e: OpenFailException) {
+            logger.error("Unable to open session $e")
+            healthy = false
+            throw DeviceLostException(e)
         } catch(e: DeviceFailureException) {
             logger.error("$e")
             healthy = false

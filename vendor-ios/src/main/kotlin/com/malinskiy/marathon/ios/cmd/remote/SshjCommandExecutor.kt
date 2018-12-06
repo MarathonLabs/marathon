@@ -13,6 +13,7 @@ import org.slf4j.Logger
 import java.io.File
 import java.io.IOException
 import java.io.InputStream
+import java.lang.RuntimeException
 import java.net.InetAddress
 import java.util.concurrent.TimeoutException
 import kotlin.coroutines.CoroutineContext
@@ -28,6 +29,8 @@ class SshjCommandExecutor(deviceContext: CoroutineContext,
                           val port: Int = DEFAULT_PORT,
                           val knownHostsPath: File? = null,
                           verbose: Boolean = false) : CommandExecutor, CoroutineScope {
+
+    private class OutputTimeoutException: RuntimeException()
 
     override val coroutineContext: CoroutineContext = deviceContext
     private val ssh: SSHClient
@@ -85,11 +88,11 @@ class SshjCommandExecutor(deviceContext: CoroutineContext,
         val session = try {
             startSession(command)
         } catch (e: ConnectionException) {
-            logger.error("Unable to open a remote shell session")
-            throw TestBatchExecutionException(e)
+            logger.error("Unable to start a remote shell session")
+            throw e
         } catch (e: TransportException) {
-            logger.error("Unable to open a remote shell session")
-            throw TestBatchExecutionException(e)
+            logger.error("Unable to start a remote shell session")
+            throw e
         }
 
         val startTime = System.currentTimeMillis()
@@ -125,7 +128,7 @@ class SshjCommandExecutor(deviceContext: CoroutineContext,
                     async {
                         while (isActive and isSessionReadable()) {
                             if (timeoutWaiter.isExpired) {
-                                throw SshjCommandUnresponsiveException("Remote command \n\u001b[1m$command\u001b[0mdid not send any output over ${testOutputTimeoutMillis}ms")
+                                throw OutputTimeoutException()
                             }
                             timeoutWaiter.wait()
                         }
@@ -135,9 +138,17 @@ class SshjCommandExecutor(deviceContext: CoroutineContext,
         } catch (e: TimeoutCancellationException) {
             try {
                 session.kill()
-            } catch (e: TransportException) {}
+            } catch (e: TransportException) {
+            }
 
             throw TimeoutException(e.message)
+        } catch (e: OutputTimeoutException) {
+            try {
+                session.kill()
+            } catch (e: TransportException) {
+            }
+
+            throw SshjCommandUnresponsiveException("Remote command \n\u001b[1m$command\u001b[0mdid not send any output over ${testOutputTimeoutMillis}ms")
         } finally {
             try {
                 session.close()
