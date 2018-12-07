@@ -3,7 +3,7 @@ package com.malinskiy.marathon.ios.logparser.parser
 import com.malinskiy.marathon.ios.logparser.StreamingLogParser
 
 class SessionResultsPathFinder: StreamingLogParser {
-    private val resultPathPattern = """(^\s*|\s+)/[^\s]+\.xcresult\s*$""".toRegex()
+    private val resultPathPattern = """(^\s*|\s+)/.+\.xcresult\s*$""".toRegex()
     private var paths = arrayListOf<String>()
 
     val resultPaths: Collection<String>

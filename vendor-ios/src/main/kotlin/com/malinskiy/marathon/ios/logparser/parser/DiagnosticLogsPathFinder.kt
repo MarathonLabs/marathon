@@ -4,7 +4,7 @@ import com.malinskiy.marathon.ios.logparser.StreamingLogParser
 
 class DiagnosticLogsPathFinder: StreamingLogParser {
 
-    private val logPathPattern = """(^\s*|\s+)/[^\s]+\.log\s*$""".toRegex()
+    private val logPathPattern = """(^\s*|\s+)/.+\.log\s*$""".toRegex()
     private var paths = arrayListOf<String>()
 
     val diagnosticLogPaths: Collection<String>
