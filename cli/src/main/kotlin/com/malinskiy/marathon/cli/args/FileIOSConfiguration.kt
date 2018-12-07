@@ -24,6 +24,7 @@ data class FileIOSConfiguration(
         @JsonProperty("remoteRsyncPath") val remoteRsyncPath: String = "/usr/bin/rsync",
         @JsonProperty("sourceRoot") val sourceRoot: File?,
         @JsonProperty("debugSsh") val debugSsh: Boolean?,
+        @JsonProperty("hideRunnerOutput") val hideRunnerOutput: Boolean?,
         @JsonProperty("devices") val devices: File?,
         val fileListProvider: FileListProvider = DerivedDataFileListProvider) : FileVendorConfiguration {
 
@@ -51,6 +52,7 @@ data class FileIOSConfiguration(
                     knownHostsPath = optionalKnownHostsPath,
                     remoteRsyncPath = remoteRsyncPath,
                     debugSsh = optionalDebugSsh,
+                    hideRunnerOutput = hideRunnerOutput ?: false,
                     devicesFile = optionalDevices)
         } else {
             IOSConfiguration(
@@ -61,6 +63,7 @@ data class FileIOSConfiguration(
                     knownHostsPath = optionalKnownHostsPath,
                     remoteRsyncPath = remoteRsyncPath,
                     debugSsh = optionalDebugSsh,
+                    hideRunnerOutput = hideRunnerOutput ?: false,
                     devicesFile = optionalDevices,
                     sourceRoot = optionalSourceRoot)
         }

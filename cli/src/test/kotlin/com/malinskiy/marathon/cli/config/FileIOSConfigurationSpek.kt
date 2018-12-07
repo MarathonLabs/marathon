@@ -32,6 +32,7 @@ object FileIOSConfigurationSpek : Spek({
                     sourceRoot = File("sourceRoot"),
                     fileListProvider = mockFileListProvider,
                     debugSsh = null,
+                    hideRunnerOutput = null,
                     devices = null)
 
             it("should search for such file under derived data folder") {

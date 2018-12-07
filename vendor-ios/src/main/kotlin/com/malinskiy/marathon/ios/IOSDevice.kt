@@ -117,7 +117,8 @@ class IOSDevice(simulator: RemoteSimulator,
             devicePoolId,
             testBatch,
             deferred,
-            progressReporter
+            progressReporter,
+            iosConfiguration.hideRunnerOutput
         )
 
         val command =
@@ -149,7 +150,7 @@ class IOSDevice(simulator: RemoteSimulator,
             logger.error("TransportException $e, cause ${e.cause}")
             throw TestBatchExecutionException(e)
         } catch (e: OpenFailException) {
-            logger.error("Unable to open session $e")
+            logger.error("Unable to open session")
             healthy = false
             throw DeviceLostException(e)
         } catch(e: DeviceFailureException) {

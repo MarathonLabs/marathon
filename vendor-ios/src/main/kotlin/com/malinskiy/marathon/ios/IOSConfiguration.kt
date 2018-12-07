@@ -12,6 +12,7 @@ data class IOSConfiguration(val derivedDataDir: File,
                             val knownHostsPath: File?,
                             val remoteRsyncPath: String,
                             val debugSsh: Boolean,
+                            val hideRunnerOutput: Boolean = false,
                             val devicesFile: File? = null,
                             val sourceRoot: File = File(".")) : VendorConfiguration {
 

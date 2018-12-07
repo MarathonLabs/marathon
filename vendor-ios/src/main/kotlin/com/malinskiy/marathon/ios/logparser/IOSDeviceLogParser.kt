@@ -17,7 +17,8 @@ class IOSDeviceLogParser(device: Device,
                          poolId: DevicePoolId,
                          testBatch: TestBatch,
                          deferredResults: CompletableDeferred<TestBatchResults>,
-                         progressReporter: ProgressReporter): StreamingLogParser {
+                         progressReporter: ProgressReporter,
+                         hideRunnerOutput: Boolean): StreamingLogParser {
 
     private val underlyingLogParser: StreamingLogParser
     private val diagnosticLogsPathFinder: DiagnosticLogsPathFinder
@@ -49,7 +50,7 @@ class IOSDeviceLogParser(device: Device,
                         testLogListener
                     )
                 ),
-                DebugLogPrinter()
+                DebugLogPrinter(hideRunnerOutput = hideRunnerOutput)
             )
         )
     }

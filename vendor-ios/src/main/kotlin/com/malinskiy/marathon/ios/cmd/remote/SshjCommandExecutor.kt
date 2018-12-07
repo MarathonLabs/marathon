@@ -30,8 +30,6 @@ class SshjCommandExecutor(deviceContext: CoroutineContext,
                           val knownHostsPath: File? = null,
                           verbose: Boolean = false) : CommandExecutor, CoroutineScope {
 
-    private class OutputTimeoutException: RuntimeException()
-
     override val coroutineContext: CoroutineContext = deviceContext
     private val ssh: SSHClient
 
@@ -83,6 +81,8 @@ class SshjCommandExecutor(deviceContext: CoroutineContext,
             }
         }
     }
+
+    private class OutputTimeoutException: RuntimeException()
 
     override suspend fun exec(command: String, timeoutMillis: Long, testOutputTimeoutMillis: Long, onLine: (String) -> Unit): Int? {
         val session = try {
