@@ -142,13 +142,16 @@ class IOSDevice(simulator: RemoteSimulator,
             )
         } catch (e: SshjCommandUnresponsiveException) {
             logger.error("No output from remote shell")
-            throw TestBatchExecutionException(e)
+            healthy = false
+            throw DeviceLostException(e)
         } catch (e: TimeoutException) {
             logger.error("Connection timeout")
-            throw TestBatchExecutionException(e)
+            healthy = false
+            throw DeviceLostException(e)
         } catch (e: TransportException) {
             logger.error("TransportException $e, cause ${e.cause}")
-            throw TestBatchExecutionException(e)
+            healthy = false
+            throw DeviceLostException(e)
         } catch (e: OpenFailException) {
             logger.error("Unable to open session")
             healthy = false
