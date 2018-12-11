@@ -9,6 +9,8 @@ import ch.qos.logback.classic.spi.ILoggingEvent
 import ch.qos.logback.core.ConsoleAppender
 import ch.qos.logback.core.encoder.LayoutWrappingEncoder
 import ch.qos.logback.core.spi.ContextAwareBase
+import net.schmizz.sshj.DefaultConfig
+import net.schmizz.sshj.transport.random.BouncyCastleRandom
 
 class IOSLogConfigurator: ContextAwareBase(), Configurator  {
     override fun configure(loggerContext: LoggerContext?) {
@@ -38,8 +40,13 @@ class IOSLogConfigurator: ContextAwareBase(), Configurator  {
 
             loggerContext.getLogger(Logger.ROOT_LOGGER_NAME).addAppender(consoleAppender)
 
-            val noisyLogger = loggerContext.getLogger("net.schmizz.sshj.common.ECDSAVariationsAdapter")
-            noisyLogger.level = Level.INFO
+            listOf(
+                BouncyCastleRandom::class.java.name,
+                DefaultConfig::class.java.name,
+                "net.schmizz.sshj.common.ECDSAVariationsAdapter"
+            ).forEach {
+                loggerContext.getLogger(it).level = Level.ERROR
+            }
         }
     }
 }

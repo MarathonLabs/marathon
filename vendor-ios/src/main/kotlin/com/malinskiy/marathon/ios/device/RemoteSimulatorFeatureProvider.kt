@@ -1,6 +1,7 @@
 package com.malinskiy.marathon.ios.device
 
 import com.malinskiy.marathon.device.DeviceFeature
+import com.malinskiy.marathon.exceptions.DeviceLostException
 import com.malinskiy.marathon.ios.IOSDevice
 
 object RemoteSimulatorFeatureProvider {
@@ -8,15 +9,14 @@ object RemoteSimulatorFeatureProvider {
         return enumValues<DeviceFeature>().filter { featureIsAvailable(device, it) }
     }
 
-    private fun featureIsAvailable(device: IOSDevice, feature: DeviceFeature): Boolean {
-        return when (feature) {
+    private fun featureIsAvailable(device: IOSDevice, feature: DeviceFeature): Boolean = when (feature) {
             DeviceFeature.SCREENSHOT -> true
             DeviceFeature.VIDEO -> {
-                val commandResult = device.hostCommandExecutor.exec(
+                device.hostCommandExecutor.exec(
                         "/usr/sbin/system_profiler -detailLevel mini -xml SPDisplaysDataType"
-                )
-                return commandResult.exitStatus == 0
-                        && commandResult.stdout.contains("spdisplays_metalfeatureset")
+                ).let {
+                    it.exitStatus == 0
+                            && it.stdout.contains("spdisplays_metalfeatureset")
             }
         }
     }
@@ -28,6 +28,6 @@ object RemoteSimulatorFeatureProvider {
         return when {
             commandResult.exitStatus == 0 -> commandResult.stdout.trim().toIntOrNull()
             else -> null
-        } ?: throw Exception(commandResult.stderr)
+        } ?: throw DeviceLostException(commandResult.stderr)
     }
 }

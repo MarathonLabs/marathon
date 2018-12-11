@@ -162,14 +162,19 @@ class IOSDevice(simulator: RemoteSimulator,
             throw DeviceLostException(e)
         } finally {
             logParser.close()
+
+            if (!healthy) {
+                logger.debug("Last log before device termination")
+                logger.debug(logParser.getLastLog())
+            }
+
+            if (logParser.diagnosticLogPaths.isNotEmpty())
+                logger.info("Diagnostic logs available at ${logParser.diagnosticLogPaths}")
+
+            if (logParser.sessionResultPaths.isNotEmpty())
+                logger.info("Session results available at ${logParser.sessionResultPaths}")
         }
 
-        if (logParser.diagnosticLogPaths.isNotEmpty())
-            logger.info("Diagnostic logs available at ${logParser.diagnosticLogPaths}")
-
-        if (logParser.sessionResultPaths.isNotEmpty())
-            logger.info("Session results available at ${logParser.sessionResultPaths}")
-        
         // 70 = no devices
         // 65 = ** TEST EXECUTE FAILED **: crash
         logger.debug("Finished test batch execution with exit status $exitStatus")
@@ -200,7 +205,7 @@ class IOSDevice(simulator: RemoteSimulator,
 
     private fun prepareXctestrunFile(derivedDataManager: DerivedDataManager, remoteXctestrunFile: File): File {
         val remotePort = RemoteSimulatorFeatureProvider.availablePort(this)
-                .also { logger.info("Using TCP port $it on device $udid") }
+                .also { logger.info("Using TCP port $it on device $deviceIdentifier") }
 
         val xctestrun = Xctestrun(derivedDataManager.xctestrunFile)
         xctestrun.environment("TEST_HTTP_SERVER_PORT", "$remotePort")
@@ -218,6 +223,9 @@ class IOSDevice(simulator: RemoteSimulator,
     override fun toString(): String {
         return "IOSDevice"
     }
+
+    private val deviceIdentifier: String
+        get() = "${hostCommandExecutor.hostAddress.hostAddress}:$udid"
 }
 
 private fun TestBatch.toXcodebuildArguments(): String = tests

@@ -21,10 +21,11 @@ class IOSDeviceLogParser(device: Device,
                          hideRunnerOutput: Boolean): StreamingLogParser {
 
     private val underlyingLogParser: StreamingLogParser
+    private val testLogListener: TestLogListener
     private val diagnosticLogsPathFinder: DiagnosticLogsPathFinder
     private val sessionResultsPathFinder: SessionResultsPathFinder
     init {
-        val testLogListener = TestLogListener()
+        testLogListener = TestLogListener()
         diagnosticLogsPathFinder = DiagnosticLogsPathFinder()
         sessionResultsPathFinder = SessionResultsPathFinder()
         underlyingLogParser = CompositeLogParser(
@@ -59,6 +60,8 @@ class IOSDeviceLogParser(device: Device,
         get() = diagnosticLogsPathFinder.diagnosticLogPaths
     val sessionResultPaths: Collection<String>
         get() = sessionResultsPathFinder.resultPaths
+
+    fun getLastLog(): String = testLogListener.getLastLog()
 
     override fun close() = underlyingLogParser.close()
 
