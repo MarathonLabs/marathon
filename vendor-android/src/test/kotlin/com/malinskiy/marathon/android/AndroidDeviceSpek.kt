@@ -2,7 +2,7 @@ package com.malinskiy.marathon.android
 
 import com.android.ddmlib.IDevice
 import com.android.sdklib.AndroidVersion
-import com.nhaarman.mockito_kotlin.whenever
+import com.nhaarman.mockitokotlin2.whenever
 import org.amshove.kluent.mock
 import org.amshove.kluent.shouldBe
 import org.amshove.kluent.shouldBeEqualTo

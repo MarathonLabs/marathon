@@ -6,7 +6,6 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLGenerator
 import com.fasterxml.jackson.module.kotlin.KotlinModule
 import com.google.gson.GsonBuilder
 import com.malinskiy.marathon.actor.unboundedChannel
-import com.malinskiy.marathon.device.Device
 import com.malinskiy.marathon.device.DeviceProvider
 import com.malinskiy.marathon.ios.device.LocalListSimulatorProvider
 import com.malinskiy.marathon.ios.device.SimulatorProvider
@@ -14,7 +13,7 @@ import com.malinskiy.marathon.ios.simctl.model.SimctlDeviceList
 import com.malinskiy.marathon.ios.simctl.model.SimctlDeviceListDeserializer
 import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.vendor.VendorConfiguration
-import kotlinx.coroutines.experimental.channels.Channel
+import kotlinx.coroutines.channels.Channel
 
 class IOSDeviceProvider : DeviceProvider {
 
@@ -24,7 +23,10 @@ class IOSDeviceProvider : DeviceProvider {
 
     override fun terminate() {
         logger.debug { "Terminating IOS device provider" }
-        simulatorProvider.stop()
+        if (::simulatorProvider.isInitialized) {
+            simulatorProvider.stop()
+        }
+        channel.close()
     }
 
     override fun initialize(vendorConfiguration: VendorConfiguration) {
@@ -49,11 +51,4 @@ class IOSDeviceProvider : DeviceProvider {
     private val channel: Channel<DeviceProvider.DeviceEvent> = unboundedChannel()
     override fun subscribe() = channel
 
-    override fun lockDevice(device: Device): Boolean {
-        return false
-    }
-
-    override fun unlockDevice(device: Device): Boolean {
-        return false
-    }
 }

@@ -20,9 +20,10 @@ import com.malinskiy.marathon.report.internal.TestResultReporter
 import com.malinskiy.marathon.test.Test
 import com.malinskiy.marathon.test.toTestName
 import com.malinskiy.marathon.vendor.VendorConfiguration
-import kotlinx.coroutines.experimental.runBlocking
+import kotlinx.coroutines.runBlocking
 import java.util.ServiceLoader
 import java.util.concurrent.TimeUnit
+import kotlin.coroutines.coroutineContext
 import kotlin.system.measureTimeMillis
 
 private val log = MarathonLogging.logger {}
@@ -68,7 +69,11 @@ class Marathon(val configuration: Configuration) {
         return loader.first()
     }
 
-    fun run(): Boolean = runBlocking {
+    fun run() = runBlocking {
+        runAsync()
+    }
+
+    suspend fun runAsync(): Boolean {
         MarathonLogging.debug = configuration.debug
 
         val testParser = loadTestParser(configuration.vendorConfiguration)
@@ -81,7 +86,8 @@ class Marathon(val configuration: Configuration) {
         log.info("Scheduling ${tests.size} tests")
         log.debug(tests.map { it.toTestName() }.joinToString(", "))
         val progressReporter = ProgressReporter()
-        val scheduler = Scheduler(deviceProvider, analytics, configuration, tests, progressReporter)
+        val currentCoroutineContext = coroutineContext
+        val scheduler = Scheduler(deviceProvider, analytics, configuration, tests, progressReporter, currentCoroutineContext)
 
         if (configuration.outputDir.exists()) {
             log.info { "Output ${configuration.outputDir} already exists" }
@@ -108,7 +114,7 @@ class Marathon(val configuration: Configuration) {
         analytics.terminate()
         analytics.close()
         deviceProvider.terminate()
-        progressReporter.aggregateResult()
+        return progressReporter.aggregateResult()
     }
 
     private fun applyTestFilters(parsedTests: List<Test>): List<Test> {

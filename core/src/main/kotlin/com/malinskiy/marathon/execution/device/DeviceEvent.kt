@@ -1,7 +1,7 @@
 package com.malinskiy.marathon.execution.device
 
 import com.malinskiy.marathon.test.TestBatch
-import kotlinx.coroutines.experimental.CompletableDeferred
+import kotlinx.coroutines.CompletableDeferred
 
 sealed class DeviceEvent {
     data class Execute(val batch: TestBatch) : DeviceEvent()

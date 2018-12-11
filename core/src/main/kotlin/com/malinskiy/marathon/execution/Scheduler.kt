@@ -10,15 +10,15 @@ import com.malinskiy.marathon.execution.DevicePoolMessage.FromScheduler.RemoveDe
 import com.malinskiy.marathon.execution.progress.ProgressReporter
 import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.test.Test
-import kotlinx.coroutines.experimental.Job
-import kotlinx.coroutines.experimental.TimeoutCancellationException
-import kotlinx.coroutines.experimental.channels.SendChannel
-import kotlinx.coroutines.experimental.delay
-import kotlinx.coroutines.experimental.joinChildren
-import kotlinx.coroutines.experimental.launch
-import kotlinx.coroutines.experimental.withTimeout
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.TimeoutCancellationException
+import kotlinx.coroutines.channels.SendChannel
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withTimeout
 import java.util.concurrent.ConcurrentHashMap
-import java.util.concurrent.TimeUnit
+import kotlin.coroutines.CoroutineContext
 
 /**
  * The logic of scheduler:
@@ -30,18 +30,19 @@ class Scheduler(private val deviceProvider: DeviceProvider,
                 private val analytics: Analytics,
                 private val configuration: Configuration,
                 private val tests: Collection<Test>,
-                private val progressReporter: ProgressReporter) {
+                private val progressReporter: ProgressReporter,
+                override val coroutineContext: CoroutineContext) : CoroutineScope {
 
+    private val job = Job()
     private val pools = ConcurrentHashMap<DevicePoolId, SendChannel<FromScheduler>>()
     private val poolingStrategy = configuration.poolingStrategy
 
     private val logger = MarathonLogging.logger("Scheduler")
 
     suspend fun execute() {
-        val job = Job()
         subscribeOnDevices(job)
         try {
-            withTimeout(60, TimeUnit.SECONDS) {
+            withTimeout(60000) {
                 while (pools.isEmpty()) {
                     delay(100)
                 }
@@ -49,19 +50,21 @@ class Scheduler(private val deviceProvider: DeviceProvider,
         } catch (e: TimeoutCancellationException) {
             throw NoDevicesException("")
         }
-        job.joinChildren()
+        for(child in job.children) {
+            child.join()
+        }
     }
 
     fun getPools(): List<DevicePoolId> {
         return pools.keys.toList()
     }
 
-    private fun subscribeOnDevices(job: Job) {
-        launch {
+    private fun subscribeOnDevices(job: Job): Job {
+        return launch {
             for (msg in deviceProvider.subscribe()) {
                 when (msg) {
                     is DeviceProvider.DeviceEvent.DeviceConnected -> {
-                        onDeviceConnected(msg, job)
+                        onDeviceConnected(msg, job, coroutineContext)
                     }
                     is DeviceProvider.DeviceEvent.DeviceDisconnected -> {
                         onDeviceDisconnected(msg)
@@ -78,16 +81,20 @@ class Scheduler(private val deviceProvider: DeviceProvider,
         }
     }
 
-    private suspend fun onDeviceConnected(item: DeviceProvider.DeviceEvent.DeviceConnected, parent: Job) {
+    private suspend fun onDeviceConnected(item: DeviceProvider.DeviceEvent.DeviceConnected,
+                                          parent: Job,
+                                          context: CoroutineContext) {
         val device = item.device
         val poolId = poolingStrategy.associate(device)
         logger.debug { "device ${device.serialNumber} associated with poolId ${poolId.name}" }
         pools.computeIfAbsent(poolId) { id ->
             logger.debug { "pool actor ${id.name} is being created" }
-            DevicePoolActor(id, configuration, analytics, tests, progressReporter, parent)
+            DevicePoolActor(id, configuration, analytics, tests, progressReporter, parent, context)
         }
-        pools[poolId]?.send(AddDevice(device)) ?: logger.debug { "not sending the AddDevice event " +
-                "to device pool for ${device.serialNumber}" }
+        pools[poolId]?.send(AddDevice(device)) ?: logger.debug {
+            "not sending the AddDevice event " +
+                    "to device pool for ${device.serialNumber}"
+        }
         analytics.trackDeviceConnected(poolId, device)
     }
 }

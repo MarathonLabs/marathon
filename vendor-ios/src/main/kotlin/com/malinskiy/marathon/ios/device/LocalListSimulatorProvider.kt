@@ -9,15 +9,20 @@ import com.malinskiy.marathon.ios.IOSConfiguration
 import com.malinskiy.marathon.ios.IOSDevice
 import com.malinskiy.marathon.ios.cmd.remote.SshjCommandExecutor
 import com.malinskiy.marathon.log.MarathonLogging
-import kotlinx.coroutines.experimental.channels.Channel
-import kotlinx.coroutines.experimental.launch
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.newFixedThreadPoolContext
 import java.io.File
 import java.net.InetAddress
+import kotlin.coroutines.CoroutineContext
 
 class LocalListSimulatorProvider(private val channel: Channel<DeviceProvider.DeviceEvent>,
                                  private val configuration: IOSConfiguration,
                                  yamlObjectMapper: ObjectMapper,
-                                 private val gson: Gson) : SimulatorProvider {
+                                 private val gson: Gson) : SimulatorProvider, CoroutineScope {
+
+    override val coroutineContext: CoroutineContext by lazy { newFixedThreadPoolContext(1, "LocalListSimulatorProvider") }
 
     private val logger = MarathonLogging.logger(LocalListSimulatorProvider::class.java.simpleName)
 

@@ -4,7 +4,7 @@ import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.execution.TestBatchResults
 import com.malinskiy.marathon.execution.progress.ProgressReporter
 import com.malinskiy.marathon.test.TestBatch
-import kotlinx.coroutines.experimental.CompletableDeferred
+import kotlinx.coroutines.CompletableDeferred
 
 class DeviceStub(override var operatingSystem: OperatingSystem = OperatingSystem("25"),
                  override var serialNumber: String = "serialNumber",
@@ -14,9 +14,9 @@ class DeviceStub(override var operatingSystem: OperatingSystem = OperatingSystem
                  override val model: String = "model",
                  override val manufacturer: String = "manufacturer",
                  override val deviceFeatures: Collection<DeviceFeature> = emptyList()) : Device {
-    override fun execute(configuration: Configuration, devicePoolId: DevicePoolId, testBatch: TestBatch, deferred: CompletableDeferred<TestBatchResults>, progressReporter: ProgressReporter) {}
+    override suspend fun execute(configuration: Configuration, devicePoolId: DevicePoolId, testBatch: TestBatch, deferred: CompletableDeferred<TestBatchResults>, progressReporter: ProgressReporter) {}
 
-    override fun prepare(configuration: Configuration) {}
+    override suspend fun prepare(configuration: Configuration) {}
 
     override fun dispose() {}
 }

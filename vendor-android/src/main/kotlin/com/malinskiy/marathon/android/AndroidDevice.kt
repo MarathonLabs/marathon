@@ -2,7 +2,6 @@ package com.malinskiy.marathon.android
 
 import com.android.ddmlib.IDevice
 import com.android.ddmlib.NullOutputReceiver
-import com.android.ddmlib.TimeoutException
 import com.malinskiy.marathon.android.executor.AndroidAppInstaller
 import com.malinskiy.marathon.android.executor.AndroidDeviceTestRunner
 import com.malinskiy.marathon.device.Device
@@ -15,10 +14,19 @@ import com.malinskiy.marathon.execution.TestBatchResults
 import com.malinskiy.marathon.execution.progress.ProgressReporter
 import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.test.TestBatch
-import kotlinx.coroutines.experimental.CompletableDeferred
-import java.util.UUID
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.async
+import kotlinx.coroutines.newFixedThreadPoolContext
+import java.util.*
+import kotlin.coroutines.CoroutineContext
 
-class AndroidDevice(val ddmsDevice: IDevice) : Device {
+class AndroidDevice(val ddmsDevice: IDevice) : Device, CoroutineScope {
+    private val dispatcher by lazy {
+        newFixedThreadPoolContext(1, "AndroidDevice - execution - ${ddmsDevice.serialNumber}")
+    }
+
+    override val coroutineContext: CoroutineContext = dispatcher
 
     val logger = MarathonLogging.logger(AndroidDevice::class.java.simpleName)
 
@@ -38,7 +46,6 @@ class AndroidDevice(val ddmsDevice: IDevice) : Device {
         ddmsDevice.getProperty("ro.product.manufacturer") ?: "Unknown"
     }
 
-
     override val deviceFeatures: Collection<DeviceFeature>
         get() {
             val videoSupport = ddmsDevice.supportsFeature(IDevice.Feature.SCREEN_RECORD) &&
@@ -53,7 +60,10 @@ class AndroidDevice(val ddmsDevice: IDevice) : Device {
             return features
         }
 
-    override val serialNumber: String by lazy {
+    /**
+     * We can only call this after the device finished booting
+     */
+    private val realSerialNumber: String by lazy {
         val marathonSerialProp: String = ddmsDevice.getProperty("marathon.serialno") ?: ""
         val serialProp: String = ddmsDevice.getProperty("ro.boot.serialno") ?: ""
         val hostName: String = ddmsDevice.getProperty("net.hostname") ?: ""
@@ -64,6 +74,14 @@ class AndroidDevice(val ddmsDevice: IDevice) : Device {
                 ?: hostName.takeIf { it.isNotEmpty() }
                 ?: serialNumber.takeIf { it.isNotEmpty() }
                 ?: UUID.randomUUID().toString()
+    }
+
+    val booted: Boolean
+        get() = ddmsDevice.getProperty("sys.boot_completed") != null
+
+    override val serialNumber: String = when {
+        booted -> realSerialNumber
+        else -> ddmsDevice.serialNumber
     }
 
     override val operatingSystem: OperatingSystem by lazy {
@@ -82,42 +100,31 @@ class AndroidDevice(val ddmsDevice: IDevice) : Device {
             else -> false
         }
 
-    override fun execute(configuration: Configuration,
-                         devicePoolId: DevicePoolId,
-                         testBatch: TestBatch,
-                         deferred: CompletableDeferred<TestBatchResults>,
-                         progressReporter: ProgressReporter) {
-        AndroidDeviceTestRunner(this@AndroidDevice).execute(configuration, devicePoolId, testBatch, deferred, progressReporter)
-    }
+    override suspend fun execute(configuration: Configuration,
+                                 devicePoolId: DevicePoolId,
+                                 testBatch: TestBatch,
+                                 deferred: CompletableDeferred<TestBatchResults>,
+                                 progressReporter: ProgressReporter) {
 
-    override fun prepare(configuration: Configuration) {
-        if (!waitForBoot()) throw TimeoutException("Timeout waiting for device $serialNumber to boot")
-
-        AndroidAppInstaller(configuration).prepareInstallation(this)
-        RemoteFileManager.removeRemoteDirectory(ddmsDevice)
-        RemoteFileManager.createRemoteDirectory(ddmsDevice)
-        clearLogcat(ddmsDevice)
-    }
-
-    private fun waitForBoot(): Boolean {
-        var booted = false
-        for (i in 1..30) {
-            if (ddmsDevice.getProperty("sys.boot_completed") == null) {
-                Thread.sleep(1000)
-                logger.debug { "Device $serialNumber is still booting..." }
-            } else {
-                logger.debug { "Device $serialNumber booted!" }
-                booted = true
-                break
-            }
-
-            if (Thread.interrupted()) return true
+        val deferredResult = async {
+            AndroidDeviceTestRunner(this@AndroidDevice).execute(configuration, devicePoolId, testBatch, deferred, progressReporter)
         }
-
-        return booted
+        deferredResult.await()
     }
 
-    override fun dispose() {}
+    override suspend fun prepare(configuration: Configuration) {
+        val deferred = async {
+            AndroidAppInstaller(configuration).prepareInstallation(this@AndroidDevice)
+            RemoteFileManager.removeRemoteDirectory(ddmsDevice)
+            RemoteFileManager.createRemoteDirectory(ddmsDevice)
+            clearLogcat(ddmsDevice)
+        }
+        deferred.await()
+    }
+
+    override fun dispose() {
+        dispatcher.close()
+    }
 
     private fun clearLogcat(device: IDevice) {
         val logger = MarathonLogging.logger("AndroidDevice.clearLogcat")

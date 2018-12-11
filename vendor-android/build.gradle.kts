@@ -10,8 +10,6 @@ plugins {
     id("org.junit.platform.gradle.plugin")
 }
 
-kotlin.experimental.coroutines = Coroutines.ENABLE
-
 dependencies {
     implementation(Libraries.kotlinStdLib)
     implementation(Libraries.kotlinCoroutines)
@@ -20,19 +18,20 @@ dependencies {
     implementation(Libraries.dexTestParser)
     implementation(Libraries.axmlParser)
     implementation(Libraries.jacksonAnnotations)
+    implementation(Libraries.scalr)
     implementation(project(":core"))
+    testImplementation(project(":vendor-test"))
     testImplementation(TestLibraries.kluent)
+    testImplementation(TestLibraries.mockitoKotlin)
     testImplementation(TestLibraries.spekAPI)
     testRuntime(TestLibraries.spekJUnitPlatformEngine)
 }
 
 Deployment.initialize(project)
 
-val compileKotlin by tasks.getting(KotlinCompile::class) {
+tasks.withType<KotlinCompile> {
     kotlinOptions.jvmTarget = "1.8"
-}
-val compileTestKotlin by tasks.getting(KotlinCompile::class) {
-    kotlinOptions.jvmTarget = "1.8"
+    kotlinOptions.apiVersion = "1.3"
 }
 
 junitPlatform {

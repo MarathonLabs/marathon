@@ -17,6 +17,7 @@ rootProject.name = "marathon"
 include("core")
 include("vendor-android")
 include("vendor-ios")
+include("vendor-test")
 include("marathon-gradle-plugin")
 include("marathon-html-report")
 include("execution-timeline")
