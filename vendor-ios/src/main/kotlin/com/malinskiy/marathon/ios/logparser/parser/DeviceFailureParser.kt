@@ -1,6 +1,5 @@
 package com.malinskiy.marathon.ios.logparser.parser
 
-import com.malinskiy.marathon.exceptions.TestBatchExecutionException
 import com.malinskiy.marathon.ios.logparser.StreamingLogParser
 
 class DeviceFailureParser: StreamingLogParser {
@@ -10,10 +9,18 @@ class DeviceFailureParser: StreamingLogParser {
         "Unable to find a destination matching the provided destination specifier",
         "Terminating since there is no system app"
     )
+    private var count = 0
     override fun onLine(line: String) {
         patterns.firstOrNull { line.contains(it) }
             ?.let {
-                throw DeviceFailureException(it)
+                throw DeviceFailureException(
+                    when (patterns.indexOf(it)) {
+                        0 -> DeviceFailureReason.FailedRunner
+                        1 -> DeviceFailureReason.ConnectionAbort
+                        else -> DeviceFailureReason.Unknown
+                    },
+                    it
+                )
             }
     }
 

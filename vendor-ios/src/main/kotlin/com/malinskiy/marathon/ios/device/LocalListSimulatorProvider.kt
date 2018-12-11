@@ -7,10 +7,12 @@ import com.malinskiy.marathon.device.Device
 import com.malinskiy.marathon.device.DeviceProvider
 import com.malinskiy.marathon.ios.IOSConfiguration
 import com.malinskiy.marathon.ios.IOSDevice
+import com.malinskiy.marathon.ios.logparser.parser.DeviceFailureReason
 import com.malinskiy.marathon.log.MarathonLogging
 import kotlinx.coroutines.newFixedThreadPoolContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.async
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.delay
@@ -32,7 +34,8 @@ class LocalListSimulatorProvider(private val channel: Channel<DeviceProvider.Dev
 
     private val logger = MarathonLogging.logger(LocalListSimulatorProvider::class.java.simpleName)
 
-    private val devices: MutableList<Device>
+    private var healthCheckJob: Job? = null
+    private val devices: MutableList<IOSDevice>
     init {
         val file = configuration.devicesFile ?: File(System.getProperty("user.dir"), "Marathondevices")
         val simulators: List<RemoteSimulator>? = yamlObjectMapper.readValue(file)
@@ -47,6 +50,7 @@ class LocalListSimulatorProvider(private val channel: Channel<DeviceProvider.Dev
 
     override fun stop() {
         runBlocking {
+            healthCheckJob?.cancelAndJoin()
 
             devices.forEach {
                 logger.debug("Disconnecting simulator ${it.serialNumber}")
@@ -67,6 +71,32 @@ class LocalListSimulatorProvider(private val channel: Channel<DeviceProvider.Dev
                 logger.debug { "Found new simulator: ${it.serialNumber}" }
 
                 channel.send(element = DeviceProvider.DeviceEvent.DeviceConnected(it))
+            }
+        }
+        healthCheckJob = launch {
+            while (isActive) {
+                delay(999)
+                val unhealthy = devices.filter { !it.healthy }
+                devices.removeAll(unhealthy)
+                unhealthy.forEach {
+                    it.dispose()
+                    channel.send(element = DeviceProvider.DeviceEvent.DeviceDisconnected(it))
+                }
+                val curable = unhealthy.filter { it.sickness != null && it.sickness != DeviceFailureReason.Unknown }
+                if (curable.count() > 0) {
+                    launch {
+                        delay(666)
+                        val cured = curable.map {
+                            IOSDevice(
+                                simulator = it.simulator,
+                                configuration = configuration,
+                                gson = gson
+                            )
+                        }
+                        cured.forEach { channel.send(element = DeviceProvider.DeviceEvent.DeviceConnected(it)) }
+                        devices.addAll(cured)
+                    }
+                }
             }
         }
     }

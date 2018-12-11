@@ -1,6 +1,7 @@
 package com.malinskiy.marathon.ios.logparser.parser
 
-class DeviceFailureException: RuntimeException {
-    constructor(cause: Throwable): super(cause)
-    constructor(message: String): super(message)
+enum class DeviceFailureReason {
+    Unknown, FailedRunner, ConnectionAbort
 }
+
+class DeviceFailureException(val reason: DeviceFailureReason, message: String): RuntimeException(message)

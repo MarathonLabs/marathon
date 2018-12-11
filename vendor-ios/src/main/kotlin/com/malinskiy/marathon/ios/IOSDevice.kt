@@ -20,6 +20,7 @@ import com.malinskiy.marathon.ios.device.RemoteSimulatorFeatureProvider
 import com.malinskiy.marathon.ios.logparser.IOSDeviceLogParser
 import com.malinskiy.marathon.ios.logparser.formatter.TestLogPackageNameFormatter
 import com.malinskiy.marathon.ios.logparser.parser.DeviceFailureException
+import com.malinskiy.marathon.ios.logparser.parser.DeviceFailureReason
 import com.malinskiy.marathon.ios.simctl.Simctl
 import com.malinskiy.marathon.ios.xctestrun.Xctestrun
 import com.malinskiy.marathon.log.MarathonLogging
@@ -36,7 +37,7 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.newFixedThreadPoolContext
 import kotlin.coroutines.CoroutineContext
 
-class IOSDevice(simulator: RemoteSimulator,
+class IOSDevice(val simulator: RemoteSimulator,
                 configuration: IOSConfiguration,
                 val gson: Gson): Device, CoroutineScope {
 
@@ -82,6 +83,9 @@ class IOSDevice(simulator: RemoteSimulator,
         RemoteSimulatorFeatureProvider.deviceFeatures(this)
     }
     override var healthy: Boolean = true
+    private var failureReason: DeviceFailureReason? = null
+    val sickness: DeviceFailureReason?
+        get() = failureReason
     override val abi: String
         get() = "Simulator"
 
@@ -159,6 +163,7 @@ class IOSDevice(simulator: RemoteSimulator,
         } catch(e: DeviceFailureException) {
             logger.error("$e")
             healthy = false
+            failureReason = e.reason
             throw DeviceLostException(e)
         } finally {
             logParser.close()
