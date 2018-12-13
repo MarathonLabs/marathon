@@ -17,5 +17,5 @@ vendorConfiguration:
   type: "iOS"
   derivedDataDir: "derived-data"
   sourceRoot: "sample-appUITests"
-  remoteUsername: "ypanforov"
-  remotePrivateKey: "/Users/ypanforov/Developer/marathon/vendor-ios/src/test/resources/fixtures/derived-data-manager/test_rsa"
+  remoteUsername: "username"
+  remotePrivateKey: "id_rsa"
