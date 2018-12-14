@@ -13,6 +13,9 @@ import kotlinx.coroutines.CoroutineScope
 import java.io.File
 
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlin.coroutines.CoroutineContext
 
@@ -35,8 +38,10 @@ class LocalListSimulatorProvider(private val channel: Channel<DeviceProvider.Dev
         simulators = configuredSimulators ?: emptyList()
     }
 
-    override suspend fun start() = withContext(coroutineContext) {
-        simulators.map(this@LocalListSimulatorProvider::createDevice).forEach { connect(it) }
+    override suspend fun start() {
+        launch(dispatcher) {
+            simulators.map(this@LocalListSimulatorProvider::createDevice).forEach { connect(it) }
+        }
     }
 
     override suspend fun stop() = withContext(coroutineContext) {
@@ -46,10 +51,15 @@ class LocalListSimulatorProvider(private val channel: Channel<DeviceProvider.Dev
     override suspend fun onDisconnect(device: IOSDevice) {
         disconnect(device)
 
-        val simulator = device.simulator
-        val clone = createDevice(simulator)
+        launch(dispatcher) {
 
-        connect(clone)
+            delay(499)
+
+            val simulator = device.simulator
+            val clone = createDevice(simulator)
+
+            connect(clone)
+        }
     }
 
     private suspend fun disconnect(device: IOSDevice) {
