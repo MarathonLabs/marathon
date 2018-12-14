@@ -10,6 +10,7 @@ import ch.qos.logback.core.ConsoleAppender
 import ch.qos.logback.core.encoder.LayoutWrappingEncoder
 import ch.qos.logback.core.spi.ContextAwareBase
 import net.schmizz.sshj.DefaultConfig
+import net.schmizz.sshj.transport.kex.Curve25519SHA256
 import net.schmizz.sshj.transport.random.BouncyCastleRandom
 
 class IOSLogConfigurator: ContextAwareBase(), Configurator  {
@@ -41,6 +42,7 @@ class IOSLogConfigurator: ContextAwareBase(), Configurator  {
             loggerContext.getLogger(Logger.ROOT_LOGGER_NAME).addAppender(consoleAppender)
 
             listOf(
+                Curve25519SHA256::class.java.name,
                 BouncyCastleRandom::class.java.name,
                 DefaultConfig::class.java.name,
                 "net.schmizz.sshj.common.ECDSAVariationsAdapter"
