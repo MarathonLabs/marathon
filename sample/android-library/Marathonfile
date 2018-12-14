@@ -1,0 +1,6 @@
+name: "sample-library-project tests"
+outputDir: "build/reports/marathon"
+vendorConfiguration:
+  type: "Android"
+  testApplicationApk: "library/build/outputs/apk/androidTest/debug/library-debug-androidTest.apk"
+  autoGrantPermission: true

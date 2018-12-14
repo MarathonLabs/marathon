@@ -1,3 +1,0 @@
-name: "sample-library-project tests"
-outputDir: "build/reports/marathon"
-testApplicationOutput: "kotlin-buildscript/build/outputs/apk/androidTest/debug/kotlin-buildscript-debug-androidTest.apk"

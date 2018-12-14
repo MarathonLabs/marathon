@@ -1,0 +1,7 @@
+name: "sample-app tests"
+outputDir: "build/reports/marathon"
+vendorConfiguration:
+  type: "Android"
+  applicationApk: "app/build/outputs/apk/debug/app-debug.apk"
+  testApplicationApk: "app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk"
+  autoGrantPermission: true
