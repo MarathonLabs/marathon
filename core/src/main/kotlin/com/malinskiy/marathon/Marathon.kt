@@ -52,8 +52,8 @@ class Marathon(val configuration: Configuration) {
         return htmlSummaryPrinter
     }
 
-    private fun loadDeviceProvider(vendorConfiguration: VendorConfiguration): DeviceProvider {
-        var vendorDeviceProvider = vendorConfiguration.deviceProvider()
+    private suspend fun loadDeviceProvider(vendorConfiguration: VendorConfiguration): DeviceProvider {
+        val vendorDeviceProvider = vendorConfiguration.deviceProvider()
                 ?: ServiceLoader.load(DeviceProvider::class.java).first()
 
         vendorDeviceProvider.initialize(configuration.vendorConfiguration)

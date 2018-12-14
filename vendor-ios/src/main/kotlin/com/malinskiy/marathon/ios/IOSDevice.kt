@@ -8,7 +8,6 @@ import com.malinskiy.marathon.device.DevicePoolId
 import com.malinskiy.marathon.device.NetworkState
 import com.malinskiy.marathon.device.OperatingSystem
 import com.malinskiy.marathon.exceptions.DeviceLostException
-import com.malinskiy.marathon.exceptions.TestBatchExecutionException
 import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.execution.TestBatchResults
 import com.malinskiy.marathon.execution.progress.ProgressReporter
@@ -33,13 +32,13 @@ import java.util.concurrent.TimeoutException
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.async
 import kotlinx.coroutines.newFixedThreadPoolContext
 import kotlin.coroutines.CoroutineContext
 
 class IOSDevice(val simulator: RemoteSimulator,
                 configuration: IOSConfiguration,
-                val gson: Gson): Device, CoroutineScope {
+                val gson: Gson,
+                private val healthListener: HealthListener): Device, CoroutineScope {
 
     val udid = simulator.udid
     private val deviceContext = newFixedThreadPoolContext(1, udid)
@@ -83,6 +82,7 @@ class IOSDevice(val simulator: RemoteSimulator,
         RemoteSimulatorFeatureProvider.deviceFeatures(this)
     }
     override var healthy: Boolean = true
+        private set
     private var failureReason: DeviceFailureReason? = null
     val sickness: DeviceFailureReason?
         get() = failureReason
@@ -97,11 +97,6 @@ class IOSDevice(val simulator: RemoteSimulator,
                                  testBatch: TestBatch,
                                  deferred: CompletableDeferred<TestBatchResults>,
                                  progressReporter: ProgressReporter) = withContext(deviceContext) {
-        if (!healthy) {
-            logger.error("Device $udid is unhealthy")
-            throw TestBatchExecutionException("Device $udid is unhealthy")
-        }
-
         val iosConfiguration = configuration.vendorConfiguration as IOSConfiguration
         val fileManager = FileManager(configuration.outputDir)
 
@@ -146,23 +141,23 @@ class IOSDevice(val simulator: RemoteSimulator,
             )
         } catch (e: SshjCommandUnresponsiveException) {
             logger.error("No output from remote shell")
-            healthy = false
+            disconnectAndNotify()
             throw DeviceLostException(e)
         } catch (e: TimeoutException) {
             logger.error("Connection timeout")
-            healthy = false
+            disconnectAndNotify()
             throw DeviceLostException(e)
         } catch (e: TransportException) {
             logger.error("TransportException $e, cause ${e.cause}")
-            healthy = false
+            disconnectAndNotify()
             throw DeviceLostException(e)
         } catch (e: OpenFailException) {
             logger.error("Unable to open session")
-            healthy = false
+            disconnectAndNotify()
             throw DeviceLostException(e)
         } catch(e: DeviceFailureException) {
             logger.error("$e")
-            healthy = false
+            disconnectAndNotify()
             failureReason = e.reason
             throw DeviceLostException(e)
         } finally {
@@ -183,6 +178,10 @@ class IOSDevice(val simulator: RemoteSimulator,
         // 70 = no devices
         // 65 = ** TEST EXECUTE FAILED **: crash
         logger.debug("Finished test batch execution with exit status $exitStatus")
+    }
+    private suspend fun disconnectAndNotify() {
+        healthy = false
+        healthListener.onDisconnect(this)
     }
 
     override suspend fun prepare(configuration: Configuration) = withContext(coroutineContext) {

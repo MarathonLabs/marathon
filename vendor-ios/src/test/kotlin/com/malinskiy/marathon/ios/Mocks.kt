@@ -31,7 +31,10 @@ class Mocks {
             val DEFAULT = com.malinskiy.marathon.ios.IOSDevice(
                 RemoteSimulator("localhost", "63D0962A-0A41-4BE9-A99E-E6220412BEB1", null),
                 mock(IOSConfiguration::class),
-                gson)
+                gson,
+                object : HealthListener {
+                    override suspend fun onDisconnect(device: com.malinskiy.marathon.ios.IOSDevice) { }
+                })
         }
     }
 

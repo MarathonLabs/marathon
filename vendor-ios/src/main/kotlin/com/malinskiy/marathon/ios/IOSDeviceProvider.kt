@@ -21,7 +21,7 @@ class IOSDeviceProvider : DeviceProvider {
 
     private lateinit var simulatorProvider: SimulatorProvider
 
-    override fun terminate() {
+    override suspend fun terminate() {
         logger.debug { "Terminating IOS device provider" }
         if (::simulatorProvider.isInitialized) {
             simulatorProvider.stop()
@@ -31,7 +31,7 @@ class IOSDeviceProvider : DeviceProvider {
         logger.debug("Closed channel")
     }
 
-    override fun initialize(vendorConfiguration: VendorConfiguration) {
+    override suspend fun initialize(vendorConfiguration: VendorConfiguration) {
         if (vendorConfiguration !is IOSConfiguration) {
             throw IllegalStateException("Invalid configuration $vendorConfiguration passed")
         }

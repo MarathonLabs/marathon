@@ -36,7 +36,7 @@ class AndroidDeviceProvider : DeviceProvider, CoroutineScope {
     override val coroutineContext: CoroutineContext
         get() = bootWaitContext
 
-    override fun initialize(vendorConfiguration: VendorConfiguration) {
+    override suspend fun initialize(vendorConfiguration: VendorConfiguration) {
         if (vendorConfiguration !is AndroidConfiguration) {
             throw IllegalStateException("Invalid configuration $vendorConfiguration passed")
         }
@@ -166,7 +166,7 @@ class AndroidDeviceProvider : DeviceProvider, CoroutineScope {
 
     private fun AndroidDebugBridge.hasDevices(): Boolean = devices.isNotEmpty()
 
-    override fun terminate() {
+    override suspend fun terminate() {
         AndroidDebugBridge.disconnectBridge()
         AndroidDebugBridge.terminate()
         bootWaitContext.close()
