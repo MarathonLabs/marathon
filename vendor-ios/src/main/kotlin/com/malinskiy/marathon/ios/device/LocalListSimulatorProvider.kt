@@ -45,7 +45,9 @@ class LocalListSimulatorProvider(private val channel: Channel<DeviceProvider.Dev
     }
 
     override suspend fun stop() = withContext(coroutineContext) {
-        devices.forEach { disconnect(it) }
+        devices.toList().forEach {
+            disconnect(it)
+        }
     }
 
     override suspend fun onDisconnect(device: IOSDevice) {
