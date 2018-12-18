@@ -95,15 +95,18 @@ class Marathon(val configuration: Configuration) {
         }
         configuration.outputDir.mkdirs()
 
+        val shutdownHook = ShutdownHook(configuration) {
+                println("hook printing")
+                printSummary(scheduler)
+            }
+            .also { it.install() }
+
         val timeMillis = measureTimeMillis {
             scheduler.execute()
         }
 
-        val pools = scheduler.getPools()
-        if (!pools.isEmpty()) {
-            val summaryPrinter = loadSummaryPrinter()
-            val summary = summaryCompiler.compile(scheduler.getPools())
-            summaryPrinter.print(summary)
+        if (shutdownHook.uninstall()) {
+            printSummary(scheduler)
         }
 
         val hours = TimeUnit.MILLISECONDS.toHours(timeMillis)
@@ -115,6 +118,16 @@ class Marathon(val configuration: Configuration) {
         analytics.close()
         deviceProvider.terminate()
         return progressReporter.aggregateResult()
+    }
+
+    private fun printSummary(scheduler: Scheduler) {
+        scheduler.getPools()
+                .takeIf { it.isNotEmpty() }
+                ?.let { pools ->
+                    val summaryPrinter = loadSummaryPrinter()
+                    val summary = summaryCompiler.compile(pools)
+                    summaryPrinter.print(summary)
+                }
     }
 
     private fun applyTestFilters(parsedTests: List<Test>): List<Test> {
