@@ -77,7 +77,10 @@ class IOSDevice(val simulator: RemoteSimulator,
     override val manufacturer: String
         get() = "Apple"
     override val networkState: NetworkState
-        get() = NetworkState.CONNECTED
+        get() = when(healthy) {
+            true -> NetworkState.CONNECTED
+            false -> NetworkState.DISCONNECTED
+        }
     override val deviceFeatures: Collection<DeviceFeature> by lazy {
         RemoteSimulatorFeatureProvider.deviceFeatures(this)
     }

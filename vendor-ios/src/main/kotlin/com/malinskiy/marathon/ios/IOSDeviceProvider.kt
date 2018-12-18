@@ -19,14 +19,11 @@ class IOSDeviceProvider : DeviceProvider {
 
     private val logger = MarathonLogging.logger(IOSDeviceProvider::class.java.simpleName)
 
-    private lateinit var simulatorProvider: SimulatorProvider
+    private var simulatorProvider: SimulatorProvider? = null
 
     override suspend fun terminate() {
         logger.debug { "Terminating IOS device provider" }
-        if (::simulatorProvider.isInitialized) {
-            simulatorProvider.stop()
-        }
-        logger.debug("Closing IOS device provider")
+        simulatorProvider?.stop()
         channel.close()
         logger.debug("Closed channel")
     }
@@ -36,6 +33,8 @@ class IOSDeviceProvider : DeviceProvider {
             throw IllegalStateException("Invalid configuration $vendorConfiguration passed")
         }
 
+        logger.debug("Initializing IOSDeviceProvider")
+
         val gson = GsonBuilder().registerTypeAdapter(SimctlDeviceList::class.java, SimctlDeviceListDeserializer())
                 .create()
 
@@ -43,7 +42,7 @@ class IOSDeviceProvider : DeviceProvider {
                 .registerModule(KotlinModule())
 
         simulatorProvider = LocalListSimulatorProvider(channel, vendorConfiguration, mapper, gson)
-                .also { it.start() }
+        simulatorProvider?.start()
     }
 
     private val channel: Channel<DeviceProvider.DeviceEvent> = unboundedChannel()

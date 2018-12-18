@@ -85,6 +85,7 @@ class SshjCommandExecutor(deviceContext: CoroutineContext,
     private class OutputTimeoutException: RuntimeException()
 
     override suspend fun exec(command: String, timeoutMillis: Long, testOutputTimeoutMillis: Long, onLine: (String) -> Unit): Int? {
+        logger.debug("→ starting $command")
         val session = try {
             startSession(command)
         } catch (e: ConnectionException) {
@@ -107,7 +108,7 @@ class SshjCommandExecutor(deviceContext: CoroutineContext,
                 val isSessionReadable = { session.isOpen and !session.isEOF }
 
                 awaitAll(
-                    async {
+                    async(coroutineContext) {
                         readLines(session.inputStream,
                             isSessionReadable,
                             {
@@ -116,7 +117,7 @@ class SshjCommandExecutor(deviceContext: CoroutineContext,
                             }
                         )
                     },
-                    async {
+                    async(coroutineContext) {
                         readLines(session.errorStream,
                             isSessionReadable,
                             {
@@ -125,7 +126,7 @@ class SshjCommandExecutor(deviceContext: CoroutineContext,
                             }
                         )
                     },
-                    async {
+                    async(coroutineContext) {
                         while (isActive and isSessionReadable()) {
                             if (timeoutWaiter.isExpired) {
                                 throw OutputTimeoutException()
@@ -151,6 +152,7 @@ class SshjCommandExecutor(deviceContext: CoroutineContext,
             throw SshjCommandUnresponsiveException("Remote command \n\u001b[1m$command\u001b[0mdid not send any output over ${testOutputTimeoutMillis}ms")
         } finally {
             try {
+                logger.debug("→ ending $command")
                 session.close()
             } catch (e: IOException) {
             } catch (e: TransportException) {
