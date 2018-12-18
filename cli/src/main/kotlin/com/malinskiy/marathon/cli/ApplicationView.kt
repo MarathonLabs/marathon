@@ -7,6 +7,9 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.KotlinModule
 import com.malinskiy.marathon.BuildConfig
 import com.malinskiy.marathon.Marathon
+import com.malinskiy.marathon.analytics.TrackActionType
+import com.malinskiy.marathon.analytics.UsageAnalytics
+import com.malinskiy.marathon.analytics.tracker.Event
 import com.malinskiy.marathon.cli.args.MarathonCliConfiguration
 import com.malinskiy.marathon.cli.args.environment.SystemEnvironmentReader
 import com.malinskiy.marathon.cli.config.ConfigFactory
@@ -34,6 +37,8 @@ fun main(args: Array<String>): Unit = mainBody(
                 environmentReader = SystemEnvironmentReader()
         )
         val marathon = Marathon(configuration = configuration)
+        UsageAnalytics.enable = this.analyticsTracking
+        UsageAnalytics.tracker.trackEvent(Event(TrackActionType.RUN_TYPE, "cli"))
         marathon.run()
     }
 }
