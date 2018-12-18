@@ -17,5 +17,5 @@ tasks.withType<KotlinCompile> {
 }
 
 dependencies {
-
+    implementation(Analytics.googleAnalytics)
 }

@@ -39,6 +39,7 @@ object Versions {
     val jupiterEngine = "5.1.0"
     val scalr = "4.2"
     val mockitoKotlin = "2.0.0"
+    val googleAnalytics = "v3-rev159-1.25.0"
 }
 
 object BuildPlugins {
@@ -93,4 +94,8 @@ object TestLibraries {
 
     val testContainers = "org.testcontainers:testcontainers:${Versions.testContainers}"
     val testContainersInflux = "org.testcontainers:influxdb:${Versions.testContainers}"
+}
+
+object Analytics {
+    val googleAnalytics = "com.google.apis:google-api-services-analytics:${Versions.googleAnalytics}"
 }
