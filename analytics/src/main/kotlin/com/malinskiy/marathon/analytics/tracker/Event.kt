@@ -1,4 +1,6 @@
 package com.malinskiy.marathon.analytics.tracker
 
-data class Event(val action: String,
+import com.malinskiy.marathon.analytics.TrackActionType
+
+data class Event(val action: TrackActionType,
                  val label: String)

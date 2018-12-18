@@ -1,10 +1,13 @@
 package com.malinskiy.marathon.analytics
 
+import com.malinskiy.marathon.analytics.tracker.EmptyTracker
 import com.malinskiy.marathon.analytics.tracker.GoogleAnalyticsTracker
 import com.malinskiy.marathon.analytics.tracker.Tracker
 
-object UsageAnalytics{
+object UsageAnalytics {
+    var enable = false
+
     val tracker: Tracker by lazy {
-        GoogleAnalyticsTracker()
+        if (enable) GoogleAnalyticsTracker() else EmptyTracker()
     }
 }
