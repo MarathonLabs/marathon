@@ -18,5 +18,5 @@ tasks.withType<KotlinCompile> {
 
 dependencies {
     implementation(Analytics.googleAnalytics)
-    implementation("com.brsanthu:google-analytics-java:2.0.0")
+    implementation(Analytics.googleAnalyticsWrapper)
 }

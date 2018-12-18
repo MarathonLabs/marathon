@@ -40,6 +40,7 @@ object Versions {
     val scalr = "4.2"
     val mockitoKotlin = "2.0.0"
     val googleAnalytics = "v3-rev159-1.25.0"
+    val googleAnalitycsWrapper = "2.0.0"
 }
 
 object BuildPlugins {
@@ -98,4 +99,5 @@ object TestLibraries {
 
 object Analytics {
     val googleAnalytics = "com.google.apis:google-api-services-analytics:${Versions.googleAnalytics}"
+    val googleAnalyticsWrapper = "com.brsanthu:google-analytics-java:${Versions.googleAnalitycsWrapper}"
 }
