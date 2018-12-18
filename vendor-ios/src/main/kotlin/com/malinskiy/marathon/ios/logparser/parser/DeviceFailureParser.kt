@@ -7,7 +7,8 @@ class DeviceFailureParser: StreamingLogParser {
         "Failed to install or launch the test runner",
         "Software caused connection abort",
         "Unable to find a destination matching the provided destination specifier",
-        "Terminating since there is no system app"
+        "Terminating since there is no system app",
+        "Exiting because the workspace server has disconnected"
     )
     private var count = 0
     override fun onLine(line: String) {
