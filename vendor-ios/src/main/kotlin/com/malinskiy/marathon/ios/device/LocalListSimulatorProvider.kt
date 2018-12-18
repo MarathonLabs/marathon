@@ -8,6 +8,7 @@ import com.malinskiy.marathon.ios.IOSConfiguration
 import com.malinskiy.marathon.ios.IOSDevice
 import com.malinskiy.marathon.ios.HealthListener
 import com.malinskiy.marathon.log.MarathonLogging
+import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.newFixedThreadPoolContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
@@ -43,14 +44,14 @@ class LocalListSimulatorProvider(private val channel: Channel<DeviceProvider.Dev
 
     override suspend fun start() {
         logger.debug("Starting LocalListSimulatorProvider")
-        launch(dispatcher) {
+        launch(CoroutineName("Simulator provider starter")) {
             simulators
                     .map(this@LocalListSimulatorProvider::createDevice)
                     .forEach { connect(it) }
         }
     }
 
-    override suspend fun stop() = withContext(coroutineContext) {
+    override suspend fun stop() = withContext(CoroutineName("Simulator provider stopper")) {
         logger.debug("Stopping LocalListSimulatorProvider")
         devices.entries
                 .filter { devices.remove(it.key, it.value) }
@@ -64,7 +65,7 @@ class LocalListSimulatorProvider(private val channel: Channel<DeviceProvider.Dev
 
     override suspend fun onDisconnect(device: IOSDevice) {
         logger.debug("Device ${device.udid} onDisconnect")
-        launch(dispatcher) {
+        launch(CoroutineName("onDisconnect disconnector")) {
             logger.debug("removing ${device.udid}")
             if (devices.remove(device.serialNumber, device)) {
                 dispose(device)
@@ -73,7 +74,7 @@ class LocalListSimulatorProvider(private val channel: Channel<DeviceProvider.Dev
             }
         }
 
-        launch(dispatcher) {
+        launch(CoroutineName("onDisconnect reconnector")) {
             delay(499)
 
             val restartedDevice = createDevice(device.simulator)
@@ -98,12 +99,12 @@ class LocalListSimulatorProvider(private val channel: Channel<DeviceProvider.Dev
         notifyConnected(device)
     }
 
-    private fun notifyConnected(device: IOSDevice) = launch {
+    private fun notifyConnected(device: IOSDevice) = launch(CoroutineName("simulator connected notifier")) {
         logger.debug("notifyConnected ${device.udid}")
         channel.send(element = DeviceProvider.DeviceEvent.DeviceConnected(device))
     }
 
-    private fun notifyDisconnected(device: IOSDevice) = launch {
+    private fun notifyDisconnected(device: IOSDevice) = launch(CoroutineName("simulator disconnected notifier")) {
         logger.debug("notifyDisconnected ${device.udid}")
         channel.send(element = DeviceProvider.DeviceEvent.DeviceDisconnected(device))
     }

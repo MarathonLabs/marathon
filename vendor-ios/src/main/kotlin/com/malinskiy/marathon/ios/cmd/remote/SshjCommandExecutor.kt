@@ -1,7 +1,6 @@
 package com.malinskiy.marathon.ios.cmd.remote
 
 import ch.qos.logback.classic.Level
-import com.malinskiy.marathon.exceptions.TestBatchExecutionException
 import com.malinskiy.marathon.log.MarathonLogging
 import kotlinx.coroutines.*
 import net.schmizz.sshj.DefaultConfig
@@ -15,12 +14,18 @@ import java.io.IOException
 import java.io.InputStream
 import java.lang.RuntimeException
 import java.net.InetAddress
+import java.time.Instant
+import java.util.*
 import java.util.concurrent.TimeoutException
 import kotlin.coroutines.CoroutineContext
 import kotlin.math.min
 
 private const val DEFAULT_PORT = 22
 private const val SLEEP_DURATION_MILLIS = 15L
+
+private const val DEBUG = false
+
+data class Executable(val command: String, val start: Instant = Instant.now()): Any()
 
 class SshjCommandExecutor(deviceContext: CoroutineContext,
                           val hostAddress: InetAddress,
@@ -32,6 +37,8 @@ class SshjCommandExecutor(deviceContext: CoroutineContext,
 
     override val coroutineContext: CoroutineContext = deviceContext
     private val ssh: SSHClient
+
+    private val executables: MutableList<Executable> = Collections.synchronizedList(mutableListOf())
 
     init {
         val config = DefaultConfig()
@@ -73,6 +80,11 @@ class SshjCommandExecutor(deviceContext: CoroutineContext,
     }
 
     override fun disconnect() {
+        synchronized(executables) {
+            if (executables.isNotEmpty()) {
+                logger.debug { "disconnecting, but there are still incomplete commands: ${executables.joinToString(", ")}" }
+            }
+        }
         if (ssh.isConnected) {
             try {
                 ssh.disconnect()
@@ -85,7 +97,12 @@ class SshjCommandExecutor(deviceContext: CoroutineContext,
     private class OutputTimeoutException: RuntimeException()
 
     override suspend fun exec(command: String, timeoutMillis: Long, testOutputTimeoutMillis: Long, onLine: (String) -> Unit): Int? {
-        logger.debug("→ starting $command")
+        val executable = Executable(command)
+        logger.debug("→ starting $executable")
+        synchronized(executables) {
+            executables.add(executable)
+        }
+
         val session = try {
             startSession(command)
         } catch (e: ConnectionException) {
@@ -108,7 +125,7 @@ class SshjCommandExecutor(deviceContext: CoroutineContext,
                 val isSessionReadable = { session.isOpen and !session.isEOF }
 
                 awaitAll(
-                    async(coroutineContext) {
+                    async(CoroutineName("stdout reader")) {
                         readLines(session.inputStream,
                             isSessionReadable,
                             {
@@ -117,7 +134,7 @@ class SshjCommandExecutor(deviceContext: CoroutineContext,
                             }
                         )
                     },
-                    async(coroutineContext) {
+                    async(CoroutineName("stderr reader")) {
                         readLines(session.errorStream,
                             isSessionReadable,
                             {
@@ -126,7 +143,7 @@ class SshjCommandExecutor(deviceContext: CoroutineContext,
                             }
                         )
                     },
-                    async(coroutineContext) {
+                    async(CoroutineName("Timeout waiter")) {
                         while (isActive and isSessionReadable()) {
                             if (timeoutWaiter.isExpired) {
                                 throw OutputTimeoutException()
@@ -152,7 +169,15 @@ class SshjCommandExecutor(deviceContext: CoroutineContext,
             throw SshjCommandUnresponsiveException("Remote command \n\u001b[1m$command\u001b[0mdid not send any output over ${testOutputTimeoutMillis}ms")
         } finally {
             try {
-                logger.debug("→ ending $command")
+                val incomplete = synchronized(executables) {
+                    executables.remove(executable)
+
+                    when (executables.isNotEmpty()) {
+                        true -> "; there are ${executables.count()} incomplete commands"
+                        false -> ""
+                    }
+                }
+                logger.debug("→ ending $executable$incomplete")
                 session.close()
             } catch (e: IOException) {
             } catch (e: TransportException) {
@@ -201,7 +226,7 @@ class SshjCommandExecutor(deviceContext: CoroutineContext,
     override fun exec(command: String, timeoutMillis: Long, testOutputTimeoutMillis: Long): CommandResult {
         val lines = arrayListOf<String>()
         val exitStatus =
-                runBlocking() {
+                runBlocking(CoroutineName("blocking exec")) {
                     exec(command, timeoutMillis, testOutputTimeoutMillis) { lines.add(it) }
                 }
         return CommandResult(lines.joinToString("\n"), "", exitStatus ?: 1)
