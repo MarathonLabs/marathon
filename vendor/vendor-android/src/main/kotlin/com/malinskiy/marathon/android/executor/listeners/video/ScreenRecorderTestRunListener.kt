@@ -10,16 +10,28 @@ import com.malinskiy.marathon.android.RemoteFileManager.removeRemotePath
 import com.malinskiy.marathon.android.executor.listeners.NoOpTestRunListener
 import com.malinskiy.marathon.android.toTest
 import com.malinskiy.marathon.device.DevicePoolId
+import com.malinskiy.marathon.execution.Attachment
+import com.malinskiy.marathon.execution.AttachmentType
 import com.malinskiy.marathon.io.FileManager
 import com.malinskiy.marathon.io.FileType
 import com.malinskiy.marathon.log.MarathonLogging
+import com.malinskiy.marathon.report.attachment.AttachmentListener
+import com.malinskiy.marathon.report.attachment.AttachmentProvider
 import kotlin.system.measureTimeMillis
 
 const val MS_IN_SECOND: Long = 1_000L
 
 internal class ScreenRecorderTestRunListener(private val fileManager: FileManager,
                                              private val pool: DevicePoolId,
-                                             private val device: AndroidDevice) : NoOpTestRunListener() {
+                                             private val device: AndroidDevice)
+    : NoOpTestRunListener(), AttachmentProvider {
+
+    val attachmentListeners = mutableListOf<AttachmentListener>()
+
+    override fun registerListener(listener: AttachmentListener) {
+        attachmentListeners.add(listener)
+    }
+
     private val logger = MarathonLogging.logger("ScreenRecorder")
 
     private val deviceInterface: IDevice = device.ddmsDevice
@@ -83,6 +95,7 @@ internal class ScreenRecorderTestRunListener(private val fileManager: FileManage
             deviceInterface.pullFile(remoteFilePath, localVideoFile.toString())
         }
         logger.trace { "Pulling finished in ${millis}ms $remoteFilePath " }
+        attachmentListeners.forEach { it.onAttachment(test.toTest(), Attachment(localVideoFile, AttachmentType.VIDEO)) }
     }
 
     private fun removeTestVideo(test: TestIdentifier) {

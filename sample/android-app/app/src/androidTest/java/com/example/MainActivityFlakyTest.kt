@@ -2,12 +2,23 @@ package com.example
 
 import android.support.test.rule.ActivityTestRule
 import android.support.test.runner.AndroidJUnit4
+import io.qameta.allure.Epic
+import io.qameta.allure.Feature
+import io.qameta.allure.Owner
+import io.qameta.allure.Severity
+import io.qameta.allure.SeverityLevel
+import io.qameta.allure.Story
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.Assert.assertTrue
 import java.util.Random
 
+@Epic("Marathon")
+@Feature("Flakiness")
+@Owner("user2")
+@Severity(SeverityLevel.BLOCKER)
+@Story("Flaky")
 @RunWith(AndroidJUnit4::class)
 class MainActivityFlakyTest {
 

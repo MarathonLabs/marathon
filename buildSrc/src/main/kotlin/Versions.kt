@@ -38,6 +38,8 @@ object Versions {
     val testContainers = "1.9.1"
     val jupiterEngine = "5.1.0"
     val scalr = "4.2"
+    val allure = "2.8.1"
+    val allureEnvironment = "1.0.0"
     val mockitoKotlin = "2.0.0"
 }
 
@@ -73,6 +75,8 @@ object Libraries {
     val rsync4j = "com.github.fracpete:rsync4j-all:${Versions.rsync4j}"
     val sshj = "com.hierynomus:sshj:${Versions.sshj}"
     val scalr = "org.imgscalr:imgscalr-lib:${Versions.scalr}"
+    val allure = "io.qameta.allure:allure-java-commons:${Versions.allure}"
+    val allureEnvironment = "com.github.automatedowl:allure-environment-writer:${Versions.allureEnvironment}"
 }
 
 object TestLibraries {

@@ -1,5 +1,6 @@
 package com.malinskiy.marathon.execution
 
+import com.malinskiy.marathon.test.MetaProperty
 import com.malinskiy.marathon.test.Test
 import org.amshove.kluent.shouldEqual
 import org.jetbrains.spek.api.Spek
@@ -82,5 +83,7 @@ object CompositionFilterSpec : Spek({
 
 })
 
-private fun stubTest(className: String, vararg annotations: String) = Test("com.example", className, "fakeMethod",
-        listOf(*annotations))
+private fun stubTest(className: String, vararg annotations: MetaProperty) =
+        Test("com.example", className, "fakeMethod", listOf(*annotations))
+private fun stubTest(className: String, vararg annotations: String) =
+        Test("com.sample", className, "fakeMethod", annotations.map { MetaProperty(it) })

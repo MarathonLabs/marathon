@@ -88,4 +88,27 @@ data class Configuration constructor(
                     debug = debug ?: true,
                     vendorConfiguration = vendorConfiguration
             )
+
+    fun toMap() =
+            mapOf<String, String>(
+                    "name" to name,
+                    "outputDir" to outputDir.absolutePath,
+                    "analyticsConfiguration" to analyticsConfiguration.toString(),
+                    "pooling" to poolingStrategy.toString(),
+                    "sharding" to shardingStrategy.toString(),
+                    "sorting" to sortingStrategy.toString(),
+                    "batching" to batchingStrategy.toString(),
+                    "flakiness" to flakinessStrategy.toString(),
+                    "retry" to retryStrategy.toString(),
+                    "filtering" to filteringConfiguration.toString(),
+                    "ignoreFailures" to ignoreFailures.toString(),
+                    "isCodeCoverageEnabled" to isCodeCoverageEnabled.toString(),
+                    "fallbackToScreenshots" to fallbackToScreenshots.toString(),
+                    "testClassRegexes" to testClassRegexes.toString(),
+                    "includeSerialRegexes" to includeSerialRegexes.toString(),
+                    "excludeSerialRegexes" to excludeSerialRegexes.toString(),
+                    "testOutputTimeoutMillis" to testOutputTimeoutMillis.toString(),
+                    "debug" to debug.toString(),
+                    "vendorConfiguration" to vendorConfiguration.toString()
+            )
 }

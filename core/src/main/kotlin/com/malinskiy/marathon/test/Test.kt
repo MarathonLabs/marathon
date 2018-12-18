@@ -5,7 +5,7 @@ import java.util.Objects
 data class Test(val pkg: String,
                 val clazz: String,
                 val method: String,
-                val annotations: Collection<String>) {
+                val metaProperties: Collection<MetaProperty>) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other == null || javaClass != other.javaClass) return false
