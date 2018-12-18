@@ -12,6 +12,6 @@ class MarathonCliConfiguration(parser: ArgParser) {
             .storing("--android-sdk", help = "Android sdk location") { File(this) }
             .default<File?>(null)
     val analyticsTracking: Boolean by parser
-            .storing("--analytics", help = "Enable anonimous analytics tracking") { this.toBoolean() }
+            .storing("--analyticsTracking", help = "Enable anonymous analytics tracking") { this.toBoolean() }
             .default<Boolean>(false)
 }
