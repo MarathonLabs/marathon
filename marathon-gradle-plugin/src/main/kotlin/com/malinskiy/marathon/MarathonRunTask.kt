@@ -27,7 +27,7 @@ open class MarathonRunTask : DefaultTask(), VerificationTask {
         log.debug { "Ignore failures: ${cnf.ignoreFailures}" }
 
         UsageAnalytics.enable = cnf.analyticsTracking
-        UsageAnalytics.tracker.trackEvent(Event(TrackActionType.RUN_TYPE, "gradle"))
+        UsageAnalytics.tracker.trackEvent(Event(TrackActionType.RunType, "gradle"))
 
         val success = Marathon(cnf).run()
 

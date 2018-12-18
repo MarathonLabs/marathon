@@ -38,7 +38,7 @@ fun main(args: Array<String>): Unit = mainBody(
         )
         val marathon = Marathon(configuration = configuration)
         UsageAnalytics.enable = this.analyticsTracking
-        UsageAnalytics.tracker.trackEvent(Event(TrackActionType.RUN_TYPE, "cli"))
+        UsageAnalytics.tracker.trackEvent(Event(TrackActionType.RunType, "cli"))
         marathon.run()
     }
 }
