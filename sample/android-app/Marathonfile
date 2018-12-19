@@ -5,3 +5,4 @@ vendorConfiguration:
   applicationApk: "app/build/outputs/apk/debug/app-debug.apk"
   testApplicationApk: "app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk"
   autoGrantPermission: true
+  androidSdk: "/Users/kaksenov/Library/Android/sdk/"

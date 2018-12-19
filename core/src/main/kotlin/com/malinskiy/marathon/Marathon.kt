@@ -132,13 +132,13 @@ class Marathon(val configuration: Configuration) {
 
     private fun trackAnalytics(configuration: Configuration){
         UsageAnalytics.tracker.run {
-            trackEvent(Event(TrackActionType.VendorConfiguration, configuration.vendorConfiguration::javaClass.name))
-            trackEvent(Event(TrackActionType.PoolingStrategy, configuration.poolingStrategy::javaClass.name))
-            trackEvent(Event(TrackActionType.ShardingStrategy, configuration.shardingStrategy::javaClass.name))
-            trackEvent(Event(TrackActionType.SortingStrategy, configuration.sortingStrategy::javaClass.name))
-            trackEvent(Event(TrackActionType.RetryStrategy, configuration.retryStrategy::javaClass.name))
-            trackEvent(Event(TrackActionType.BatchingStrategy, configuration.batchingStrategy::javaClass.name))
-            trackEvent(Event(TrackActionType.FlakinessStrategy, configuration.flakinessStrategy::javaClass.name))
+            trackEvent(Event(TrackActionType.VendorConfiguration, configuration.vendorConfiguration.javaClass.name))
+            trackEvent(Event(TrackActionType.PoolingStrategy, configuration.poolingStrategy.javaClass.name))
+            trackEvent(Event(TrackActionType.ShardingStrategy, configuration.shardingStrategy.javaClass.name))
+            trackEvent(Event(TrackActionType.SortingStrategy, configuration.sortingStrategy.javaClass.name))
+            trackEvent(Event(TrackActionType.RetryStrategy, configuration.retryStrategy.javaClass.name))
+            trackEvent(Event(TrackActionType.BatchingStrategy, configuration.batchingStrategy.javaClass.name))
+            trackEvent(Event(TrackActionType.FlakinessStrategy, configuration.flakinessStrategy.javaClass.name))
         }
     }
 }
