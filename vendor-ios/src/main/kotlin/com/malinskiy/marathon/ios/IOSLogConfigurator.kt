@@ -10,6 +10,7 @@ import ch.qos.logback.core.ConsoleAppender
 import ch.qos.logback.core.encoder.LayoutWrappingEncoder
 import ch.qos.logback.core.spi.ContextAwareBase
 import net.schmizz.sshj.DefaultConfig
+import net.schmizz.sshj.common.KeyType
 import net.schmizz.sshj.transport.kex.Curve25519SHA256
 import net.schmizz.sshj.transport.random.BouncyCastleRandom
 
@@ -45,6 +46,7 @@ class IOSLogConfigurator: ContextAwareBase(), Configurator  {
                 Curve25519SHA256::class.java.name,
                 BouncyCastleRandom::class.java.name,
                 DefaultConfig::class.java.name,
+                KeyType::class.java.name,
                 "net.schmizz.sshj.common.ECDSAVariationsAdapter"
             ).forEach {
                 loggerContext.getLogger(it).level = Level.ERROR

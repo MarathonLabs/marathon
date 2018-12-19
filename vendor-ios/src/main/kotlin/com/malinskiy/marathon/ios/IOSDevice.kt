@@ -43,8 +43,12 @@ class IOSDevice(val simulator: RemoteSimulator,
     val udid = simulator.udid
     private val deviceContext = newFixedThreadPoolContext(1, udid)
 
+    override val coroutineContext: CoroutineContext
+        get() = deviceContext
+
     val hostCommandExecutor = SshjCommandExecutor(
-                            deviceContext = deviceContext,
+                            deviceContext = coroutineContext,
+                            udid = udid,
                             hostAddress = InetAddress.getByName(simulator.host),
                             remoteUsername = simulator.username ?: configuration.remoteUsername,
                             remotePrivateKey = configuration.remotePrivateKey,
@@ -57,9 +61,6 @@ class IOSDevice(val simulator: RemoteSimulator,
     val name: String?
     private val runtime: String?
     private val deviceType: String?
-
-    override val coroutineContext: CoroutineContext
-        get() = deviceContext
 
     init {
         val device = simctl.list(this, gson).find { it.udid == udid }

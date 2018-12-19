@@ -23,11 +23,10 @@ import kotlin.math.min
 private const val DEFAULT_PORT = 22
 private const val SLEEP_DURATION_MILLIS = 15L
 
-private const val DEBUG = false
-
 data class Executable(val command: String, val start: Instant = Instant.now()): Any()
 
 class SshjCommandExecutor(deviceContext: CoroutineContext,
+                          udid: String,
                           val hostAddress: InetAddress,
                           val remoteUsername: String,
                           val remotePrivateKey: File,
@@ -35,7 +34,7 @@ class SshjCommandExecutor(deviceContext: CoroutineContext,
                           val knownHostsPath: File? = null,
                           verbose: Boolean = false) : CommandExecutor, CoroutineScope {
 
-    override val coroutineContext: CoroutineContext = deviceContext
+    override val coroutineContext: CoroutineContext = newSingleThreadContext("$udid(ssh)")
     private val ssh: SSHClient
 
     private val executables: MutableList<Executable> = Collections.synchronizedList(mutableListOf())
@@ -226,7 +225,7 @@ class SshjCommandExecutor(deviceContext: CoroutineContext,
     override fun exec(command: String, timeoutMillis: Long, testOutputTimeoutMillis: Long): CommandResult {
         val lines = arrayListOf<String>()
         val exitStatus =
-                runBlocking(CoroutineName("blocking exec")) {
+                runBlocking(coroutineContext + CoroutineName("blocking exec")) {
                     exec(command, timeoutMillis, testOutputTimeoutMillis) { lines.add(it) }
                 }
         return CommandResult(lines.joinToString("\n"), "", exitStatus ?: 1)
