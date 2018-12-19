@@ -27,6 +27,7 @@ import net.schmizz.sshj.transport.TransportException
 import net.schmizz.sshj.connection.channel.OpenFailException
 import java.io.File
 import java.net.InetAddress
+import java.util.Collections
 import java.util.concurrent.TimeoutException
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.CompletableDeferred
@@ -39,15 +40,21 @@ class IOSDevice(val simulator: RemoteSimulator,
                 val gson: Gson,
                 private val healthChangeListener: HealthChangeListener): Device, CoroutineScope {
 
+    private companion object {
+        private val udids: MutableList<String> = Collections.synchronizedList(mutableListOf())
+        fun serialForUdid(udid: String): String = synchronized(udids) { "$udid-${udids.count { it == udid }}" }
+    }
+
     val udid = simulator.udid
-    private val deviceContext = newFixedThreadPoolContext(1, udid)
+    val serial = IOSDevice.serialForUdid(udid)
+    private val deviceContext = newFixedThreadPoolContext(1, serial)
 
     override val coroutineContext: CoroutineContext
         get() = deviceContext
 
     val hostCommandExecutor = SshjCommandExecutor(
                             deviceContext = coroutineContext,
-                            udid = udid,
+                            udid = serial,
                             hostAddress = InetAddress.getByName(simulator.host),
                             remoteUsername = simulator.username ?: configuration.remoteUsername,
                             remotePrivateKey = configuration.remotePrivateKey,
@@ -70,8 +77,8 @@ class IOSDevice(val simulator: RemoteSimulator,
 
     override val operatingSystem: OperatingSystem
         get() = OperatingSystem(runtime ?: "Unknown")
-    override val serialNumber: String
-        get() = udid
+    override val serialNumber: String = serial
+
     override val model: String
         get() = deviceType ?: "Unknown"
     override val manufacturer: String

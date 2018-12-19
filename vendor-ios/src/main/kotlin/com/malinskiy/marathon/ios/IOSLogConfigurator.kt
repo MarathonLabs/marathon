@@ -24,7 +24,7 @@ class IOSLogConfigurator: ContextAwareBase(), Configurator  {
             layout.pattern = if (shorterOutput) {
                 "%highlight(%.-1level) [%thread] <%logger{40}> %msg%n"
             } else {
-                "%highlight(%.-1level %d{HH:mm:ss.SSS}) [%thread] <%logger{40}> %msg%n"
+                "%highlight(%.-1level %d{HH:mm:ss.SSS} [%thread] <%logger{40}> %msg%n)"
             }
             layout.context = loggerContext
             layout.start();

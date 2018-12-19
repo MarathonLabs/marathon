@@ -11,11 +11,9 @@ import com.malinskiy.marathon.log.MarathonLogging
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.newFixedThreadPoolContext
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Job
 import java.io.File
 
 import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -100,13 +98,24 @@ class LocalListSimulatorProvider(private val channel: Channel<DeviceProvider.Dev
     }
 
     private fun notifyConnected(device: IOSDevice) = launch(CoroutineName("simulator connected notifier")) {
-        logger.debug("notifyConnected ${device.udid}")
+        logger.error(listOf(
+            "notifyConnected ${device.serialNumber} on $channel",
+            if (channel.isClosedForSend) "(closed for send)" else "(open)",
+            if (channel.isClosedForReceive) "(closed for receive)" else "(open)"
+        ).joinToString(" "))
         channel.send(element = DeviceProvider.DeviceEvent.DeviceConnected(device))
+        logger.error("notifyConnected complete")
     }
 
     private fun notifyDisconnected(device: IOSDevice) = launch(CoroutineName("simulator disconnected notifier")) {
-        logger.debug("notifyDisconnected ${device.udid}")
+        logger.error(listOf(
+            "notifyDisconnected ${device.serialNumber} on $channel",
+            if (channel.isClosedForSend) "(closed for send)" else "(open)",
+            if (channel.isClosedForReceive) "(closed for receive)" else "(open)"
+        ).joinToString(" "))
+
         channel.send(element = DeviceProvider.DeviceEvent.DeviceDisconnected(device))
+        logger.error("notifyDisconnected complete")
     }
 
     private fun createDevice(simulator: RemoteSimulator): IOSDevice = IOSDevice(

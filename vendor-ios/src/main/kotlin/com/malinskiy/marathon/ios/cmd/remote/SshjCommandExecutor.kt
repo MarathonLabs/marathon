@@ -34,7 +34,7 @@ class SshjCommandExecutor(deviceContext: CoroutineContext,
                           val knownHostsPath: File? = null,
                           verbose: Boolean = false) : CommandExecutor, CoroutineScope {
 
-    override val coroutineContext: CoroutineContext = newSingleThreadContext("$udid(ssh)")
+    override val coroutineContext: CoroutineContext = newSingleThreadContext("$udid-ssh")
     private val ssh: SSHClient
 
     private val executables: MutableList<Executable> = Collections.synchronizedList(mutableListOf())
