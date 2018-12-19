@@ -2,9 +2,9 @@ package com.malinskiy.marathon
 
 import com.google.gson.Gson
 import com.malinskiy.marathon.analytics.AnalyticsFactory
-import com.malinskiy.marathon.analytics.TrackActionType
-import com.malinskiy.marathon.analytics.UsageAnalytics
-import com.malinskiy.marathon.analytics.tracker.Event
+import com.malinskiy.marathon.usageanalytics.TrackActionType
+import com.malinskiy.marathon.usageanalytics.UsageAnalytics
+import com.malinskiy.marathon.usageanalytics.tracker.Event
 import com.malinskiy.marathon.device.DeviceProvider
 import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.execution.Scheduler

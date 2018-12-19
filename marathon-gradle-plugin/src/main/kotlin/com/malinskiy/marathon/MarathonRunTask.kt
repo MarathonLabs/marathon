@@ -1,8 +1,8 @@
 package com.malinskiy.marathon
 
-import com.malinskiy.marathon.analytics.TrackActionType
-import com.malinskiy.marathon.analytics.UsageAnalytics
-import com.malinskiy.marathon.analytics.tracker.Event
+import com.malinskiy.marathon.usageanalytics.TrackActionType
+import com.malinskiy.marathon.usageanalytics.UsageAnalytics
+import com.malinskiy.marathon.usageanalytics.tracker.Event
 import com.malinskiy.marathon.android.AndroidConfiguration
 import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.log.MarathonLogging

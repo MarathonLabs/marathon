@@ -31,7 +31,7 @@ sourceSets {
 dependencies {
     implementation(project(":report:html-report"))
     implementation(project(":report:execution-timeline"))
-    implementation(project("::analytics:usage"))
+    api(project("::analytics:usage"))
     implementation(Libraries.gson)
     implementation(Libraries.jacksonAnnotations)
     implementation(Libraries.apacheCommonsText)

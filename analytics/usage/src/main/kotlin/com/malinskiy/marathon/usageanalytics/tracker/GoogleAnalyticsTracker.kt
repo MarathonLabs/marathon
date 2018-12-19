@@ -1,7 +1,7 @@
-package com.malinskiy.marathon.analytics.tracker
+package com.malinskiy.marathon.usageanalytics.tracker
 
 import com.brsanthu.googleanalytics.GoogleAnalytics
-import com.malinskiy.marathon.analytics.Constants
+import com.malinskiy.marathon.usageanalytics.Constants
 
 internal class GoogleAnalyticsTracker() : Tracker {
 

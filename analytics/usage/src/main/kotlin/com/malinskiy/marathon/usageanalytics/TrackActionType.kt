@@ -1,4 +1,4 @@
-package com.malinskiy.marathon.analytics
+package com.malinskiy.marathon.usageanalytics
 
 enum class TrackActionType {
     RunType,
