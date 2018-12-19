@@ -39,7 +39,7 @@ dependencies {
     implementation(project(":core"))
     implementation(project(":vendor:vendor-ios"))
     implementation(project(":vendor:vendor-android"))
-    api(project(":analytics:usage"))
+    implementation(project(":analytics:usage"))
     implementation(Libraries.kotlinStdLib)
     implementation(Libraries.kotlinCoroutines)
     implementation(Libraries.kotlinLogging)
