@@ -17,7 +17,6 @@ tasks.withType<KotlinCompile> {
 }
 
 dependencies {
-    implementation(Analytics.googleAnalytics)
     implementation(Analytics.googleAnalyticsWrapper)
     implementation(Libraries.kotlinStdLib)
     testCompile(TestLibraries.kluent)
