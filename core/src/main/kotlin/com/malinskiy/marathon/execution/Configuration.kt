@@ -70,7 +70,7 @@ data class Configuration constructor(
 
                 vendorConfiguration: VendorConfiguration,
 
-                analyticsTracking: Boolean) :
+                analyticsTracking: Boolean?) :
 
             this(name = name,
                     outputDir = outputDir,
@@ -91,6 +91,6 @@ data class Configuration constructor(
                     testOutputTimeoutMillis = testOutputTimeoutMillis ?: DEFAULT_OUTPUT_TIMEOUT_MILLIS,
                     debug = debug ?: true,
                     vendorConfiguration = vendorConfiguration,
-                    analyticsTracking = analyticsTracking
+                    analyticsTracking = analyticsTracking ?: false
             )
 }
