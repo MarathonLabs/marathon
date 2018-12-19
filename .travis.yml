@@ -25,7 +25,7 @@ jobs:
   include:
   - stage: test
     script:
-    - chmod 0600 $TRAVIS_BUILD_DIR/vendor-ios/src/test/resources/fixtures/derived-data-manager/test_rsa
+    - chmod 0600 $TRAVIS_BUILD_DIR/vendor/vendor-ios/src/test/resources/fixtures/derived-data-manager/test_rsa
     - ./gradlew clean test integrationTest
   - stage: detekt
     script: ./gradlew clean detektCheck
@@ -41,7 +41,7 @@ jobs:
       on:
         tags: true
   - stage: deploy-cli
-    script: ./gradlew :cli:assembleDist
+    script: ./gradlew :cli:assembleDist -PreleaseMode=RELEASE
     deploy:
       provider: releases
       api_key: $GITHUB_OAUTH_TOKEN

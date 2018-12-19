@@ -29,8 +29,8 @@ sourceSets {
 }
 
 dependencies {
-    implementation(project(":marathon-html-report"))
-    implementation(project(":execution-timeline"))
+    implementation(project(":report:html-report"))
+    implementation(project(":report:execution-timeline"))
     implementation(Libraries.gson)
     implementation(Libraries.jacksonAnnotations)
     implementation(Libraries.apacheCommonsText)
@@ -41,7 +41,7 @@ dependencies {
     implementation(Libraries.slf4jAPI)
     implementation(Libraries.logbackClassic)
     implementation(Libraries.influxDbClient)
-    testCompile(project(":vendor-test"))
+    testCompile(project(":vendor:vendor-test"))
     testCompile(TestLibraries.kluent)
     testCompile(TestLibraries.spekAPI)
     testRuntime(TestLibraries.spekJUnitPlatformEngine)

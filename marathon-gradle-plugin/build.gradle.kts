@@ -19,6 +19,6 @@ dependencies {
     implementation(gradleApi())
     implementation(Libraries.kotlinLogging)
     implementation(project(":core"))
-    implementation(project(":vendor-android"))
+    implementation(project(":vendor:vendor-android"))
     implementation(BuildPlugins.androidGradle)
 }

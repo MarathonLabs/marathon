@@ -12,11 +12,11 @@ private val log = MarathonLogging.logger {}
 
 open class MarathonRunTask : DefaultTask(), VerificationTask {
 
-    var configuration: Configuration? = null
+    lateinit var configuration: Configuration
 
     @TaskAction
     fun runMarathon() {
-        val cnf = configuration!!
+        val cnf = configuration
         val androidConfiguration = cnf.vendorConfiguration as? AndroidConfiguration
 
         log.info { "Run instrumentation tests ${androidConfiguration?.testApplicationOutput} for app ${androidConfiguration?.applicationOutput}" }
@@ -32,10 +32,10 @@ open class MarathonRunTask : DefaultTask(), VerificationTask {
     }
 
     override fun getIgnoreFailures(): Boolean {
-        return configuration!!.ignoreFailures
+        return configuration.ignoreFailures
     }
 
     override fun setIgnoreFailures(ignoreFailures: Boolean) {
-        configuration = configuration!!.copy(ignoreFailures = ignoreFailures)
+        configuration = configuration.copy(ignoreFailures = ignoreFailures)
     }
 }

@@ -13,20 +13,23 @@ plugins {
     id("de.fuerstenau.buildconfig") version "1.1.8"
 }
 
+val enableJDB = true
 val debugCoroutines = true
-val coroutinesJvmOptions = when(debugCoroutines) {
-    true -> "-Dkotlinx.coroutines.debug=on"
-    else -> ""
-}
+val jvmOptions = listOf(
+    when(enableJDB) {
+      true -> "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=1044"
+      else -> ""
+    },
+    when(debugCoroutines) {
+      true -> "-Dkotlinx.coroutines.debug=on"
+      else -> ""
+    }
+).filter { it.isNotBlank() }
 
 application {
     mainClassName = "com.malinskiy.marathon.cli.ApplicationViewKt"
     applicationName = "marathon"
-    applicationDefaultJvmArgs = listOf(
-        "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=1044",
-        coroutinesJvmOptions
-    )
-    .filter { it.isNotBlank() }
+    applicationDefaultJvmArgs = jvmOptions
 }
 
 distributions {
@@ -42,8 +45,8 @@ tasks.withType<KotlinCompile> {
 
 dependencies {
     implementation(project(":core"))
-    implementation(project(":vendor-ios"))
-    implementation(project(":vendor-android"))
+    implementation(project(":vendor:vendor-ios"))
+    implementation(project(":vendor:vendor-android"))
     implementation(Libraries.kotlinStdLib)
     implementation(Libraries.kotlinCoroutines)
     implementation(Libraries.kotlinLogging)

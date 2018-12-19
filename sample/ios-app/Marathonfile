@@ -1,0 +1,21 @@
+name: "sample-ios-app tests"
+outputDir: "derived-data/Marathon"
+testClassRegexes: ["^((?!Abstract).)*Tests$"]
+poolingStrategy:
+- type: "device-model"
+- type: "os-version"
+- type: "omni"
+batchingStrategy:
+  type: "fixed-size"
+  size: 5
+debug: true
+filteringConfiguration:
+  whitelist:
+  - type: "simple-class-name"
+    regex: "StoryboardTests"
+vendorConfiguration:
+  type: "iOS"
+  derivedDataDir: "derived-data"
+  sourceRoot: "sample-appUITests"
+  remoteUsername: "username"
+  remotePrivateKey: "id_rsa"
