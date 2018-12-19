@@ -38,7 +38,7 @@ import kotlin.coroutines.CoroutineContext
 class IOSDevice(val simulator: RemoteSimulator,
                 configuration: IOSConfiguration,
                 val gson: Gson,
-                private val healthListener: HealthListener): Device, CoroutineScope {
+                private val healthChangeListener: HealthChangeListener): Device, CoroutineScope {
 
     val udid = simulator.udid
     private val deviceContext = newFixedThreadPoolContext(1, udid)
@@ -185,7 +185,7 @@ class IOSDevice(val simulator: RemoteSimulator,
     }
     private suspend fun disconnectAndNotify() {
         healthy = false
-        healthListener.onDisconnect(this)
+        healthChangeListener.onDisconnect(this)
     }
 
     override suspend fun prepare(configuration: Configuration) = withContext(coroutineContext) {

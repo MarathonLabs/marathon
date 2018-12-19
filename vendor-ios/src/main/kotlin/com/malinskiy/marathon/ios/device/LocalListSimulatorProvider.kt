@@ -6,7 +6,7 @@ import com.google.gson.Gson
 import com.malinskiy.marathon.device.DeviceProvider
 import com.malinskiy.marathon.ios.IOSConfiguration
 import com.malinskiy.marathon.ios.IOSDevice
-import com.malinskiy.marathon.ios.HealthListener
+import com.malinskiy.marathon.ios.HealthChangeListener
 import com.malinskiy.marathon.log.MarathonLogging
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.newFixedThreadPoolContext
@@ -25,7 +25,7 @@ import kotlin.coroutines.CoroutineContext
 class LocalListSimulatorProvider(private val channel: Channel<DeviceProvider.DeviceEvent>,
                                  private val configuration: IOSConfiguration,
                                  yamlObjectMapper: ObjectMapper,
-                                 private val gson: Gson) : SimulatorProvider, HealthListener, CoroutineScope {
+                                 private val gson: Gson) : SimulatorProvider, HealthChangeListener, CoroutineScope {
 
     private val dispatcher by lazy { newFixedThreadPoolContext(1, "LocalListSimulatorProvider") }
     override val coroutineContext: CoroutineContext
@@ -113,6 +113,6 @@ class LocalListSimulatorProvider(private val channel: Channel<DeviceProvider.Dev
         simulator = simulator,
         configuration = configuration,
         gson = gson,
-        healthListener = this
+        healthChangeListener = this
     )
 }

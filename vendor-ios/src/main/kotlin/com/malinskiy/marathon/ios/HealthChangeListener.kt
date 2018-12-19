@@ -1,5 +1,5 @@
 package com.malinskiy.marathon.ios
 
-interface HealthListener {
+interface HealthChangeListener {
     suspend fun onDisconnect(device: IOSDevice)
 }
