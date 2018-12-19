@@ -20,4 +20,8 @@ dependencies {
     implementation(Analytics.googleAnalytics)
     implementation(Analytics.googleAnalyticsWrapper)
     implementation(Libraries.kotlinStdLib)
+    testCompile(TestLibraries.kluent)
+    testCompile(TestLibraries.mockitoKotlin)
+    testCompile(TestLibraries.spekAPI)
+    testRuntime(TestLibraries.spekJUnitPlatformEngine)
 }
