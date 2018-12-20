@@ -87,7 +87,7 @@ class IOSDevice(val simulator: RemoteSimulator,
 
     override val operatingSystem: OperatingSystem
         get() = OperatingSystem(runtime ?: "Unknown")
-    override val serialNumber: String = serial.toString()
+    override val serialNumber: String = udid
 
     override val model: String
         get() = deviceType ?: "Unknown"
