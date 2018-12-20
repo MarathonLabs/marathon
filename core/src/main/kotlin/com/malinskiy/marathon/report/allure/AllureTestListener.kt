@@ -94,9 +94,12 @@ class AllureTestListener(val configuration: Configuration, val outputDirectory: 
 
         testResult.stacktrace?.let {
             allureTestResult.setStatusDetails(
-                    StatusDetails().setMessage(it)
+                    StatusDetails()
+                            .setMessage(it.lines().first())
+                            .setTrace(it)
             )
         }
+
 
         test.findValue<String>(Description::class.java.canonicalName)?.let { allureTestResult.setDescription(it) }
         test.findValue<String>(Issue::class.java.canonicalName)?.let { allureTestResult.links.add(it.toLink()) }
