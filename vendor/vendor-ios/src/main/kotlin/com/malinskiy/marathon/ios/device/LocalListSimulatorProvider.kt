@@ -42,16 +42,14 @@ class LocalListSimulatorProvider(private val channel: Channel<DeviceProvider.Dev
     }
 
     override suspend fun start() {
-        logger.debug("Starting LocalListSimulatorProvider")
-        launch(CoroutineName("Simulator provider starter")) {
+        launch {
             simulators
                     .map(this@LocalListSimulatorProvider::createDevice)
                     .forEach { connect(it) }
         }
     }
 
-    override suspend fun stop() = withContext(CoroutineName("Simulator provider stopper")) {
-        logger.debug("Stopping LocalListSimulatorProvider")
+    override suspend fun stop() = withContext(coroutineContext) {
         devices.entries
                 .filter { devices.remove(it.key, it.value) }
                 .map { it.value }
@@ -63,9 +61,7 @@ class LocalListSimulatorProvider(private val channel: Channel<DeviceProvider.Dev
     }
 
     override suspend fun onDisconnect(device: IOSDevice) {
-        logger.debug("Device ${device.udid} onDisconnect")
-        launch(CoroutineName("onDisconnect disconnector")) {
-            logger.debug("removing ${device.udid}")
+        launch {
             if (devices.remove(device.serialNumber, device)) {
                 dispose(device)
 
@@ -77,7 +73,7 @@ class LocalListSimulatorProvider(private val channel: Channel<DeviceProvider.Dev
             DeviceFailureReason.MissingDestination ->
                 logger.info("Device ${device.udid} does not exist")
             else ->
-                launch(CoroutineName("onDisconnect reconnector")) {
+                launch {
                     delay(499)
 
                     val restartedDevice = createDevice(device.simulator)
@@ -88,7 +84,6 @@ class LocalListSimulatorProvider(private val channel: Channel<DeviceProvider.Dev
         }
 
     private fun dispose(device: IOSDevice) {
-        logger.debug("disposing simulator ${device.serialNumber}")
         device.dispose()
     }
 
@@ -99,29 +94,16 @@ class LocalListSimulatorProvider(private val channel: Channel<DeviceProvider.Dev
                     dispose(it)
                 }
 
-        logger.debug { "discovered simulator ${device.serialNumber}" }
+        logger.debug { "Discovered simulator ${device.serialNumber}" }
         notifyConnected(device)
     }
 
-    private fun notifyConnected(device: IOSDevice) = launch(CoroutineName("simulator connected notifier")) {
-        logger.error(listOf(
-            "notifyConnected ${device.serialNumber} on $channel",
-            if (channel.isClosedForSend) "(closed for send)" else "(open)",
-            if (channel.isClosedForReceive) "(closed for receive)" else "(open)"
-        ).joinToString(" "))
+    private fun notifyConnected(device: IOSDevice) = launch {
         channel.send(element = DeviceProvider.DeviceEvent.DeviceConnected(device))
-        logger.error("notifyConnected complete")
     }
 
-    private fun notifyDisconnected(device: IOSDevice) = launch(CoroutineName("simulator disconnected notifier")) {
-        logger.error(listOf(
-            "notifyDisconnected ${device.serialNumber} on $channel",
-            if (channel.isClosedForSend) "(closed for send)" else "(open)",
-            if (channel.isClosedForReceive) "(closed for receive)" else "(open)"
-        ).joinToString(" "))
-
+    private fun notifyDisconnected(device: IOSDevice) = launch {
         channel.send(element = DeviceProvider.DeviceEvent.DeviceDisconnected(device))
-        logger.error("notifyDisconnected complete")
     }
 
     private fun createDevice(simulator: RemoteSimulator): IOSDevice = IOSDevice(

@@ -12,7 +12,7 @@ debug: true
 filteringConfiguration:
   whitelist:
   - type: "simple-class-name"
-    regex: "^(FailingTests|CrashingTests)$" 
+    regex: "^(StoryboardTests|SlowTests)$"
 flakinessStrategy:
   type: "ignore"
 retryStrategy:

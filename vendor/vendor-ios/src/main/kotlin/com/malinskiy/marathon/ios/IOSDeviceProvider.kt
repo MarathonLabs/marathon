@@ -25,12 +25,11 @@ class IOSDeviceProvider : DeviceProvider {
         logger.debug { "Terminating IOS device provider" }
         simulatorProvider?.stop()
         channel.close()
-        logger.debug("Closed channel")
     }
 
     override suspend fun initialize(vendorConfiguration: VendorConfiguration) {
         if (vendorConfiguration !is IOSConfiguration) {
-            throw IllegalStateException("Invalid configuration $vendorConfiguration passed")
+            throw IllegalStateException("Invalid configuration $vendorConfiguration")
         }
 
         logger.debug("Initializing IOSDeviceProvider")
