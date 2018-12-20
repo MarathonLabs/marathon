@@ -13,6 +13,7 @@ import com.malinskiy.marathon.test.Test
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.TimeoutCancellationException
+import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.channels.SendChannel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -48,6 +49,7 @@ class Scheduler(private val deviceProvider: DeviceProvider,
                 }
             }
         } catch (e: TimeoutCancellationException) {
+            job.cancelAndJoin()
             throw NoDevicesException("")
         }
         for(child in job.children) {
