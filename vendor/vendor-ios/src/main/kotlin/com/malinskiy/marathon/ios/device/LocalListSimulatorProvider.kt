@@ -21,6 +21,8 @@ import kotlinx.coroutines.withContext
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.coroutines.CoroutineContext
 
+private const val MAX_SERIAL = 9
+
 class LocalListSimulatorProvider(private val channel: Channel<DeviceProvider.DeviceEvent>,
                                  private val configuration: IOSConfiguration,
                                  yamlObjectMapper: ObjectMapper,
@@ -44,7 +46,7 @@ class LocalListSimulatorProvider(private val channel: Channel<DeviceProvider.Dev
     override suspend fun start() {
         launch {
             simulators
-                    .map(this@LocalListSimulatorProvider::createDevice)
+                    .map { createDevice(it, RemoteSimulatorSerialCounter.putAndGet(it.udid)) }
                     .forEach { connect(it) }
         }
     }
@@ -69,19 +71,21 @@ class LocalListSimulatorProvider(private val channel: Channel<DeviceProvider.Dev
             }
         }
 
-        when (device.failureReason) {
-            DeviceFailureReason.MissingDestination ->
-                logger.info("Device ${device.udid} does not exist")
-            else ->
-                launch {
-                    delay(499)
+        if (device.failureReason == DeviceFailureReason.MissingDestination) {
+            logger.info("Device ${device.udid} does not exist")
+        } else if (RemoteSimulatorSerialCounter.get(device.udid) < MAX_SERIAL) {
+            launch {
+                delay(499)
 
-                    val restartedDevice = createDevice(device.simulator)
-                    logger.debug("reconnecting to ${restartedDevice.udid}")
-                    connect(restartedDevice)
-                }
+                val restartedDevice = createDevice(
+                    device.simulator,
+                    RemoteSimulatorSerialCounter.putAndGet(device.udid)
+                )
+                logger.debug("reconnecting to ${restartedDevice.udid}")
+                connect(restartedDevice)
             }
         }
+    }
 
     private fun dispose(device: IOSDevice) {
         device.dispose()
@@ -106,8 +110,9 @@ class LocalListSimulatorProvider(private val channel: Channel<DeviceProvider.Dev
         channel.send(element = DeviceProvider.DeviceEvent.DeviceDisconnected(device))
     }
 
-    private fun createDevice(simulator: RemoteSimulator): IOSDevice = IOSDevice(
+    private fun createDevice(simulator: RemoteSimulator, simulatorSerial: Int): IOSDevice = IOSDevice(
         simulator = simulator,
+        simulatorSerial = simulatorSerial,
         configuration = configuration,
         gson = gson,
         healthChangeListener = this

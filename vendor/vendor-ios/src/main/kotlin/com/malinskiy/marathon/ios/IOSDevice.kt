@@ -36,35 +36,22 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.newFixedThreadPoolContext
 import kotlin.coroutines.CoroutineContext
 
-class IOSDeviceSerialNumber(udid: String) {
-    private companion object {
-        private val udids = Collections.synchronizedList(mutableListOf<String>())
-        fun getSerial(udid: String): Int {
-            udids.add(udid)
-            return udids.count { it == udid }
-        }
-    }
-    private val serialNumber = "$udid-${IOSDeviceSerialNumber.getSerial(udid)}"
-
-    override fun toString(): String = serialNumber
-}
-
-
 class IOSDevice(val simulator: RemoteSimulator,
+                simulatorSerial: Int,
                 configuration: IOSConfiguration,
                 val gson: Gson,
                 private val healthChangeListener: HealthChangeListener): Device, CoroutineScope {
 
     val udid = simulator.udid
-    private val serial = IOSDeviceSerialNumber(udid)
-    private val deviceContext = newFixedThreadPoolContext(1, serial.toString())
+    private val serial = "$udid-$simulatorSerial"
+    private val deviceContext = newFixedThreadPoolContext(1, serial)
 
     override val coroutineContext: CoroutineContext
         get() = deviceContext
 
     val hostCommandExecutor = SshjCommandExecutor(
                             deviceContext = coroutineContext,
-                            udid = serial.toString(),
+                            udid = serial,
                             hostAddress = InetAddress.getByName(simulator.host),
                             remoteUsername = simulator.username ?: configuration.remoteUsername,
                             remotePrivateKey = configuration.remotePrivateKey,
