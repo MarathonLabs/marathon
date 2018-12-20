@@ -8,8 +8,13 @@ class DeviceFailureParser: StreamingLogParser {
         "Software caused connection abort",
         "Unable to find a destination matching the provided destination specifier",
         "Terminating since there is no system app",
-        "Exiting because the workspace server has disconnected"
+        "Exiting because the workspace server has disconnected",
+        "Not authorized for performing UI testing PropertyActions",
+        "Timed out waiting for automation session",
+        "Failed to terminate",
+        "Failed to launch app with identifier"
     )
+    private val crashPatterns = listOf("Assertion Failure: <unknown>:0: [^\\s]+ crashed in ")
     private var count = 0
     override fun onLine(line: String) {
         patterns.firstOrNull { line.contains(it) }
