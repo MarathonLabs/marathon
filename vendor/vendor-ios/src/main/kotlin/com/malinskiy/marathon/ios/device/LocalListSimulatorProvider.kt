@@ -7,6 +7,7 @@ import com.malinskiy.marathon.device.DeviceProvider
 import com.malinskiy.marathon.ios.IOSConfiguration
 import com.malinskiy.marathon.ios.IOSDevice
 import com.malinskiy.marathon.ios.HealthChangeListener
+import com.malinskiy.marathon.ios.logparser.parser.DeviceFailureReason
 import com.malinskiy.marathon.log.MarathonLogging
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.newFixedThreadPoolContext
@@ -72,14 +73,19 @@ class LocalListSimulatorProvider(private val channel: Channel<DeviceProvider.Dev
             }
         }
 
-        launch(CoroutineName("onDisconnect reconnector")) {
-            delay(499)
+        when (device.failureReason) {
+            DeviceFailureReason.MissingDestination ->
+                logger.info("Device ${device.udid} does not exist")
+            else ->
+                launch(CoroutineName("onDisconnect reconnector")) {
+                    delay(499)
 
-            val restartedDevice = createDevice(device.simulator)
-            logger.debug("reconnecting to ${restartedDevice.udid}")
-            connect(restartedDevice)
+                    val restartedDevice = createDevice(device.simulator)
+                    logger.debug("reconnecting to ${restartedDevice.udid}")
+                    connect(restartedDevice)
+                }
+            }
         }
-    }
 
     private fun dispose(device: IOSDevice) {
         logger.debug("disposing simulator ${device.serialNumber}")

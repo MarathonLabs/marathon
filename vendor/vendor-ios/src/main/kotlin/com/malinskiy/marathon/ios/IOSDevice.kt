@@ -19,6 +19,7 @@ import com.malinskiy.marathon.ios.device.RemoteSimulatorFeatureProvider
 import com.malinskiy.marathon.ios.logparser.IOSDeviceLogParser
 import com.malinskiy.marathon.ios.logparser.formatter.TestLogPackageNameFormatter
 import com.malinskiy.marathon.ios.logparser.parser.DeviceFailureException
+import com.malinskiy.marathon.ios.logparser.parser.DeviceFailureReason
 import com.malinskiy.marathon.ios.simctl.Simctl
 import com.malinskiy.marathon.ios.xctestrun.Xctestrun
 import com.malinskiy.marathon.log.MarathonLogging
@@ -105,6 +106,9 @@ class IOSDevice(val simulator: RemoteSimulator,
     override val abi: String
         get() = "Simulator"
 
+    var failureReason: DeviceFailureReason? = null
+        private set
+
     private enum class Mode { STREAMING, XCRESULT }
     private val mode = Mode.STREAMING
 
@@ -173,6 +177,7 @@ class IOSDevice(val simulator: RemoteSimulator,
             throw DeviceLostException(e)
         } catch(e: DeviceFailureException) {
             logger.error("$e")
+            failureReason = e.reason
             disconnectAndNotify()
             throw DeviceLostException(e)
         } finally {
