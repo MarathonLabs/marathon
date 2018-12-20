@@ -14,16 +14,12 @@ import java.io.IOException
 import java.io.InputStream
 import java.lang.RuntimeException
 import java.net.InetAddress
-import java.time.Instant
-import java.util.*
 import java.util.concurrent.TimeoutException
 import kotlin.coroutines.CoroutineContext
 import kotlin.math.min
 
 private const val DEFAULT_PORT = 22
 private const val SLEEP_DURATION_MILLIS = 15L
-
-data class Executable(val command: String, val start: Instant = Instant.now()): Any()
 
 class SshjCommandExecutor(deviceContext: CoroutineContext,
                           udid: String,
@@ -36,8 +32,6 @@ class SshjCommandExecutor(deviceContext: CoroutineContext,
 
     override val coroutineContext: CoroutineContext = newSingleThreadContext("$udid-ssh")
     private val ssh: SSHClient
-
-    private val executables: MutableList<Executable> = Collections.synchronizedList(mutableListOf())
 
     init {
         val config = DefaultConfig()
@@ -79,11 +73,6 @@ class SshjCommandExecutor(deviceContext: CoroutineContext,
     }
 
     override fun disconnect() {
-        synchronized(executables) {
-            if (executables.isNotEmpty()) {
-                logger.debug { "disconnecting, but there are still incomplete commands: ${executables.joinToString(", ")}" }
-            }
-        }
         if (ssh.isConnected) {
             try {
                 ssh.disconnect()
@@ -96,12 +85,6 @@ class SshjCommandExecutor(deviceContext: CoroutineContext,
     private class OutputTimeoutException: RuntimeException()
 
     override suspend fun exec(command: String, timeoutMillis: Long, testOutputTimeoutMillis: Long, onLine: (String) -> Unit): Int? {
-        val executable = Executable(command)
-        logger.debug("→ starting $executable")
-        synchronized(executables) {
-            executables.add(executable)
-        }
-
         val session = try {
             startSession(command)
         } catch (e: ConnectionException) {
@@ -168,15 +151,6 @@ class SshjCommandExecutor(deviceContext: CoroutineContext,
             throw SshjCommandUnresponsiveException("Remote command \n\u001b[1m$command\u001b[0mdid not send any output over ${testOutputTimeoutMillis}ms")
         } finally {
             try {
-                val incomplete = synchronized(executables) {
-                    executables.remove(executable)
-
-                    when (executables.isNotEmpty()) {
-                        true -> "; there are ${executables.count()} incomplete commands"
-                        false -> ""
-                    }
-                }
-                logger.debug("→ ending $executable$incomplete")
                 session.close()
             } catch (e: IOException) {
             } catch (e: TransportException) {
