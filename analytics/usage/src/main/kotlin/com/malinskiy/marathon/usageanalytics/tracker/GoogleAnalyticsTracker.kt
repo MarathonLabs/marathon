@@ -2,6 +2,7 @@ package com.malinskiy.marathon.usageanalytics.tracker
 
 import com.brsanthu.googleanalytics.GoogleAnalytics
 import com.malinskiy.marathon.usageanalytics.Constants
+import com.malinskiy.marathon.usageanalytics.Constants.AnalyticsCategory
 
 internal class GoogleAnalyticsTracker() : Tracker {
 
@@ -10,6 +11,10 @@ internal class GoogleAnalyticsTracker() : Tracker {
             .build()
 
     override fun trackEvent(event: Event) {
-        tracker.event().eventAction(event.action.name).eventLabel(event.label).sendAsync()
+        tracker.event()
+                .eventCategory(AnalyticsCategory)
+                .eventAction(event.action.name)
+                .eventLabel(event.label)
+                .sendAsync()
     }
 }
