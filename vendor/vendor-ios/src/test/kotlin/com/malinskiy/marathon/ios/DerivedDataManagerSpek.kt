@@ -68,7 +68,8 @@ object DerivedDataManagerSpek: Spek({
                             knownHostsPath = null,
                             remoteRsyncPath = "/usr/bin/rsync",
                             sourceRoot = sourceRoot,
-                            debugSsh = false)
+                            debugSsh = false),
+                    analyticsTracking = false
             )
 
             it("should determine products location") {

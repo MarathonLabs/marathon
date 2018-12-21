@@ -41,7 +41,9 @@ data class Configuration constructor(
         val testOutputTimeoutMillis: Long,
         val debug: Boolean,
 
-        val vendorConfiguration: VendorConfiguration) {
+        val vendorConfiguration: VendorConfiguration,
+
+        val analyticsTracking: Boolean) {
 
     constructor(name: String,
                 outputDir: File,
@@ -66,7 +68,9 @@ data class Configuration constructor(
                 testOutputTimeoutMillis: Long?,
                 debug: Boolean?,
 
-                vendorConfiguration: VendorConfiguration) :
+                vendorConfiguration: VendorConfiguration,
+
+                analyticsTracking: Boolean?) :
 
             this(name = name,
                     outputDir = outputDir,
@@ -86,6 +90,7 @@ data class Configuration constructor(
                     excludeSerialRegexes = excludeSerialRegexes ?: emptyList(),
                     testOutputTimeoutMillis = testOutputTimeoutMillis ?: DEFAULT_OUTPUT_TIMEOUT_MILLIS,
                     debug = debug ?: true,
-                    vendorConfiguration = vendorConfiguration
+                    vendorConfiguration = vendorConfiguration,
+                    analyticsTracking = analyticsTracking ?: false
             )
 }

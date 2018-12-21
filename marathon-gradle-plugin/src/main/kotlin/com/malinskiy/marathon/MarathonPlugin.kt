@@ -130,7 +130,8 @@ class MarathonPlugin : Plugin<Project> {
                             config.excludeSerialRegexes?.map { it.toRegex() },
                             config.testOutputTimeoutMillis,
                             config.debug,
-                            vendorConfiguration
+                            vendorConfiguration,
+                            config.analyticsTracking
                     )
 
                     dependsOn(variant.testedVariant.assemble, variant.assemble)
