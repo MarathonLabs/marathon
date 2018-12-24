@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 
-UDID="$(xcrun simctl list devices -j | jq -r '.devices | flatten | .[] | select(.name == "iPhone 7") | .udid' | head -1)"
+if [[ $# -eq 0 ]]; then 
+  UDID="$(xcrun simctl list devices -j | jq -r '.devices | flatten | .[] | select(.availability | match("(?<!un)available")) | select(.name == "iPhone 7") | .udid' | head -1)"
+fi
 
 XCODEBUILD_DESTINATION="${1:-${UDID}}"
 if [[ -z ${XCODEBUILD_DESTINATION} ]]; then
@@ -13,4 +15,5 @@ if ! XCODEBUILD="$(command -v xcodebuild)"; then
   exit 1
 fi 
 
-$XCODEBUILD build-for-testing -derivedDataPath derived-data -workspace sample-app.xcworkspace -scheme UITesting -sdk iphonesimulator -destination "platform=iOS Simulator,id=$XCODEBUILD_DESTINATION"
+echo -e "Building for destination $(tput bold)$XCODEBUILD_DESTINATION$(tput sgr0)" 1>&2
+NSUnbufferedIO=YES $XCODEBUILD build-for-testing -derivedDataPath derived-data -workspace sample-app.xcworkspace -scheme UITesting -sdk iphonesimulator -destination "platform=iOS Simulator,id=$XCODEBUILD_DESTINATION" 2>&1
