@@ -1,5 +1,8 @@
 package com.malinskiy.marathon
 
+import com.malinskiy.marathon.usageanalytics.TrackActionType
+import com.malinskiy.marathon.usageanalytics.UsageAnalytics
+import com.malinskiy.marathon.usageanalytics.tracker.Event
 import com.malinskiy.marathon.android.AndroidConfiguration
 import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.log.MarathonLogging
@@ -12,16 +15,19 @@ private val log = MarathonLogging.logger {}
 
 open class MarathonRunTask : DefaultTask(), VerificationTask {
 
-    var configuration: Configuration? = null
+    lateinit var configuration: Configuration
 
     @TaskAction
     fun runMarathon() {
-        val cnf = configuration!!
+        val cnf = configuration
         val androidConfiguration = cnf.vendorConfiguration as? AndroidConfiguration
 
         log.info { "Run instrumentation tests ${androidConfiguration?.testApplicationOutput} for app ${androidConfiguration?.applicationOutput}" }
         log.debug { "Output: ${cnf.outputDir}" }
         log.debug { "Ignore failures: ${cnf.ignoreFailures}" }
+
+        UsageAnalytics.enable = cnf.analyticsTracking
+        UsageAnalytics.tracker.trackEvent(Event(TrackActionType.RunType, "gradle"))
 
         val success = Marathon(cnf).run()
 
@@ -32,10 +38,10 @@ open class MarathonRunTask : DefaultTask(), VerificationTask {
     }
 
     override fun getIgnoreFailures(): Boolean {
-        return configuration!!.ignoreFailures
+        return configuration.ignoreFailures
     }
 
     override fun setIgnoreFailures(ignoreFailures: Boolean) {
-        configuration = configuration!!.copy(ignoreFailures = ignoreFailures)
+        configuration = configuration.copy(ignoreFailures = ignoreFailures)
     }
 }

@@ -59,7 +59,8 @@ class ConfigFactory(val mapper: ObjectMapper) {
                 config.excludeSerialRegexes,
                 config.testOutputTimeoutMillis,
                 config.debug,
-                vendorConfiguration
+                vendorConfiguration,
+                config.analyticsTracking
         )
     }
 

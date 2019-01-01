@@ -38,7 +38,8 @@ class AndroidTestParserSpek : Spek({
                             File(""),
                             applicationOutput = File(""),
                             testApplicationOutput = apkFile
-                    )
+                    ),
+                    analyticsTracking = false
             )
 
             it("should return proper list of test methods") {

@@ -41,6 +41,7 @@ object Versions {
     val allure = "2.8.1"
     val allureEnvironment = "1.0.0"
     val mockitoKotlin = "2.0.0"
+    val googleAnalitycsWrapper = "2.0.0"
 }
 
 object BuildPlugins {
@@ -97,4 +98,8 @@ object TestLibraries {
 
     val testContainers = "org.testcontainers:testcontainers:${Versions.testContainers}"
     val testContainersInflux = "org.testcontainers:influxdb:${Versions.testContainers}"
+}
+
+object Analytics {
+    val googleAnalyticsWrapper = "com.brsanthu:google-analytics-java:${Versions.googleAnalitycsWrapper}"
 }
