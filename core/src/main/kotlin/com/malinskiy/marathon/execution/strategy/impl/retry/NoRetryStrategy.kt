@@ -17,4 +17,10 @@ class NoRetryStrategy : RetryStrategy {
         val javaClass: Class<Any> = other.javaClass
         return this.javaClass.canonicalName == javaClass.canonicalName
     }
+
+    override fun toString(): String {
+        return "NoRetryStrategy()"
+    }
+
+
 }

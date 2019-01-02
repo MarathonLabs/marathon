@@ -28,5 +28,9 @@ class SuccessRateSortingStrategy(@JsonProperty("timeLimit") private val timeLimi
         return timeLimit.hashCode()
     }
 
+    override fun toString(): String {
+        return "SuccessRateSortingStrategy(timeLimit=$timeLimit)"
+    }
+
 
 }

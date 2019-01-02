@@ -36,4 +36,10 @@ class ExecutionTimeSortingStrategy(val percentile: Double,
         result = 31 * result + timeLimit.hashCode()
         return result
     }
+
+    override fun toString(): String {
+        return "ExecutionTimeSortingStrategy(percentile=$percentile, timeLimit=$timeLimit, logger=$logger)"
+    }
+
+
 }

@@ -12,6 +12,7 @@ plugins {
 
 dependencies {
     implementation(Libraries.kotlinStdLib)
+    implementation(Libraries.allure)
     implementation(Libraries.kotlinCoroutines)
     implementation(Libraries.kotlinLogging)
     implementation(Libraries.ddmlib)

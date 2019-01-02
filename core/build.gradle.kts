@@ -31,6 +31,10 @@ sourceSets {
 dependencies {
     implementation(project(":report:html-report"))
     implementation(project(":report:execution-timeline"))
+
+    implementation(Libraries.allure)
+    implementation(Libraries.allureEnvironment)
+
     implementation(project(":analytics:usage"))
     implementation(Libraries.gson)
     implementation(Libraries.jacksonAnnotations)
