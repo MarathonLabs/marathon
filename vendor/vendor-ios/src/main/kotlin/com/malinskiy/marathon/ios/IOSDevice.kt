@@ -66,7 +66,12 @@ class IOSDevice(val simulator: RemoteSimulator,
     private val deviceType: String?
 
     init {
-        val device = simctl.list(this, gson).find { it.udid == udid }
+        val device = try {
+            simctl.list(this, gson).find { it.udid == udid }
+        } catch (e: DeviceFailureException) {
+            dispose()
+            throw e
+        }
         runtime = device?.runtime
         name = device?.name
         deviceType = simctl.deviceType(this)

@@ -12,7 +12,10 @@ class DeviceFailureParser: StreamingLogParser {
         "Not authorized for performing UI testing PropertyActions",
         "Timed out waiting for automation session",
         "Failed to terminate",
-        "Failed to launch app with identifier"
+        "Failed to launch app with identifier",
+        "CoreSimulatorService connection became invalid", // occurs in simctl output
+        "Simulator services will no longer be available", // occurs in simctl output
+        "Unable to locate device set" // occurs in simctl output
     )
     private val crashPatterns = listOf("Assertion Failure: <unknown>:0: [^\\s]+ crashed in ")
     private var count = 0

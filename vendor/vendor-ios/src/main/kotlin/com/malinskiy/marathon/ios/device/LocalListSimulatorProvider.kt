@@ -7,6 +7,7 @@ import com.malinskiy.marathon.device.DeviceProvider
 import com.malinskiy.marathon.ios.IOSConfiguration
 import com.malinskiy.marathon.ios.IOSDevice
 import com.malinskiy.marathon.ios.HealthChangeListener
+import com.malinskiy.marathon.ios.logparser.parser.DeviceFailureException
 import com.malinskiy.marathon.ios.logparser.parser.DeviceFailureReason
 import com.malinskiy.marathon.log.MarathonLogging
 import kotlinx.coroutines.CoroutineName
@@ -46,7 +47,7 @@ class LocalListSimulatorProvider(private val channel: Channel<DeviceProvider.Dev
     override suspend fun start() {
         launch {
             simulators
-                    .map { createDevice(it, RemoteSimulatorSerialCounter.putAndGet(it.udid)) }
+                    .mapNotNull { createDevice(it, RemoteSimulatorSerialCounter.putAndGet(it.udid)) }
                     .forEach { connect(it) }
         }
     }
@@ -72,7 +73,7 @@ class LocalListSimulatorProvider(private val channel: Channel<DeviceProvider.Dev
         }
 
         if (device.failureReason == DeviceFailureReason.MissingDestination) {
-            logger.info("Device ${device.udid} does not exist")
+            logger.info("Device ${device.udid} does not exist on remote host")
         } else if (RemoteSimulatorSerialCounter.get(device.udid) < MAX_SERIAL) {
             launch {
                 delay(499)
@@ -81,8 +82,10 @@ class LocalListSimulatorProvider(private val channel: Channel<DeviceProvider.Dev
                     device.simulator,
                     RemoteSimulatorSerialCounter.putAndGet(device.udid)
                 )
-                logger.debug("reconnecting to ${restartedDevice.udid}")
-                connect(restartedDevice)
+                if (restartedDevice != null) {
+                    logger.debug("reconnecting to ${restartedDevice.udid}")
+                    connect(restartedDevice)
+                }
             }
         }
     }
@@ -110,11 +113,18 @@ class LocalListSimulatorProvider(private val channel: Channel<DeviceProvider.Dev
         channel.send(element = DeviceProvider.DeviceEvent.DeviceDisconnected(device))
     }
 
-    private fun createDevice(simulator: RemoteSimulator, simulatorSerial: Int): IOSDevice = IOSDevice(
-        simulator = simulator,
-        simulatorSerial = simulatorSerial,
-        configuration = configuration,
-        gson = gson,
-        healthChangeListener = this
-    )
+    // occassionaly, device constructor would throw an exception when remote simctl command
+    // fails with message that simulator services to be no longer available
+    private fun createDevice(simulator: RemoteSimulator, simulatorSerial: Int): IOSDevice? = try {
+        IOSDevice(
+            simulator = simulator,
+            simulatorSerial = simulatorSerial,
+            configuration = configuration,
+            gson = gson,
+            healthChangeListener = this
+        )
+    } catch (e: DeviceFailureException) {
+        logger.error("Failed to initialize simulator ${simulator.udid}-${simulatorSerial}: ${e.message}")
+        null
+    }
 }
