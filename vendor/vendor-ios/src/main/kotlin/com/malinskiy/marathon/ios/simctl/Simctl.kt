@@ -3,6 +3,7 @@ package com.malinskiy.marathon.ios.simctl
 import com.dd.plist.PropertyListParser
 import com.malinskiy.marathon.ios.IOSDevice
 import com.google.gson.Gson
+import com.google.gson.JsonSyntaxException
 import com.malinskiy.marathon.ios.simctl.model.SimctlDevice
 import com.malinskiy.marathon.ios.simctl.model.SimctlDeviceType
 import com.malinskiy.marathon.ios.simctl.model.SimctlListDevicesOutput
@@ -13,8 +14,13 @@ import java.io.File
 class Simctl {
     fun list(device: IOSDevice, gson: Gson): List<SimctlDevice> {
         val output = exec("list --json", device)
-        val deviceList = gson.fromJson(output, SimctlListDevicesOutput::class.java)
-        return deviceList.devices.devices
+        return try {
+            gson.fromJson(output, SimctlListDevicesOutput::class.java).devices.devices
+        } catch(e: JsonSyntaxException) {
+            println("Error parsing simctl output on device ${device.hostCommandExecutor.hostAddress}:${device.udid}")
+            println(output)
+            throw IllegalStateException(e)
+        }
     }
 
     fun deviceType(device: IOSDevice): String? {
