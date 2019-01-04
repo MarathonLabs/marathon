@@ -48,7 +48,7 @@
 
         
             
-                <li class=nav-header>Documentation</li>
+                <li class=nav-header>General options</li>
             
             <li data-order="5"><a href="/marathon/doc/options.html">Options</a></li>
         
@@ -142,10 +142,31 @@
 <h3 id="download">Download</h3>
 
 <h4 id="cli">CLI</h4>
+<p>Grab the latest release from <a href="https://github.com/Malinskiy/marathon/releases">GitHub Releases</a> page. Extract the archive into your apps folder and add the binary to your path using local terminal session or using your profile file (.bashrc or equivalent), e.g.</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>unzip -d $DESTINATION marathon-X.X.X.zip
+export PATH=$PATH:$DESTINATION/marathon-X.X.X/bin
+</code></pre></div></div>
 
 <h4 id="gradle">Gradle</h4>
+<p>Marathon gradle plugin is published to <a href="https://search.maven.org/">MavenCentral</a> so make sure you have this registry either by declaring it directly or using an aggregating registry such as <a href="https://bintray.com/bintray/jcenter">jCenter</a>. Then apply the plugin</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>plugins {
+    id 'marathon' version 'X.X.X'
+}
+</code></pre></div></div>
+
+<p>For kts scripts use the following snippet:</p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>plugins {
+    id("marathon") version "X.X.X"
+}
+</code></pre></div></div>
+
+<p>All the relevant test tasks should start with <strong>marathon</strong> prefix such as <em>marathonDebugAndroidTest</em>.</p>
 
 <h3 id="setup">Setup</h3>
+
 
 
                     </div>
