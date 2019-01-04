@@ -22,7 +22,7 @@ otherlang: []
 
 # Default categories (in order) to appear in the navigation
 sections: [
-    ['doc', 'Documentation'],
+    ['doc', 'General options'],
     ['tut', 'Tutorial'],
     ['ref', 'Reference'],
     ['ven', 'Vendor extensions'],
