@@ -19,7 +19,7 @@ class IOSLogConfigurator: ContextAwareBase(), Configurator  {
         loggerContext?.let {
             addInfo("Setting up default configuration.")
 
-            val shorterOutput = System.getProperty("sun.java.command")?.contains("--shorter-output") ?: false
+            val shorterOutput = System.getProperty("sun.java.command")?.contains("--compact-output") ?: false
             val layout = PatternLayout()
             layout.pattern = if (shorterOutput) {
                 "%highlight(%.-1level) [%thread] <%logger{40}> %msg%n"
