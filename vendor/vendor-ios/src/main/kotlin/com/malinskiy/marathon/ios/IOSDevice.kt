@@ -133,7 +133,9 @@ class IOSDevice(val simulator: RemoteSimulator,
         )
 
         val command =
-                listOfNotNull("cd '$remoteDir' &&",
+                listOfNotNull("xcrun simctl shutdown all;",
+                        "xcrun simctl erase all;",
+                        "cd '$remoteDir';",
                         "NSUnbufferedIO=YES",
                         "xcodebuild test-without-building",
                         "-xctestrun ${remoteXctestrunFile.path}",
