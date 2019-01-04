@@ -1,5 +1,8 @@
 package com.malinskiy.marathon
 
+import com.malinskiy.marathon.usageanalytics.TrackActionType
+import com.malinskiy.marathon.usageanalytics.UsageAnalytics
+import com.malinskiy.marathon.usageanalytics.tracker.Event
 import com.malinskiy.marathon.android.AndroidConfiguration
 import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.log.MarathonLogging
@@ -22,6 +25,9 @@ open class MarathonRunTask : DefaultTask(), VerificationTask {
         log.info { "Run instrumentation tests ${androidConfiguration?.testApplicationOutput} for app ${androidConfiguration?.applicationOutput}" }
         log.debug { "Output: ${cnf.outputDir}" }
         log.debug { "Ignore failures: ${cnf.ignoreFailures}" }
+
+        UsageAnalytics.enable = cnf.analyticsTracking
+        UsageAnalytics.tracker.trackEvent(Event(TrackActionType.RunType, "gradle"))
 
         val success = Marathon(cnf).run()
 

@@ -58,5 +58,11 @@ class ProbabilityBasedFlakinessStrategy(val minSuccessRate: Double,
         result = 31 * result + timeLimit.hashCode()
         return result
     }
+
+    override fun toString(): String {
+        return "ProbabilityBasedFlakinessStrategy(minSuccessRate=$minSuccessRate, maxCount=$maxCount, timeLimit=$timeLimit)"
+    }
+
+
 }
 

@@ -39,7 +39,10 @@ object Versions {
     val jupiterEngine = "5.1.0"
     val jansi = "1.17.1"
     val scalr = "4.2"
+    val allure = "2.8.1"
+    val allureEnvironment = "1.0.0"
     val mockitoKotlin = "2.0.0"
+    val googleAnalitycsWrapper = "2.0.0"
 }
 
 object BuildPlugins {
@@ -75,6 +78,8 @@ object Libraries {
     val sshj = "com.hierynomus:sshj:${Versions.sshj}"
     val jansi = "org.fusesource.jansi:jansi:${Versions.jansi}"
     val scalr = "org.imgscalr:imgscalr-lib:${Versions.scalr}"
+    val allure = "io.qameta.allure:allure-java-commons:${Versions.allure}"
+    val allureEnvironment = "com.github.automatedowl:allure-environment-writer:${Versions.allureEnvironment}"
 }
 
 object TestLibraries {
@@ -95,4 +100,8 @@ object TestLibraries {
 
     val testContainers = "org.testcontainers:testcontainers:${Versions.testContainers}"
     val testContainersInflux = "org.testcontainers:influxdb:${Versions.testContainers}"
+}
+
+object Analytics {
+    val googleAnalyticsWrapper = "com.brsanthu:google-analytics-java:${Versions.googleAnalitycsWrapper}"
 }

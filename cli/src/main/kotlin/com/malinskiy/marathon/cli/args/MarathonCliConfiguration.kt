@@ -8,6 +8,9 @@ class MarathonCliConfiguration(parser: ArgParser) {
     val marathonfile: File by parser
             .storing("--marathonfile", "-m", help = "marathonfile file path") { File(this) }
             .default(File("Marathonfile"))
+    val analyticsTracking: Boolean by parser
+            .storing("--analyticsTracking", help = "Enable anonymous analytics tracking") { this.toBoolean() }
+            .default<Boolean>(false)
     val shorterOutput: Boolean by parser
-            .flagging("--shorter-output", help = "Logs will omit timestamps. Useful when running under CI control.")
+            .flagging("--compact-output", help = "Logs will omit timestamps. Useful when running under CI control.")
 }

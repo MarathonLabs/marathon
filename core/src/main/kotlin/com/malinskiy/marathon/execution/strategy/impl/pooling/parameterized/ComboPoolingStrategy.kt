@@ -29,4 +29,10 @@ class ComboPoolingStrategy(private val list: List<PoolingStrategy>) : PoolingStr
     override fun hashCode(): Int {
         return list.hashCode()
     }
+
+    override fun toString(): String {
+        return "ComboPoolingStrategy(list=$list)"
+    }
+
+
 }

@@ -34,6 +34,7 @@ class ConfigurationFactory {
     var testClassRegexes = null
     var timeoutMillis = null
     var testOutputTimeoutMillis = null
+    var analyticsTracking = false
 
     fun tests(block: () -> List<Test>) {
         val testParser = vendorConfiguration.testParser()!!
@@ -65,5 +66,7 @@ class ConfigurationFactory {
                     timeoutMillis,
                     testOutputTimeoutMillis,
                     debug,
-                    vendorConfiguration)
+                    vendorConfiguration,
+                    analyticsTracking
+                    )
 }

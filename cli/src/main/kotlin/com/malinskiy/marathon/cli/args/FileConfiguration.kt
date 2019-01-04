@@ -35,5 +35,7 @@ data class FileConfiguration(
         var testOutputTimeoutMillis: Long?,
         var debug: Boolean?,
 
-        var vendorConfiguration: FileVendorConfiguration?
+        var vendorConfiguration: FileVendorConfiguration?,
+
+        var analyticsTracking: Boolean?
 )

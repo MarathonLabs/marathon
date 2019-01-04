@@ -44,7 +44,8 @@ object IOSTestParserSpek : Spek({
                             knownHostsPath = null,
                             remoteRsyncPath = "/remote/rsync",
                             sourceRoot = sourceRoot,
-                            debugSsh = false)
+                            debugSsh = false),
+                    analyticsTracking = false
             )
 
             it("should return accurate list of tests") {

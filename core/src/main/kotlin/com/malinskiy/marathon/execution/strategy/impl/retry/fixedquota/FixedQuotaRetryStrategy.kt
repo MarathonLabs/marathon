@@ -33,4 +33,10 @@ class FixedQuotaRetryStrategy(@JsonProperty("totalAllowedRetryQuota") totalAllow
     override fun hashCode(): Int {
         return retryWatchdog.hashCode()
     }
+
+    override fun toString(): String {
+        return "FixedQuotaRetryStrategy(retryWatchdog=$retryWatchdog, poolTestCaseFailureAccumulator=$poolTestCaseFailureAccumulator)"
+    }
+
+
 }

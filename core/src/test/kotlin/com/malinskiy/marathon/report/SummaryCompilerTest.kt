@@ -43,7 +43,8 @@ class SummaryCompilerTest : Spek({
             vendorConfiguration = object : VendorConfiguration {
                 override fun testParser(): TestParser? = null
                 override fun deviceProvider(): DeviceProvider? = null
-            })
+            },
+            analyticsTracking = false)
 
     val fileManager = FileManager(configuration.outputDir)
     val gson = Gson()

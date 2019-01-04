@@ -63,5 +63,9 @@ class FixedSizeBatchingStrategy(private val size: Int,
         return size
     }
 
+    override fun toString(): String {
+        return "FixedSizeBatchingStrategy(size=$size, durationMillis=$durationMillis, percentile=$percentile, timeLimit=$timeLimit, lastMileLength=$lastMileLength)"
+    }
+
 
 }

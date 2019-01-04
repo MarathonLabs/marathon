@@ -2,6 +2,9 @@ package com.malinskiy.marathon
 
 import com.google.gson.Gson
 import com.malinskiy.marathon.analytics.AnalyticsFactory
+import com.malinskiy.marathon.usageanalytics.TrackActionType
+import com.malinskiy.marathon.usageanalytics.UsageAnalytics
+import com.malinskiy.marathon.usageanalytics.tracker.Event
 import com.malinskiy.marathon.device.DeviceProvider
 import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.execution.Scheduler
@@ -75,6 +78,7 @@ class Marathon(val configuration: Configuration) {
 
     suspend fun runAsync(): Boolean {
         MarathonLogging.debug = configuration.debug
+        trackAnalytics(configuration)
 
         val testParser = loadTestParser(configuration.vendorConfiguration)
         val deviceProvider = loadDeviceProvider(configuration.vendorConfiguration)
@@ -137,5 +141,17 @@ class Marathon(val configuration: Configuration) {
         configuration.filteringConfiguration.whitelist.forEach { tests = it.filter(tests) }
         configuration.filteringConfiguration.blacklist.forEach { tests = it.filterNot(tests) }
         return tests
+    }
+
+    private fun trackAnalytics(configuration: Configuration){
+        UsageAnalytics.tracker.run {
+            trackEvent(Event(TrackActionType.VendorConfiguration, configuration.vendorConfiguration.javaClass.name))
+            trackEvent(Event(TrackActionType.PoolingStrategy, configuration.poolingStrategy.javaClass.name))
+            trackEvent(Event(TrackActionType.ShardingStrategy, configuration.shardingStrategy.javaClass.name))
+            trackEvent(Event(TrackActionType.SortingStrategy, configuration.sortingStrategy.javaClass.name))
+            trackEvent(Event(TrackActionType.RetryStrategy, configuration.retryStrategy.javaClass.name))
+            trackEvent(Event(TrackActionType.BatchingStrategy, configuration.batchingStrategy.javaClass.name))
+            trackEvent(Event(TrackActionType.FlakinessStrategy, configuration.flakinessStrategy.javaClass.name))
+        }
     }
 }

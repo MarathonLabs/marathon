@@ -1,5 +1,9 @@
 name: "sample-app tests"
 outputDir: "build/reports/marathon"
+retryStrategy:
+  type: "fixed-quota"
+  totalAllowedRetryQuota: 100
+  retryPerTestQuota: 2
 vendorConfiguration:
   type: "Android"
   applicationApk: "app/build/outputs/apk/debug/app-debug.apk"

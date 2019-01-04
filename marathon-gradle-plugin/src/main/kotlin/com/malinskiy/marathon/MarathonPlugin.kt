@@ -131,7 +131,8 @@ class MarathonPlugin : Plugin<Project> {
                             config.timeoutMillis,
                             config.testOutputTimeoutMillis,
                             config.debug,
-                            vendorConfiguration
+                            vendorConfiguration,
+                            config.analyticsTracking
                     )
 
                     dependsOn(variant.testedVariant.assemble, variant.assemble)

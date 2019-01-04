@@ -60,7 +60,8 @@ class ConfigFactory(val mapper: ObjectMapper) {
                 config.timeoutMillis,
                 config.testOutputTimeoutMillis,
                 config.debug,
-                vendorConfiguration
+                vendorConfiguration,
+                config.analyticsTracking
         )
     }
 

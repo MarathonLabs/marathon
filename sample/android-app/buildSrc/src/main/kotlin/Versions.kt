@@ -10,6 +10,7 @@ object Versions {
     val junit = "4.12"
     val appCompat = "28.0.0"
     val constraintLayout = "1.0.2"
+    val allure = "2.8.1"
 }
 
 object BuildPlugins {
@@ -34,4 +35,5 @@ object TestLibraries {
     val espressoContrib = "com.android.support.test.espresso:espresso-contrib:${Versions.espresso}"
     val espressoIntents = "com.android.support.test.espresso:espresso-intents:${Versions.espresso}"
     val junit = "junit:junit:${Versions.junit}"
+    val allure = "io.qameta.allure:allure-java-commons:${Versions.allure}"
 }

@@ -30,6 +30,8 @@ open class MarathonExtension(project: Project) {
     var testOutputTimeoutMillis: Long? = null
     var debug: Boolean? = null
 
+    var analyticsTracking: Boolean = false
+
     //Android specific for now
     var autoGrantPermission: Boolean? = null
 

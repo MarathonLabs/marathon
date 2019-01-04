@@ -21,4 +21,5 @@ dependencies {
     implementation(project(":core"))
     implementation(project(":vendor:vendor-android"))
     implementation(BuildPlugins.androidGradle)
+    implementation(project(":analytics:usage"))
 }

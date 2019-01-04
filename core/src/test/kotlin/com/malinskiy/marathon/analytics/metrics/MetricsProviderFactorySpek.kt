@@ -36,7 +36,8 @@ class MetricsProviderFactorySpek : Spek({
                     vendorConfiguration = object : VendorConfiguration {
                         override fun testParser(): TestParser? = null
                         override fun deviceProvider(): DeviceProvider? = null
-                    }
+                    },
+                    analyticsTracking = false
             )
             val factory = MetricsProviderFactory(configuration)
             val metricsProvider = factory.create()

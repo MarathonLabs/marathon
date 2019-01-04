@@ -19,7 +19,7 @@ then
     exit 1
 fi
 
-TARGETS=":core:publishDefaultPublicationToOSSHRRepository :vendor:vendor-android:publishDefaultPublicationToOSSHRRepository :marathon-gradle-plugin:publishDefaultPublicationToOSSHRRepository :execution-timeline:publishDefaultPublicationToOSSHRRepository :marathon-html-report:publishDefaultPublicationToOSSHRRepository"
+TARGETS=":core:publishDefaultPublicationToOSSHRRepository :vendor:vendor-android:publishDefaultPublicationToOSSHRRepository :marathon-gradle-plugin:publishDefaultPublicationToOSSHRRepository :report:execution-timeline:publishDefaultPublicationToOSSHRRepository :report:html-report:publishDefaultPublicationToOSSHRRepository"
 
 if [ ! -z "$TRAVIS_TAG" ]
 then

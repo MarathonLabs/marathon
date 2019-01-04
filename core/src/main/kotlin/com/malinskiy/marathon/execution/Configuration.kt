@@ -43,7 +43,9 @@ data class Configuration constructor(
         val testOutputTimeoutMillis: Long,
         val debug: Boolean,
 
-        val vendorConfiguration: VendorConfiguration) {
+        val vendorConfiguration: VendorConfiguration,
+
+        val analyticsTracking: Boolean) {
 
     constructor(name: String,
                 outputDir: File,
@@ -69,7 +71,9 @@ data class Configuration constructor(
                 testOutputTimeoutMillis: Long?,
                 debug: Boolean?,
 
-                vendorConfiguration: VendorConfiguration) :
+                vendorConfiguration: VendorConfiguration,
+
+                analyticsTracking: Boolean?) :
 
             this(name = name,
                     outputDir = outputDir,
@@ -90,6 +94,30 @@ data class Configuration constructor(
                     timeoutMillis = timeoutMillis ?: DEFAULT_EXECUTION_TIMEOUT_MILLIS,
                     testOutputTimeoutMillis = testOutputTimeoutMillis ?: DEFAULT_OUTPUT_TIMEOUT_MILLIS,
                     debug = debug ?: true,
-                    vendorConfiguration = vendorConfiguration
+                    vendorConfiguration = vendorConfiguration,
+                    analyticsTracking = analyticsTracking ?: false
+            )
+
+    fun toMap() =
+            mapOf<String, String>(
+                    "name" to name,
+                    "outputDir" to outputDir.absolutePath,
+                    "analyticsConfiguration" to analyticsConfiguration.toString(),
+                    "pooling" to poolingStrategy.toString(),
+                    "sharding" to shardingStrategy.toString(),
+                    "sorting" to sortingStrategy.toString(),
+                    "batching" to batchingStrategy.toString(),
+                    "flakiness" to flakinessStrategy.toString(),
+                    "retry" to retryStrategy.toString(),
+                    "filtering" to filteringConfiguration.toString(),
+                    "ignoreFailures" to ignoreFailures.toString(),
+                    "isCodeCoverageEnabled" to isCodeCoverageEnabled.toString(),
+                    "fallbackToScreenshots" to fallbackToScreenshots.toString(),
+                    "testClassRegexes" to testClassRegexes.toString(),
+                    "includeSerialRegexes" to includeSerialRegexes.toString(),
+                    "excludeSerialRegexes" to excludeSerialRegexes.toString(),
+                    "testOutputTimeoutMillis" to testOutputTimeoutMillis.toString(),
+                    "debug" to debug.toString(),
+                    "vendorConfiguration" to vendorConfiguration.toString()
             )
 }
