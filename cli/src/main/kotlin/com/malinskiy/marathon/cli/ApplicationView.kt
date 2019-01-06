@@ -17,6 +17,7 @@ import com.malinskiy.marathon.cli.config.DeserializeModule
 import com.malinskiy.marathon.cli.config.time.InstantTimeProviderImpl
 import com.malinskiy.marathon.log.MarathonLogging
 import com.xenomachina.argparser.ArgParser
+import com.xenomachina.argparser.SystemExitException
 import com.xenomachina.argparser.mainBody
 
 private val logger = MarathonLogging.logger {}
@@ -39,6 +40,10 @@ fun main(args: Array<String>): Unit = mainBody(
         val marathon = Marathon(configuration = configuration)
         UsageAnalytics.enable = this.analyticsTracking
         UsageAnalytics.tracker.trackEvent(Event(TrackActionType.RunType, "cli"))
-        marathon.run()
+        val success = marathon.run()
+        if (!success && !configuration.ignoreFailures) {
+            throw SystemExitException("Build failed", 1)
+        }
+        success
     }
 }
