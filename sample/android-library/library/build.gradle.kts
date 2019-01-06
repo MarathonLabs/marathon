@@ -1,7 +1,7 @@
 plugins {
     id("com.android.library")
     id("kotlin-android")
-    id("marathon") version "0.3.1"
+    id("marathon") version "0.3.2"
 }
 
 android {
