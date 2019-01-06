@@ -54,9 +54,9 @@ class AndroidAppInstaller(configuration: Configuration) {
 
     private fun optionalParams(device: IDevice): String {
         return if (device.version.apiLevel >= MARSHMALLOW_VERSION_CODE && androidConfiguration.autoGrantPermission) {
-            "-g"
+            "-g -r"
         } else {
-            ""
+            "-r"
         }
     }
 }
