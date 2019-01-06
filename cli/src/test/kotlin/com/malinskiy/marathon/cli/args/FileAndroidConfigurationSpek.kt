@@ -1,14 +1,12 @@
 package com.malinskiy.marathon.cli.args
 
 import com.malinskiy.marathon.exceptions.ConfigurationException
+import org.amshove.kluent.shouldEqual
+import org.amshove.kluent.shouldThrow
 import org.jetbrains.spek.api.Spek
-import org.jetbrains.spek.api.dsl.context
 import org.jetbrains.spek.api.dsl.describe
 import org.jetbrains.spek.api.dsl.it
 import java.io.File
-import kotlin.test.assertEquals
-import kotlin.test.assertFailsWith
-import kotlin.test.assertNull
 
 object FileAndroidConfigurationSpek : Spek({
     describe("FileAndroidConfiguration") {
@@ -27,48 +25,46 @@ object FileAndroidConfigurationSpek : Spek({
 
         group("androidSdk is null") {
             it("should throw Exception if env android sdk also is null") {
-                assertFailsWith(ConfigurationException::class) {
-                    configuration.toAndroidConfiguration(null)
-                }
+                { configuration.toAndroidConfiguration(null) } shouldThrow ConfigurationException::class
             }
             it("should use env android sdk if it is not null") {
-                assertEquals(env, configuration.toAndroidConfiguration(env).androidSdk)
+                configuration.toAndroidConfiguration(env).androidSdk shouldEqual env
             }
         }
         group("android sdk is not null") {
             it("should use android sdk instead of env if both exists") {
-                assertEquals(sdk, configuration.copy(androidSdk = sdk).toAndroidConfiguration(env).androidSdk)
+                configuration.copy(androidSdk = sdk).toAndroidConfiguration(env).androidSdk shouldEqual sdk
             }
         }
         group("test application output") {
             it("should be null by default") {
-                assertNull(configuration.toAndroidConfiguration(env).applicationOutput)
+                configuration.toAndroidConfiguration(env).applicationOutput shouldEqual null
             }
             it("should be null if provided") {
-                assertEquals(env, configuration.copy(applicationOutput = env).toAndroidConfiguration(env).applicationOutput)
+                configuration.copy(applicationOutput = env).toAndroidConfiguration(env).applicationOutput shouldEqual env
             }
         }
         group("test application apk") {
             it("should be equal") {
-                assertEquals(env, configuration.copy(testApplicationOutput = env).toAndroidConfiguration(env).testApplicationOutput)
+                configuration.copy(testApplicationOutput = env).toAndroidConfiguration(env).testApplicationOutput shouldEqual env
             }
         }
         group("auto grant permissions") {
             it("should be false by default") {
-                assertEquals(false, configuration.toAndroidConfiguration(env).autoGrantPermission)
+                configuration.toAndroidConfiguration(env).autoGrantPermission shouldEqual false
             }
             it("should be equal") {
-                assertEquals(false, configuration.copy(autoGrantPermission = false).toAndroidConfiguration(env).autoGrantPermission)
-                assertEquals(true, configuration.copy(autoGrantPermission = true).toAndroidConfiguration(env).autoGrantPermission)
+                configuration.copy(autoGrantPermission = false).toAndroidConfiguration(env).autoGrantPermission shouldEqual false
+                configuration.copy(autoGrantPermission = true).toAndroidConfiguration(env).autoGrantPermission shouldEqual true
             }
         }
         group("adb init timeout millis") {
             it("should be 30_000 by default") {
-                assertEquals(30_000, configuration.toAndroidConfiguration(env).adbInitTimeoutMillis)
+                configuration.toAndroidConfiguration(env).adbInitTimeoutMillis shouldEqual 30_000
             }
             it("should be equal") {
                 val timeout = 500_000
-                assertEquals(timeout, configuration.copy(adbInitTimeoutMillis = timeout).toAndroidConfiguration(env).adbInitTimeoutMillis)
+                configuration.copy(adbInitTimeoutMillis = timeout).toAndroidConfiguration(env).adbInitTimeoutMillis shouldEqual timeout
             }
         }
     }
