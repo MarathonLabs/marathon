@@ -4,6 +4,7 @@ import com.malinskiy.marathon.device.DeviceProvider
 import com.malinskiy.marathon.execution.AnalyticsConfiguration
 import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.execution.TestParser
+import com.malinskiy.marathon.log.MarathonLogConfigurator
 import com.malinskiy.marathon.vendor.VendorConfiguration
 import org.amshove.kluent.shouldBeInstanceOf
 import org.jetbrains.spek.api.Spek
@@ -36,6 +37,7 @@ class MetricsProviderFactorySpek : Spek({
                     vendorConfiguration = object : VendorConfiguration {
                         override fun testParser(): TestParser? = null
                         override fun deviceProvider(): DeviceProvider? = null
+                        override fun logConfigurator(): MarathonLogConfigurator? = null
                     },
                     analyticsTracking = false
             )

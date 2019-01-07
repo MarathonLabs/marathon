@@ -41,6 +41,12 @@ class Marathon(val configuration: Configuration) {
     private val analyticsFactory = AnalyticsFactory(configuration, fileManager, deviceInfoReporter, testResultReporter,
             gson)
 
+    private fun configureLogging(configuration: VendorConfiguration) {
+        MarathonLogging.debug = true
+
+        configuration.logConfigurator()?.configure()
+    }
+
     private val summaryCompiler = SummaryCompiler(deviceInfoReporter, testResultReporter, configuration)
 
     private fun loadSummaryPrinter(): SummaryPrinter {
@@ -77,7 +83,7 @@ class Marathon(val configuration: Configuration) {
     }
 
     suspend fun runAsync(): Boolean {
-        MarathonLogging.debug = configuration.debug
+        configureLogging(configuration.vendorConfiguration)
         trackAnalytics(configuration)
 
         val testParser = loadTestParser(configuration.vendorConfiguration)

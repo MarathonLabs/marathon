@@ -9,12 +9,19 @@ import ch.qos.logback.classic.spi.ILoggingEvent
 import ch.qos.logback.core.ConsoleAppender
 import ch.qos.logback.core.encoder.LayoutWrappingEncoder
 import ch.qos.logback.core.spi.ContextAwareBase
+import com.malinskiy.marathon.log.MarathonLogConfigurator
 import net.schmizz.sshj.DefaultConfig
 import net.schmizz.sshj.common.KeyType
 import net.schmizz.sshj.transport.kex.Curve25519SHA256
 import net.schmizz.sshj.transport.random.BouncyCastleRandom
+import org.slf4j.LoggerFactory
 
-class IOSLogConfigurator: ContextAwareBase(), Configurator  {
+class IOSLogConfigurator: ContextAwareBase(), Configurator, MarathonLogConfigurator  {
+    override fun configure() {
+        val context = LoggerFactory.getILoggerFactory() as LoggerContext
+        configure(context)
+    }
+
     override fun configure(loggerContext: LoggerContext?) {
         loggerContext?.let {
             addInfo("Setting up default configuration.")

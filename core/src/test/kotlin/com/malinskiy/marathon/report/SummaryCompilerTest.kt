@@ -8,6 +8,7 @@ import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.execution.TestParser
 import com.malinskiy.marathon.execution.TestStatus
 import com.malinskiy.marathon.io.FileManager
+import com.malinskiy.marathon.log.MarathonLogConfigurator
 import com.malinskiy.marathon.report.internal.DeviceInfoReporter
 import com.malinskiy.marathon.report.internal.TestResultReporter
 import com.malinskiy.marathon.vendor.VendorConfiguration
@@ -43,6 +44,7 @@ class SummaryCompilerTest : Spek({
             vendorConfiguration = object : VendorConfiguration {
                 override fun testParser(): TestParser? = null
                 override fun deviceProvider(): DeviceProvider? = null
+                override fun logConfigurator(): MarathonLogConfigurator? = null
             },
             analyticsTracking = false)
 
