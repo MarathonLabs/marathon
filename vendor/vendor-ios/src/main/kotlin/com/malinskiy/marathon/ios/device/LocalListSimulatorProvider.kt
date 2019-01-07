@@ -53,6 +53,18 @@ class LocalListSimulatorProvider(private val channel: Channel<DeviceProvider.Dev
     }
 
     override suspend fun stop() = withContext(coroutineContext) {
+        logger.debug("Stopping simulator provider")
+        simulators.groupBy { it.host }.forEach {
+            logger.debug(it.key)
+            it.value
+                    .map { it.udid to RemoteSimulatorSerialCounter.get(it.udid) }
+                    .sortedBy { it.second }
+                    .forEach { logger.debug("   - ${it.second}x${it.first}") }
+            val total = it.value.fold(0) { count, simulator ->
+                count + RemoteSimulatorSerialCounter.get(simulator.udid)
+            }
+            logger.debug("     ∑ ${total}")
+        }
         devices.entries
                 .filter { devices.remove(it.key, it.value) }
                 .map { it.value }
