@@ -22,7 +22,7 @@ class IOSLogConfigurator: ContextAwareBase(), Configurator  {
             val shorterOutput = System.getProperty("sun.java.command")?.contains("--compact-output") ?: false
             val layout = PatternLayout()
             layout.pattern = if (shorterOutput) {
-                "%highlight(%.-1level) [%thread] <%logger{40}> %msg%n"
+                "%highlight(%.-1level [%thread] <%logger{40}> %msg%n)"
             } else {
                 "%highlight(%.-1level %d{HH:mm:ss.SSS} [%thread] <%logger{40}> %msg%n)"
             }

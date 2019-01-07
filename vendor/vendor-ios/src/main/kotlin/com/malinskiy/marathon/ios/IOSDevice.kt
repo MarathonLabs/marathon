@@ -234,6 +234,17 @@ class IOSDevice(val simulator: RemoteSimulator,
     }
 
     override fun dispose() {
+        val logarchiveFile = RemoteFileManager.remoteLogarchiveFile(this)
+        val result = try {
+            hostCommandExecutor.exec("xcrun simctl spawn $udid log collect '$logarchiveFile'")
+        } catch (e: Exception) {
+            null
+        }
+        if (result?.exitStatus == 0) {
+            logger.debug("Saved collected simulator logs to remote file $logarchiveFile")
+        } else {
+            logger.debug("Failed to collect simulator logs")
+        }
         hostCommandExecutor.disconnect()
         deviceContext.close()
     }
