@@ -106,7 +106,6 @@ class Marathon(val configuration: Configuration) {
         configuration.outputDir.mkdirs()
 
         val shutdownHook = ShutdownHook(configuration) {
-                println("hook printing")
                 printSummary(scheduler)
             }
             .also { it.install() }
