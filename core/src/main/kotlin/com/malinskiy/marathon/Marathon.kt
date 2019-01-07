@@ -41,10 +41,10 @@ class Marathon(val configuration: Configuration) {
     private val analyticsFactory = AnalyticsFactory(configuration, fileManager, deviceInfoReporter, testResultReporter,
             gson)
 
-    private fun configureLogging(configuration: VendorConfiguration) {
-        MarathonLogging.debug = true
+    private fun configureLogging(vendorConfiguration: VendorConfiguration) {
+        MarathonLogging.debug = configuration.debug
 
-        configuration.logConfigurator()?.configure()
+        vendorConfiguration.logConfigurator()?.configure()
     }
 
     private val summaryCompiler = SummaryCompiler(deviceInfoReporter, testResultReporter, configuration)
