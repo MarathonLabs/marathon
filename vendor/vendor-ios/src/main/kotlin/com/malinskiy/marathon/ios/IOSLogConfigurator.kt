@@ -10,6 +10,7 @@ import ch.qos.logback.core.ConsoleAppender
 import ch.qos.logback.core.encoder.LayoutWrappingEncoder
 import ch.qos.logback.core.spi.ContextAwareBase
 import com.malinskiy.marathon.log.MarathonLogConfigurator
+import com.malinskiy.marathon.vendor.VendorConfiguration
 import net.schmizz.sshj.DefaultConfig
 import net.schmizz.sshj.common.KeyType
 import net.schmizz.sshj.transport.kex.Curve25519SHA256
@@ -17,7 +18,11 @@ import net.schmizz.sshj.transport.random.BouncyCastleRandom
 import org.slf4j.LoggerFactory
 
 class IOSLogConfigurator: ContextAwareBase(), Configurator, MarathonLogConfigurator  {
-    override fun configure() {
+    private var iosConfiguration: IOSConfiguration? = null
+
+    override fun configure(vendorConfiguration: VendorConfiguration) {
+        iosConfiguration = vendorConfiguration as IOSConfiguration
+
         val context = LoggerFactory.getILoggerFactory() as LoggerContext
         configure(context)
     }
@@ -26,9 +31,9 @@ class IOSLogConfigurator: ContextAwareBase(), Configurator, MarathonLogConfigura
         loggerContext?.let {
             addInfo("Setting up default configuration.")
 
-            val shorterOutput = System.getProperty("sun.java.command")?.contains("--compact-output") ?: false
+            val compactOutput = iosConfiguration?.compactOutput ?: false
             val layout = PatternLayout()
-            layout.pattern = if (shorterOutput) {
+            layout.pattern = if (compactOutput) {
                 "%highlight(%.-1level [%thread] <%logger{40}> %msg%n)"
             } else {
                 "%highlight(%.-1level %d{HH:mm:ss.SSS} [%thread] <%logger{40}> %msg%n)"

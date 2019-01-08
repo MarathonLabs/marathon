@@ -44,7 +44,7 @@ class Marathon(val configuration: Configuration) {
     private fun configureLogging(vendorConfiguration: VendorConfiguration) {
         MarathonLogging.debug = configuration.debug
 
-        vendorConfiguration.logConfigurator()?.configure()
+        vendorConfiguration.logConfigurator()?.configure(vendorConfiguration)
     }
 
     private val summaryCompiler = SummaryCompiler(deviceInfoReporter, testResultReporter, configuration)

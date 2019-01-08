@@ -11,6 +11,4 @@ class MarathonCliConfiguration(parser: ArgParser) {
     val analyticsTracking: Boolean by parser
             .storing("--analyticsTracking", help = "Enable anonymous analytics tracking") { this.toBoolean() }
             .default<Boolean>(false)
-    val shorterOutput: Boolean by parser
-            .flagging("--compact-output", help = "Logs will omit timestamps. Useful when running under CI control.")
 }

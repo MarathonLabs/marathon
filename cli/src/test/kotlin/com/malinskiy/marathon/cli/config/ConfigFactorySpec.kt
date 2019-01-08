@@ -195,7 +195,8 @@ object ConfigFactorySpec : Spek({
                         knownHostsPath = file.parentFile.resolve("known_hosts"),
                         remoteRsyncPath = "/usr/local/bin/rsync",
                         debugSsh = true,
-                        devicesFile = file.parentFile.resolve("Marathondevices"))
+                        hideRunnerOutput = true,
+                        devicesFile = file.parentFile.resolve("Testdevices"))
             }
         }
 

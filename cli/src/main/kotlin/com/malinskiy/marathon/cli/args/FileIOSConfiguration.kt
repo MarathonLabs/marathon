@@ -25,6 +25,7 @@ data class FileIOSConfiguration(
         @JsonProperty("sourceRoot") val sourceRoot: File?,
         @JsonProperty("debugSsh") val debugSsh: Boolean?,
         @JsonProperty("hideRunnerOutput") val hideRunnerOutput: Boolean?,
+        @JsonProperty("compactOutput") val compactOutput: Boolean = false,
         @JsonProperty("devices") val devices: File?,
         val fileListProvider: FileListProvider = DerivedDataFileListProvider) : FileVendorConfiguration {
 
@@ -40,8 +41,10 @@ data class FileIOSConfiguration(
         val optionalSourceRoot = sourceRootOverride
                 ?: sourceRoot?.resolveAgainst(marathonfileDir)
         val optionalDebugSsh = debugSsh ?: false
-        val optionalDevices = devices ?: marathonfileDir.resolve("Marathondevices")
+        val optionalDevices = devices?.resolveAgainst(marathonfileDir)
+                ?: marathonfileDir.resolve("Marathondevices")
         val optionalKnownHostsPath = knownHostsPath?.resolveAgainst(marathonfileDir)
+        val optionalHideRunnerOutput = hideRunnerOutput ?: false
 
         return if (optionalSourceRoot == null) {
             IOSConfiguration(
@@ -52,7 +55,8 @@ data class FileIOSConfiguration(
                     knownHostsPath = optionalKnownHostsPath,
                     remoteRsyncPath = remoteRsyncPath,
                     debugSsh = optionalDebugSsh,
-                    hideRunnerOutput = hideRunnerOutput ?: false,
+                    hideRunnerOutput = optionalHideRunnerOutput,
+                    compactOutput = compactOutput,
                     devicesFile = optionalDevices)
         } else {
             IOSConfiguration(
@@ -63,7 +67,8 @@ data class FileIOSConfiguration(
                     knownHostsPath = optionalKnownHostsPath,
                     remoteRsyncPath = remoteRsyncPath,
                     debugSsh = optionalDebugSsh,
-                    hideRunnerOutput = hideRunnerOutput ?: false,
+                    hideRunnerOutput = optionalHideRunnerOutput,
+                    compactOutput = compactOutput,
                     devicesFile = optionalDevices,
                     sourceRoot = optionalSourceRoot)
         }
