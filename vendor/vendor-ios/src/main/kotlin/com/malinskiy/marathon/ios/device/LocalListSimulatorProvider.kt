@@ -46,7 +46,7 @@ class LocalListSimulatorProvider(private val channel: Channel<DeviceProvider.Dev
 
     override suspend fun start() {
         launch(context = coroutineContext) {
-            logger.info("A ${this.javaClass.simpleName} starts providing ${simulators.size} simulators")
+            logger.info("starts providing ${simulators.size} simulators")
             simulators
                     .mapNotNull { createDevice(it, RemoteSimulatorSerialCounter.putAndGet(it.udid)) }
                     .forEach { connect(it) }
@@ -54,7 +54,7 @@ class LocalListSimulatorProvider(private val channel: Channel<DeviceProvider.Dev
     }
 
     override suspend fun stop() = withContext(coroutineContext) {
-        logger.info("A ${this.javaClass.simpleName} stops providing anything")
+        logger.info("stops providing anything")
         simulators.groupBy { it.host }.forEach {
             logger.debug(it.key)
             it.value

@@ -20,6 +20,7 @@ import kotlin.math.min
 
 private const val DEFAULT_PORT = 22
 private const val SLEEP_DURATION_MILLIS = 15L
+private const val SSH_SERVER_KEEPALIVE_INTERVAL_MILLIS = 5000
 
 class SshjCommandExecutor(deviceContext: CoroutineContext,
                           udid: String,
@@ -36,14 +37,17 @@ class SshjCommandExecutor(deviceContext: CoroutineContext,
     init {
         val config = DefaultConfig()
         val loggerFactory = object : LoggerFactory {
-            override fun getLogger(clazz: Class<*>?): Logger = MarathonLogging.logger(
-                name = clazz?.simpleName ?: SshjCommandExecutor::class.java.simpleName,
-                level = if (verbose) {
-                    Level.DEBUG
-                } else {
-                    Level.ERROR
-                }
-            )
+            override fun getLogger(clazz: Class<*>?): Logger {
+                val name = clazz?.simpleName ?: SshjCommandExecutor::class.java.simpleName
+                return MarathonLogging.logger(
+                    name = name,
+                    level = if (verbose || name == "Heartbeater") {
+                        Level.DEBUG
+                    } else {
+                        Level.ERROR
+                    }
+                )
+            }
 
             override fun getLogger(name: String?): Logger = MarathonLogging.logger(
                 name = name ?: "",
@@ -57,6 +61,7 @@ class SshjCommandExecutor(deviceContext: CoroutineContext,
         config.loggerFactory = loggerFactory
 
         ssh = SSHClient(config)
+        ssh.connection.keepAlive.keepAliveInterval = SSH_SERVER_KEEPALIVE_INTERVAL_MILLIS / 1000
         knownHostsPath?.let { ssh.loadKnownHosts(it) }
         ssh.loadKnownHosts()
         val keys = ssh.loadKeys(remotePrivateKey.path)
