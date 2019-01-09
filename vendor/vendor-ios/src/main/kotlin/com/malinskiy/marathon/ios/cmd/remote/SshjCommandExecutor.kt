@@ -3,6 +3,7 @@ package com.malinskiy.marathon.ios.cmd.remote
 import ch.qos.logback.classic.Level
 import com.malinskiy.marathon.log.MarathonLogging
 import kotlinx.coroutines.*
+import net.schmizz.keepalive.KeepAliveProvider
 import net.schmizz.sshj.DefaultConfig
 import net.schmizz.sshj.SSHClient
 import net.schmizz.sshj.common.LoggerFactory
@@ -20,7 +21,7 @@ import kotlin.math.min
 
 private const val DEFAULT_PORT = 22
 private const val SLEEP_DURATION_MILLIS = 15L
-private const val SSH_SERVER_KEEPALIVE_INTERVAL_MILLIS = 5000
+private const val SSH_SERVER_KEEPALIVE_INTERVAL_MILLIS = 30000
 
 class SshjCommandExecutor(deviceContext: CoroutineContext,
                           udid: String,
@@ -41,7 +42,7 @@ class SshjCommandExecutor(deviceContext: CoroutineContext,
                 val name = clazz?.simpleName ?: SshjCommandExecutor::class.java.simpleName
                 return MarathonLogging.logger(
                     name = name,
-                    level = if (verbose || name == "Heartbeater") {
+                    level = if (verbose) {
                         Level.DEBUG
                     } else {
                         Level.ERROR
@@ -59,6 +60,7 @@ class SshjCommandExecutor(deviceContext: CoroutineContext,
             )
         }
         config.loggerFactory = loggerFactory
+        config.keepAliveProvider = KeepAliveProvider.KEEP_ALIVE
 
         ssh = SSHClient(config)
         ssh.connection.keepAlive.keepAliveInterval = SSH_SERVER_KEEPALIVE_INTERVAL_MILLIS / 1000

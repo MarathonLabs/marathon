@@ -29,7 +29,7 @@ class LocalListSimulatorProvider(private val channel: Channel<DeviceProvider.Dev
                                  yamlObjectMapper: ObjectMapper,
                                  private val gson: Gson) : SimulatorProvider, HealthChangeListener, CoroutineScope {
 
-    private val dispatcher by lazy { newFixedThreadPoolContext(1, "LocalListSimulatorProvider") }
+    private val dispatcher = newFixedThreadPoolContext(1, "LocalListSimulatorProvider")
     override val coroutineContext: CoroutineContext
         get() = dispatcher
 
@@ -46,30 +46,33 @@ class LocalListSimulatorProvider(private val channel: Channel<DeviceProvider.Dev
 
     override suspend fun start() {
         launch(context = coroutineContext) {
-            logger.info("starts providing ${simulators.size} simulators")
+            logger.info("starts providing ${simulators.count()} simulator devices")
             simulators
                     .mapNotNull { createDevice(it, RemoteSimulatorSerialCounter.putAndGet(it.udid)) }
+                    .also {  logger.debug("created ${it.count()} devices") }
                     .forEach { connect(it) }
         }
     }
 
     override suspend fun stop() = withContext(coroutineContext) {
         logger.info("stops providing anything")
-        simulators.groupBy { it.host }.forEach {
-            logger.debug(it.key)
-            it.value
-                    .map { it.udid to RemoteSimulatorSerialCounter.get(it.udid) }
-                    .sortedBy { it.second }
-                    .forEach { logger.debug("   - ${it.second}x${it.first}") }
-            val total = it.value.fold(0) { count, simulator ->
-                count + RemoteSimulatorSerialCounter.get(simulator.udid)
-            }
-            logger.debug("     ∑ ${total}")
-        }
+        simulators
+                .groupBy { it.host }
+                .forEach { (host, simulators) ->
+                    logger.debug(host)
+                    simulators
+                            .map { it.udid to RemoteSimulatorSerialCounter.get(it.udid) }
+                            .sortedBy { it.second }
+                            .forEach { logger.debug("   - ${it.second}x${it.first}") }
+                    simulators.fold(0) { count, simulator ->
+                        count + RemoteSimulatorSerialCounter.get(simulator.udid)
+                    }.also {
+                        logger.debug("   ∑ ${it}")
+                    }
+                }
         devices.entries
                 .filter { devices.remove(it.key, it.value) }
-                .map { it.value }
-                .forEach { device ->
+                .forEach { (_, device) ->
                     dispose(device)
 
                     notifyDisconnected(device)
@@ -77,7 +80,7 @@ class LocalListSimulatorProvider(private val channel: Channel<DeviceProvider.Dev
     }
 
     override suspend fun onDisconnect(device: IOSDevice) {
-        launch {
+        launch(context = coroutineContext) {
             if (devices.remove(device.serialNumber, device)) {
                 dispose(device)
 
@@ -86,18 +89,17 @@ class LocalListSimulatorProvider(private val channel: Channel<DeviceProvider.Dev
         }
 
         if (device.failureReason == DeviceFailureReason.MissingDestination) {
-            logger.info("Device ${device.udid} does not exist on remote host")
+            logger.error("device ${device.udid} does not exist on remote host")
         } else if (RemoteSimulatorSerialCounter.get(device.udid) < MAX_SERIAL) {
-            launch {
+            launch(context = coroutineContext) {
                 delay(499)
 
-                val restartedDevice = createDevice(
+                createDevice(
                     device.simulator,
                     RemoteSimulatorSerialCounter.putAndGet(device.udid)
-                )
-                if (restartedDevice != null) {
-                    logger.debug("reconnecting to ${restartedDevice.udid}")
-                    connect(restartedDevice)
+                )?.let {
+                    logger.debug("reconnecting to ${it.udid}")
+                    connect(it)
                 }
             }
         }
@@ -110,19 +112,18 @@ class LocalListSimulatorProvider(private val channel: Channel<DeviceProvider.Dev
     private fun connect(device: IOSDevice) {
         devices.put(device.serialNumber, device)
                 ?.let {
-                    logger.error("Replaced existing device $it with new $device.")
+                    logger.error("replaced existing device $it with new $device.")
                     dispose(it)
                 }
-
-        logger.debug { "Discovered simulator ${device.serialNumber}" }
+        logger.debug { "discovered device ${device.serialNumber}" }
         notifyConnected(device)
     }
 
-    private fun notifyConnected(device: IOSDevice) = launch {
+    private fun notifyConnected(device: IOSDevice) = launch(context = coroutineContext) {
         channel.send(element = DeviceProvider.DeviceEvent.DeviceConnected(device))
     }
 
-    private fun notifyDisconnected(device: IOSDevice) = launch {
+    private fun notifyDisconnected(device: IOSDevice) = launch(context = coroutineContext) {
         channel.send(element = DeviceProvider.DeviceEvent.DeviceDisconnected(device))
     }
 
@@ -137,7 +138,7 @@ class LocalListSimulatorProvider(private val channel: Channel<DeviceProvider.Dev
             healthChangeListener = this
         )
     } catch (e: DeviceFailureException) {
-        logger.error("Failed to initialize simulator ${simulator.udid}-${simulatorSerial}: ${e.message}")
+        logger.error("Failed to initialize ${simulator.udid}-$simulatorSerial: ${e.message}")
         null
     }
 }
