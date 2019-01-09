@@ -52,8 +52,11 @@ class IOSLogConfigurator: ContextAwareBase(), Configurator, MarathonLogConfigura
             consoleAppender.encoder = encoder
             consoleAppender.start()
 
-            loggerContext.getLogger(Logger.ROOT_LOGGER_NAME).addAppender(consoleAppender)
+            val rootLogger = loggerContext.getLogger(Logger.ROOT_LOGGER_NAME)
+            rootLogger.detachAndStopAllAppenders()
+            rootLogger.addAppender(consoleAppender)
 
+            // silence the noise
             listOf(
                 Curve25519SHA256::class.java.name,
                 BouncyCastleRandom::class.java.name,
