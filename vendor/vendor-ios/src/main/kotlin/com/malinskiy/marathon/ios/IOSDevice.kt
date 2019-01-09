@@ -219,6 +219,20 @@ class IOSDevice(val simulator: RemoteSimulator,
                 hostName = hostCommandExecutor.hostAddress.hostName,
                 port = hostCommandExecutor.port
         )
+
+        val result = try {
+            hostCommandExecutor.exec("/usr/libexec/PlistBuddy -c 'Add :DevicePreferences:$udid:ConnectHardwareKeyboard bool false' /Users/master/Library/Preferences/com.apple.iphonesimulator.plist" +
+                    "|| /usr/libexec/PlistBuddy -c 'Set :DevicePreferences:$udid:ConnectHardwareKeyboard false' /Users/master/Library/Preferences/com.apple.iphonesimulator.plist")
+        } catch (e: Exception) {
+            null
+        }
+        if (result?.exitStatus == 0) {
+            logger.debug("Disabled hardware keyboard")
+        } else if (result?.stderr != null) {
+            logger.debug("Failed to disable hardware keyboard with error: ${result.stderr}")
+        } else {
+            logger.debug("Failed to disable hardware keyboard")
+        }
     }
 
     private fun prepareXctestrunFile(derivedDataManager: DerivedDataManager, remoteXctestrunFile: File): File {
