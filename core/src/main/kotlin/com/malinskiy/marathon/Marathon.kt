@@ -2,6 +2,7 @@ package com.malinskiy.marathon
 
 import com.google.gson.Gson
 import com.malinskiy.marathon.analytics.AnalyticsFactory
+import com.malinskiy.marathon.analytics.tracker.local.RawTestResultTracker
 import com.malinskiy.marathon.usageanalytics.TrackActionType
 import com.malinskiy.marathon.usageanalytics.UsageAnalytics
 import com.malinskiy.marathon.usageanalytics.tracker.Event
@@ -24,6 +25,7 @@ import com.malinskiy.marathon.test.Test
 import com.malinskiy.marathon.test.toTestName
 import com.malinskiy.marathon.vendor.VendorConfiguration
 import kotlinx.coroutines.runBlocking
+import java.lang.StringBuilder
 import java.util.ServiceLoader
 import java.util.concurrent.TimeUnit
 import kotlin.coroutines.coroutineContext
@@ -110,11 +112,7 @@ class Marathon(val configuration: Configuration) {
             summaryPrinter.print(summary)
         }
 
-        val hours = TimeUnit.MILLISECONDS.toHours(timeMillis)
-        val minutes = TimeUnit.MILLISECONDS.toMinutes(timeMillis) % 60
-        val seconds = TimeUnit.MILLISECONDS.toSeconds(timeMillis) % 60
-
-        log.info { "Total time: ${hours}H ${minutes}m ${seconds}s" }
+        printCliReport(analyticsFactory.rawTestResultTracker.testResults, timeMillis)
         analytics.terminate()
         analytics.close()
         deviceProvider.terminate()
@@ -140,5 +138,23 @@ class Marathon(val configuration: Configuration) {
             trackEvent(Event(TrackActionType.BatchingStrategy, configuration.batchingStrategy.javaClass.name))
             trackEvent(Event(TrackActionType.FlakinessStrategy, configuration.flakinessStrategy.javaClass.name))
         }
+    }
+
+    private fun printCliReport(rawTestResult: List<RawTestResultTracker.RawTestRun>, executionTime: Long){
+        val cliReportBuilder = StringBuilder().appendln("Marathon run finished:")
+
+        rawTestResult.run {
+            val passedTests = count { it.success }
+            val failedTests = count { !it.success }
+            val ignoredTests = count { it.ignored }
+            cliReportBuilder.appendln("With $passedTests passed, $failedTests failed, $ignoredTests ignored tests")
+        }
+
+        val hours = TimeUnit.MILLISECONDS.toHours(executionTime)
+        val minutes = TimeUnit.MILLISECONDS.toMinutes(executionTime) % 60
+        val seconds = TimeUnit.MILLISECONDS.toSeconds(executionTime) % 60
+        cliReportBuilder.appendln("Total time: ${hours}H ${minutes}m ${seconds}s" )
+
+        log.info { cliReportBuilder.toString() }
     }
 }
