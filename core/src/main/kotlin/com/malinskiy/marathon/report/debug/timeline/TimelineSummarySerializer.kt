@@ -90,6 +90,7 @@ class TimelineSummarySerializer(private val rawTestResultTracker: RawTestResultT
 
         val passedTestCount = rawTestResultTracker.testResults.count { it.success }
         val failedTests = rawTestResultTracker.testResults.count { !it.success }
+        val ignoredTests = rawTestResultTracker.testResults.count { it.ignored }
 
         val measures = rawTestResultTracker.testResults.groupBy { it.deviceSerial }
                 .map {
@@ -101,6 +102,6 @@ class TimelineSummarySerializer(private val rawTestResultTracker: RawTestResultT
         val executionStats = aggregateExecutionStats(measures)
         logger.debug { executionStats }
 
-        return ExecutionResult(passedTestCount, failedTests, executionStats, measures)
+        return ExecutionResult(passedTestCount, failedTests, ignoredTests, executionStats, measures)
     }
 }
