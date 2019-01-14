@@ -22,6 +22,6 @@ data class IOSConfiguration(val derivedDataDir: File,
 
     override fun deviceProvider(): DeviceProvider? = IOSDeviceProvider()
 
-    override fun logConfigurator(): MarathonLogConfigurator? = IOSLogConfigurator()
+    override fun logConfigurator(): MarathonLogConfigurator? = null
 }
 
