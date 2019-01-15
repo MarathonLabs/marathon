@@ -90,8 +90,10 @@ class DerivedDataManager(val configuration: Configuration) {
 
         val output = CollectingProcessOutput()
         output.monitor(rsync.builder())
-        if (output.stdErr.isNotEmpty()) {
-            logger.error(output.stdErr)
+        if (output.exitCode != 0) {
+            if (output.stdErr.isNotEmpty()) {
+                logger.error(output.stdErr)
+            }
         }
     }
 
