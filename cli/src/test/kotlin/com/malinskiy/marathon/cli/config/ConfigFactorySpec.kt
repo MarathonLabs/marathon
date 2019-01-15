@@ -196,6 +196,8 @@ object ConfigFactorySpec : Spek({
                         remoteRsyncPath = "/usr/local/bin/rsync",
                         debugSsh = true,
                         hideRunnerOutput = true,
+                        compactOutput = true,
+                        keepAliveIntervalMillis = 300000L,
                         devicesFile = file.parentFile.resolve("Testdevices"))
             }
         }
