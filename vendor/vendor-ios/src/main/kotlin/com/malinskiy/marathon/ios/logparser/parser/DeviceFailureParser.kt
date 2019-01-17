@@ -13,6 +13,9 @@ class DeviceFailureParser: StreamingLogParser {
         "Timed out waiting for automation session",
         "Failed to terminate",
         "Failed to launch app with identifier",
+        "Test runner exited before starting test execution",
+        "Early unexpected exit, operation never finished bootstrapping",
+        "Connection peer refused channel request",
         "CoreSimulatorService connection became invalid", // occurs in simctl output
         "Simulator services will no longer be available", // occurs in simctl output
         "Unable to locate device set" // occurs in simctl output
