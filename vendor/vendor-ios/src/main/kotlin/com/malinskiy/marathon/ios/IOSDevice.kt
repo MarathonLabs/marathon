@@ -34,6 +34,7 @@ import kotlinx.coroutines.withContext
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.newFixedThreadPoolContext
+import net.schmizz.sshj.connection.ConnectionException
 import kotlin.coroutines.CoroutineContext
 
 class IOSDevice(val simulator: RemoteSimulator,
@@ -159,6 +160,10 @@ class IOSDevice(val simulator: RemoteSimulator,
             throw DeviceLostException(e)
         } catch (e: TimeoutException) {
             logger.error("Connection timeout")
+            disconnectAndNotify()
+            throw DeviceLostException(e)
+        } catch (e: ConnectionException) {
+            logger.error("ConnectionException $e, cause ${e.cause}")
             disconnectAndNotify()
             throw DeviceLostException(e)
         } catch (e: TransportException) {
