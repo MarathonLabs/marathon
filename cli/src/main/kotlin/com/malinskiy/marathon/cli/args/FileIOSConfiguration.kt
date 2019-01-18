@@ -26,6 +26,7 @@ data class FileIOSConfiguration(
         @JsonProperty("debugSsh") val debugSsh: Boolean?,
         @JsonProperty("hideRunnerOutput") val hideRunnerOutput: Boolean?,
         @JsonProperty("compactOutput") val compactOutput: Boolean = false,
+        @JsonProperty("teamcityCheckoutDir") val teamcityCheckoutDir: File? = null,
         @JsonProperty("keepAliveIntervalMillis") val keepAliveIntervalMillis: Long = 0L,
         @JsonProperty("devices") val devices: File?,
         val fileListProvider: FileListProvider = DerivedDataFileListProvider) : FileVendorConfiguration {
@@ -58,6 +59,7 @@ data class FileIOSConfiguration(
                     debugSsh = optionalDebugSsh,
                     hideRunnerOutput = optionalHideRunnerOutput,
                     compactOutput = compactOutput,
+                    teamcityCheckoutDir = teamcityCheckoutDir,
                     keepAliveIntervalMillis = keepAliveIntervalMillis,
                     devicesFile = optionalDevices)
         } else {
@@ -71,6 +73,7 @@ data class FileIOSConfiguration(
                     debugSsh = optionalDebugSsh,
                     hideRunnerOutput = optionalHideRunnerOutput,
                     compactOutput = compactOutput,
+                    teamcityCheckoutDir = teamcityCheckoutDir,
                     keepAliveIntervalMillis = keepAliveIntervalMillis,
                     devicesFile = optionalDevices,
                     sourceRoot = optionalSourceRoot)

@@ -72,17 +72,22 @@ class DerivedDataManager(val configuration: Configuration) {
 
         val output = CollectingProcessOutput()
         output.monitor(rsync.builder())
-        if (output.stdErr.isNotEmpty()) {
-            logger.error(output.stdErr)
+        if (output.exitCode != 0) {
+            if (output.stdErr.isNotEmpty()) {
+                logger.error(output.stdErr)
+            }
         }
     }
 
-    fun receive(remotePath: String, hostName: String, port: Int, localPath: File) {
+    fun receive(remotePath: String, hostName: String, port: Int, localPath: File): Int {
         val source = "$hostName:$remotePath"
-        val destination = localPath.absolutePath
+        val destination = if (localPath.isDirectory) {
+            localPath.absolutePathWithTrailingSeparator
+        } else {
+            localPath.absolutePath
+        }
 
         val sshString = getSshString(port)
-        logger.debug("Using ssh string $sshString")
         val rsync = getRsyncBase()
                 .rsh(sshString)
                 .source(source)
@@ -95,6 +100,7 @@ class DerivedDataManager(val configuration: Configuration) {
                 logger.error(output.stdErr)
             }
         }
+        return output.exitCode
     }
 
     private fun getRsyncBase(): RSync {

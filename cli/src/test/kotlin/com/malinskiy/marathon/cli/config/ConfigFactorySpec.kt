@@ -197,6 +197,7 @@ object ConfigFactorySpec : Spek({
                         debugSsh = true,
                         hideRunnerOutput = true,
                         compactOutput = true,
+                        teamcityCheckoutDir = File("/opt/agent"),
                         keepAliveIntervalMillis = 300000L,
                         devicesFile = file.parentFile.resolve("Testdevices"))
             }

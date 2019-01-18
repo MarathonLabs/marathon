@@ -11,5 +11,6 @@ vendorConfiguration:
   debugSsh: true
   hideRunnerOutput: true
   compactOutput: true
+  teamcityCheckoutDir: "/opt/agent"
   keepAliveIntervalMillis: 300000
   devices: "Testdevices"

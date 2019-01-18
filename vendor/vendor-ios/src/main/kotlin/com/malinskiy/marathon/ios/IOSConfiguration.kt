@@ -15,6 +15,7 @@ data class IOSConfiguration(val derivedDataDir: File,
                             val debugSsh: Boolean,
                             val hideRunnerOutput: Boolean = false,
                             val compactOutput: Boolean = false,
+                            val teamcityCheckoutDir: File? = null,
                             val keepAliveIntervalMillis: Long = 0L,
                             val devicesFile: File? = null,
                             val sourceRoot: File = File(".")) : VendorConfiguration {
