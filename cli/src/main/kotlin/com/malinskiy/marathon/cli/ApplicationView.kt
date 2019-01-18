@@ -19,6 +19,7 @@ import com.malinskiy.marathon.log.MarathonLogging
 import com.xenomachina.argparser.ArgParser
 import com.xenomachina.argparser.SystemExitException
 import com.xenomachina.argparser.mainBody
+import kotlin.system.exitProcess
 
 private val logger = MarathonLogging.logger {}
 
@@ -46,4 +47,5 @@ fun main(args: Array<String>): Unit = mainBody(
         }
         success
     }
+    exitProcess(0)
 }
