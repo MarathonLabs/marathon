@@ -1,14 +1,10 @@
 ---
 layout: page
-title: "Download & Setup"
+title: "Downloading"
 category: doc
 date: 2018-11-19 16:55:00
-order: 1
+order: 2
 ---
-* TOC
-{:toc}
-
-### Download
 
 #### CLI
 Grab the latest release from [GitHub Releases][1] page. Extract the archive into your apps folder and add the binary to your path using local terminal session or using your profile file (.bashrc or equivalent), e.g.
@@ -36,8 +32,6 @@ plugins {
 ```
 
 All the relevant test tasks should start with **marathon** prefix such as *marathonDebugAndroidTest*.
-
-### Setup
 
 [1]: https://github.com/Malinskiy/marathon/releases
 [2]: https://search.maven.org/

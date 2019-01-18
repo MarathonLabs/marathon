@@ -1,13 +1,13 @@
 ---
 layout: page
-title: "Debugging"
+title: "Executing"
 category: doc
 date: 2018-11-19 16:55:00
-order: 6
+order: 5
 ---
 * TOC
 {:toc}
 
-### Local Logs
+### Setup
 
-### Common issues
+### Application Options
