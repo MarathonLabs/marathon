@@ -1,6 +1,8 @@
 package com.malinskiy.marathon.ios.cmd.remote
 
 import ch.qos.logback.classic.Level
+import com.malinskiy.marathon.ios.logparser.parser.DeviceFailureException
+import com.malinskiy.marathon.ios.logparser.parser.DeviceFailureReason
 import com.malinskiy.marathon.log.MarathonLogging
 import kotlinx.coroutines.*
 import net.schmizz.keepalive.KeepAlive
@@ -16,6 +18,7 @@ import java.io.File
 import java.io.IOException
 import java.io.InputStream
 import java.lang.RuntimeException
+import java.net.ConnectException
 import java.net.InetAddress
 import java.util.concurrent.TimeoutException
 import kotlin.coroutines.CoroutineContext
@@ -70,15 +73,19 @@ class SshjCommandExecutor(deviceContext: CoroutineContext,
             };
         }
 
-        ssh = SSHClient(config)
-        if (keepAliveIntervalMillis > 0) {
-            ssh.connection.keepAlive.keepAliveInterval = (keepAliveIntervalMillis / 1000).toInt()
+        try {
+            ssh = SSHClient(config)
+            if (keepAliveIntervalMillis > 0) {
+                ssh.connection.keepAlive.keepAliveInterval = (keepAliveIntervalMillis / 1000).toInt()
+            }
+            knownHostsPath?.let { ssh.loadKnownHosts(it) }
+            ssh.loadKnownHosts()
+            val keys = ssh.loadKeys(remotePrivateKey.path)
+            ssh.connect(hostAddress, port)
+            ssh.authPublickey(remoteUsername, keys)
+        } catch (e: ConnectException) {
+            throw DeviceFailureException(DeviceFailureReason.Unknown, e)
         }
-        knownHostsPath?.let { ssh.loadKnownHosts(it) }
-        ssh.loadKnownHosts()
-        val keys = ssh.loadKeys(remotePrivateKey.path)
-        ssh.connect(hostAddress, port)
-        ssh.authPublickey(remoteUsername, keys)
     }
 
     private val logger by lazy {
