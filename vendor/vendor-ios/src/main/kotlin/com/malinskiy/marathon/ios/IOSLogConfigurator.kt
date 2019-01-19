@@ -8,6 +8,7 @@ import ch.qos.logback.classic.spi.ILoggingEvent
 import ch.qos.logback.core.ConsoleAppender
 import ch.qos.logback.core.encoder.LayoutWrappingEncoder
 import com.malinskiy.marathon.log.MarathonLogConfigurator
+import com.malinskiy.marathon.report.debug.timeline.TimelineSummarySerializer
 import com.malinskiy.marathon.vendor.VendorConfiguration
 import net.schmizz.sshj.DefaultConfig
 import net.schmizz.sshj.common.KeyType
@@ -50,6 +51,7 @@ class IOSLogConfigurator: MarathonLogConfigurator  {
 
         // silence the noise
         listOf(
+            TimelineSummarySerializer::class.java.simpleName,
             Curve25519SHA256::class.java.name,
             BouncyCastleRandom::class.java.name,
             DefaultConfig::class.java.name,

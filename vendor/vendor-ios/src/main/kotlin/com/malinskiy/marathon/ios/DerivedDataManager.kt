@@ -94,6 +94,7 @@ class DerivedDataManager(val configuration: Configuration) {
                 .destination(destination)
 
         val output = CollectingProcessOutput()
+        output.timeOut = 30
         output.monitor(rsync.builder())
         if (output.exitCode != 0) {
             if (output.stdErr.isNotEmpty()) {

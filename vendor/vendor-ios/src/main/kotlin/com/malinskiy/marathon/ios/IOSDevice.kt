@@ -39,6 +39,8 @@ import net.schmizz.sshj.connection.ConnectionException
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.coroutines.CoroutineContext
 
+private const val COLLECT_LOGARCHIVES = false
+
 class IOSDevice(val simulator: RemoteSimulator,
                 simulatorSerial: Int,
                 configuration: IOSConfiguration,
@@ -259,7 +261,7 @@ class IOSDevice(val simulator: RemoteSimulator,
     private val disposing = AtomicBoolean(false)
     override fun dispose() {
         if (disposing.compareAndSet(false, true)) {
-            if (!healthy) {
+            if (COLLECT_LOGARCHIVES && !healthy) {
                 val logarchiveFile = RemoteFileManager.remoteLogarchiveFile(this)
                 val result = try {
                     hostCommandExecutor.exec(
