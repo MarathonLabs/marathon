@@ -36,6 +36,7 @@ import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.newFixedThreadPoolContext
 import net.schmizz.sshj.connection.ConnectionException
+import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.coroutines.CoroutineContext
 
 class IOSDevice(val simulator: RemoteSimulator,
@@ -255,42 +256,49 @@ class IOSDevice(val simulator: RemoteSimulator,
                 .also { it.writeBytes(xctestrun.toXMLByteArray()) }
     }
 
+    private val disposing = AtomicBoolean(false)
     override fun dispose() {
-        if (!healthy) {
-            val logarchiveFile = RemoteFileManager.remoteLogarchiveFile(this)
-            val result = try {
-                hostCommandExecutor.exec(
-                    "xcrun simctl boot $udid; sleep 1; rm -Rf '$logarchiveFile'; xcrun simctl spawn $udid log collect --output '$logarchiveFile'",
-                    60000L, 60000L
-                )
-            } catch (e: Exception) {
-                null
-            }
-            if (result?.exitStatus == 0) {
-                logger.debug("Collected logarchive to $logarchiveFile")
-                derivedDataManager?.let {
-                    val localLogarchive = it.productsDir.resolve(logarchiveFile.name)
-                    if (it.receive(
-                        remotePath = logarchiveFile.absolutePath,
-                        hostName = hostCommandExecutor.hostAddress.hostName,
-                        port = hostCommandExecutor.port,
-                        localPath = localLogarchive) == 0) {
-                        logger.debug("Downloaded logarchive to ${localLogarchive.absoluteFile}")
-                        val iosConfiguration = it.configuration.vendorConfiguration as IOSConfiguration
-                        if (iosConfiguration.teamcityCheckoutDir != null) {
-                            val artifactPath = localLogarchive.relativePathTo(iosConfiguration.teamcityCheckoutDir)
-                            logger.info("##teamcity[publishArtifacts '$artifactPath => logarchives/${localLogarchive.name}.zip']")
-                        }
-                    }
+        if (disposing.compareAndSet(false, true)) {
+            if (!healthy) {
+                val logarchiveFile = RemoteFileManager.remoteLogarchiveFile(this)
+                val result = try {
+                    hostCommandExecutor.exec(
+                        "xcrun simctl boot $udid; sleep 1; rm -Rf '$logarchiveFile'; xcrun simctl spawn $udid log collect --output '$logarchiveFile'",
+                        60000L, 60000L
+                    )
+                } catch (e: Exception) {
+                    null
                 }
-            } else if (result?.stderr != null) {
-                logger.debug("Failed to collect logarchive $logarchiveFile: ${result.stderr}")
-            } else {
-                logger.debug("Failed to collect logarchive $logarchiveFile")
+                if (result?.exitStatus == 0) {
+                    logger.debug("Collected logarchive to $logarchiveFile")
+                    try {
+                        derivedDataManager?.let {
+                            val localLogarchive = it.productsDir.resolve(logarchiveFile.name)
+                            if (it.receive(
+                                        remotePath = logarchiveFile.absolutePath,
+                                        hostName = hostCommandExecutor.hostAddress.hostName,
+                                        port = hostCommandExecutor.port,
+                                        localPath = localLogarchive
+                                    ) == 0) {
+                                logger.debug("Downloaded logarchive to ${localLogarchive.absoluteFile}")
+                                val iosConfiguration = it.configuration.vendorConfiguration as IOSConfiguration
+                                if (iosConfiguration.teamcityCheckoutDir != null) {
+                                    val artifactPath = localLogarchive.relativePathTo(iosConfiguration.teamcityCheckoutDir)
+                                    logger.info("##teamcity[publishArtifacts '$artifactPath => logarchives/${localLogarchive.name}.zip']")
+                                }
+                            }
+                        }
+                    } catch (e: Exception) {
+                    }
+                } else if (result?.stderr != null) {
+                    logger.debug("Failed to collect logarchive $logarchiveFile: ${result.stderr}")
+                } else {
+                    logger.debug("Failed to collect logarchive $logarchiveFile")
+                }
             }
+            hostCommandExecutor.disconnect()
+            deviceContext.close()
         }
-        hostCommandExecutor.disconnect()
-        deviceContext.close()
     }
 
     override fun toString(): String {
