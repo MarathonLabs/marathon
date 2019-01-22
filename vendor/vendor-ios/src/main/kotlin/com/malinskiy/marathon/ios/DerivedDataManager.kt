@@ -17,8 +17,6 @@ private const val PRODUCTS_PATH = "Build/Products"
 class DerivedDataManager(val configuration: Configuration) {
     companion object {
         private val hostnameLocksMap = ConcurrentHashMap<String, Lock>()
-
-        private val atomicMap = hashMapOf<String, Lock>()
     }
 
     private val logger = MarathonLogging.logger(javaClass.simpleName)

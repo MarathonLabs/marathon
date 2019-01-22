@@ -14,6 +14,7 @@ import com.malinskiy.marathon.execution.progress.ProgressReporter
 import com.malinskiy.marathon.io.FileManager
 import com.malinskiy.marathon.ios.cmd.remote.SshjCommandExecutor
 import com.malinskiy.marathon.ios.cmd.remote.SshjCommandUnresponsiveException
+import com.malinskiy.marathon.ios.cmd.remote.execOrNull
 import com.malinskiy.marathon.ios.device.RemoteSimulator
 import com.malinskiy.marathon.ios.device.RemoteSimulatorFeatureProvider
 import com.malinskiy.marathon.ios.logparser.IOSDeviceLogParser
@@ -29,7 +30,6 @@ import net.schmizz.sshj.transport.TransportException
 import net.schmizz.sshj.connection.channel.OpenFailException
 import java.io.File
 import java.net.InetAddress
-import java.util.Collections
 import java.util.concurrent.TimeoutException
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.CompletableDeferred
@@ -246,6 +246,22 @@ class IOSDevice(val simulator: RemoteSimulator,
         }
     }
 
+    private val disposing = AtomicBoolean(false)
+    override fun dispose() {
+        if (disposing.compareAndSet(false, true)) {
+            collectLogarchives()
+            hostCommandExecutor.disconnect()
+            deviceContext.close()
+        }
+    }
+
+    override fun toString(): String {
+        return "IOSDevice"
+    }
+
+    private val deviceIdentifier: String
+        get() = "${hostCommandExecutor.hostAddress.hostAddress}:$udid"
+
     private fun prepareXctestrunFile(derivedDataManager: DerivedDataManager, remoteXctestrunFile: File): File {
         val remotePort = RemoteSimulatorFeatureProvider.availablePort(this)
                 .also { logger.info("Using TCP port $it on device $deviceIdentifier") }
@@ -258,59 +274,43 @@ class IOSDevice(val simulator: RemoteSimulator,
                 .also { it.writeBytes(xctestrun.toXMLByteArray()) }
     }
 
-    private val disposing = AtomicBoolean(false)
-    override fun dispose() {
-        if (disposing.compareAndSet(false, true)) {
-            if (COLLECT_LOGARCHIVES && !healthy) {
-                val logarchiveFile = RemoteFileManager.remoteLogarchiveFile(this)
-                val result = try {
-                    hostCommandExecutor.exec(
-                        "xcrun simctl boot $udid; sleep 1; rm -Rf '$logarchiveFile'; xcrun simctl spawn $udid log collect --output '$logarchiveFile'",
-                        60000L, 60000L
-                    )
-                } catch (e: Exception) {
-                    null
-                }
-                if (result?.exitStatus == 0) {
-                    logger.debug("Collected logarchive to $logarchiveFile")
-                    try {
-                        derivedDataManager?.let {
-                            val localLogarchive = it.productsDir.resolve(logarchiveFile.name)
-                            if (it.receive(
-                                        remotePath = logarchiveFile.absolutePath,
-                                        hostName = hostCommandExecutor.hostAddress.hostName,
-                                        port = hostCommandExecutor.port,
-                                        localPath = localLogarchive
-                                    ) == 0) {
-                                logger.debug("Downloaded logarchive to ${localLogarchive.absoluteFile}")
-                                val iosConfiguration = it.configuration.vendorConfiguration as IOSConfiguration
-                                if (iosConfiguration.teamcityCheckoutDir != null) {
-                                    val artifactPath = localLogarchive.relativePathTo(iosConfiguration.teamcityCheckoutDir)
-                                    logger.info("##teamcity[publishArtifacts '$artifactPath => logarchives/${localLogarchive.name}.zip']")
-                                }
+    private fun collectLogarchives() {
+        if (!COLLECT_LOGARCHIVES) { return }
+
+        if (healthy) { return }
+
+        val logarchiveFile = RemoteFileManager.remoteLogarchiveFile(this)
+        val result = hostCommandExecutor.execOrNull(
+                "xcrun simctl boot $udid; sleep 1; rm -Rf '$logarchiveFile'; xcrun simctl spawn $udid log collect --output '$logarchiveFile'",
+                60000L, 60000L
+            )
+        when {
+            result?.exitStatus == 0 -> {
+                logger.debug("Collected logarchive to $logarchiveFile")
+                try {
+                    derivedDataManager?.let {
+                        val localLogarchive = it.productsDir.resolve(logarchiveFile.name)
+                        if (it.receive(
+                                    remotePath = logarchiveFile.absolutePath,
+                                    hostName = hostCommandExecutor.hostAddress.hostName,
+                                    port = hostCommandExecutor.port,
+                                    localPath = localLogarchive
+                                ) == 0) {
+                            logger.debug("Downloaded logarchive to ${localLogarchive.absoluteFile}")
+                            val iosConfiguration = it.configuration.vendorConfiguration as IOSConfiguration
+                            if (iosConfiguration.teamcityCheckoutDir != null) {
+                                val artifactPath = localLogarchive.relativePathTo(iosConfiguration.teamcityCheckoutDir)
+                                logger.info("##teamcity[publishArtifacts '$artifactPath => logarchives/${localLogarchive.name}.zip']")
                             }
                         }
-                    } catch (e: Exception) {
                     }
-                } else if (result?.stderr != null) {
-                    logger.debug("Failed to collect logarchive $logarchiveFile: ${result.stderr}")
-                } else {
-                    logger.debug("Failed to collect logarchive $logarchiveFile")
+                } catch (e: Exception) {
                 }
             }
-            hostCommandExecutor.disconnect()
-            deviceContext.close()
+            result?.stderr != null -> logger.debug("Failed to collect logarchive $logarchiveFile: ${result.stderr}")
+            else -> logger.debug("Failed to collect logarchive $logarchiveFile")
         }
     }
-
-    override fun toString(): String {
-        return "IOSDevice"
-    }
-
-    private val deviceIdentifier: String
-        get() = "${hostCommandExecutor.hostAddress.hostAddress}:$udid"
 }
 
-private fun TestBatch.toXcodebuildArguments(): String = tests
-        .map { "-only-testing:\"${it.pkg}/${it.clazz}/${it.method}\"" }
-        .joinToString(separator = " ")
+private fun TestBatch.toXcodebuildArguments(): String = tests.joinToString(separator = " ") { "-only-testing:\"${it.pkg}/${it.clazz}/${it.method}\"" }

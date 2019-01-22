@@ -18,10 +18,10 @@ class SshjCommandSession(executableLine: String, ssh: SSHClient): CommandSession
         get() = command.outputStream
 
     override val isEOF: Boolean
-        get() = command.isEOF()
+        get() = command.isEOF
 
     override val isOpen: Boolean
-        get() = command.isOpen()
+        get() = command.isOpen
 
     override fun kill() {
         command.signal(Signal.INT)
