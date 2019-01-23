@@ -36,6 +36,7 @@ import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.newFixedThreadPoolContext
 import net.schmizz.sshj.connection.ConnectionException
+import java.lang.IllegalStateException
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.coroutines.CoroutineContext
 
@@ -166,15 +167,19 @@ class IOSDevice(val simulator: RemoteSimulator,
             disconnectAndNotify()
             throw DeviceLostException(e)
         } catch (e: ConnectionException) {
-            logger.error("ConnectionException $e, cause ${e.cause}")
+            logger.error("ConnectionException")
             disconnectAndNotify()
             throw DeviceLostException(e)
         } catch (e: TransportException) {
-            logger.error("TransportException $e, cause ${e.cause}")
+            logger.error("TransportException")
             disconnectAndNotify()
             throw DeviceLostException(e)
         } catch (e: OpenFailException) {
             logger.error("Unable to open session")
+            disconnectAndNotify()
+            throw DeviceLostException(e)
+        } catch (e: IllegalStateException) {
+            logger.error("Unable to start a new SSH session. Client is disconnected")
             disconnectAndNotify()
             throw DeviceLostException(e)
         } catch(e: DeviceFailureException) {
