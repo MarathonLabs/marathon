@@ -262,7 +262,8 @@ class IOSDevice(val simulator: RemoteSimulator,
 
     private val disposing = AtomicBoolean(false)
     override fun dispose() {
-        if (disposing.compareAndSet(false, true)) {
+        if (disposing == null // interrupted initialization
+                || disposing.compareAndSet(false, true)) {
             collectLogarchives()
             hostCommandExecutor.disconnect()
             deviceContext.close()
