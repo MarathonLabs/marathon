@@ -82,6 +82,8 @@ class SshjCommandExecutor(serial: String,
             val keys = ssh.loadKeys(remotePrivateKey.path)
             ssh.connect(hostAddress, port)
             ssh.authPublickey(remoteUsername, keys)
+        } catch (e: TransportException) {
+            throw DeviceFailureException(DeviceFailureReason.Unknown, e)
         } catch (e: ConnectException) {
             throw DeviceFailureException(DeviceFailureReason.Unknown, e)
         }

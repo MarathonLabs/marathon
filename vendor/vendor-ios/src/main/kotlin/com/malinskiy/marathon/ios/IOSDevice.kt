@@ -55,22 +55,31 @@ class IOSDevice(val simulator: RemoteSimulator,
     override val coroutineContext: CoroutineContext
         get() = deviceContext
 
-    val hostCommandExecutor = SshjCommandExecutor(
-                            serial = serial,
-                            hostAddress = InetAddress.getByName(simulator.host),
-                            remoteUsername = simulator.username ?: configuration.remoteUsername,
-                            remotePrivateKey = configuration.remotePrivateKey,
-                            knownHostsPath = configuration.knownHostsPath,
-                            verbose = configuration.debugSsh)
-
     val logger = MarathonLogging.logger(IOSDevice::class.java.simpleName)
-    val simctl = Simctl()
+
+    val hostCommandExecutor: SshjCommandExecutor
 
     val name: String?
     private val runtime: String?
     private val deviceType: String?
 
     init {
+        hostCommandExecutor = try {
+            SshjCommandExecutor(
+                serial = serial,
+                hostAddress = InetAddress.getByName(simulator.host),
+                remoteUsername = simulator.username ?: configuration.remoteUsername,
+                remotePrivateKey = configuration.remotePrivateKey,
+                knownHostsPath = configuration.knownHostsPath,
+                verbose = configuration.debugSsh
+            )
+        } catch(e: DeviceFailureException) {
+            dispose()
+            throw e
+        }
+
+        val simctl = Simctl()
+
         val device = try {
             simctl.list(this, gson).find { it.udid == udid }
         } catch (e: DeviceFailureException) {
