@@ -29,7 +29,7 @@ class DeviceFailureParser: StreamingLogParser {
                     when (patterns.indexOf(it)) {
                         0 -> DeviceFailureReason.FailedRunner
                         1 -> DeviceFailureReason.ConnectionAbort
-                        2 -> DeviceFailureReason.MissingDestination
+                        2 -> DeviceFailureReason.InvalidSimulatorIdentifier
                         else -> DeviceFailureReason.Unknown
                     },
                     it

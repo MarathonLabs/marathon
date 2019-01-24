@@ -37,6 +37,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.newFixedThreadPoolContext
 import net.schmizz.sshj.connection.ConnectionException
 import java.lang.IllegalStateException
+import java.net.UnknownHostException
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.coroutines.CoroutineContext
 
@@ -64,22 +65,23 @@ class IOSDevice(val simulator: RemoteSimulator,
     private val deviceType: String?
 
     init {
+        val hostAddress = simulator.host.toInetAddressOrNull()
+            ?: throw DeviceFailureException(DeviceFailureReason.UnreachableHost)
         hostCommandExecutor = try {
             SshjCommandExecutor(
                 serial = serial,
-                hostAddress = InetAddress.getByName(simulator.host),
+                hostAddress = hostAddress,
                 remoteUsername = simulator.username ?: configuration.remoteUsername,
                 remotePrivateKey = configuration.remotePrivateKey,
                 knownHostsPath = configuration.knownHostsPath,
                 verbose = configuration.debugSsh
             )
         } catch(e: DeviceFailureException) {
-            dispose()
+            deviceContext.close()
             throw e
         }
 
         val simctl = Simctl()
-
         val device = try {
             simctl.list(this, gson).find { it.udid == udid }
         } catch (e: DeviceFailureException) {
@@ -88,7 +90,12 @@ class IOSDevice(val simulator: RemoteSimulator,
         }
         runtime = device?.runtime
         name = device?.name
-        deviceType = simctl.deviceType(this)
+        deviceType = try {
+            simctl.deviceType(this)
+        } catch (e: DeviceFailureException) {
+            dispose()
+            throw e
+        }
     }
 
     override val operatingSystem: OperatingSystem
@@ -262,8 +269,7 @@ class IOSDevice(val simulator: RemoteSimulator,
 
     private val disposing = AtomicBoolean(false)
     override fun dispose() {
-        if (disposing == null // interrupted initialization
-                || disposing.compareAndSet(false, true)) {
+        if (disposing.compareAndSet(false, true)) {
             collectLogarchives()
             hostCommandExecutor.disconnect()
             deviceContext.close()
@@ -326,6 +332,16 @@ class IOSDevice(val simulator: RemoteSimulator,
             else -> logger.debug("Failed to collect logarchive $logarchiveFile")
         }
     }
+}
+
+private const val REACHABILITY_TIMEOUT_MILLIS = 5000
+private fun String.toInetAddressOrNull(): InetAddress? {
+    val address = try {
+        InetAddress.getByName(this)
+    } catch (e: UnknownHostException) {
+        return null
+    }
+    return if (address.isReachable(REACHABILITY_TIMEOUT_MILLIS)) { address } else { null }
 }
 
 private fun TestBatch.toXcodebuildArguments(): String = tests.joinToString(separator = " ") { "-only-testing:\"${it.pkg}/${it.clazz}/${it.method}\"" }

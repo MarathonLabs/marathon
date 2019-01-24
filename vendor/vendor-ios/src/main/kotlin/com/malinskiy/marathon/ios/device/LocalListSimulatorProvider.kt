@@ -10,7 +10,6 @@ import com.malinskiy.marathon.ios.HealthChangeListener
 import com.malinskiy.marathon.ios.logparser.parser.DeviceFailureException
 import com.malinskiy.marathon.ios.logparser.parser.DeviceFailureReason
 import com.malinskiy.marathon.log.MarathonLogging
-import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.newFixedThreadPoolContext
 import kotlinx.coroutines.CoroutineScope
 import java.io.File
@@ -88,7 +87,7 @@ class LocalListSimulatorProvider(private val channel: Channel<DeviceProvider.Dev
             }
         }
 
-        if (device.failureReason == DeviceFailureReason.MissingDestination) {
+        if (device.failureReason == DeviceFailureReason.InvalidSimulatorIdentifier) {
             logger.error("device ${device.udid} does not exist on remote host")
         } else if (RemoteSimulatorSerialCounter.get(device.udid) < MAX_SERIAL) {
             launch(context = coroutineContext) {
@@ -138,7 +137,7 @@ class LocalListSimulatorProvider(private val channel: Channel<DeviceProvider.Dev
             healthChangeListener = this
         )
     } catch (e: DeviceFailureException) {
-        logger.error("Failed to initialize ${simulator.udid}-$simulatorSerial: ${e.message}")
+        logger.error("Failed to initialize ${simulator.udid}-$simulatorSerial with reason ${e.reason}: ${e.message}")
         null
     }
 }
