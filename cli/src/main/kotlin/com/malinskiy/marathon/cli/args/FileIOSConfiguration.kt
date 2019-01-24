@@ -23,6 +23,7 @@ data class FileIOSConfiguration(
         @JsonProperty("knownHostsPath") val knownHostsPath: File?,
         @JsonProperty("remoteRsyncPath") val remoteRsyncPath: String = "/usr/bin/rsync",
         @JsonProperty("sourceRoot") val sourceRoot: File?,
+        @JsonProperty("alwaysEraseSimulators") val alwaysEraseSimulators: Boolean?,
         @JsonProperty("debugSsh") val debugSsh: Boolean?,
         @JsonProperty("hideRunnerOutput") val hideRunnerOutput: Boolean?,
         @JsonProperty("compactOutput") val compactOutput: Boolean = false,
@@ -43,6 +44,7 @@ data class FileIOSConfiguration(
         val optionalSourceRoot = sourceRootOverride
                 ?: sourceRoot?.resolveAgainst(marathonfileDir)
         val optionalDebugSsh = debugSsh ?: false
+        val optionalAlwaysEraseSimulators = alwaysEraseSimulators ?: true
         val optionalDevices = devices?.resolveAgainst(marathonfileDir)
                 ?: marathonfileDir.resolve("Marathondevices")
         val optionalKnownHostsPath = knownHostsPath?.resolveAgainst(marathonfileDir)
@@ -57,6 +59,7 @@ data class FileIOSConfiguration(
                     knownHostsPath = optionalKnownHostsPath,
                     remoteRsyncPath = remoteRsyncPath,
                     debugSsh = optionalDebugSsh,
+                    alwaysEraseSimulators = optionalAlwaysEraseSimulators,
                     hideRunnerOutput = optionalHideRunnerOutput,
                     compactOutput = compactOutput,
                     teamcityCheckoutDir = teamcityCheckoutDir,
@@ -71,6 +74,7 @@ data class FileIOSConfiguration(
                     knownHostsPath = optionalKnownHostsPath,
                     remoteRsyncPath = remoteRsyncPath,
                     debugSsh = optionalDebugSsh,
+                    alwaysEraseSimulators = optionalAlwaysEraseSimulators,
                     hideRunnerOutput = optionalHideRunnerOutput,
                     compactOutput = compactOutput,
                     teamcityCheckoutDir = teamcityCheckoutDir,

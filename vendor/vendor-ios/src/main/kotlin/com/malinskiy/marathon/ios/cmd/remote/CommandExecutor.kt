@@ -1,5 +1,7 @@
 package com.malinskiy.marathon.ios.cmd.remote
 
+import com.malinskiy.marathon.log.MarathonLogging
+
 interface CommandExecutor {
     companion object {
         val DEFAULT_SSH_CONNECTION_TIMEOUT_MILLIS: Long
@@ -25,5 +27,8 @@ fun CommandExecutor.execOrNull(command: String,
                                timeoutMillis: Long = CommandExecutor.DEFAULT_SSH_CONNECTION_TIMEOUT_MILLIS,
                                testOutputTimeoutMillis: Long = CommandExecutor.DEFAULT_SSH_NO_OUTPUT_TIMEOUT_MILLIS): CommandResult? =
     try {
-        this.exec(command, timeoutMillis, testOutputTimeoutMillis)
-    } catch (e: Exception) { null }
+        exec(command, timeoutMillis, testOutputTimeoutMillis)
+    } catch (e: Exception) {
+        MarathonLogging.logger(this::class.java.simpleName).warn("Exception caught executing $command: $e");
+        null
+    }

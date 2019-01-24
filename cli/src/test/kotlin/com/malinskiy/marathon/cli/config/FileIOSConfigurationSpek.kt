@@ -32,6 +32,7 @@ object FileIOSConfigurationSpek : Spek({
                     sourceRoot = File("sourceRoot"),
                     fileListProvider = mockFileListProvider,
                     debugSsh = null,
+                    alwaysEraseSimulators = true,
                     hideRunnerOutput = null,
                     devices = null)
 

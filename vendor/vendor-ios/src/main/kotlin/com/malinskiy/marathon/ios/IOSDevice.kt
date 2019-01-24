@@ -133,6 +133,19 @@ class IOSDevice(val simulator: RemoteSimulator,
         val iosConfiguration = configuration.vendorConfiguration as IOSConfiguration
         val fileManager = FileManager(configuration.outputDir)
 
+        if (iosConfiguration.alwaysEraseSimulators) {
+            hostCommandExecutor.execOrNull(
+                "xcrun simctl shutdown $udid",
+                configuration.timeoutMillis,
+                configuration.testOutputTimeoutMillis
+            )
+            hostCommandExecutor.execOrNull(
+                "xcrun simctl erase $udid",
+                configuration.timeoutMillis,
+                configuration.testOutputTimeoutMillis
+            )
+        }
+
         val remoteXcresultPath = RemoteFileManager.remoteXcresultFile(this@IOSDevice)
         val remoteXctestrunFile = RemoteFileManager.remoteXctestrunFile(this@IOSDevice)
         val remoteDir = remoteXctestrunFile.parent
@@ -154,8 +167,7 @@ class IOSDevice(val simulator: RemoteSimulator,
         )
 
         val command =
-                listOfNotNull("xcrun simctl shutdown $udid;",
-                        "xcrun simctl erase $udid;",
+                listOfNotNull(
                         "cd '$remoteDir';",
                         "NSUnbufferedIO=YES",
                         "xcodebuild test-without-building",

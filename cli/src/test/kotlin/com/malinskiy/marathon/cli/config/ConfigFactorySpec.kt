@@ -195,6 +195,7 @@ object ConfigFactorySpec : Spek({
                         knownHostsPath = file.parentFile.resolve("known_hosts"),
                         remoteRsyncPath = "/usr/local/bin/rsync",
                         debugSsh = true,
+                        alwaysEraseSimulators = false,
                         hideRunnerOutput = true,
                         compactOutput = true,
                         teamcityCheckoutDir = File("/opt/agent"),
