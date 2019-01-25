@@ -75,7 +75,19 @@ class DevicePoolActor(private val poolId: DevicePoolId,
     }
 
     private suspend fun deviceReady(msg: DevicePoolMessage.FromDevice.IsReady) {
-        queue.send(QueueMessage.RequestBatch(msg.device))
+        maybeRequestBatch(msg.device)
+    }
+
+    private suspend fun maybeRequestBatch(avoiding: Device? = null) {
+        devices.values
+            .map { it as DeviceActor }
+            .filter { it.isAvailable }
+            .map { it.device }
+            .let { if (it.size == 1) it else { it.filterNot { device -> device == avoiding } } }
+            .firstOrNull()
+            ?.let {
+                queue.safeSend(QueueMessage.RequestBatch(it))
+            }
     }
 
     private suspend fun executeBatch(device: Device, batch: TestBatch) {
@@ -98,6 +110,7 @@ class DevicePoolActor(private val poolId: DevicePoolId,
             //TODO check if we still have tests and timeout if nothing available
             terminate()
         }
+        maybeRequestBatch()
     }
 
     private fun noActiveDevices() = devices.isEmpty() || devices.all { it.value.isClosedForSend }

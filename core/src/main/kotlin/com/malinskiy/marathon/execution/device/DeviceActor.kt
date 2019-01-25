@@ -26,7 +26,7 @@ import kotlin.properties.Delegates
 class DeviceActor(private val devicePoolId: DevicePoolId,
                   private val pool: SendChannel<DevicePoolMessage>,
                   private val configuration: Configuration,
-                  private val device: Device,
+                  val device: Device,
                   private val progressReporter: ProgressReporter,
                   parent: Job,
                   context: CoroutineContext) :
@@ -119,6 +119,9 @@ class DeviceActor(private val devicePoolId: DevicePoolId,
         }
     }
     private val logger = MarathonLogging.logger("DevicePool[${devicePoolId.name}]_DeviceActor[${device.serialNumber}]")
+
+    val isAvailable: Boolean
+        get() { return !isClosedForSend && state.state == DeviceState.Ready }
 
     override suspend fun receive(msg: DeviceEvent) {
         when (msg) {
