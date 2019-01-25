@@ -24,7 +24,7 @@ class SshjCommandSession(executableLine: String, ssh: SSHClient): CommandSession
         get() = command.isOpen
 
     override fun kill() {
-        command.signal(Signal.INT)
+        command.signal(Signal.TERM)
     }
 
     override fun close() { command.close() }
