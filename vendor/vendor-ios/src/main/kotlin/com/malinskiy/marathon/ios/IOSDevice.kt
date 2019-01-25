@@ -66,7 +66,10 @@ class IOSDevice(val simulator: RemoteSimulator,
 
     init {
         val hostAddress = simulator.host.toInetAddressOrNull()
-            ?: throw DeviceFailureException(DeviceFailureReason.UnreachableHost)
+        if (hostAddress == null) {
+            deviceContext.close()
+            throw DeviceFailureException(DeviceFailureReason.UnreachableHost)
+        }
         hostCommandExecutor = try {
             SshjCommandExecutor(
                 serial = serial,
