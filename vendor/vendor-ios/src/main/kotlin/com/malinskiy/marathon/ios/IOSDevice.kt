@@ -267,6 +267,26 @@ class IOSDevice(val simulator: RemoteSimulator,
 
         this@IOSDevice.derivedDataManager = derivedDataManager
 
+        terminateRunningSimulators()
+        disableHardwareKeyboard()
+    }
+
+    private fun terminateRunningSimulators() {
+        val result = try {
+            hostCommandExecutor.exec("/usr/bin/pkill -9 -f '$udid'")
+        } catch (e: Exception) {
+            null
+        }
+        if (result?.exitStatus == 0) {
+            logger.debug("Terminated existing simulators $udid")
+        } else if (result?.stderr != null) {
+            logger.debug("Failed to terminate running simulators $udid with error: ${result.stderr}")
+        } else {
+            logger.debug("Failed to terminate running simulators $udid")
+        }
+    }
+
+    private fun disableHardwareKeyboard() {
         val result = try {
             hostCommandExecutor.exec("/usr/libexec/PlistBuddy -c 'Add :DevicePreferences:$udid:ConnectHardwareKeyboard bool false' /Users/master/Library/Preferences/com.apple.iphonesimulator.plist" +
                     "|| /usr/libexec/PlistBuddy -c 'Set :DevicePreferences:$udid:ConnectHardwareKeyboard false' /Users/master/Library/Preferences/com.apple.iphonesimulator.plist")
