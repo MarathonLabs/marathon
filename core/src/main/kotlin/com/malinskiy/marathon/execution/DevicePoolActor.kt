@@ -79,12 +79,16 @@ class DevicePoolActor(private val poolId: DevicePoolId,
     }
 
     private suspend fun maybeRequestBatch(avoiding: Device? = null) {
-        devices.values
+        val shuffledDevices = devices.values
             .map { it as DeviceActor }
             .filter { it.isAvailable }
             .map { it.device }
             .let { if (it.size == 1) it else { it.filterNot { device -> device == avoiding } } }
-            .firstOrNull()
+            .shuffled()
+        if (shuffledDevices.size > 1) {
+            logger.debug("Choosing from ${shuffledDevices.map { it.serialNumber }}")
+        }
+        shuffledDevices.firstOrNull()
             ?.let {
                 queue.safeSend(QueueMessage.RequestBatch(it))
             }
