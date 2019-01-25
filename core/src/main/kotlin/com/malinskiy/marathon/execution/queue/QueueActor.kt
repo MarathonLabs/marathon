@@ -82,7 +82,6 @@ class QueueActor(configuration: Configuration,
             returnTests(uncompleted)
         }
         activeBatches.remove(device.serialNumber)
-        onRequestBatch(device)
     }
 
     private fun onReturnBatch(device: Device, batch: TestBatch) {
