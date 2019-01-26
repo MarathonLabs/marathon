@@ -14,6 +14,7 @@ import com.malinskiy.marathon.execution.progress.ProgressReporter
 import com.malinskiy.marathon.io.FileManager
 import com.malinskiy.marathon.ios.cmd.remote.SshjCommandExecutor
 import com.malinskiy.marathon.ios.cmd.remote.SshjCommandUnresponsiveException
+import com.malinskiy.marathon.ios.cmd.remote.execAsyncOrNull
 import com.malinskiy.marathon.ios.cmd.remote.execOrNull
 import com.malinskiy.marathon.ios.device.RemoteSimulator
 import com.malinskiy.marathon.ios.device.RemoteSimulatorFeatureProvider
@@ -244,6 +245,8 @@ class IOSDevice(val simulator: RemoteSimulator,
 
     private var derivedDataManager: DerivedDataManager? = null
     override suspend fun prepare(configuration: Configuration) = withContext(coroutineContext) {
+        val iosConfiguration = configuration.vendorConfiguration as IOSConfiguration
+
         RemoteFileManager.createRemoteDirectory(this@IOSDevice)
 
         val derivedDataManager = DerivedDataManager(configuration)
@@ -268,6 +271,18 @@ class IOSDevice(val simulator: RemoteSimulator,
         this@IOSDevice.derivedDataManager = derivedDataManager
 
         terminateRunningSimulators()
+        if (!iosConfiguration.alwaysEraseSimulators) {
+            hostCommandExecutor.execAsyncOrNull(
+                "xcrun simctl shutdown $udid",
+                configuration.timeoutMillis,
+                configuration.testOutputTimeoutMillis
+            )?.let { logger.debug("shutdown ${it.exitStatus} ${it.stdout}") }
+            hostCommandExecutor.execAsyncOrNull(
+                "who am i; xcrun simctl erase $udid",
+                configuration.timeoutMillis,
+                configuration.testOutputTimeoutMillis
+            )?.let { logger.debug("erase ${it.exitStatus} ${it.stdout}") }
+        }
         disableHardwareKeyboard()
     }
 

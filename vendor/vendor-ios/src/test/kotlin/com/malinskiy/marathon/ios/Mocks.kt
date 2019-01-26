@@ -18,6 +18,7 @@ class Mocks {
                 override fun exec(command: String, timeoutMillis: Long, testOutputTimeoutMillis: Long): CommandResult = CommandResult("", "", 0)
 
                 override suspend fun exec(command: String, timeoutMillis: Long, testOutputTimeoutMillis: Long, onLine: (String) -> Unit): Int? = 0
+                override suspend fun execAsync(command: String, timeoutMillis: Long, testOutputTimeoutMillis: Long): CommandResult = CommandResult("", "", 0)
 
                 override fun disconnect() {}
             }

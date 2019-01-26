@@ -18,7 +18,8 @@ class DeviceFailureParser: StreamingLogParser {
         "Connection peer refused channel request",
         "CoreSimulatorService connection became invalid", // occurs in simctl output
         "Simulator services will no longer be available", // occurs in simctl output
-        "Unable to locate device set" // occurs in simctl output
+        "Unable to locate device set", // occurs in simctl output
+        "Test runner exited"
     )
     private val crashPatterns = listOf("Assertion Failure: <unknown>:0: [^\\s]+ crashed in ")
     private var count = 0

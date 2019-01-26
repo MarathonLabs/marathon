@@ -229,4 +229,11 @@ class SshjCommandExecutor(serial: String,
                 }
         return CommandResult(lines.joinToString("\n"), "", exitStatus ?: 1)
     }
+
+    override suspend fun execAsync(command: String, timeoutMillis: Long, testOutputTimeoutMillis: Long): CommandResult = withContext(context = coroutineContext) {
+        val lines = arrayListOf<String>()
+        val exitStatus = exec(command, timeoutMillis, testOutputTimeoutMillis) { lines.add(it) }
+
+        CommandResult(lines.joinToString("\n"), "", exitStatus ?: 1)
+    }
 }
