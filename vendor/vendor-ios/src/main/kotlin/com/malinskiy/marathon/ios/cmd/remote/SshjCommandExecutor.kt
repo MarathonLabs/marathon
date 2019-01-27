@@ -93,9 +93,7 @@ class SshjCommandExecutor(serial: String,
         MarathonLogging.logger(SshjCommandExecutor::class.java.simpleName)
     }
 
-    override fun startSession(command: String): CommandSession {
-        return SshjCommandSession(command, ssh)
-    }
+    override fun startSession(command: String): CommandSession = SshjCommandSession(command, ssh)
 
     override fun disconnect() {
         if (ssh.isConnected) {
@@ -113,11 +111,11 @@ class SshjCommandExecutor(serial: String,
         val session = try {
             startSession(command)
         } catch (e: ConnectionException) {
-            logger.error("Unable to start a remote shell session")
-            throw e
+            logger.error("Unable to start a remote shell session $command")
+            throw DeviceFailureException(DeviceFailureReason.Unknown, e)
         } catch (e: TransportException) {
-            logger.error("Unable to start a remote shell session")
-            throw e
+            logger.error("Error starting a remote shell session $command")
+            throw DeviceFailureException(DeviceFailureReason.Unknown, e)
         }
 
         val startTime = System.currentTimeMillis()

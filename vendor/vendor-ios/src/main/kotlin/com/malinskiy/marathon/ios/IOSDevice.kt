@@ -126,9 +126,6 @@ class IOSDevice(val simulator: RemoteSimulator,
     var failureReason: DeviceFailureReason? = null
         private set
 
-    private enum class Mode { STREAMING, XCRESULT }
-    private val mode = Mode.STREAMING
-
     override suspend fun execute(configuration: Configuration,
                                  devicePoolId: DevicePoolId,
                                  testBatch: TestBatch,
@@ -171,17 +168,16 @@ class IOSDevice(val simulator: RemoteSimulator,
         )
 
         val command =
-                listOfNotNull(
-                        "cd '$remoteDir';",
-                        "NSUnbufferedIO=YES",
-                        "xcodebuild test-without-building",
-                        "-xctestrun ${remoteXctestrunFile.path}",
-                        if (mode == Mode.XCRESULT) "-resultBundlePath ${remoteXcresultPath.canonicalPath} " else null,
-                        testBatch.toXcodebuildArguments(),
-                        "-destination 'platform=iOS simulator,id=$udid' ;",
-                        "exit")
-                        .joinToString(" ")
-                        .also { logger.debug("\u001b[1m$it\u001b[0m") }
+                listOf(
+                    "cd '$remoteDir';",
+                    "NSUnbufferedIO=YES",
+                    "xcodebuild test-without-building",
+                    "-xctestrun ${remoteXctestrunFile.path}",
+                    testBatch.toXcodebuildArguments(),
+                    "-destination 'platform=iOS simulator,id=$udid' ;",
+                    "exit")
+                .joinToString(" ")
+                .also { logger.debug("\u001b[1m$it\u001b[0m") }
 
         val exitStatus = try {
             hostCommandExecutor.exec(
