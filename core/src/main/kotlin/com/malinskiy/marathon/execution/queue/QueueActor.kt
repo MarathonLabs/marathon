@@ -84,10 +84,13 @@ class QueueActor(configuration: Configuration,
         activeBatches.remove(device.serialNumber)
     }
 
-    private fun onReturnBatch(device: Device, batch: TestBatch) {
+    private suspend fun onReturnBatch(device: Device, batch: TestBatch) {
         logger.debug { "onReturnBatch ${device.serialNumber}" }
         returnTests(batch.tests)
         activeBatches.remove(device.serialNumber)
+        if (queue.isNotEmpty()) {
+            pool.send(FromQueue.Notify)
+        }
     }
 
     private fun returnTests(tests: Collection<Test>) {

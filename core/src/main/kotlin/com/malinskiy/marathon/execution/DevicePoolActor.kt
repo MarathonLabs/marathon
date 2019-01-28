@@ -114,7 +114,6 @@ class DevicePoolActor(private val poolId: DevicePoolId,
             //TODO check if we still have tests and timeout if nothing available
             terminate()
         }
-        maybeRequestBatch()
     }
 
     private fun noActiveDevices() = devices.isEmpty() || devices.all { it.value.isClosedForSend }
