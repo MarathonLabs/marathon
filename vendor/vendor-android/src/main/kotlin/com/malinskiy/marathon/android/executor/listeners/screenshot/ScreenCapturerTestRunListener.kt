@@ -5,6 +5,7 @@ import com.malinskiy.marathon.android.AndroidDevice
 import com.malinskiy.marathon.android.executor.listeners.NoOpTestRunListener
 import com.malinskiy.marathon.android.toTest
 import com.malinskiy.marathon.device.DevicePoolId
+import com.malinskiy.marathon.device.toDeviceInfo
 import com.malinskiy.marathon.execution.Attachment
 import com.malinskiy.marathon.execution.AttachmentType
 import com.malinskiy.marathon.io.FileManager
@@ -52,7 +53,7 @@ class ScreenCapturerTestRunListener(private val fileManager: FileManager,
         threadPoolDispatcher.close()
 
         attachmentListeners.forEach {
-            val file = fileManager.createFile(FileType.SCREENSHOT, pool, device, test.toTest())
+            val file = fileManager.createFile(FileType.SCREENSHOT, pool, device.toDeviceInfo(), test.toTest())
             val attachment = Attachment(file, AttachmentType.SCREENSHOT)
             it.onAttachment(test.toTest(), attachment)
         }

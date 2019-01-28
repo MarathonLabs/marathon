@@ -13,7 +13,7 @@ class DeviceInfoReporter(private val fileManager: FileManager,
                          private val gson: Gson) {
     fun saveDeviceInfo(poolId: DevicePoolId, device: Device) {
         val json = gson.toJson(device.toDeviceInfo())
-        fileManager.createFile(FileType.DEVICE_INFO, poolId, device).writeText(json)
+        fileManager.createFile(FileType.DEVICE_INFO, poolId, device.toDeviceInfo()).writeText(json)
     }
 
     fun getDevices(poolId: DevicePoolId): List<DeviceInfo> {

@@ -1,6 +1,6 @@
 package com.malinskiy.marathon.io
 
-import com.malinskiy.marathon.device.Device
+import com.malinskiy.marathon.device.DeviceInfo
 import com.malinskiy.marathon.device.DevicePoolId
 import com.malinskiy.marathon.test.Test
 import com.malinskiy.marathon.test.toTestName
@@ -13,13 +13,13 @@ import java.nio.file.Paths.get
 
 @Suppress("TooManyFunctions")
 class FileManager(private val output: File) {
-    fun createFile(fileType: FileType, pool: DevicePoolId, device: Device, test: Test): File {
+    fun createFile(fileType: FileType, pool: DevicePoolId, device: DeviceInfo, test: Test): File {
         val directory = createDirectory(fileType, pool, device)
         val filename = createFilename(test, fileType)
         return createFile(directory, filename)
     }
 
-    fun createFile(fileType: FileType, pool: DevicePoolId, device: Device): File {
+    fun createFile(fileType: FileType, pool: DevicePoolId, device: DeviceInfo): File {
         val directory = createDirectory(fileType, pool)
         val filename = createFilename(device, fileType)
         return createFile(directory, filename)
@@ -42,13 +42,13 @@ class FileManager(private val output: File) {
         return path.toFile().listFiles() ?: emptyArray()
     }
 
-    private fun createDirectory(fileType: FileType, pool: DevicePoolId, device: Device): Path =
+    private fun createDirectory(fileType: FileType, pool: DevicePoolId, device: DeviceInfo): Path =
             createDirectories(getDirectory(fileType, pool, device))
 
     private fun createDirectory(fileType: FileType, pool: DevicePoolId): Path =
             createDirectories(getDirectory(fileType, pool))
 
-    private fun getDirectory(fileType: FileType, pool: DevicePoolId, device: Device): Path =
+    private fun getDirectory(fileType: FileType, pool: DevicePoolId, device: DeviceInfo): Path =
             getDirectory(fileType, pool, device.serialNumber)
 
     private fun getDirectory(fileType: FileType, pool: DevicePoolId, serial: String): Path =
@@ -60,5 +60,6 @@ class FileManager(private val output: File) {
     private fun createFile(directory: Path, filename: String): File = File(directory.toFile(), filename)
 
     private fun createFilename(test: Test, fileType: FileType): String = "${test.toTestName()}.${fileType.suffix}"
-    private fun createFilename(device: Device, fileType: FileType): String = "${device.serialNumber}.${fileType.suffix}"
+
+    private fun createFilename(device: DeviceInfo, fileType: FileType): String = "${device.serialNumber}.${fileType.suffix}"
 }
