@@ -1,7 +1,7 @@
 package com.malinskiy.marathon.analytics.tracker
 
 import com.malinskiy.marathon.actor.StateMachine
-import com.malinskiy.marathon.device.Device
+import com.malinskiy.marathon.device.DeviceInfo
 import com.malinskiy.marathon.device.DevicePoolId
 import com.malinskiy.marathon.execution.queue.TestAction
 import com.malinskiy.marathon.execution.queue.TestEvent
@@ -20,7 +20,7 @@ internal class DelegatingTracker(private val trackers: List<Tracker>) : Tracker 
         }
     }
 
-    override fun trackDeviceConnected(poolId: DevicePoolId, device: Device) {
+    override fun trackDeviceConnected(poolId: DevicePoolId, device: DeviceInfo) {
         trackers.forEach {
             it.trackDeviceConnected(poolId, device)
         }

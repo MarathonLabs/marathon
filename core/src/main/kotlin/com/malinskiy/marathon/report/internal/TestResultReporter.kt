@@ -13,8 +13,8 @@ import java.io.FileReader
 class TestResultReporter(private val fileManager: FileManager,
                          private val gson: Gson) {
 
-    fun testFinished(poolId: DevicePoolId, device: Device, testResult: TestResult) {
-        val file = fileManager.createFile(FileType.TEST_RESULT, poolId, device.toDeviceInfo(), testResult.test)
+    fun testFinished(poolId: DevicePoolId, device: DeviceInfo, testResult: TestResult) {
+        val file = fileManager.createFile(FileType.TEST_RESULT, poolId, device, testResult.test)
         file.writeText(gson.toJson(testResult))
     }
 

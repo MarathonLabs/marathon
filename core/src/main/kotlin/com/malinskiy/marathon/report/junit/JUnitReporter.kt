@@ -1,6 +1,7 @@
 package com.malinskiy.marathon.report.junit
 
 import com.malinskiy.marathon.device.Device
+import com.malinskiy.marathon.device.DeviceInfo
 import com.malinskiy.marathon.device.DevicePoolId
 import com.malinskiy.marathon.device.toDeviceInfo
 import com.malinskiy.marathon.execution.TestResult
@@ -16,8 +17,8 @@ import javax.xml.stream.XMLOutputFactory
 import javax.xml.stream.XMLStreamWriter
 
 class JUnitReporter(private val fileManager: FileManager) {
-    fun testFinished(devicePoolId: DevicePoolId, device: Device, testResult: TestResult) {
-        val file = fileManager.createFile(FileType.TEST, devicePoolId, device.toDeviceInfo(), testResult.test)
+    fun testFinished(devicePoolId: DevicePoolId, device: DeviceInfo, testResult: TestResult) {
+        val file = fileManager.createFile(FileType.TEST, devicePoolId, device, testResult.test)
         file.createNewFile()
 
         val writer = XMLOutputFactory.newFactory().createXMLStreamWriter(FileOutputStream(file), "UTF-8")

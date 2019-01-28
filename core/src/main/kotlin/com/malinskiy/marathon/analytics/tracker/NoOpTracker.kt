@@ -2,7 +2,9 @@ package com.malinskiy.marathon.analytics.tracker
 
 import com.malinskiy.marathon.actor.StateMachine
 import com.malinskiy.marathon.device.Device
+import com.malinskiy.marathon.device.DeviceInfo
 import com.malinskiy.marathon.device.DevicePoolId
+import com.malinskiy.marathon.device.toDeviceInfo
 import com.malinskiy.marathon.execution.TestResult
 import com.malinskiy.marathon.execution.TestStatus
 import com.malinskiy.marathon.execution.queue.TestAction
@@ -24,7 +26,7 @@ open class NoOpTracker : Tracker {
         // Don't report tests that didn't finish the execution
         if (testResult == null || device == null || testResult.status == TestStatus.INCOMPLETE) return
 
-        trackRawTestRun(poolId, device, testResult)
+        trackRawTestRun(poolId, device.toDeviceInfo(), testResult)
     }
 
     private fun extractEventAndDevice(transition: StateMachine.Transition<TestState, TestEvent, TestAction>): Pair<TestResult?, Device?> {
@@ -50,18 +52,18 @@ open class NoOpTracker : Tracker {
             val sideEffect = validTransition.sideEffect
             when (sideEffect) {
                 is TestAction.SaveReport -> {
-                    trackTestFinished(poolId, sideEffect.device, sideEffect.testResult)
+                    trackTestFinished(poolId, sideEffect.device.toDeviceInfo(), sideEffect.testResult)
                 }
             }
         }
     }
 
-    open fun trackRawTestRun(poolId: DevicePoolId, device: Device, testResult: TestResult) {
+    open fun trackRawTestRun(poolId: DevicePoolId, device: DeviceInfo, testResult: TestResult) {
     }
 
-    open fun trackTestFinished(poolId: DevicePoolId, device: Device, testResult: TestResult) {
+    open fun trackTestFinished(poolId: DevicePoolId, device: DeviceInfo, testResult: TestResult) {
     }
 
-    override fun trackDeviceConnected(poolId: DevicePoolId, device: Device) {
+    override fun trackDeviceConnected(poolId: DevicePoolId, device: DeviceInfo) {
     }
 }
