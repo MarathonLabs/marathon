@@ -21,15 +21,15 @@ open class NoOpTracker : Tracker {
     }
 
     private fun notifyRawTestRun(transition: StateMachine.Transition<TestState, TestEvent, TestAction>, poolId: DevicePoolId) {
-        val (testResult: TestResult?, device: Device?) = extractEventAndDevice(transition)
+        val (testResult: TestResult?, device: DeviceInfo?) = extractEventAndDevice(transition)
 
         // Don't report tests that didn't finish the execution
         if (testResult == null || device == null || testResult.status == TestStatus.INCOMPLETE) return
 
-        trackRawTestRun(poolId, device.toDeviceInfo(), testResult)
+        trackRawTestRun(poolId, device, testResult)
     }
 
-    private fun extractEventAndDevice(transition: StateMachine.Transition<TestState, TestEvent, TestAction>): Pair<TestResult?, Device?> {
+    private fun extractEventAndDevice(transition: StateMachine.Transition<TestState, TestEvent, TestAction>): Pair<TestResult?, DeviceInfo?> {
         val event = transition.event
         val testResult: TestResult? = when (event) {
             is TestEvent.Passed -> event.testResult
@@ -37,7 +37,7 @@ open class NoOpTracker : Tracker {
             is TestEvent.Retry -> event.testResult
             else -> null
         }
-        val device: Device? = when (event) {
+        val device: DeviceInfo? = when (event) {
             is TestEvent.Passed -> event.device
             is TestEvent.Failed -> event.device
             is TestEvent.Retry -> event.device
@@ -52,7 +52,7 @@ open class NoOpTracker : Tracker {
             val sideEffect = validTransition.sideEffect
             when (sideEffect) {
                 is TestAction.SaveReport -> {
-                    trackTestFinished(poolId, sideEffect.device.toDeviceInfo(), sideEffect.testResult)
+                    trackTestFinished(poolId, sideEffect.deviceInfo, sideEffect.testResult)
                 }
             }
         }

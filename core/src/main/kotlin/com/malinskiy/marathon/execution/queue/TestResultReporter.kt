@@ -3,6 +3,7 @@ package com.malinskiy.marathon.execution.queue
 import com.malinskiy.marathon.actor.StateMachine
 import com.malinskiy.marathon.analytics.Analytics
 import com.malinskiy.marathon.device.Device
+import com.malinskiy.marathon.device.DeviceInfo
 import com.malinskiy.marathon.device.DevicePoolId
 import com.malinskiy.marathon.execution.TestResult
 import com.malinskiy.marathon.execution.TestShard
@@ -76,15 +77,15 @@ class TestResultReporter(private val poolId: DevicePoolId,
         }
     }
 
-    fun testFinished(device: Device, testResult: TestResult) {
+    fun testFinished(device: DeviceInfo, testResult: TestResult) {
         tests[testResult.test.toTestName()]?.transition(TestEvent.Passed(device, testResult))
     }
 
-    fun testFailed(device: Device, testResult: TestResult) {
+    fun testFailed(device: DeviceInfo, testResult: TestResult) {
         tests[testResult.test.toTestName()]?.transition(TestEvent.Failed(device, testResult))
     }
 
-    fun retryTest(device: Device, testResult: TestResult) {
+    fun retryTest(device: DeviceInfo, testResult: TestResult) {
         tests[testResult.test.toTestName()]?.transition(TestEvent.Retry(device, testResult))
     }
 
