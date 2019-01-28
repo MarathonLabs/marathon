@@ -1,10 +1,8 @@
 package com.malinskiy.marathon.report.internal
 
 import com.google.gson.Gson
-import com.malinskiy.marathon.device.Device
 import com.malinskiy.marathon.device.DeviceInfo
 import com.malinskiy.marathon.device.DevicePoolId
-import com.malinskiy.marathon.device.toDeviceInfo
 import com.malinskiy.marathon.execution.TestResult
 import com.malinskiy.marathon.io.FileManager
 import com.malinskiy.marathon.io.FileType
