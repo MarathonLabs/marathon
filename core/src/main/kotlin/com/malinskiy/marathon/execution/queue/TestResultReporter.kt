@@ -2,7 +2,6 @@ package com.malinskiy.marathon.execution.queue
 
 import com.malinskiy.marathon.actor.StateMachine
 import com.malinskiy.marathon.analytics.Analytics
-import com.malinskiy.marathon.device.Device
 import com.malinskiy.marathon.device.DeviceInfo
 import com.malinskiy.marathon.device.DevicePoolId
 import com.malinskiy.marathon.execution.TestResult

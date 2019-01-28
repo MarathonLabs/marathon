@@ -1,6 +1,5 @@
 package com.malinskiy.marathon.execution.queue
 
-import com.malinskiy.marathon.device.Device
 import com.malinskiy.marathon.device.DeviceInfo
 import com.malinskiy.marathon.execution.TestResult
 
