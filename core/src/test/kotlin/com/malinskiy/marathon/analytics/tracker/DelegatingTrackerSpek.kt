@@ -1,7 +1,8 @@
 package com.malinskiy.marathon.analytics.tracker
 
 import com.malinskiy.marathon.actor.StateMachine
-import com.malinskiy.marathon.device.Device
+import com.malinskiy.marathon.createDeviceInfo
+import com.malinskiy.marathon.device.DeviceInfo
 import com.malinskiy.marathon.device.DevicePoolId
 import com.malinskiy.marathon.execution.queue.TestAction
 import com.malinskiy.marathon.execution.queue.TestEvent
@@ -20,7 +21,7 @@ class DelegatingTrackerSpek : Spek({
             val tracker2 = mock<Tracker>()
             val delegatingTracker = DelegatingTracker(listOf(tracker1, tracker2))
             val devicePoolId = DevicePoolId("test")
-            val device: Device = mock()
+            val device: DeviceInfo = createDeviceInfo()
             delegatingTracker.trackDeviceConnected(devicePoolId, device)
             verify(tracker1).trackDeviceConnected(eq(devicePoolId), eq(device))
             verify(tracker2).trackDeviceConnected(eq(devicePoolId), eq(device))

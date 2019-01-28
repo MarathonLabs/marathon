@@ -6,6 +6,7 @@ import com.android.ddmlib.testrunner.TestIdentifier
 import com.malinskiy.marathon.android.AndroidDevice
 import com.malinskiy.marathon.android.toTest
 import com.malinskiy.marathon.device.DevicePoolId
+import com.malinskiy.marathon.device.toDeviceInfo
 import com.malinskiy.marathon.execution.Attachment
 import com.malinskiy.marathon.execution.AttachmentType
 import com.malinskiy.marathon.report.attachment.AttachmentListener
@@ -41,7 +42,7 @@ class LogCatListener(private val device: AndroidDevice,
 
     override fun testEnded(test: TestIdentifier, testMetrics: Map<String, String>) {
         val messages = ref.getAndSet(mutableListOf())
-        val file = logWriter.saveLogs(test.toTest(), devicePoolId, device, messages.map {
+        val file = logWriter.saveLogs(test.toTest(), devicePoolId, device.toDeviceInfo(), messages.map {
             "${it.timestamp} ${it.pid}-${it.tid}/${it.appName} ${it.logLevel.priorityLetter}/${it.tag}: ${it.message}"
         })
 
