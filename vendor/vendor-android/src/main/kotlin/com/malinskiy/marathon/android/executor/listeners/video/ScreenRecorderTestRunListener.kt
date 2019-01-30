@@ -10,6 +10,7 @@ import com.malinskiy.marathon.android.RemoteFileManager.removeRemotePath
 import com.malinskiy.marathon.android.executor.listeners.NoOpTestRunListener
 import com.malinskiy.marathon.android.toTest
 import com.malinskiy.marathon.device.DevicePoolId
+import com.malinskiy.marathon.device.toDeviceInfo
 import com.malinskiy.marathon.execution.Attachment
 import com.malinskiy.marathon.execution.AttachmentType
 import com.malinskiy.marathon.io.FileManager
@@ -89,7 +90,7 @@ internal class ScreenRecorderTestRunListener(private val fileManager: FileManage
     }
 
     private fun pullTestVideo(test: TestIdentifier) {
-        val localVideoFile = fileManager.createFile(FileType.VIDEO, pool, device, test.toTest())
+        val localVideoFile = fileManager.createFile(FileType.VIDEO, pool, device.toDeviceInfo(), test.toTest())
         val remoteFilePath = RemoteFileManager.remoteVideoForTest(test)
         val millis = measureTimeMillis {
             deviceInterface.pullFile(remoteFilePath, localVideoFile.toString())

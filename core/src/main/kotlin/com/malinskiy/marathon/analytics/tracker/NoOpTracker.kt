@@ -2,7 +2,9 @@ package com.malinskiy.marathon.analytics.tracker
 
 import com.malinskiy.marathon.actor.StateMachine
 import com.malinskiy.marathon.device.Device
+import com.malinskiy.marathon.device.DeviceInfo
 import com.malinskiy.marathon.device.DevicePoolId
+import com.malinskiy.marathon.device.toDeviceInfo
 import com.malinskiy.marathon.execution.TestResult
 import com.malinskiy.marathon.execution.TestStatus
 import com.malinskiy.marathon.execution.queue.TestAction
@@ -19,7 +21,7 @@ open class NoOpTracker : Tracker {
     }
 
     private fun notifyRawTestRun(transition: StateMachine.Transition<TestState, TestEvent, TestAction>, poolId: DevicePoolId) {
-        val (testResult: TestResult?, device: Device?) = extractEventAndDevice(transition)
+        val (testResult: TestResult?, device: DeviceInfo?) = extractEventAndDevice(transition)
 
         // Don't report tests that didn't finish the execution
         if (testResult == null || device == null || testResult.status == TestStatus.INCOMPLETE) return
@@ -27,7 +29,7 @@ open class NoOpTracker : Tracker {
         trackRawTestRun(poolId, device, testResult)
     }
 
-    private fun extractEventAndDevice(transition: StateMachine.Transition<TestState, TestEvent, TestAction>): Pair<TestResult?, Device?> {
+    private fun extractEventAndDevice(transition: StateMachine.Transition<TestState, TestEvent, TestAction>): Pair<TestResult?, DeviceInfo?> {
         val event = transition.event
         val testResult: TestResult? = when (event) {
             is TestEvent.Passed -> event.testResult
@@ -35,7 +37,7 @@ open class NoOpTracker : Tracker {
             is TestEvent.Retry -> event.testResult
             else -> null
         }
-        val device: Device? = when (event) {
+        val device: DeviceInfo? = when (event) {
             is TestEvent.Passed -> event.device
             is TestEvent.Failed -> event.device
             is TestEvent.Retry -> event.device
@@ -50,18 +52,18 @@ open class NoOpTracker : Tracker {
             val sideEffect = validTransition.sideEffect
             when (sideEffect) {
                 is TestAction.SaveReport -> {
-                    trackTestFinished(poolId, sideEffect.device, sideEffect.testResult)
+                    trackTestFinished(poolId, sideEffect.deviceInfo, sideEffect.testResult)
                 }
             }
         }
     }
 
-    open fun trackRawTestRun(poolId: DevicePoolId, device: Device, testResult: TestResult) {
+    open fun trackRawTestRun(poolId: DevicePoolId, device: DeviceInfo, testResult: TestResult) {
     }
 
-    open fun trackTestFinished(poolId: DevicePoolId, device: Device, testResult: TestResult) {
+    open fun trackTestFinished(poolId: DevicePoolId, device: DeviceInfo, testResult: TestResult) {
     }
 
-    override fun trackDeviceConnected(poolId: DevicePoolId, device: Device) {
+    override fun trackDeviceConnected(poolId: DevicePoolId, device: DeviceInfo) {
     }
 }

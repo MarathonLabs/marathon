@@ -1,7 +1,7 @@
 package com.malinskiy.marathon.execution.progress.tracker
 
 import com.malinskiy.marathon.actor.StateMachine
-import com.malinskiy.marathon.device.Device
+import com.malinskiy.marathon.device.DeviceInfo
 import com.malinskiy.marathon.test.Test
 import java.util.concurrent.atomic.AtomicInteger
 
@@ -50,25 +50,25 @@ class PoolProgressTracker {
     private val completed = AtomicInteger(0)
     private val failed = AtomicInteger(0)
 
-    fun testStarted(test: Test, device: Device) {
+    fun testStarted(test: Test, device: DeviceInfo) {
         tests.computeIfAbsent(test) { _ -> createState() }
     }
 
-    fun testFailed(test: Test, device: Device) {
+    fun testFailed(test: Test, device: DeviceInfo) {
         updateStatus(test, ProgressEvent.Failed)
         failed.updateAndGet {
             it + 1
         }
     }
 
-    fun testPassed(test: Test, device: Device) {
+    fun testPassed(test: Test, device: DeviceInfo) {
         completed.updateAndGet {
             it + 1
         }
         updateStatus(test, ProgressEvent.Passed)
     }
 
-    fun testIgnored(test: Test, device: Device) {
+    fun testIgnored(test: Test, device: DeviceInfo) {
         updateStatus(test, ProgressEvent.Ignored)
     }
 

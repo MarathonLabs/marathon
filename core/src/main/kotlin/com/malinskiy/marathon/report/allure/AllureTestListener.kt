@@ -3,21 +3,19 @@ package com.malinskiy.marathon.report.allure
 import com.github.automatedowl.tools.AllureEnvironmentWriter.allureEnvironmentWriter
 import com.google.common.collect.ImmutableMap
 import com.malinskiy.marathon.analytics.tracker.NoOpTracker
-import com.malinskiy.marathon.device.Device
+import com.malinskiy.marathon.device.DeviceInfo
 import com.malinskiy.marathon.device.DevicePoolId
 import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.execution.TestResult
 import com.malinskiy.marathon.execution.TestStatus
 import com.malinskiy.marathon.test.Test
 import com.malinskiy.marathon.test.toSimpleSafeTestName
-import io.qameta.allure.Allure
 import io.qameta.allure.AllureLifecycle
 import io.qameta.allure.Description
 import io.qameta.allure.Epic
 import io.qameta.allure.Feature
 import io.qameta.allure.FileSystemResultsWriter
 import io.qameta.allure.Issue
-import io.qameta.allure.Link
 import io.qameta.allure.Owner
 import io.qameta.allure.Severity
 import io.qameta.allure.SeverityLevel
@@ -48,14 +46,14 @@ class AllureTestListener(val configuration: Configuration, val outputDirectory: 
                 builder.build(), outputDirectory.absolutePath + File.separator)
     }
 
-    override fun trackRawTestRun(poolId: DevicePoolId, device: Device, testResult: TestResult) {
+    override fun trackRawTestRun(poolId: DevicePoolId, device: DeviceInfo, testResult: TestResult) {
         val uuid = UUID.randomUUID().toString()
         val allureResults = createTestResult(uuid, device, testResult)
         lifecycle.scheduleTestCase(uuid, allureResults)
         lifecycle.writeTestCase(uuid)
     }
 
-    private fun createTestResult(uuid: String, device: Device, testResult: TestResult): io.qameta.allure.model.TestResult {
+    private fun createTestResult(uuid: String, device: DeviceInfo, testResult: TestResult): io.qameta.allure.model.TestResult {
         val test = testResult.test
         val fullName = test.toSimpleSafeTestName()
         val suite = "${test.pkg}.${test.clazz}"

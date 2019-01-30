@@ -1,7 +1,7 @@
 package com.malinskiy.marathon.analytics.tracker.remote.influx
 
 import com.malinskiy.marathon.analytics.tracker.NoOpTracker
-import com.malinskiy.marathon.device.Device
+import com.malinskiy.marathon.device.DeviceInfo
 import com.malinskiy.marathon.device.DevicePoolId
 import com.malinskiy.marathon.execution.TestResult
 import com.malinskiy.marathon.execution.TestStatus
@@ -12,7 +12,7 @@ import java.util.concurrent.TimeUnit
 
 internal class InfluxDbTracker(private val influxDb: InfluxDB) : NoOpTracker() {
 
-    override fun trackRawTestRun(poolId: DevicePoolId, device: Device, testResult: TestResult) {
+    override fun trackRawTestRun(poolId: DevicePoolId, device: DeviceInfo, testResult: TestResult) {
         influxDb.write(Point.measurement("tests")
                 .time(System.currentTimeMillis(), TimeUnit.MILLISECONDS)
                 .tag("testname", testResult.test.toSafeTestName())

@@ -1,6 +1,6 @@
 package com.malinskiy.marathon.execution.progress
 
-import com.malinskiy.marathon.device.Device
+import com.malinskiy.marathon.device.DeviceInfo
 import com.malinskiy.marathon.device.DevicePoolId
 import com.malinskiy.marathon.execution.progress.tracker.PoolProgressTracker
 import com.malinskiy.marathon.test.Test
@@ -26,22 +26,22 @@ class ProgressReporter {
         return String.format(format, percent)
     }
 
-    fun testStarted(poolId: DevicePoolId, device: Device, test: Test) {
+    fun testStarted(poolId: DevicePoolId, device: DeviceInfo, test: Test) {
         execute(poolId) { it.testStarted(test, device) }
         println("${toPercent(progress(poolId))} | [${poolId.name}]-[${device.serialNumber}] ${test.toTestName()} started")
     }
 
-    fun testFailed(poolId: DevicePoolId, device: Device, test: Test) {
+    fun testFailed(poolId: DevicePoolId, device: DeviceInfo, test: Test) {
         execute(poolId) { it.testFailed(test, device) }
         println("${toPercent(progress(poolId))} | [${poolId.name}]-[${device.serialNumber}] ${test.toTestName()} failed")
     }
 
-    fun testPassed(poolId: DevicePoolId, device: Device, test: Test) {
+    fun testPassed(poolId: DevicePoolId, device: DeviceInfo, test: Test) {
         execute(poolId) { it.testPassed(test, device) }
         println("${toPercent(progress(poolId))} | [${poolId.name}]-[${device.serialNumber}] ${test.toTestName()} ended")
     }
 
-    fun testIgnored(poolId: DevicePoolId, device: Device, test: Test) {
+    fun testIgnored(poolId: DevicePoolId, device: DeviceInfo, test: Test) {
         execute(poolId) { it.testIgnored(test, device) }
     }
 
