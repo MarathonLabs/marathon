@@ -7,7 +7,7 @@ order: 4
 ---
 
 ### CLI
-Configuration for CLI is done using the configuration file which by default is placed in the root of the project and named as *Marathonfile*.
+Configuration for CLI is done using the YAML formatted configuration file which by default is placed in the root of the project and named as *Marathonfile*.
 
 Here is a sample Marathonfile with all currently supported options:
 
