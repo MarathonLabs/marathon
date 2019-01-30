@@ -43,6 +43,6 @@
   "devDependencies": {
     "babel-plugin-transform-class-properties": "^6.24.1",
     "babel-preset-latest": "^6.24.1",
-    "webpack-dev-server": "^2.11.1"
+    "webpack-dev-server": "^3.1.11"
   }
 }
