@@ -33,16 +33,16 @@ class ProgressReportingListener(private val device: Device,
     }
 
     override fun testFailed(test: Test, startTime: Long, endTime: Long) {
-        progressTracker.testFailed(poolId, device, test)
+        progressTracker.testFailed(poolId, device.toDeviceInfo(), test)
         failure.add(TestResult(test, device.toDeviceInfo(), TestStatus.FAILURE, startTime, endTime, testLogListener.getLastLog()))
     }
 
     override fun testPassed(test: Test, startTime: Long, endTime: Long) {
-        progressTracker.testPassed(poolId, device, test)
+        progressTracker.testPassed(poolId, device.toDeviceInfo(), test)
         success.add(TestResult(test, device.toDeviceInfo(), TestStatus.PASSED, startTime, endTime, testLogListener.getLastLog()))
     }
 
     override fun testStarted(test: Test) {
-        progressTracker.testStarted(poolId, device, test)
+        progressTracker.testStarted(poolId, device.toDeviceInfo(), test)
     }
 }
