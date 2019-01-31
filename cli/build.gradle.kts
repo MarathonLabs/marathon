@@ -13,7 +13,7 @@ plugins {
     id("de.fuerstenau.buildconfig") version "1.1.8"
 }
 
-val enableJDB = true
+val enableJDB = false
 val debugCoroutines = true
 val jvmOptions = listOf(
     when(enableJDB) {
