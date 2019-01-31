@@ -21,7 +21,7 @@ import kotlinx.coroutines.withContext
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.coroutines.CoroutineContext
 
-private const val MAX_SERIAL = 8
+private const val MAX_SERIAL_WITH_PURPOSE_OF_LIMITING_FAILING_CONNECTION_RETRIES = 8
 
 class LocalListSimulatorProvider(private val channel: Channel<DeviceProvider.DeviceEvent>,
                                  private val configuration: IOSConfiguration,
@@ -55,20 +55,23 @@ class LocalListSimulatorProvider(private val channel: Channel<DeviceProvider.Dev
 
     override suspend fun stop() = withContext(coroutineContext) {
         logger.info("stops providing anything")
-        simulators
-                .groupBy { it.host }
-                .forEach { (host, simulators) ->
-                    logger.debug(host)
-                    simulators
-                            .map { it.udid to RemoteSimulatorSerialCounter.get(it.udid) }
-                            .sortedBy { it.second }
-                            .forEach { logger.debug("   - ${it.second}x${it.first}") }
-                    simulators.fold(0) { count, simulator ->
-                        count + RemoteSimulatorSerialCounter.get(simulator.udid)
-                    }.also {
-                        logger.debug("   ∑ ${it}")
+        if (logger.isDebugEnabled) {
+            // print out final summary on attempted simulator connections
+            simulators
+                    .groupBy { it.host }
+                    .forEach { (host, simulators) ->
+                        logger.debug(host)
+                        simulators
+                                .map { it.udid to RemoteSimulatorSerialCounter.get(it.udid) }
+                                .sortedBy { it.second }
+                                .forEach { logger.debug("   - ${it.second}x${it.first}") }
+                        simulators.fold(0) { count, simulator ->
+                            count + RemoteSimulatorSerialCounter.get(simulator.udid)
+                        }.also {
+                            logger.debug("   ∑ ${it}")
+                        }
                     }
-                }
+        }
         devices.entries
                 .filter { devices.remove(it.key, it.value) }
                 .forEach { (_, device) ->
@@ -89,7 +92,7 @@ class LocalListSimulatorProvider(private val channel: Channel<DeviceProvider.Dev
 
         if (device.failureReason == DeviceFailureReason.InvalidSimulatorIdentifier) {
             logger.error("device ${device.udid} does not exist on remote host")
-        } else if (RemoteSimulatorSerialCounter.get(device.udid) < MAX_SERIAL) {
+        } else if (RemoteSimulatorSerialCounter.get(device.udid) < MAX_SERIAL_WITH_PURPOSE_OF_LIMITING_FAILING_CONNECTION_RETRIES) {
             launch(context = coroutineContext) {
                 delay(499)
 
