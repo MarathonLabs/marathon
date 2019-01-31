@@ -27,6 +27,7 @@ class IOSDeviceProvider : DeviceProvider {
         channel.close()
     }
 
+    override val deviceInitializationTimeoutMillis: Long = 300_000
     override suspend fun initialize(vendorConfiguration: VendorConfiguration) {
         if (vendorConfiguration !is IOSConfiguration) {
             throw IllegalStateException("Invalid configuration $vendorConfiguration")

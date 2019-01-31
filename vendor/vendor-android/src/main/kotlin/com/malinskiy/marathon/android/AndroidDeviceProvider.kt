@@ -36,6 +36,7 @@ class AndroidDeviceProvider : DeviceProvider, CoroutineScope {
     override val coroutineContext: CoroutineContext
         get() = bootWaitContext
 
+    override val deviceInitializationTimeoutMillis: Long = 180_000
     override suspend fun initialize(vendorConfiguration: VendorConfiguration) {
         if (vendorConfiguration !is AndroidConfiguration) {
             throw IllegalStateException("Invalid configuration $vendorConfiguration passed")

@@ -9,6 +9,7 @@ interface DeviceProvider {
         class DeviceDisconnected(val device: Device) : DeviceEvent()
     }
 
+    val deviceInitializationTimeoutMillis: Long
     suspend fun initialize(vendorConfiguration: VendorConfiguration)
     suspend fun terminate()
     fun subscribe() : Channel<DeviceEvent>

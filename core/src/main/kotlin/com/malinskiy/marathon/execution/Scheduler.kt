@@ -44,7 +44,7 @@ class Scheduler(private val deviceProvider: DeviceProvider,
     suspend fun execute() {
         subscribeOnDevices(job)
         try {
-            withTimeout(180000) {
+            withTimeout(deviceProvider.deviceInitializationTimeoutMillis) {
                 while (pools.isEmpty()) {
                     delay(100)
                 }

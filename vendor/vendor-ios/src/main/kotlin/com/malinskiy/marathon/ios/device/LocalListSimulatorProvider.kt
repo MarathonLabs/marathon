@@ -28,10 +28,6 @@ class LocalListSimulatorProvider(private val channel: Channel<DeviceProvider.Dev
                                  yamlObjectMapper: ObjectMapper,
                                  private val gson: Gson) : SimulatorProvider, HealthChangeListener, CoroutineScope {
 
-    private val dispatcher = newFixedThreadPoolContext(1, "LocalListSimulatorProvider")
-    override val coroutineContext: CoroutineContext
-        get() = dispatcher
-
     private val logger = MarathonLogging.logger(LocalListSimulatorProvider::class.java.simpleName)
 
     private val simulators: List<RemoteSimulator>
@@ -43,13 +39,16 @@ class LocalListSimulatorProvider(private val channel: Channel<DeviceProvider.Dev
         simulators = configuredSimulators ?: emptyList()
     }
 
-    override suspend fun start() {
-        launch(context = coroutineContext) {
-            logger.info("starts providing ${simulators.count()} simulator devices")
-            simulators
-                    .mapNotNull { createDevice(it, RemoteSimulatorSerialCounter.putAndGet(it.udid)) }
-                    .also {  logger.debug("created ${it.count()} devices") }
-                    .forEach { connect(it) }
+    private val dispatcher = newFixedThreadPoolContext(2, "LocalListSimulatorProvider")
+    override val coroutineContext: CoroutineContext
+        get() = dispatcher
+
+    override suspend fun start() = withContext(coroutineContext) {
+        logger.info("starts providing ${simulators.count()} simulator devices")
+        val jobs = simulators.map {
+            launch(context = coroutineContext) {
+                createDevice(it, RemoteSimulatorSerialCounter.putAndGet(it.udid))?.let { connect(it) }
+            }
         }
     }
 
