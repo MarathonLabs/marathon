@@ -3,7 +3,7 @@ package com.malinskiy.marathon.analytics.tracker.local
 import com.google.gson.Gson
 import com.google.gson.annotations.SerializedName
 import com.malinskiy.marathon.analytics.tracker.NoOpTracker
-import com.malinskiy.marathon.device.Device
+import com.malinskiy.marathon.device.DeviceInfo
 import com.malinskiy.marathon.device.DevicePoolId
 import com.malinskiy.marathon.execution.TestResult
 import com.malinskiy.marathon.io.FileManager
@@ -19,7 +19,7 @@ class RawTestResultTracker(private val fileManager: FileManager,
         outputFile.writeText(gson.toJson(testResults))
     }
 
-    override fun trackRawTestRun(poolId: DevicePoolId, device: Device, testResult: TestResult) {
+    override fun trackRawTestRun(poolId: DevicePoolId, device: DeviceInfo, testResult: TestResult) {
         testResults.add(RawTestRun(
                 testResult.test.pkg,
                 testResult.test.clazz,

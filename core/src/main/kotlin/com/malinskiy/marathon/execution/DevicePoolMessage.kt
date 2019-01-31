@@ -1,6 +1,7 @@
 package com.malinskiy.marathon.execution
 
 import com.malinskiy.marathon.device.Device
+import com.malinskiy.marathon.device.DeviceInfo
 import com.malinskiy.marathon.test.TestBatch
 
 sealed class DevicePoolMessage {
@@ -19,6 +20,6 @@ sealed class DevicePoolMessage {
     sealed class FromQueue : DevicePoolMessage() {
         object Notify : FromQueue()
         object Terminated : FromQueue()
-        data class ExecuteBatch(val device: Device, val batch: TestBatch) : FromQueue()
+        data class ExecuteBatch(val device: DeviceInfo, val batch: TestBatch) : FromQueue()
     }
 }

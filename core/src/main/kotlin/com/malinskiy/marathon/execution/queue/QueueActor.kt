@@ -2,7 +2,7 @@ package com.malinskiy.marathon.execution.queue
 
 import com.malinskiy.marathon.actor.Actor
 import com.malinskiy.marathon.analytics.Analytics
-import com.malinskiy.marathon.device.Device
+import com.malinskiy.marathon.device.DeviceInfo
 import com.malinskiy.marathon.device.DevicePoolId
 import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.execution.DevicePoolMessage
@@ -67,7 +67,7 @@ class QueueActor(configuration: Configuration,
         }
     }
 
-    private suspend fun onBatchCompleted(device: Device, results: TestBatchResults) {
+    private suspend fun onBatchCompleted(device: DeviceInfo, results: TestBatchResults) {
         val finished = results.finished
         val failed = results.failed
         val uncompleted = results.uncompleted
@@ -84,7 +84,7 @@ class QueueActor(configuration: Configuration,
         activeBatches.remove(device.serialNumber)
     }
 
-    private suspend fun onReturnBatch(device: Device, batch: TestBatch) {
+    private suspend fun onReturnBatch(device: DeviceInfo, batch: TestBatch) {
         logger.debug { "onReturnBatch ${device.serialNumber}" }
         returnTests(batch.tests)
         activeBatches.remove(device.serialNumber)
@@ -101,7 +101,7 @@ class QueueActor(configuration: Configuration,
         close()
     }
 
-    private fun handleFinishedTests(finished: Collection<TestResult>, device: Device) {
+    private fun handleFinishedTests(finished: Collection<TestResult>, device: DeviceInfo) {
         finished.filter { testShard.flakyTests.contains(it.test) }.let {
             it.forEach {
                 val oldSize = queue.size
@@ -117,7 +117,7 @@ class QueueActor(configuration: Configuration,
     }
 
     private suspend fun handleFailedTests(failed: Collection<TestResult>,
-                                          device: Device) {
+                                          device: DeviceInfo) {
         logger.debug { "handle failed tests ${device.serialNumber}" }
         val retryList = retry.process(poolId, failed, testShard)
 
@@ -139,7 +139,7 @@ class QueueActor(configuration: Configuration,
     }
 
 
-    private suspend fun onRequestBatch(device: Device) {
+    private suspend fun onRequestBatch(device: DeviceInfo) {
         logger.debug { "request next batch for device ${device.serialNumber}" }
         val queueIsEmpty = queue.isEmpty()
         if (queue.isNotEmpty() && !activeBatches.containsKey(device.serialNumber)) {
@@ -158,7 +158,7 @@ class QueueActor(configuration: Configuration,
         }
     }
 
-    private suspend fun sendBatch(device: Device) {
+    private suspend fun sendBatch(device: DeviceInfo) {
         val batch = batching.process(queue, analytics)
         activeBatches[device.serialNumber] = batch
         pool.send(FromQueue.ExecuteBatch(device, batch))
@@ -167,10 +167,10 @@ class QueueActor(configuration: Configuration,
 
 
 sealed class QueueMessage {
-    data class RequestBatch(val device: Device) : QueueMessage()
+    data class RequestBatch(val device: DeviceInfo) : QueueMessage()
     data class IsEmpty(val deferred: CompletableDeferred<Boolean>) : QueueMessage()
-    data class Completed(val device: Device, val results: TestBatchResults) : QueueMessage()
-    data class ReturnBatch(val device: Device, val batch: TestBatch) : QueueMessage()
+    data class Completed(val device: DeviceInfo, val results: TestBatchResults) : QueueMessage()
+    data class ReturnBatch(val device: DeviceInfo, val batch: TestBatch) : QueueMessage()
 
     object Terminate : QueueMessage()
 }

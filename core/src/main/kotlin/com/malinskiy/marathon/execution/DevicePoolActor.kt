@@ -4,7 +4,9 @@ import com.malinskiy.marathon.actor.Actor
 import com.malinskiy.marathon.actor.safeSend
 import com.malinskiy.marathon.analytics.Analytics
 import com.malinskiy.marathon.device.Device
+import com.malinskiy.marathon.device.DeviceInfo
 import com.malinskiy.marathon.device.DevicePoolId
+import com.malinskiy.marathon.device.toDeviceInfo
 import com.malinskiy.marathon.execution.device.DeviceActor
 import com.malinskiy.marathon.execution.device.DeviceEvent
 import com.malinskiy.marathon.execution.progress.ProgressReporter
@@ -67,11 +69,11 @@ class DevicePoolActor(private val poolId: DevicePoolId,
     }
 
     private suspend fun deviceReturnedTestBatch(device: Device, batch: TestBatch) {
-        queue.send(QueueMessage.ReturnBatch(device, batch))
+        queue.send(QueueMessage.ReturnBatch(device.toDeviceInfo(), batch))
     }
 
     private suspend fun deviceCompleted(device: Device, results: TestBatchResults) {
-        queue.send(QueueMessage.Completed(device, results))
+        queue.send(QueueMessage.Completed(device.toDeviceInfo(), results))
     }
 
     private suspend fun deviceReady(msg: DevicePoolMessage.FromDevice.IsReady) {
@@ -91,10 +93,10 @@ class DevicePoolActor(private val poolId: DevicePoolId,
                     .shuffled()
                     .first().device
         }
-        queue.safeSend(QueueMessage.RequestBatch(device))
+        queue.safeSend(QueueMessage.RequestBatch(device.toDeviceInfo()))
     }
 
-    private suspend fun executeBatch(device: Device, batch: TestBatch) {
+    private suspend fun executeBatch(device: DeviceInfo, batch: TestBatch) {
         devices[device.serialNumber]?.run {
             safeSend(DeviceEvent.Execute(batch))
         }

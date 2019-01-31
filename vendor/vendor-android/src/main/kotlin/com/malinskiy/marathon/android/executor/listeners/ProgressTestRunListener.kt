@@ -4,6 +4,7 @@ import com.android.ddmlib.testrunner.TestIdentifier
 import com.malinskiy.marathon.android.toTest
 import com.malinskiy.marathon.device.Device
 import com.malinskiy.marathon.device.DevicePoolId
+import com.malinskiy.marathon.device.toDeviceInfo
 import com.malinskiy.marathon.execution.progress.ProgressReporter
 
 class ProgressTestRunListener(private val device: Device,
@@ -14,7 +15,7 @@ class ProgressTestRunListener(private val device: Device,
 
     override fun testStarted(test: TestIdentifier) {
         failed[test] = false
-        progressTracker.testStarted(poolId, device, test.toTest())
+        progressTracker.testStarted(poolId, device.toDeviceInfo(), test.toTest())
     }
 
     override fun testFailed(test: TestIdentifier, trace: String) {
@@ -23,13 +24,13 @@ class ProgressTestRunListener(private val device: Device,
 
     override fun testEnded(test: TestIdentifier, testMetrics: Map<String, String>) {
         if (failed[test] == true) {
-            progressTracker.testFailed(poolId, device, test.toTest())
+            progressTracker.testFailed(poolId, device.toDeviceInfo(), test.toTest())
         } else {
-            progressTracker.testPassed(poolId, device, test.toTest())
+            progressTracker.testPassed(poolId, device.toDeviceInfo(), test.toTest())
         }
     }
 
     override fun testIgnored(test: TestIdentifier) {
-        progressTracker.testIgnored(poolId, device, test.toTest())
+        progressTracker.testIgnored(poolId, device.toDeviceInfo(), test.toTest())
     }
 }

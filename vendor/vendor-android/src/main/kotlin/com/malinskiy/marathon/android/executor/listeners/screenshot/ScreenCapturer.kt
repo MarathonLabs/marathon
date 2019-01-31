@@ -7,6 +7,7 @@ import com.android.ddmlib.testrunner.TestIdentifier
 import com.malinskiy.marathon.android.AndroidDevice
 import com.malinskiy.marathon.android.toTest
 import com.malinskiy.marathon.device.DevicePoolId
+import com.malinskiy.marathon.device.toDeviceInfo
 import com.malinskiy.marathon.io.FileManager
 import com.malinskiy.marathon.io.FileType
 import com.malinskiy.marathon.log.MarathonLogging
@@ -29,7 +30,7 @@ class ScreenCapturer(val device: AndroidDevice,
                      val test: TestIdentifier) {
 
     suspend fun start() = coroutineScope {
-        val outputStream = FileImageOutputStream(fileManager.createFile(FileType.SCREENSHOT, poolId, device, test.toTest()))
+        val outputStream = FileImageOutputStream(fileManager.createFile(FileType.SCREENSHOT, poolId, device.toDeviceInfo(), test.toTest()))
         val writer = GifSequenceWriter(outputStream, TYPE_INT_ARGB, DELAY, true)
         while (isActive) {
             val capturingTimeMillis = measureTimeMillis {
