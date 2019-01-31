@@ -80,20 +80,26 @@ class DevicePoolActor(private val poolId: DevicePoolId,
         maybeRequestBatch(msg.device)
     }
 
-    private suspend fun maybeRequestBatch(avoiding: Device? = null) {
+    // Requests a batch of tests for a random device from the list of devices not running tests at the moment.
+    // When @avoidingDevice is not null, attemtps to send the request for any other device whenever available.
+    private suspend fun maybeRequestBatch(avoidingDevice: Device? = null) {
         val availableDevices = devices.values.asSequence()
             .map { it as DeviceActor }
-            .filter { it.isAvailable }
-        val device = if (availableDevices.count() == 1) {
-            availableDevices.first().device
+            .filter { it.isAvailable}
+            .filter { it.device != avoidingDevice}
+            .toList()
+        if (availableDevices.isEmpty()) {
+            if (avoidingDevice != null) {
+                devices[avoidingDevice.serialNumber]?.let {
+                    val avoidingDeviceActor = it as? DeviceActor
+                    if (avoidingDeviceActor?.isAvailable == true) {
+                        queue.safeSend(QueueMessage.RequestBatch(avoidingDevice.toDeviceInfo()))
+                    }
+                }
+            }
         } else {
-            availableDevices
-                    .filter { it.device != avoiding }
-                    .toList()
-                    .shuffled()
-                    .first().device
+            queue.safeSend(QueueMessage.RequestBatch(availableDevices.shuffled().first().device.toDeviceInfo()))
         }
-        queue.safeSend(QueueMessage.RequestBatch(device.toDeviceInfo()))
     }
 
     private suspend fun executeBatch(device: DeviceInfo, batch: TestBatch) {
