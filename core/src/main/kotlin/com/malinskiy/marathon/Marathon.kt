@@ -128,7 +128,7 @@ class Marathon(val configuration: Configuration) {
         return tests
     }
 
-    private fun trackAnalytics(configuration: Configuration){
+    private fun trackAnalytics(configuration: Configuration) {
         UsageAnalytics.tracker.run {
             trackEvent(Event(TrackActionType.VendorConfiguration, configuration.vendorConfiguration.javaClass.name))
             trackEvent(Event(TrackActionType.PoolingStrategy, configuration.poolingStrategy.javaClass.name))
@@ -140,16 +140,16 @@ class Marathon(val configuration: Configuration) {
         }
     }
 
-    private fun printCliReport(summary: Summary, executionTime: Long){
+    private fun printCliReport(summary: Summary, executionTime: Long) {
         val cliReportBuilder = StringBuilder().appendln("Marathon run finished:")
         summary.pools.forEach {
-            cliReportBuilder.appendln(" Device pool ${it.poolId.name}: ${it.passed} passed, ${it.failed} failed, ${it.ignored} ignored tests")
+            cliReportBuilder.appendln("Device pool ${it.poolId.name}: ${it.passed} passed, ${it.failed} failed, ${it.ignored} ignored tests")
         }
 
         val hours = TimeUnit.MILLISECONDS.toHours(executionTime)
         val minutes = TimeUnit.MILLISECONDS.toMinutes(executionTime) % 60
         val seconds = TimeUnit.MILLISECONDS.toSeconds(executionTime) % 60
-        cliReportBuilder.appendln("Total time: ${hours}H ${minutes}m ${seconds}s" )
+        cliReportBuilder.appendln("Total time: ${hours}H ${minutes}m ${seconds}s")
 
         println(cliReportBuilder)
     }
