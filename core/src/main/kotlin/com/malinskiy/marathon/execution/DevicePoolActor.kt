@@ -79,19 +79,19 @@ class DevicePoolActor(private val poolId: DevicePoolId,
     }
 
     private suspend fun maybeRequestBatch(avoiding: Device? = null) {
-        val shuffledDevices = devices.values
+        val availableDevices = devices.values.asSequence()
             .map { it as DeviceActor }
             .filter { it.isAvailable }
-            .map { it.device }
-            .let { if (it.size == 1) it else { it.filterNot { device -> device == avoiding } } }
-            .shuffled()
-        if (shuffledDevices.size > 1) {
-            logger.debug("Choosing from ${shuffledDevices.map { it.serialNumber }}")
+        val device = if (availableDevices.count() == 1) {
+            availableDevices.first().device
+        } else {
+            availableDevices
+                    .filter { it.device != avoiding }
+                    .toList()
+                    .shuffled()
+                    .first().device
         }
-        shuffledDevices.firstOrNull()
-            ?.let {
-                queue.safeSend(QueueMessage.RequestBatch(it))
-            }
+        queue.safeSend(QueueMessage.RequestBatch(device))
     }
 
     private suspend fun executeBatch(device: Device, batch: TestBatch) {
