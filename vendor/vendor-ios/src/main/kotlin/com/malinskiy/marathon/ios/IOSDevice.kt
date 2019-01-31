@@ -137,12 +137,12 @@ class IOSDevice(val simulator: RemoteSimulator,
         if (iosConfiguration.alwaysEraseSimulators) {
             hostCommandExecutor.execOrNull(
                 "xcrun simctl shutdown $udid",
-                configuration.timeoutMillis,
+                configuration.testBatchTimeoutMillis,
                 configuration.testOutputTimeoutMillis
             )
             hostCommandExecutor.execOrNull(
                 "xcrun simctl erase $udid",
-                configuration.timeoutMillis,
+                configuration.testBatchTimeoutMillis,
                 configuration.testOutputTimeoutMillis
             )
         }
@@ -182,7 +182,7 @@ class IOSDevice(val simulator: RemoteSimulator,
         val exitStatus = try {
             hostCommandExecutor.exec(
                 command,
-                configuration.timeoutMillis,
+                configuration.testBatchTimeoutMillis,
                 configuration.testOutputTimeoutMillis,
                 logParser::onLine
             )
@@ -270,12 +270,12 @@ class IOSDevice(val simulator: RemoteSimulator,
         if (!iosConfiguration.alwaysEraseSimulators) {
             hostCommandExecutor.execAsyncOrNull(
                 "xcrun simctl shutdown $udid",
-                configuration.timeoutMillis,
+                configuration.testBatchTimeoutMillis,
                 configuration.testOutputTimeoutMillis
             )?.let { logger.debug("shutdown ${it.exitStatus} ${it.stdout}") }
             hostCommandExecutor.execAsyncOrNull(
                 "who am i; xcrun simctl erase $udid",
-                configuration.timeoutMillis,
+                configuration.testBatchTimeoutMillis,
                 configuration.testOutputTimeoutMillis
             )?.let { logger.debug("erase ${it.exitStatus} ${it.stdout}") }
         }
@@ -310,7 +310,6 @@ class IOSDevice(val simulator: RemoteSimulator,
     private val disposing = AtomicBoolean(false)
     override fun dispose() {
         if (disposing.compareAndSet(false, true)) {
-            collectLogarchives()
             hostCommandExecutor.disconnect()
             deviceContext.close()
         }
@@ -333,44 +332,6 @@ class IOSDevice(val simulator: RemoteSimulator,
         return derivedDataManager.xctestrunFile.
                 resolveSibling(remoteXctestrunFile.name)
                 .also { it.writeBytes(xctestrun.toXMLByteArray()) }
-    }
-
-    private fun collectLogarchives() {
-        if (!COLLECT_LOGARCHIVES) { return }
-
-        if (healthy) { return }
-
-        val logarchiveFile = RemoteFileManager.remoteLogarchiveFile(this)
-        val result = hostCommandExecutor.execOrNull(
-                "xcrun simctl boot $udid; sleep 1; rm -Rf '$logarchiveFile'; xcrun simctl spawn $udid log collect --output '$logarchiveFile'",
-                60000L, 60000L
-            )
-        when {
-            result?.exitStatus == 0 -> {
-                logger.debug("Collected logarchive to $logarchiveFile")
-                try {
-                    derivedDataManager?.let {
-                        val localLogarchive = it.productsDir.resolve(logarchiveFile.name)
-                        if (it.receive(
-                                    remotePath = logarchiveFile.absolutePath,
-                                    hostName = hostCommandExecutor.hostAddress.hostName,
-                                    port = hostCommandExecutor.port,
-                                    localPath = localLogarchive
-                                ) == 0) {
-                            logger.debug("Downloaded logarchive to ${localLogarchive.absoluteFile}")
-                            val iosConfiguration = it.configuration.vendorConfiguration as IOSConfiguration
-                            if (iosConfiguration.teamcityCheckoutDir != null) {
-                                val artifactPath = localLogarchive.relativePathTo(iosConfiguration.teamcityCheckoutDir)
-                                logger.info("##teamcity[publishArtifacts '$artifactPath => logarchives/${localLogarchive.name}.zip']")
-                            }
-                        }
-                    }
-                } catch (e: Exception) {
-                }
-            }
-            result?.stderr != null -> logger.debug("Failed to collect logarchive $logarchiveFile: ${result.stderr}")
-            else -> logger.debug("Failed to collect logarchive $logarchiveFile")
-        }
     }
 }
 

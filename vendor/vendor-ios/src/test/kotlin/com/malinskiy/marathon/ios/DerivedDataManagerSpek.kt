@@ -9,11 +9,8 @@ import org.amshove.kluent.shouldEqual
 import org.amshove.kluent.shouldNotEqual
 import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.describe
-import org.jetbrains.spek.api.dsl.given
 import org.jetbrains.spek.api.dsl.it
 import org.jetbrains.spek.api.dsl.on
-import org.jetbrains.spek.api.dsl.xdescribe
-import org.jetbrains.spek.api.dsl.xon
 import org.testcontainers.containers.BindMode
 import org.testcontainers.containers.GenericContainer
 import java.io.File
@@ -74,7 +71,7 @@ object DerivedDataManagerSpek: Spek({
                     testClassRegexes = null,
                     includeSerialRegexes = null,
                     excludeSerialRegexes = null,
-                    timeoutMillis = null,
+                    testBatchTimeoutMillis = null,
                     testOutputTimeoutMillis = null,
                     debug = false,
                     vendorConfiguration =  IOSConfiguration(

@@ -39,7 +39,7 @@ data class Configuration constructor(
         val includeSerialRegexes: Collection<Regex>,
         val excludeSerialRegexes: Collection<Regex>,
 
-        val timeoutMillis: Long,
+        val testBatchTimeoutMillis: Long,
         val testOutputTimeoutMillis: Long,
         val debug: Boolean,
 
@@ -67,7 +67,7 @@ data class Configuration constructor(
                 includeSerialRegexes: Collection<Regex>?,
                 excludeSerialRegexes: Collection<Regex>?,
 
-                timeoutMillis: Long?,
+                testBatchTimeoutMillis: Long?,
                 testOutputTimeoutMillis: Long?,
                 debug: Boolean?,
 
@@ -91,7 +91,7 @@ data class Configuration constructor(
                     testClassRegexes = testClassRegexes ?: listOf(Regex("^((?!Abstract).)*Test$")),
                     includeSerialRegexes = includeSerialRegexes ?: emptyList(),
                     excludeSerialRegexes = excludeSerialRegexes ?: emptyList(),
-                    timeoutMillis = timeoutMillis ?: DEFAULT_EXECUTION_TIMEOUT_MILLIS,
+                    testBatchTimeoutMillis = testBatchTimeoutMillis ?: DEFAULT_EXECUTION_TIMEOUT_MILLIS,
                     testOutputTimeoutMillis = testOutputTimeoutMillis ?: DEFAULT_OUTPUT_TIMEOUT_MILLIS,
                     debug = debug ?: true,
                     vendorConfiguration = vendorConfiguration,
@@ -116,6 +116,7 @@ data class Configuration constructor(
                     "testClassRegexes" to testClassRegexes.toString(),
                     "includeSerialRegexes" to includeSerialRegexes.toString(),
                     "excludeSerialRegexes" to excludeSerialRegexes.toString(),
+                    "testBatchTimeoutMillis" to testBatchTimeoutMillis.toString(),
                     "testOutputTimeoutMillis" to testOutputTimeoutMillis.toString(),
                     "debug" to debug.toString(),
                     "vendorConfiguration" to vendorConfiguration.toString()

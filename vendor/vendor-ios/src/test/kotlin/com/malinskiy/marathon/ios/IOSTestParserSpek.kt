@@ -33,7 +33,7 @@ object IOSTestParserSpek : Spek({
                     testClassRegexes = null,
                     includeSerialRegexes = null,
                     excludeSerialRegexes = null,
-                    timeoutMillis = null,
+                    testBatchTimeoutMillis = null,
                     testOutputTimeoutMillis = null,
                     debug = null,
                     vendorConfiguration =  IOSConfiguration(

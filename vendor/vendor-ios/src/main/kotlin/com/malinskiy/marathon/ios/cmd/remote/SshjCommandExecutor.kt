@@ -107,7 +107,7 @@ class SshjCommandExecutor(serial: String,
 
     private class OutputTimeoutException: RuntimeException()
 
-    override suspend fun exec(command: String, timeoutMillis: Long, testOutputTimeoutMillis: Long, onLine: (String) -> Unit): Int? {
+    override suspend fun exec(command: String, maxExecutionDurationMillis: Long, testOutputTimeoutMillis: Long, onLine: (String) -> Unit): Int? {
         val session = try {
             startSession(command)
         } catch (e: ConnectionException) {
@@ -123,7 +123,7 @@ class SshjCommandExecutor(serial: String,
         logger.trace(command)
 
         try {
-            val executionTimeout = if (timeoutMillis == 0L) Long.MAX_VALUE else timeoutMillis
+            val executionTimeout = if (maxExecutionDurationMillis == 0L) Long.MAX_VALUE else maxExecutionDurationMillis
             withTimeout(executionTimeout) {
 
                 val timeoutWaiter = SshjCommandOutputWaiterImpl(testOutputTimeoutMillis, SLEEP_DURATION_MILLIS)
@@ -219,18 +219,18 @@ class SshjCommandExecutor(serial: String,
         }
     }
 
-    override fun exec(command: String, timeoutMillis: Long, testOutputTimeoutMillis: Long): CommandResult {
+    override fun exec(command: String, maxExecutionDurationMillis: Long, testOutputTimeoutMillis: Long): CommandResult {
         val lines = arrayListOf<String>()
         val exitStatus =
                 runBlocking(coroutineContext + CoroutineName("blocking exec")) {
-                    exec(command, timeoutMillis, testOutputTimeoutMillis) { lines.add(it) }
+                    exec(command, maxExecutionDurationMillis, testOutputTimeoutMillis) { lines.add(it) }
                 }
         return CommandResult(lines.joinToString("\n"), "", exitStatus ?: 1)
     }
 
-    override suspend fun execAsync(command: String, timeoutMillis: Long, testOutputTimeoutMillis: Long): CommandResult = withContext(context = coroutineContext) {
+    override suspend fun execAsync(command: String, maxExecutionDurationMillis: Long, testOutputTimeoutMillis: Long): CommandResult = withContext(context = coroutineContext) {
         val lines = arrayListOf<String>()
-        val exitStatus = exec(command, timeoutMillis, testOutputTimeoutMillis) { lines.add(it) }
+        val exitStatus = exec(command, maxExecutionDurationMillis, testOutputTimeoutMillis) { lines.add(it) }
 
         CommandResult(lines.joinToString("\n"), "", exitStatus ?: 1)
     }

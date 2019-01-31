@@ -26,7 +26,7 @@ open class MarathonExtension(project: Project) {
     var includeSerialRegexes: Collection<String>? = null
     var excludeSerialRegexes: Collection<String>? = null
 
-    var timeoutMillis: Long? = null
+    var testBatchTimeoutMillis: Long? = null
     var testOutputTimeoutMillis: Long? = null
     var debug: Boolean? = null
 

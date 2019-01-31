@@ -127,7 +127,7 @@ object ConfigFactorySpec : Spek({
                 configuration.ignoreFailures shouldEqual false
                 configuration.isCodeCoverageEnabled shouldEqual false
                 configuration.fallbackToScreenshots shouldEqual false
-                configuration.timeoutMillis shouldEqual 20_000
+                configuration.testBatchTimeoutMillis shouldEqual 20_000
                 configuration.testOutputTimeoutMillis shouldEqual 30_000
                 configuration.debug shouldEqual true
 
@@ -168,7 +168,7 @@ object ConfigFactorySpec : Spek({
                 configuration.ignoreFailures shouldEqual false
                 configuration.isCodeCoverageEnabled shouldEqual false
                 configuration.fallbackToScreenshots shouldEqual false
-                configuration.timeoutMillis shouldEqual 900_000
+                configuration.testBatchTimeoutMillis shouldEqual 900_000
                 configuration.testOutputTimeoutMillis shouldEqual 60_000
                 configuration.debug shouldEqual true
                 configuration.vendorConfiguration shouldEqual AndroidConfiguration(
@@ -198,7 +198,6 @@ object ConfigFactorySpec : Spek({
                         alwaysEraseSimulators = false,
                         hideRunnerOutput = true,
                         compactOutput = true,
-                        teamcityCheckoutDir = File("/opt/agent"),
                         keepAliveIntervalMillis = 300000L,
                         devicesFile = file.parentFile.resolve("Testdevices"))
             }

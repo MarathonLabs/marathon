@@ -32,7 +32,7 @@ class ConfigurationFactory {
     var shardingStrategy = null
     var sortingStrategy = null
     var testClassRegexes = null
-    var timeoutMillis = null
+    var testBatchTimeoutMillis = null
     var testOutputTimeoutMillis = null
     var analyticsTracking = false
 
@@ -63,7 +63,7 @@ class ConfigurationFactory {
                     testClassRegexes,
                     includeSerialRegexes,
                     excludeSerialRegexes,
-                    timeoutMillis,
+                    testBatchTimeoutMillis,
                     testOutputTimeoutMillis,
                     debug,
                     vendorConfiguration,
