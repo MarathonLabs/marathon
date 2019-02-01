@@ -5,6 +5,8 @@ import com.android.ddmlib.InstallException
 import com.malinskiy.marathon.android.AndroidConfiguration
 import com.malinskiy.marathon.android.AndroidDevice
 import com.malinskiy.marathon.android.ApkParser
+import com.malinskiy.marathon.android.executor.listeners.video.CollectingShellOutputReceiver
+import com.malinskiy.marathon.android.safeExecuteShellCommand
 import com.malinskiy.marathon.android.safeInstallPackage
 import com.malinskiy.marathon.android.safeUninstallPackage
 import com.malinskiy.marathon.execution.Configuration
@@ -39,6 +41,11 @@ class AndroidAppInstaller(configuration: Configuration) {
 
         withRetry(attempts = MAX_RETIRES, delayTime = 1000) {
             try {
+                if (installed(ddmsDevice, appPackage)) {
+                    logger.info("Uninstalling $appPackage from ${device.serialNumber}")
+                    val uninstallMessage = ddmsDevice.safeUninstallPackage(appPackage)
+                    uninstallMessage?.let { logger.debug { it } }
+                }
                 logger.info("Installing $appPackage to ${device.serialNumber}")
                 val installMessage = ddmsDevice.safeInstallPackage(appApk.absolutePath, true, optionalParams(ddmsDevice))
                 installMessage?.let { logger.debug { it } }
@@ -47,6 +54,13 @@ class AndroidAppInstaller(configuration: Configuration) {
                 throw RuntimeException("Error while installing $appPackage on ${device.serialNumber}", e)
             }
         }
+    }
+
+    private fun installed(ddmsDevice: IDevice, appPackage: String): Boolean {
+        val receiver = CollectingShellOutputReceiver()
+        ddmsDevice.safeExecuteShellCommand("pm list packages", receiver)
+        val lines = receiver.output().lines()
+        return lines.any { it == "package:$appPackage" }
     }
 
     private fun optionalParams(device: IDevice): String {
