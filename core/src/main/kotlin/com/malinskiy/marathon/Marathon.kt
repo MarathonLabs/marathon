@@ -118,7 +118,7 @@ class Marathon(val configuration: Configuration) {
         scheduler.execute()
 
         if (shutdownHook.uninstall()) {
-            printSummary(scheduler, getElapsedTimeMillisg())
+            printSummary(scheduler, getElapsedTimeMillis())
         }
 
         analytics.terminate()
