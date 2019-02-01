@@ -16,27 +16,6 @@ const val ADB_INSTALL_TIMEOUT_MINUTES = 4L
 const val ADB_SHORT_TIMEOUT_SECONDS = 20L
 const val ADB_SCREEN_RECORD_TIMEOUT = 10L
 
-fun IDevice.safeUninstallPackage(packageName: String): String? {
-    try {
-        val receiver = InstallReceiver()
-        executeShellCommand("pm uninstall $packageName",
-                receiver,
-                ADB_INSTALL_TIMEOUT_MINUTES,
-                ADB_INSTALL_TIMEOUT_MINUTES,
-                TimeUnit.MINUTES)
-
-        return receiver.errorMessage
-    } catch (e: TimeoutException) {
-        throw InstallException(e)
-    } catch (e: AdbCommandRejectedException) {
-        throw InstallException(e)
-    } catch (e: ShellCommandUnresponsiveException) {
-        throw InstallException(e)
-    } catch (e: IOException) {
-        throw InstallException(e)
-    }
-}
-
 fun IDevice.safeInstallPackage(packageFilePath: String, reinstall: Boolean, vararg extraArgs: String): String? {
     val receiver = InstallReceiver()
 

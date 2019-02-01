@@ -39,9 +39,6 @@ class AndroidAppInstaller(configuration: Configuration) {
 
         withRetry(attempts = MAX_RETIRES, delayTime = 1000) {
             try {
-                logger.info("Uninstalling $appPackage from ${device.serialNumber}")
-                val uninstallMessage = ddmsDevice.safeUninstallPackage(appPackage)
-                uninstallMessage?.let { logger.debug { it } }
                 logger.info("Installing $appPackage to ${device.serialNumber}")
                 val installMessage = ddmsDevice.safeInstallPackage(appApk.absolutePath, true, optionalParams(ddmsDevice))
                 installMessage?.let { logger.debug { it } }
@@ -51,6 +48,8 @@ class AndroidAppInstaller(configuration: Configuration) {
             }
         }
     }
+
+
 
     private fun optionalParams(device: IDevice): String {
         return if (device.version.apiLevel >= MARSHMALLOW_VERSION_CODE && androidConfiguration.autoGrantPermission) {
