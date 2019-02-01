@@ -21,7 +21,7 @@ import kotlinx.coroutines.withContext
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.coroutines.CoroutineContext
 
-private const val MAX_SERIAL_WITH_PURPOSE_OF_LIMITING_FAILING_CONNECTION_RETRIES = 8
+private const val MAX_CONNECTION_ATTEMPTS = 16
 
 class LocalListSimulatorProvider(private val channel: Channel<DeviceProvider.DeviceEvent>,
                                  private val configuration: IOSConfiguration,
@@ -47,7 +47,7 @@ class LocalListSimulatorProvider(private val channel: Channel<DeviceProvider.Dev
         logger.info("starts providing ${simulators.count()} simulator devices")
         val jobs = simulators.map {
             launch(context = coroutineContext) {
-                createDevice(it, RemoteSimulatorSerialCounter.putAndGet(it.udid))?.let { connect(it) }
+                createDevice(it, RemoteSimulatorConnectionCounter.putAndGet(it.udid))?.let { connect(it) }
             }
         }
     }
@@ -61,11 +61,11 @@ class LocalListSimulatorProvider(private val channel: Channel<DeviceProvider.Dev
                     .forEach { (host, simulators) ->
                         logger.debug(host)
                         simulators
-                                .map { it.udid to RemoteSimulatorSerialCounter.get(it.udid) }
+                                .map { it.udid to RemoteSimulatorConnectionCounter.get(it.udid) }
                                 .sortedBy { it.second }
                                 .forEach { logger.debug("   - ${it.second}x${it.first}") }
                         simulators.fold(0) { count, simulator ->
-                            count + RemoteSimulatorSerialCounter.get(simulator.udid)
+                            count + RemoteSimulatorConnectionCounter.get(simulator.udid)
                         }.also {
                             logger.debug("   ∑ ${it}")
                         }
@@ -81,6 +81,7 @@ class LocalListSimulatorProvider(private val channel: Channel<DeviceProvider.Dev
     }
 
     override suspend fun onDisconnect(device: IOSDevice) {
+
         launch(context = coroutineContext) {
             if (devices.remove(device.serialNumber, device)) {
                 dispose(device)
@@ -91,13 +92,13 @@ class LocalListSimulatorProvider(private val channel: Channel<DeviceProvider.Dev
 
         if (device.failureReason == DeviceFailureReason.InvalidSimulatorIdentifier) {
             logger.error("device ${device.udid} does not exist on remote host")
-        } else if (RemoteSimulatorSerialCounter.get(device.udid) < MAX_SERIAL_WITH_PURPOSE_OF_LIMITING_FAILING_CONNECTION_RETRIES) {
+        } else if (RemoteSimulatorConnectionCounter.get(device.udid) < MAX_CONNECTION_ATTEMPTS) {
             launch(context = coroutineContext) {
                 delay(499)
 
                 createDevice(
                     device.simulator,
-                    RemoteSimulatorSerialCounter.putAndGet(device.udid)
+                    RemoteSimulatorConnectionCounter.putAndGet(device.udid)
                 )?.let {
                     logger.debug("reconnecting to ${it.udid}")
                     connect(it)
@@ -130,16 +131,16 @@ class LocalListSimulatorProvider(private val channel: Channel<DeviceProvider.Dev
 
     // occassionaly, device constructor would throw an exception when remote simctl command
     // fails with message that simulator services to be no longer available
-    private fun createDevice(simulator: RemoteSimulator, simulatorSerial: Int): IOSDevice? = try {
+    private fun createDevice(simulator: RemoteSimulator, connectionAttempt: Int): IOSDevice? = try {
         IOSDevice(
             simulator = simulator,
-            simulatorSerial = simulatorSerial,
+            connectionAttempt = connectionAttempt,
             configuration = configuration,
             gson = gson,
             healthChangeListener = this
         )
     } catch (e: DeviceFailureException) {
-        logger.error("Failed to initialize ${simulator.udid}-$simulatorSerial with reason ${e.reason}: ${e.message}")
+        logger.error("Failed to initialize ${simulator.udid}-$connectionAttempt with reason ${e.reason}: ${e.message}")
         null
     }
 }

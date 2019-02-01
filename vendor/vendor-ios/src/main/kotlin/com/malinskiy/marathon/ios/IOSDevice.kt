@@ -25,7 +25,6 @@ import com.malinskiy.marathon.ios.logparser.parser.DeviceFailureReason
 import com.malinskiy.marathon.ios.simctl.Simctl
 import com.malinskiy.marathon.ios.xctestrun.Xctestrun
 import com.malinskiy.marathon.log.MarathonLogging
-import com.malinskiy.marathon.report.html.relativePathTo
 import com.malinskiy.marathon.test.TestBatch
 import net.schmizz.sshj.transport.TransportException
 import net.schmizz.sshj.connection.channel.OpenFailException
@@ -37,22 +36,21 @@ import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.newFixedThreadPoolContext
 import net.schmizz.sshj.connection.ConnectionException
+import java.io.IOException
 import java.lang.IllegalStateException
 import java.net.UnknownHostException
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.coroutines.CoroutineContext
 
-private const val COLLECT_LOGARCHIVES = false
-
 class IOSDevice(val simulator: RemoteSimulator,
-                simulatorSerial: Int,
+                connectionAttempt: Int,
                 configuration: IOSConfiguration,
                 val gson: Gson,
                 private val healthChangeListener: HealthChangeListener): Device, CoroutineScope {
 
     val udid = simulator.udid
-    val serial = "$udid-$simulatorSerial"
-    private val deviceContext = newFixedThreadPoolContext(1, serial)
+    val connectionId = "$udid-$connectionAttempt"
+    private val deviceContext = newFixedThreadPoolContext(1, connectionId)
 
     override val coroutineContext: CoroutineContext
         get() = deviceContext
@@ -73,7 +71,7 @@ class IOSDevice(val simulator: RemoteSimulator,
         }
         hostCommandExecutor = try {
             SshjCommandExecutor(
-                serial = serial,
+                connectionId = connectionId,
                 hostAddress = hostAddress,
                 remoteUsername = simulator.username ?: configuration.remoteUsername,
                 remotePrivateKey = configuration.remotePrivateKey,
@@ -337,12 +335,19 @@ class IOSDevice(val simulator: RemoteSimulator,
 
 private const val REACHABILITY_TIMEOUT_MILLIS = 5000
 private fun String.toInetAddressOrNull(): InetAddress? {
+    val logger = MarathonLogging.logger(IOSDevice::class.java.simpleName)
     val address = try {
         InetAddress.getByName(this)
     } catch (e: UnknownHostException) {
+        logger.error("Error resolving host $this: $e")
         return null
     }
-    return if (address.isReachable(REACHABILITY_TIMEOUT_MILLIS)) { address } else { null }
+    return if (try {
+                address.isReachable(REACHABILITY_TIMEOUT_MILLIS)
+            } catch (e: IOException) {
+                logger.error("Error checking reachability of $this: $e")
+                false
+            }) { address } else { null }
 }
 
 private fun TestBatch.toXcodebuildArguments(): String = tests.joinToString(separator = " ") { "-only-testing:\"${it.pkg}/${it.clazz}/${it.method}\"" }

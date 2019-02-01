@@ -2,7 +2,7 @@ package com.malinskiy.marathon.ios.device
 
 import java.util.Collections
 
-object RemoteSimulatorSerialCounter {
+object RemoteSimulatorConnectionCounter {
     private val udids = Collections.synchronizedList(mutableListOf<String>())
 
     fun get(udid: String): Int = udids.count { it == udid }

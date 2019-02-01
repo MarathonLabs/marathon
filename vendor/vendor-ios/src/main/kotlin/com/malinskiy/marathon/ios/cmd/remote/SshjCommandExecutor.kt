@@ -27,7 +27,7 @@ import kotlin.math.min
 private const val DEFAULT_PORT = 22
 private const val SLEEP_DURATION_MILLIS = 15L
 
-class SshjCommandExecutor(serial: String,
+class SshjCommandExecutor(connectionId: String,
                           val hostAddress: InetAddress,
                           val remoteUsername: String,
                           val remotePrivateKey: File,
@@ -36,7 +36,7 @@ class SshjCommandExecutor(serial: String,
                           keepAliveIntervalMillis: Long = 0L,
                           verbose: Boolean = false) : CommandExecutor, CoroutineScope {
 
-    override val coroutineContext: CoroutineContext = newSingleThreadContext("$serial-ssh")
+    override val coroutineContext: CoroutineContext = newSingleThreadContext("$connectionId-ssh")
     private val ssh: SSHClient
 
     init {
