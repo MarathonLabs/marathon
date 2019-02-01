@@ -16,6 +16,7 @@ import java.io.File
 
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.concurrent.ConcurrentHashMap
@@ -71,13 +72,16 @@ class LocalListSimulatorProvider(private val channel: Channel<DeviceProvider.Dev
                         }
                     }
         }
-        devices.entries
-                .filter { devices.remove(it.key, it.value) }
-                .forEach { (_, device) ->
-                    dispose(device)
+        val simulators = devices.values.toList()
+        devices.clear()
+        val jobs = simulators.map {
+            launch(context = coroutineContext) {
+                dispose(it)
 
-                    notifyDisconnected(device)
-                }
+                notifyDisconnected(it)
+            }
+        }
+        jobs.joinAll()
     }
 
     override suspend fun onDisconnect(device: IOSDevice) {
