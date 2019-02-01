@@ -2,7 +2,6 @@ package com.malinskiy.marathon
 
 import com.google.gson.Gson
 import com.malinskiy.marathon.analytics.AnalyticsFactory
-import com.malinskiy.marathon.analytics.tracker.local.RawTestResultTracker
 import com.malinskiy.marathon.usageanalytics.TrackActionType
 import com.malinskiy.marathon.usageanalytics.UsageAnalytics
 import com.malinskiy.marathon.usageanalytics.tracker.Event
@@ -14,6 +13,7 @@ import com.malinskiy.marathon.execution.progress.ProgressReporter
 import com.malinskiy.marathon.io.FileManager
 import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.report.CompositeSummaryPrinter
+import com.malinskiy.marathon.report.Summary
 import com.malinskiy.marathon.report.SummaryCompiler
 import com.malinskiy.marathon.report.SummaryPrinter
 import com.malinskiy.marathon.report.debug.timeline.TimelineSummaryPrinter
@@ -107,34 +107,34 @@ class Marathon(val configuration: Configuration) {
         }
         configuration.outputDir.mkdirs()
 
-        val shutdownHook = ShutdownHook(configuration) {
-                printSummary(scheduler)
-            }
-            .also { it.install() }
+        val getElapsedTimeMillis: () -> Long = {
+            val startTime = System.currentTimeMillis()
+            fun(): Long { return System.currentTimeMillis() - startTime }
+        }()
 
-        val timeMillis = measureTimeMillis {
-            scheduler.execute()
-        }
+        val shutdownHook = ShutdownHook(configuration) { printSummary(scheduler, getElapsedTimeMillis()) }
+        shutdownHook.install()
+
+        scheduler.execute()
 
         if (shutdownHook.uninstall()) {
-            printSummary(scheduler)
+            printSummary(scheduler, getElapsedTimeMillisg())
         }
 
-        printCliReport(analyticsFactory.rawTestResultTracker.testResults, timeMillis)
         analytics.terminate()
         analytics.close()
         deviceProvider.terminate()
         return progressReporter.aggregateResult()
     }
 
-    private fun printSummary(scheduler: Scheduler) {
-        scheduler.getPools()
-                .takeIf { it.isNotEmpty() }
-                ?.let { pools ->
-                    val summaryPrinter = loadSummaryPrinter()
-                    val summary = summaryCompiler.compile(pools)
-                    summaryPrinter.print(summary)
-                }
+    private fun printSummary(scheduler: Scheduler, executionTime: Long) {
+        val pools = scheduler.getPools()
+        if (!pools.isEmpty()) {
+            val summaryPrinter = loadSummaryPrinter()
+            val summary = summaryCompiler.compile(scheduler.getPools())
+            printCliReport(summary, executionTime)
+            summaryPrinter.print(summary)
+        }
     }
 
     private fun applyTestFilters(parsedTests: List<Test>): List<Test> {
@@ -146,7 +146,7 @@ class Marathon(val configuration: Configuration) {
         return tests
     }
 
-    private fun trackAnalytics(configuration: Configuration){
+    private fun trackAnalytics(configuration: Configuration) {
         UsageAnalytics.tracker.run {
             trackEvent(Event(TrackActionType.VendorConfiguration, configuration.vendorConfiguration.javaClass.name))
             trackEvent(Event(TrackActionType.PoolingStrategy, configuration.poolingStrategy.javaClass.name))
@@ -158,21 +158,17 @@ class Marathon(val configuration: Configuration) {
         }
     }
 
-    private fun printCliReport(rawTestResult: List<RawTestResultTracker.RawTestRun>, executionTime: Long){
+    private fun printCliReport(summary: Summary, executionTime: Long) {
         val cliReportBuilder = StringBuilder().appendln("Marathon run finished:")
-
-        rawTestResult.run {
-            val passedTests = count { it.success }
-            val failedTests = count { !it.success }
-            val ignoredTests = count { it.ignored }
-            cliReportBuilder.appendln("With $passedTests passed, $failedTests failed, $ignoredTests ignored tests")
+        summary.pools.forEach {
+            cliReportBuilder.appendln("Device pool ${it.poolId.name}: ${it.passed} passed, ${it.failed} failed, ${it.ignored} ignored tests")
         }
 
         val hours = TimeUnit.MILLISECONDS.toHours(executionTime)
         val minutes = TimeUnit.MILLISECONDS.toMinutes(executionTime) % 60
         val seconds = TimeUnit.MILLISECONDS.toSeconds(executionTime) % 60
-        cliReportBuilder.appendln("Total time: ${hours}H ${minutes}m ${seconds}s" )
+        cliReportBuilder.appendln("Total time: ${hours}H ${minutes}m ${seconds}s")
 
-        log.info { cliReportBuilder.toString() }
+        println(cliReportBuilder)
     }
 }
