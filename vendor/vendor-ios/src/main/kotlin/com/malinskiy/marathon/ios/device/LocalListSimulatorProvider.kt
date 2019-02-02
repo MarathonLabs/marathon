@@ -12,6 +12,7 @@ import com.malinskiy.marathon.ios.logparser.parser.DeviceFailureReason
 import com.malinskiy.marathon.log.MarathonLogging
 import kotlinx.coroutines.newFixedThreadPoolContext
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.async
 import java.io.File
 
 import kotlinx.coroutines.channels.Channel
@@ -48,10 +49,10 @@ class LocalListSimulatorProvider(private val channel: Channel<DeviceProvider.Dev
     override suspend fun start() = withContext(coroutineContext) {
         logger.info("starts providing ${simulators.count()} simulator devices")
         val jobs = simulators.map {
-            launch(context = coroutineContext) {
+            async(context = coroutineContext) {
                 createDevice(it, RemoteSimulatorConnectionCounter.putAndGet(it.udid))?.let { connect(it) }
             }
-        }
+        }.joinAll()
     }
 
     override suspend fun stop() = withContext(coroutineContext) {
@@ -63,7 +64,7 @@ class LocalListSimulatorProvider(private val channel: Channel<DeviceProvider.Dev
         val simulators = devices.values.toList()
         devices.clear()
         val jobs = simulators.map {
-            launch(context = coroutineContext) {
+            async(context = coroutineContext) {
                 dispose(it)
 
                 notifyDisconnected(it)
