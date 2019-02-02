@@ -2,9 +2,6 @@ package com.malinskiy.marathon
 
 import com.google.gson.Gson
 import com.malinskiy.marathon.analytics.AnalyticsFactory
-import com.malinskiy.marathon.usageanalytics.TrackActionType
-import com.malinskiy.marathon.usageanalytics.UsageAnalytics
-import com.malinskiy.marathon.usageanalytics.tracker.Event
 import com.malinskiy.marathon.device.DeviceProvider
 import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.execution.Scheduler
@@ -23,10 +20,12 @@ import com.malinskiy.marathon.report.internal.DeviceInfoReporter
 import com.malinskiy.marathon.report.internal.TestResultReporter
 import com.malinskiy.marathon.test.Test
 import com.malinskiy.marathon.test.toTestName
+import com.malinskiy.marathon.usageanalytics.TrackActionType
+import com.malinskiy.marathon.usageanalytics.UsageAnalytics
+import com.malinskiy.marathon.usageanalytics.tracker.Event
 import com.malinskiy.marathon.vendor.VendorConfiguration
 import kotlinx.coroutines.runBlocking
-import java.lang.StringBuilder
-import java.util.ServiceLoader
+import java.util.*
 import java.util.concurrent.TimeUnit
 import kotlin.coroutines.coroutineContext
 import kotlin.system.measureTimeMillis
@@ -81,7 +80,12 @@ class Marathon(val configuration: Configuration) {
     }
 
     fun run() = runBlocking {
-        runAsync()
+        try {
+            runAsync()
+        } catch (th: Throwable) {
+            log.error(th.toString())
+            false
+        }
     }
 
     suspend fun runAsync(): Boolean {
