@@ -55,7 +55,7 @@ class LocalListSimulatorProvider(private val channel: Channel<DeviceProvider.Dev
         }.joinAll()
     }
 
-    override suspend fun stop() = withContext(coroutineContext) {
+    override suspend fun stop() {
         logger.info("stops providing anything")
         if (logger.isDebugEnabled) {
             // print out final summary on attempted simulator connections
@@ -64,7 +64,7 @@ class LocalListSimulatorProvider(private val channel: Channel<DeviceProvider.Dev
         val simulators = devices.values.toList()
         devices.clear()
         val jobs = simulators.map {
-            async(context = coroutineContext) {
+            async {
                 dispose(it)
 
                 notifyDisconnected(it)

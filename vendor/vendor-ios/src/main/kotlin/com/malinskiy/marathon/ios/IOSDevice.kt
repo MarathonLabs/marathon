@@ -305,11 +305,18 @@ class IOSDevice(val simulator: RemoteSimulator,
         }
     }
 
-    private val disposing = AtomicBoolean(false)
     override fun dispose() {
-        if (disposing.compareAndSet(false, true)) {
+        logger.debug("Disposing device")
+        try {
             hostCommandExecutor.disconnect()
+        } catch (e: Exception) {
+            logger.debug("Error disconnecting ssh: $e")
+        }
+
+        try {
             deviceContext.close()
+        } catch (e: Exception) {
+            logger.debug("Error closing context: $e")
         }
     }
 
