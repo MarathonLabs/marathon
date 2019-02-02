@@ -21,12 +21,6 @@ class IOSDeviceProvider : DeviceProvider {
 
     private var simulatorProvider: SimulatorProvider? = null
 
-    override suspend fun terminate() {
-        logger.debug { "Terminating IOS device provider" }
-        simulatorProvider?.stop()
-        channel.close()
-    }
-
     override val deviceInitializationTimeoutMillis: Long = 300_000
     override suspend fun initialize(vendorConfiguration: VendorConfiguration) {
         if (vendorConfiguration !is IOSConfiguration) {
@@ -45,7 +39,12 @@ class IOSDeviceProvider : DeviceProvider {
         simulatorProvider?.start()
     }
 
+    override suspend fun terminate() {
+        logger.debug { "Terminating IOS device provider" }
+        simulatorProvider?.stop()
+        channel.close()
+    }
+
     private val channel: Channel<DeviceProvider.DeviceEvent> = unboundedChannel()
     override fun subscribe() = channel
-
 }

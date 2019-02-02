@@ -20,6 +20,7 @@ import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.concurrent.ConcurrentHashMap
+import java.util.logging.Filter
 import kotlin.coroutines.CoroutineContext
 
 private const val MAX_CONNECTION_ATTEMPTS = 16
@@ -40,7 +41,7 @@ class LocalListSimulatorProvider(private val channel: Channel<DeviceProvider.Dev
         simulators = configuredSimulators ?: emptyList()
     }
 
-    private val dispatcher = newFixedThreadPoolContext(2, "LocalListSimulatorProvider")
+    private val dispatcher = newFixedThreadPoolContext(1, "LocalListSimulatorProvider")
     override val coroutineContext: CoroutineContext
         get() = dispatcher
 
@@ -57,20 +58,7 @@ class LocalListSimulatorProvider(private val channel: Channel<DeviceProvider.Dev
         logger.info("stops providing anything")
         if (logger.isDebugEnabled) {
             // print out final summary on attempted simulator connections
-            simulators
-                    .groupBy { it.host }
-                    .forEach { (host, simulators) ->
-                        logger.debug(host)
-                        simulators
-                                .map { it.udid to RemoteSimulatorConnectionCounter.get(it.udid) }
-                                .sortedBy { it.second }
-                                .forEach { logger.debug("   - ${it.second}x${it.first}") }
-                        simulators.fold(0) { count, simulator ->
-                            count + RemoteSimulatorConnectionCounter.get(simulator.udid)
-                        }.also {
-                            logger.debug("   ∑ ${it}")
-                        }
-                    }
+            printFailingSimulatorSummary()
         }
         val simulators = devices.values.toList()
         devices.clear()
@@ -146,5 +134,15 @@ class LocalListSimulatorProvider(private val channel: Channel<DeviceProvider.Dev
     } catch (e: DeviceFailureException) {
         logger.error("Failed to initialize ${simulator.udid}-$connectionAttempt with reason ${e.reason}: ${e.message}")
         null
+    }
+
+    private fun printFailingSimulatorSummary() {
+        simulators
+            .map { "${it.udid}@${it.host}" to (RemoteSimulatorConnectionCounter.get(it.udid) - 1) }
+            .filter { it.second > 0 }
+            .sortedByDescending { it.second }
+            .forEach {
+                logger.debug(String.format("%3d %s", it.first, it.second))
+            }
     }
 }
