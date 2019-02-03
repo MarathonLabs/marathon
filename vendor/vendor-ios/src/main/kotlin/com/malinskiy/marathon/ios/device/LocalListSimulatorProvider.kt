@@ -59,15 +59,6 @@ class LocalListSimulatorProvider(override val coroutineContext: CoroutineContext
             // print out final summary on attempted simulator connections
             printFailingSimulatorSummary()
         }
-//        val jobs = devices.values.map {
-//            logger.debug("Disposing ${it.udid}")
-//            async {
-//                dispose(it)
-//
-//                notifyDisconnected(it)
-//            }
-//        }
-//        jobs.joinAll()
         devices.values.forEach {
             dispose(it)
             logger.debug("Disposed device ${it.udid}")

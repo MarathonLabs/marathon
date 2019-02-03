@@ -311,7 +311,7 @@ class IOSDevice(val simulator: RemoteSimulator,
     override fun dispose() {
         logger.debug("Disposing device")
         try {
-            hostCommandExecutor.disconnect()
+            hostCommandExecutor.close()
         } catch (e: Exception) {
             logger.debug("Error disconnecting ssh: $e")
         }

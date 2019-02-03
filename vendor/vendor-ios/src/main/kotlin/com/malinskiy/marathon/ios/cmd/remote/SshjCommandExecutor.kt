@@ -36,7 +36,9 @@ class SshjCommandExecutor(connectionId: String,
                           keepAliveIntervalMillis: Long = 0L,
                           verbose: Boolean = false) : CommandExecutor, CoroutineScope {
 
-    override val coroutineContext: CoroutineContext = newSingleThreadContext("$connectionId-ssh")
+    private val dispatcher = newSingleThreadContext("$connectionId-ssh")
+    override val coroutineContext: CoroutineContext
+        get() = dispatcher
     private val ssh: SSHClient
 
     init {
@@ -95,7 +97,7 @@ class SshjCommandExecutor(connectionId: String,
 
     override fun startSession(command: String): CommandSession = SshjCommandSession(command, ssh)
 
-    override fun disconnect() {
+    override fun close() {
         if (ssh.isConnected) {
             try {
                 ssh.disconnect()
@@ -103,6 +105,7 @@ class SshjCommandExecutor(connectionId: String,
                 logger.warn("Error disconnecting $e")
             }
         }
+        dispatcher.close()
     }
 
     private class OutputTimeoutException: RuntimeException()

@@ -1,8 +1,9 @@
 package com.malinskiy.marathon.ios.cmd.remote
 
 import com.malinskiy.marathon.log.MarathonLogging
+import java.io.Closeable
 
-interface CommandExecutor {
+interface CommandExecutor: Closeable {
     companion object {
         val DEFAULT_SSH_CONNECTION_TIMEOUT_MILLIS: Long
             get() = 900000L
@@ -19,8 +20,6 @@ interface CommandExecutor {
                          maxExecutionDurationMillis: Long = DEFAULT_SSH_CONNECTION_TIMEOUT_MILLIS,
                          testOutputTimeoutMillis: Long = DEFAULT_SSH_NO_OUTPUT_TIMEOUT_MILLIS,
                          onLine: (String) -> Unit): Int?
-
-    fun disconnect()
 }
 
 suspend fun CommandExecutor.exec(

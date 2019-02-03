@@ -53,6 +53,7 @@ class IOSDeviceProvider : DeviceProvider, CoroutineScope {
             simulatorProvider?.stop()
             channel.close()
         }
+        dispatcher.close()
     }
 
     private val channel: Channel<DeviceProvider.DeviceEvent> = unboundedChannel()
