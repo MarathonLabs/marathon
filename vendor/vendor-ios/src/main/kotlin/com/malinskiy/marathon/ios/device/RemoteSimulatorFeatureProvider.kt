@@ -1,7 +1,6 @@
 package com.malinskiy.marathon.ios.device
 
 import com.malinskiy.marathon.device.DeviceFeature
-import com.malinskiy.marathon.exceptions.DeviceLostException
 import com.malinskiy.marathon.ios.IOSDevice
 import com.malinskiy.marathon.ios.cmd.remote.SshjCommandException
 
@@ -13,7 +12,7 @@ object RemoteSimulatorFeatureProvider {
     private fun featureIsAvailable(device: IOSDevice, feature: DeviceFeature): Boolean = when (feature) {
             DeviceFeature.SCREENSHOT -> true
             DeviceFeature.VIDEO -> {
-                device.hostCommandExecutor.exec(
+                device.hostCommandExecutor.execBlocking(
                         "/usr/sbin/system_profiler -detailLevel mini -xml SPDisplaysDataType"
                 ).let {
                     it.exitStatus == 0
@@ -23,7 +22,7 @@ object RemoteSimulatorFeatureProvider {
     }
 
     fun availablePort(device: IOSDevice): Int {
-        val commandResult = device.hostCommandExecutor.exec(
+        val commandResult = device.hostCommandExecutor.execBlocking(
                 """ruby -e 'require "socket"; puts Addrinfo.tcp("", 0).bind {|s| s.local_address.ip_port }'"""
         )
         return when {

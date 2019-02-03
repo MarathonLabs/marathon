@@ -48,7 +48,7 @@ class Simctl {
                 .takeIf { it.isNotBlank() }
                 ?: return SimctlDeviceType("Unknown", "Unknown")
         val devicePlist = File(deviceHome).resolveSibling("device.plist")
-        val devicePlistContents = device.hostCommandExecutor.exec("cat ${devicePlist.canonicalPath}")
+        val devicePlistContents = device.hostCommandExecutor.execBlocking("cat ${devicePlist.canonicalPath}")
         if (devicePlistContents.exitStatus != 0) {
             return SimctlDeviceType("Unknown", "Unknown")
         }
@@ -68,6 +68,6 @@ class Simctl {
 
     private fun exec(args: String, device: IOSDevice): String {
         val command = "xcrun simctl $args"
-        return device.hostCommandExecutor.exec(command).stdout
+        return device.hostCommandExecutor.execBlocking(command).stdout
     }
 }

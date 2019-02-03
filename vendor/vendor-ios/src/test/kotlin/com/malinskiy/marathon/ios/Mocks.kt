@@ -15,9 +15,9 @@ class Mocks {
                 val mock = mock(CommandSession::class)
                 override fun startSession(command: String): CommandSession = mock
 
-                override fun exec(command: String, maxExecutionDurationMillis: Long, testOutputTimeoutMillis: Long): CommandResult = CommandResult("", "", 0)
+                override fun execBlocking(command: String, maxExecutionDurationMillis: Long, testOutputTimeoutMillis: Long): CommandResult = CommandResult("", "", 0)
 
-                override suspend fun exec(command: String, maxExecutionDurationMillis: Long, testOutputTimeoutMillis: Long, onLine: (String) -> Unit): Int? = 0
+                override suspend fun execInto(command: String, maxExecutionDurationMillis: Long, testOutputTimeoutMillis: Long, onLine: (String) -> Unit): Int? = 0
                 override suspend fun execAsync(command: String, maxExecutionDurationMillis: Long, testOutputTimeoutMillis: Long): CommandResult = CommandResult("", "", 0)
 
                 override fun disconnect() {}

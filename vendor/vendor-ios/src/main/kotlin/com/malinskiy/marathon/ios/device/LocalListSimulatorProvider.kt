@@ -20,13 +20,15 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import org.apache.commons.lang.SerializationUtils
 import java.util.concurrent.ConcurrentHashMap
 import java.util.logging.Filter
 import kotlin.coroutines.CoroutineContext
 
 private const val MAX_CONNECTION_ATTEMPTS = 16
 
-class LocalListSimulatorProvider(private val channel: Channel<DeviceProvider.DeviceEvent>,
+class LocalListSimulatorProvider(override val coroutineContext: CoroutineContext,
+                                 private val channel: Channel<DeviceProvider.DeviceEvent>,
                                  private val configuration: IOSConfiguration,
                                  yamlObjectMapper: ObjectMapper,
                                  private val gson: Gson) : SimulatorProvider, HealthChangeListener, CoroutineScope {
@@ -42,10 +44,6 @@ class LocalListSimulatorProvider(private val channel: Channel<DeviceProvider.Dev
         simulators = configuredSimulators ?: emptyList()
     }
 
-    private val dispatcher = newFixedThreadPoolContext(1, "LocalListSimulatorProvider")
-    override val coroutineContext: CoroutineContext
-        get() = dispatcher
-
     override suspend fun start() = withContext(coroutineContext) {
         logger.info("starts providing ${simulators.count()} simulator devices")
         val jobs = simulators.map {
@@ -55,32 +53,37 @@ class LocalListSimulatorProvider(private val channel: Channel<DeviceProvider.Dev
         }.joinAll()
     }
 
-    override suspend fun stop() {
+    override suspend fun stop() = withContext(coroutineContext) {
         logger.info("stops providing anything")
         if (logger.isDebugEnabled) {
             // print out final summary on attempted simulator connections
             printFailingSimulatorSummary()
         }
-        val simulators = devices.values.toList()
-        devices.clear()
-        val jobs = simulators.map {
-            async {
-                dispose(it)
-
-                notifyDisconnected(it)
-            }
+//        val jobs = devices.values.map {
+//            logger.debug("Disposing ${it.udid}")
+//            async {
+//                dispose(it)
+//
+//                notifyDisconnected(it)
+//            }
+//        }
+//        jobs.joinAll()
+        devices.values.forEach {
+            dispose(it)
+            logger.debug("Disposed device ${it.udid}")
         }
-        jobs.joinAll()
+        devices.clear()
     }
 
-    override suspend fun onDisconnect(device: IOSDevice) {
-
+    override suspend fun onDisconnect(device: IOSDevice) = withContext(coroutineContext) {
         launch(context = coroutineContext) {
-            if (devices.remove(device.serialNumber, device)) {
-                dispose(device)
+            try {
+                if (devices.remove(device.serialNumber, device)) {
+                    dispose(device)
 
-                notifyDisconnected(device)
-            }
+                    notifyDisconnected(device)
+                }
+            } catch(e: Exception) { logger.debug("Exception removing device $device") }
         }
 
         if (device.failureReason == DeviceFailureReason.InvalidSimulatorIdentifier) {
@@ -89,13 +92,15 @@ class LocalListSimulatorProvider(private val channel: Channel<DeviceProvider.Dev
             launch(context = coroutineContext) {
                 delay(499)
 
-                createDevice(
-                    device.simulator,
-                    RemoteSimulatorConnectionCounter.putAndGet(device.udid)
-                )?.let {
-                    logger.debug("reconnecting to ${it.udid}")
-                    connect(it)
-                }
+                try {
+                    createDevice(
+                        device.simulator,
+                        RemoteSimulatorConnectionCounter.putAndGet(device.udid)
+                    )?.let {
+                        logger.debug("reconnecting to ${it.udid}")
+                        connect(it)
+                    }
+                } catch(e: Exception) { logger.debug("Exception reconnecting device $device") }
             }
         }
     }
@@ -143,7 +148,7 @@ class LocalListSimulatorProvider(private val channel: Channel<DeviceProvider.Dev
             .filter { it.second > 0 }
             .sortedByDescending { it.second }
             .forEach {
-                logger.debug(String.format("%3d %s", it.first, it.second))
+                logger.debug(String.format("%3d %s", it.second, it.first))
             }
     }
 }

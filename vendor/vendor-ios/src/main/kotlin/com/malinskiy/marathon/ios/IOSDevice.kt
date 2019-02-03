@@ -14,7 +14,7 @@ import com.malinskiy.marathon.execution.progress.ProgressReporter
 import com.malinskiy.marathon.io.FileManager
 import com.malinskiy.marathon.ios.cmd.remote.SshjCommandExecutor
 import com.malinskiy.marathon.ios.cmd.remote.SshjCommandUnresponsiveException
-import com.malinskiy.marathon.ios.cmd.remote.execAsyncOrNull
+import com.malinskiy.marathon.ios.cmd.remote.exec
 import com.malinskiy.marathon.ios.cmd.remote.execOrNull
 import com.malinskiy.marathon.ios.device.RemoteSimulator
 import com.malinskiy.marathon.ios.device.RemoteSimulatorFeatureProvider
@@ -39,7 +39,6 @@ import net.schmizz.sshj.connection.ConnectionException
 import java.io.IOException
 import java.lang.IllegalStateException
 import java.net.UnknownHostException
-import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.coroutines.CoroutineContext
 
 class IOSDevice(val simulator: RemoteSimulator,
@@ -178,7 +177,7 @@ class IOSDevice(val simulator: RemoteSimulator,
                 .also { logger.debug("\u001b[1m$it\u001b[0m") }
 
         val exitStatus = try {
-            hostCommandExecutor.exec(
+            hostCommandExecutor.execInto(
                 command,
                 configuration.testBatchTimeoutMillis,
                 configuration.testOutputTimeoutMillis,
@@ -266,16 +265,20 @@ class IOSDevice(val simulator: RemoteSimulator,
 
         terminateRunningSimulators()
         if (!iosConfiguration.alwaysEraseSimulators) {
-            hostCommandExecutor.execAsyncOrNull(
-                "xcrun simctl shutdown $udid",
-                configuration.testBatchTimeoutMillis,
-                configuration.testOutputTimeoutMillis
-            )?.let { logger.debug("shutdown ${it.exitStatus} ${it.stdout}") }
-            hostCommandExecutor.execAsyncOrNull(
-                "who am i; xcrun simctl erase $udid",
-                configuration.testBatchTimeoutMillis,
-                configuration.testOutputTimeoutMillis
-            )?.let { logger.debug("erase ${it.exitStatus} ${it.stdout}") }
+            try {
+                hostCommandExecutor.exec(
+                    "xcrun simctl shutdown $udid",
+                    configuration.testBatchTimeoutMillis,
+                    configuration.testOutputTimeoutMillis
+                )
+            } catch (e: Exception) { logger.warn("Exception shutting down remote simulator $e") }
+            try {
+                hostCommandExecutor.exec(
+                    "xcrun simctl erase $udid",
+                    configuration.testBatchTimeoutMillis,
+                    configuration.testOutputTimeoutMillis
+                )
+            } catch(e: Exception) { logger.warn("Exception erasing remote simulator $e") }
         }
         disableHardwareKeyboard()
     }
@@ -283,7 +286,7 @@ class IOSDevice(val simulator: RemoteSimulator,
     private fun terminateRunningSimulators() {
         val result = hostCommandExecutor.execOrNull("/usr/bin/pkill -9 -l -f '$udid'")
         if (result?.exitStatus == 0) {
-            logger.debug("Terminated loaded simulators")
+            logger.trace("Terminated loaded simulators")
         } else {
             logger.debug("Failed to terminate loaded simulators ${result?.stdout}")
         }
@@ -299,7 +302,7 @@ class IOSDevice(val simulator: RemoteSimulator,
             hostCommandExecutor.execOrNull("/usr/libexec/PlistBuddy -c 'Add :DevicePreferences:$udid:ConnectHardwareKeyboard bool false' /Users/master/Library/Preferences/com.apple.iphonesimulator.plist" +
                     "|| /usr/libexec/PlistBuddy -c 'Set :DevicePreferences:$udid:ConnectHardwareKeyboard false' /Users/master/Library/Preferences/com.apple.iphonesimulator.plist")
         if (result?.exitStatus == 0) {
-            logger.debug("Disabled hardware keyboard")
+            logger.trace("Disabled hardware keyboard")
         } else {
             logger.debug("Failed to disable hardware keyboard ${result?.stdout}")
         }

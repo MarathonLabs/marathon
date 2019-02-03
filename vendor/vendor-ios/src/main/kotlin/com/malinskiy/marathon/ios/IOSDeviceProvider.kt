@@ -13,9 +13,17 @@ import com.malinskiy.marathon.ios.simctl.model.SimctlDeviceList
 import com.malinskiy.marathon.ios.simctl.model.SimctlDeviceListDeserializer
 import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.vendor.VendorConfiguration
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.newFixedThreadPoolContext
+import kotlinx.coroutines.withContext
+import kotlin.coroutines.CoroutineContext
 
-class IOSDeviceProvider : DeviceProvider {
+class IOSDeviceProvider : DeviceProvider, CoroutineScope {
+
+    private val dispatcher = newFixedThreadPoolContext(1, "IOSDeviceProvider")
+    override val coroutineContext: CoroutineContext
+        get() = dispatcher
 
     private val logger = MarathonLogging.logger(IOSDeviceProvider::class.java.simpleName)
 
@@ -35,14 +43,16 @@ class IOSDeviceProvider : DeviceProvider {
         val mapper = ObjectMapper(YAMLFactory().disable(YAMLGenerator.Feature.USE_NATIVE_TYPE_ID))
                 .registerModule(KotlinModule())
 
-        simulatorProvider = LocalListSimulatorProvider(channel, vendorConfiguration, mapper, gson)
+        simulatorProvider = LocalListSimulatorProvider(coroutineContext, channel, vendorConfiguration, mapper, gson)
         simulatorProvider?.start()
     }
 
     override suspend fun terminate() {
-        logger.debug { "Terminating IOS device provider" }
-        simulatorProvider?.stop()
-        channel.close()
+        withContext(coroutineContext) {
+            logger.debug { "Terminating IOS device provider" }
+            simulatorProvider?.stop()
+            channel.close()
+        }
     }
 
     private val channel: Channel<DeviceProvider.DeviceEvent> = unboundedChannel()

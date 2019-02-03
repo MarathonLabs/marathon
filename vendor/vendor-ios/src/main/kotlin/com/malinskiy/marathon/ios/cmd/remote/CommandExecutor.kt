@@ -12,37 +12,31 @@ interface CommandExecutor {
 
     fun startSession(command: String): CommandSession
 
-    fun exec(command: String,
-             maxExecutionDurationMillis: Long = DEFAULT_SSH_CONNECTION_TIMEOUT_MILLIS,
-             testOutputTimeoutMillis: Long = DEFAULT_SSH_NO_OUTPUT_TIMEOUT_MILLIS): CommandResult
-    suspend fun exec(command: String,
+    fun execBlocking(command: String,
                      maxExecutionDurationMillis: Long = DEFAULT_SSH_CONNECTION_TIMEOUT_MILLIS,
-                     testOutputTimeoutMillis: Long = DEFAULT_SSH_NO_OUTPUT_TIMEOUT_MILLIS,
-                     onLine: (String) -> Unit): Int?
-
-    suspend fun execAsync(command: String,
-                          maxExecutionDurationMillis: Long = DEFAULT_SSH_CONNECTION_TIMEOUT_MILLIS,
-                          testOutputTimeoutMillis: Long = DEFAULT_SSH_NO_OUTPUT_TIMEOUT_MILLIS): CommandResult
+                     testOutputTimeoutMillis: Long = DEFAULT_SSH_NO_OUTPUT_TIMEOUT_MILLIS): CommandResult
+    suspend fun execInto(command: String,
+                         maxExecutionDurationMillis: Long = DEFAULT_SSH_CONNECTION_TIMEOUT_MILLIS,
+                         testOutputTimeoutMillis: Long = DEFAULT_SSH_NO_OUTPUT_TIMEOUT_MILLIS,
+                         onLine: (String) -> Unit): Int?
 
     fun disconnect()
+}
+
+suspend fun CommandExecutor.exec(
+        command: String,
+        maxExecutionDurationMillis: Long = CommandExecutor.DEFAULT_SSH_CONNECTION_TIMEOUT_MILLIS,
+        testOutputTimeoutMillis: Long = CommandExecutor.DEFAULT_SSH_NO_OUTPUT_TIMEOUT_MILLIS) {
+    execInto(command, maxExecutionDurationMillis, testOutputTimeoutMillis) { }
 }
 
 fun CommandExecutor.execOrNull(command: String,
                                maxExecutionDurationMillis: Long = CommandExecutor.DEFAULT_SSH_CONNECTION_TIMEOUT_MILLIS,
                                testOutputTimeoutMillis: Long = CommandExecutor.DEFAULT_SSH_NO_OUTPUT_TIMEOUT_MILLIS): CommandResult? =
     try {
-        exec(command, maxExecutionDurationMillis, testOutputTimeoutMillis)
+        execBlocking(command, maxExecutionDurationMillis, testOutputTimeoutMillis)
     } catch (e: Exception) {
         MarathonLogging.logger(this::class.java.simpleName).warn("Exception caught executing $command: $e");
         null
     }
 
-suspend fun CommandExecutor.execAsyncOrNull(command: String,
-                                            maxExecutionDurationMillis: Long = CommandExecutor.DEFAULT_SSH_CONNECTION_TIMEOUT_MILLIS,
-                                            testOutputTimeoutMillis: Long = CommandExecutor.DEFAULT_SSH_NO_OUTPUT_TIMEOUT_MILLIS): CommandResult? =
-        try {
-            execAsync(command, maxExecutionDurationMillis, testOutputTimeoutMillis)
-        } catch (e: Exception) {
-            MarathonLogging.logger(this::class.java.simpleName).warn("Exception caught executing $command: $e");
-            null
-        }
