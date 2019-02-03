@@ -3,6 +3,7 @@ package com.malinskiy.marathon.ios.device
 import com.malinskiy.marathon.device.DeviceFeature
 import com.malinskiy.marathon.exceptions.DeviceLostException
 import com.malinskiy.marathon.ios.IOSDevice
+import com.malinskiy.marathon.ios.cmd.remote.SshjCommandException
 
 object RemoteSimulatorFeatureProvider {
     fun deviceFeatures(device: IOSDevice): Collection<DeviceFeature> {
@@ -28,6 +29,6 @@ object RemoteSimulatorFeatureProvider {
         return when {
             commandResult.exitStatus == 0 -> commandResult.stdout.trim().toIntOrNull()
             else -> null
-        } ?: throw DeviceLostException(commandResult.stderr)
+        } ?: throw SshjCommandException(commandResult.stdout)
     }
 }
