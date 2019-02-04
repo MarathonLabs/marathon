@@ -87,7 +87,9 @@ class DeviceActor(private val devicePoolId: DevicePoolId,
         onTransition {
             val validTransition = it as? StateMachine.Transition.Valid
             if (validTransition !is StateMachine.Transition.Valid) {
-                logger.error { "from ${it.fromState} event ${it.event}" }
+                if (it.event !is DeviceEvent.WakeUp) {
+                    logger.error { "from ${it.fromState} event ${it.event}" }
+                }
                 return@onTransition
             }
             val sideEffect = validTransition.sideEffect

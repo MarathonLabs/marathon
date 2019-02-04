@@ -126,7 +126,7 @@ class SshjCommandExecutor(connectionId: String,
         }
 
         val startTime = System.currentTimeMillis()
-        logger.debug("Execution starts at ${startTime}ms")
+        logger.trace("Execution starts at ${startTime}ms")
         logger.trace(command)
 
         try {

@@ -18,7 +18,7 @@ import org.slf4j.LoggerFactory
 
 class IOSLogConfigurator: MarathonLogConfigurator  {
     override fun configure(vendorConfiguration: VendorConfiguration) {
-        val iosConfiguration = vendorConfiguration as IOSConfiguration
+        val iosConfiguration = vendorConfiguration as? IOSConfiguration
 
         val loggerContext = LoggerFactory.getILoggerFactory() as LoggerContext
 
