@@ -18,7 +18,6 @@ class Mocks {
                 override fun execBlocking(command: String, maxExecutionDurationMillis: Long, testOutputTimeoutMillis: Long): CommandResult = CommandResult("", "", 0)
 
                 override suspend fun execInto(command: String, maxExecutionDurationMillis: Long, testOutputTimeoutMillis: Long, onLine: (String) -> Unit): Int? = 0
-                override suspend fun execAsync(command: String, maxExecutionDurationMillis: Long, testOutputTimeoutMillis: Long): CommandResult = CommandResult("", "", 0)
 
                 override fun close() {}
             }
