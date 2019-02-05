@@ -4,22 +4,23 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.google.gson.Gson
 import com.malinskiy.marathon.device.DeviceProvider
+import com.malinskiy.marathon.ios.HealthChangeListener
 import com.malinskiy.marathon.ios.IOSConfiguration
 import com.malinskiy.marathon.ios.IOSDevice
-import com.malinskiy.marathon.ios.HealthChangeListener
 import com.malinskiy.marathon.ios.logparser.parser.DeviceFailureException
 import com.malinskiy.marathon.ios.logparser.parser.DeviceFailureReason
 import com.malinskiy.marathon.log.MarathonLogging
-import kotlinx.coroutines.newFixedThreadPoolContext
+import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
-import java.io.File
-
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.io.File
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.coroutines.CoroutineContext
 
@@ -30,6 +31,8 @@ class LocalListSimulatorProvider(override val coroutineContext: CoroutineContext
                                  private val configuration: IOSConfiguration,
                                  yamlObjectMapper: ObjectMapper,
                                  private val gson: Gson) : SimulatorProvider, HealthChangeListener, CoroutineScope {
+
+    private val job = Job()
 
     private val logger = MarathonLogging.logger(LocalListSimulatorProvider::class.java.simpleName)
 
@@ -64,32 +67,32 @@ class LocalListSimulatorProvider(override val coroutineContext: CoroutineContext
         devices.clear()
     }
 
-    override suspend fun onDisconnect(device: IOSDevice) = withContext(coroutineContext) {
-        launch(context = coroutineContext) {
+    override suspend fun onDisconnect(device: IOSDevice) = withContext(coroutineContext + CoroutineName("onDisconnect")) {
+        launch(context = coroutineContext + job + CoroutineName("disconnector")) {
             try {
                 if (devices.remove(device.serialNumber, device)) {
                     dispose(device)
 
                     notifyDisconnected(device)
                 }
-            } catch(e: Exception) { logger.debug("Exception removing device $device") }
+            } catch (e: Exception) {
+                logger.debug("Exception removing device ${device.udid}")
+            }
         }
 
         if (device.failureReason == DeviceFailureReason.InvalidSimulatorIdentifier) {
             logger.error("device ${device.udid} does not exist on remote host")
         } else if (RemoteSimulatorConnectionCounter.get(device.udid) < MAX_CONNECTION_ATTEMPTS) {
-            launch(context = coroutineContext) {
+            launch(context = coroutineContext + job + CoroutineName("reconnector")) {
                 delay(499)
-
-                try {
+                if (isActive) {
                     createDevice(
                         device.simulator,
                         RemoteSimulatorConnectionCounter.putAndGet(device.udid)
                     )?.let {
-                        logger.debug("reconnecting to ${it.udid}")
                         connect(it)
                     }
-                } catch(e: Exception) { logger.debug("Exception reconnecting device $device") }
+                }
             }
         }
     }
@@ -104,7 +107,6 @@ class LocalListSimulatorProvider(override val coroutineContext: CoroutineContext
                     logger.error("replaced existing device $it with new $device.")
                     dispose(it)
                 }
-        logger.debug { "discovered device ${device.serialNumber}" }
         notifyConnected(device)
     }
 

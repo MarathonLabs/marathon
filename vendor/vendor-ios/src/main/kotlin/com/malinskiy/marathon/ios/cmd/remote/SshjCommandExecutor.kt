@@ -98,14 +98,15 @@ class SshjCommandExecutor(connectionId: String,
     override fun startSession(command: String): CommandSession = SshjCommandSession(command, ssh)
 
     override fun close() {
-        if (ssh.isConnected) {
+        dispatcher.use {
             try {
-                ssh.disconnect()
+                if (ssh.isConnected) {
+                    ssh.disconnect()
+                }
             } catch (e: IOException) {
                 logger.warn("Error disconnecting $e")
             }
         }
-        dispatcher.close()
     }
 
     private class OutputTimeoutException: RuntimeException()

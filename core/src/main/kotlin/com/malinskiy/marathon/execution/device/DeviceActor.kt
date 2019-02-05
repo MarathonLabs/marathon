@@ -88,12 +88,11 @@ class DeviceActor(private val devicePoolId: DevicePoolId,
             val validTransition = it as? StateMachine.Transition.Valid
             if (validTransition !is StateMachine.Transition.Valid) {
                 if (it.event !is DeviceEvent.WakeUp) {
-                    logger.error { "from ${it.fromState} event ${it.event}" }
+                    logger.error { "Invalid transition from ${it.fromState} event ${it.event}" }
                 }
                 return@onTransition
             }
             val sideEffect = validTransition.sideEffect
-            logger.debug { "from ${it.fromState} event ${it.event}" }
             when (sideEffect) {
                 DeviceAction.Initialize -> {
                     initialize()
@@ -154,7 +153,6 @@ class DeviceActor(private val devicePoolId: DevicePoolId,
             if (it == null) {
                 state.transition(DeviceEvent.Complete)
             } else {
-                it.printStackTrace()
                 logger.error(it) { "Error ${it.message}" }
                 state.transition(DeviceEvent.Terminate)
                 terminate()

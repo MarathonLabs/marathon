@@ -26,19 +26,20 @@ import com.malinskiy.marathon.ios.simctl.Simctl
 import com.malinskiy.marathon.ios.xctestrun.Xctestrun
 import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.test.TestBatch
-import net.schmizz.sshj.transport.TransportException
-import net.schmizz.sshj.connection.channel.OpenFailException
-import java.io.File
-import java.net.InetAddress
-import java.util.concurrent.TimeoutException
-import kotlinx.coroutines.withContext
 import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.newFixedThreadPoolContext
+import kotlinx.coroutines.withContext
 import net.schmizz.sshj.connection.ConnectionException
+import net.schmizz.sshj.connection.channel.OpenFailException
+import net.schmizz.sshj.transport.TransportException
+import java.io.File
 import java.io.IOException
-import java.lang.IllegalStateException
+import java.net.InetAddress
 import java.net.UnknownHostException
+import java.util.concurrent.TimeoutException
 import kotlin.coroutines.CoroutineContext
 
 class IOSDevice(val simulator: RemoteSimulator,
@@ -52,7 +53,7 @@ class IOSDevice(val simulator: RemoteSimulator,
     private val deviceContext = newFixedThreadPoolContext(1, connectionId)
 
     override val coroutineContext: CoroutineContext
-        get() = deviceContext
+        get() = deviceContext + Job()
 
     val logger = MarathonLogging.logger(IOSDevice::class.java.simpleName)
 
@@ -127,7 +128,7 @@ class IOSDevice(val simulator: RemoteSimulator,
                                  devicePoolId: DevicePoolId,
                                  testBatch: TestBatch,
                                  deferred: CompletableDeferred<TestBatchResults>,
-                                 progressReporter: ProgressReporter) = withContext(deviceContext) {
+                                 progressReporter: ProgressReporter) = withContext(coroutineContext + CoroutineName("execute")) {
         val iosConfiguration = configuration.vendorConfiguration as IOSConfiguration
         val fileManager = FileManager(configuration.outputDir)
 
@@ -155,7 +156,8 @@ class IOSDevice(val simulator: RemoteSimulator,
 
         logger.debug("Tests = ${testBatch.tests.toList()}")
 
-        val logParser = IOSDeviceLogParser(this@IOSDevice,
+        val logParser = IOSDeviceLogParser(
+            this@IOSDevice,
             packageNameFormatter,
             devicePoolId,
             testBatch,
@@ -185,33 +187,26 @@ class IOSDevice(val simulator: RemoteSimulator,
             )
         } catch (e: SshjCommandUnresponsiveException) {
             logger.error("No output from remote shell")
-            disconnectAndNotify()
-            throw DeviceLostException(e)
+            disconnectAndThrow(e)
         } catch (e: TimeoutException) {
             logger.error("Connection timeout")
-            disconnectAndNotify()
-            throw DeviceLostException(e)
+            disconnectAndThrow(e)
         } catch (e: ConnectionException) {
             logger.error("ConnectionException")
-            disconnectAndNotify()
-            throw DeviceLostException(e)
+            disconnectAndThrow(e)
         } catch (e: TransportException) {
             logger.error("TransportException")
-            disconnectAndNotify()
-            throw DeviceLostException(e)
+            disconnectAndThrow(e)
         } catch (e: OpenFailException) {
             logger.error("Unable to open session")
-            disconnectAndNotify()
-            throw DeviceLostException(e)
+            disconnectAndThrow(e)
         } catch (e: IllegalStateException) {
             logger.error("Unable to start a new SSH session. Client is disconnected")
-            disconnectAndNotify()
-            throw DeviceLostException(e)
-        } catch(e: DeviceFailureException) {
-            logger.error("$e")
+            disconnectAndThrow(e)
+        } catch (e: DeviceFailureException) {
+            logger.error("Execution failed because")
             failureReason = e.reason
-            disconnectAndNotify()
-            throw DeviceLostException(e)
+            disconnectAndThrow(e)
         } finally {
             logParser.close()
 
@@ -231,13 +226,15 @@ class IOSDevice(val simulator: RemoteSimulator,
         // 65 = ** TEST EXECUTE FAILED **: crash
         logger.debug("Finished test batch execution with exit status $exitStatus")
     }
-    private suspend fun disconnectAndNotify() {
+
+    private suspend fun disconnectAndThrow(cause: Throwable) {
         healthy = false
         healthChangeListener.onDisconnect(this)
+        throw DeviceLostException(cause)
     }
 
     private var derivedDataManager: DerivedDataManager? = null
-    override suspend fun prepare(configuration: Configuration) = withContext(coroutineContext) {
+    override suspend fun prepare(configuration: Configuration) = withContext(coroutineContext + CoroutineName("prepare")) {
         val iosConfiguration = configuration.vendorConfiguration as IOSConfiguration
 
         RemoteFileManager.createRemoteDirectory(this@IOSDevice)
