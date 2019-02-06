@@ -49,7 +49,7 @@ class IOSDevice(val simulator: RemoteSimulator,
                 private val healthChangeListener: HealthChangeListener): Device, CoroutineScope {
 
     val udid = simulator.udid
-    val connectionId = "$udid-$connectionAttempt"
+    val connectionId = "$udid@${simulator.host}-$connectionAttempt"
     private val deviceContext = newFixedThreadPoolContext(1, connectionId)
 
     override val coroutineContext: CoroutineContext
@@ -102,7 +102,7 @@ class IOSDevice(val simulator: RemoteSimulator,
 
     override val operatingSystem: OperatingSystem
         get() = OperatingSystem(runtime ?: "Unknown")
-    override val serialNumber: String = udid
+    override val serialNumber: String = "$udid@${simulator.host}"
 
     override val model: String
         get() = deviceType ?: "Unknown"
