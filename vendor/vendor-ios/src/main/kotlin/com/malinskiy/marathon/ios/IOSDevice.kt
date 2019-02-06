@@ -204,7 +204,7 @@ class IOSDevice(val simulator: RemoteSimulator,
             logger.error("Unable to start a new SSH session. Client is disconnected")
             disconnectAndThrow(e)
         } catch (e: DeviceFailureException) {
-            logger.error("Execution failed because")
+            logger.error("Execution failed because ${e.reason}")
             failureReason = e.reason
             disconnectAndThrow(e)
         } finally {
