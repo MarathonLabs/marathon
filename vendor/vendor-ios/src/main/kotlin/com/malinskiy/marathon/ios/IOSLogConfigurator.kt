@@ -25,7 +25,7 @@ class IOSLogConfigurator: MarathonLogConfigurator  {
         val compactOutput = iosConfiguration?.compactOutput ?: false
         val layout = PatternLayout()
         layout.pattern = if (compactOutput) {
-            "%highlight(%.-1level [%thread] <%logger{40}> %msg%n)"
+            "%highlight(%.-1level [%thread] <%logger{48}> %msg%n)"
         } else {
             "%highlight(%.-1level %d{HH:mm:ss.SSS} [%thread] <%logger{40}> %msg%n)"
         }
