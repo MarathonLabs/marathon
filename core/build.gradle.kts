@@ -11,6 +11,7 @@ plugins {
     `java-library`
     id("org.jetbrains.kotlin.jvm")
     id("org.junit.platform.gradle.plugin")
+    jacoco
 }
 
 sourceSets {
@@ -56,6 +57,15 @@ dependencies {
     testImplementation(TestLibraries.mockitoKotlin)
 }
 
+tasks {
+    named<JacocoReport>("jacocoTestReport") {
+        reports {
+            xml.isEnabled = true
+            html.isEnabled = true
+        }
+        dependsOn("test")
+    }
+}
 
 val integrationTest = task<Test>("integrationTest") {
     description = "Runs integration tests."
