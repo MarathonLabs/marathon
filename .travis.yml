@@ -26,7 +26,8 @@ jobs:
   - stage: test
     script:
     - chmod 0600 $TRAVIS_BUILD_DIR/vendor/vendor-ios/src/test/resources/fixtures/derived-data-manager/test_rsa
-    - ./gradlew clean test integrationTest
+    - ./gradlew clean test integrationTest jacocoTestReport
+    - bash <(curl -s https://codecov.io/bash)
   - stage: detekt
     script: ./gradlew clean detektCheck
   - stage: deploy
