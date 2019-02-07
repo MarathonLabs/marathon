@@ -8,6 +8,7 @@ plugins {
     `java-library`
     id("org.jetbrains.kotlin.jvm")
     id("org.junit.platform.gradle.plugin")
+    jacoco
 }
 
 dependencies {
@@ -30,6 +31,12 @@ dependencies {
     testImplementation(TestLibraries.spekAPI)
     testRuntime(TestLibraries.spekJUnitPlatformEngine)
     testImplementation(TestLibraries.testContainers)
+}
+
+tasks.named<JacocoReport>("jacocoTestReport").configure {
+    reports.xml.isEnabled = true
+    reports.html.isEnabled = true
+    dependsOn(tasks.named("test"))
 }
 
 Deployment.initialize(project)

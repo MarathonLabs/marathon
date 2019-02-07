@@ -57,14 +57,10 @@ dependencies {
     testImplementation(TestLibraries.mockitoKotlin)
 }
 
-tasks {
-    named<JacocoReport>("jacocoTestReport") {
-        reports {
-            xml.isEnabled = true
-            html.isEnabled = true
-        }
-        dependsOn("test")
-    }
+tasks.named<JacocoReport>("jacocoTestReport").configure {
+    reports.xml.isEnabled = true
+    reports.html.isEnabled = true
+    dependsOn(tasks.named("test"))
 }
 
 val integrationTest = task<Test>("integrationTest") {
