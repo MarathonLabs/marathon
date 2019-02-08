@@ -93,6 +93,7 @@ junitPlatform {
             include("spek")
         }
     }
+    enableStandardTestTask = true
 }
 
 // extension for configuration

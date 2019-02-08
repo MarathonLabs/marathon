@@ -11,7 +11,6 @@ plugins {
     id("org.jetbrains.kotlin.jvm")
     id("org.junit.platform.gradle.plugin")
     id("de.fuerstenau.buildconfig") version "1.1.8"
-    jacoco
 }
 
 val debugCoroutines = false
@@ -57,12 +56,6 @@ dependencies {
     testCompile(TestLibraries.mockitoKotlin)
     testCompile(TestLibraries.spekAPI)
     testRuntime(TestLibraries.spekJUnitPlatformEngine)
-}
-
-tasks.named<JacocoReport>("jacocoTestReport").configure {
-    reports.xml.isEnabled = true
-    reports.html.isEnabled = true
-    dependsOn(tasks.named("test"))
 }
 
 Deployment.initialize(project)
