@@ -11,6 +11,7 @@ plugins {
     `java-library`
     id("org.jetbrains.kotlin.jvm")
     id("org.junit.platform.gradle.plugin")
+    jacoco
 }
 
 sourceSets {
@@ -56,6 +57,11 @@ dependencies {
     testImplementation(TestLibraries.mockitoKotlin)
 }
 
+tasks.named<JacocoReport>("jacocoTestReport").configure {
+    reports.xml.isEnabled = true
+    reports.html.isEnabled = true
+    dependsOn(tasks.named("test"))
+}
 
 val integrationTest = task<Test>("integrationTest") {
     description = "Runs integration tests."
@@ -87,6 +93,7 @@ junitPlatform {
             include("spek")
         }
     }
+    enableStandardTestTask = true
 }
 
 // extension for configuration
