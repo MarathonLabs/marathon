@@ -21,15 +21,13 @@ before_install:
   - echo -e "Host localhost\n\tStrictHostKeyChecking no\n" >> $HOME/.ssh/config
   - echo 'localhost ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBMaFQFXjCQRbvc8XQpz3DZHF/spSHqqpfNgiFp+KUHtaysaHn2kpx2dpurkx7TvM9bxBgxoNj4WNwce4UqwJgSo=' >> $HOME/.ssh/known_hosts
 
-after_success:
-  - bash <(curl -s https://codecov.io/bash)
-
 jobs:
   include:
   - stage: test
     script:
     - chmod 0600 $TRAVIS_BUILD_DIR/vendor/vendor-ios/src/test/resources/fixtures/derived-data-manager/test_rsa
     - ./gradlew clean test jacocoTestReport integrationTest
+    - bash <(curl -s https://codecov.io/bash)
   - stage: detekt
     script: ./gradlew clean detektCheck
   - stage: deploy
