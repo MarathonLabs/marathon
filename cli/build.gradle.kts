@@ -6,22 +6,30 @@ import org.junit.platform.gradle.plugin.EnginesExtension
 import org.junit.platform.gradle.plugin.JUnitPlatformExtension
 
 plugins {
-    `application`
+    application
     id("idea")
     id("org.jetbrains.kotlin.jvm")
     id("org.junit.platform.gradle.plugin")
     id("de.fuerstenau.buildconfig") version "1.1.8"
 }
 
-val debugCoroutines = false
+val enableJDB = false
+val debugCoroutines = true
+val jvmOptions = listOf(
+    when(enableJDB) {
+      true -> "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=1044"
+      else -> ""
+    },
+    when(debugCoroutines) {
+      true -> "-Dkotlinx.coroutines.debug=on"
+      else -> ""
+    }
+).filter { it.isNotBlank() }
 
 application {
     mainClassName = "com.malinskiy.marathon.cli.ApplicationViewKt"
     applicationName = "marathon"
-    applicationDefaultJvmArgs = when(debugCoroutines) {
-        true -> listOf("-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=1044", "-Dkotlinx.coroutines.debug=on")
-        else -> listOf("-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=1044")
-    }
+    applicationDefaultJvmArgs = jvmOptions
 }
 
 distributions {

@@ -13,7 +13,7 @@
         <!--View Controller-->
         <scene sceneID="tne-QT-ifu">
             <objects>
-                <viewController id="BYZ-38-t0r" sceneMemberID="viewController">
+                <viewController id="BYZ-38-t0r" customClass="ViewController" customModule="sample_app" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="8bC-Xf-vdC">
                         <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -30,7 +30,7 @@
                                 </connections>
                             </button>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="43L-S0-pcR">
-                                <rect key="frame" x="111" y="629" width="152" height="38"/>
+                                <rect key="frame" x="111" y="404" width="152" height="38"/>
                                 <color key="backgroundColor" cocoaTouchSystemColor="viewFlipsideBackgroundColor"/>
                                 <inset key="contentEdgeInsets" minX="16" minY="8" maxX="16" maxY="8"/>
                                 <state key="normal" title="Second Button">
@@ -40,14 +40,27 @@
                                     <segue destination="56p-VW-Fs0" kind="presentation" id="LEu-Hc-ePT"/>
                                 </connections>
                             </button>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="E0n-GK-k1w">
+                                <rect key="frame" x="118" y="494" width="139" height="38"/>
+                                <color key="backgroundColor" cocoaTouchSystemColor="viewFlipsideBackgroundColor"/>
+                                <inset key="contentEdgeInsets" minX="16" minY="8" maxX="16" maxY="8"/>
+                                <state key="normal" title="Crash Button">
+                                    <color key="titleColor" cocoaTouchSystemColor="lightTextColor"/>
+                                </state>
+                                <connections>
+                                    <action selector="crash" destination="BYZ-38-t0r" eventType="touchUpInside" id="hLM-cV-Fxs"/>
+                                </connections>
+                            </button>
                         </subviews>
                         <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <accessibility key="accessibilityConfiguration" identifier="first-view"/>
                         <constraints>
-                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="bottom" secondItem="43L-S0-pcR" secondAttribute="bottom" id="Hd9-ek-WDx"/>
+                            <constraint firstItem="E0n-GK-k1w" firstAttribute="centerX" secondItem="6Tk-OE-BBY" secondAttribute="centerX" id="97p-uc-Nfr"/>
                             <constraint firstItem="hKe-yz-xVO" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="go1-Sd-EDI"/>
+                            <constraint firstItem="43L-S0-pcR" firstAttribute="top" secondItem="hKe-yz-xVO" secondAttribute="bottom" constant="52" id="iVk-zE-ufB"/>
                             <constraint firstItem="hKe-yz-xVO" firstAttribute="centerY" secondItem="8bC-Xf-vdC" secondAttribute="centerY" id="jS8-MI-j5l"/>
                             <constraint firstItem="43L-S0-pcR" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="ltw-f8-Hjk"/>
+                            <constraint firstItem="E0n-GK-k1w" firstAttribute="top" secondItem="43L-S0-pcR" secondAttribute="bottom" constant="52" id="zRT-Ra-SAV"/>
                         </constraints>
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
                     </view>

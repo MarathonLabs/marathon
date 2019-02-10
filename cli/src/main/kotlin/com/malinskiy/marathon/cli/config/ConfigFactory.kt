@@ -2,10 +2,6 @@ package com.malinskiy.marathon.cli.config
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.exc.MismatchedInputException
-import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
-import com.fasterxml.jackson.dataformat.yaml.YAMLGenerator
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
-import com.fasterxml.jackson.module.kotlin.KotlinModule
 import com.malinskiy.marathon.cli.args.FileAndroidConfiguration
 import com.malinskiy.marathon.cli.args.FileConfiguration
 import com.malinskiy.marathon.cli.args.FileIOSConfiguration
@@ -57,6 +53,7 @@ class ConfigFactory(val mapper: ObjectMapper) {
                 config.testClassRegexes,
                 config.includeSerialRegexes,
                 config.excludeSerialRegexes,
+                config.testBatchTimeoutMillis,
                 config.testOutputTimeoutMillis,
                 config.debug,
                 vendorConfiguration,

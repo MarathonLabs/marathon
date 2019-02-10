@@ -1,5 +1,4 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-import org.jetbrains.kotlin.gradle.dsl.Coroutines
 import org.junit.platform.gradle.plugin.EnginesExtension
 import org.junit.platform.gradle.plugin.FiltersExtension
 import org.junit.platform.gradle.plugin.JUnitPlatformExtension
@@ -24,6 +23,7 @@ dependencies {
     implementation(Libraries.gson)
     implementation(Libraries.jacksonKotlin)
     implementation(Libraries.jacksonYaml)
+    implementation(Libraries.jansi)
     implementation(project(":core"))
     testImplementation(TestLibraries.kluent)
     testImplementation(TestLibraries.mockitoKotlin)

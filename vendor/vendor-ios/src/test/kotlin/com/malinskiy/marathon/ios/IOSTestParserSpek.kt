@@ -33,6 +33,7 @@ object IOSTestParserSpek : Spek({
                     testClassRegexes = null,
                     includeSerialRegexes = null,
                     excludeSerialRegexes = null,
+                    testBatchTimeoutMillis = null,
                     testOutputTimeoutMillis = null,
                     debug = null,
                     vendorConfiguration =  IOSConfiguration(
@@ -43,7 +44,8 @@ object IOSTestParserSpek : Spek({
                             knownHostsPath = null,
                             remoteRsyncPath = "/remote/rsync",
                             sourceRoot = sourceRoot,
-                            debugSsh = false),
+                            debugSsh = false,
+                            alwaysEraseSimulators = true),
                     analyticsTracking = false
             )
 
@@ -54,6 +56,7 @@ object IOSTestParserSpek : Spek({
                     Test("sample-appUITests", "StoryboardTests", "testButton", emptyList()),
                     Test("sample-appUITests", "StoryboardTests", "testLabel", emptyList()),
                     Test("sample-appUITests", "MoreTests", "testPresentModal", emptyList()),
+                    Test("sample-appUITests", "CrashingTests", "testButton", emptyList()),
                     Test("sample-appUITests", "FailingTests", "testAlwaysFailing", emptyList()),
                     Test("sample-appUITests", "FlakyTests", "testTextFlaky", emptyList()),
                     Test("sample-appUITests", "FlakyTests", "testTextFlaky1", emptyList()),

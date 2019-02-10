@@ -35,7 +35,7 @@ class DevicePoolActor(private val poolId: DevicePoolId,
             is DevicePoolMessage.FromScheduler.AddDevice -> addDevice(msg.device)
             is DevicePoolMessage.FromScheduler.RemoveDevice -> removeDevice(msg.device)
             is DevicePoolMessage.FromScheduler.Terminate -> terminate()
-            is DevicePoolMessage.FromDevice.RequestNextBatch -> deviceReady(msg)
+            is DevicePoolMessage.FromDevice.IsReady -> deviceReady(msg)
             is DevicePoolMessage.FromDevice.CompletedTestBatch -> deviceCompleted(msg.device, msg.results)
             is DevicePoolMessage.FromDevice.ReturnTestBatch -> deviceReturnedTestBatch(msg.device, msg.batch)
             is DevicePoolMessage.FromQueue.Notify -> notifyDevices()
@@ -76,8 +76,30 @@ class DevicePoolActor(private val poolId: DevicePoolId,
         queue.send(QueueMessage.Completed(device.toDeviceInfo(), results))
     }
 
-    private suspend fun deviceReady(msg: DevicePoolMessage.FromDevice.RequestNextBatch) {
-        queue.send(QueueMessage.RequestBatch(msg.device.toDeviceInfo()))
+    private suspend fun deviceReady(msg: DevicePoolMessage.FromDevice.IsReady) {
+        maybeRequestBatch(msg.device)
+    }
+
+    // Requests a batch of tests for a random device from the list of devices not running tests at the moment.
+    // When @avoidingDevice is not null, attemtps to send the request for any other device whenever available.
+    private suspend fun maybeRequestBatch(avoidingDevice: Device? = null) {
+        val availableDevices = devices.values.asSequence()
+            .map { it as DeviceActor }
+            .filter { it.isAvailable}
+            .filter { it.device != avoidingDevice}
+            .toList()
+        if (availableDevices.isEmpty()) {
+            if (avoidingDevice != null) {
+                devices[avoidingDevice.serialNumber]?.let {
+                    val avoidingDeviceActor = it as? DeviceActor
+                    if (avoidingDeviceActor?.isAvailable == true) {
+                        queue.safeSend(QueueMessage.RequestBatch(avoidingDevice.toDeviceInfo()))
+                    }
+                }
+            }
+        } else {
+            queue.safeSend(QueueMessage.RequestBatch(availableDevices.shuffled().first().device.toDeviceInfo()))
+        }
     }
 
     private suspend fun executeBatch(device: DeviceInfo, batch: TestBatch) {

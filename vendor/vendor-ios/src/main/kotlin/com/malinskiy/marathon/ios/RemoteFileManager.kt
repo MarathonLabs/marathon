@@ -37,7 +37,7 @@ object RemoteFileManager {
     private fun executeCommand(device: IOSDevice, command: String, errorMessage: String): String? {
         var output: CommandResult? = null
         try {
-            output = device.hostCommandExecutor.exec(command)
+            output = device.hostCommandExecutor.execBlocking(command)
         } catch (e: Exception) {
             logger.error(errorMessage, e)
         }

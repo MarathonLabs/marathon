@@ -42,6 +42,12 @@ class Marathon(val configuration: Configuration) {
     private val analyticsFactory = AnalyticsFactory(configuration, fileManager, deviceInfoReporter, testResultReporter,
             gson)
 
+    private fun configureLogging(vendorConfiguration: VendorConfiguration) {
+        MarathonLogging.debug = configuration.debug
+
+        vendorConfiguration.logConfigurator()?.configure(vendorConfiguration)
+    }
+
     private val summaryCompiler = SummaryCompiler(deviceInfoReporter, testResultReporter, configuration)
 
     private fun loadSummaryPrinter(): SummaryPrinter {
@@ -56,8 +62,8 @@ class Marathon(val configuration: Configuration) {
         return htmlSummaryPrinter
     }
 
-    private fun loadDeviceProvider(vendorConfiguration: VendorConfiguration): DeviceProvider {
-        var vendorDeviceProvider = vendorConfiguration.deviceProvider()
+    private suspend fun loadDeviceProvider(vendorConfiguration: VendorConfiguration): DeviceProvider {
+        val vendorDeviceProvider = vendorConfiguration.deviceProvider()
                 ?: ServiceLoader.load(DeviceProvider::class.java).first()
 
         vendorDeviceProvider.initialize(configuration.vendorConfiguration)
@@ -83,7 +89,7 @@ class Marathon(val configuration: Configuration) {
     }
 
     suspend fun runAsync(): Boolean {
-        MarathonLogging.debug = configuration.debug
+        configureLogging(configuration.vendorConfiguration)
         trackAnalytics(configuration)
 
         val testParser = loadTestParser(configuration.vendorConfiguration)
@@ -105,22 +111,34 @@ class Marathon(val configuration: Configuration) {
         }
         configuration.outputDir.mkdirs()
 
-        val timeMillis = measureTimeMillis {
-            scheduler.execute()
-        }
+        val getElapsedTimeMillis: () -> Long = {
+            val startTime = System.currentTimeMillis()
+            fun(): Long { return System.currentTimeMillis() - startTime }
+        }()
 
-        val pools = scheduler.getPools()
-        if (!pools.isEmpty()) {
-            val summaryPrinter = loadSummaryPrinter()
-            val summary = summaryCompiler.compile(scheduler.getPools())
-            printCliReport(summary, timeMillis)
-            summaryPrinter.print(summary)
+        val shutdownHook = ShutdownHook(configuration) { printSummary(scheduler, getElapsedTimeMillis()) }
+        shutdownHook.install()
+
+        scheduler.execute()
+
+        if (shutdownHook.uninstall()) {
+            printSummary(scheduler, getElapsedTimeMillis())
         }
 
         analytics.terminate()
         analytics.close()
         deviceProvider.terminate()
         return progressReporter.aggregateResult()
+    }
+
+    private fun printSummary(scheduler: Scheduler, executionTime: Long) {
+        val pools = scheduler.getPools()
+        if (!pools.isEmpty()) {
+            val summaryPrinter = loadSummaryPrinter()
+            val summary = summaryCompiler.compile(scheduler.getPools())
+            printCliReport(summary, executionTime)
+            summaryPrinter.print(summary)
+        }
     }
 
     private fun applyTestFilters(parsedTests: List<Test>): List<Test> {

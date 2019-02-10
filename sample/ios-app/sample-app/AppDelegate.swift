@@ -20,3 +20,9 @@ class DismissSegue: UIStoryboardSegue {
         presentingViewController.dismiss(animated: true, completion: nil)
     }
 }
+
+class ViewController: UIViewController {
+    @IBAction func crash() {
+        fatalError()
+    }
+}

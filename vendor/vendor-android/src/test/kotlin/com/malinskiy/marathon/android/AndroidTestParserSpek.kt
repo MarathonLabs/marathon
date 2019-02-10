@@ -32,6 +32,7 @@ class AndroidTestParserSpek : Spek({
                     testClassRegexes = null,
                     includeSerialRegexes = null,
                     excludeSerialRegexes = null,
+                    testBatchTimeoutMillis = null,
                     testOutputTimeoutMillis = null,
                     debug = null,
                     vendorConfiguration = AndroidConfiguration(

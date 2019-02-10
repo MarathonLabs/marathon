@@ -6,13 +6,16 @@ import com.malinskiy.marathon.report.html.relativePathTo
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
 import org.amshove.kluent.shouldEqual
+import org.amshove.kluent.shouldNotEqual
 import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.describe
-import org.jetbrains.spek.api.dsl.given
 import org.jetbrains.spek.api.dsl.it
+import org.jetbrains.spek.api.dsl.on
 import org.testcontainers.containers.BindMode
 import org.testcontainers.containers.GenericContainer
 import java.io.File
+import java.nio.file.Files
+import java.nio.file.attribute.PosixFilePermissions
 import java.util.UUID
 
 object DerivedDataManagerSpek: Spek({
@@ -23,22 +26,32 @@ object DerivedDataManagerSpek: Spek({
         whenever(device.udid).thenReturn(UUID.randomUUID().toString())
 
         val privateKey = File(javaClass.classLoader.getResource("fixtures/derived-data-manager/test_rsa").file)
+        try {
+            Files.setPosixFilePermissions(privateKey.toPath(), PosixFilePermissions.fromString("rw-------"))
+        } catch(e: Exception) { }
         logger.debug { "Using private key $privateKey" }
         val publicKeyResourcePath = "fixtures/derived-data-manager/test_rsa.pub"
 
         // https://github.com/testcontainers/testcontainers-java/issues/318
         class KGenericContainer(imageName: String) : GenericContainer<KGenericContainer>(imageName)
 
-        val container = KGenericContainer("axiom/rsync-server")
-                .withClasspathResourceMapping(publicKeyResourcePath, "/root/.ssh/authorized_keys", BindMode.READ_WRITE)
-                .withExposedPorts(22, 873)
+        lateinit var container: KGenericContainer
+        lateinit var containerHost: String
+        var sshPort: Int = 0
 
-        container.start()
+        beforeGroup {
 
-        val containerHost = container.containerIpAddress
-        val sshPort = container.getMappedPort(22)
+            container = KGenericContainer("axiom/rsync-server")
+                    .withClasspathResourceMapping(publicKeyResourcePath, "/root/.ssh/authorized_keys", BindMode.READ_WRITE)
+                    .withExposedPorts(22, 873)
 
-        given("what follows") {
+            container.start()
+
+            containerHost = container.containerIpAddress
+            sshPort = container.getMappedPort(22)
+        }
+
+        on("connection") {
             val sourceRoot = File(javaClass.classLoader.getResource("sample-xcworkspace/sample-appUITests").file)
             val derivedDataDir = File(javaClass.classLoader.getResource("sample-xcworkspace/derived-data").file)
             val xctestrunPath = File(javaClass.classLoader.getResource("sample-xcworkspace/derived-data/Build/Products/UITesting_iphonesimulator11.2-x86_64.xctestrun").file)
@@ -58,6 +71,7 @@ object DerivedDataManagerSpek: Spek({
                     testClassRegexes = null,
                     includeSerialRegexes = null,
                     excludeSerialRegexes = null,
+                    testBatchTimeoutMillis = null,
                     testOutputTimeoutMillis = null,
                     debug = false,
                     vendorConfiguration =  IOSConfiguration(
@@ -68,9 +82,12 @@ object DerivedDataManagerSpek: Spek({
                             knownHostsPath = null,
                             remoteRsyncPath = "/usr/bin/rsync",
                             sourceRoot = sourceRoot,
-                            debugSsh = false),
+                            debugSsh = false,
+                            alwaysEraseSimulators = true),
                     analyticsTracking = false
             )
+
+            sshPort shouldNotEqual 0
 
             it("should determine products location") {
                 val manager = DerivedDataManager(configuration = configuration)

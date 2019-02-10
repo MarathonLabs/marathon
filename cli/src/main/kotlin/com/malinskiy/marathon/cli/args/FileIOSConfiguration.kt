@@ -23,7 +23,11 @@ data class FileIOSConfiguration(
         @JsonProperty("knownHostsPath") val knownHostsPath: File?,
         @JsonProperty("remoteRsyncPath") val remoteRsyncPath: String = "/usr/bin/rsync",
         @JsonProperty("sourceRoot") val sourceRoot: File?,
+        @JsonProperty("alwaysEraseSimulators") val alwaysEraseSimulators: Boolean?,
         @JsonProperty("debugSsh") val debugSsh: Boolean?,
+        @JsonProperty("hideRunnerOutput") val hideRunnerOutput: Boolean?,
+        @JsonProperty("compactOutput") val compactOutput: Boolean = false,
+        @JsonProperty("keepAliveIntervalMillis") val keepAliveIntervalMillis: Long = 0L,
         @JsonProperty("devices") val devices: File?,
         val fileListProvider: FileListProvider = DerivedDataFileListProvider) : FileVendorConfiguration {
 
@@ -39,8 +43,11 @@ data class FileIOSConfiguration(
         val optionalSourceRoot = sourceRootOverride
                 ?: sourceRoot?.resolveAgainst(marathonfileDir)
         val optionalDebugSsh = debugSsh ?: false
-        val optionalDevices = devices ?: marathonfileDir.resolve("Marathondevices")
+        val optionalAlwaysEraseSimulators = alwaysEraseSimulators ?: true
+        val optionalDevices = devices?.resolveAgainst(marathonfileDir)
+                ?: marathonfileDir.resolve("Marathondevices")
         val optionalKnownHostsPath = knownHostsPath?.resolveAgainst(marathonfileDir)
+        val optionalHideRunnerOutput = hideRunnerOutput ?: false
 
         return if (optionalSourceRoot == null) {
             IOSConfiguration(
@@ -51,6 +58,10 @@ data class FileIOSConfiguration(
                     knownHostsPath = optionalKnownHostsPath,
                     remoteRsyncPath = remoteRsyncPath,
                     debugSsh = optionalDebugSsh,
+                    alwaysEraseSimulators = optionalAlwaysEraseSimulators,
+                    hideRunnerOutput = optionalHideRunnerOutput,
+                    compactOutput = compactOutput,
+                    keepAliveIntervalMillis = keepAliveIntervalMillis,
                     devicesFile = optionalDevices)
         } else {
             IOSConfiguration(
@@ -61,6 +72,10 @@ data class FileIOSConfiguration(
                     knownHostsPath = optionalKnownHostsPath,
                     remoteRsyncPath = remoteRsyncPath,
                     debugSsh = optionalDebugSsh,
+                    alwaysEraseSimulators = optionalAlwaysEraseSimulators,
+                    hideRunnerOutput = optionalHideRunnerOutput,
+                    compactOutput = compactOutput,
+                    keepAliveIntervalMillis = keepAliveIntervalMillis,
                     devicesFile = optionalDevices,
                     sourceRoot = optionalSourceRoot)
         }

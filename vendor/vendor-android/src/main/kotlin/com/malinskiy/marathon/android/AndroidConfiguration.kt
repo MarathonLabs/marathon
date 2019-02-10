@@ -2,6 +2,7 @@ package com.malinskiy.marathon.android
 
 import com.malinskiy.marathon.device.DeviceProvider
 import com.malinskiy.marathon.execution.TestParser
+import com.malinskiy.marathon.log.MarathonLogConfigurator
 import com.malinskiy.marathon.vendor.VendorConfiguration
 import java.io.File
 
@@ -20,4 +21,6 @@ data class AndroidConfiguration(val androidSdk: File,
     override fun deviceProvider(): DeviceProvider? {
         return AndroidDeviceProvider()
     }
+
+    override fun logConfigurator(): MarathonLogConfigurator? = null
 }

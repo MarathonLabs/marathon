@@ -7,11 +7,11 @@ import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.test.Test
 import java.io.File
 
-private val logger = MarathonLogging.logger { }
-
 class IOSTestParser : TestParser {
     private val swiftTestClassRegex = """class ([^:\s]+)\s*:\s*XCTestCase""".toRegex()
     private val swiftTestMethodRegex = """^.*func\s+(test[^(\s]*)\s*\(.*$""".toRegex()
+
+    private val logger = MarathonLogging.logger(IOSTestParser::class.java.simpleName)
 
     /**
      *  Looks up test methods running a text search in swift files. Considers classes that explicitly inherit

@@ -10,4 +10,6 @@ sealed class DeviceEvent {
     object Terminate : DeviceEvent()
     object WakeUp : DeviceEvent()
     data class GetDeviceState(val deferred: CompletableDeferred<DeviceState>) : DeviceEvent()
+
+    override fun toString(): String = "DeviceEvent.${this::class.java.simpleName}"
 }

@@ -13,26 +13,29 @@ import com.malinskiy.marathon.ios.simctl.model.SimctlDeviceList
 import com.malinskiy.marathon.ios.simctl.model.SimctlDeviceListDeserializer
 import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.vendor.VendorConfiguration
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.newFixedThreadPoolContext
+import kotlinx.coroutines.withContext
+import kotlin.coroutines.CoroutineContext
 
-class IOSDeviceProvider : DeviceProvider {
+class IOSDeviceProvider : DeviceProvider, CoroutineScope {
+
+    private val dispatcher = newFixedThreadPoolContext(1, "IOSDeviceProvider")
+    override val coroutineContext: CoroutineContext
+        get() = dispatcher
 
     private val logger = MarathonLogging.logger(IOSDeviceProvider::class.java.simpleName)
 
-    private lateinit var simulatorProvider: SimulatorProvider
+    private var simulatorProvider: SimulatorProvider? = null
 
-    override fun terminate() {
-        logger.debug { "Terminating IOS device provider" }
-        if (::simulatorProvider.isInitialized) {
-            simulatorProvider.stop()
-        }
-        channel.close()
-    }
-
-    override fun initialize(vendorConfiguration: VendorConfiguration) {
+    override val deviceInitializationTimeoutMillis: Long = 300_000
+    override suspend fun initialize(vendorConfiguration: VendorConfiguration) {
         if (vendorConfiguration !is IOSConfiguration) {
-            throw IllegalStateException("Invalid configuration $vendorConfiguration passed")
+            throw IllegalStateException("Invalid configuration $vendorConfiguration")
         }
+
+        logger.debug("Initializing IOSDeviceProvider")
 
         val gson = GsonBuilder().registerTypeAdapter(SimctlDeviceList::class.java, SimctlDeviceListDeserializer())
                 .create()
@@ -40,15 +43,19 @@ class IOSDeviceProvider : DeviceProvider {
         val mapper = ObjectMapper(YAMLFactory().disable(YAMLGenerator.Feature.USE_NATIVE_TYPE_ID))
                 .registerModule(KotlinModule())
 
-        simulatorProvider = LocalListSimulatorProvider(channel,
-                vendorConfiguration,
-                mapper,
-                gson)
+        simulatorProvider = LocalListSimulatorProvider(coroutineContext, channel, vendorConfiguration, mapper, gson)
+        simulatorProvider?.start()
+    }
 
-        simulatorProvider.start()
+    override suspend fun terminate() {
+        withContext(coroutineContext) {
+            logger.debug { "Terminating IOS device provider" }
+            simulatorProvider?.stop()
+            channel.close()
+        }
+        dispatcher.close()
     }
 
     private val channel: Channel<DeviceProvider.DeviceEvent> = unboundedChannel()
     override fun subscribe() = channel
-
 }

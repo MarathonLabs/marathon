@@ -14,6 +14,7 @@
 		1271DCA121351C6D002B8D3E /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 1271DCA021351C6D002B8D3E /* Assets.xcassets */; };
 		1271DCA421351C6D002B8D3E /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 1271DCA221351C6D002B8D3E /* LaunchScreen.storyboard */; };
 		1271DCBA21351C6D002B8D3E /* StoryboardTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1271DCB921351C6D002B8D3E /* StoryboardTests.swift */; };
+		12872C4D21A6A595005543BA /* CrashingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 12872C4C21A6A595005543BA /* CrashingTests.swift */; };
 		DA32B580214D224E004D00BC /* FailingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA32B57F214D224E004D00BC /* FailingTests.swift */; };
 		DA387D99214C37FA00109B63 /* FlakyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA387D98214C37FA00109B63 /* FlakyTests.swift */; };
 		DA387D9B214C39AB00109B63 /* BooleanExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA387D9A214C39AB00109B63 /* BooleanExtensions.swift */; };
@@ -42,6 +43,7 @@
 		1271DCB521351C6D002B8D3E /* sample-appUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "sample-appUITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		1271DCB921351C6D002B8D3E /* StoryboardTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoryboardTests.swift; sourceTree = "<group>"; };
 		1271DCBB21351C6D002B8D3E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		12872C4C21A6A595005543BA /* CrashingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CrashingTests.swift; sourceTree = "<group>"; };
 		DA32B57F214D224E004D00BC /* FailingTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FailingTests.swift; sourceTree = "<group>"; };
 		DA387D98214C37FA00109B63 /* FlakyTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FlakyTests.swift; sourceTree = "<group>"; };
 		DA387D9A214C39AB00109B63 /* BooleanExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BooleanExtensions.swift; sourceTree = "<group>"; };
@@ -102,6 +104,7 @@
 				124DFB0921411E07005B650A /* MoreTests.swift */,
 				124DFB0B2141322E005B650A /* SkippedSuite.swift */,
 				1271DCB921351C6D002B8D3E /* StoryboardTests.swift */,
+				12872C4C21A6A595005543BA /* CrashingTests.swift */,
 				1271DCBB21351C6D002B8D3E /* Info.plist */,
 				DA387D98214C37FA00109B63 /* FlakyTests.swift */,
 				DA32B57F214D224E004D00BC /* FailingTests.swift */,
@@ -222,6 +225,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				12872C4D21A6A595005543BA /* CrashingTests.swift in Sources */,
 				DA387D9B214C39AB00109B63 /* BooleanExtensions.swift in Sources */,
 				124DFB0A21411E07005B650A /* MoreTests.swift in Sources */,
 				DA387D9D214C3A4F00109B63 /* SlowTests.swift in Sources */,

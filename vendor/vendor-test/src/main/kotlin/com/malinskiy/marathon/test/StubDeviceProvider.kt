@@ -17,7 +17,8 @@ class StubDeviceProvider : DeviceProvider, CoroutineScope {
     private val channel: Channel<DeviceProvider.DeviceEvent> = unboundedChannel()
     var providingLogic: (suspend (Channel<DeviceProvider.DeviceEvent>) -> Unit)? = null
 
-    override fun initialize(vendorConfiguration: VendorConfiguration) {
+    override val deviceInitializationTimeoutMillis: Long = 180_000
+    override suspend fun initialize(vendorConfiguration: VendorConfiguration) {
     }
 
     override fun subscribe(): Channel<DeviceProvider.DeviceEvent> {
@@ -30,7 +31,7 @@ class StubDeviceProvider : DeviceProvider, CoroutineScope {
         return channel
     }
 
-    override fun terminate() {
+    override suspend fun terminate() {
         channel.close()
     }
 }

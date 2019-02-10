@@ -128,6 +128,7 @@ class MarathonPlugin : Plugin<Project> {
                             config.testClassRegexes?.map { it.toRegex() },
                             config.includeSerialRegexes?.map { it.toRegex() },
                             config.excludeSerialRegexes?.map { it.toRegex() },
+                            config.testBatchTimeoutMillis,
                             config.testOutputTimeoutMillis,
                             config.debug,
                             vendorConfiguration,

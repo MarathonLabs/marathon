@@ -30,7 +30,6 @@ class TimelineSummaryPrinter(private val serializer: TimelineSummarySerializer,
         inputStreamFromResources("timeline/chart.js").copyTo(chartJs.outputStream())
 
         val json = gson.toJson(serializer.parse(summary))
-        logger.debug { json }
         val index = inputStreamFromResources("timeline/index.html")
         val indexText = index.reader().readText()
         indexHtmlFile.writeText(indexText.replace("\${dataset}", json))
