@@ -1,6 +1,7 @@
 plugins {
     `java-gradle-plugin`
     `kotlin-dsl`
+    id("org.jetbrains.dokka")
 }
 
 

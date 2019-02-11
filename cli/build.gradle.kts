@@ -9,6 +9,7 @@ plugins {
     `application`
     id("idea")
     id("org.jetbrains.kotlin.jvm")
+    id("org.jetbrains.dokka")
     id("org.junit.platform.gradle.plugin")
     id("de.fuerstenau.buildconfig") version "1.1.8"
 }

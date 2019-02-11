@@ -42,12 +42,14 @@ object Versions {
     val allureEnvironment = "1.0.0"
     val mockitoKotlin = "2.0.0"
     val googleAnalitycsWrapper = "2.0.0"
+    val dokka = "0.9.17"
 }
 
 object BuildPlugins {
     val kotlinPlugin = "org.jetbrains.kotlin:kotlin-gradle-plugin:${Versions.kotlin}"
     val junitGradle = "org.junit.platform:junit-platform-gradle-plugin:${Versions.junitGradle}"
     val androidGradle = "com.android.tools.build:gradle:${Versions.androidGradleVersion}"
+    val dokka = "org.jetbrains.dokka:dokka-gradle-plugin:${Versions.dokka}"
 }
 
 object Libraries {
