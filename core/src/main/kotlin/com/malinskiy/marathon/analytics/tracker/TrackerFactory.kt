@@ -36,9 +36,22 @@ internal class TrackerFactory(private val configuration: Configuration,
         return when {
             configuration.analyticsConfiguration is InfluxDbConfiguration -> {
                 val config = configuration.analyticsConfiguration
-                DelegatingTracker(defaultTrackers + InfluxDbTracker(InfluxDbProvider(config).createDb()))
+
+                val influxTracker = createInfluxDbTracker(config)
+                val trackers = influxTracker?.let { defaultTrackers + it } ?: defaultTrackers
+
+                DelegatingTracker(trackers)
             }
             else -> DelegatingTracker(defaultTrackers)
         }
+    }
+
+    private fun createInfluxDbTracker(config: InfluxDbConfiguration): InfluxDbTracker? {
+        val db = try {
+            InfluxDbProvider(config).createDb()
+        } catch (e: Exception) {
+            null
+        }
+        return db?.let { InfluxDbTracker(it) }
     }
 }
