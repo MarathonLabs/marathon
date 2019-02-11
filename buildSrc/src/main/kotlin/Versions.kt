@@ -1,5 +1,6 @@
 object Versions {
-    val marathon = System.getenv("DEPLOY_VERSION_OVERRIDE") ?: "0.3.6"
+    val localVersion = "0.3.6"
+    val marathon = System.getenv("DEPLOY_VERSION_OVERRIDE") ?: localVersion
 
     val kotlin = "1.3.20"
     val coroutines = "1.1.1"
