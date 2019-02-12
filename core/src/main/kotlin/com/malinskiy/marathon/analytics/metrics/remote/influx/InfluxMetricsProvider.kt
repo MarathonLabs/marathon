@@ -1,6 +1,8 @@
 package com.malinskiy.marathon.analytics.metrics.remote.influx
 
 import com.malinskiy.marathon.analytics.metrics.MetricsProvider
+import com.malinskiy.marathon.analytics.tracker.remote.influx.InfluxDbProvider
+import com.malinskiy.marathon.execution.AnalyticsConfiguration
 import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.test.Test
 import com.malinskiy.marathon.test.toSafeTestName
@@ -43,7 +45,7 @@ class InfluxMetricsProvider(private val influxDb: InfluxDB,
         }
 
         val successRate = successRate[test.toSafeTestName()]
-        return if(successRate == null) {
+        return if (successRate == null) {
             logger.warn { "No success rate found for ${test.toSafeTestName()}. Using 0 i.e. fails all the time" }
             0.0
         } else {
@@ -74,7 +76,7 @@ class InfluxMetricsProvider(private val influxDb: InfluxDB,
         }
 
         val executionTime = executionTime[test.toSafeTestName()]
-        return if(executionTime == null) {
+        return if (executionTime == null) {
             logger.warn { "No execution time found for ${test.toSafeTestName()}. Using 300_000 seconds i.e. long test" }
             300_000.0
         } else {
@@ -95,5 +97,16 @@ class InfluxMetricsProvider(private val influxDb: InfluxDB,
 
     override fun close() {
         influxDb.close()
+    }
+
+    companion object {
+        fun createWithFallback(configuration: AnalyticsConfiguration.InfluxDbConfiguration, fallback: MetricsProvider): MetricsProvider {
+            return try {
+                val db = InfluxDbProvider(configuration).createDb()
+                InfluxMetricsProvider(db, configuration.dbName)
+            } catch (e: Exception) {
+                fallback
+            }
+        }
     }
 }
