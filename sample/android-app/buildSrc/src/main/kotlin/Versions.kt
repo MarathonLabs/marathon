@@ -1,7 +1,7 @@
 object Versions {
-    val kotlin = "1.2.61"
+    val kotlin = "1.3.10"
 
-    val androidGradleVersion = "3.2.1"
+    val androidGradleVersion = "3.3.0"
 
     val kakao = "1.2.1"
     val espresso = "3.0.1"
@@ -11,6 +11,7 @@ object Versions {
     val appCompat = "28.0.0"
     val constraintLayout = "1.0.2"
     val allure = "2.8.1"
+
 }
 
 object BuildPlugins {

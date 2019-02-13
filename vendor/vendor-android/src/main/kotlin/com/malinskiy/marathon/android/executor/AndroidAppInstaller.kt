@@ -46,11 +46,11 @@ class AndroidAppInstaller(configuration: Configuration) {
                     val uninstallMessage = ddmsDevice.safeUninstallPackage(appPackage)
                     uninstallMessage?.let { logger.debug { it } }
                 }
-                logger.info("Installing $appPackage to ${device.serialNumber}")
+                logger.info("Installing $appPackage, ${appApk.absolutePath} to ${device.serialNumber}")
                 val installMessage = ddmsDevice.safeInstallPackage(appApk.absolutePath, true, optionalParams(ddmsDevice))
                 installMessage?.let { logger.debug { it } }
             } catch (e: InstallException) {
-                logger.error(e) { "Error while installing $appPackage on ${device.serialNumber}" }
+                logger.error(e) { "Error while installing $appPackage, ${appApk.absolutePath} on ${device.serialNumber}" }
                 throw RuntimeException("Error while installing $appPackage on ${device.serialNumber}", e)
             }
         }
