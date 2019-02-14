@@ -12,7 +12,6 @@ import kotlin.math.roundToInt
 const val HUNDRED_PERCENT_IN_FLOAT: Float = 100.0f
 
 class ProgressReporter {
-    private val logger = MarathonLogging.logger(ProgressReporter::class.java.simpleName)
     private val reporters = ConcurrentHashMap<DevicePoolId, PoolProgressTracker>()
 
     private inline fun <T> execute(poolId: DevicePoolId, f: (PoolProgressTracker) -> T): T {
@@ -30,17 +29,17 @@ class ProgressReporter {
 
     fun testStarted(poolId: DevicePoolId, device: DeviceInfo, test: Test) {
         execute(poolId) { it.testStarted(test, device) }
-        logger.info("${toPercent(progress(poolId))} | [${poolId.name}]-[${device.serialNumber}] ${test.toTestName()} started")
+        println("${toPercent(progress(poolId))} | [${poolId.name}]-[${device.serialNumber}] ${test.toTestName()} started")
     }
 
     fun testFailed(poolId: DevicePoolId, device: DeviceInfo, test: Test) {
         execute(poolId) { it.testFailed(test, device) }
-        logger.info("${toPercent(progress(poolId))} | [${poolId.name}]-[${device.serialNumber}] ${test.toTestName()} failed")
+        println("${toPercent(progress(poolId))} | [${poolId.name}]-[${device.serialNumber}] ${test.toTestName()} failed")
     }
 
     fun testPassed(poolId: DevicePoolId, device: DeviceInfo, test: Test) {
         execute(poolId) { it.testPassed(test, device) }
-        logger.info("${toPercent(progress(poolId))} | [${poolId.name}]-[${device.serialNumber}] ${test.toTestName()} ended")
+        println("${toPercent(progress(poolId))} | [${poolId.name}]-[${device.serialNumber}] ${test.toTestName()} ended")
     }
 
     fun testIgnored(poolId: DevicePoolId, device: DeviceInfo, test: Test) {
