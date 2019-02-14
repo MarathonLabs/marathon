@@ -28,22 +28,22 @@ class ProgressReporter {
     }
 
     fun testStarted(poolId: DevicePoolId, device: DeviceInfo, test: Test) {
-        execute(poolId) { it.testStarted(test, device) }
+        execute(poolId) { it.testStarted(test) }
         println("${toPercent(progress(poolId))} | [${poolId.name}]-[${device.serialNumber}] ${test.toTestName()} started")
     }
 
     fun testFailed(poolId: DevicePoolId, device: DeviceInfo, test: Test) {
-        execute(poolId) { it.testFailed(test, device) }
+        execute(poolId) { it.testFailed(test) }
         println("${toPercent(progress(poolId))} | [${poolId.name}]-[${device.serialNumber}] ${test.toTestName()} failed")
     }
 
     fun testPassed(poolId: DevicePoolId, device: DeviceInfo, test: Test) {
-        execute(poolId) { it.testPassed(test, device) }
+        execute(poolId) { it.testPassed(test) }
         println("${toPercent(progress(poolId))} | [${poolId.name}]-[${device.serialNumber}] ${test.toTestName()} ended")
     }
 
     fun testIgnored(poolId: DevicePoolId, device: DeviceInfo, test: Test) {
-        execute(poolId) { it.testIgnored(test, device) }
+        execute(poolId) { it.testIgnored(test) }
     }
 
     fun aggregateResult(): Boolean {
