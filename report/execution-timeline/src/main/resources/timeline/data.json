@@ -1,0 +1,60 @@
+{
+  "passedTests": 2,
+  "failedTests": 2,
+  "ignoredTests": 0,
+  "executionStats": {
+    "idleTimeMillis": 2945033,
+    "averageTestExecutionTimeMillis": 16755
+  },
+  "measures": [
+    {
+      "measure": "deviceSerial",
+      "stats": {
+        "idleTimeMillis": 80577,
+        "averageTestExecutionTimeMillis": 17075
+      },
+      "data": [
+        {
+          "status": "DEVICE_PROVIDER_INIT",
+          "startDate": 1550137795885,
+          "endDate":   1550137804935
+        },
+        {
+          "status": "DEVICE_PREPARE",
+          "startDate": 1550137805885,
+          "endDate":   1550137814935
+        },
+        {
+          "testName": "TestClass2.testSomethingNotImportant",
+          "status": "INCOMPLETE",
+          "startDate": 1550137824149,
+          "endDate": 1550137861953
+        },
+        {
+          "testName": "TestClass1.verify1",
+          "status": "IGNORED",
+          "startDate": 1550137907395,
+          "endDate": 1550137916305
+        },
+        {
+          "testName": "TestClass2.testSomethingMaybe",
+          "status": "ASSUMPTION_FAILURE",
+          "startDate": 1550137861978,
+          "endDate": 1550137907395
+        },
+        {
+          "testName": "TestClass3.testImportantFeature",
+          "status": "PASSED",
+          "startDate": 1550137916305,
+          "endDate": 1550137949153
+        },
+        {
+          "testName": "TestClass3.testSomethingReallyImportant",
+          "status": "FAILURE",
+          "startDate": 1550137949153,
+          "endDate": 1550137979153
+        }
+      ]
+    }
+  ]
+}

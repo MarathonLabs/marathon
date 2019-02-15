@@ -18,22 +18,14 @@ class TimelineSummarySerializer(private val rawTestResultTracker: RawTestResultT
     private fun convertToData(testResult: RawTestResultTracker.RawTestRun): Data {
         val preparedTestName = "${testResult.clazz}.${testResult.method}"
         val testMetric = getTestMetric(testResult)
-        return createData(testResult, testResult.success, preparedTestName, testMetric)
-    }
-
-    private fun TestStatus.toStatus(): Status = when (this) {
-        TestStatus.PASSED -> Status.PASSED
-        TestStatus.IGNORED -> Status.IGNORED
-        TestStatus.FAILURE -> Status.FAILURE
-        TestStatus.INCOMPLETE -> Status.INCOMPLETE
-        TestStatus.ASSUMPTION_FAILURE -> Status.ASSUMPTION_FAILURE
+        return createData(testResult, testResult.status, preparedTestName, testMetric)
     }
 
     data class TestMetric(val expectedValue: Double, val variance: Double)
 
-    private fun createData(execution: RawTestResultTracker.RawTestRun, status: Boolean, preparedTestName: String, testMetric: TestMetric): Data {
+    private fun createData(execution: RawTestResultTracker.RawTestRun, status: TestStatus, preparedTestName: String, testMetric: TestMetric): Data {
         return Data(preparedTestName,
-                if (status) Status.PASSED else Status.FAILURE,
+                status.toStatus(),
                 execution.timestamp,
                 execution.timestamp + execution.duration,
                 testMetric.expectedValue, testMetric.variance)
@@ -98,5 +90,13 @@ class TimelineSummarySerializer(private val rawTestResultTracker: RawTestResultT
 
         val executionStats = aggregateExecutionStats(measures)
         return ExecutionResult(passedTestCount, failedTests, ignoredTests, executionStats, measures)
+    }
+
+    private fun TestStatus.toStatus() = when(this) {
+        TestStatus.FAILURE -> Status.FAILURE
+        TestStatus.PASSED -> Status.PASSED
+        TestStatus.IGNORED -> Status.IGNORED
+        TestStatus.INCOMPLETE -> Status.INCOMPLETE
+        TestStatus.ASSUMPTION_FAILURE -> Status.ASSUMPTION_FAILURE
     }
 }

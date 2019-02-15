@@ -1,3 +1,19 @@
+.rect_device_provider_initialise {
+    fill: #db76ed;
+}
+
+.rect_device_provider_initialise:hover {
+    fill: #8f4d9b;
+}
+
+.rect_device_initialise {
+    fill: #ca22e8;
+}
+
+.rect_device_initialise:hover {
+    fill: #6a0f7a;
+}
+
 .rect_passed_test {
     fill: #5cb85c;
 }
@@ -19,7 +35,7 @@
 }
 
 .rect_ignored_test:hover {
-    fill: #cccccc;
+    fill: #848484;
 }
 
 .rect_incomplete_test {
@@ -27,7 +43,7 @@
 }
 
 .rect_incomplete_test:hover {
-    fill: #e8e821;
+    fill: #a8a817;
 }
 
 .rect_assumption_failure {
@@ -35,7 +51,7 @@
 }
 
 .rect_assumption_failure:hover {
-    fill: #ca812d;
+    fill: #8c591e;
 }
 
 .tooltip_passed_test {
