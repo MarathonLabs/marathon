@@ -6,7 +6,7 @@ import java.util.concurrent.ConcurrentLinkedQueue
 object InMemoryDeviceTracker : DeviceTracker {
     val metrics: ConcurrentLinkedQueue<DeviceInitMetric> = ConcurrentLinkedQueue()
 
-    override fun trackDevicePreparing(device: Device, block: () -> Unit) {
+    override suspend fun trackDevicePreparing(device: Device, block: suspend () -> Unit) {
         val start = System.currentTimeMillis()
         block.invoke()
         val finish = System.currentTimeMillis()

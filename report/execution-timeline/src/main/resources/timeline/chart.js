@@ -24,112 +24,111 @@ function testsChart() {
             .attr('transform', 'translate(0,-12)');
 
         legend.append('rect')
-            .attr('x', width + margin.right - 150 + textWidth)
+            .attr('x', width - 150 + textWidth)
             .attr('y', paddingTopHeading)
             .attr('height', 15)
             .attr('width', 15)
             .attr('class', 'rect_passed_test');
 
         legend.append('text')
-            .attr('x', width + margin.right - 150 + 20 + textWidth)
+            .attr('x', width - 150 + 20 + textWidth)
             .attr('y', paddingTopHeading + 8.5)
             .text('Passed test = ' + success)
             .attr('class', 'legend');
 
         legend.append('rect')
-            .attr('x', width + margin.right - 150 + textWidth)
+            .attr('x', width - 150 + textWidth)
             .attr('y', paddingTopHeading + 17)
             .attr('height', 15)
             .attr('width', 15)
             .attr('class', 'rect_failed_test');
 
         legend.append('text')
-            .attr('x', width + margin.right - 150 + 20 + textWidth)
+            .attr('x', width - 150 + 20 + textWidth)
             .attr('y', paddingTopHeading + 8.5 + 15 + 2)
             .text('Failed test = ' + failed)
             .attr('class', 'legend');
 
         //
         legend.append('text')
-            .attr('x', width + margin.right - 500 + 20 + textWidth)
+            .attr('x', width - 500 + 20 + textWidth)
             .attr('y', paddingTopHeading + 8.5)
             .text('Provider init')
             .attr('class', 'legend');
 
-         legend.append('rect')
-             .attr('x', width + margin.right - 500 + textWidth)
-             .attr('y', paddingTopHeading)
-             .attr('height', 15)
-             .attr('width', 15)
-             .attr('class', 'rect_device_provider_initialise');
-
-         legend.append('text')
-             .attr('x', width + margin.right - 500 + 20 + textWidth)
-             .attr('y', paddingTopHeading + 8.5 + 15 + 2)
-             .text('Device prepare')
-             .attr('class', 'legend');
-
-         legend.append('rect')
-              .attr('x', width + margin.right - 500 + textWidth)
-              .attr('y', paddingTopHeading + 17)
-              .attr('height', 15)
-              .attr('width', 15)
-              .attr('class', 'rect_device_initialise');
-
-        //
+        legend.append('rect')
+            .attr('x', width - 500 + textWidth)
+            .attr('y', paddingTopHeading)
+            .attr('height', 15)
+            .attr('width', 15)
+            .attr('class', 'rect_device_provider_initialise');
 
         legend.append('text')
-            .attr('x', width + margin.right - 600 + 20 + textWidth)
+            .attr('x', width - 500 + 20 + textWidth)
+            .attr('y', paddingTopHeading + 8.5 + 15 + 2)
+            .text('Device prepare')
+            .attr('class', 'legend');
+
+        legend.append('rect')
+             .attr('x', width - 500 + textWidth)
+             .attr('y', paddingTopHeading + 17)
+             .attr('height', 15)
+             .attr('width', 15)
+             .attr('class', 'rect_device_initialise');
+
+        //
+        legend.append('text')
+            .attr('x', width - 600 + 20 + textWidth)
             .attr('y', paddingTopHeading + 8.5)
             .text('Ignored')
             .attr('class', 'legend');
 
-         legend.append('rect')
-             .attr('x', width + margin.right - 600 + textWidth)
-             .attr('y', paddingTopHeading)
-             .attr('height', 15)
-             .attr('width', 15)
-             .attr('class', 'rect_ignored_test');
+        legend.append('rect')
+            .attr('x', width - 600 + textWidth)
+            .attr('y', paddingTopHeading)
+            .attr('height', 15)
+            .attr('width', 15)
+            .attr('class', 'rect_ignored_test');
 
-         legend.append('text')
-             .attr('x', width + margin.right - 600 + 20 + textWidth)
-             .attr('y', paddingTopHeading + 8.5 + 15 + 2)
-             .text('Incomplete')
-             .attr('class', 'legend');
+        legend.append('text')
+            .attr('x', width - 600 + 20 + textWidth)
+            .attr('y', paddingTopHeading + 8.5 + 15 + 2)
+            .text('Incomplete')
+            .attr('class', 'legend');
 
-         legend.append('rect')
-              .attr('x', width + margin.right - 600 + textWidth)
-              .attr('y', paddingTopHeading + 17)
-              .attr('height', 15)
-              .attr('width', 15)
-              .attr('class', 'rect_incomplete_test');
+        legend.append('rect')
+            .attr('x', width - 600 + textWidth)
+            .attr('y', paddingTopHeading + 17)
+            .attr('height', 15)
+            .attr('width', 15)
+            .attr('class', 'rect_incomplete_test');
 
           //
-          legend.append('text')
-              .attr('x', width + margin.right - 750 + 20 + textWidth)
-              .attr('y', paddingTopHeading + 8.5)
-              .text('Assumption failure')
-              .attr('class', 'legend');
+        legend.append('text')
+            .attr('x', width - 750 + 20 + textWidth)
+            .attr('y', paddingTopHeading + 8.5)
+            .text('Assumption failure')
+            .attr('class', 'legend');
 
-           legend.append('rect')
-               .attr('x', width + margin.right - 750 + textWidth)
-               .attr('y', paddingTopHeading)
-               .attr('height', 15)
-               .attr('width', 15)
-               .attr('class', 'rect_assumption_failure');
+        legend.append('rect')
+            .attr('x', width - 750 + textWidth)
+            .attr('y', paddingTopHeading)
+            .attr('height', 15)
+            .attr('width', 15)
+            .attr('class', 'rect_assumption_failure');
 
         var deviceCount = dataset.measures.length;
         var idle = dataset.executionStats.idleTimeMillis;
         var averageIdle = idle / deviceCount;
 
         legend.append('text')
-            .attr('x', width + margin.right - 350 + textWidth)
+            .attr('x', width - 350 + textWidth)
             .attr('y', paddingTopHeading + 8.5 + 15 + 2)
             .text('Summary idle: ' + Math.round(moment.duration(idle).asSeconds()).toFixed(2) + " sec")
             .attr('class', 'legend');
 
         legend.append('text')
-            .attr('x', width + margin.right - 350 + textWidth)
+            .attr('x', width - 350 + textWidth)
             .attr('y', paddingTopHeading + 8.5)
             .text('Average Idle: ' + Math.round(moment.duration(averageIdle).asSeconds()).toFixed(2) + " sec")
             .attr('class', 'legend');
@@ -186,7 +185,7 @@ function testsChart() {
             })
             .attr('height', dataHeight)
             .attr('class', function (d) {
-                switch (d.status) {
+                switch (d.metricType) {
                     case "PASSED": {
                         return 'rect_passed_test'
                     }
@@ -217,7 +216,7 @@ function testsChart() {
                     .style('opacity', 0.9);
                 div.html(function () {
                     var output = '';
-                    switch (d.status) {
+                    switch (d.metricType) {
                         case "PASSED": {
                             output = '<i class="fa fa-fw fa-check tooltip_passed_test"></i>';
                             break;

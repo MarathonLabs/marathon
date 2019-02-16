@@ -8,11 +8,11 @@ import java.io.File
 import java.io.InputStream
 
 
-class TimelineSummaryPrinter(private val serializer: TimelineSummarySerializer,
+class TimelineSummaryPrinter(private val provider: TimelineSummaryProvider,
                              private val gson: Gson,
                              private val rootOutput: File) : SummaryPrinter {
 
-    val logger = MarathonLogging.logger(TimelineSummarySerializer::class.java.simpleName)
+    val logger = MarathonLogging.logger(TimelineSummaryProvider::class.java.simpleName)
 
     private fun inputStreamFromResources(path: String): InputStream = ExecutionResult::class.java.classLoader.getResourceAsStream(path)
 
@@ -29,7 +29,7 @@ class TimelineSummaryPrinter(private val serializer: TimelineSummarySerializer,
         val chartJs = File(timelineDir, "chart.js")
         inputStreamFromResources("timeline/chart.js").copyTo(chartJs.outputStream())
 
-        val json = gson.toJson(serializer.parse(summary))
+        val json = gson.toJson(provider.generate())
         val index = inputStreamFromResources("timeline/index.html")
         val indexText = index.reader().readText()
         indexHtmlFile.writeText(indexText.replace("\${dataset}", json))

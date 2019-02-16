@@ -14,7 +14,7 @@ import com.malinskiy.marathon.report.Summary
 import com.malinskiy.marathon.report.SummaryCompiler
 import com.malinskiy.marathon.report.SummaryPrinter
 import com.malinskiy.marathon.report.debug.timeline.TimelineSummaryPrinter
-import com.malinskiy.marathon.report.debug.timeline.TimelineSummarySerializer
+import com.malinskiy.marathon.report.debug.timeline.TimelineSummaryProvider
 import com.malinskiy.marathon.report.html.HtmlSummaryPrinter
 import com.malinskiy.marathon.report.internal.DeviceInfoReporter
 import com.malinskiy.marathon.report.internal.TestResultReporter
@@ -28,7 +28,6 @@ import kotlinx.coroutines.runBlocking
 import java.util.*
 import java.util.concurrent.TimeUnit
 import kotlin.coroutines.coroutineContext
-import kotlin.system.measureTimeMillis
 
 private val log = MarathonLogging.logger {}
 
@@ -56,7 +55,7 @@ class Marathon(val configuration: Configuration) {
         if (configuration.debug) {
             return CompositeSummaryPrinter(listOf(
                     htmlSummaryPrinter,
-                    TimelineSummaryPrinter(TimelineSummarySerializer(analyticsFactory.rawTestResultTracker), gson, outputDir)
+                    TimelineSummaryPrinter(TimelineSummaryProvider(analyticsFactory.rawTestResultTracker), gson, outputDir)
             ))
         }
         return htmlSummaryPrinter
