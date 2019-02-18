@@ -42,33 +42,36 @@ class PoolProgressTracker {
         }
     }
 
-    private fun updateStatus(test: Test, newStatus: ProgressEvent) {
-        tests[test]?.transition(newStatus)
-    }
+    private fun updateStatus(test: Test, newStatus: ProgressEvent) = tests[test]?.transition(newStatus)
 
     private val totalTests = AtomicInteger(0)
     private val completed = AtomicInteger(0)
     private val failed = AtomicInteger(0)
 
-    fun testStarted(test: Test, device: DeviceInfo) {
+    fun testStarted(test: Test) {
         tests.computeIfAbsent(test) { _ -> createState() }
     }
 
-    fun testFailed(test: Test, device: DeviceInfo) {
+    fun testFailed(test: Test) {
+        if(tests[test]?.state == ProgressTestState.Passed) {
+            //Return early because the test already passed
+            return
+        }
+
         updateStatus(test, ProgressEvent.Failed)
         failed.updateAndGet {
             it + 1
         }
     }
 
-    fun testPassed(test: Test, device: DeviceInfo) {
+    fun testPassed(test: Test) {
         completed.updateAndGet {
             it + 1
         }
         updateStatus(test, ProgressEvent.Passed)
     }
 
-    fun testIgnored(test: Test, device: DeviceInfo) {
+    fun testIgnored(test: Test) {
         updateStatus(test, ProgressEvent.Ignored)
     }
 
@@ -91,6 +94,7 @@ class PoolProgressTracker {
     }
 
     fun progress(): Float {
+        println("Completed $completed out of $totalTests, $failed tests failed")
         return (completed.toFloat() + failed.toFloat()) / totalTests.toFloat()
     }
 
