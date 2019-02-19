@@ -12,6 +12,7 @@ data class AndroidConfiguration(val androidSdk: File,
                                 val applicationOutput: File?,
                                 val testApplicationOutput: File,
                                 val autoGrantPermission: Boolean = false,
+                                val instrumentationArgs: Map<String, String> = emptyMap(),
                                 val adbInitTimeoutMillis: Int = defaultInitTimeoutMillis) : VendorConfiguration {
 
     override fun testParser(): TestParser? {

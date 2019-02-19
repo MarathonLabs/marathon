@@ -94,7 +94,6 @@ class PoolProgressTracker {
     }
 
     fun progress(): Float {
-        println("Completed $completed out of $totalTests, $failed tests failed")
         return (completed.toFloat() + failed.toFloat()) / totalTests.toFloat()
     }
 
