@@ -30,6 +30,9 @@ open class MarathonExtension(project: Project) {
     var testOutputTimeoutMillis: Long? = null
     var debug: Boolean? = null
 
+    var applicationPmClear: Boolean? = null
+    var testApplicationPmClear: Boolean? = null
+
     var analyticsTracking: Boolean = false
 
     //Android specific for now

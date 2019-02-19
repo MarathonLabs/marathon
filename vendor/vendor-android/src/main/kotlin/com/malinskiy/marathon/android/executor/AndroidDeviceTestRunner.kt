@@ -7,6 +7,7 @@ import com.android.ddmlib.testrunner.RemoteAndroidTestRunner
 import com.malinskiy.marathon.android.AndroidConfiguration
 import com.malinskiy.marathon.android.AndroidDevice
 import com.malinskiy.marathon.android.ApkParser
+import com.malinskiy.marathon.android.InstrumentationInfo
 import com.malinskiy.marathon.android.executor.listeners.CompositeTestRunListener
 import com.malinskiy.marathon.android.executor.listeners.DebugTestRunListener
 import com.malinskiy.marathon.android.executor.listeners.LogCatListener
@@ -15,6 +16,8 @@ import com.malinskiy.marathon.android.executor.listeners.ProgressTestRunListener
 import com.malinskiy.marathon.android.executor.listeners.TestRunResultsListener
 import com.malinskiy.marathon.android.executor.listeners.screenshot.ScreenCapturerTestRunListener
 import com.malinskiy.marathon.android.executor.listeners.video.ScreenRecorderTestRunListener
+import com.malinskiy.marathon.android.safeClearPackage
+import com.malinskiy.marathon.android.safeExecuteShellCommand
 import com.malinskiy.marathon.device.DeviceFeature
 import com.malinskiy.marathon.device.DevicePoolId
 import com.malinskiy.marathon.exceptions.DeviceLostException
@@ -87,6 +90,7 @@ class AndroidDeviceTestRunner(private val device: AndroidDevice) {
                 )
         )
         try {
+            clearData(androidConfiguration, info)
             runner.run(listeners)
         } catch (e: ShellCommandUnresponsiveException) {
             logger.warn("Test got stuck. You can increase the timeout in settings if it's too strict")
@@ -106,6 +110,19 @@ class AndroidDeviceTestRunner(private val device: AndroidDevice) {
             throw TestBatchExecutionException(e)
         } finally {
 
+        }
+    }
+
+    private fun clearData(androidConfiguration: AndroidConfiguration, info: InstrumentationInfo) {
+        if (androidConfiguration.applicationPmClear) {
+            device.ddmsDevice.safeClearPackage(info.applicationPackage)?.also {
+                logger.debug { "Package ${info.applicationPackage} cleared: $it" }
+            }
+        }
+        if (androidConfiguration.testApplicationPmClear) {
+            device.ddmsDevice.safeClearPackage(info.instrumentationPackage)?.also {
+                logger.debug { "Package ${info.applicationPackage} cleared: $it" }
+            }
         }
     }
 }

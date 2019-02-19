@@ -10,6 +10,8 @@ data class FileAndroidConfiguration(@JsonProperty("androidSdk") val androidSdk: 
                                     @JsonProperty("applicationApk") val applicationOutput: File?,
                                     @JsonProperty("testApplicationApk") val testApplicationOutput: File,
                                     @JsonProperty("autoGrantPermission") val autoGrantPermission: Boolean?,
+                                    @JsonProperty("applicationPmClear") val applicationPmClear: Boolean?,
+                                    @JsonProperty("testApplicationPmClear") val testApplicationPmClear: Boolean?,
                                     @JsonProperty("adbInitTimeoutMillis") val adbInitTimeoutMillis: Int?)
     : FileVendorConfiguration {
 
@@ -24,6 +26,8 @@ data class FileAndroidConfiguration(@JsonProperty("androidSdk") val androidSdk: 
                 applicationOutput = applicationOutput,
                 testApplicationOutput = testApplicationOutput,
                 autoGrantPermission = autoGrantPermission ?: false,
+                applicationPmClear = applicationPmClear ?: false,
+                testApplicationPmClear = testApplicationPmClear ?: false,
                 adbInitTimeoutMillis = adbInitTimeoutMillis ?: defaultInitTimeoutMillis
         )
     }
