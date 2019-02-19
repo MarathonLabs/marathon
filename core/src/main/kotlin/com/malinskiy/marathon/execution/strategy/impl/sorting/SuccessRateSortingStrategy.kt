@@ -7,11 +7,19 @@ import com.malinskiy.marathon.test.Test
 import java.time.Instant
 import java.util.*
 
-class SuccessRateSortingStrategy(@JsonProperty("timeLimit") private val timeLimit: Instant) : SortingStrategy {
-    override fun process(metricsProvider: MetricsProvider): Comparator<Test> =
-            Comparator.comparingDouble<Test> {
-                metricsProvider.successRate(it, timeLimit)
-            }.reversed()
+class SuccessRateSortingStrategy(@JsonProperty("timeLimit") private val timeLimit: Instant,
+                                 @JsonProperty("reverse") private val reverse: Boolean = false) : SortingStrategy {
+    override fun process(metricsProvider: MetricsProvider): Comparator<Test> {
+        val comparator = Comparator.comparingDouble<Test>
+        {
+            metricsProvider.successRate(it, timeLimit)
+        }
+
+        return when(reverse) {
+            true -> comparator
+            false -> comparator.reversed()
+        }
+    }
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -20,16 +28,15 @@ class SuccessRateSortingStrategy(@JsonProperty("timeLimit") private val timeLimi
         other as SuccessRateSortingStrategy
 
         if (timeLimit != other.timeLimit) return false
+        if (reverse != other.reverse) return false
 
         return true
     }
 
     override fun hashCode(): Int {
-        return timeLimit.hashCode()
-    }
-
-    override fun toString(): String {
-        return "SuccessRateSortingStrategy(timeLimit=$timeLimit)"
+        var result = timeLimit.hashCode()
+        result = 31 * result + reverse.hashCode()
+        return result
     }
 
 
