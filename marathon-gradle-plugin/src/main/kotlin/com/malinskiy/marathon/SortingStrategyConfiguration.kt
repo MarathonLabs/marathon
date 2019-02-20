@@ -43,11 +43,11 @@ class ExecutionTimeSortingStrategyConfiguration {
 
 class SuccessRateSortingStrategyConfiguration {
     var limit: Instant = Instant.now().minus(DEFAULT_DAYS_COUNT, ChronoUnit.DAYS)
-    var reverse: Boolean = false
+    var ascending: Boolean = false
 }
 
 fun SortingStrategyConfiguration.toStrategy(): SortingStrategy = executionTime?.let {
     ExecutionTimeSortingStrategy(it.percentile, it.timeLimit)
 } ?: successRate?.let {
-    SuccessRateSortingStrategy(it.limit, it.reverse)
+    SuccessRateSortingStrategy(it.limit, it.ascending)
 } ?: NoSortingStrategy()
