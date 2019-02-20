@@ -55,6 +55,15 @@ Before trying to execute real tests try executing unit and integration tests via
 Before pushing your changes please check if our linter (*detekt*) passes via ```./gradlew clean detektCheck``` command.
 
 ### General overview of modules
+**core** - This is the main logic part of the runner.
+**marathon-gradle-plugin** - This is a gradle plugin implementation for Android testing
+**vendor** - This is custom vendor implementation related to specific platform. One specific implementation that is important is vendor-test, this is a fake implementation that we're using for integration testing
+**report** - This is a group of modules which implement various reports that marathon generates after the build
+**cli** - This is the command-line interface wrapper for Marathon
+**analytics:usage** - This is an analytics implementation that we're using for tracking anonymised usage of marathon.
+
+### Development chat
+We're available for any questions or proposals on [Slack][6]. Feel free to join!
 
 [1]: https://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html
 [2]: https://www.jetbrains.com/idea/download/
