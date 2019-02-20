@@ -2,6 +2,7 @@ package com.malinskiy.marathon.ios
 
 
 import com.google.gson.Gson
+import com.malinskiy.marathon.analytics.tracker.device.InMemoryDeviceTracker
 import com.malinskiy.marathon.device.Device
 import com.malinskiy.marathon.device.DeviceFeature
 import com.malinskiy.marathon.device.DevicePoolId
@@ -237,47 +238,53 @@ class IOSDevice(val simulator: RemoteSimulator,
     override suspend fun prepare(configuration: Configuration) = withContext(coroutineContext + CoroutineName("prepare")) {
         val iosConfiguration = configuration.vendorConfiguration as IOSConfiguration
 
-        RemoteFileManager.createRemoteDirectory(this@IOSDevice)
+        InMemoryDeviceTracker.trackDevicePreparing(this@IOSDevice) {
+            RemoteFileManager.createRemoteDirectory(this@IOSDevice)
 
-        val derivedDataManager = DerivedDataManager(configuration)
+            val derivedDataManager = DerivedDataManager(configuration)
 
-        val remoteXctestrunFile = RemoteFileManager.remoteXctestrunFile(this@IOSDevice)
-        val xctestrunFile = prepareXctestrunFile(derivedDataManager, remoteXctestrunFile)
+            val remoteXctestrunFile = RemoteFileManager.remoteXctestrunFile(this@IOSDevice)
+            val xctestrunFile = prepareXctestrunFile(derivedDataManager, remoteXctestrunFile)
 
-        derivedDataManager.sendSynchronized(
-            localPath = xctestrunFile,
-            remotePath = remoteXctestrunFile.absolutePath,
-            hostName = hostCommandExecutor.hostAddress.hostName,
-            port = hostCommandExecutor.port
-        )
+            derivedDataManager.sendSynchronized(
+                    localPath = xctestrunFile,
+                    remotePath = remoteXctestrunFile.absolutePath,
+                    hostName = hostCommandExecutor.hostAddress.hostName,
+                    port = hostCommandExecutor.port
+            )
 
-        derivedDataManager.sendSynchronized(
-            localPath = derivedDataManager.productsDir,
-            remotePath = RemoteFileManager.remoteDirectory(this@IOSDevice).path,
-            hostName = hostCommandExecutor.hostAddress.hostName,
-            port = hostCommandExecutor.port
-        )
+            derivedDataManager.sendSynchronized(
+                    localPath = derivedDataManager.productsDir,
+                    remotePath = RemoteFileManager.remoteDirectory(this@IOSDevice).path,
+                    hostName = hostCommandExecutor.hostAddress.hostName,
+                    port = hostCommandExecutor.port
+            )
 
-        this@IOSDevice.derivedDataManager = derivedDataManager
+            this@IOSDevice.derivedDataManager = derivedDataManager
 
-        terminateRunningSimulators()
-        if (!iosConfiguration.alwaysEraseSimulators) {
-            try {
-                hostCommandExecutor.exec(
-                    "xcrun simctl shutdown $udid",
-                    configuration.testBatchTimeoutMillis,
-                    configuration.testOutputTimeoutMillis
-                )
-            } catch (e: Exception) { logger.warn("Exception shutting down remote simulator $e") }
-            try {
-                hostCommandExecutor.exec(
-                    "xcrun simctl erase $udid",
-                    configuration.testBatchTimeoutMillis,
-                    configuration.testOutputTimeoutMillis
-                )
-            } catch(e: Exception) { logger.warn("Exception erasing remote simulator $e") }
+            terminateRunningSimulators()
+            if (!iosConfiguration.alwaysEraseSimulators) {
+                try {
+                    hostCommandExecutor.exec(
+                            "xcrun simctl shutdown $udid",
+                            configuration.testBatchTimeoutMillis,
+                            configuration.testOutputTimeoutMillis
+                    )
+                } catch (e: Exception) {
+                    logger.warn("Exception shutting down remote simulator $e")
+                }
+                try {
+                    hostCommandExecutor.exec(
+                            "xcrun simctl erase $udid",
+                            configuration.testBatchTimeoutMillis,
+                            configuration.testOutputTimeoutMillis
+                    )
+                } catch (e: Exception) {
+                    logger.warn("Exception erasing remote simulator $e")
+                }
+            }
+            disableHardwareKeyboard()
         }
-        disableHardwareKeyboard()
     }
 
     private fun terminateRunningSimulators() {
