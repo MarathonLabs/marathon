@@ -37,7 +37,7 @@ class TimelineSummaryProvider(private val rawTestResultTracker: RawTestResultTra
 
     private fun createData(execution: RawTestResultTracker.RawTestRun, status: TestStatus, preparedTestName: String, testMetric: TestMetric): Data {
         return Data(preparedTestName,
-                status.toStatus(),
+                status.toMetricType(),
                 execution.timestamp,
                 execution.timestamp + execution.duration,
                 testMetric.expectedValue, testMetric.variance)
@@ -105,7 +105,7 @@ class TimelineSummaryProvider(private val rawTestResultTracker: RawTestResultTra
         return ExecutionResult(passedTestCount, failedTests, ignoredTests, executionStats, measures)
     }
 
-    private fun TestStatus.toStatus() = when (this) {
+    private fun TestStatus.toMetricType() = when (this) {
         TestStatus.FAILURE -> MetricType.FAILURE
         TestStatus.PASSED -> MetricType.PASSED
         TestStatus.IGNORED -> MetricType.IGNORED
