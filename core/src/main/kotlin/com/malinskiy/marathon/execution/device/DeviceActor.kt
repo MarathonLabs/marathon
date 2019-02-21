@@ -122,7 +122,9 @@ class DeviceActor(private val devicePoolId: DevicePoolId,
     private val logger = MarathonLogging.logger("DevicePool[${devicePoolId.name}]_DeviceActor[${device.serialNumber}]")
 
     val isAvailable: Boolean
-        get() { return !isClosedForSend && state.state == DeviceState.Ready }
+        get() {
+            return !isClosedForSend && state.state == DeviceState.Ready
+        }
 
     override suspend fun receive(msg: DeviceEvent) {
         when (msg) {
@@ -162,16 +164,20 @@ class DeviceActor(private val devicePoolId: DevicePoolId,
 
     private fun initialize() {
         logger.debug { "initialize ${device.serialNumber}" }
-        job = launch {
-            withRetry(30, 10000) {
-                if (isActive) {
-                    try {
-                        device.prepare(configuration)
-                    } catch (e: Exception) {
-                        logger.debug { "device ${device.serialNumber} initialization failed. Retrying" }
-                        throw e
+        job = async {
+            try {
+                withRetry(30, 10000) {
+                    if (isActive) {
+                        try {
+                            device.prepare(configuration)
+                        } catch (e: Exception) {
+                            logger.debug { "device ${device.serialNumber} initialization failed. Retrying" }
+                            throw e
+                        }
                     }
                 }
+            } catch (e: Exception) {
+                state.transition(DeviceEvent.Terminate)
             }
         }
     }
