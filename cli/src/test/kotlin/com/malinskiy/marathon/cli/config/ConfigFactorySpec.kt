@@ -101,7 +101,7 @@ object ConfigFactorySpec : Spek({
                         )
                 )
                 configuration.shardingStrategy shouldEqual CountShardingStrategy(5)
-                configuration.sortingStrategy shouldEqual SuccessRateSortingStrategy(Instant.from(DateTimeFormatter.ISO_DATE_TIME.parse("2015-03-14T09:26:53.590Z")))
+                configuration.sortingStrategy shouldEqual SuccessRateSortingStrategy(Instant.from(DateTimeFormatter.ISO_DATE_TIME.parse("2015-03-14T09:26:53.590Z")), false)
                 configuration.batchingStrategy shouldEqual FixedSizeBatchingStrategy(5)
                 configuration.flakinessStrategy shouldEqual ProbabilityBasedFlakinessStrategy(0.7, 3, Instant.from(DateTimeFormatter.ISO_DATE_TIME.parse("2015-03-14T09:26:53.590Z")))
                 configuration.retryStrategy shouldEqual FixedQuotaRetryStrategy(100, 2)
