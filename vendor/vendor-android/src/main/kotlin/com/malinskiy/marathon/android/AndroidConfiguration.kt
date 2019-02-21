@@ -16,6 +16,7 @@ data class AndroidConfiguration(val androidSdk: File,
                                 val applicationOutput: File?,
                                 val testApplicationOutput: File,
                                 val autoGrantPermission: Boolean = DEFAULT_AUTO_GRANT_PERMISSION,
+                                val instrumentationArgs: Map<String, String> = emptyMap(),
                                 val applicationPmClear: Boolean = DEFAULT_APPLICATION_PM_CLEAR,
                                 val testApplicationPmClear: Boolean = DEFAULT_TEST_APPLICATION_PM_CLEAR,
                                 val adbInitTimeoutMillis: Int = defaultInitTimeoutMillis) : VendorConfiguration {

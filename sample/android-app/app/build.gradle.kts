@@ -28,6 +28,12 @@ android {
     }
 }
 
+marathon {
+    instrumentationArgs {
+        put("debug", "false")
+    }
+}
+
 dependencies {
     implementation(Libraries.appCompat)
     implementation(Libraries.constraintLayout)

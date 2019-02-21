@@ -84,6 +84,7 @@ open class MarathonRunTask : DefaultTask(), VerificationTask {
                                            applicationApk: File?,
                                            instrumentationApk: File): AndroidConfiguration {
         val autoGrantPermission = extension.autoGrantPermission ?: DEFAULT_AUTO_GRANT_PERMISSION
+        val instrumentationArgs = extension.instrumentationArgs
         val applicationPmClear = extension.applicationPmClear ?: DEFAULT_APPLICATION_PM_CLEAR
         val testApplicationPmClear = extension.testApplicationPmClear ?: DEFAULT_APPLICATION_PM_CLEAR
 
@@ -91,6 +92,7 @@ open class MarathonRunTask : DefaultTask(), VerificationTask {
                 applicationApk,
                 instrumentationApk,
                 autoGrantPermission,
+                instrumentationArgs
                 applicationPmClear,
                 testApplicationPmClear)
     }

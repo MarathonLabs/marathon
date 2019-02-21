@@ -5,6 +5,7 @@ import com.android.ddmlib.DdmPreferences
 import com.android.ddmlib.IDevice
 import com.android.ddmlib.TimeoutException
 import com.malinskiy.marathon.actor.unboundedChannel
+import com.malinskiy.marathon.analytics.tracker.device.InMemoryDeviceTracker
 import com.malinskiy.marathon.device.DeviceProvider
 import com.malinskiy.marathon.device.DeviceProvider.DeviceEvent.DeviceConnected
 import com.malinskiy.marathon.device.DeviceProvider.DeviceEvent.DeviceDisconnected
@@ -100,17 +101,23 @@ class AndroidDeviceProvider : DeviceProvider, CoroutineScope {
 
             private suspend fun waitForBoot(device: AndroidDevice): Boolean {
                 var booted = false
-                for (i in 1..30) {
-                    if (device.booted) {
-                        logger.debug { "Device ${device.serialNumber} booted!" }
-                        booted = true
-                        break
-                    } else {
-                        delay(1000)
-                        logger.debug { "Device ${device.serialNumber} is still booting..." }
-                    }
 
-                    if (Thread.interrupted() || !isActive) return true
+                InMemoryDeviceTracker.trackProviderDevicePreparing(device) {
+                    for (i in 1..30) {
+                        if (device.booted) {
+                            logger.debug { "Device ${device.serialNumber} booted!" }
+                            booted = true
+                            break
+                        } else {
+                            delay(1000)
+                            logger.debug { "Device ${device.serialNumber} is still booting..." }
+                        }
+
+                        if (Thread.interrupted() || !isActive) {
+                            booted = true
+                            break
+                        }
+                    }
                 }
 
                 return booted

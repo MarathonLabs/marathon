@@ -37,6 +37,7 @@ open class MarathonExtension(project: Project) {
 
     //Android specific for now
     var autoGrantPermission: Boolean? = null
+    var instrumentationArgs: MutableMap<String, String> = mutableMapOf()
 
     //Kotlin way
     fun analytics(block: AnalyticsConfig.() -> Unit) {
@@ -69,6 +70,10 @@ open class MarathonExtension(project: Project) {
 
     fun filteringConfiguration(block: FilteringPluginConfiguration.() -> Unit) {
         filteringConfiguration = FilteringPluginConfiguration().also(block)
+    }
+
+    fun instrumentationArgs(block: MutableMap<String, String>.() -> Unit) {
+        instrumentationArgs = mutableMapOf<String, String>().also(block)
     }
 
     //Groovy way
@@ -117,6 +122,12 @@ open class MarathonExtension(project: Project) {
     fun filteringConfiguration(closure: Closure<*>) {
         filteringConfiguration = FilteringPluginConfiguration()
         closure.delegate = filteringConfiguration
+        closure.call()
+    }
+
+    fun instrumentationArgs(closure: Closure<*>) {
+        instrumentationArgs = mutableMapOf()
+        closure.delegate = instrumentationArgs
         closure.call()
     }
 }
