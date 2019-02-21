@@ -7,6 +7,7 @@ import com.android.ddmlib.testrunner.RemoteAndroidTestRunner
 import com.malinskiy.marathon.android.AndroidConfiguration
 import com.malinskiy.marathon.android.AndroidDevice
 import com.malinskiy.marathon.android.ApkParser
+import com.malinskiy.marathon.android.InstrumentationInfo
 import com.malinskiy.marathon.android.executor.listeners.CompositeTestRunListener
 import com.malinskiy.marathon.android.executor.listeners.DebugTestRunListener
 import com.malinskiy.marathon.android.executor.listeners.LogCatListener
@@ -15,6 +16,8 @@ import com.malinskiy.marathon.android.executor.listeners.ProgressTestRunListener
 import com.malinskiy.marathon.android.executor.listeners.TestRunResultsListener
 import com.malinskiy.marathon.android.executor.listeners.screenshot.ScreenCapturerTestRunListener
 import com.malinskiy.marathon.android.executor.listeners.video.ScreenRecorderTestRunListener
+import com.malinskiy.marathon.android.safeClearPackage
+import com.malinskiy.marathon.android.safeExecuteShellCommand
 import com.malinskiy.marathon.device.DeviceFeature
 import com.malinskiy.marathon.device.DevicePoolId
 import com.malinskiy.marathon.exceptions.DeviceLostException
@@ -42,7 +45,9 @@ class AndroidDeviceTestRunner(private val device: AndroidDevice) {
                 deferred: CompletableDeferred<TestBatchResults>,
                 progressReporter: ProgressReporter) {
 
-        val runner = prepareTestRunner(configuration, testBatch)
+        val androidConfiguration = configuration.vendorConfiguration as AndroidConfiguration
+        val info = ApkParser().parseInstrumentationInfo(androidConfiguration.testApplicationOutput)
+        val runner = prepareTestRunner(configuration, androidConfiguration, info, testBatch)
 
         val fileManager = FileManager(configuration.outputDir)
         val attachmentProviders = mutableListOf<AttachmentProvider>()
@@ -61,6 +66,7 @@ class AndroidDeviceTestRunner(private val device: AndroidDevice) {
                 )
         )
         try {
+            clearData(androidConfiguration, info)
             runner.run(listeners)
         } catch (e: ShellCommandUnresponsiveException) {
             logger.warn("Test got stuck. You can increase the timeout in settings if it's too strict")
@@ -83,6 +89,19 @@ class AndroidDeviceTestRunner(private val device: AndroidDevice) {
         }
     }
 
+    private fun clearData(androidConfiguration: AndroidConfiguration, info: InstrumentationInfo) {
+        if (androidConfiguration.applicationPmClear) {
+            device.ddmsDevice.safeClearPackage(info.applicationPackage)?.also {
+                logger.debug { "Package ${info.applicationPackage} cleared: $it" }
+            }
+        }
+        if (androidConfiguration.testApplicationPmClear) {
+            device.ddmsDevice.safeClearPackage(info.instrumentationPackage)?.also {
+                logger.debug { "Package ${info.applicationPackage} cleared: $it" }
+            }
+        }
+    }
+
     private fun prepareRecorderListener(features: Collection<DeviceFeature>, fileManager: FileManager, devicePoolId: DevicePoolId, attachmentProviders: MutableList<AttachmentProvider>): NoOpTestRunListener {
         return when {
             features.contains(DeviceFeature.VIDEO) -> {
@@ -97,9 +116,11 @@ class AndroidDeviceTestRunner(private val device: AndroidDevice) {
         }
     }
 
-    private fun prepareTestRunner(configuration: Configuration, testBatch: TestBatch): RemoteAndroidTestRunner {
-        val androidConfiguration = configuration.vendorConfiguration as AndroidConfiguration
-        val info = ApkParser().parseInstrumentationInfo(androidConfiguration.testApplicationOutput)
+    private fun prepareTestRunner(configuration: Configuration,
+                                  androidConfiguration: AndroidConfiguration,
+                                  info: InstrumentationInfo,
+                                  testBatch: TestBatch): RemoteAndroidTestRunner {
+
         val runner = RemoteAndroidTestRunner(info.instrumentationPackage, info.testRunnerClass, device.ddmsDevice)
 
         val tests = testBatch.tests.map {

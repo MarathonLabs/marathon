@@ -3,6 +3,8 @@ package com.malinskiy.marathon
 import com.android.build.gradle.api.BaseVariant
 import com.android.build.gradle.api.TestVariant
 import com.malinskiy.marathon.android.AndroidConfiguration
+import com.malinskiy.marathon.android.DEFAULT_APPLICATION_PM_CLEAR
+import com.malinskiy.marathon.android.DEFAULT_AUTO_GRANT_PERMISSION
 import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.extensions.extractApplication
 import com.malinskiy.marathon.extensions.extractTestApplication
@@ -81,14 +83,18 @@ open class MarathonRunTask : DefaultTask(), VerificationTask {
     private fun createAndroidConfiguration(extension: MarathonExtension,
                                            applicationApk: File?,
                                            instrumentationApk: File): AndroidConfiguration {
-        val autoGrantPermission = extension.autoGrantPermission ?: false
+        val autoGrantPermission = extension.autoGrantPermission ?: DEFAULT_AUTO_GRANT_PERMISSION
         val instrumentationArgs = extension.instrumentationArgs
+        val applicationPmClear = extension.applicationPmClear ?: DEFAULT_APPLICATION_PM_CLEAR
+        val testApplicationPmClear = extension.testApplicationPmClear ?: DEFAULT_APPLICATION_PM_CLEAR
 
         return AndroidConfiguration(sdk,
                 applicationApk,
                 instrumentationApk,
                 autoGrantPermission,
-                instrumentationArgs)
+                instrumentationArgs,
+                applicationPmClear,
+                testApplicationPmClear)
     }
 
     override fun getIgnoreFailures(): Boolean = ignoreFailure

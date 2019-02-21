@@ -11,3 +11,5 @@ vendorConfiguration:
   autoGrantPermission: true
   instrumentationArgs:
     debug: "false"
+  applicationPmClear: true
+  testApplicationPmClear: true

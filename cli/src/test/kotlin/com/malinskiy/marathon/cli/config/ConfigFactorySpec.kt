@@ -137,6 +137,8 @@ object ConfigFactorySpec : Spek({
                         File("kotlin-buildscript/build/outputs/apk/androidTest/debug/kotlin-buildscript-debug-androidTest.apk"),
                         true,
                         mapOf("debug" to "false"),
+                        true,
+                        true,
                         30_000
                 )
             }
@@ -178,6 +180,8 @@ object ConfigFactorySpec : Spek({
                         File("kotlin-buildscript/build/outputs/apk/androidTest/debug/kotlin-buildscript-debug-androidTest.apk"),
                         false,
                         mapOf(),
+                        false,
+                        false,
                         30_000
                 )
             }
@@ -239,6 +243,8 @@ object ConfigFactorySpec : Spek({
                         File("kotlin-buildscript/build/outputs/apk/androidTest/debug/kotlin-buildscript-debug-androidTest.apk"),
                         false,
                         mapOf(),
+                        false,
+                        false,
                         30_000
                 )
             }
