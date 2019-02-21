@@ -35,11 +35,8 @@ open class MarathonRunTask : DefaultTask(), VerificationTask {
 
         val baseOutputDir = if (extensionConfig.baseOutputDir != null) File(extensionConfig.baseOutputDir) else File(project.buildDir, "reports/marathon")
         val output = File(baseOutputDir, flavorName)
-        val autoGrantPermission = extensionConfig.autoGrantPermission
-        val vendorConfiguration = when (autoGrantPermission) {
-            null -> AndroidConfiguration(sdk, applicationApk, instrumentationApk)
-            else -> AndroidConfiguration(sdk, applicationApk, instrumentationApk, autoGrantPermission)
-        }
+
+        val vendorConfiguration = createAndroidConfiguration(extensionConfig, applicationApk, instrumentationApk)
 
         cnf = Configuration(
                 extensionConfig.name,
@@ -79,6 +76,19 @@ open class MarathonRunTask : DefaultTask(), VerificationTask {
         if (!success && !cnf.ignoreFailures) {
             throw GradleException("Tests failed! See ${cnf.outputDir}/html/index.html")
         }
+    }
+
+    private fun createAndroidConfiguration(extension: MarathonExtension,
+                                           applicationApk: File?,
+                                           instrumentationApk: File): AndroidConfiguration {
+        val autoGrantPermission = extension.autoGrantPermission ?: false
+        val instrumentationArgs = extension.instrumentationArgs
+
+        return AndroidConfiguration(sdk,
+                applicationApk,
+                instrumentationApk,
+                autoGrantPermission,
+                instrumentationArgs)
     }
 
     override fun getIgnoreFailures(): Boolean = ignoreFailure
