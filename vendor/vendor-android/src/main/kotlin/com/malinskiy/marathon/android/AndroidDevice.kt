@@ -2,6 +2,7 @@ package com.malinskiy.marathon.android
 
 import com.android.ddmlib.IDevice
 import com.android.ddmlib.NullOutputReceiver
+import com.malinskiy.marathon.analytics.tracker.device.InMemoryDeviceTracker
 import com.malinskiy.marathon.android.executor.AndroidAppInstaller
 import com.malinskiy.marathon.android.executor.AndroidDeviceTestRunner
 import com.malinskiy.marathon.device.Device
@@ -113,13 +114,15 @@ class AndroidDevice(val ddmsDevice: IDevice) : Device, CoroutineScope {
     }
 
     override suspend fun prepare(configuration: Configuration) {
-        val deferred = async {
-            AndroidAppInstaller(configuration).prepareInstallation(this@AndroidDevice)
-            RemoteFileManager.removeRemoteDirectory(ddmsDevice)
-            RemoteFileManager.createRemoteDirectory(ddmsDevice)
-            clearLogcat(ddmsDevice)
+        InMemoryDeviceTracker.trackDevicePreparing(this) {
+            val deferred = async {
+                AndroidAppInstaller(configuration).prepareInstallation(this@AndroidDevice)
+                RemoteFileManager.removeRemoteDirectory(ddmsDevice)
+                RemoteFileManager.createRemoteDirectory(ddmsDevice)
+                clearLogcat(ddmsDevice)
+            }
+            deferred.await()
         }
-        deferred.await()
     }
 
     override fun dispose() {

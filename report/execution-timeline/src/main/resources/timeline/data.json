@@ -1,0 +1,292 @@
+{
+  "passedTests": 24,
+  "failedTests": 8,
+  "ignoredTests": 2,
+  "executionStats": {
+    "idleTimeMillis": 24515,
+    "averageTestExecutionTimeMillis": 2564
+  },
+  "measures": [
+    {
+      "measure": "android-d240015461438bff",
+      "stats": {
+        "idleTimeMillis": 24515,
+        "averageTestExecutionTimeMillis": 2564
+      },
+      "data": [
+        {
+          "testName": "DEVICE_PROVIDER_INIT",
+          "metricType": "DEVICE_PROVIDER_INIT",
+          "startDate": 1550297670465,
+          "endDate": 1550297670507,
+          "expectedValue": 0,
+          "variance": 0
+        },
+        {
+          "testName": "DEVICE_PREPARE",
+          "metricType": "DEVICE_PREPARE",
+          "startDate": 1550297670985,
+          "endDate": 1550297677031,
+          "expectedValue": 0,
+          "variance": 0
+        },
+        {
+          "testName": "FailedAssumptionTest.failedAssumptionTest",
+          "metricType": "ASSUMPTION_FAILURE",
+          "startDate": 1550297677304,
+          "endDate": 1550297677410,
+          "expectedValue": 0,
+          "variance": 0
+        },
+        {
+          "testName": "MainActivityTest.testText9",
+          "metricType": "PASSED",
+          "startDate": 1550297678020,
+          "endDate": 1550297680182,
+          "expectedValue": 0,
+          "variance": 0
+        },
+        {
+          "testName": "MainActivityTest.testText8",
+          "metricType": "PASSED",
+          "startDate": 1550297681447,
+          "endDate": 1550297683150,
+          "expectedValue": 0,
+          "variance": 0
+        },
+        {
+          "testName": "MainActivityTest.testText7",
+          "metricType": "PASSED",
+          "startDate": 1550297683875,
+          "endDate": 1550297685826,
+          "expectedValue": 0,
+          "variance": 0
+        },
+        {
+          "testName": "MainActivityTest.testText6",
+          "metricType": "PASSED",
+          "startDate": 1550297686732,
+          "endDate": 1550297688793,
+          "expectedValue": 0,
+          "variance": 0
+        },
+        {
+          "testName": "MainActivityTest.testText5",
+          "metricType": "PASSED",
+          "startDate": 1550297689612,
+          "endDate": 1550297691736,
+          "expectedValue": 0,
+          "variance": 0
+        },
+        {
+          "testName": "MainActivityTest.testText4",
+          "metricType": "PASSED",
+          "startDate": 1550297692659,
+          "endDate": 1550297694511,
+          "expectedValue": 0,
+          "variance": 0
+        },
+        {
+          "testName": "MainActivityTest.testText3",
+          "metricType": "PASSED",
+          "startDate": 1550297695102,
+          "endDate": 1550297696937,
+          "expectedValue": 0,
+          "variance": 0
+        },
+        {
+          "testName": "MainActivityTest.testText2",
+          "metricType": "PASSED",
+          "startDate": 1550297697806,
+          "endDate": 1550297699634,
+          "expectedValue": 0,
+          "variance": 0
+        },
+        {
+          "testName": "MainActivityTest.testText1",
+          "metricType": "PASSED",
+          "startDate": 1550297700594,
+          "endDate": 1550297702624,
+          "expectedValue": 0,
+          "variance": 0
+        },
+        {
+          "testName": "MainActivityTest.testText",
+          "metricType": "PASSED",
+          "startDate": 1550297703286,
+          "endDate": 1550297705066,
+          "expectedValue": 0,
+          "variance": 0
+        },
+        {
+          "testName": "MainActivitySlowTest.testTextSlow4",
+          "metricType": "PASSED",
+          "startDate": 1550297705969,
+          "endDate": 1550297712559,
+          "expectedValue": 0,
+          "variance": 0
+        },
+        {
+          "testName": "MainActivitySlowTest.testTextSlow3",
+          "metricType": "PASSED",
+          "startDate": 1550297713315,
+          "endDate": 1550297719503,
+          "expectedValue": 0,
+          "variance": 0
+        },
+        {
+          "testName": "MainActivitySlowTest.testTextSlow2",
+          "metricType": "PASSED",
+          "startDate": 1550297720200,
+          "endDate": 1550297726641,
+          "expectedValue": 0,
+          "variance": 0
+        },
+        {
+          "testName": "MainActivitySlowTest.testTextSlow1",
+          "metricType": "PASSED",
+          "startDate": 1550297727317,
+          "endDate": 1550297734037,
+          "expectedValue": 0,
+          "variance": 0
+        },
+        {
+          "testName": "MainActivitySlowTest.testTextSlow",
+          "metricType": "PASSED",
+          "startDate": 1550297734635,
+          "endDate": 1550297741047,
+          "expectedValue": 0,
+          "variance": 0
+        },
+        {
+          "testName": "MainActivityFlakyTest.testTextFlaky8",
+          "metricType": "FAILURE",
+          "startDate": 1550297741763,
+          "endDate": 1550297743751,
+          "expectedValue": 0,
+          "variance": 0
+        },
+        {
+          "testName": "MainActivityFlakyTest.testTextFlaky7",
+          "metricType": "PASSED",
+          "startDate": 1550297744287,
+          "endDate": 1550297745865,
+          "expectedValue": 0,
+          "variance": 0
+        },
+        {
+          "testName": "MainActivityFlakyTest.testTextFlaky8",
+          "metricType": "PASSED",
+          "startDate": 1550297746532,
+          "endDate": 1550297748099,
+          "expectedValue": 0,
+          "variance": 0
+        },
+        {
+          "testName": "MainActivityFlakyTest.testTextFlaky6",
+          "metricType": "FAILURE",
+          "startDate": 1550297748715,
+          "endDate": 1550297750499,
+          "expectedValue": 0,
+          "variance": 0
+        },
+        {
+          "testName": "MainActivityFlakyTest.testTextFlaky5",
+          "metricType": "PASSED",
+          "startDate": 1550297750881,
+          "endDate": 1550297752625,
+          "expectedValue": 0,
+          "variance": 0
+        },
+        {
+          "testName": "MainActivityFlakyTest.testTextFlaky6",
+          "metricType": "PASSED",
+          "startDate": 1550297753468,
+          "endDate": 1550297755755,
+          "expectedValue": 0,
+          "variance": 0
+        },
+        {
+          "testName": "MainActivityFlakyTest.testTextFlaky4",
+          "metricType": "FAILURE",
+          "startDate": 1550297756749,
+          "endDate": 1550297759055,
+          "expectedValue": 0,
+          "variance": 0
+        },
+        {
+          "testName": "MainActivityFlakyTest.testTextFlaky3",
+          "metricType": "FAILURE",
+          "startDate": 1550297760218,
+          "endDate": 1550297762696,
+          "expectedValue": 0,
+          "variance": 0
+        },
+        {
+          "testName": "MainActivityFlakyTest.testTextFlaky4",
+          "metricType": "PASSED",
+          "startDate": 1550297763398,
+          "endDate": 1550297765361,
+          "expectedValue": 0,
+          "variance": 0
+        },
+        {
+          "testName": "MainActivityFlakyTest.testTextFlaky3",
+          "metricType": "PASSED",
+          "startDate": 1550297766546,
+          "endDate": 1550297768325,
+          "expectedValue": 0,
+          "variance": 0
+        },
+        {
+          "testName": "MainActivityFlakyTest.testTextFlaky2",
+          "metricType": "FAILURE",
+          "startDate": 1550297769200,
+          "endDate": 1550297771122,
+          "expectedValue": 0,
+          "variance": 0
+        },
+        {
+          "testName": "MainActivityFlakyTest.testTextFlaky1",
+          "metricType": "FAILURE",
+          "startDate": 1550297771556,
+          "endDate": 1550297773330,
+          "expectedValue": 0,
+          "variance": 0
+        },
+        {
+          "testName": "MainActivityFlakyTest.testTextFlaky2",
+          "metricType": "PASSED",
+          "startDate": 1550297773908,
+          "endDate": 1550297775713,
+          "expectedValue": 0,
+          "variance": 0
+        },
+        {
+          "testName": "MainActivityFlakyTest.testTextFlaky1",
+          "metricType": "PASSED",
+          "startDate": 1550297776425,
+          "endDate": 1550297778878,
+          "expectedValue": 0,
+          "variance": 0
+        },
+        {
+          "testName": "MainActivityFlakyTest.testTextFlaky",
+          "metricType": "PASSED",
+          "startDate": 1550297779718,
+          "endDate": 1550297781559,
+          "expectedValue": 0,
+          "variance": 0
+        },
+        {
+          "testName": "FailedAssumptionTest.ignoreTest",
+          "metricType": "IGNORED",
+          "startDate": 1550297782120,
+          "endDate": 1550297782178,
+          "expectedValue": 0,
+          "variance": 0
+        }
+      ]
+    }
+  ]
+}
