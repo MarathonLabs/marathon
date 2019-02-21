@@ -45,7 +45,9 @@ class AndroidDeviceTestRunner(private val device: AndroidDevice) {
                 deferred: CompletableDeferred<TestBatchResults>,
                 progressReporter: ProgressReporter) {
 
-        val runner = prepareTestRunner(configuration, testBatch)
+        val androidConfiguration = configuration.vendorConfiguration as AndroidConfiguration
+        val info = ApkParser().parseInstrumentationInfo(androidConfiguration.testApplicationOutput)
+        val runner = prepareTestRunner(configuration, androidConfiguration, info, testBatch)
 
         val fileManager = FileManager(configuration.outputDir)
         val attachmentProviders = mutableListOf<AttachmentProvider>()
@@ -114,9 +116,11 @@ class AndroidDeviceTestRunner(private val device: AndroidDevice) {
         }
     }
 
-    private fun prepareTestRunner(configuration: Configuration, testBatch: TestBatch): RemoteAndroidTestRunner {
-        val androidConfiguration = configuration.vendorConfiguration as AndroidConfiguration
-        val info = ApkParser().parseInstrumentationInfo(androidConfiguration.testApplicationOutput)
+    private fun prepareTestRunner(configuration: Configuration,
+                                  androidConfiguration: AndroidConfiguration,
+                                  info: InstrumentationInfo,
+                                  testBatch: TestBatch): RemoteAndroidTestRunner {
+
         val runner = RemoteAndroidTestRunner(info.instrumentationPackage, info.testRunnerClass, device.ddmsDevice)
 
         val tests = testBatch.tests.map {

@@ -92,7 +92,7 @@ open class MarathonRunTask : DefaultTask(), VerificationTask {
                 applicationApk,
                 instrumentationApk,
                 autoGrantPermission,
-                instrumentationArgs
+                instrumentationArgs,
                 applicationPmClear,
                 testApplicationPmClear)
     }
