@@ -6,13 +6,16 @@ import com.malinskiy.marathon.android.defaultInitTimeoutMillis
 import com.malinskiy.marathon.exceptions.ConfigurationException
 import java.io.File
 
-data class FileAndroidConfiguration(@JsonProperty("androidSdk") val androidSdk: File?,
-                                    @JsonProperty("applicationApk") val applicationOutput: File?,
-                                    @JsonProperty("testApplicationApk") val testApplicationOutput: File,
-                                    @JsonProperty("autoGrantPermission") val autoGrantPermission: Boolean?,
-                                    @JsonProperty("adbInitTimeoutMillis") val adbInitTimeoutMillis: Int?)
+data class FileAndroidConfiguration(
+        @JsonProperty("androidSdk") val androidSdk: File?,
+        @JsonProperty("applicationApk") val applicationOutput: File?,
+        @JsonProperty("testApplicationApk") val testApplicationOutput: File,
+        @JsonProperty("autoGrantPermission") val autoGrantPermission: Boolean?,
+        @JsonProperty("instrumentationArgs") val instrumentationArgs: Map<String, String>?,
+        @JsonProperty("applicationPmClear") val applicationPmClear: Boolean?,
+        @JsonProperty("testApplicationPmClear") val testApplicationPmClear: Boolean?,
+        @JsonProperty("adbInitTimeoutMillis") val adbInitTimeoutMillis: Int?)
     : FileVendorConfiguration {
-
 
     fun toAndroidConfiguration(environmentAndroidSdk: File?): AndroidConfiguration {
         val finalAndroidSdk = androidSdk
@@ -24,6 +27,9 @@ data class FileAndroidConfiguration(@JsonProperty("androidSdk") val androidSdk: 
                 applicationOutput = applicationOutput,
                 testApplicationOutput = testApplicationOutput,
                 autoGrantPermission = autoGrantPermission ?: false,
+                instrumentationArgs = instrumentationArgs ?: emptyMap(),
+                applicationPmClear = applicationPmClear ?: false,
+                testApplicationPmClear = testApplicationPmClear ?: false,
                 adbInitTimeoutMillis = adbInitTimeoutMillis ?: defaultInitTimeoutMillis
         )
     }

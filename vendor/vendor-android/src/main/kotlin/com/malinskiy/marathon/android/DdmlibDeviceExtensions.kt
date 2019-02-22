@@ -6,6 +6,7 @@ import com.android.ddmlib.IDevice
 import com.android.ddmlib.IShellOutputReceiver
 import com.android.ddmlib.InstallException
 import com.android.ddmlib.InstallReceiver
+import com.android.ddmlib.MultiLineReceiver
 import com.android.ddmlib.ScreenRecorderOptions
 import com.android.ddmlib.ShellCommandUnresponsiveException
 import com.android.ddmlib.TimeoutException
@@ -60,6 +61,27 @@ fun IDevice.safeStartScreenRecorder(remoteFilePath: String, options: ScreenRecor
     executeShellCommand(screenRecorderCommand, receiver, ADB_SCREEN_RECORD_TIMEOUT, ADB_SCREEN_RECORD_TIMEOUT, TimeUnit.MINUTES)
 }
 
+fun IDevice.safeClearPackage(packageName: String): String? {
+    var result: String? = null
+
+    try {
+        val receiver = SimpleOutputReceiver()
+        executeShellCommand("pm clear $packageName",
+                receiver,
+                ADB_SHORT_TIMEOUT_SECONDS,
+                ADB_SHORT_TIMEOUT_SECONDS,
+                TimeUnit.SECONDS)
+
+        result = receiver.output()
+    } catch (e: TimeoutException) {
+    } catch (e: AdbCommandRejectedException) {
+    } catch (e: ShellCommandUnresponsiveException) {
+    } catch (e: IOException) {
+    } finally {
+        return result
+    }
+}
+
 fun getScreenRecorderCommand(@NonNull remoteFilePath: String,
                              @NonNull options: ScreenRecorderOptions): String {
     val sb = StringBuilder()
@@ -94,4 +116,17 @@ fun getScreenRecorderCommand(@NonNull remoteFilePath: String,
     sb.append(remoteFilePath)
 
     return sb.toString()
+}
+
+class SimpleOutputReceiver: MultiLineReceiver() {
+    private val buffer = StringBuffer()
+
+    fun output() = buffer.toString()
+
+    override fun processNewLines(lines: Array<out String>?) {
+        lines?.forEach {
+            buffer.append(it)
+        }
+    }
+    override fun isCancelled() = false
 }

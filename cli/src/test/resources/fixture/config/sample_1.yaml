@@ -66,3 +66,7 @@ vendorConfiguration:
   applicationApk: "kotlin-buildscript/build/outputs/apk/debug/kotlin-buildscript-debug.apk"
   testApplicationApk: "kotlin-buildscript/build/outputs/apk/androidTest/debug/kotlin-buildscript-debug-androidTest.apk"
   autoGrantPermission: true
+  applicationPmClear: true
+  testApplicationPmClear: true
+  instrumentationArgs:
+    debug: "false"

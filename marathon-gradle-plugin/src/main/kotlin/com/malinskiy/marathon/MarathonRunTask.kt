@@ -3,6 +3,8 @@ package com.malinskiy.marathon
 import com.android.build.gradle.api.BaseVariant
 import com.android.build.gradle.api.TestVariant
 import com.malinskiy.marathon.android.AndroidConfiguration
+import com.malinskiy.marathon.android.DEFAULT_APPLICATION_PM_CLEAR
+import com.malinskiy.marathon.android.DEFAULT_AUTO_GRANT_PERMISSION
 import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.extensions.extractApplication
 import com.malinskiy.marathon.extensions.extractTestApplication
@@ -35,11 +37,8 @@ open class MarathonRunTask : DefaultTask(), VerificationTask {
 
         val baseOutputDir = if (extensionConfig.baseOutputDir != null) File(extensionConfig.baseOutputDir) else File(project.buildDir, "reports/marathon")
         val output = File(baseOutputDir, flavorName)
-        val autoGrantPermission = extensionConfig.autoGrantPermission
-        val vendorConfiguration = when (autoGrantPermission) {
-            null -> AndroidConfiguration(sdk, applicationApk, instrumentationApk)
-            else -> AndroidConfiguration(sdk, applicationApk, instrumentationApk, autoGrantPermission)
-        }
+
+        val vendorConfiguration = createAndroidConfiguration(extensionConfig, applicationApk, instrumentationApk)
 
         cnf = Configuration(
                 extensionConfig.name,
@@ -79,6 +78,23 @@ open class MarathonRunTask : DefaultTask(), VerificationTask {
         if (!success && !cnf.ignoreFailures) {
             throw GradleException("Tests failed! See ${cnf.outputDir}/html/index.html")
         }
+    }
+
+    private fun createAndroidConfiguration(extension: MarathonExtension,
+                                           applicationApk: File?,
+                                           instrumentationApk: File): AndroidConfiguration {
+        val autoGrantPermission = extension.autoGrantPermission ?: DEFAULT_AUTO_GRANT_PERMISSION
+        val instrumentationArgs = extension.instrumentationArgs
+        val applicationPmClear = extension.applicationPmClear ?: DEFAULT_APPLICATION_PM_CLEAR
+        val testApplicationPmClear = extension.testApplicationPmClear ?: DEFAULT_APPLICATION_PM_CLEAR
+
+        return AndroidConfiguration(sdk,
+                applicationApk,
+                instrumentationApk,
+                autoGrantPermission,
+                instrumentationArgs,
+                applicationPmClear,
+                testApplicationPmClear)
     }
 
     override fun getIgnoreFailures(): Boolean = ignoreFailure
