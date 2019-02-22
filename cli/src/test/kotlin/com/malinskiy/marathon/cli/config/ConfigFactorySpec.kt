@@ -198,7 +198,8 @@ object ConfigFactorySpec : Spek({
                         alwaysEraseSimulators = false,
                         hideRunnerOutput = true,
                         compactOutput = true,
-                        keepAliveIntervalMillis = 300000L,
+                        keepAliveIntervalMillis = 300_000L,
+                        deviceInitializationTimeoutMillis = 60_000L,
                         devicesFile = file.parentFile.resolve("Testdevices"))
             }
         }

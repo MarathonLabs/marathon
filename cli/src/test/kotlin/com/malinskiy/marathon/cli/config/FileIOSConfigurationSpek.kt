@@ -34,6 +34,7 @@ object FileIOSConfigurationSpek : Spek({
                     debugSsh = null,
                     alwaysEraseSimulators = true,
                     hideRunnerOutput = null,
+                    deviceInitializationTimeoutMillis = null,
                     devices = null)
 
             it("should search for such file under derived data folder") {

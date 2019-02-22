@@ -13,4 +13,5 @@ vendorConfiguration:
   hideRunnerOutput: true
   compactOutput: true
   keepAliveIntervalMillis: 300000
+  deviceInitializationTimeoutMillis: 60000
   devices: "Testdevices"
