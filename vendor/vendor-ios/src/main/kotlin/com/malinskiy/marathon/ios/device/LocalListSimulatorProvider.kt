@@ -48,10 +48,13 @@ class LocalListSimulatorProvider(override val coroutineContext: CoroutineContext
     override suspend fun start() = withContext(coroutineContext) {
         logger.info("starts providing ${simulators.count()} simulator devices")
         val jobs = simulators.map {
-            async(context = coroutineContext) {
+            async(context = coroutineContext + CoroutineName("creator")) {
                 createDevice(it, RemoteSimulatorConnectionCounter.putAndGet(it.udid))?.let { connect(it) }
             }
+        }.also {
+            logger.info("dispatched ${it.size} async jobs")
         }.joinAll()
+        logger.info("completed all jobs with ${devices.mappingCount()} stored devices")
     }
 
     override suspend fun stop() = withContext(coroutineContext) {
@@ -62,7 +65,7 @@ class LocalListSimulatorProvider(override val coroutineContext: CoroutineContext
         }
         devices.values.forEach {
             dispose(it)
-            logger.debug("Disposed device ${it.udid}")
+            logger.debug("disposed device ${it.udid}")
         }
         devices.clear()
     }
