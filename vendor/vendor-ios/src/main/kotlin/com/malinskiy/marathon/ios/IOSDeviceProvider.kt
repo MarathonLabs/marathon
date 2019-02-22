@@ -14,7 +14,6 @@ import com.malinskiy.marathon.ios.simctl.model.SimctlDeviceListDeserializer
 import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.vendor.VendorConfiguration
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.newFixedThreadPoolContext
 import kotlinx.coroutines.withContext
@@ -22,24 +21,21 @@ import kotlin.coroutines.CoroutineContext
 
 class IOSDeviceProvider : DeviceProvider, CoroutineScope {
 
-    private val dispatcher = newFixedThreadPoolContext(4, "IOSDeviceProvider")
+    private val dispatcher = newFixedThreadPoolContext(1, "IOSDeviceProvider")
     override val coroutineContext: CoroutineContext
-        get() = dispatcher + Job()
+        get() = dispatcher
 
     private val logger = MarathonLogging.logger(IOSDeviceProvider::class.java.simpleName)
 
     private var simulatorProvider: SimulatorProvider? = null
 
-    override var deviceInitializationTimeoutMillis: Long = IOSConfiguration.DEFAULT_DEVICE_INITIALIZATION_TIMEOUT_MILLIS
-    private set
+    override val deviceInitializationTimeoutMillis: Long = 300_000
     override suspend fun initialize(vendorConfiguration: VendorConfiguration) {
         if (vendorConfiguration !is IOSConfiguration) {
             throw IllegalStateException("Invalid configuration $vendorConfiguration")
         }
 
         logger.debug("Initializing IOSDeviceProvider")
-
-        deviceInitializationTimeoutMillis = vendorConfiguration.deviceInitializationTimeoutMillis
 
         val gson = GsonBuilder().registerTypeAdapter(SimctlDeviceList::class.java, SimctlDeviceListDeserializer())
                 .create()

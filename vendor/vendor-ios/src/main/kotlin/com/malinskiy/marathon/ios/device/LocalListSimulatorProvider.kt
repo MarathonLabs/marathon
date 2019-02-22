@@ -26,14 +26,13 @@ import kotlin.coroutines.CoroutineContext
 
 private const val MAX_CONNECTION_ATTEMPTS = 16
 
-class LocalListSimulatorProvider(context: CoroutineContext,
+class LocalListSimulatorProvider(override val coroutineContext: CoroutineContext,
                                  private val channel: Channel<DeviceProvider.DeviceEvent>,
                                  private val configuration: IOSConfiguration,
                                  yamlObjectMapper: ObjectMapper,
                                  private val gson: Gson) : SimulatorProvider, HealthChangeListener, CoroutineScope {
 
     private val job = Job()
-    override val coroutineContext: CoroutineContext = context + job
 
     private val logger = MarathonLogging.logger(LocalListSimulatorProvider::class.java.simpleName)
 
@@ -49,8 +48,7 @@ class LocalListSimulatorProvider(context: CoroutineContext,
     override suspend fun start() = withContext(coroutineContext) {
         logger.info("starts providing ${simulators.count()} simulator devices")
         val jobs = simulators.map {
-            // launch as children jobs
-            launch(context = coroutineContext + Job(job)) {
+            async(context = coroutineContext) {
                 createDevice(it, RemoteSimulatorConnectionCounter.putAndGet(it.udid))?.let { connect(it) }
             }
         }.joinAll()
@@ -70,7 +68,7 @@ class LocalListSimulatorProvider(context: CoroutineContext,
     }
 
     override suspend fun onDisconnect(device: IOSDevice) = withContext(coroutineContext + CoroutineName("onDisconnect")) {
-        launch(context = coroutineContext + CoroutineName("disconnector")) {
+        launch(context = coroutineContext + job + CoroutineName("disconnector")) {
             try {
                 if (devices.remove(device.serialNumber, device)) {
                     dispose(device)
@@ -85,7 +83,7 @@ class LocalListSimulatorProvider(context: CoroutineContext,
         if (device.failureReason == DeviceFailureReason.InvalidSimulatorIdentifier) {
             logger.error("device ${device.udid} does not exist on remote host")
         } else if (RemoteSimulatorConnectionCounter.get(device.udid) < MAX_CONNECTION_ATTEMPTS) {
-            launch(context = coroutineContext + CoroutineName("reconnector")) {
+            launch(context = coroutineContext + job + CoroutineName("reconnector")) {
                 delay(499)
                 if (isActive) {
                     createDevice(
