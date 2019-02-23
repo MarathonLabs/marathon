@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.google.gson.Gson
 import com.malinskiy.marathon.device.DeviceProvider
+import com.malinskiy.marathon.exceptions.DeviceLostException
 import com.malinskiy.marathon.ios.HealthChangeListener
 import com.malinskiy.marathon.ios.IOSConfiguration
 import com.malinskiy.marathon.ios.IOSDevice
@@ -131,8 +132,9 @@ class LocalListSimulatorProvider(override val coroutineContext: CoroutineContext
             gson = gson,
             healthChangeListener = this
         )
-    } catch (e: DeviceFailureException) {
-        logger.error("Failed to initialize ${simulator.udid}-$connectionAttempt with reason ${e.reason}: ${e.message}")
+    } catch (e: DeviceLostException) {
+        logger.error("Failed to initialize ${simulator.udid}-$connectionAttempt: ${e.message}")
+        logger.error("Cause: ${e.cause}")
         null
     }
 
