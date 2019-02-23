@@ -63,12 +63,13 @@ class IOSDevice(val simulator: RemoteSimulator,
     val name: String?
     private val runtime: String?
     private val deviceType: String?
+    private val features: Collection<DeviceFeature>
 
     init {
         val hostAddress = simulator.host.toInetAddressOrNull()
         if (hostAddress == null) {
             deviceContext.close()
-            throw DeviceFailureException(DeviceFailureReason.UnreachableHost)
+            throw DeviceLostException(DeviceFailureException(DeviceFailureReason.UnreachableHost))
         }
         hostCommandExecutor = try {
             SshjCommandExecutor(
@@ -81,7 +82,7 @@ class IOSDevice(val simulator: RemoteSimulator,
             )
         } catch(e: DeviceFailureException) {
             deviceContext.close()
-            throw e
+            throw DeviceLostException(e)
         }
 
         val simctl = Simctl()
@@ -89,7 +90,7 @@ class IOSDevice(val simulator: RemoteSimulator,
             simctl.list(this, gson).find { it.udid == udid }
         } catch (e: DeviceFailureException) {
             dispose()
-            throw e
+            throw DeviceLostException(e)
         }
         runtime = device?.runtime
         name = device?.name
@@ -97,7 +98,14 @@ class IOSDevice(val simulator: RemoteSimulator,
             simctl.deviceType(this)
         } catch (e: DeviceFailureException) {
             dispose()
-            throw e
+            throw DeviceLostException(e)
+        }
+        features = try {
+            RemoteSimulatorFeatureProvider.deviceFeatures(this)
+        } catch (e: DeviceFailureException) {
+            logger.warn("Exception requesting remote device features: $e")
+            dispose()
+            throw DeviceLostException(e)
         }
     }
 
@@ -114,9 +122,7 @@ class IOSDevice(val simulator: RemoteSimulator,
             true -> NetworkState.CONNECTED
             false -> NetworkState.DISCONNECTED
         }
-    override val deviceFeatures: Collection<DeviceFeature> by lazy {
-        RemoteSimulatorFeatureProvider.deviceFeatures(this)
-    }
+    override val deviceFeatures: Collection<DeviceFeature> = features
     override var healthy: Boolean = true
         private set
     override val abi: String
@@ -244,7 +250,12 @@ class IOSDevice(val simulator: RemoteSimulator,
             val derivedDataManager = DerivedDataManager(configuration)
 
             val remoteXctestrunFile = RemoteFileManager.remoteXctestrunFile(this@IOSDevice)
-            val xctestrunFile = prepareXctestrunFile(derivedDataManager, remoteXctestrunFile)
+            val xctestrunFile = try {
+                prepareXctestrunFile(derivedDataManager, remoteXctestrunFile)
+            } catch (e: Exception) {
+                logger.warn("Exception getting remote TCP port $e")
+                throw e
+            }
 
             derivedDataManager.sendSynchronized(
                     localPath = xctestrunFile,
