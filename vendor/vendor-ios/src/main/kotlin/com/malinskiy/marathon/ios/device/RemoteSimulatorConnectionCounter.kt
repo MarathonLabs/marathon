@@ -5,9 +5,9 @@ import java.util.Collections
 object RemoteSimulatorConnectionCounter {
     private val udids = Collections.synchronizedList(mutableListOf<String>())
 
-    fun get(udid: String): Int = udids.count { it == udid }
+    fun get(udid: String): Int = synchronized(this) { udids.count { it == udid } }
 
-    fun putAndGet(udid: String): Int {
+    fun putAndGet(udid: String): Int = synchronized(this) {
         udids.add(udid)
         return get(udid)
     }

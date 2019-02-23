@@ -52,9 +52,9 @@ class LocalListSimulatorProvider(override val coroutineContext: CoroutineContext
                 createDevice(it, RemoteSimulatorConnectionCounter.putAndGet(it.udid))?.let { connect(it) }
             }
         }.also {
-            logger.info("dispatched ${it.size} async jobs")
+            logger.debug("dispatched ${it.size} async jobs")
         }.joinAll()
-        logger.info("completed all jobs with ${devices.mappingCount()} stored devices")
+        logger.debug("completed all jobs with ${devices.mappingCount()} stored devices")
     }
 
     override suspend fun stop() = withContext(coroutineContext) {
