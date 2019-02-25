@@ -28,7 +28,7 @@ class TestRunProgressParser(private val timer: Timer,
         }
     }
 
-    fun notifyTestFinished(line: String) {
+    private fun notifyTestFinished(line: String) {
         val matchResult = TEST_CASE_FINISHED.find(line)
         val pkg = packageNameFormatter.format(matchResult?.groups?.get(1)?.value)
         val clazz = matchResult?.groups?.get(2)?.value
@@ -56,7 +56,7 @@ class TestRunProgressParser(private val timer: Timer,
         }
     }
 
-    fun notifyTestStarted(line: String) {
+    private fun notifyTestStarted(line: String) {
         val matchResult = TEST_CASE_STARTED.find(line)
         val pkg = packageNameFormatter.format(matchResult?.groups?.get(1)?.value)
         val clazz = matchResult?.groups?.get(2)?.value

@@ -169,24 +169,22 @@ class SshjCommandExecutor(connectionId: String,
         } catch (e: TimeoutCancellationException) {
             try {
                 session.kill()
-            } catch (e: TransportException) {
-            }
+            } catch (e: TransportException) { /* quietly continue */ }
 
             throw TimeoutException(e.message)
         } catch (e: OutputTimeoutException) {
             try {
                 session.kill()
-            } catch (e: TransportException) {
-            }
+            } catch (e: TransportException) { /* moving on */ }
 
             throw SshjCommandUnresponsiveException("Remote command \n\u001b[1m$command\u001b[0mdid not send any output over ${testOutputTimeoutMillis}ms")
         } finally {
             try {
                 session.close()
-            } catch (e: IOException) {
-            } catch (e: TransportException) {
-            } catch (e: ConnectionException) {
             }
+            catch (e: IOException) { /* what a piece of work is detekt! */ }
+            catch (e: TransportException) { /* how noble in reason */ }
+            catch (e: ConnectionException) { /* how infinite in faculty */  }
         }
         logger.trace("Execution completed after ${System.currentTimeMillis() - startTime}ms")
         session.exitStatus

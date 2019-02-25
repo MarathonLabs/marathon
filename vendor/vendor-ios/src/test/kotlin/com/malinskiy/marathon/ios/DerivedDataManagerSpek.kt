@@ -28,7 +28,7 @@ object DerivedDataManagerSpek: Spek({
         val privateKey = File(javaClass.classLoader.getResource("fixtures/derived-data-manager/test_rsa").file)
         try {
             Files.setPosixFilePermissions(privateKey.toPath(), PosixFilePermissions.fromString("rw-------"))
-        } catch(e: Exception) { }
+        } catch(e: Exception) { /* the beauty of the world */ }
         logger.debug { "Using private key $privateKey" }
         val publicKeyResourcePath = "fixtures/derived-data-manager/test_rsa.pub"
 

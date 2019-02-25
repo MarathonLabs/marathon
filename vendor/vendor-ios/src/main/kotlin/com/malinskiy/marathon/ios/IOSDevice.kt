@@ -252,7 +252,7 @@ class IOSDevice(val simulator: RemoteSimulator,
             val remoteXctestrunFile = RemoteFileManager.remoteXctestrunFile(this@IOSDevice)
             val xctestrunFile = try {
                 prepareXctestrunFile(derivedDataManager, remoteXctestrunFile)
-            } catch (e: Exception) {
+            } catch (e: IOException) {
                 logger.warn("Exception getting remote TCP port $e")
                 throw e
             }

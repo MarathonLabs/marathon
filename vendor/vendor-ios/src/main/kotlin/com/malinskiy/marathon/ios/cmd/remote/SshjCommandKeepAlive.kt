@@ -9,6 +9,7 @@ import net.schmizz.sshj.connection.ConnectionImpl
 import net.schmizz.sshj.transport.TransportException
 import java.util.*
 
+/* A drop-in replacement expanding the implementation provided with sshj */
 class SshjCommandKeepAlive(conn: ConnectionImpl, hostname: String): KeepAlive(conn, "$hostname keep-alive") {
 
     /** The max number of keep-alives that should be unanswered before killing the connection.  */
