@@ -1,6 +1,6 @@
 [![Build Status](https://travis-ci.org/Malinskiy/marathon.svg?branch=develop)](https://travis-ci.org/Malinskiy/marathon)
 [![codecov](https://codecov.io/gh/malinskiy/marathon/branch/develop/graph/badge.svg)](https://codecov.io/gh/malinskiy/marathon)
-[![Slack](https://img.shields.io/badge/slack-chat-green.svg?logo=slack&longCache=true&style=flat)](https://join.slack.com/t/marathon-test-runner/shared_invite/enQtNDczODU5MDUzOTg0LTNhYjRhOGRhMjMwMGZjMjY5MTY3MDI3ZmMzNTRjYzhmOGRkNDQ5OTIzMzA4ODQ5YjZmMWNiZjljMzcyY2VhMzE)
+[![Slack](https://img.shields.io/badge/slack-chat-green.svg?logo=slack&longCache=true&style=flat)](https://join.slack.com/t/marathon-test-runner/shared_invite/enQtNTYxMTg4NjQxNjM5LTMzNTVlYmNkNTAwMjI3NzJhMTMzZDVlMWZmNjI5NjAyMzg4YTAwNDAwMDBhYjhkOTg0MGY5OGQ4MjQ5NmEzYWY)
 
 # Marathon
 Cross-platform test runner written for Android and iOS projects
