@@ -21,6 +21,7 @@ open class MarathonExtension(project: Project) {
     var ignoreFailures: Boolean? = null
     var isCodeCoverageEnabled: Boolean? = null
     var fallbackToScreenshots: Boolean? = null
+    var testSuiteNameMatchesClassName: Boolean? = null
 
     var testClassRegexes: Collection<String>? = null
     var includeSerialRegexes: Collection<String>? = null

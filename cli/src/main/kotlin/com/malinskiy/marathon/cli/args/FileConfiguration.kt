@@ -26,6 +26,7 @@ data class FileConfiguration(
         var ignoreFailures: Boolean?,
         var isCodeCoverageEnabled: Boolean?,
         var fallbackToScreenshots: Boolean?,
+        var testSuiteNameMatchesClassName: Boolean?,
 
         var testClassRegexes: Collection<Regex>?,
         var includeSerialRegexes: Collection<Regex>?,

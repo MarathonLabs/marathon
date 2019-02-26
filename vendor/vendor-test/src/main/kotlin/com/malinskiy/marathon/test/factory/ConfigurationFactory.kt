@@ -27,6 +27,7 @@ class ConfigurationFactory {
     var ignoreFailures = null
     var includeSerialRegexes = null
     var isCodeCoverageEnabled = null
+    var testSuiteNameMatchesClassName = null
     var poolingStrategy = null
     var retryStrategy = null
     var shardingStrategy = null
@@ -60,6 +61,7 @@ class ConfigurationFactory {
                     ignoreFailures,
                     isCodeCoverageEnabled,
                     fallbackToScreenshots,
+                    testSuiteNameMatchesClassName,
                     testClassRegexes,
                     includeSerialRegexes,
                     excludeSerialRegexes,
