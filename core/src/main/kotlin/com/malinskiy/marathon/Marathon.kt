@@ -83,6 +83,7 @@ class Marathon(val configuration: Configuration) {
             runAsync()
         } catch (th: Throwable) {
             log.error(th.toString())
+            log.debug(th.stackTrace.joinToString { "$it" })
             false
         }
     }
