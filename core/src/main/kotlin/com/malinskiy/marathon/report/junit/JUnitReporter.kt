@@ -2,6 +2,7 @@ package com.malinskiy.marathon.report.junit
 
 import com.malinskiy.marathon.device.DeviceInfo
 import com.malinskiy.marathon.device.DevicePoolId
+import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.execution.TestResult
 import com.malinskiy.marathon.execution.TestStatus
 import com.malinskiy.marathon.io.FileManager
@@ -14,7 +15,9 @@ import java.util.Locale
 import javax.xml.stream.XMLOutputFactory
 import javax.xml.stream.XMLStreamWriter
 
-class JUnitReporter(private val fileManager: FileManager) {
+class JUnitReporter(configuration: Configuration, private val fileManager: FileManager) {
+    private val testSuiteNameMatchesClassName = configuration.testSuiteNameMatchesClassName
+
     fun testFinished(devicePoolId: DevicePoolId, device: DeviceInfo, testResult: TestResult) {
         val file = fileManager.createFile(FileType.TEST, devicePoolId, device, testResult.test)
         file.createNewFile()
@@ -32,6 +35,7 @@ class JUnitReporter(private val fileManager: FileManager) {
         fun Long.toJUnitSeconds(): String = (this / 1000.0).toString()
 
         val test = testResult.test
+        val testsuiteName = if (testSuiteNameMatchesClassName) test.clazz else "common"
 
         val failures = if (testResult.status == TestStatus.FAILURE) 1 else 0
         val ignored = if (testResult.status == TestStatus.IGNORED || testResult.status == TestStatus.ASSUMPTION_FAILURE) 1 else 0
@@ -42,7 +46,7 @@ class JUnitReporter(private val fileManager: FileManager) {
 
         writer.document {
             element("testsuite") {
-                attribute("name", "common")
+                attribute("name", testsuiteName)
                 attribute("tests", "1")
                 attribute("failures", "$failures")
                 attribute("errors", "0")
