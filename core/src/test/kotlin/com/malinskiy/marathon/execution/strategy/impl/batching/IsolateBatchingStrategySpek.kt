@@ -11,9 +11,9 @@ import org.jetbrains.spek.api.dsl.describe
 import org.jetbrains.spek.api.dsl.it
 import java.util.*
 
-class IsolateBatchingStrategySpek : Spek({
+object IsolateBatchingStrategySpek : Spek({
 
-    val analytics = Analytics(NoOpTracker(), NoOpMetricsProvider())
+    val metricsProvider = NoOpMetricsProvider()
 
     describe("isolate batching strategy test") {
         it("should return batches with size = 1") {
@@ -22,11 +22,11 @@ class IsolateBatchingStrategySpek : Spek({
             val tests = TestGenerator().create(50)
             queue.addAll(tests)
             queue.size shouldBe 50
-            strategy.process(queue, analytics).tests.size shouldBe 1
+            strategy.process(queue, metricsProvider).tests.size shouldBe 1
             queue.size shouldBe 49
-            strategy.process(queue, analytics).tests.size shouldBe 1
+            strategy.process(queue, metricsProvider).tests.size shouldBe 1
             queue.size shouldBe 48
-            strategy.process(queue, analytics).tests.size shouldBe 1
+            strategy.process(queue, metricsProvider).tests.size shouldBe 1
             queue.size shouldBe 47
         }
     }

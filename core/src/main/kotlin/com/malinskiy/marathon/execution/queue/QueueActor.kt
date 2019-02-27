@@ -32,9 +32,12 @@ class QueueActor(configuration: Configuration,
 
     private val logger = MarathonLogging.logger("QueueActor[$poolId]")
 
+    private val sortingMetricsProvider = analytics.metricsProviderProvider.create()
     private val sorting = configuration.sortingStrategy
 
-    private val queue: Queue<Test> = PriorityQueue<Test>(sorting.process(analytics))
+    private val queue: Queue<Test> = PriorityQueue<Test>(sorting.process(sortingMetricsProvider))
+
+    private val batchingMetricsProvider = analytics.metricsProviderProvider.create()
     private val batching = configuration.batchingStrategy
     private val retry = configuration.retryStrategy
 
@@ -98,6 +101,8 @@ class QueueActor(configuration: Configuration,
     }
 
     private fun onTerminate() {
+        sortingMetricsProvider.close()
+        batchingMetricsProvider.close()
         close()
     }
 
@@ -159,7 +164,7 @@ class QueueActor(configuration: Configuration,
     }
 
     private suspend fun sendBatch(device: DeviceInfo) {
-        val batch = batching.process(queue, analytics)
+        val batch =  batching.process(queue, batchingMetricsProvider)
         activeBatches[device.serialNumber] = batch
         pool.send(FromQueue.ExecuteBatch(device, batch))
     }

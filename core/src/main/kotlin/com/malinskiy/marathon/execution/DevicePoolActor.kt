@@ -47,8 +47,9 @@ class DevicePoolActor(private val poolId: DevicePoolId,
     private val poolJob = Job(parent)
 
     private val shardingStrategy = configuration.shardingStrategy
+    private val flakinessMetricsProvider = analytics.metricsProviderProvider.create()
     private val flakinessShard = configuration.flakinessStrategy
-    private val shard = flakinessShard.process(shardingStrategy.createShard(tests), analytics)
+    private val shard = flakinessShard.process(shardingStrategy.createShard(tests), flakinessMetricsProvider)
 
     private val queue: QueueActor = QueueActor(configuration, shard, analytics, this, poolId, progressReporter, poolJob, context)
 
@@ -110,6 +111,7 @@ class DevicePoolActor(private val poolId: DevicePoolId,
 
     private fun terminate() {
         poolJob.cancel()
+        flakinessMetricsProvider.close()
         close()
     }
 

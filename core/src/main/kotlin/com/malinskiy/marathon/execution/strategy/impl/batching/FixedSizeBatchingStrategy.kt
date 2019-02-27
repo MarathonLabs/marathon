@@ -1,6 +1,7 @@
 package com.malinskiy.marathon.execution.strategy.impl.batching
 
 import com.malinskiy.marathon.analytics.Analytics
+import com.malinskiy.marathon.analytics.metrics.MetricsProvider
 import com.malinskiy.marathon.execution.strategy.BatchingStrategy
 import com.malinskiy.marathon.test.Test
 import com.malinskiy.marathon.test.TestBatch
@@ -13,7 +14,7 @@ class FixedSizeBatchingStrategy(private val size: Int,
                                 private val timeLimit: Instant? = null,
                                 private val lastMileLength: Int = 0) : BatchingStrategy {
 
-    override fun process(queue: Queue<Test>, analytics: Analytics): TestBatch {
+    override fun process(queue: Queue<Test>, metricsProvider: MetricsProvider): TestBatch {
         if(queue.size < lastMileLength && queue.isNotEmpty()) {
             //We optimize last mile by disabling batching completely.
             // This allows us to parallelize the test runs at the end instead of running batches in series
@@ -37,7 +38,7 @@ class FixedSizeBatchingStrategy(private val size: Int,
                 //Check for expected batch duration. If we hit the duration limit - break
                 //Important part is to add at least one test so that if one test is longer than a batch
                 //We still have at least one test
-                val expectedTestDuration = analytics.metricsProvider.executionTime(item, percentile, timeLimit)
+                val expectedTestDuration = metricsProvider.executionTime(item, percentile, timeLimit)
                 expectedBatchDuration += expectedTestDuration
                 if(expectedBatchDuration >= durationMillis) break
             }
