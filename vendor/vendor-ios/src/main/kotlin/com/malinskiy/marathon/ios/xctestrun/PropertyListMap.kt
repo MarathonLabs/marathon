@@ -2,6 +2,8 @@ package com.malinskiy.marathon.ios.xctestrun
 
 typealias PropertyListMap = MutableMap<String, Any>
 
+fun emptyPropertyListMap(): PropertyListMap = mutableMapOf()
+
 fun PropertyListMap.valueForKeypath(vararg keys: PropertyListKey): Any? = valueForKeypath(keypath = keys.map { it.toKeyString() }.joinToString(separator = Keypath.separator))
 fun PropertyListMap.valueForKeypath(module: String, vararg keys: PropertyListKey): Any? {
     val keypath: Keypath = module + Keypath.separator + keys.map { it.toKeyString() }.joinToString(separator = Keypath.separator)

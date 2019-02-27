@@ -92,5 +92,14 @@ object XctestrunSpek : Spek({
                 xctestrun.targetName shouldEqual "sample-appUITests"
             }
         }
+        given("an incomplete file") {
+            val incompleteFile = File(javaClass.classLoader.getResource("fixtures/xctestrun/UITesting_iphonesimulator12.1-x86_64-incomplete.xctestrun").file)
+            val xctestrun by memoized { Xctestrun(incompleteFile) }
+
+            it("should quietly handle missing optional values") {
+                xctestrun.environmentVariables shouldEqual emptyPropertyListMap()
+                xctestrun.skipTestIdentifiers shouldEqual emptyArray()
+            }
+        }
     }
 })

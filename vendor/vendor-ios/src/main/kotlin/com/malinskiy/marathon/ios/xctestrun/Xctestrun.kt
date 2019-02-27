@@ -48,17 +48,20 @@ class Xctestrun(inputStream: InputStream) {
     /**
      * @see <a href="x-man-page://5/xcodebuild.xctestrun">xcodebuild.xctestrun(5)</a>
      */
-    val environmentVariables = propertyList.valueForKeypath(target, PropertyListKey.EnvironmentVariables) as PropertyListMap
+    val environmentVariables = propertyList.valueForKeypath(target, PropertyListKey.EnvironmentVariables) as? PropertyListMap
+            ?: emptyPropertyListMap()
 
     /**
      * @see <a href="x-man-page://5/xcodebuild.xctestrun">xcodebuild.xctestrun(5)</a>
      */
-    val testingEnvironmentVariables = propertyList.valueForKeypath(target, PropertyListKey.TestingEnvironmentVariables) as PropertyListMap
+    val testingEnvironmentVariables = propertyList.valueForKeypath(target, PropertyListKey.TestingEnvironmentVariables) as? PropertyListMap
+            ?: emptyPropertyListMap()
 
     /**
      * @see <a href="x-man-page://5/xcodebuild.xctestrun">xcodebuild.xctestrun(5)</a>
      */
-    private val skipTestIdentifiers = propertyList.valueForKeypath(target, PropertyListKey.SkipTestIdentifiers) as Array<Any>
+    val skipTestIdentifiers = propertyList.valueForKeypath(target, PropertyListKey.SkipTestIdentifiers) as? Array<Any>
+            ?: emptyArray()
 
     /**
      * Returns `true` if specified test should be excluded from the test run.
