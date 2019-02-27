@@ -148,7 +148,6 @@ class QueueActor(configuration: Configuration,
         logger.debug { "request next batch for device ${device.serialNumber}" }
         val queueIsEmpty = queue.isEmpty()
         if (queue.isNotEmpty() && !activeBatches.containsKey(device.serialNumber)) {
-            logger.debug { "sending next batch for device ${device.serialNumber}" }
             sendBatch(device)
             return
         }
@@ -165,6 +164,10 @@ class QueueActor(configuration: Configuration,
 
     private suspend fun sendBatch(device: DeviceInfo) {
         val batch =  batching.process(queue, batchingMetricsProvider)
+        logger.debug(
+                "sending a batch of ${batch.tests.size} tests " +
+                "to device ${device.serialNumber} " +
+                "(${queue.size} tests still in queue)")
         activeBatches[device.serialNumber] = batch
         pool.send(FromQueue.ExecuteBatch(device, batch))
     }
