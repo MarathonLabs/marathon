@@ -7,6 +7,7 @@ import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.test.Test
 import com.malinskiy.marathon.test.toSafeTestName
 import org.influxdb.InfluxDB
+import org.influxdb.InfluxDBException
 import org.influxdb.annotation.Column
 import org.influxdb.annotation.Measurement
 import org.influxdb.dto.Query
@@ -21,6 +22,8 @@ class ExecutionTime(@Column(name = "testname", tag = true) var testName: String?
 class SuccessRate(@Column(name = "testname", tag = true) var testName: String? = null,
                   @Column(name = "mean") var mean: Double? = null)
 
+private const val MAX_QUERY_RETRIES = 8
+
 class InfluxMetricsProvider(private val influxDb: InfluxDB,
                             private val dbName: String) : MetricsProvider {
 
@@ -30,19 +33,8 @@ class InfluxMetricsProvider(private val influxDb: InfluxDB,
     private val successRate = mutableMapOf<String, Double>()
     private val executionTime = mutableMapOf<String, Double>()
 
-    private var successRateInitialized = false
-
     override fun successRate(test: Test, limit: Instant): Double {
-        if (!successRateInitialized) {
-            requestAllSuccessRates(limit).forEach {
-                val testName = it.testName
-                val mean = it.mean
-                if (testName != null && mean != null) {
-                    successRate[testName] = mean
-                }
-            }
-            successRateInitialized = true
-        }
+        requestAllSuccessRatesIfNeeded(limit)
 
         val successRate = successRate[test.toSafeTestName()]
         return if (successRate == null) {
@@ -53,27 +45,53 @@ class InfluxMetricsProvider(private val influxDb: InfluxDB,
         }
     }
 
-    private fun requestAllSuccessRates(limit: Instant): List<SuccessRate> {
+    private var successRateInitialized = false
+    private var successRateQueryCount = 0
+    private fun requestAllSuccessRatesIfNeeded(limit: Instant) {
+        if (successRateInitialized) {
+            return
+        }
+
+        if (successRateQueryCount == MAX_QUERY_RETRIES) {
+            successRateInitialized = true
+            return
+        }
+
+        val successRates = requestAllSuccessRates(limit)
+        if (successRates == null) {
+            successRateQueryCount++
+            return
+        }
+
+        for (rate in successRates) {
+            val testName = rate.testName
+            val mean = rate.mean
+            if (testName != null && mean != null) {
+                successRate[testName] = mean
+            }
+        }
+        successRateInitialized = true
+    }
+
+    private fun requestAllSuccessRates(limit: Instant): List<SuccessRate>? = try {
         val results = influxDb.query(Query("""
             SELECT MEAN("success")
             FROM "tests"
             WHERE time >= '$limit'
             GROUP BY "testname"
         """, dbName))
-        return mapper.toPOJO(results, SuccessRate::class.java)
+        mapper.toPOJO(results, SuccessRate::class.java)
+    } catch (e: InfluxDBException) {
+        logger.warn("Exception querying success rates: $e")
+        null
     }
 
-    var executionTimeInitialized = false
-
+    private var executionTimeInitialized = false
+    private var executionTimeQueryCount = 0
     override fun executionTime(test: Test,
                                percentile: Double,
                                limit: Instant): Double {
-        if (!executionTimeInitialized) {
-            requestAllExecutionTimes(percentile, limit).forEach {
-                executionTime[it.testName!!] = it.percentile!!
-            }
-            executionTimeInitialized = true
-        }
+        requestAllExecutionTimesIfNeeded(percentile, limit)
 
         val executionTime = executionTime[test.toSafeTestName()]
         return if (executionTime == null) {
@@ -84,15 +102,45 @@ class InfluxMetricsProvider(private val influxDb: InfluxDB,
         }
     }
 
+    private fun requestAllExecutionTimesIfNeeded(percentile: Double, limit: Instant) {
+        if (executionTimeInitialized) {
+            return
+        }
+
+        if (executionTimeQueryCount >= MAX_QUERY_RETRIES) {
+            executionTimeInitialized = true
+            return
+        }
+
+        val executionTimes = requestAllExecutionTimes(percentile, limit)
+        if (executionTimes == null) {
+            executionTimeQueryCount++
+            return
+        }
+
+        for (time in executionTimes) {
+            val testName = time.testName
+            val percentile = time.percentile
+            if (testName != null && percentile != null) {
+                executionTime[testName] = percentile
+            }
+        }
+        executionTimeInitialized = true
+    }
+
     private fun requestAllExecutionTimes(percentile: Double,
-                                         limit: Instant): List<ExecutionTime> {
+                                         limit: Instant): List<ExecutionTime>? = try {
         val results = influxDb.query(Query("""
             SELECT PERCENTILE("duration",$percentile)
             FROM "tests"
             WHERE time >= '$limit'
             GROUP BY "testname"
         """, dbName))
-        return mapper.toPOJO(results, ExecutionTime::class.java)
+        mapper.toPOJO(results, ExecutionTime::class.java)
+    } catch (e: InfluxDBException) {
+        logger.warn("Exception querying execution times")
+        logger.warn("$e")
+        null
     }
 
     override fun close() {
