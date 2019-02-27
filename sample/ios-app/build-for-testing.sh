@@ -32,4 +32,4 @@ if [[ -z ${XCODEBUILD_DESTINATION} ]]; then
   exit 1
 fi
 
-$XCODEBUILD build-for-testing -derivedDataPath derived-data -workspace sample-app.xcworkspace -scheme UITesting -sdk iphonesimulator -destination "platform=iOS Simulator,id=$XCODEBUILD_DESTINATION"
+$XCODEBUILD build-for-testing -derivedDataPath derived-data -workspace sample-app.xcworkspace -scheme UITesting -sdk iphonesimulator -destination "platform=iOS Simulator,id=$XCODEBUILD_DESTINATION" ENABLE_ONLY_ACTIVE_RESOURCES=NO
