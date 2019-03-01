@@ -84,7 +84,8 @@ object DerivedDataManagerSpek: Spek({
                             remoteRsyncPath = "/usr/bin/rsync",
                             sourceRoot = sourceRoot,
                             debugSsh = false,
-                            alwaysEraseSimulators = true),
+                            alwaysEraseSimulators = true,
+                            sourceTargetName = null),
                     analyticsTracking = false
             )
 

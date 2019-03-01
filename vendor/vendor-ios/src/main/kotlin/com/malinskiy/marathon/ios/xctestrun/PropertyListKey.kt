@@ -14,3 +14,5 @@ sealed class PropertyListKey(private val value: String) {
         return value
     }
 }
+
+fun PropertyListKey.toEntry(): Pair<String, PropertyListKey> = toKeyString() to this

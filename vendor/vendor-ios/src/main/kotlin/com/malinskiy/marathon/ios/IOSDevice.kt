@@ -159,7 +159,8 @@ class IOSDevice(val simulator: RemoteSimulator,
         logger.debug("Remote xctestrun = $remoteXctestrunFile")
 
         val xctestrun = Xctestrun(iosConfiguration.xctestrunPath)
-        val packageNameFormatter = TestLogPackageNameFormatter(xctestrun.productModuleName, xctestrun.targetName)
+        val poductModuleNameMap = xctestrun.targetNames.mapNotNull { target -> xctestrun.productModuleName(target)?.let { it to target } }.toMap()
+        val packageNameFormatter = TestLogPackageNameFormatter(poductModuleNameMap)
 
         logger.debug("Tests = ${testBatch.tests.toList()}")
 
@@ -350,7 +351,7 @@ class IOSDevice(val simulator: RemoteSimulator,
                 .also { logger.info("Using TCP port $it on device $deviceIdentifier") }
 
         val xctestrun = Xctestrun(derivedDataManager.xctestrunFile)
-        xctestrun.environment("TEST_HTTP_SERVER_PORT", "$remotePort")
+        xctestrun.allTargetsEnvironment("TEST_HTTP_SERVER_PORT", "$remotePort")
 
         return derivedDataManager.xctestrunFile.
                 resolveSibling(remoteXctestrunFile.name)

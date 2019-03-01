@@ -28,7 +28,10 @@ class IOSTestParser : TestParser {
         }
 
         val xctestrun = Xctestrun(vendorConfiguration.xctestrunPath)
-        val targetName = xctestrun.targetName
+        val targetName = vendorConfiguration.sourceTargetName
+                ?: xctestrun.targetNames.firstOrNull()
+                ?: throw IllegalStateException("sourceTargetName is not specified and " +
+                        "there are no named targets in the provided xctestrun file")
 
         val swiftFilesWithTests = vendorConfiguration
                 .sourceRoot

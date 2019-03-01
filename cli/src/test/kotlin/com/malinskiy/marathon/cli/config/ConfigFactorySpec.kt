@@ -206,7 +206,8 @@ object ConfigFactorySpec : Spek({
                         compactOutput = true,
                         keepAliveIntervalMillis = 300_000L,
                         deviceInitializationTimeoutMillis = 60_000L,
-                        devicesFile = file.parentFile.resolve("Testdevices"))
+                        devicesFile = file.parentFile.resolve("Testdevices"),
+                        sourceTargetName = null)
             }
         }
 

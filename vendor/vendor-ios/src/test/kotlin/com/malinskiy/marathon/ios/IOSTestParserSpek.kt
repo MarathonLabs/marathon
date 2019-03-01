@@ -46,7 +46,8 @@ object IOSTestParserSpek : Spek({
                             remoteRsyncPath = "/remote/rsync",
                             sourceRoot = sourceRoot,
                             debugSsh = false,
-                            alwaysEraseSimulators = true),
+                            alwaysEraseSimulators = true,
+                            sourceTargetName = null),
                     analyticsTracking = false
             )
 
