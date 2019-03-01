@@ -13,6 +13,7 @@ import net.schmizz.sshj.common.LoggerFactory
 import net.schmizz.sshj.connection.ConnectionException
 import net.schmizz.sshj.connection.ConnectionImpl
 import net.schmizz.sshj.transport.TransportException
+import net.schmizz.sshj.userauth.UserAuthException
 import org.slf4j.Logger
 import java.io.File
 import java.io.IOException
@@ -84,6 +85,8 @@ class SshjCommandExecutor(connectionId: String,
             val keys = ssh.loadKeys(remotePrivateKey.path)
             ssh.connect(hostAddress, port)
             ssh.authPublickey(remoteUsername, keys)
+        } catch (e: UserAuthException) {
+            throw DeviceFailureException(DeviceFailureReason.UserAuth, e)
         } catch (e: TransportException) {
             throw DeviceFailureException(DeviceFailureReason.Unknown, e)
         } catch (e: ConnectException) {

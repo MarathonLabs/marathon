@@ -1,6 +1,6 @@
 package com.malinskiy.marathon.ios.logparser.parser
 
-enum class DeviceFailureReason { Unknown, FailedRunner, ConnectionAbort, InvalidSimulatorIdentifier, UnreachableHost, ServicesUnavailable }
+enum class DeviceFailureReason { Unknown, FailedRunner, ConnectionAbort, InvalidSimulatorIdentifier, UnreachableHost, ServicesUnavailable, UserAuth }
 
 class DeviceFailureException(val reason: DeviceFailureReason,
                              message: String? = null,
