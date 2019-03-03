@@ -42,5 +42,5 @@ If you don't have any project at hand that you want to test use one of our [samp
 [3]: https://desktop.github.com/
 [4]: https://github.com/Malinskiy/marathon/issues
 [5]: https://github.com/Malinskiy/marathon/projects/1
-[6]: https://join.slack.com/t/marathon-test-runner/shared_invite/enQtNDczODU5MDUzOTg0LTNhYjRhOGRhMjMwMGZjMjY5MTY3MDI3ZmMzNTRjYzhmOGRkNDQ5OTIzMzA4ODQ5YjZmMWNiZjljMzcyY2VhMzE
+[6]: https://join.slack.com/t/marathon-test-runner/shared_invite/enQtNTYxMTg4NjQxNjM5LTMzNTVlYmNkNTAwMjI3NzJhMTMzZDVlMWZmNjI5NjAyMzg4YTAwNDAwMDBhYjhkOTg0MGY5OGQ4MjQ5NmEzYWY
 [7]: {{ site.baseurl }}{% post_url 2018-11-19-samples %}
