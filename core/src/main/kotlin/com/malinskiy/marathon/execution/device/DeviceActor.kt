@@ -70,7 +70,7 @@ class DeviceActor(private val devicePoolId: DevicePoolId,
         }
         state<DeviceState.Running> {
             on<DeviceEvent.Terminate> {
-                transitionTo(DeviceState.Terminated, DeviceAction.Terminate(testBatch, result))
+                transitionTo(DeviceState.Terminated, DeviceAction.Terminate(result = result))
             }
             on<DeviceEvent.Complete> {
                 transitionTo(DeviceState.Ready, DeviceAction.NotifyIsReady(result))
