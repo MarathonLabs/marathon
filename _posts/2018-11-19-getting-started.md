@@ -1,5 +1,5 @@
 ---
-layout: page
+layout: docs
 title: "Getting Started"
 category: doc
 date: 2018-11-19 16:55:00
