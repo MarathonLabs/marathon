@@ -5,12 +5,12 @@
    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
    xmlns:svg="http://www.w3.org/2000/svg"
    xmlns="http://www.w3.org/2000/svg"
-   id="svg4063"
-   preserveAspectRatio="xMidYMid meet"
-   version="1.1"
-   viewBox="0 0 1024 1024"
+   width="1024px"
    height="1024px"
-   width="1024px">
+   viewBox="0 0 1024 1024"
+   version="1.1"
+   preserveAspectRatio="xMidYMid meet"
+   id="svg4063">
   <metadata
      id="metadata4067">
     <rdf:RDF>
@@ -26,233 +26,235 @@
   <defs
      id="svgEditorDefs">
     <pattern
-       viewBox="0 0 10 10"
-       height="10"
-       width="10"
-       y="0"
-       x="0"
+       id="svgEditorGrid0"
        patternUnits="userSpaceOnUse"
-       id="svgEditorGrid0">
+       x="0"
+       y="0"
+       width="10"
+       height="10"
+       viewBox="0 0 10 10">
       <defs
          id="defs3909">
         <marker
-           orient="0deg"
-           markerHeight="2"
-           markerWidth="2"
-           markerUnits="strokeWidth"
-           refY="1"
-           refX="1"
+           id="svgEditorGridMkCircle"
            viewBox="0 0 2 2"
-           id="svgEditorGridMkCircle">
+           refX="1"
+           refY="1"
+           markerUnits="strokeWidth"
+           markerWidth="2"
+           markerHeight="2"
+           orient="0deg">
           <circle
-             id="circle3903"
-             style="fill:black;stroke:none;"
-             r="1"
+             cx="1"
              cy="1"
-             cx="1" />
+             r="1"
+             style="fill:black;stroke:none;"
+             id="circle3903" />
         </marker>
         <marker
-           orient="0deg"
-           markerHeight="2"
-           markerWidth="2"
-           markerUnits="strokeWidth"
-           refY="1"
-           refX="1"
+           id="svgEditorGridMkSquare"
            viewBox="0 0 2 2"
-           id="svgEditorGridMkSquare">
+           refX="1"
+           refY="1"
+           markerUnits="strokeWidth"
+           markerWidth="2"
+           markerHeight="2"
+           orient="0deg">
           <rect
-             id="rect3906"
-             style="fill:black;stroke:none;"
-             height="2"
-             width="2"
+             x="0"
              y="0"
-             x="0" />
+             width="2"
+             height="2"
+             style="fill:black;stroke:none;"
+             id="rect3906" />
         </marker>
       </defs>
       <g
-         id="g3939"
-         stroke="none"
-         marker-mid="url(#svgEditorGridMkCircle)"
+         marker-start="url(#svgEditorGridMkCircle)"
          marker-end="url(#svgEditorGridMkCircle)"
-         marker-start="url(#svgEditorGridMkCircle)">
-        <path
-           id="path3911"
-           stroke-width="0.4"
-           d="M0,0M10,0M10,10M0,10" />
-        <path
-           id="path3913"
-           stroke-width="0.2"
-           d="M5,0M0,5M5,5M10,5M5,10" />
-        <g
-           id="g3937"
-           stroke-width="0.125">
-          <path
-             id="path3915"
-             d="M1,0M2,0M3,0M4,0M6,0M7,0M8,0M9,0" />
-          <path
-             id="path3917"
-             d="M0,1M1,1M2,1M3,1M4,1M5,1M6,1M7,1M8,1M9,1M10,1" />
-          <path
-             id="path3919"
-             d="M0,2M1,2M2,2M3,2M4,2M5,2M6,2M7,2M8,2M9,2M10,2" />
-          <path
-             id="path3921"
-             d="M0,3M1,3M2,3M3,3M4,3M5,3M6,3M7,3M8,3M9,3M10,3" />
-          <path
-             id="path3923"
-             d="M0,4M1,4M2,4M3,4M4,4M5,4M6,4M7,4M8,4M9,4M10,4" />
-          <path
-             id="path3925"
-             d="M1,5M2,5M3,5M4,5M6,5M7,5M8,5M9,5" />
-          <path
-             id="path3927"
-             d="M0,6M1,6M2,6M3,6M4,6M5,6M6,6M7,6M8,6M9,6M10,6" />
-          <path
-             id="path3929"
-             d="M0,7M1,7M2,7M3,7M4,7M5,7M6,7M7,7M8,7M9,7M10,7" />
-          <path
-             id="path3931"
-             d="M0,8M1,8M2,8M3,8M4,8M5,8M6,8M7,8M8,8M9,8M10,8" />
-          <path
-             id="path3933"
-             d="M0,9M1,9M2,9M3,9M4,9M5,9M6,9M7,9M8,9M9,9M10,9" />
-          <path
-             id="path3935"
-             d="M1,10M2,10M3,10M4,10M6,10M7,10M8,10M9,10" />
-        </g>
-      </g>
-    </pattern>
-    <pattern
-       viewBox="0 0 10 10"
-       height="20"
-       width="20"
-       y="0"
-       x="0"
-       patternUnits="userSpaceOnUse"
-       id="svgEditorGrid1">
-      <g
-         id="g3970"
+         marker-mid="url(#svgEditorGridMkCircle)"
          stroke="none"
-         marker-mid="url(#svgEditorGridMkSquare)"
-         marker-end="url(#svgEditorGridMkSquare)"
-         marker-start="url(#svgEditorGridMkSquare)">
+         id="g3939">
         <path
-           id="path3942"
+           d="M0,0M10,0M10,10M0,10"
            stroke-width="0.4"
-           d="M0,0M10,0M10,10M0,10" />
+           id="path3911" />
         <path
-           id="path3944"
+           d="M5,0M0,5M5,5M10,5M5,10"
            stroke-width="0.2"
-           d="M5,0M0,5M5,5M10,5M5,10" />
+           id="path3913" />
         <g
-           id="g3968"
-           stroke-width="0.125">
+           stroke-width="0.125"
+           id="g3937">
           <path
-             id="path3946"
-             d="M1,0M2,0M3,0M4,0M6,0M7,0M8,0M9,0" />
+             d="M1,0M2,0M3,0M4,0M6,0M7,0M8,0M9,0"
+             id="path3915" />
           <path
-             id="path3948"
-             d="M0,1M1,1M2,1M3,1M4,1M5,1M6,1M7,1M8,1M9,1M10,1" />
+             d="M0,1M1,1M2,1M3,1M4,1M5,1M6,1M7,1M8,1M9,1M10,1"
+             id="path3917" />
           <path
-             id="path3950"
-             d="M0,2M1,2M2,2M3,2M4,2M5,2M6,2M7,2M8,2M9,2M10,2" />
+             d="M0,2M1,2M2,2M3,2M4,2M5,2M6,2M7,2M8,2M9,2M10,2"
+             id="path3919" />
           <path
-             id="path3952"
-             d="M0,3M1,3M2,3M3,3M4,3M5,3M6,3M7,3M8,3M9,3M10,3" />
+             d="M0,3M1,3M2,3M3,3M4,3M5,3M6,3M7,3M8,3M9,3M10,3"
+             id="path3921" />
           <path
-             id="path3954"
-             d="M0,4M1,4M2,4M3,4M4,4M5,4M6,4M7,4M8,4M9,4M10,4" />
+             d="M0,4M1,4M2,4M3,4M4,4M5,4M6,4M7,4M8,4M9,4M10,4"
+             id="path3923" />
           <path
-             id="path3956"
-             d="M1,5M2,5M3,5M4,5M6,5M7,5M8,5M9,5" />
+             d="M1,5M2,5M3,5M4,5M6,5M7,5M8,5M9,5"
+             id="path3925" />
           <path
-             id="path3958"
-             d="M0,6M1,6M2,6M3,6M4,6M5,6M6,6M7,6M8,6M9,6M10,6" />
+             d="M0,6M1,6M2,6M3,6M4,6M5,6M6,6M7,6M8,6M9,6M10,6"
+             id="path3927" />
           <path
-             id="path3960"
-             d="M0,7M1,7M2,7M3,7M4,7M5,7M6,7M7,7M8,7M9,7M10,7" />
+             d="M0,7M1,7M2,7M3,7M4,7M5,7M6,7M7,7M8,7M9,7M10,7"
+             id="path3929" />
           <path
-             id="path3962"
-             d="M0,8M1,8M2,8M3,8M4,8M5,8M6,8M7,8M8,8M9,8M10,8" />
+             d="M0,8M1,8M2,8M3,8M4,8M5,8M6,8M7,8M8,8M9,8M10,8"
+             id="path3931" />
           <path
-             id="path3964"
-             d="M0,9M1,9M2,9M3,9M4,9M5,9M6,9M7,9M8,9M9,9M10,9" />
+             d="M0,9M1,9M2,9M3,9M4,9M5,9M6,9M7,9M8,9M9,9M10,9"
+             id="path3933" />
           <path
-             id="path3966"
-             d="M1,10M2,10M3,10M4,10M6,10M7,10M8,10M9,10" />
+             d="M1,10M2,10M3,10M4,10M6,10M7,10M8,10M9,10"
+             id="path3935" />
         </g>
       </g>
     </pattern>
     <pattern
-       viewBox="0 0 10 10"
-       height="70"
-       width="70"
-       y="0"
-       x="0"
+       id="svgEditorGrid1"
        patternUnits="userSpaceOnUse"
-       id="svgEditorGrid2">
+       x="0"
+       y="0"
+       width="20"
+       height="20"
+       viewBox="0 0 10 10">
       <g
-         id="g3991"
+         marker-start="url(#svgEditorGridMkSquare)"
+         marker-end="url(#svgEditorGridMkSquare)"
+         marker-mid="url(#svgEditorGridMkSquare)"
+         stroke="none"
+         id="g3970">
+        <path
+           d="M0,0M10,0M10,10M0,10"
+           stroke-width="0.4"
+           id="path3942" />
+        <path
+           d="M5,0M0,5M5,5M10,5M5,10"
+           stroke-width="0.2"
+           id="path3944" />
+        <g
+           stroke-width="0.125"
+           id="g3968">
+          <path
+             d="M1,0M2,0M3,0M4,0M6,0M7,0M8,0M9,0"
+             id="path3946" />
+          <path
+             d="M0,1M1,1M2,1M3,1M4,1M5,1M6,1M7,1M8,1M9,1M10,1"
+             id="path3948" />
+          <path
+             d="M0,2M1,2M2,2M3,2M4,2M5,2M6,2M7,2M8,2M9,2M10,2"
+             id="path3950" />
+          <path
+             d="M0,3M1,3M2,3M3,3M4,3M5,3M6,3M7,3M8,3M9,3M10,3"
+             id="path3952" />
+          <path
+             d="M0,4M1,4M2,4M3,4M4,4M5,4M6,4M7,4M8,4M9,4M10,4"
+             id="path3954" />
+          <path
+             d="M1,5M2,5M3,5M4,5M6,5M7,5M8,5M9,5"
+             id="path3956" />
+          <path
+             d="M0,6M1,6M2,6M3,6M4,6M5,6M6,6M7,6M8,6M9,6M10,6"
+             id="path3958" />
+          <path
+             d="M0,7M1,7M2,7M3,7M4,7M5,7M6,7M7,7M8,7M9,7M10,7"
+             id="path3960" />
+          <path
+             d="M0,8M1,8M2,8M3,8M4,8M5,8M6,8M7,8M8,8M9,8M10,8"
+             id="path3962" />
+          <path
+             d="M0,9M1,9M2,9M3,9M4,9M5,9M6,9M7,9M8,9M9,9M10,9"
+             id="path3964" />
+          <path
+             d="M1,10M2,10M3,10M4,10M6,10M7,10M8,10M9,10"
+             id="path3966" />
+        </g>
+      </g>
+    </pattern>
+    <pattern
+       id="svgEditorGrid2"
+       patternUnits="userSpaceOnUse"
+       x="0"
+       y="0"
+       width="70"
+       height="70"
+       viewBox="0 0 10 10">
+      <g
+         style="fill:none;stroke:black;stroke-width:0.4"
          transform="scale(0.1)"
-         style="fill:none;stroke:black;stroke-width:0.4">
+         id="g3991">
 	     troisieme niveau 10 1 
 	     <g
-   id="g3977"
-   style="stroke-dasharray:2 8;">
+   style="stroke-dasharray:2 8;"
+   id="g3977">
   <path
-     id="path3973"
-     d="M-1 0 h102 M-1 10 h102 M-1 20 h102 M-1 30 h102 M-1 40 h102 M-1 50 h102 M-1 60 h102 M-1 70 h102 M-1 80 h102 M-1 90 h102 M-1 100 h102" />
+     d="M-1 0 h102 M-1 10 h102 M-1 20 h102 M-1 30 h102 M-1 40 h102 M-1 50 h102 M-1 60 h102 M-1 70 h102 M-1 80 h102 M-1 90 h102 M-1 100 h102"
+     id="path3973" />
   <path
-     id="path3975"
-     d="M0-1 v102 M10-1 v102 M20-1 v102 M30-1 v102 M40-1 v102 M50 -1 v102 M60-1 v102 M70-1 v102 M80-1 v102 M90-1 v102 M100-1 v102" />
+     d="M0-1 v102 M10-1 v102 M20-1 v102 M30-1 v102 M40-1 v102 M50 -1 v102 M60-1 v102 M70-1 v102 M80-1 v102 M90-1 v102 M100-1 v102"
+     id="path3975" />
 </g>
+
 
 	      deuxieme niveau 50/3 
 	     <g
-   id="g3983"
-   style="stroke-dasharray:6 44;">
+   style="stroke-dasharray:6 44;"
+   id="g3983">
   <path
-     id="path3979"
-     d="M-3 0 h106 M-3 50 h106 M-3 100 h106" />
+     d="M-3 0 h106 M-3 50 h106 M-3 100 h106"
+     id="path3979" />
   <path
-     id="path3981"
-     d="M0-3 v106 M50-3 v106 M100-3 v106" />
+     d="M0-3 v106 M50-3 v106 M100-3 v106"
+     id="path3981" />
 </g>
+
 
 	      premier niveau 100/5 
 	      <g
-   id="g3989"
-   style="stroke-dasharray:10 90;">
+   style="stroke-dasharray:10 90;"
+   id="g3989">
   <path
-     id="path3985"
-     d="M-5 0 h110 M-5 100 h110" />
+     d="M-5 0 h110 M-5 100 h110"
+     id="path3985" />
   <path
-     id="path3987"
-     d="M0-5 v119 M100-5 v110" />
+     d="M0-5 v119 M100-5 v110"
+     id="path3987" />
 </g>
 </g>
     </pattern>
   </defs>
-  <ellipse
-     ry="248.59235"
-     rx="249.87804"
-     style="fill:#ffffff;fill-rule:nonzero;stroke:none;stroke-width:0.92309028"
-     cy="486.81"
-     cx="513.16388"
-     id="Oval" />
   <circle
-     id="circle4476"
-     cx="513.16388"
-     cy="486.81"
-     r="240.87819"
-     style="fill:url(#linearGradient-6);fill-rule:nonzero;stroke:none;stroke-width:0.89214146" />
+     r="204.5"
+     id="Oval"
+     cx="512"
+     cy="512"
+     style="fill:#ffffff;fill-rule:nonzero;stroke:none;stroke-width:0.75740743" />
+  <ellipse
+     ry="198.15408"
+     rx="197.13454"
+     style="fill:url(#linearGradient-6);fill-rule:nonzero;stroke:none;stroke-width:0.73201358"
+     cy="512"
+     cx="512"
+     id="circle4476" />
   <rect
-     style="fill:url(#svgEditorGrid1);stroke:none;"
-     height="1024"
-     width="1024"
-     y="0"
+     id="svgEditorBackground"
      x="0"
-     id="svgEditorBackground" />
+     y="0"
+     width="1024"
+     height="1024"
+     style="fill:url(#svgEditorGrid1);stroke:none;" />
   <!-- Generator: Sketch 52.2 (67145) - http://www.bohemiancoding.com/sketch -->
   <title
      id="title3996">Logo maraphone@2x</title>
@@ -261,196 +263,196 @@
   <defs
      id="defs4045">
     <linearGradient
-       id="linearGradient-1"
-       y2="100%"
-       x2="50%"
+       x1="42.48391%"
        y1="1.6625684%"
-       x1="42.48391%">
+       x2="50%"
+       y2="100%"
+       id="linearGradient-1">
       <stop
-         id="stop4000"
+         stop-color="#601DA6"
          offset="0%"
-         stop-color="#601DA6" />
+         id="stop4000" />
       <stop
-         id="stop4002"
+         stop-color="#201684"
          offset="100%"
-         stop-color="#201684" />
+         id="stop4002" />
     </linearGradient>
     <linearGradient
-       id="linearGradient-2"
-       y2="100%"
-       x2="50%"
+       x1="50%"
        y1="0%"
-       x1="50%">
-      <stop
-         id="stop4005"
-         offset="0%"
-         stop-color="#611AA5" />
-      <stop
-         id="stop4007"
-         offset="100%"
-         stop-color="#4C42B5" />
-    </linearGradient>
-    <linearGradient
-       id="linearGradient-3"
-       y2="98.4116916%"
        x2="50%"
-       y1="46.9909558%"
-       x1="50%">
-      <stop
-         id="stop4010"
-         offset="0%"
-         stop-color="#5843BB" />
-      <stop
-         id="stop4012"
-         offset="100%"
-         stop-color="#4C42B5" />
-    </linearGradient>
-    <linearGradient
-       id="linearGradient-4"
-       y2="105.286781%"
-       x2="50%"
-       y1="-5.53718311%"
-       x1="50%">
-      <stop
-         id="stop4015"
-         offset="0%"
-         stop-color="#3023AE" />
-      <stop
-         id="stop4017"
-         offset="100%"
-         stop-color="#C86DD7" />
-    </linearGradient>
-    <linearGradient
-       id="linearGradient-5"
        y2="100%"
-       x2="45.0176925%"
+       id="linearGradient-2">
+      <stop
+         stop-color="#611AA5"
+         offset="0%"
+         id="stop4005" />
+      <stop
+         stop-color="#4C42B5"
+         offset="100%"
+         id="stop4007" />
+    </linearGradient>
+    <linearGradient
+       x1="50%"
+       y1="46.9909558%"
+       x2="50%"
+       y2="98.4116916%"
+       id="linearGradient-3">
+      <stop
+         stop-color="#5843BB"
+         offset="0%"
+         id="stop4010" />
+      <stop
+         stop-color="#4C42B5"
+         offset="100%"
+         id="stop4012" />
+    </linearGradient>
+    <linearGradient
+       x1="50%"
+       y1="-5.53718311%"
+       x2="50%"
+       y2="105.286781%"
+       id="linearGradient-4">
+      <stop
+         stop-color="#3023AE"
+         offset="0%"
+         id="stop4015" />
+      <stop
+         stop-color="#C86DD7"
+         offset="100%"
+         id="stop4017" />
+    </linearGradient>
+    <linearGradient
+       x1="45.0176925%"
        y1="-2.77555756e-15%"
-       x1="45.0176925%">
+       x2="45.0176925%"
+       y2="100%"
+       id="linearGradient-5">
       <stop
-         id="stop4020"
+         stop-color="#3023AE"
          offset="0%"
-         stop-color="#3023AE" />
+         id="stop4020" />
       <stop
-         id="stop4022"
+         stop-color="#C86DD7"
          offset="100%"
-         stop-color="#C86DD7" />
+         id="stop4022" />
     </linearGradient>
     <linearGradient
-       gradientTransform="matrix(0.89214146,0,0,0.89214146,272.28566,245.9318)"
-       gradientUnits="userSpaceOnUse"
-       id="linearGradient-6"
-       y2="540"
-       x2="270"
+       x1="270"
        y1="-1.344329e-14"
-       x1="270">
+       x2="270"
+       y2="540"
+       id="linearGradient-6"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(0.73012791,0,0,0.73390404,314.86546,313.8459)">
       <stop
-         id="stop4025"
+         stop-color="#611AA5"
          offset="0%"
-         stop-color="#611AA5" />
+         id="stop4025" />
       <stop
-         id="stop4027"
+         stop-color="#4C42B5"
          offset="100%"
-         stop-color="#4C42B5" />
+         id="stop4027" />
     </linearGradient>
     <linearGradient
-       gradientUnits="userSpaceOnUse"
-       gradientTransform="scale(0.60739776,1.6463676)"
-       id="linearGradient-7"
-       y2="120.58772"
-       x2="278.95084"
+       x1="278.95084"
        y1="-4.5362141"
-       x1="278.95084">
-      <stop
-         id="stop4030"
-         offset="0%"
-         stop-color="#5B25AA" />
-      <stop
-         id="stop4032"
-         offset="100%"
-         stop-color="#5630AE" />
-    </linearGradient>
-    <linearGradient
-       gradientUnits="userSpaceOnUse"
+       x2="278.95084"
+       y2="120.58772"
+       id="linearGradient-7"
        gradientTransform="scale(0.60739776,1.6463676)"
-       id="linearGradient-8"
-       y2="116.412"
-       x2="280.5972"
-       y1="-3.9288164"
-       x1="280.5972">
+       gradientUnits="userSpaceOnUse">
       <stop
-         id="stop4035"
+         stop-color="#5B25AA"
          offset="0%"
-         stop-color="#5C25AA" />
+         id="stop4030" />
       <stop
-         id="stop4037"
+         stop-color="#5630AE"
          offset="100%"
-         stop-color="#5530AE" />
+         id="stop4032" />
     </linearGradient>
     <linearGradient
-       gradientUnits="userSpaceOnUse"
-       gradientTransform="scale(0.56273143,1.7770466)"
-       id="linearGradient-9"
-       y2="139.57503"
-       x2="153.09948"
-       y1="4.5194873"
-       x1="153.09948">
+       x1="280.5972"
+       y1="-3.9288164"
+       x2="280.5972"
+       y2="116.412"
+       id="linearGradient-8"
+       gradientTransform="scale(0.60739776,1.6463676)"
+       gradientUnits="userSpaceOnUse">
       <stop
-         id="stop4040"
+         stop-color="#5C25AA"
          offset="0%"
-         stop-color="#5C24A9" />
+         id="stop4035" />
       <stop
-         id="stop4042"
+         stop-color="#5530AE"
          offset="100%"
-         stop-color="#5336B0" />
+         id="stop4037" />
+    </linearGradient>
+    <linearGradient
+       x1="153.09948"
+       y1="4.5194873"
+       x2="153.09948"
+       y2="139.57503"
+       id="linearGradient-9"
+       gradientTransform="scale(0.56273143,1.7770466)"
+       gradientUnits="userSpaceOnUse">
+      <stop
+         stop-color="#5C24A9"
+         offset="0%"
+         id="stop4040" />
+      <stop
+         stop-color="#5336B0"
+         offset="100%"
+         id="stop4042" />
     </linearGradient>
   </defs>
   <g
-     transform="matrix(0.89214146,0,0,0.89214146,316.89273,373.50803)"
+     style="fill:none;fill-rule:evenodd;stroke:none;stroke-width:1"
      id="m2-copy"
-     style="fill:none;fill-rule:evenodd;stroke:none;stroke-width:1">
+     transform="matrix(0.73012791,0,0,0.73390405,351.11915,417.74919)">
     <g
-       style="fill:#ffffff;fill-rule:nonzero"
+       id="Group-2-Copy"
        transform="matrix(-1,0,0,1,440,0)"
-       id="Group-2-Copy">
+       style="fill:#ffffff;fill-rule:nonzero">
       <rect
-         style="stroke:#ffffff"
-         rx="37.5"
-         height="239"
-         width="75"
-         y="9.3164282"
-         x="47.961662"
+         id="Rectangle"
          transform="rotate(25,85.461662,128.81643)"
-         id="Rectangle" />
-      <rect
-         style="stroke:url(#linearGradient-7)"
-         rx="37.5"
-         height="205"
+         x="47.961662"
+         y="9.3164282"
          width="75"
-         y="-6.968276"
-         x="131.93411"
+         height="239"
+         rx="37.5"
+         style="stroke:#ffffff" />
+      <rect
+         id="Rectangle-Copy-5"
          transform="matrix(-0.64278761,0.76604444,0.76604444,0.64278761,205.16271,-95.668941)"
-         id="Rectangle-Copy-5" />
+         x="131.93411"
+         y="-6.968276"
+         width="75"
+         height="205"
+         rx="37.5"
+         style="stroke:url(#linearGradient-7)" />
     </g>
     <g
-       transform="translate(0,1)"
-       id="Group-2" />
+       id="Group-2"
+       transform="translate(0,1)" />
     <rect
-       style="fill:#ffffff;fill-rule:nonzero;stroke:url(#linearGradient-8)"
-       rx="37.5"
-       height="205"
-       width="75"
-       y="-5.968276"
-       x="132.93411"
+       id="rect4054"
        transform="matrix(-0.65605903,0.75470958,0.75470958,0.65605903,209.39552,-95.427038)"
-       id="rect4054" />
-    <rect
-       style="fill:#ffffff;fill-rule:nonzero;stroke:url(#linearGradient-9)"
-       rx="37.5"
-       height="239"
+       x="132.93411"
+       y="-5.968276"
        width="75"
-       y="8.5313396"
-       x="48.653889"
+       height="205"
+       rx="37.5"
+       style="fill:#ffffff;fill-rule:nonzero;stroke:url(#linearGradient-8)" />
+    <rect
+       id="rect4056"
        transform="rotate(25,86.153887,128.03134)"
-       id="rect4056" />
+       x="48.653889"
+       y="8.5313396"
+       width="75"
+       height="239"
+       rx="37.5"
+       style="fill:#ffffff;fill-rule:nonzero;stroke:url(#linearGradient-9)" />
   </g>
 </svg>

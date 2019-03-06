@@ -183,7 +183,7 @@ html {
 body {
   font-family: "Titillium Web", sans-serif;
   line-height: 1.6;
-  color: #526795; }
+  color: #000; }
 
 a {
   text-decoration: none;
@@ -629,7 +629,7 @@ table {
       transform: rotate(-45deg); }
 
 .sidebar-nav {
-  margin-top: 24px; }
+  margin-top: 0px; }
   .sidebar-nav .sidebar-nav-item > a {
     display: -webkit-box;
     display: -moz-box;
@@ -665,11 +665,11 @@ table {
     border-left: 4px solid #7944f8;
     background: rgba(76, 43, 156, 0.5); }
     .sidebar-nav .sidebar-nav-item.active > a .fa {
-      -webkit-transform: rotate(90deg);
-      -moz-transform: rotate(90deg);
-      -ms-transform: rotate(90deg);
-      -o-transform: rotate(90deg);
-      transform: rotate(90deg); }
+      -webkit-transform: rotate(-90deg);
+      -moz-transform: rotate(-90deg);
+      -ms-transform: rotate(-90deg);
+      -o-transform: rotate(-90deg);
+      transform: rotate(-90deg); }
   .sidebar-nav .sidebar-nav-item ul {
     display: none;
     padding: 16px 24px;
@@ -804,8 +804,16 @@ table {
   .doc-content ul {
     padding-left: 24px; }
     .doc-content ul li {
-      list-style: circle;
+      list-style: none;
       margin-bottom: 14px; }
+    .doc-content ul li::before {
+      content: "\25CF";  /* Add content: \2022 is the CSS Code/unicode for a bullet */
+      color: #462b94;
+      font-weight: bold;
+      display: inline-block;
+      width: 1em;
+      margin-left: -1em;
+      }
   .doc-content strong {
     font-weight: 700; }
   .doc-content hr {
