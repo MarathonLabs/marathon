@@ -1,0 +1,26 @@
+Test Suite 'Selected tests' started at 2018-09-15 20:02:22.316
+Test Suite 'sample-appUITests.xctest' started at 2018-09-15 20:02:22.317
+Test Suite 'CrashingTests' started at 2018-09-15 20:02:22.317
+Test Case '-[sample_appUITests.CrashingTests testCrashingRoutine]' started.
+    t =     0.00s Start Test at 2018-09-15 20:02:22.318
+    t =     0.05s Set Up
+    t =     0.05s     Open com.agoda.sample-app
+    t =     0.08s         Launch com.agoda.sample-app
+    t =     5.43s             Wait for com.agoda.sample-app to idle
+Fatal error: Unexpectedly found nil while unwrapping an Optional value
+Restarting after unexpected exit or crash in CrashingTests/testCrashingRoutine(); summary will include totals from previous launches.
+Test Case '-[sample_appUITests.CrashingTests testSuccess]' started.
+    t =     0.00s Start Test at 2018-09-15 20:02:33.270
+    t =     0.01s Set Up
+    t =     0.12s     Open com.agoda.sample-app
+    t =     0.13s         Launch com.agoda.sample-app
+    t =     0.13s             Terminate com.agoda.sample-app:9058
+    t =     2.86s             Wait for com.agoda.sample-app to idle
+    t =     4.10s Tear Down
+Test Case '-[sample_appUITests.CrashingTests testSuccess]' passed (4.301 seconds).
+Test Suite 'CrashingTests' failed at 2018-09-15 20:02:37.571
+	 Executed 2 tests, with 1 failures (0 unexpected) in 15.256 (15.257) seconds
+Test Suite 'sample-appUITests.xctest' failed at 2018-09-15 20:02:37.572.
+	 Executed 2 tests, with 1 failures (0 unexpected) 15.256 (15.258) seconds
+Test Suite 'Selected tests' failed at 2018-09-15 20:02:37.572.
+	 Executed 2 tests, with 1 failures (0 unexpected) in 15.256 (15.258) seconds
