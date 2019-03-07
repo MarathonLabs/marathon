@@ -1,0 +1,20 @@
+Test Suite 'Selected tests' started at 2018-09-15 20:02:22.316
+Test Suite 'sample-appUITests.xctest' started at 2018-09-15 20:02:22.317
+Test Suite 'CrashingTests' started at 2018-09-15 20:02:22.317
+Test Case '-[sample_appUITests.CrashingTests testCrashingRoutine]' started.
+    t =     0.00s Start Test at 2018-09-15 20:02:22.318
+    t =     0.05s Set Up
+    t =     0.05s     Open com.agoda.sample-app
+    t =     0.08s         Launch com.agoda.sample-app
+    t =     4.90s             Wait for com.agoda.sample-app to idle
+Fatal error: Unexpectedly found nil while unwrapping an Optional value
+2018-09-15 20:02:27.907049+0700 sample-appUITests-Runner[23195:2545876] Fatal error: Unexpectedly found nil while unwrapping an Optional value
+2018-09-15 20:02:27.972 xcodebuild[23190:2545659] [MT] IDETestOperationsObserverDebug: 9.127 elapsed -- Testing started completed.
+2018-09-15 20:02:27.972 xcodebuild[23190:2545659] [MT] IDETestOperationsObserverDebug: 0.000 sec, +0.000 sec -- start
+2018-09-15 20:02:27.972 xcodebuild[23190:2545659] [MT] IDETestOperationsObserverDebug: 9.127 sec, +9.127 sec -- end
+2018-09-15 20:02:27.972 xcodebuild[23190:2545659] Error Domain=IDETestOperationsObserverErrorDomain Code=5 "Crash: sample-appUITests-Runner (23195): CrashingTests.consume(compoundElement:)" UserInfo={NSLocalizedDescription=Crash: sample-appUITests-Runner (23195): CrashingTests.consume(compoundElement:), NSLocalizedRecoverySuggestion=If you believe this error represents a bug, please attach the result bundle at derived-data/Logs/Test/Test-Transient Testing-2019.03.07_16-02-49-+0700.xcresult}
+
+Testing failed:
+	testCrashingRoutine() encountered an error (Crash: sample-appUITests-Runner (23195): CrashingTests.consume(compoundElement:))
+** TEST EXECUTE FAILED **
+

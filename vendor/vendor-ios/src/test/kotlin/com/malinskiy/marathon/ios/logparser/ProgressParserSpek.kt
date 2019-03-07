@@ -10,6 +10,7 @@ import com.nhaarman.mockitokotlin2.atLeastOnce
 import com.nhaarman.mockitokotlin2.doAnswer
 import com.nhaarman.mockitokotlin2.reset
 import com.nhaarman.mockitokotlin2.verify
+import com.nhaarman.mockitokotlin2.whenever
 import org.amshove.kluent.Verify
 import org.amshove.kluent.When
 import org.amshove.kluent.any
@@ -30,28 +31,39 @@ import java.io.File
 
 class ProgressParserSpek : Spek({
     describe("TestRunProgressParser") {
-
         val mockTimer = mock(Timer::class)
         val mockedStartTimeMillis = 1537187696000L
         val mockedEndTimeMillis = 1537187696999L
         var mockedTime = mockedStartTimeMillis
-        doAnswer {
-            val response = mockedTime
-            if (mockedTime == mockedStartTimeMillis) {
-                mockedTime = mockedEndTimeMillis
-            }
-            response
-        }.`when`(mockTimer).currentTimeMillis()
 
         val mockFormatter = mock(PackageNameFormatter::class)
         val mockListener = mock(TestRunListener::class)
         val progressParser = TestRunProgressParser(mockTimer, mockFormatter, listOf(mockListener))
 
-        beforeEachTest { When calling mockFormatter.format(any()) itAnswers withFirstArg() }
-        afterEachTest { reset(mockListener, mockFormatter) }
+        beforeEachTest {
+            mockedTime = mockedStartTimeMillis
+            When calling mockFormatter.format(any()) itAnswers withFirstArg()
+            whenever(mockTimer.currentTimeMillis()).thenAnswer { mockedTime.also { mockedTime = mockedEndTimeMillis } }
+        }
+        afterEachTest { reset(mockTimer, mockListener, mockFormatter) }
 
-        on("parsing a crashing test output") {
+        on("parsing a crashing test batch output") {
             val testOutputFile = File(javaClass.classLoader.getResource("fixtures/test_output/crash_0.log").file)
+
+            it("should report a failed test with an estimated duration") {
+                testOutputFile.readLines().forEach {
+                    progressParser.onLine(it)
+                }
+
+                Verify on mockListener that mockListener.testStarted(Test("sample_appUITests", "CrashingTests", "testCrashingRoutine", emptyList())) was called
+                Verify on mockListener that mockListener.testFailed(Test("sample_appUITests", "CrashingTests", "testCrashingRoutine", emptyList()),
+                        mockedStartTimeMillis,
+                        mockedEndTimeMillis) was called
+            }
+        }
+
+        on("parsing a single crashing test output") {
+            val testOutputFile = File(javaClass.classLoader.getResource("fixtures/test_output/crash_single_0.log").file)
 
             it("should report a failed test with an estimated duration") {
                 testOutputFile.readLines().forEach {

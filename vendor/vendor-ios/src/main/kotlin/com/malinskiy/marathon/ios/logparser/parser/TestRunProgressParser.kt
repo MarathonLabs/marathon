@@ -22,30 +22,60 @@ class TestRunProgressParser(private val timer: Timer,
 
     val TEST_CASE_STARTED = """Test Case '-\[([a-zA-Z0-9_.]+)\.([a-zA-Z0-9_]+) ([a-zA-Z0-9_]+)]' started\.""".toRegex()
     val TEST_CASE_FINISHED = """Test Case '-\[([a-zA-Z0-9_.]+)\.([a-zA-Z0-9_]+) ([a-zA-Z0-9_]+)]' (passed|failed) \(([\d\.]+) seconds\)\.""".toRegex()
-    val TEST_CASE_CRASHED = """^.*Restarting after unexpected exit or crash in ([a-zA-Z0-9_.]+)/([a-zA-Z0-9_]+)\(\); summary will include totals from previous launches.*$""".toRegex()
+    val TEST_CASE_CRASHED_AND_RESTARTED = """^.*Restarting after unexpected exit or crash in ([a-zA-Z0-9_.]+)/([a-zA-Z0-9_]+)\(\); summary will include totals from previous launches.*$""".toRegex()
+    val TEST_CASE_CRASHED_AND_FAILED = """\t([a-zA-Z0-9_]+)\(\) encountered an error \(Crash.*\)$""".toRegex()
 
     override fun onLine(line: String) {
         if (line.matches(TEST_CASE_STARTED)) {
             notifyTestStarted(line)
         } else if (line.matches(TEST_CASE_FINISHED)) {
             notifyTestFinished(line)
-        } else if (line.matches(TEST_CASE_CRASHED)) {
-            notifyTestCrashed(line)
+        } else if (line.matches(TEST_CASE_CRASHED_AND_RESTARTED)) {
+            notifyTestCrashedAndRestarted(line)
+        } else if (line.matches(TEST_CASE_CRASHED_AND_FAILED)) {
+            notifyTestCrashedAndFailed(line)
         }
     }
 
-    private fun notifyTestCrashed(line: String) {
-        val matchResult = TEST_CASE_CRASHED.find(line)
+    private fun notifyTestCrashedAndRestarted(line: String) {
+        val matchResult = TEST_CASE_CRASHED_AND_RESTARTED.find(line)
         val clazz = matchResult?.groups?.get(1)?.value
         val method = matchResult?.groups?.get(2)?.value
 
         if (clazz != null && method != null) {
-            val key = TestKey(clazz = clazz, method = method)
-            testStartTimesCollector.remove(key)?.let { (test, startTime) ->
-                val endTime = timer.currentTimeMillis()
-                logger.debug { "Test $clazz.$method crashed. Reporting estimated duration of ${endTime - startTime}ms" }
+            val test = currentTest
+            val startTime = currentTestStartTime
+            if (test != null && startTime != null) {
+                if (method == test.method && clazz == test.clazz) {
+                    val endTime = timer.currentTimeMillis()
+                    logger.debug { "Test $clazz.$method crashed. Reporting a failure with estimated duration ${endTime - startTime}ms" }
+                    listeners.forEach { it.testFailed(test, startTime, endTime) }
+                } else {
+                    logger.warn("Test $clazz.$method crashed, but it doesn't match recorded $test. It will be reported as incomplete.")
+                }
+            } else {
+                logger.warn("Test $clazz.$method crashed, but its start time has not been recorded. It will be reported as incomplete.")
+            }
+        }
+    }
 
-                listeners.forEach { it.testFailed(test, startTime, endTime) }
+    private fun notifyTestCrashedAndFailed(line: String) {
+        val matchResult = TEST_CASE_CRASHED_AND_FAILED.find(line)
+        val method = matchResult?.groups?.get(1)?.value
+
+        if (method != null) {
+            val test = currentTest
+            val startTime = currentTestStartTime
+            if (test != null && startTime != null) {
+                if (method == test.method) {
+                    val endTime = timer.currentTimeMillis()
+                    logger.debug { "Test $method crashed. Reporting a failure with estimated duration ${endTime - startTime}ms" }
+                    listeners.forEach { it.testFailed(test, startTime, endTime) }
+                } else {
+                    logger.warn("Test $method crashed, but it doesn't match recorded $test. It will be reported as incomplete.")
+                }
+            } else {
+                logger.warn("Test $method crashed, but its start time has not been recorded. It will be reported as incomplete.")
             }
         }
     }
@@ -63,7 +93,12 @@ class TestRunProgressParser(private val timer: Timer,
         if (pkg != null && clazz != null && method != null && result != null && duration != null) {
             val test = Test(pkg, clazz, method, emptyList())
 
-            testStartTimesCollector.remove(TestKey(test))
+            currentTest?.let {
+                if (it != test) {
+                    logger.error("Current test $it started at $currentTestStartTime does not match finishing test $test. It will be discarded and reported as incomplete.")
+                }
+            }
+            currentTest = null
 
             val endTime = timer.currentTimeMillis()
             val startTime = endTime - Math.round(duration * 1000)
@@ -90,29 +125,16 @@ class TestRunProgressParser(private val timer: Timer,
             val test = Test(pkg, clazz, method, emptyList())
             logger.trace { "Test $pkg.$clazz.$method started" }
 
-            val key = TestKey(test)
-            testStartTimesCollector[key]?.let { (test, startTime) ->
-                logger.error("Found a previous value saving a test start time: $test to $startTime. Overwriting.")
+            currentTest?.let {
+                logger.error("Current test $it previously started at $currentTestStartTime. It will be discarded and reported as incomplete.")
             }
-            testStartTimesCollector[key] = test to timer.currentTimeMillis()
+            currentTest = test
+            currentTestStartTime = timer.currentTimeMillis()
+
             listeners.forEach { it.testStarted(test) }
         }
     }
 
-    private data class TestKey(val clazz: String, val method: String) {
-        constructor(test: Test): this(clazz = test.clazz, method = test.method)
-
-        override fun equals(other: Any?): Boolean {
-            if (this === other) return true
-            if (other == null || javaClass != other.javaClass) return false
-            val test = other as TestKey
-            return clazz == test.clazz &&
-                    method == test.method
-        }
-
-        override fun hashCode(): Int {
-            return Objects.hash(clazz, method)
-        }
-    }
-    private val testStartTimesCollector = mutableMapOf<TestKey, Pair<Test, Long>>()
+    private var currentTest: Test? = null
+    private var currentTestStartTime: Long? = null
 }
