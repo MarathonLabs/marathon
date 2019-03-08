@@ -513,7 +513,7 @@ table {
     padding-left: 0; }
 
 #sidebar-wrapper {
-  background: #5430ae;
+  background: linear-gradient(#572cac, #4c42b5);
   left: 0;
   height: 100%;
   overflow-y: auto;
@@ -665,11 +665,11 @@ table {
     border-left: 4px solid #7944f8;
     background: rgba(76, 43, 156, 0.5); }
     .sidebar-nav .sidebar-nav-item.active > a .fa {
-      -webkit-transform: rotate(-90deg);
-      -moz-transform: rotate(-90deg);
-      -ms-transform: rotate(-90deg);
-      -o-transform: rotate(-90deg);
-      transform: rotate(-90deg); }
+      -webkit-transform: rotate(-180deg);
+      -moz-transform: rotate(-180deg);
+      -ms-transform: rotate(-180deg);
+      -o-transform: rotate(-180deg);
+      transform: rotate(-180deg); }
   .sidebar-nav .sidebar-nav-item ul {
     display: none;
     padding: 16px 24px;
@@ -772,7 +772,7 @@ table {
 .doc-content {
   position: relative;
   padding: 32px;
-  font-size: 1.125rem; }
+  font-size: 1rem; }
   .doc-content h1,
   .doc-content h2,
   .doc-content h3,
@@ -790,13 +790,13 @@ table {
     .doc-content h6:first-child {
       margin-top: 0; }
   .doc-content h1 {
-    font-size: 2.25rem; }
-  .doc-content h2 {
     font-size: 1.9rem; }
-  .doc-content h3 {
+  .doc-content h2 {
     font-size: 1.675rem; }
+  .doc-content h3 {
+    font-size: 1.375rem; }
   .doc-content h4 {
-    font-size: 1.425rem; }
+    font-size: 1.125rem; }
   .doc-content p {
     margin-bottom: 16px; }
   .doc-content .browser {
