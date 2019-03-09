@@ -190,9 +190,9 @@ a {
   transition: all 350ms ease;
   transition-property: color, background, rotate; }
   a {
-    color: #4B74E5; }
+    color: #425C9D; }
     a:visited {
-      color: #4B74E5; }
+      color: #425C9D; }
     a:hover {
       color: #1d4ac7; }
     a:active, a:focus {
