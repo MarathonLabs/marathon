@@ -1,5 +1,5 @@
 ---
-layout: default
+layout: docs
 title: "Cross-platform test runner for Android and iOS"
 ---
 
@@ -31,6 +31,6 @@ Start by visiting the [Download and Setup][1] page to learn how to integrate Mar
 ### Requirements
 Marathon requires Java 8 or higher.
 
-[1]: doc/download-setup.html
-[2]: doc/configuration.html
-[3]: ref/samples.html
+[1]: {{ site.baseurl }}{% post_url 2018-11-19-downloading %}
+[2]: {{ site.baseurl }}{% post_url 2018-11-19-configuration %}
+[3]: {{ site.baseurl }}{% post_url 2018-11-19-samples %}

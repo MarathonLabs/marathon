@@ -1,12 +1,10 @@
 ---
-layout: page
+layout: docs
 title: "Contributing"
 category: dev
 date: 2018-11-19 16:55:00
 order: 2
 ---
-* TOC
-{:toc}
 
 Contributions to Marathon's source are welcome! Here is a quick guide where to start.
 
@@ -56,10 +54,15 @@ Before pushing your changes please check if our linter (*detekt*) passes via ```
 
 ### General overview of modules
 **core** - This is the main logic part of the runner.
+
 **marathon-gradle-plugin** - This is a gradle plugin implementation for Android testing
+
 **vendor** - This is custom vendor implementation related to specific platform. One specific implementation that is important is vendor-test, this is a fake implementation that we're using for integration testing
+
 **report** - This is a group of modules which implement various reports that marathon generates after the build
+
 **cli** - This is the command-line interface wrapper for Marathon
+
 **analytics:usage** - This is an analytics implementation that we're using for tracking anonymised usage of marathon.
 
 ### Development chat
