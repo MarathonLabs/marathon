@@ -87,6 +87,7 @@ open class MarathonRunTask : DefaultTask(), VerificationTask {
         val instrumentationArgs = extension.instrumentationArgs
         val applicationPmClear = extension.applicationPmClear ?: DEFAULT_APPLICATION_PM_CLEAR
         val testApplicationPmClear = extension.testApplicationPmClear ?: DEFAULT_APPLICATION_PM_CLEAR
+        val preferableRecorderType = extension.preferableRecorderType
 
         return AndroidConfiguration(sdk,
                 applicationApk,
@@ -94,7 +95,8 @@ open class MarathonRunTask : DefaultTask(), VerificationTask {
                 autoGrantPermission,
                 instrumentationArgs,
                 applicationPmClear,
-                testApplicationPmClear)
+                testApplicationPmClear,
+                preferableRecorderType = preferableRecorderType)
     }
 
     override fun getIgnoreFailures(): Boolean = ignoreFailure
