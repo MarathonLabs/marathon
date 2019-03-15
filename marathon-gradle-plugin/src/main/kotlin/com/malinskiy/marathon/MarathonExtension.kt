@@ -32,6 +32,8 @@ open class MarathonExtension(project: Project) {
 
     var applicationPmClear: Boolean? = null
     var testApplicationPmClear: Boolean? = null
+    var adbInitTimeout: Int? = null
+    var installOptions: String? = null
 
     var analyticsTracking: Boolean = false
 
