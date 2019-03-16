@@ -2,6 +2,7 @@ package com.malinskiy.marathon.cli.args
 
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.malinskiy.marathon.android.AndroidConfiguration
+import com.malinskiy.marathon.android.DEFAULT_INSTALL_OPTIONS
 import com.malinskiy.marathon.android.defaultInitTimeoutMillis
 import com.malinskiy.marathon.exceptions.ConfigurationException
 import java.io.File
@@ -14,7 +15,8 @@ data class FileAndroidConfiguration(
         @JsonProperty("instrumentationArgs") val instrumentationArgs: Map<String, String>?,
         @JsonProperty("applicationPmClear") val applicationPmClear: Boolean?,
         @JsonProperty("testApplicationPmClear") val testApplicationPmClear: Boolean?,
-        @JsonProperty("adbInitTimeoutMillis") val adbInitTimeoutMillis: Int?)
+        @JsonProperty("adbInitTimeoutMillis") val adbInitTimeoutMillis: Int?,
+        @JsonProperty("installOptions") val installOptions: String?)
     : FileVendorConfiguration {
 
     fun toAndroidConfiguration(environmentAndroidSdk: File?): AndroidConfiguration {
@@ -30,7 +32,8 @@ data class FileAndroidConfiguration(
                 instrumentationArgs = instrumentationArgs ?: emptyMap(),
                 applicationPmClear = applicationPmClear ?: false,
                 testApplicationPmClear = testApplicationPmClear ?: false,
-                adbInitTimeoutMillis = adbInitTimeoutMillis ?: defaultInitTimeoutMillis
+                adbInitTimeoutMillis = adbInitTimeoutMillis ?: defaultInitTimeoutMillis,
+                installOptions = installOptions ?: DEFAULT_INSTALL_OPTIONS
         )
     }
 }
