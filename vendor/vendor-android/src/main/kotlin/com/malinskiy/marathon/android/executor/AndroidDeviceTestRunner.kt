@@ -17,7 +17,6 @@ import com.malinskiy.marathon.android.executor.listeners.TestRunResultsListener
 import com.malinskiy.marathon.android.executor.listeners.screenshot.ScreenCapturerTestRunListener
 import com.malinskiy.marathon.android.executor.listeners.video.ScreenRecorderTestRunListener
 import com.malinskiy.marathon.android.safeClearPackage
-import com.malinskiy.marathon.android.safeExecuteShellCommand
 import com.malinskiy.marathon.device.DeviceFeature
 import com.malinskiy.marathon.device.DevicePoolId
 import com.malinskiy.marathon.exceptions.DeviceLostException
@@ -53,7 +52,12 @@ class AndroidDeviceTestRunner(private val device: AndroidDevice) {
         val attachmentProviders = mutableListOf<AttachmentProvider>()
 
         val features = device.deviceFeatures
-        val recorderListener = prepareRecorderListener(features, fileManager, devicePoolId, attachmentProviders)
+
+        val preferableRecorderType = configuration.vendorConfiguration.preferableRecorderType()
+        val recorderListener = selectRecorderType(preferableRecorderType, features)?.let { feature ->
+            prepareRecorderListener(feature, fileManager, devicePoolId, attachmentProviders)
+        } ?: NoOpTestRunListener()
+
         val logCatListener = LogCatListener(device, devicePoolId, LogWriter(fileManager))
                 .also { attachmentProviders.add(it) }
         val listeners = CompositeTestRunListener(
@@ -102,19 +106,31 @@ class AndroidDeviceTestRunner(private val device: AndroidDevice) {
         }
     }
 
-    private fun prepareRecorderListener(features: Collection<DeviceFeature>, fileManager: FileManager, devicePoolId: DevicePoolId, attachmentProviders: MutableList<AttachmentProvider>): NoOpTestRunListener {
+    private fun selectRecorderType(preferred: DeviceFeature?, features: Collection<DeviceFeature>): DeviceFeature? {
+        if (features.contains(preferred)) {
+            return preferred
+        }
+
         return when {
-            features.contains(DeviceFeature.VIDEO) -> {
-                ScreenRecorderTestRunListener(fileManager, devicePoolId, device)
-                        .also { attachmentProviders.add(it) }
-            }
-            features.contains(DeviceFeature.SCREENSHOT) -> {
-                ScreenCapturerTestRunListener(fileManager, devicePoolId, device)
-                        .also { attachmentProviders.add(it) }
-            }
-            else -> NoOpTestRunListener()
+            features.contains(DeviceFeature.VIDEO) -> DeviceFeature.VIDEO
+            features.contains(DeviceFeature.SCREENSHOT) -> DeviceFeature.SCREENSHOT
+            else -> null
         }
     }
+
+    private fun prepareRecorderListener(feature: DeviceFeature, fileManager: FileManager, devicePoolId: DevicePoolId,
+                                        attachmentProviders: MutableList<AttachmentProvider>): NoOpTestRunListener =
+        when (feature) {
+            DeviceFeature.VIDEO      -> {
+                ScreenRecorderTestRunListener(fileManager, devicePoolId, device)
+                    .also { attachmentProviders.add(it) }
+            }
+
+            DeviceFeature.SCREENSHOT -> {
+                ScreenCapturerTestRunListener(fileManager, devicePoolId, device)
+                    .also { attachmentProviders.add(it) }
+            }
+        }
 
     private fun prepareTestRunner(configuration: Configuration,
                                   androidConfiguration: AndroidConfiguration,

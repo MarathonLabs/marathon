@@ -71,3 +71,4 @@ vendorConfiguration:
   instrumentationArgs:
     debug: "false"
   installOptions: "-d"
+  preferableRecorderType: "screenshot"

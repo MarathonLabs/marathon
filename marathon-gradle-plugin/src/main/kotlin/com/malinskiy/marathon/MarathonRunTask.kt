@@ -91,6 +91,7 @@ open class MarathonRunTask : DefaultTask(), VerificationTask {
         val testApplicationPmClear = extension.testApplicationPmClear ?: DEFAULT_APPLICATION_PM_CLEAR
         val adbInitTimeout = extension.adbInitTimeout ?: defaultInitTimeoutMillis
         val installOptions = extension.installOptions ?: DEFAULT_INSTALL_OPTIONS
+        val preferableRecorderType = extension.preferableRecorderType
 
         return AndroidConfiguration(sdk,
                 applicationApk,
@@ -100,7 +101,8 @@ open class MarathonRunTask : DefaultTask(), VerificationTask {
                 applicationPmClear,
                 testApplicationPmClear,
                 adbInitTimeout,
-                installOptions)
+                installOptions,
+                preferableRecorderType)
     }
 
     override fun getIgnoreFailures(): Boolean = ignoreFailure

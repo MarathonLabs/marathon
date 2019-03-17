@@ -1,6 +1,7 @@
 package com.malinskiy.marathon.report
 
 import com.google.gson.Gson
+import com.malinskiy.marathon.device.DeviceFeature
 import com.malinskiy.marathon.device.DevicePoolId
 import com.malinskiy.marathon.device.DeviceProvider
 import com.malinskiy.marathon.execution.AnalyticsConfiguration
@@ -45,6 +46,7 @@ class SummaryCompilerTest : Spek({
                 override fun testParser(): TestParser? = null
                 override fun deviceProvider(): DeviceProvider? = null
                 override fun logConfigurator(): MarathonLogConfigurator? = null
+                override fun preferableRecorderType(): DeviceFeature? = null
             },
             analyticsTracking = false)
 

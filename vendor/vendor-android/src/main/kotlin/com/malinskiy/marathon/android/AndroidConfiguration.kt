@@ -1,5 +1,6 @@
 package com.malinskiy.marathon.android
 
+import com.malinskiy.marathon.device.DeviceFeature
 import com.malinskiy.marathon.device.DeviceProvider
 import com.malinskiy.marathon.execution.TestParser
 import com.malinskiy.marathon.log.MarathonLogConfigurator
@@ -21,7 +22,8 @@ data class AndroidConfiguration(val androidSdk: File,
                                 val applicationPmClear: Boolean = DEFAULT_APPLICATION_PM_CLEAR,
                                 val testApplicationPmClear: Boolean = DEFAULT_TEST_APPLICATION_PM_CLEAR,
                                 val adbInitTimeoutMillis: Int = defaultInitTimeoutMillis,
-                                val installOptions: String = DEFAULT_INSTALL_OPTIONS) : VendorConfiguration {
+                                val installOptions: String = DEFAULT_INSTALL_OPTIONS,
+                                val preferableRecorderType: DeviceFeature? = null) : VendorConfiguration {
 
     override fun testParser(): TestParser? {
         return AndroidTestParser()
@@ -32,4 +34,6 @@ data class AndroidConfiguration(val androidSdk: File,
     }
 
     override fun logConfigurator(): MarathonLogConfigurator? = null
+
+    override fun preferableRecorderType(): DeviceFeature? = preferableRecorderType
 }
