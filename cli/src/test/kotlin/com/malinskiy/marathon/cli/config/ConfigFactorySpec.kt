@@ -141,6 +141,7 @@ object ConfigFactorySpec : Spek({
                         true,
                         true,
                         30_000,
+                        "-d",
                         DeviceFeature.SCREENSHOT
                 )
             }
@@ -184,7 +185,8 @@ object ConfigFactorySpec : Spek({
                         mapOf(),
                         false,
                         false,
-                        30_000
+                        30_000,
+                        ""
                 )
             }
         }
@@ -247,7 +249,8 @@ object ConfigFactorySpec : Spek({
                         mapOf(),
                         false,
                         false,
-                        30_000
+                        30_000,
+                        ""
                 )
             }
         }

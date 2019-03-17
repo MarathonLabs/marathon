@@ -19,6 +19,7 @@ object FileAndroidConfigurationSpek : Spek({
                     null,
                     null,
                     null,
+                    null,
                     null
             )
         }
@@ -68,6 +69,14 @@ object FileAndroidConfigurationSpek : Spek({
             it("should be equal") {
                 val timeout = 500_000
                 configuration.copy(adbInitTimeoutMillis = timeout).toAndroidConfiguration(env).adbInitTimeoutMillis shouldEqual timeout
+            }
+        }
+        group("install options") {
+            it("should be empty string by default") {
+                configuration.toAndroidConfiguration(env).installOptions shouldEqual ""
+            }
+            it("should be equal if provided") {
+                configuration.copy(installOptions = "-d").toAndroidConfiguration(env).installOptions shouldEqual "-d"
             }
         }
     }

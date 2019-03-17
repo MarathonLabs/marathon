@@ -5,6 +5,8 @@ import com.android.build.gradle.api.TestVariant
 import com.malinskiy.marathon.android.AndroidConfiguration
 import com.malinskiy.marathon.android.DEFAULT_APPLICATION_PM_CLEAR
 import com.malinskiy.marathon.android.DEFAULT_AUTO_GRANT_PERMISSION
+import com.malinskiy.marathon.android.DEFAULT_INSTALL_OPTIONS
+import com.malinskiy.marathon.android.defaultInitTimeoutMillis
 import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.extensions.extractApplication
 import com.malinskiy.marathon.extensions.extractTestApplication
@@ -87,6 +89,8 @@ open class MarathonRunTask : DefaultTask(), VerificationTask {
         val instrumentationArgs = extension.instrumentationArgs
         val applicationPmClear = extension.applicationPmClear ?: DEFAULT_APPLICATION_PM_CLEAR
         val testApplicationPmClear = extension.testApplicationPmClear ?: DEFAULT_APPLICATION_PM_CLEAR
+        val adbInitTimeout = extension.adbInitTimeout ?: defaultInitTimeoutMillis
+        val installOptions = extension.installOptions ?: DEFAULT_INSTALL_OPTIONS
         val preferableRecorderType = extension.preferableRecorderType
 
         return AndroidConfiguration(sdk,
@@ -96,7 +100,9 @@ open class MarathonRunTask : DefaultTask(), VerificationTask {
                 instrumentationArgs,
                 applicationPmClear,
                 testApplicationPmClear,
-                preferableRecorderType = preferableRecorderType)
+                adbInitTimeout,
+                installOptions,
+                preferableRecorderType)
     }
 
     override fun getIgnoreFailures(): Boolean = ignoreFailure
