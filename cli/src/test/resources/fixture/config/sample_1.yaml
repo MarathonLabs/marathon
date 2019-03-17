@@ -70,3 +70,4 @@ vendorConfiguration:
   testApplicationPmClear: true
   instrumentationArgs:
     debug: "false"
+  installOptions: "-d"

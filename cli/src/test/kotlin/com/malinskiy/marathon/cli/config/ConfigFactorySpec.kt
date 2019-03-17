@@ -139,7 +139,8 @@ object ConfigFactorySpec : Spek({
                         mapOf("debug" to "false"),
                         true,
                         true,
-                        30_000
+                        30_000,
+                        "-d"
                 )
             }
         }
@@ -182,7 +183,8 @@ object ConfigFactorySpec : Spek({
                         mapOf(),
                         false,
                         false,
-                        30_000
+                        30_000,
+                        ""
                 )
             }
         }
@@ -245,7 +247,8 @@ object ConfigFactorySpec : Spek({
                         mapOf(),
                         false,
                         false,
-                        30_000
+                        30_000,
+                        ""
                 )
             }
         }
