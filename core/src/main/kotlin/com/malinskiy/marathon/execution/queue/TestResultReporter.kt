@@ -12,6 +12,7 @@ import com.malinskiy.marathon.test.toTestName
 
 class TestResultReporter(private val poolId: DevicePoolId,
                          private val analytics: Analytics,
+                         private val strictMode: Boolean,
                          shard: TestShard) {
 
     private val tests: HashMap<String, StateMachine<TestState, TestEvent, TestAction>> = HashMap()
@@ -22,41 +23,44 @@ class TestResultReporter(private val poolId: DevicePoolId,
         initialState(TestState.Added(initialCount))
         state<TestState.Added> {
             on<TestEvent.Passed> {
-                transitionTo(TestState.Passed(it.device, it.testResult), TestAction.SaveReport(it.device, it.testResult))
+                when (this.count > 1) {
+                    true -> transitionTo(TestState.Executing(this.count - 1, listOf(it.device to it.testResult)))
+                    false -> transitionTo(TestState.Executed(listOf(it.device to it.testResult)))
+                }
             }
             on<TestEvent.Failed> {
                 when (this.count > 1) {
-                    true -> transitionTo(TestState.Executed(it.device, it.testResult, this.count - 1))
-                    false -> transitionTo(TestState.Failed(it.device, it.testResult), TestAction.SaveReport(it.device, it.testResult))
+                    true -> transitionTo(TestState.Executing(this.count - 1, listOf(it.device to it.testResult)))
+                    false -> transitionTo(TestState.Executed(listOf(it.device to it.testResult)))
                 }
             }
             on<TestEvent.Remove> {
                 transitionTo(this.copy(count = this.count - it.diff))
             }
         }
-        state<TestState.Executed> {
+        state<TestState.Executing> {
             on<TestEvent.Failed> {
+                val results = this.testRuns + (it.device to it.testResult)
                 when (this.count > 1) {
-                    true -> transitionTo(this.copy(device = it.device, testResult = it.testResult, count = this.count - 1))
-                    false -> transitionTo(TestState.Failed(it.device, it.testResult), TestAction.SaveReport(it.device, it.testResult))
+                    true -> transitionTo(TestState.Executing(this.count - 1, results))
+                    false -> transitionTo(TestState.Executed(results), createSaveReportAction(results))
+                }
+            }
+            on<TestEvent.Passed> {
+                val results = this.testRuns + (it.device to it.testResult)
+                when (this.count > 1) {
+                    true -> transitionTo(TestState.Executing(this.count - 1, results))
+                    false -> transitionTo(TestState.Executed(results), createSaveReportAction(results))
                 }
             }
             on<TestEvent.Remove> {
                 transitionTo(this.copy(count = this.count - it.diff))
-            }
-            on<TestEvent.Passed> {
-                transitionTo(TestState.Passed(it.device, it.testResult), TestAction.SaveReport(it.device, it.testResult))
             }
             on<TestEvent.Retry> {
                 transitionTo(this.copy(count = this.count + 1))
             }
         }
-        state<TestState.Failed> {
-        }
-        state<TestState.Passed> {
-            on<TestEvent.Failed> {
-                dontTransition()
-            }
+        state<TestState.Executed> {
         }
         onTransition {
             if (it as? StateMachine.Transition.Valid !is StateMachine.Transition.Valid) {
@@ -64,6 +68,14 @@ class TestResultReporter(private val poolId: DevicePoolId,
             }
             analytics.trackTestTransition(poolId, it)
         }
+    }
+
+    private fun createSaveReportAction(results: List<Pair<DeviceInfo, TestResult>>): TestAction.SaveReport {
+        val (device, testResult) = results.find {
+            (strictMode == !it.second.isSuccess) && !it.second.isIgnored
+        } ?: results.first()
+
+        return TestAction.SaveReport(device, testResult)
     }
 
     init {

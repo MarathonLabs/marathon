@@ -40,7 +40,7 @@ class QueueActor(configuration: Configuration,
 
     private val activeBatches = mutableMapOf<String, TestBatch>()
 
-    private val testResultReporter = TestResultReporter(poolId, analytics, testShard)
+    private val testResultReporter = TestResultReporter(poolId, analytics, configuration.strictMode, testShard)
 
     init {
         queue.addAll(testShard.tests + testShard.flakyTests)

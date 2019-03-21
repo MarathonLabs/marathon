@@ -5,7 +5,7 @@ import com.malinskiy.marathon.device.DeviceInfo
 import com.malinskiy.marathon.test.Test
 import java.util.concurrent.atomic.AtomicInteger
 
-class PoolProgressTracker {
+class PoolProgressTracker(private val strictMode: Boolean) {
 
     private val tests = mutableMapOf<Test, StateMachine<ProgressTestState, ProgressEvent, Any>>()
 
@@ -24,7 +24,11 @@ class PoolProgressTracker {
         }
         state<ProgressTestState.Passed> {
             on<ProgressEvent.Failed> {
-                dontTransition()
+                if (strictMode) {
+                    transitionTo(ProgressTestState.Failed)
+                } else {
+                    dontTransition()
+                }
             }
             on<ProgressEvent.Ignored> {
                 dontTransition()
@@ -32,7 +36,11 @@ class PoolProgressTracker {
         }
         state<ProgressTestState.Failed> {
             on<ProgressEvent.Passed> {
-                transitionTo(ProgressTestState.Passed)
+                if (strictMode) {
+                    dontTransition()
+                } else {
+                    transitionTo(ProgressTestState.Passed)
+                }
             }
         }
         state<ProgressTestState.Ignored> {
@@ -53,9 +61,15 @@ class PoolProgressTracker {
     }
 
     fun testFailed(test: Test) {
-        if(tests[test]?.state == ProgressTestState.Passed) {
-            //Return early because the test already passed
-            return
+        if (tests[test]?.state == ProgressTestState.Passed) {
+            if (strictMode) {
+                completed.updateAndGet {
+                    it - 1
+                }
+            } else {
+                //Return early because the test already passed
+                return
+            }
         }
 
         updateStatus(test, ProgressEvent.Failed)
@@ -65,6 +79,17 @@ class PoolProgressTracker {
     }
 
     fun testPassed(test: Test) {
+        if (tests[test]?.state == ProgressTestState.Failed) {
+            if (strictMode) {
+                //Return early because the test already failed
+                return
+            } else {
+                failed.updateAndGet {
+                    it - 1
+                }
+            }
+        }
+
         completed.updateAndGet {
             it + 1
         }

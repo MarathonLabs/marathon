@@ -100,7 +100,7 @@ class Marathon(val configuration: Configuration) {
 
         log.info("Scheduling ${tests.size} tests")
         log.debug(tests.map { it.toTestName() }.joinToString(", "))
-        val progressReporter = ProgressReporter()
+        val progressReporter = ProgressReporter(configuration.strictMode)
         val currentCoroutineContext = coroutineContext
         val scheduler = Scheduler(deviceProvider, analytics, configuration, tests, progressReporter, currentCoroutineContext)
 
