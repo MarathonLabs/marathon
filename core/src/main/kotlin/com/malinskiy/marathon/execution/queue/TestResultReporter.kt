@@ -23,15 +23,17 @@ class TestResultReporter(private val poolId: DevicePoolId,
         initialState(TestState.Added(initialCount))
         state<TestState.Added> {
             on<TestEvent.Passed> {
+                val result = listOf(it.device to it.testResult)
                 when (this.count > 1) {
-                    true -> transitionTo(TestState.Executing(this.count - 1, listOf(it.device to it.testResult)))
-                    false -> transitionTo(TestState.Executed(listOf(it.device to it.testResult)))
+                    true -> transitionTo(TestState.Executing(this.count - 1, result))
+                    false -> transitionTo(TestState.Executed(result), createSaveReportAction(result))
                 }
             }
             on<TestEvent.Failed> {
+                val result = listOf(it.device to it.testResult)
                 when (this.count > 1) {
-                    true -> transitionTo(TestState.Executing(this.count - 1, listOf(it.device to it.testResult)))
-                    false -> transitionTo(TestState.Executed(listOf(it.device to it.testResult)))
+                    true -> transitionTo(TestState.Executing(this.count - 1, result))
+                    false -> transitionTo(TestState.Executed(result), createSaveReportAction(result))
                 }
             }
             on<TestEvent.Remove> {
