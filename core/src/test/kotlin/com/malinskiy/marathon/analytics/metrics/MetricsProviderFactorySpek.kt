@@ -1,5 +1,6 @@
 package com.malinskiy.marathon.analytics.metrics
 
+import com.malinskiy.marathon.device.DeviceFeature
 import com.malinskiy.marathon.device.DeviceProvider
 import com.malinskiy.marathon.execution.AnalyticsConfiguration
 import com.malinskiy.marathon.execution.Configuration
@@ -39,6 +40,7 @@ class MetricsProviderFactorySpek : Spek({
                         override fun testParser(): TestParser? = null
                         override fun deviceProvider(): DeviceProvider? = null
                         override fun logConfigurator(): MarathonLogConfigurator? = null
+                        override fun preferableRecorderType(): DeviceFeature? = null
                     },
                     analyticsTracking = false
             )

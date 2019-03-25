@@ -1,5 +1,6 @@
 package com.malinskiy.marathon.ios
 
+import com.malinskiy.marathon.device.DeviceFeature
 import com.malinskiy.marathon.device.DeviceProvider
 import com.malinskiy.marathon.execution.TestParser
 import com.malinskiy.marathon.log.MarathonLogConfigurator
@@ -31,5 +32,7 @@ data class IOSConfiguration(val derivedDataDir: File,
     override fun deviceProvider(): DeviceProvider? = IOSDeviceProvider()
 
     override fun logConfigurator(): MarathonLogConfigurator? = IOSLogConfigurator()
+
+    override fun preferableRecorderType(): DeviceFeature? = null
 }
 

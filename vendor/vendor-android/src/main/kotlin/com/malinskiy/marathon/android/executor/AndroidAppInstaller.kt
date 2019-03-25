@@ -64,10 +64,16 @@ class AndroidAppInstaller(configuration: Configuration) {
     }
 
     private fun optionalParams(device: IDevice): String {
-        return if (device.version.apiLevel >= MARSHMALLOW_VERSION_CODE && androidConfiguration.autoGrantPermission) {
+        val options = if (device.version.apiLevel >= MARSHMALLOW_VERSION_CODE && androidConfiguration.autoGrantPermission) {
             "-g -r"
         } else {
             "-r"
+        }
+
+        return if (androidConfiguration.installOptions.isNotEmpty()) {
+            "$options ${androidConfiguration.installOptions}"
+        } else {
+            options
         }
     }
 }
