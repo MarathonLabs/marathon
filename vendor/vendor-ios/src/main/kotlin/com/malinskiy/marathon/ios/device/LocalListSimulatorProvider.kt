@@ -23,6 +23,7 @@ import kotlinx.coroutines.withContext
 import java.io.File
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.coroutines.CoroutineContext
+import kotlin.system.measureTimeMillis
 
 private const val MAX_CONNECTION_ATTEMPTS = 16
 
@@ -47,14 +48,17 @@ class LocalListSimulatorProvider(override val coroutineContext: CoroutineContext
 
     override suspend fun start() = withContext(coroutineContext) {
         logger.info("starts providing ${simulators.count()} simulator devices")
-        val jobs = simulators.map {
-            async(context = coroutineContext + CoroutineName("creator")) {
-                createDevice(it, RemoteSimulatorConnectionCounter.putAndGet(it.udid))?.let { connect(it) }
-            }
-        }.also {
-            logger.debug("dispatched ${it.size} async jobs")
-        }.joinAll()
+        val marathonStartDuration = measureTimeMillis {
+            val jobs = simulators.map {
+                async(context = coroutineContext + CoroutineName("creator")) {
+                    createDevice(it, RemoteSimulatorConnectionCounter.putAndGet(it.udid))?.let { connect(it) }
+                }
+            }.also {
+                logger.debug("dispatched ${it.size} async jobs")
+            }.joinAll()
+        }
         logger.debug("completed all jobs with ${devices.mappingCount()} stored devices")
+        logger.info("##teamcity[buildStatisticValue key='marathonStartDuration' value='$marathonStartDuration']")
     }
 
     override suspend fun stop() = withContext(coroutineContext) {
