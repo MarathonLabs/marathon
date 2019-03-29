@@ -176,7 +176,8 @@ class IOSDevice(val simulator: RemoteSimulator,
 
         val command =
                 listOf(
-                    "cd '$remoteDir';",
+                    "cd '$remoteDir' &&",
+                    "set -o pipefail &&",
                     "NSUnbufferedIO=YES",
                     "xcodebuild test-without-building",
                     "-xctestrun ${remoteXctestrunFile.path}",
