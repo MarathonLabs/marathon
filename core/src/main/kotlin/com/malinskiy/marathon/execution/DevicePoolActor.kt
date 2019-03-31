@@ -22,7 +22,7 @@ import kotlin.coroutines.CoroutineContext
 class DevicePoolActor(private val poolId: DevicePoolId,
                       private val configuration: Configuration,
                       analytics: Analytics,
-                      tests: Collection<Test>,
+                      shard : TestShard,
                       private val progressReporter: ProgressReporter,
                       parent: Job,
                       context: CoroutineContext) :
@@ -45,10 +45,6 @@ class DevicePoolActor(private val poolId: DevicePoolId,
     }
 
     private val poolJob = Job(parent)
-
-    private val shardingStrategy = configuration.shardingStrategy
-    private val flakinessShard = configuration.flakinessStrategy
-    private val shard = flakinessShard.process(shardingStrategy.createShard(tests), analytics)
 
     private val queue: QueueActor = QueueActor(configuration, shard, analytics, this, poolId, progressReporter, poolJob, context)
 
