@@ -21,7 +21,7 @@ import kotlin.coroutines.CoroutineContext
 
 class IOSDeviceProvider : DeviceProvider, CoroutineScope {
 
-    private val dispatcher = newFixedThreadPoolContext(4, "IOSDeviceProvider")
+    private val dispatcher = newFixedThreadPoolContext(8, "IOSDeviceProvider")
     override val coroutineContext: CoroutineContext
         get() = dispatcher
 
