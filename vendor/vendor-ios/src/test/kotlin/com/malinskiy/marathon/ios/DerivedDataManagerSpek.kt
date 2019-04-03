@@ -58,6 +58,7 @@ object DerivedDataManagerSpek: Spek({
             val configuration = Configuration(name = "",
                     outputDir = File(""),
                     analyticsConfiguration = null,
+                    customAnalyticsTracker = null,
                     poolingStrategy = null,
                     shardingStrategy = null,
                     sortingStrategy = null,

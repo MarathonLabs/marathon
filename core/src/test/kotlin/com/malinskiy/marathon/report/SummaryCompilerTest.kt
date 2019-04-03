@@ -25,6 +25,7 @@ class SummaryCompilerTest : Spek({
 
     val configuration = Configuration(name = "",
             outputDir = File("src/test/resources/output/"),
+            customAnalyticsTracker = null,
             analyticsConfiguration = AnalyticsConfiguration.DisabledAnalytics,
             poolingStrategy = null,
             shardingStrategy = null,
