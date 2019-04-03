@@ -51,11 +51,15 @@ class TestRunResultsListener(private val testBatch: TestBatch,
             it.toTestResult(device)
         }
 
-        val finished = testResults.filter {
+        val nonNullTestResults = testResults.filter {
+            it.test.method != "null"
+        }
+
+        val finished = nonNullTestResults.filter {
             results[it.test.identifier()]?.isSuccessful() ?: false
         }
 
-        val failed = testResults.filterNot {
+        val failed = nonNullTestResults.filterNot {
             results[it.test.identifier()]?.isSuccessful() ?: false
         }
 

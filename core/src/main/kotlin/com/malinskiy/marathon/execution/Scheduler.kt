@@ -31,7 +31,7 @@ import kotlin.coroutines.CoroutineContext
 class Scheduler(private val deviceProvider: DeviceProvider,
                 private val analytics: Analytics,
                 private val configuration: Configuration,
-                private val tests: Collection<Test>,
+                private val shard: TestShard,
                 private val progressReporter: ProgressReporter,
                 override val coroutineContext: CoroutineContext) : CoroutineScope {
 
@@ -92,7 +92,7 @@ class Scheduler(private val deviceProvider: DeviceProvider,
         logger.debug { "device ${device.serialNumber} associated with poolId ${poolId.name}" }
         pools.computeIfAbsent(poolId) { id ->
             logger.debug { "pool actor ${id.name} is being created" }
-            DevicePoolActor(id, configuration, analytics, tests, progressReporter, parent, context)
+            DevicePoolActor(id, configuration, analytics, shard, progressReporter, parent, context)
         }
         pools[poolId]?.send(AddDevice(device)) ?: logger.debug {
             "not sending the AddDevice event " +
