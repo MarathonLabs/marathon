@@ -45,6 +45,7 @@ open class MarathonRunTask : DefaultTask(), VerificationTask {
         cnf = Configuration(
                 extensionConfig.name,
                 output,
+                extensionConfig.customAnalyticsTracker,
                 extensionConfig.analyticsConfiguration?.toAnalyticsConfiguration(),
                 extensionConfig.poolingStrategy?.toStrategy(),
                 extensionConfig.shardingStrategy?.toStrategy(),

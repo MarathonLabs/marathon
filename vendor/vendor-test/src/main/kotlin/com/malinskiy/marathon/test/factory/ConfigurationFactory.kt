@@ -19,6 +19,7 @@ class ConfigurationFactory {
     var vendorConfiguration = TestVendorConfiguration(Mocks.TestParser.DEFAULT, StubDeviceProvider())
     var debug = null
     var batchingStrategy = null
+    var customAnalyticsTracker = null
     var analyticsConfiguration = null
     var excludeSerialRegexes = null
     var fallbackToScreenshots = null
@@ -51,6 +52,7 @@ class ConfigurationFactory {
             Configuration(name,
                     outputDir,
                     analyticsConfiguration,
+                    customAnalyticsTracker,
                     poolingStrategy,
                     shardingStrategy,
                     sortingStrategy,

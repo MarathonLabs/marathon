@@ -6,6 +6,7 @@ import com.malinskiy.marathon.execution.AnalyticsConfiguration.InfluxDbConfigura
 
 class AnalyticsConfig {
     var influx: InfluxConfig? = null
+    var custom: InfluxConfig? = null
 
     fun influx(closure: Closure<*>) {
         influx = InfluxConfig()
