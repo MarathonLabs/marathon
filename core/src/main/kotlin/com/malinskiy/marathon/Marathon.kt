@@ -1,11 +1,13 @@
 package com.malinskiy.marathon
 
 import com.google.gson.Gson
+import com.malinskiy.marathon.analytics.Analytics
 import com.malinskiy.marathon.analytics.AnalyticsFactory
 import com.malinskiy.marathon.device.DeviceProvider
 import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.execution.Scheduler
 import com.malinskiy.marathon.execution.TestParser
+import com.malinskiy.marathon.execution.TestShard
 import com.malinskiy.marathon.execution.progress.ProgressReporter
 import com.malinskiy.marathon.io.FileManager
 import com.malinskiy.marathon.log.MarathonLogging
@@ -97,12 +99,13 @@ class Marathon(val configuration: Configuration) {
 
         val parsedTests = testParser.extract(configuration)
         val tests = applyTestFilters(parsedTests)
+        val shard = prepareTestShard(tests, analytics)
 
         log.info("Scheduling ${tests.size} tests")
-        log.debug(tests.map { it.toTestName() }.joinToString(", "))
+        log.debug(tests.joinToString(", ") { it.toTestName() })
         val progressReporter = ProgressReporter(configuration.strictMode)
         val currentCoroutineContext = coroutineContext
-        val scheduler = Scheduler(deviceProvider, analytics, configuration, tests, progressReporter, currentCoroutineContext)
+        val scheduler = Scheduler(deviceProvider, analytics, configuration, shard, progressReporter, currentCoroutineContext)
 
         if (configuration.outputDir.exists()) {
             log.info { "Output ${configuration.outputDir} already exists" }
@@ -147,6 +150,13 @@ class Marathon(val configuration: Configuration) {
         configuration.filteringConfiguration.whitelist.forEach { tests = it.filter(tests) }
         configuration.filteringConfiguration.blacklist.forEach { tests = it.filterNot(tests) }
         return tests
+    }
+
+    private fun prepareTestShard(tests: List<Test>, analytics: Analytics): TestShard {
+        val shardingStrategy = configuration.shardingStrategy
+        val flakinessShard = configuration.flakinessStrategy
+        val shard = shardingStrategy.createShard(tests)
+        return flakinessShard.process(shard, analytics)
     }
 
     private fun trackAnalytics(configuration: Configuration) {
