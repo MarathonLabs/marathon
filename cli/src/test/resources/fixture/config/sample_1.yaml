@@ -6,6 +6,7 @@ analyticsConfiguration:
     user: "root"
     password: "root"
     dbName: "marathon"
+    logLevel: "FULL"
 poolingStrategy:
 - type: "omni"
 - type: "device-model"

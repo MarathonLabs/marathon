@@ -14,6 +14,7 @@ class InfluxDbProvider(configuration: AnalyticsConfiguration.InfluxDbConfigurati
     private val user = configuration.user
     private val password = configuration.password
     private val dbName = configuration.dbName
+    private val logLevel: InfluxDB.LogLevel = configuration.logLevel
     private val retentionPolicyConfiguration = configuration.retentionPolicyConfiguration
 
     fun createDb(): InfluxDB {
@@ -27,7 +28,7 @@ class InfluxDbProvider(configuration: AnalyticsConfiguration.InfluxDbConfigurati
         } else {
             InfluxDBFactory.connect(url, okHttpBuilder)
         }
-        influxDb.setLogLevel(InfluxDB.LogLevel.BASIC)
+        influxDb.setLogLevel(logLevel)
 
         val rpName = retentionPolicyConfiguration.name
         if (!influxDb.databaseExists(dbName)) {

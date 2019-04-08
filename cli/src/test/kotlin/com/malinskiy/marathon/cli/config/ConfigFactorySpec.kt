@@ -46,6 +46,7 @@ import org.amshove.kluent.shouldContainAll
 import org.amshove.kluent.shouldEqual
 import org.amshove.kluent.shouldNotThrow
 import org.amshove.kluent.shouldThrow
+import org.influxdb.InfluxDB
 import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.given
 import org.jetbrains.spek.api.dsl.it
@@ -90,6 +91,7 @@ object ConfigFactorySpec : Spek({
                         user = "root",
                         password = "root",
                         dbName = "marathon",
+                        logLevel = InfluxDB.LogLevel.FULL,
                         retentionPolicyConfiguration = AnalyticsConfiguration.InfluxDbConfiguration.RetentionPolicyConfiguration.default
                 )
                 configuration.poolingStrategy shouldEqual ComboPoolingStrategy(

@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer
 import com.malinskiy.marathon.exceptions.ConfigurationException
 import com.malinskiy.marathon.execution.AnalyticsConfiguration
+import org.influxdb.InfluxDB
 
 class InfluxDbConfigurationDeserializer
     : StdDeserializer<AnalyticsConfiguration.InfluxDbConfiguration>(
@@ -17,6 +18,8 @@ class InfluxDbConfigurationDeserializer
         val user = node?.get("user")?.asText()
         val password = node?.get("password")?.asText()
         val dbName = node?.get("dbName")?.asText()
+        val logLevel = node?.get("logLevel")?.asText()?.run { InfluxDB.LogLevel.parseLogLevel(this) }
+                ?: InfluxDB.LogLevel.BASIC
 
         val retentionPolicyNode = node?.get("retentionPolicyConfiguration")?.traverse(p.codec)
         val policyClazz = AnalyticsConfiguration.InfluxDbConfiguration.RetentionPolicyConfiguration::class.java
@@ -29,6 +32,12 @@ class InfluxDbConfigurationDeserializer
         if (password == null) throw ConfigurationException("InfluxDbConfigurationDeserializer: password should be specified")
         if (dbName == null) throw ConfigurationException("InfluxDbConfigurationDeserializer: dbName should be specified")
 
-        return AnalyticsConfiguration.InfluxDbConfiguration(url, user, password, dbName, retentionPolicyConfiguration)
+        return AnalyticsConfiguration.InfluxDbConfiguration(
+                url = url,
+                user = user,
+                password = password,
+                dbName = dbName,
+                logLevel = logLevel,
+                retentionPolicyConfiguration = retentionPolicyConfiguration)
     }
 }
