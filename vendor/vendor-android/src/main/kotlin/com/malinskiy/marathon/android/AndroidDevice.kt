@@ -23,6 +23,9 @@ import java.util.*
 import kotlin.coroutines.CoroutineContext
 
 class AndroidDevice(val ddmsDevice: IDevice) : Device, CoroutineScope {
+
+    val fileManager = RemoteFileManager(ddmsDevice)
+
     private val dispatcher by lazy {
         newFixedThreadPoolContext(1, "AndroidDevice - execution - ${ddmsDevice.serialNumber}")
     }
@@ -117,8 +120,8 @@ class AndroidDevice(val ddmsDevice: IDevice) : Device, CoroutineScope {
         InMemoryDeviceTracker.trackDevicePreparing(this) {
             val deferred = async {
                 AndroidAppInstaller(configuration).prepareInstallation(this@AndroidDevice)
-                RemoteFileManager.removeRemoteDirectory(ddmsDevice)
-                RemoteFileManager.createRemoteDirectory(ddmsDevice)
+                fileManager.removeRemoteDirectory(ddmsDevice)
+                fileManager.createRemoteDirectory(ddmsDevice)
                 clearLogcat(ddmsDevice)
             }
             deferred.await()
