@@ -33,7 +33,7 @@ internal class ScreenRecorder(private val device: IDevice,
 
     companion object {
         private val logger = MarathonLogging.logger("ScreenRecorder")
-        private const val DURATION = 60
+        private const val DURATION = 180
         private const val BITRATE_MB_PER_SECOND = 1
         private val options = ScreenRecorderOptions.Builder()
                 .setTimeLimit(DURATION.toLong(), SECONDS)
