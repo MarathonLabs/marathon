@@ -1,6 +1,5 @@
 package com.malinskiy.marathon.android
 
-import com.android.annotations.NonNull
 import com.android.ddmlib.AdbCommandRejectedException
 import com.android.ddmlib.IDevice
 import com.android.ddmlib.IShellOutputReceiver
@@ -82,8 +81,8 @@ fun IDevice.safeClearPackage(packageName: String): String? {
     }
 }
 
-fun getScreenRecorderCommand(@NonNull remoteFilePath: String,
-                             @NonNull options: ScreenRecorderOptions): String {
+fun getScreenRecorderCommand(remoteFilePath: String,
+                             options: ScreenRecorderOptions): String {
     val sb = StringBuilder()
 
     sb.append("screenrecord")
