@@ -1,6 +1,6 @@
 package com.malinskiy.marathon.execution.strategy.impl.batching
 
-import com.malinskiy.marathon.TestGenerator
+import com.malinskiy.marathon.generateTests
 import com.malinskiy.marathon.analytics.Analytics
 import com.malinskiy.marathon.analytics.metrics.NoOpMetricsProvider
 import com.malinskiy.marathon.analytics.tracker.NoOpTracker
@@ -19,7 +19,7 @@ class IsolateBatchingStrategySpek : Spek({
         it("should return batches with size = 1") {
             val strategy = IsolateBatchingStrategy()
             val queue = LinkedList<Test>()
-            val tests = TestGenerator().create(50)
+            val tests = generateTests(50)
             queue.addAll(tests)
             queue.size shouldBe 50
             strategy.process(queue, analytics).tests.size shouldBe 1

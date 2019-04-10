@@ -1,7 +1,7 @@
 package com.malinskiy.marathon.execution.strategy.impl.sorting
 
 import com.malinskiy.marathon.MetricsProviderStub
-import com.malinskiy.marathon.TestGenerator
+import com.malinskiy.marathon.generateTests
 import com.malinskiy.marathon.execution.TestShard
 import org.amshove.kluent.shouldBe
 import org.jetbrains.spek.api.Spek
@@ -16,7 +16,7 @@ class SuccessRateSortingStrategySpek : Spek({
         context("strategy with default ordering") {
             val strategy = SuccessRateSortingStrategy(Instant.now().minus(1, ChronoUnit.DAYS))
             group("single test shard") {
-                val tests = TestGenerator().create(3)
+                val tests = generateTests(3)
                 val testShard = TestShard(tests)
                 it("should return 3 tests sorted by descending success rate") {
                     val metricsProvider = MetricsProviderStub(
@@ -36,7 +36,7 @@ class SuccessRateSortingStrategySpek : Spek({
         context("strategy with ascending ordering") {
             val strategy = SuccessRateSortingStrategy(Instant.now().minus(1, ChronoUnit.DAYS), ascending = true)
             group("single test shard") {
-                val tests = TestGenerator().create(3)
+                val tests = generateTests(3)
                 val testShard = TestShard(tests)
                 it("should return 3 tests sorted by descending success rate") {
                     val metricsProvider = MetricsProviderStub(
@@ -56,7 +56,7 @@ class SuccessRateSortingStrategySpek : Spek({
         context("strategy with descending ordering") {
             val strategy = SuccessRateSortingStrategy(Instant.now().minus(1, ChronoUnit.DAYS), ascending = false)
             group("single test shard") {
-                val tests = TestGenerator().create(3)
+                val tests = generateTests(3)
                 val testShard = TestShard(tests)
                 it("should return 3 tests sorted by descending success rate") {
                     val metricsProvider = MetricsProviderStub(

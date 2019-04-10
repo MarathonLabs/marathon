@@ -1,13 +1,10 @@
 package com.malinskiy.marathon.analytics.tracker
 
-import com.malinskiy.marathon.actor.StateMachine
 import com.malinskiy.marathon.createDeviceInfo
 import com.malinskiy.marathon.device.DeviceInfo
 import com.malinskiy.marathon.device.DevicePoolId
-import com.malinskiy.marathon.execution.queue.TestAction
-import com.malinskiy.marathon.execution.queue.TestEvent
-import com.malinskiy.marathon.execution.queue.TestState
-import com.nhaarman.mockitokotlin2.eq
+import com.malinskiy.marathon.generateTestResult
+import com.nhaarman.mockitokotlin2.same
 import com.nhaarman.mockitokotlin2.verify
 import org.amshove.kluent.mock
 import org.jetbrains.spek.api.Spek
@@ -23,19 +20,32 @@ class DelegatingTrackerSpek : Spek({
             val devicePoolId = DevicePoolId("test")
             val device: DeviceInfo = createDeviceInfo()
             delegatingTracker.trackDeviceConnected(devicePoolId, device)
-            verify(tracker1).trackDeviceConnected(eq(devicePoolId), eq(device))
-            verify(tracker2).trackDeviceConnected(eq(devicePoolId), eq(device))
+            verify(tracker1).trackDeviceConnected(same(devicePoolId), same(device))
+            verify(tracker2).trackDeviceConnected(same(devicePoolId), same(device))
         }
 
-        it("should execute trackTestTransition function on all trackers") {
+        it("should execute trackTestFinished function on all trackers") {
             val tracker1 = mock<Tracker>()
             val tracker2 = mock<Tracker>()
             val delegatingTracker = DelegatingTracker(listOf(tracker1, tracker2))
             val devicePoolId = DevicePoolId("test")
-            val transition: StateMachine.Transition<TestState, TestEvent, TestAction> = mock()
-            delegatingTracker.trackTestTransition(devicePoolId, transition)
-            verify(tracker1).trackTestTransition(eq(devicePoolId), eq(transition))
-            verify(tracker2).trackTestTransition(eq(devicePoolId), eq(transition))
+            val deviceInfo = createDeviceInfo()
+            val testResult = generateTestResult()
+            delegatingTracker.trackTestFinished(devicePoolId, deviceInfo, testResult)
+            verify(tracker1).trackTestFinished(same(devicePoolId), same(deviceInfo), same(testResult))
+            verify(tracker2).trackTestFinished(same(devicePoolId), same(deviceInfo), same(testResult))
+        }
+
+        it("should execute trackRawTestRun function on all trackers") {
+            val tracker1 = mock<Tracker>()
+            val tracker2 = mock<Tracker>()
+            val delegatingTracker = DelegatingTracker(listOf(tracker1, tracker2))
+            val devicePoolId = DevicePoolId("test")
+            val deviceInfo = createDeviceInfo()
+            val testResult = generateTestResult()
+            delegatingTracker.trackRawTestRun(devicePoolId, deviceInfo, testResult)
+            verify(tracker1).trackRawTestRun(same(devicePoolId), same(deviceInfo), same(testResult))
+            verify(tracker2).trackRawTestRun(same(devicePoolId), same(deviceInfo), same(testResult))
         }
     }
 })

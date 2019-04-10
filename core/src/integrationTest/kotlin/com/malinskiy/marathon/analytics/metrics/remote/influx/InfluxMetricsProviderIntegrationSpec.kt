@@ -1,9 +1,9 @@
 package com.malinskiy.marathon.analytics.metrics.remote.influx
 
-import com.malinskiy.marathon.TestGenerator
 import com.malinskiy.marathon.device.DeviceStub
 import com.malinskiy.marathon.device.toDeviceInfo
 import com.malinskiy.marathon.execution.TestStatus
+import com.malinskiy.marathon.generateTest
 import com.malinskiy.marathon.test.Test
 import com.malinskiy.marathon.test.toSafeTestName
 import org.amshove.kluent.shouldBeInRange
@@ -41,7 +41,7 @@ class InfluxMetricsProviderIntegrationSpec : Spek({
     }
 
     describe("InfluxMetricsProvider") {
-        val test = TestGenerator().create(1).first()
+        val test = generateTest()
         on("empty db") {
             it("success rate default value is 0.0") {
                 val result = provider.invoke().successRate(test, Instant.now())
