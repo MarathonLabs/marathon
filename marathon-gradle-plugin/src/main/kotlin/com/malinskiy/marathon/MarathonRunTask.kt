@@ -53,7 +53,7 @@ open class MarathonRunTask : DefaultTask(), VerificationTask {
                 extensionConfig.flakinessStrategy?.toStrategy(),
                 extensionConfig.retryStrategy?.toStrategy(),
                 extensionConfig.filteringConfiguration?.toFilteringConfiguration(),
-                ignoreFailure && (extensionConfig?.ignoreFailures ?: true),
+                extensionConfig.ignoreFailures,
                 extensionConfig.isCodeCoverageEnabled,
                 extensionConfig.fallbackToScreenshots,
                 extensionConfig.testClassRegexes?.map { it.toRegex() },
