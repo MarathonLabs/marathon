@@ -31,6 +31,10 @@ retryStrategy:
   type: "fixed-quota"
   totalAllowedRetryQuota: 100
   retryPerTestQuota: 2
+  noRetryTestMatchers:
+    - package: "TestPackage"
+      class: "TestClass"
+      method: "TestMethod"
 filteringConfiguration:
   whitelist:
   - type: "simple-class-name"
