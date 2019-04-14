@@ -1,14 +1,13 @@
 package com.malinskiy.marathon.analytics.tracker
 
-import com.malinskiy.marathon.actor.StateMachine
 import com.malinskiy.marathon.device.DeviceInfo
 import com.malinskiy.marathon.device.DevicePoolId
-import com.malinskiy.marathon.execution.queue.TestAction
-import com.malinskiy.marathon.execution.queue.TestEvent
-import com.malinskiy.marathon.execution.queue.TestState
+import com.malinskiy.marathon.execution.TestResult
 
 interface Tracker {
-    fun trackTestTransition(poolId: DevicePoolId, transition: StateMachine.Transition<TestState, TestEvent, TestAction>)
+    fun trackRawTestRun(poolId: DevicePoolId, device: DeviceInfo, testResult: TestResult)
+
+    fun trackTestFinished(poolId: DevicePoolId, device: DeviceInfo, testResult: TestResult)
 
     fun trackDeviceConnected(poolId: DevicePoolId, device: DeviceInfo)
 

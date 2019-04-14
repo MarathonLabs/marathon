@@ -1,7 +1,7 @@
 package com.malinskiy.marathon.execution.strategy.impl.sorting
 
 import com.malinskiy.marathon.MetricsProviderStub
-import com.malinskiy.marathon.TestGenerator
+import com.malinskiy.marathon.generateTests
 import com.malinskiy.marathon.execution.TestShard
 import org.amshove.kluent.shouldBe
 import org.jetbrains.spek.api.Spek
@@ -17,7 +17,7 @@ class ExecutionTimeSortingStrategySpek : Spek({
         context("strategy with min success rate 0.8") {
             val strategy = ExecutionTimeSortingStrategy(0.8, Instant.now().minus(1, ChronoUnit.DAYS))
             group("single test shard") {
-                val tests = TestGenerator().create(3)
+                val tests = generateTests(3)
                 val testShard = TestShard(tests)
                 it("should return 3 tests sorted by execution time") {
                     val metricsProvider = MetricsProviderStub(

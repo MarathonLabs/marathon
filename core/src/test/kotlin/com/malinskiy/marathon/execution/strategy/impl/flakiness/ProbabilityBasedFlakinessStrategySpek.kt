@@ -1,7 +1,7 @@
 package com.malinskiy.marathon.execution.strategy.impl.flakiness
 
 import com.malinskiy.marathon.MetricsProviderStub
-import com.malinskiy.marathon.TestGenerator
+import com.malinskiy.marathon.generateTests
 import com.malinskiy.marathon.execution.TestShard
 import org.amshove.kluent.shouldBe
 import org.jetbrains.spek.api.Spek
@@ -16,7 +16,7 @@ class ProbabilityBasedFlakinessStrategySpek : Spek({
         context("strategy with min success rate 0.8") {
             val strategy = ProbabilityBasedFlakinessStrategy(0.8, 5, instant)
             group("single test shard") {
-                val testShard = TestShard(TestGenerator().create(1))
+                val testShard = TestShard(generateTests(1))
                 it("should return 2 flaky tests for one with success rate = 0.5") {
                     val metricsProvider = MetricsProviderStub(successRate = 0.5)
                     val result = strategy.process(testShard, metricsProvider)
@@ -50,7 +50,7 @@ class ProbabilityBasedFlakinessStrategySpek : Spek({
             }
             it("should return three flaky tests for three tests with success rate = 0.7") {
                 val metricsProvider = MetricsProviderStub(successRate = 0.7)
-                val testShard = TestShard(TestGenerator().create(3))
+                val testShard = TestShard(generateTests(3))
                 val result = strategy.process(testShard, metricsProvider)
                 result.tests.size shouldBe 3
                 result.flakyTests.size shouldBe 3
