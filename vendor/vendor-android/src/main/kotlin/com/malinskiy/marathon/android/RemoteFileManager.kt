@@ -19,23 +19,23 @@ class RemoteFileManager(private val device: IDevice) {
 
     private val nullOutputReceiver = NullOutputReceiver()
 
-    fun removeRemotePath(device: IDevice, remotePath: String) {
-        executeCommand(device, "rm $remotePath", "Could not delete remote file(s): $remotePath")
+    fun removeRemotePath(remotePath: String) {
+        executeCommand("rm $remotePath", "Could not delete remote file(s): $remotePath")
     }
 
     fun pullFile(remoteFilePath: String, localFilePath: String) {
         device.pullFile(remoteFilePath, localFilePath)
     }
 
-    fun createRemoteDirectory(device: IDevice) {
-        executeCommand(device, "mkdir $outputDir", "Could not create remote directory: $outputDir")
+    fun createRemoteDirectory() {
+        executeCommand("mkdir $outputDir", "Could not create remote directory: $outputDir")
     }
 
-    fun removeRemoteDirectory(device: IDevice) {
-        executeCommand(device, "rm -r $outputDir", "Could not delete remote directory: $outputDir")
+    fun removeRemoteDirectory() {
+        executeCommand("rm -r $outputDir", "Could not delete remote directory: $outputDir")
     }
 
-    private fun executeCommand(device: IDevice, command: String, errorMessage: String) {
+    private fun executeCommand(command: String, errorMessage: String) {
         try {
             device.safeExecuteShellCommand(command, nullOutputReceiver)
         } catch (e: TimeoutException) {

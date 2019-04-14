@@ -101,7 +101,7 @@ internal class ScreenRecorderTestRunListener(private val fileManager: FileManage
     private fun removeTestVideo(test: TestIdentifier) {
         val remoteFilePath = device.fileManager.remoteVideoForTest(test)
         val millis = measureTimeMillis {
-            device.fileManager.removeRemotePath(deviceInterface, remoteFilePath)
+            device.fileManager.removeRemotePath(remoteFilePath)
         }
         logger.trace { "Removed file in ${millis}ms $remoteFilePath" }
     }

@@ -120,8 +120,8 @@ class AndroidDevice(val ddmsDevice: IDevice) : Device, CoroutineScope {
         InMemoryDeviceTracker.trackDevicePreparing(this) {
             val deferred = async {
                 AndroidAppInstaller(configuration).prepareInstallation(this@AndroidDevice)
-                fileManager.removeRemoteDirectory(ddmsDevice)
-                fileManager.createRemoteDirectory(ddmsDevice)
+                fileManager.removeRemoteDirectory()
+                fileManager.createRemoteDirectory()
                 clearLogcat(ddmsDevice)
             }
             deferred.await()
