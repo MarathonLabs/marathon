@@ -16,6 +16,7 @@ import com.malinskiy.marathon.usageanalytics.UsageAnalytics
 import com.malinskiy.marathon.usageanalytics.tracker.Event
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
+import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.VerificationTask
 import java.io.File
@@ -31,6 +32,8 @@ open class MarathonRunTask : DefaultTask(), VerificationTask {
     lateinit var cnf: Configuration
     var ignoreFailure: Boolean = false
 
+    @OutputDirectory
+    lateinit var output: File
 
     @TaskAction
     fun runMarathon() {
@@ -38,7 +41,7 @@ open class MarathonRunTask : DefaultTask(), VerificationTask {
         val applicationApk = applicationVariant.extractApplication()
 
         val baseOutputDir = if (extensionConfig.baseOutputDir != null) File(extensionConfig.baseOutputDir) else File(project.buildDir, "reports/marathon")
-        val output = File(baseOutputDir, flavorName)
+        output = File(baseOutputDir, flavorName)
 
         val vendorConfiguration = createAndroidConfiguration(extensionConfig, applicationApk, instrumentationApk)
 
