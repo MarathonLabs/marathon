@@ -33,7 +33,7 @@ open class MarathonRunTask : DefaultTask(), VerificationTask {
     var ignoreFailure: Boolean = false
 
     @OutputDirectory
-    lateinit var output: File
+    var fakeLockingOutput = File(project.rootProject.buildDir, "fake-marathon-locking-output")
 
     @TaskAction
     fun runMarathon() {
@@ -41,7 +41,7 @@ open class MarathonRunTask : DefaultTask(), VerificationTask {
         val applicationApk = applicationVariant.extractApplication()
 
         val baseOutputDir = if (extensionConfig.baseOutputDir != null) File(extensionConfig.baseOutputDir) else File(project.buildDir, "reports/marathon")
-        output = File(baseOutputDir, flavorName)
+        val output = File(baseOutputDir, flavorName)
 
         val vendorConfiguration = createAndroidConfiguration(extensionConfig, applicationApk, instrumentationApk)
 
