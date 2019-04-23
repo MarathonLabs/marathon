@@ -80,11 +80,8 @@ class AndroidDevice(val ddmsDevice: IDevice) : Device, CoroutineScope {
     val booted: Boolean
         get() = ddmsDevice.getProperty("sys.boot_completed") != null
 
-    override val serialNumber: String = when {
-        booted -> realSerialNumber
-        else -> ddmsDevice.serialNumber
-    }
-
+    override val serialNumber: String = ddmsDevice.serialNumber
+    
     override val operatingSystem: OperatingSystem by lazy {
         OperatingSystem(ddmsDevice.version.apiString)
     }
