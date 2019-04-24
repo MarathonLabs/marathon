@@ -7,9 +7,34 @@ import java.util.concurrent.atomic.AtomicInteger
 
 class PoolProgressTracker {
 
-    private val tests = mutableMapOf<Test, StateMachine<ProgressTestState, ProgressEvent, Any>>()
+    private val tests = mutableMapOf<Test, StateMachine<ProgressTestState, ProgressEvent, ProgressAction>>()
 
-    private fun createState() = StateMachine.create<ProgressTestState, ProgressEvent, Any> {
+
+    private fun createStrictState() = StateMachine.create<ProgressTestState, ProgressEvent, ProgressAction> {
+        initialState(ProgressTestState.Started)
+        state<ProgressTestState.Started> {
+            on<ProgressEvent.Failed> {
+                transitionTo(ProgressTestState.Failed)
+            }
+            on<ProgressEvent.Passed> {
+                transitionTo(ProgressTestState.Passed)
+            }
+            on<ProgressEvent.Ignored> {
+                transitionTo(ProgressTestState.Ignored)
+            }
+        }
+        state<ProgressTestState.Passed> {
+            on<ProgressEvent.Failed> {
+                transitionTo(ProgressTestState.Failed)
+            }
+        }
+        state<ProgressTestState.Failed> {
+        }
+        state<ProgressTestState.Ignored> {
+        }
+    }
+
+    private fun createState() = StateMachine.create<ProgressTestState, ProgressEvent, ProgressAction> {
         initialState(ProgressTestState.Started)
         state<ProgressTestState.Started> {
             on<ProgressEvent.Failed> {
@@ -44,16 +69,18 @@ class PoolProgressTracker {
 
     private fun updateStatus(test: Test, newStatus: ProgressEvent) = tests[test]?.transition(newStatus)
 
+
+
     private val totalTests = AtomicInteger(0)
     private val completed = AtomicInteger(0)
     private val failed = AtomicInteger(0)
 
     fun testStarted(test: Test) {
-        tests.computeIfAbsent(test) { _ -> createState() }
+        tests.computeIfAbsent(test) { createState() }
     }
 
     fun testFailed(test: Test) {
-        if(tests[test]?.state == ProgressTestState.Passed) {
+        if (tests[test]?.state == ProgressTestState.Passed) {
             //Return early because the test already passed
             return
         }
