@@ -65,6 +65,9 @@ internal class ScreenRecorderStopper(private val deviceInterface: IDevice) {
     companion object {
         private val logger = MarathonLogging.logger("ScreenRecorderStopper")
         private const val SCREEN_RECORD_KILL_ATTEMPTS = 5
+        /*
+        * Workaround for https://github.com/Malinskiy/marathon/issues/133
+        */
         private const val PAUSE_BETWEEN_RECORDER_PROCESS_KILL = 300
     }
 
