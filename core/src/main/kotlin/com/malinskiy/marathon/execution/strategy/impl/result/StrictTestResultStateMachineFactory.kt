@@ -1,9 +1,13 @@
-package com.malinskiy.marathon.execution.queue
+package com.malinskiy.marathon.execution.strategy.impl.result
 
 import com.malinskiy.marathon.actor.StateMachine
+import com.malinskiy.marathon.execution.queue.TestAction
+import com.malinskiy.marathon.execution.queue.TestEvent
+import com.malinskiy.marathon.execution.queue.TestState
+import com.malinskiy.marathon.execution.strategy.ResultStrategy
 
 
-class StrictTestResultStateMachineFactory : TestResultStateMachineFactory {
+class StrictTestResultStateMachineFactory : ResultStrategy {
     override fun createStateMachine(initialCount: Int,
                                     onTransitionHandler: (StateMachine.Transition<TestState, TestEvent, TestAction>) -> Unit): StateMachine<TestState, TestEvent, TestAction> {
         return StateMachine.create {
