@@ -3,18 +3,14 @@ package com.malinskiy.marathon.android.executor.listeners.video
 import com.android.ddmlib.CollectingOutputReceiver
 import com.android.ddmlib.IDevice
 import com.android.ddmlib.ScreenRecorderOptions
-import com.android.ddmlib.testrunner.TestIdentifier
-import com.malinskiy.marathon.android.RemoteFileManager
 import com.malinskiy.marathon.android.safeStartScreenRecorder
 import com.malinskiy.marathon.log.MarathonLogging
 import java.util.concurrent.TimeUnit.SECONDS
 import kotlin.system.measureTimeMillis
 
 internal class ScreenRecorder(private val device: IDevice,
-                              test: TestIdentifier,
-                              private val receiver : CollectingOutputReceiver) : Runnable {
-
-    private val remoteFilePath: String = RemoteFileManager.remoteVideoForTest(test)
+                              private val receiver : CollectingOutputReceiver,
+                              private val remoteFilePath : String) : Runnable {
 
     override fun run() {
         try {
