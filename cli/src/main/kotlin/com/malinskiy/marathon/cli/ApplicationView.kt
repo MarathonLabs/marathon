@@ -7,6 +7,7 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.KotlinModule
 import com.malinskiy.marathon.BuildConfig
 import com.malinskiy.marathon.Marathon
+import com.malinskiy.marathon.StandardOutputPrinter
 import com.malinskiy.marathon.usageanalytics.TrackActionType
 import com.malinskiy.marathon.usageanalytics.UsageAnalytics
 import com.malinskiy.marathon.usageanalytics.tracker.Event
@@ -40,7 +41,10 @@ fun main(args: Array<String>): Unit = mainBody(
         val marathon = Marathon(configuration = configuration)
         UsageAnalytics.enable = this.analyticsTracking
         UsageAnalytics.tracker.trackEvent(Event(TrackActionType.RunType, "cli"))
-        val success = marathon.run()
+        val success = marathon.run(
+                printTestCountAndExit = printTestCountAndExit,
+                outputPrinter = StandardOutputPrinter()
+        )
         if (!success && !configuration.ignoreFailures) {
             throw SystemExitException("Build failed", 1)
         }
