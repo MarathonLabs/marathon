@@ -42,7 +42,8 @@ fun AnalyticsConfig.toAnalyticsConfiguration(): AnalyticsConfiguration {
                 password = it.password,
                 url = it.url,
                 retentionPolicyConfiguration = it.retentionPolicy?.toRetentionPolicy()
-                        ?: RetentionPolicyConfiguration.default)
+                        ?: RetentionPolicyConfiguration.default,
+                logLevel = AnalyticsConfiguration.InfluxDbConfiguration.LogLevel.VERBOSE)
     } ?: AnalyticsConfiguration.DisabledAnalytics
 }
 

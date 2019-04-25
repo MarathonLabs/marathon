@@ -14,7 +14,7 @@ class InfluxDbProvider(configuration: AnalyticsConfiguration.InfluxDbConfigurati
     private val user = configuration.user
     private val password = configuration.password
     private val dbName = configuration.dbName
-    private val logLevel: InfluxDB.LogLevel = configuration.logLevel
+    private val logLevel: InfluxDB.LogLevel = configuration.logLevel.toInfluxDBLogLevel()
     private val retentionPolicyConfiguration = configuration.retentionPolicyConfiguration
 
     fun createDb(): InfluxDB {
@@ -47,4 +47,9 @@ class InfluxDbProvider(configuration: AnalyticsConfiguration.InfluxDbConfigurati
         influxDb.enableBatch()
         return influxDb
     }
+}
+
+private fun AnalyticsConfiguration.InfluxDbConfiguration.LogLevel.toInfluxDBLogLevel(): InfluxDB.LogLevel = when(this) {
+    AnalyticsConfiguration.InfluxDbConfiguration.LogLevel.NONE -> InfluxDB.LogLevel.NONE
+    else -> InfluxDB.LogLevel.BASIC
 }

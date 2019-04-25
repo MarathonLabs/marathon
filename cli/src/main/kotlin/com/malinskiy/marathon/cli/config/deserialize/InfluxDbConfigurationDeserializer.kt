@@ -18,8 +18,9 @@ class InfluxDbConfigurationDeserializer
         val user = node?.get("user")?.asText()
         val password = node?.get("password")?.asText()
         val dbName = node?.get("dbName")?.asText()
-        val logLevel = node?.get("logLevel")?.asText()?.run { InfluxDB.LogLevel.parseLogLevel(this) }
-                ?: InfluxDB.LogLevel.BASIC
+        val logLevel = node?.get("logLevel")?.asText()
+                ?.let { enumValueOf<AnalyticsConfiguration.InfluxDbConfiguration.LogLevel>(it) }
+                ?: AnalyticsConfiguration.InfluxDbConfiguration.LogLevel.VERBOSE
 
         val retentionPolicyNode = node?.get("retentionPolicyConfiguration")?.traverse(p.codec)
         val policyClazz = AnalyticsConfiguration.InfluxDbConfiguration.RetentionPolicyConfiguration::class.java
@@ -37,7 +38,7 @@ class InfluxDbConfigurationDeserializer
                 user = user,
                 password = password,
                 dbName = dbName,
-                logLevel = logLevel,
-                retentionPolicyConfiguration = retentionPolicyConfiguration)
+                retentionPolicyConfiguration = retentionPolicyConfiguration,
+                logLevel = logLevel)
     }
 }

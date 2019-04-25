@@ -92,8 +92,8 @@ object ConfigFactorySpec : Spek({
                         user = "root",
                         password = "root",
                         dbName = "marathon",
-                        logLevel = InfluxDB.LogLevel.FULL,
-                        retentionPolicyConfiguration = AnalyticsConfiguration.InfluxDbConfiguration.RetentionPolicyConfiguration.default
+                        retentionPolicyConfiguration = AnalyticsConfiguration.InfluxDbConfiguration.RetentionPolicyConfiguration.default,
+                        logLevel = AnalyticsConfiguration.InfluxDbConfiguration.LogLevel.NONE
                 )
                 configuration.poolingStrategy shouldEqual ComboPoolingStrategy(
                         listOf(
