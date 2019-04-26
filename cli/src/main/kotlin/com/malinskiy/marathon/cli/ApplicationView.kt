@@ -27,6 +27,11 @@ fun main(args: Array<String>): Unit = mainBody(
         programName = "marathon v${BuildConfig.VERSION}"
 ) {
     ArgParser(args).parseInto(::MarathonCliConfiguration).run {
+        if (printVersionAndExit) {
+            StandardOutputPrinter().print(BuildConfig.VERSION)
+            System.exit(0)
+        }
+
         logger.info { "Starting marathon" }
 
         val mapper = ObjectMapper(YAMLFactory().disable(YAMLGenerator.Feature.USE_NATIVE_TYPE_ID))
