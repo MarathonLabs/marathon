@@ -5,6 +5,7 @@ import com.google.gson.Gson
 import com.malinskiy.marathon.analytics.tracker.device.InMemoryDeviceTracker
 import com.malinskiy.marathon.device.Device
 import com.malinskiy.marathon.device.DeviceFeature
+import com.malinskiy.marathon.device.DeviceInfo
 import com.malinskiy.marathon.device.DevicePoolId
 import com.malinskiy.marathon.device.NetworkState
 import com.malinskiy.marathon.device.OperatingSystem
@@ -358,6 +359,15 @@ class IOSDevice(val simulator: RemoteSimulator,
                 resolveSibling(remoteXctestrunFile.name)
                 .also { it.writeBytes(xctestrun.toXMLByteArray()) }
     }
+
+    override fun toDeviceInfo() = DeviceInfo(operatingSystem = operatingSystem,
+            serialNumber = serialNumber,
+            model = model,
+            manufacturer = manufacturer,
+            networkState = networkState,
+            deviceFeatures = deviceFeatures,
+            healthy = healthy
+    )
 }
 
 private const val REACHABILITY_TIMEOUT_MILLIS = 5000

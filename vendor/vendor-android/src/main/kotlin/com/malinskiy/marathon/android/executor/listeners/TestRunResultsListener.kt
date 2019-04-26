@@ -4,7 +4,6 @@ import com.android.ddmlib.testrunner.TestIdentifier
 import com.malinskiy.marathon.android.toMarathonStatus
 import com.malinskiy.marathon.android.toTest
 import com.malinskiy.marathon.device.Device
-import com.malinskiy.marathon.device.toDeviceInfo
 import com.malinskiy.marathon.execution.Attachment
 import com.malinskiy.marathon.execution.TestBatchResults
 import com.malinskiy.marathon.execution.TestResult

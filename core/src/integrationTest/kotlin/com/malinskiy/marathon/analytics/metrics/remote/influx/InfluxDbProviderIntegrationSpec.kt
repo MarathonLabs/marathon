@@ -35,7 +35,8 @@ class InfluxDbProviderIntegrationSpec : Spek({
                         dbName = database,
                         password = "",
                         user = "root",
-                        retentionPolicyConfiguration = AnalyticsConfiguration.InfluxDbConfiguration.RetentionPolicyConfiguration.default
+                        retentionPolicyConfiguration = AnalyticsConfiguration.InfluxDbConfiguration.RetentionPolicyConfiguration.default,
+                        logLevel = AnalyticsConfiguration.InfluxDbConfiguration.LogLevel.VERBOSE
                 ))
                 val firstDbInstance = provider.createDb()
                 firstDbInstance.close()

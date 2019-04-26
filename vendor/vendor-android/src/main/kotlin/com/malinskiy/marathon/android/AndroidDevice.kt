@@ -7,6 +7,7 @@ import com.malinskiy.marathon.android.executor.AndroidAppInstaller
 import com.malinskiy.marathon.android.executor.AndroidDeviceTestRunner
 import com.malinskiy.marathon.device.Device
 import com.malinskiy.marathon.device.DeviceFeature
+import com.malinskiy.marathon.device.DeviceInfo
 import com.malinskiy.marathon.device.DevicePoolId
 import com.malinskiy.marathon.device.NetworkState
 import com.malinskiy.marathon.device.OperatingSystem
@@ -141,4 +142,14 @@ class AndroidDevice(val ddmsDevice: IDevice) : Device, CoroutineScope {
     override fun toString(): String {
         return "AndroidDevice(model=$model, serial=$serialNumber)"
     }
+
+    override fun toDeviceInfo() = DeviceInfo(
+            operatingSystem = operatingSystem,
+            serialNumber = serialNumber,
+            model = model,
+            manufacturer = manufacturer,
+            networkState = networkState,
+            deviceFeatures = deviceFeatures,
+            healthy = healthy
+    )
 }

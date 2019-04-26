@@ -3,7 +3,6 @@ package com.malinskiy.marathon.execution
 import com.malinskiy.marathon.analytics.Analytics
 import com.malinskiy.marathon.device.DevicePoolId
 import com.malinskiy.marathon.device.DeviceProvider
-import com.malinskiy.marathon.device.toDeviceInfo
 import com.malinskiy.marathon.exceptions.NoDevicesException
 import com.malinskiy.marathon.execution.DevicePoolMessage.FromScheduler
 import com.malinskiy.marathon.execution.DevicePoolMessage.FromScheduler.AddDevice
