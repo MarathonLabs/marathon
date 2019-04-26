@@ -366,7 +366,8 @@ class IOSDevice(val simulator: RemoteSimulator,
             manufacturer = manufacturer,
             networkState = networkState,
             deviceFeatures = deviceFeatures,
-            healthy = healthy
+            healthy = healthy,
+            deviceLabel = simulator.label ?: serialNumber
     )
 }
 
