@@ -47,6 +47,9 @@ class ProgressReportingListener(private val device: Device,
         progressReporter.testStarted(poolId, device.toDeviceInfo(), test)
     }
 
-    private fun getLastLog() = (listOf(testLogListener.getLastLog()) + diagnosticLogsPathFinder.diagnosticLogPaths)
+    private fun getLastLog() = (
+            listOf(testLogListener.getLastLog()) +
+            diagnosticLogsPathFinder.labels +
+            diagnosticLogsPathFinder.diagnosticLogPaths)
             .joinToString("\n")
 }
