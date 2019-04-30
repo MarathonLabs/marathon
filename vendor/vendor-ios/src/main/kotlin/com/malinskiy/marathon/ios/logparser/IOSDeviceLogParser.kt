@@ -46,7 +46,8 @@ class IOSDeviceLogParser(device: Device,
                             testBatch = testBatch,
                             deferredResults = deferredResults,
                             progressReporter = progressReporter,
-                            testLogListener = testLogListener
+                            testLogListener = testLogListener,
+                            diagnosticLogsPathFinder = diagnosticLogsPathFinder
                         ),
                         testLogListener
                     )

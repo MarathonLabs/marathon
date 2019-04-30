@@ -6,6 +6,7 @@ import com.malinskiy.marathon.execution.TestBatchResults
 import com.malinskiy.marathon.execution.TestResult
 import com.malinskiy.marathon.execution.TestStatus
 import com.malinskiy.marathon.execution.progress.ProgressReporter
+import com.malinskiy.marathon.ios.logparser.parser.DiagnosticLogsPathFinder
 import com.malinskiy.marathon.test.Test
 import com.malinskiy.marathon.test.TestBatch
 import com.malinskiy.marathon.test.toSafeTestName
@@ -16,7 +17,8 @@ class ProgressReportingListener(private val device: Device,
                                 private val testBatch: TestBatch,
                                 private val deferredResults: CompletableDeferred<TestBatchResults>,
                                 private val progressReporter: ProgressReporter,
-                                private val testLogListener: TestLogListener): TestRunListener {
+                                private val testLogListener: TestLogListener,
+                                private val diagnosticLogsPathFinder: DiagnosticLogsPathFinder): TestRunListener {
 
     private val success: MutableList<TestResult> = mutableListOf()
     private val failure: MutableList<TestResult> = mutableListOf()
@@ -33,15 +35,18 @@ class ProgressReportingListener(private val device: Device,
 
     override fun testFailed(test: Test, startTime: Long, endTime: Long) {
         progressReporter.testFailed(poolId, device.toDeviceInfo(), test)
-        failure.add(TestResult(test, device.toDeviceInfo(), TestStatus.FAILURE, startTime, endTime, testLogListener.getLastLog()))
+        failure.add(TestResult(test, device.toDeviceInfo(), TestStatus.FAILURE, startTime, endTime, getLastLog()))
     }
 
     override fun testPassed(test: Test, startTime: Long, endTime: Long) {
         progressReporter.testPassed(poolId, device.toDeviceInfo(), test)
-        success.add(TestResult(test, device.toDeviceInfo(), TestStatus.PASSED, startTime, endTime, testLogListener.getLastLog()))
+        success.add(TestResult(test, device.toDeviceInfo(), TestStatus.PASSED, startTime, endTime, getLastLog()))
     }
 
     override fun testStarted(test: Test) {
         progressReporter.testStarted(poolId, device.toDeviceInfo(), test)
     }
+
+    private fun getLastLog() = (listOf(testLogListener.getLastLog()) + diagnosticLogsPathFinder.diagnosticLogPaths)
+            .joinToString("\n")
 }
