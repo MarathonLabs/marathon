@@ -16,6 +16,7 @@ import com.malinskiy.marathon.usageanalytics.UsageAnalytics
 import com.malinskiy.marathon.usageanalytics.tracker.Event
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
+import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.VerificationTask
 import java.io.File
@@ -31,6 +32,8 @@ open class MarathonRunTask : DefaultTask(), VerificationTask {
     lateinit var cnf: Configuration
     var ignoreFailure: Boolean = false
 
+    @OutputDirectory
+    var fakeLockingOutput = File(project.rootProject.buildDir, "fake-marathon-locking-output")
 
     @TaskAction
     fun runMarathon() {
