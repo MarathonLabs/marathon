@@ -74,9 +74,9 @@ class AndroidDevice(val ddmsDevice: IDevice) : Device, CoroutineScope {
         val serialNumber = ddmsDevice.serialNumber
 
         marathonSerialProp.takeIf { it.isNotEmpty() }
+                ?: serialNumber.takeIf { it.isNotEmpty() }
                 ?: serialProp.takeIf { it.isNotEmpty() }
                 ?: hostName.takeIf { it.isNotEmpty() }
-                ?: serialNumber.takeIf { it.isNotEmpty() }
                 ?: UUID.randomUUID().toString()
     }
 
