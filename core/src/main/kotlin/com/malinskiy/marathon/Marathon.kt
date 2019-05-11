@@ -120,7 +120,7 @@ class Marathon(val configuration: Configuration) {
 
         val hook = installShutdownHook(scheduler, getElapsedTimeMillis)
 
-        if (!tests.isEmpty()) {
+        if (tests.isNotEmpty()) {
             scheduler.execute()
         }
 
