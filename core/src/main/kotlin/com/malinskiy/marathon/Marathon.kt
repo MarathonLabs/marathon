@@ -118,19 +118,34 @@ class Marathon(val configuration: Configuration) {
             fun(): Long { return System.currentTimeMillis() - startTime }
         }()
 
-        val shutdownHook = ShutdownHook(configuration) { printSummary(scheduler, getElapsedTimeMillis()) }
-        shutdownHook.install()
+        val hook = installShutdownHook(scheduler, getElapsedTimeMillis)
 
-        scheduler.execute()
-
-        if (shutdownHook.uninstall()) {
-            printSummary(scheduler, getElapsedTimeMillis())
+        if (tests.isNotEmpty()) {
+            scheduler.execute()
         }
 
+        printSummary(hook, scheduler, getElapsedTimeMillis)
+
+        onFinish(analytics, deviceProvider)
+        return progressReporter.aggregateResult()
+    }
+
+    private fun printSummary(shutdownHook: ShutdownHook, scheduler: Scheduler, elapsedTime: () -> Long) {
+        if (shutdownHook.uninstall()) {
+            printSummary(scheduler, elapsedTime())
+        }
+    }
+
+    private fun installShutdownHook(scheduler: Scheduler, elapsedTime: () -> Long): ShutdownHook {
+        val shutdownHook = ShutdownHook(configuration) { printSummary(scheduler, elapsedTime()) }
+        shutdownHook.install()
+        return shutdownHook
+    }
+
+    private suspend fun onFinish(analytics: Analytics, deviceProvider: DeviceProvider) {
         analytics.terminate()
         analytics.close()
         deviceProvider.terminate()
-        return progressReporter.aggregateResult()
     }
 
     private fun printSummary(scheduler: Scheduler, executionTime: Long) {
