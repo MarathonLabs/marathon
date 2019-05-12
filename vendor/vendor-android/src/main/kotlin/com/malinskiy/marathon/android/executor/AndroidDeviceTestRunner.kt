@@ -4,6 +4,7 @@ import com.android.ddmlib.AdbCommandRejectedException
 import com.android.ddmlib.ShellCommandUnresponsiveException
 import com.android.ddmlib.TimeoutException
 import com.android.ddmlib.testrunner.RemoteAndroidTestRunner
+import com.android.ddmlib.testrunner.TestIdentifier
 import com.malinskiy.marathon.android.AndroidConfiguration
 import com.malinskiy.marathon.android.AndroidDevice
 import com.malinskiy.marathon.android.ApkParser
@@ -28,11 +29,15 @@ import com.malinskiy.marathon.io.FileManager
 import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.report.attachment.AttachmentProvider
 import com.malinskiy.marathon.report.logs.LogWriter
+import com.malinskiy.marathon.test.MetaProperty
+import com.malinskiy.marathon.test.Test
 import com.malinskiy.marathon.test.TestBatch
 import com.malinskiy.marathon.test.toTestName
 import kotlinx.coroutines.CompletableDeferred
 import java.io.IOException
 import java.util.concurrent.TimeUnit
+
+val JUNIT_IGNORE_META_PROPERY = MetaProperty("org.junit.Ignore")
 
 class AndroidDeviceTestRunner(private val device: AndroidDevice) {
 
@@ -40,9 +45,12 @@ class AndroidDeviceTestRunner(private val device: AndroidDevice) {
 
     fun execute(configuration: Configuration,
                 devicePoolId: DevicePoolId,
-                testBatch: TestBatch,
+                rawTestBatch: TestBatch,
                 deferred: CompletableDeferred<TestBatchResults>,
                 progressReporter: ProgressReporter) {
+
+        val ignoredTests = rawTestBatch.tests.filter { it.metaProperties.contains(JUNIT_IGNORE_META_PROPERY) }
+        val testBatch = TestBatch(rawTestBatch.tests - ignoredTests)
 
         val androidConfiguration = configuration.vendorConfiguration as AndroidConfiguration
         val info = ApkParser().parseInstrumentationInfo(androidConfiguration.testApplicationOutput)
@@ -71,6 +79,7 @@ class AndroidDeviceTestRunner(private val device: AndroidDevice) {
         )
         try {
             clearData(androidConfiguration, info)
+            notifyIgnoredTest(ignoredTests, listeners)
             runner.run(listeners)
         } catch (e: ShellCommandUnresponsiveException) {
             logger.warn("Test got stuck. You can increase the timeout in settings if it's too strict")
@@ -90,6 +99,12 @@ class AndroidDeviceTestRunner(private val device: AndroidDevice) {
             throw TestBatchExecutionException(e)
         } finally {
 
+        }
+    }
+
+    private fun notifyIgnoredTest(ignoredTests: List<Test>, listeners: CompositeTestRunListener) {
+        ignoredTests.forEach {
+            listeners.testIgnored(it.toTestIdentifier())
         }
     }
 
@@ -156,3 +171,5 @@ class AndroidDeviceTestRunner(private val device: AndroidDevice) {
         return runner
     }
 }
+
+private fun Test.toTestIdentifier(): TestIdentifier = TestIdentifier("$pkg.$clazz", method)
