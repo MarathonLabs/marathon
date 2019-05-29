@@ -148,6 +148,11 @@ class AndroidDeviceProvider : DeviceProvider, CoroutineScope {
             }
             getDevicesCountdown -= sleepTime
         }
+
+        adb.devices.forEach {
+            listener.deviceConnected(it)
+        }
+
         if (!adb.hasInitialDeviceList() || !adb.hasDevices()) {
             throw NoDevicesException("No devices found.")
         }
