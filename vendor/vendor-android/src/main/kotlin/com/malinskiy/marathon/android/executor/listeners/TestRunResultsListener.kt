@@ -44,10 +44,10 @@ class TestRunResultsListener(private val testBatch: TestBatch,
     private val logger = MarathonLogging.logger("TestRunResultsListener")
 
     override fun handleTestRunResults(runResult: DdmLibTestRunResult) {
-        val results = runResult.testResults
+        val results = mergeParameterisedResults(runResult.testResults)
         val tests = testBatch.tests.associateBy { it.identifier() }
 
-        val testResults = runResult.testResults.map {
+        val testResults = results.map {
             it.toTestResult(device)
         }
 
@@ -63,8 +63,8 @@ class TestRunResultsListener(private val testBatch: TestBatch,
             results[it.test.identifier()]?.isSuccessful() ?: false
         }
 
-        val skipped = tests.filterNot {
-            results.containsKey(it.key)
+        val skipped = tests.filterNot { expectedTest ->
+            results.containsKey(expectedTest.key)
         }.values
 
         if (skipped.isNotEmpty()) {
@@ -74,6 +74,25 @@ class TestRunResultsListener(private val testBatch: TestBatch,
         }
 
         deferred.complete(TestBatchResults(device, finished, failed, skipped))
+    }
+
+    private fun mergeParameterisedResults(results: MutableMap<TestIdentifier, com.android.ddmlib.testrunner.TestResult>): Map<TestIdentifier, com.android.ddmlib.testrunner.TestResult> {
+        val result = mutableMapOf<TestIdentifier, com.android.ddmlib.testrunner.TestResult>()
+        for (e in results) {
+            if (e.key.testName.matches(""".+\[\d+]""".toRegex())) {
+                val realIdentifier = TestIdentifier(e.key.className, e.key.testName.split("[")[0])
+                val maybeExistingParameterizedResult = result[realIdentifier]
+                if (maybeExistingParameterizedResult == null) {
+                    result[realIdentifier] = e.value
+                } else {
+                    maybeExistingParameterizedResult.status = maybeExistingParameterizedResult.status + e.value.status
+                }
+            } else {
+                result[e.key] = e.value
+            }
+        }
+
+        return result.toMap()
     }
 
     fun Map.Entry<TestIdentifier, DdmLibTestResult>.toTestResult(device: Device): TestResult {
@@ -99,4 +118,14 @@ class TestRunResultsListener(private val testBatch: TestBatch,
                     status == DdmLibTestResult.TestStatus.IGNORED ||
                     status == DdmLibTestResult.TestStatus.ASSUMPTION_FAILURE
 
+}
+
+private operator fun com.android.ddmlib.testrunner.TestResult.TestStatus.plus(value: com.android.ddmlib.testrunner.TestResult.TestStatus): com.android.ddmlib.testrunner.TestResult.TestStatus? {
+    return when (this) {
+        com.android.ddmlib.testrunner.TestResult.TestStatus.FAILURE -> com.android.ddmlib.testrunner.TestResult.TestStatus.FAILURE
+        com.android.ddmlib.testrunner.TestResult.TestStatus.PASSED -> value
+        com.android.ddmlib.testrunner.TestResult.TestStatus.INCOMPLETE -> com.android.ddmlib.testrunner.TestResult.TestStatus.INCOMPLETE
+        com.android.ddmlib.testrunner.TestResult.TestStatus.ASSUMPTION_FAILURE -> com.android.ddmlib.testrunner.TestResult.TestStatus.ASSUMPTION_FAILURE
+        com.android.ddmlib.testrunner.TestResult.TestStatus.IGNORED -> com.android.ddmlib.testrunner.TestResult.TestStatus.IGNORED
+    }
 }
