@@ -9,7 +9,7 @@ import java.util.Arrays
 import org.junit.Assert.assertEquals
 
 @RunWith(Parameterized::class)
-class ExampleInstrumentedTest(private val input: Int, private val expected: Int) {
+class ParameterizedTest(private val input: Int, private val expected: Int) {
 
     @Test
     fun test() {
