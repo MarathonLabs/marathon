@@ -1,5 +1,6 @@
 package com.malinskiy.marathon.cli.args
 
+import com.malinskiy.marathon.android.serial.SerialStrategy
 import com.malinskiy.marathon.exceptions.ConfigurationException
 import org.amshove.kluent.shouldEqual
 import org.amshove.kluent.shouldThrow
@@ -20,7 +21,9 @@ object FileAndroidConfigurationSpek : Spek({
                     null,
                     null,
                     null,
-                    null
+                    null,
+                    null,
+                    SerialStrategy.AUTOMATIC
             )
         }
 

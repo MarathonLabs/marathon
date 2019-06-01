@@ -3,8 +3,10 @@ package com.malinskiy.marathon.android
 import com.android.ddmlib.IDevice
 import com.android.ddmlib.NullOutputReceiver
 import com.malinskiy.marathon.analytics.tracker.device.InMemoryDeviceTracker
+import com.malinskiy.marathon.android.exception.InvalidSerialConfiguration
 import com.malinskiy.marathon.android.executor.AndroidAppInstaller
 import com.malinskiy.marathon.android.executor.AndroidDeviceTestRunner
+import com.malinskiy.marathon.android.serial.SerialStrategy
 import com.malinskiy.marathon.device.Device
 import com.malinskiy.marathon.device.DeviceFeature
 import com.malinskiy.marathon.device.DevicePoolId
@@ -22,7 +24,8 @@ import kotlinx.coroutines.newFixedThreadPoolContext
 import java.util.*
 import kotlin.coroutines.CoroutineContext
 
-class AndroidDevice(val ddmsDevice: IDevice) : Device, CoroutineScope {
+class AndroidDevice(val ddmsDevice: IDevice,
+                    private val serialStrategy: SerialStrategy = SerialStrategy.AUTOMATIC) : Device, CoroutineScope {
 
     val fileManager = RemoteFileManager(ddmsDevice)
 
@@ -73,11 +76,23 @@ class AndroidDevice(val ddmsDevice: IDevice) : Device, CoroutineScope {
         val hostName: String = ddmsDevice.getProperty("net.hostname") ?: ""
         val serialNumber = ddmsDevice.serialNumber
 
-        marathonSerialProp.takeIf { it.isNotEmpty() }
-                ?: serialProp.takeIf { it.isNotEmpty() }
-                ?: hostName.takeIf { it.isNotEmpty() }
-                ?: serialNumber.takeIf { it.isNotEmpty() }
-                ?: UUID.randomUUID().toString()
+        val result = when (serialStrategy) {
+            SerialStrategy.AUTOMATIC -> {
+                marathonSerialProp.takeIf { it.isNotEmpty() }
+                        ?: serialProp.takeIf { it.isNotEmpty() }
+                        ?: hostName.takeIf { it.isNotEmpty() }
+                        ?: serialNumber.takeIf { it.isNotEmpty() }
+                        ?: UUID.randomUUID().toString()
+            }
+            SerialStrategy.MARATHON_PROPERTY -> marathonSerialProp
+            SerialStrategy.BOOT_PROPERTY -> serialProp
+            SerialStrategy.HOSTNAME -> hostName
+            SerialStrategy.DDMS -> serialNumber
+        }
+
+        result.apply {
+            if(this == null) throw InvalidSerialConfiguration(serialStrategy)
+        }
     }
 
     val booted: Boolean

@@ -1,5 +1,6 @@
 package com.malinskiy.marathon.android
 
+import com.malinskiy.marathon.android.serial.SerialStrategy
 import com.malinskiy.marathon.device.DeviceFeature
 import com.malinskiy.marathon.device.DeviceProvider
 import com.malinskiy.marathon.execution.TestParser
@@ -23,7 +24,8 @@ data class AndroidConfiguration(val androidSdk: File,
                                 val testApplicationPmClear: Boolean = DEFAULT_TEST_APPLICATION_PM_CLEAR,
                                 val adbInitTimeoutMillis: Int = defaultInitTimeoutMillis,
                                 val installOptions: String = DEFAULT_INSTALL_OPTIONS,
-                                val preferableRecorderType: DeviceFeature? = null) : VendorConfiguration {
+                                val preferableRecorderType: DeviceFeature? = null,
+                                val serialStrategy: SerialStrategy = SerialStrategy.AUTOMATIC) : VendorConfiguration {
 
     override fun testParser(): TestParser? {
         return AndroidTestParser()

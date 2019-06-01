@@ -6,6 +6,7 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLGenerator
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.KotlinModule
 import com.malinskiy.marathon.android.AndroidConfiguration
+import com.malinskiy.marathon.android.serial.SerialStrategy
 import com.malinskiy.marathon.cli.args.EnvironmentConfiguration
 import com.malinskiy.marathon.cli.args.environment.EnvironmentReader
 import com.malinskiy.marathon.cli.config.time.InstantTimeProvider
@@ -142,7 +143,8 @@ object ConfigFactorySpec : Spek({
                         true,
                         30_000,
                         "-d",
-                        DeviceFeature.SCREENSHOT
+                        DeviceFeature.SCREENSHOT,
+                        SerialStrategy.AUTOMATIC
                 )
             }
         }
@@ -186,7 +188,9 @@ object ConfigFactorySpec : Spek({
                         false,
                         false,
                         30_000,
-                        ""
+                        "",
+                        null,
+                        SerialStrategy.AUTOMATIC
                 )
             }
         }
@@ -250,7 +254,9 @@ object ConfigFactorySpec : Spek({
                         false,
                         false,
                         30_000,
-                        ""
+                        "",
+                        null,
+                        SerialStrategy.HOSTNAME
                 )
             }
         }
