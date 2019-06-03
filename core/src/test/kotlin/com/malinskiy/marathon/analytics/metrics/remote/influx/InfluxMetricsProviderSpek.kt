@@ -17,7 +17,7 @@ import org.jetbrains.spek.api.dsl.it
 import java.time.Instant
 
 class InfluxMetricsProviderSpek : Spek({
-    describe("") {
+    describe("InfluxMetricsProvider") {
         group("Execution time") {
             it("Return from cache if present with the same params") {
                 val dataStore = mock<RemoteDataSource>()
