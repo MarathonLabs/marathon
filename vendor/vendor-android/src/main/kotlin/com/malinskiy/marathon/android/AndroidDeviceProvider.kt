@@ -72,7 +72,7 @@ class AndroidDeviceProvider : DeviceProvider, CoroutineScope {
                     launch {
                         val maybeNewAndroidDevice = AndroidDevice(it)
                         val healthy = maybeNewAndroidDevice.healthy
-                        logger.debug { "Device ${maybeNewAndroidDevice.serialNumber} connected channel.isFull = ${channel.isFull}. Healthy = $healthy" }
+                        logger.debug { "Device ${maybeNewAndroidDevice.serialNumber} connected. Healthy = $healthy" }
 
                         if (healthy) {
                             verifyBooted(maybeNewAndroidDevice)

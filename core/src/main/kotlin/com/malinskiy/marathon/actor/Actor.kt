@@ -1,7 +1,9 @@
 package com.malinskiy.marathon.actor
 
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.ObsoleteCoroutinesApi
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.SendChannel
 import kotlinx.coroutines.channels.actor
@@ -12,11 +14,12 @@ abstract class Actor<in T>(parent: Job? = null,
                            val context: CoroutineContext) : SendChannel<T>, CoroutineScope {
 
     protected abstract suspend fun receive(msg: T)
-    override val coroutineContext: CoroutineContext
+    final override val coroutineContext: CoroutineContext
         get() = context + actorJob
 
     private val actorJob = Job(parent)
 
+    @ObsoleteCoroutinesApi
     private val delegate = actor<T>(
             capacity = Channel.UNLIMITED,
             context = coroutineContext
@@ -26,13 +29,15 @@ abstract class Actor<in T>(parent: Job? = null,
         }
     }
 
+    @ExperimentalCoroutinesApi
     override val isClosedForSend: Boolean
         get() = delegate.isClosedForSend
-    override val isFull: Boolean
-        get() = delegate.isFull
+    @ExperimentalCoroutinesApi
+    override val isFull: Boolean = false
     override val onSend: SelectClause2<T, SendChannel<T>>
         get() = delegate.onSend
 
+    @ExperimentalCoroutinesApi
     override fun invokeOnClose(handler: (cause: Throwable?) -> Unit) {
         delegate.invokeOnClose(handler)
     }
