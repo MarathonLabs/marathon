@@ -5,10 +5,10 @@ import com.malinskiy.marathon.analytics.metrics.remote.RemoteDataSource
 import com.malinskiy.marathon.analytics.metrics.remote.SuccessRate
 import com.malinskiy.marathon.generateTest
 import com.malinskiy.marathon.test.toSafeTestName
-import com.nhaarman.mockito_kotlin.eq
-import com.nhaarman.mockito_kotlin.verify
-import com.nhaarman.mockito_kotlin.verifyNoMoreInteractions
-import com.nhaarman.mockito_kotlin.whenever
+import com.nhaarman.mockitokotlin2.eq
+import com.nhaarman.mockitokotlin2.verify
+import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
+import com.nhaarman.mockitokotlin2.whenever
 import org.amshove.kluent.mock
 import org.amshove.kluent.shouldEqualTo
 import org.jetbrains.spek.api.Spek
