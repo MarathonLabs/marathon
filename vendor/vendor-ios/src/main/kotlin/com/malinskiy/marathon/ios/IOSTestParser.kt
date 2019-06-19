@@ -2,6 +2,7 @@ package com.malinskiy.marathon.ios
 
 import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.execution.TestParser
+import com.malinskiy.marathon.ios.xctestrun.TestBundleInfo
 import com.malinskiy.marathon.ios.xctestrun.Xctestrun
 import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.test.Test
@@ -23,6 +24,60 @@ class IOSTestParser : TestParser {
         val vendorConfiguration = configuration.vendorConfiguration as? IOSConfiguration
                 ?: throw IllegalStateException("Expected IOS configuration")
 
+        val dockerImageName = vendorConfiguration.binaryParserDockerImageName
+        return when {
+            !dockerImageName.isNullOrEmpty() -> extractWithDockerCommand(vendorConfiguration)
+            else -> extractFromSourceFiles(vendorConfiguration)
+        }
+    }
+
+    private fun extractWithDockerCommand(vendorConfiguration: IOSConfiguration): List<Test> {
+        val dockerImageName = vendorConfiguration.binaryParserDockerImageName
+                ?: throw IllegalStateException("Expected a docker image name")
+
+        val files = targetExecutables(vendorConfiguration.xctestrunPath)
+
+        val extractor = BinaryTestParser(dockerImageName)
+
+        val regex = """^(.*)\.([^.]+)\.([^.(]+)\(\)$""".toRegex()
+        val compiledTests = extractor.listTests(files).map {
+            val parts = regex.find(it) ?: throw IllegalStateException("Invalid test name ${it}")
+            if (parts.groupValues.size != 4) {
+                throw IllegalStateException("Invalid test name ${it}")
+            }
+            Test(parts.groupValues[1], parts.groupValues[2], parts.groupValues[3], emptyList())
+        }
+
+        val xctestrun = Xctestrun(vendorConfiguration.xctestrunPath)
+        val filteredTests = compiledTests.filter { !xctestrun.isSkipped(it) }
+
+        logger.trace { filteredTests.map { "${it.clazz}.${it.method}" }.joinToString() }
+        logger.info { "Found ${filteredTests.size} tests in ${files.count()} files"}
+
+        return filteredTests
+    }
+
+    private fun targetExecutables(xctestrunPath: File): List<File> {
+        val xctestrun = Xctestrun(xctestrunPath)
+        return xctestrun.targetNames.map {
+            xctestrun.testHostBundlePath(it)?.let { testHostBundle ->
+                val testHostBundlePath = xctestrunPath.resolveSibling(testHostBundle)
+                bundleExecutable(testHostBundlePath)
+            }
+        }.filterNotNull()
+    }
+
+    private fun bundleExecutable(bundle: File): File? {
+        return bundleInfoPath(bundle)?.let { infoPath ->
+            TestBundleInfo(infoPath).CFBundleExecutable()?.let { executable ->
+                infoPath.resolveSibling(executable)
+            }
+        }
+    }
+
+    private fun bundleInfoPath(bundle: File): File? = bundle.walkTopDown().maxDepth(1).firstOrNull { it.name == "Info.plist" }
+
+    private fun extractFromSourceFiles(vendorConfiguration: IOSConfiguration): List<Test> {
         if (!vendorConfiguration.sourceRoot.isDirectory) {
             throw IllegalArgumentException("Expected a directory at $vendorConfiguration.sourceRoot")
         }
@@ -80,3 +135,5 @@ private fun String.firstMatchOrNull(regex: Regex): String? {
 private fun File.contains(contentsRegex: Regex): Boolean {
     return inputStream().bufferedReader().lineSequence().any { it.contains(contentsRegex) }
 }
+
+private fun File.resolveAsSiblingOf(file: File): File = file.resolveSibling(this)

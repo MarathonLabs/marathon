@@ -26,6 +26,7 @@ data class FileIOSConfiguration(
         @JsonProperty("remoteRsyncPath") val remoteRsyncPath: String = "/usr/bin/rsync",
         @JsonProperty("sourceRoot") val sourceRoot: File?,
         @JsonProperty("sourceTargetName") val sourceTargetName: String?,
+        @JsonProperty("binaryParserDockerImageName") val binaryParserDockerImageName: String?,
         @JsonProperty("alwaysEraseSimulators") val alwaysEraseSimulators: Boolean?,
         @JsonProperty("debugSsh") val debugSsh: Boolean?,
         @JsonProperty("hideRunnerOutput") val hideRunnerOutput: Boolean?,
@@ -70,7 +71,8 @@ data class FileIOSConfiguration(
                     keepAliveIntervalMillis = keepAliveIntervalMillis,
                     deviceInitializationTimeoutMillis = optionalDeviceInitializationTimeoutMillis,
                     devicesFile = optionalDevices,
-                    sourceTargetName = sourceTargetName)
+                    sourceTargetName = sourceTargetName,
+                    binaryParserDockerImageName = binaryParserDockerImageName)
         } else {
             IOSConfiguration(
                     derivedDataDir = resolvedDerivedDataDir,
@@ -87,7 +89,8 @@ data class FileIOSConfiguration(
                     deviceInitializationTimeoutMillis = optionalDeviceInitializationTimeoutMillis,
                     devicesFile = optionalDevices,
                     sourceRoot = optionalSourceRoot,
-                    sourceTargetName = sourceTargetName)
+                    sourceTargetName = sourceTargetName,
+                    binaryParserDockerImageName = binaryParserDockerImageName)
         }
     }
 }

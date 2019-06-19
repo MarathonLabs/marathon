@@ -36,7 +36,8 @@ object FileIOSConfigurationSpek : Spek({
                     hideRunnerOutput = null,
                     deviceInitializationTimeoutMillis = null,
                     devices = null,
-                    sourceTargetName = null)
+                    sourceTargetName = null,
+                    binaryParserDockerImage = null)
 
             it("should search for such file under derived data folder") {
                 mockDerivedDataFiles = { sequenceOf(File("."), mockXctestrunFile, File("runner.app")) }

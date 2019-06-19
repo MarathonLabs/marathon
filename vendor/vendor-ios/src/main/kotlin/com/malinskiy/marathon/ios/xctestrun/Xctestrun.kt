@@ -24,19 +24,19 @@ class Xctestrun(inputStream: InputStream) {
             ?: throw IllegalArgumentException("could not parse xctestrun")
 
     private val targets = propertyList.keys
-            .filter { it != PropertyListKey.__xctestrun_metadata__.toKeyString() }
-            .map { PropertyListKey.TargetName(it).toEntry() }
+            .filter { it != XctestrunKey.__xctestrun_metadata__.toKeyString() }
+            .map { XctestrunKey.TargetName(it).toEntry() }
             .toMap()
             .takeIf { it.isNotEmpty() }
             ?: throw IllegalArgumentException("xctestrun file does not define any testable targets")
 
-    private fun <T> targetKeyValue(targetName: String, key: PropertyListKey): T? = targets[targetName]?.let {
+    private fun <T> targetKeyValue(targetName: String, key: XctestrunKey): T? = targets[targetName]?.let {
         propertyList.valueForKeypath(it, key) as T
     }
 //    // testable target properties
 //
-//    private val target = PropertyListKey.TargetName(
-//            propertyList.keys.firstOrNull { it != PropertyListKey.__xctestrun_metadata__.toKeyString() }
+//    private val target = XctestrunKey.TargetName(
+//            propertyList.keys.firstOrNull { it != XctestrunKey.__xctestrun_metadata__.toKeyString() }
 //                    ?: throw IllegalArgumentException("xctestrun file does not define any testable targets")
 //    )
 //
@@ -48,37 +48,56 @@ class Xctestrun(inputStream: InputStream) {
     /**
      * Testable product module name. Appears in testing logs as a test identifier prefix.
      */
-    fun productModuleName(targetName: String): String? = targetKeyValue(targetName, PropertyListKey.ProductModuleName)
+    fun productModuleName(targetName: String): String? = targetKeyValue(targetName, XctestrunKey.ProductModuleName)
+
+    private fun testHostPath(targetName: String): String? = targetKeyValue(targetName, XctestrunKey.TestHostPath)
+
+    private fun testHostBundle(targetName: String): String? = targetKeyValue(targetName, XctestrunKey.TestBundlePath)
+
+    fun testHostBundlePath(targetName: String): String? {
+        return testHostBundle(targetName)?.let { testHostBundle ->
+            return testHostPath(targetName)?.let { testHostPath ->
+                // __TESTHOST__/PlugIns/sample-appUITests.xctest
+                // __TESTROOT__/Debug-iphonesimulator/sample-appUITests-Runner.app
+                return testHostBundle.replace("""^__TESTHOST__""".toRegex(),
+                        testHostPath.replace("""^__TESTROOT__/""".toRegex(), ""))
+            }
+        } ?: null
+    }
 
     /**
      * @see <a href="x-man-page://5/xcodebuild.xctestrun">xcodebuild.xctestrun(5)</a>
      */
-    fun  isUITestBundle(targetName: String): Boolean? = targetKeyValue(targetName, PropertyListKey.IsUITestBundle)
+    fun  isUITestBundle(targetName: String): Boolean? = targetKeyValue(targetName, XctestrunKey.IsUITestBundle)
 
     /**
      * @see <a href="x-man-page://5/xcodebuild.xctestrun">xcodebuild.xctestrun(5)</a>
      */
-    fun environmentVariables(targetName: String): PropertyListMap? = targetKeyValue(targetName, PropertyListKey.EnvironmentVariables)
+    fun environmentVariables(targetName: String): PropertyListMap? = targetKeyValue(targetName, XctestrunKey.EnvironmentVariables)
 
     /**
      * @see <a href="x-man-page://5/xcodebuild.xctestrun">xcodebuild.xctestrun(5)</a>
      */
-    fun testingEnvironmentVariables(targetName: String): PropertyListMap? = targetKeyValue(targetName, PropertyListKey.TestingEnvironmentVariables)
+    fun testingEnvironmentVariables(targetName: String): PropertyListMap? = targetKeyValue(targetName, XctestrunKey.TestingEnvironmentVariables)
 
     /**
      * @see <a href="x-man-page://5/xcodebuild.xctestrun">xcodebuild.xctestrun(5)</a>
      */
-    fun skipTestIdentifiers(targetName: String): Array<Any>? = targetKeyValue(targetName, PropertyListKey.SkipTestIdentifiers)
+    fun skipTestIdentifiers(targetName: String): Array<Any>? = targetKeyValue(targetName, XctestrunKey.SkipTestIdentifiers)
 
     /**
      * Returns `true` if specified test should be excluded from the test run.
      */
     @suppress("ReturnCount")
     fun isSkipped(test: Test): Boolean {
-        val targetName = test.pkg
+        val targetName = targetNameFromProductModuleName(test.pkg) ?: return false
         val skipped = skipTestIdentifiers(targetName) ?: return false
 
         return skipped.contains(test.clazz) || skipped.contains("${test.clazz}/${test.method}")
+    }
+
+    private fun targetNameFromProductModuleName(productModuleName: String): String? {
+        return targetNames.first { productModuleName(it) == productModuleName }
     }
 
     // property list manipulation
@@ -184,6 +203,5 @@ class Xctestrun(inputStream: InputStream) {
         return l == r
     }
 }
-
 
 private const val unchecked = "UNCHECKED_CAST"
