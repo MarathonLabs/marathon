@@ -26,7 +26,7 @@ data class FileIOSConfiguration(
         @JsonProperty("remoteRsyncPath") val remoteRsyncPath: String = "/usr/bin/rsync",
         @JsonProperty("sourceRoot") val sourceRoot: File?,
         @JsonProperty("sourceTargetName") val sourceTargetName: String?,
-        @JsonProperty("binaryParserDockerImageName") val binaryParserDockerImageName: String?,
+        @JsonProperty("binaryParserDockerImageName") val binaryParserDockerImageName: String? = null,
         @JsonProperty("alwaysEraseSimulators") val alwaysEraseSimulators: Boolean?,
         @JsonProperty("debugSsh") val debugSsh: Boolean?,
         @JsonProperty("hideRunnerOutput") val hideRunnerOutput: Boolean?,
