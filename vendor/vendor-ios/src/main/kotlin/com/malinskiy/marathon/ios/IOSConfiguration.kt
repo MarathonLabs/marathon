@@ -21,6 +21,7 @@ data class IOSConfiguration(val derivedDataDir: File,
                             val deviceInitializationTimeoutMillis: Long = DEFAULT_DEVICE_INITIALIZATION_TIMEOUT_MILLIS,
                             val devicesFile: File? = null,
                             val sourceRoot: File = File("."),
+                            val sourceRootsRegex: Regex?,
                             val sourceTargetName: String?,
                             val binaryParserDockerImageName: String?) : VendorConfiguration {
 
