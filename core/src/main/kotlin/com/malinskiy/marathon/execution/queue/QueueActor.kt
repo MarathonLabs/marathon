@@ -151,13 +151,15 @@ class QueueActor(configuration: Configuration,
             sendBatch(device)
             return
         }
-        if (queueIsEmpty && activeBatches.isEmpty()) {
-            pool.send(DevicePoolMessage.FromQueue.Terminated)
-            onTerminate()
-        } else {
-            logger.debug {
-                "queue is empty but there are active batches present for " +
-                        "${activeBatches.keys.joinToString { it }}"
+        if (queueIsEmpty) {
+            if (activeBatches.isEmpty()) {
+                pool.send(DevicePoolMessage.FromQueue.Terminated)
+                onTerminate()
+            } else {
+                logger.debug {
+                    "queue is empty but there are active batches present for " +
+                            "${activeBatches.keys.joinToString { it }}"
+                }
             }
         }
     }
