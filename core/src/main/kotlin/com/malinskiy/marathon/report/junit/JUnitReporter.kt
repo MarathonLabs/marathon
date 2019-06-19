@@ -8,11 +8,10 @@ import com.malinskiy.marathon.io.FileManager
 import com.malinskiy.marathon.io.FileType
 import java.io.FileOutputStream
 import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.TimeZone
-import java.util.Locale
+import java.util.*
 import javax.xml.stream.XMLOutputFactory
 import javax.xml.stream.XMLStreamWriter
+import kotlin.random.Random
 
 class JUnitReporter(private val fileManager: FileManager) {
     fun testFinished(devicePoolId: DevicePoolId, device: DeviceInfo, testResult: TestResult) {
@@ -39,35 +38,42 @@ class JUnitReporter(private val fileManager: FileManager) {
         val formattedTimestamp = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.US).apply {
             timeZone = TimeZone.getTimeZone("UTC")
         }.format(Date(testResult.endTime))
-
+        val time = testResult.durationMillis().toJUnitSeconds()
         writer.document {
-            element("testsuite") {
+            element("testsuites") {
+                attribute("id", "${Random.nextInt(0, Integer.MAX_VALUE)}")
                 attribute("name", "common")
                 attribute("tests", "1")
                 attribute("failures", "$failures")
-                attribute("errors", "0")
-                attribute("skipped", "$ignored")
-                attribute("time", testResult.durationMillis().toJUnitSeconds())
-                attribute("timestamp", formattedTimestamp)
-                element("properties") {}
-                element("testcase") {
-                    attribute("classname", "${test.pkg}.${test.clazz}")
-                    attribute("name", test.method)
-                    attribute("time", testResult.durationMillis().toJUnitSeconds())
-                    when (testResult.status) {
-                        TestStatus.IGNORED, TestStatus.ASSUMPTION_FAILURE -> {
-                            element("skipped") {
-                                testResult.stacktrace?.let {
-                                    writeCData(it)
+                attribute("time", time)
+                element("testsuite") {
+                    attribute("name", "common")
+                    attribute("tests", "1")
+                    attribute("failures", "$failures")
+                    attribute("errors", "0")
+                    attribute("skipped", "$ignored")
+                    attribute("time", time)
+                    attribute("timestamp", formattedTimestamp)
+                    element("properties") {}
+                    element("testcase") {
+                        attribute("classname", "${test.pkg}.${test.clazz}")
+                        attribute("name", test.method)
+                        attribute("time", testResult.durationMillis().toJUnitSeconds())
+                        when (testResult.status) {
+                            TestStatus.IGNORED, TestStatus.ASSUMPTION_FAILURE -> {
+                                element("skipped") {
+                                    testResult.stacktrace?.let {
+                                        writeCData(it)
+                                    }
                                 }
                             }
-                        }
-                        TestStatus.INCOMPLETE, TestStatus.FAILURE -> {
-                            element("failure") {
-                                writeCData(testResult.stacktrace ?: "")
+                            TestStatus.INCOMPLETE, TestStatus.FAILURE -> {
+                                element("failure") {
+                                    writeCData(testResult.stacktrace ?: "")
+                                }
                             }
-                        }
-                        else -> {
+                            else -> {
+                            }
                         }
                     }
                 }
