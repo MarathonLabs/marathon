@@ -39,6 +39,15 @@ distributions {
     }
 }
 
+tasks {
+    val distZipPath by registering {
+        dependsOn(":cli:distZip")
+        doLast {
+            println(getByName<Zip>("distZip").archiveFile.get().getAsFile())
+        }
+    }
+}
+
 tasks.withType<KotlinCompile> {
     kotlinOptions.jvmTarget = "1.8"
     kotlinOptions.apiVersion = "1.3"
