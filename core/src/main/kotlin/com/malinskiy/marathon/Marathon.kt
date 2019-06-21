@@ -88,7 +88,10 @@ class Marathon(val configuration: Configuration) {
             log.error(th.toString())
 
             when(th) {
-                is NoDevicesException -> false
+                is NoDevicesException -> {
+                    log.warn { "No devices found" }
+                    false
+                }
                 else -> configuration.ignoreFailures
             }
         }
