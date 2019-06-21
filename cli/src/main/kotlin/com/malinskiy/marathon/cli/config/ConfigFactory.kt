@@ -50,6 +50,7 @@ class ConfigFactory(val mapper: ObjectMapper) {
                 config.ignoreFailures,
                 config.isCodeCoverageEnabled,
                 config.fallbackToScreenshots,
+                config.strictMode,
                 config.testClassRegexes,
                 config.includeSerialRegexes,
                 config.excludeSerialRegexes,
