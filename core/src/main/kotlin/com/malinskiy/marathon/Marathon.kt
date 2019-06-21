@@ -180,7 +180,10 @@ class Marathon(val configuration: Configuration) {
         val shardingStrategy = configuration.shardingStrategy
         val flakinessShard = configuration.flakinessStrategy
         val shard = shardingStrategy.createShard(tests)
-        return flakinessShard.process(shard, analytics.metricsProviderProvider.create())
+        val metricsProvider = analytics.metricsProviderProvider.create()
+        val testShard = flakinessShard.process(shard, metricsProvider)
+        metricsProvider.close()
+        return testShard
     }
 
     private fun trackAnalytics(configuration: Configuration) {
