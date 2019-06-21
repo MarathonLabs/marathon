@@ -11,4 +11,13 @@ class MarathonCliConfiguration(parser: ArgParser) {
     val analyticsTracking: Boolean by parser
             .storing("--analyticsTracking", help = "Enable anonymous analytics tracking") { this.toBoolean() }
             .default<Boolean>(false)
+    val printVersionAndExit: Boolean by parser
+            .flagging("--version", "-v",
+                    help = "Prints marathon version")
+            .default(false)
+    val printTestCountAndExit: Boolean by parser
+            .flagging("--test-count", "-c",
+                    help = "Instead of starting a test run, print number of tests that would be executed with " +
+                            "the provided configuration and exit")
+            .default(false)
 }

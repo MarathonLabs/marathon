@@ -31,7 +31,7 @@ class DerivedDataManager(val configuration: Configuration) {
 
     init {
         if (configuration.debug) {
-            logger.debug(rsyncVersion)
+            logger.trace(rsyncVersion)
         }
         if (!iosConfiguration.remotePrivateKey.exists()) {
             throw FileNotFoundException("Private key not found at ${iosConfiguration.remotePrivateKey}")

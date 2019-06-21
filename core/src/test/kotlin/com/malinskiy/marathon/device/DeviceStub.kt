@@ -19,4 +19,14 @@ class DeviceStub(override var operatingSystem: OperatingSystem = OperatingSystem
     override suspend fun prepare(configuration: Configuration) {}
 
     override fun dispose() {}
+
+    override fun toDeviceInfo() = DeviceInfo(
+            operatingSystem = operatingSystem,
+            serialNumber = serialNumber,
+            model = model,
+            manufacturer = manufacturer,
+            networkState = networkState,
+            deviceFeatures = deviceFeatures,
+            healthy = healthy
+    )
 }

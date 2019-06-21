@@ -30,6 +30,7 @@ object IOSTestParserSpek : Spek({
                     ignoreFailures = null,
                     isCodeCoverageEnabled = null,
                     fallbackToScreenshots = null,
+                    testSuiteNameMatchesClassName = null,
                     testClassRegexes = null,
                     includeSerialRegexes = null,
                     excludeSerialRegexes = null,
@@ -45,7 +46,10 @@ object IOSTestParserSpek : Spek({
                             remoteRsyncPath = "/remote/rsync",
                             sourceRoot = sourceRoot,
                             debugSsh = false,
-                            alwaysEraseSimulators = true),
+                            alwaysEraseSimulators = true,
+                            sourceTargetName = null,
+                            sourceRootsRegex = null,
+                            binaryParserDockerImageName = null),
                     analyticsTracking = false
             )
 

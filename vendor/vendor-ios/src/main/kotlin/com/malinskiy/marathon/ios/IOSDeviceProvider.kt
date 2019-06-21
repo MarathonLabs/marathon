@@ -21,7 +21,7 @@ import kotlin.coroutines.CoroutineContext
 
 class IOSDeviceProvider : DeviceProvider, CoroutineScope {
 
-    private val dispatcher = newFixedThreadPoolContext(1, "IOSDeviceProvider")
+    private val dispatcher = newFixedThreadPoolContext(8, "IOSDeviceProvider")
     override val coroutineContext: CoroutineContext
         get() = dispatcher
 
@@ -29,13 +29,16 @@ class IOSDeviceProvider : DeviceProvider, CoroutineScope {
 
     private var simulatorProvider: SimulatorProvider? = null
 
-    override val deviceInitializationTimeoutMillis: Long = 300_000
+    override var deviceInitializationTimeoutMillis: Long = IOSConfiguration.DEFAULT_DEVICE_INITIALIZATION_TIMEOUT_MILLIS
+    private set
+
     override suspend fun initialize(vendorConfiguration: VendorConfiguration) {
         if (vendorConfiguration !is IOSConfiguration) {
             throw IllegalStateException("Invalid configuration $vendorConfiguration")
         }
 
-        logger.debug("Initializing IOSDeviceProvider")
+        deviceInitializationTimeoutMillis = vendorConfiguration.deviceInitializationTimeoutMillis
+        logger.debug("Initializing IOSDeviceProvider with timeout $deviceInitializationTimeoutMillis")
 
         val gson = GsonBuilder().registerTypeAdapter(SimctlDeviceList::class.java, SimctlDeviceListDeserializer())
                 .create()

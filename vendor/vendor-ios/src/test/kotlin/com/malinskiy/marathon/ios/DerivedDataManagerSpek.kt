@@ -16,7 +16,7 @@ import org.testcontainers.containers.GenericContainer
 import java.io.File
 import java.nio.file.Files
 import java.nio.file.attribute.PosixFilePermissions
-import java.util.UUID
+import java.util.*
 
 object DerivedDataManagerSpek: Spek({
     val logger = MarathonLogging.logger(javaClass.simpleName)
@@ -28,7 +28,7 @@ object DerivedDataManagerSpek: Spek({
         val privateKey = File(javaClass.classLoader.getResource("fixtures/derived-data-manager/test_rsa").file)
         try {
             Files.setPosixFilePermissions(privateKey.toPath(), PosixFilePermissions.fromString("rw-------"))
-        } catch(e: Exception) { }
+        } catch(e: Exception) { /* the beauty of the world */ }
         logger.debug { "Using private key $privateKey" }
         val publicKeyResourcePath = "fixtures/derived-data-manager/test_rsa.pub"
 
@@ -68,6 +68,7 @@ object DerivedDataManagerSpek: Spek({
                     ignoreFailures = null,
                     isCodeCoverageEnabled = null,
                     fallbackToScreenshots = null,
+                    testSuiteNameMatchesClassName = null,
                     testClassRegexes = null,
                     includeSerialRegexes = null,
                     excludeSerialRegexes = null,
@@ -82,8 +83,11 @@ object DerivedDataManagerSpek: Spek({
                             knownHostsPath = null,
                             remoteRsyncPath = "/usr/bin/rsync",
                             sourceRoot = sourceRoot,
+                            sourceRootsRegex = null,
                             debugSsh = false,
-                            alwaysEraseSimulators = true),
+                            alwaysEraseSimulators = true,
+                            sourceTargetName = null,
+                            binaryParserDockerImageName = null),
                     analyticsTracking = false
             )
 

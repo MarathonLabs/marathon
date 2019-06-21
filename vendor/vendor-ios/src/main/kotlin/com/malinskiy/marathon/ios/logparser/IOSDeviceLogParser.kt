@@ -7,7 +7,12 @@ import com.malinskiy.marathon.execution.progress.ProgressReporter
 import com.malinskiy.marathon.ios.logparser.formatter.PackageNameFormatter
 import com.malinskiy.marathon.ios.logparser.listener.ProgressReportingListener
 import com.malinskiy.marathon.ios.logparser.listener.TestLogListener
-import com.malinskiy.marathon.ios.logparser.parser.*
+import com.malinskiy.marathon.ios.logparser.parser.CompositeLogParser
+import com.malinskiy.marathon.ios.logparser.parser.DebugLogPrinter
+import com.malinskiy.marathon.ios.logparser.parser.DeviceFailureParser
+import com.malinskiy.marathon.ios.logparser.parser.DiagnosticLogsPathFinder
+import com.malinskiy.marathon.ios.logparser.parser.SessionResultsPathFinder
+import com.malinskiy.marathon.ios.logparser.parser.TestRunProgressParser
 import com.malinskiy.marathon.test.TestBatch
 import com.malinskiy.marathon.time.SystemTimer
 import kotlinx.coroutines.CompletableDeferred
@@ -26,7 +31,10 @@ class IOSDeviceLogParser(device: Device,
     private val sessionResultsPathFinder: SessionResultsPathFinder
     init {
         testLogListener = TestLogListener()
-        diagnosticLogsPathFinder = DiagnosticLogsPathFinder()
+        diagnosticLogsPathFinder = DiagnosticLogsPathFinder(listOf(
+                device.serialNumber,
+                device.toDeviceInfo().serialNumber
+        ).distinct())
         sessionResultsPathFinder = SessionResultsPathFinder()
         underlyingLogParser = CompositeLogParser(
             listOf(
@@ -46,7 +54,8 @@ class IOSDeviceLogParser(device: Device,
                             testBatch = testBatch,
                             deferredResults = deferredResults,
                             progressReporter = progressReporter,
-                            testLogListener = testLogListener
+                            testLogListener = testLogListener,
+                            diagnosticLogsPathFinder = diagnosticLogsPathFinder
                         ),
                         testLogListener
                     )

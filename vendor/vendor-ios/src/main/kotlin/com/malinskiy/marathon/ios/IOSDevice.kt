@@ -5,6 +5,7 @@ import com.google.gson.Gson
 import com.malinskiy.marathon.analytics.tracker.device.InMemoryDeviceTracker
 import com.malinskiy.marathon.device.Device
 import com.malinskiy.marathon.device.DeviceFeature
+import com.malinskiy.marathon.device.DeviceInfo
 import com.malinskiy.marathon.device.DevicePoolId
 import com.malinskiy.marathon.device.NetworkState
 import com.malinskiy.marathon.device.OperatingSystem
@@ -63,12 +64,13 @@ class IOSDevice(val simulator: RemoteSimulator,
     val name: String?
     private val runtime: String?
     private val deviceType: String?
+    private val features: Collection<DeviceFeature>
 
     init {
         val hostAddress = simulator.host.toInetAddressOrNull()
         if (hostAddress == null) {
             deviceContext.close()
-            throw DeviceFailureException(DeviceFailureReason.UnreachableHost)
+            throw DeviceLostException(DeviceFailureException(DeviceFailureReason.UnreachableHost))
         }
         hostCommandExecutor = try {
             SshjCommandExecutor(
@@ -81,7 +83,7 @@ class IOSDevice(val simulator: RemoteSimulator,
             )
         } catch(e: DeviceFailureException) {
             deviceContext.close()
-            throw e
+            throw DeviceLostException(e)
         }
 
         val simctl = Simctl()
@@ -89,7 +91,7 @@ class IOSDevice(val simulator: RemoteSimulator,
             simctl.list(this, gson).find { it.udid == udid }
         } catch (e: DeviceFailureException) {
             dispose()
-            throw e
+            throw DeviceLostException(e)
         }
         runtime = device?.runtime
         name = device?.name
@@ -97,7 +99,14 @@ class IOSDevice(val simulator: RemoteSimulator,
             simctl.deviceType(this)
         } catch (e: DeviceFailureException) {
             dispose()
-            throw e
+            throw DeviceLostException(e)
+        }
+        features = try {
+            RemoteSimulatorFeatureProvider.deviceFeatures(this)
+        } catch (e: DeviceFailureException) {
+            logger.warn("Exception requesting remote device features: $e")
+            dispose()
+            throw DeviceLostException(e)
         }
     }
 
@@ -114,9 +123,7 @@ class IOSDevice(val simulator: RemoteSimulator,
             true -> NetworkState.CONNECTED
             false -> NetworkState.DISCONNECTED
         }
-    override val deviceFeatures: Collection<DeviceFeature> by lazy {
-        RemoteSimulatorFeatureProvider.deviceFeatures(this)
-    }
+    override val deviceFeatures: Collection<DeviceFeature> = features
     override var healthy: Boolean = true
         private set
     override val abi: String
@@ -153,7 +160,8 @@ class IOSDevice(val simulator: RemoteSimulator,
         logger.debug("Remote xctestrun = $remoteXctestrunFile")
 
         val xctestrun = Xctestrun(iosConfiguration.xctestrunPath)
-        val packageNameFormatter = TestLogPackageNameFormatter(xctestrun.productModuleName, xctestrun.targetName)
+        val poductModuleNameMap = xctestrun.targetNames.mapNotNull { target -> xctestrun.productModuleName(target)?.let { it to target } }.toMap()
+        val packageNameFormatter = TestLogPackageNameFormatter(poductModuleNameMap)
 
         logger.debug("Tests = ${testBatch.tests.toList()}")
 
@@ -169,9 +177,11 @@ class IOSDevice(val simulator: RemoteSimulator,
 
         val command =
                 listOf(
-                    "cd '$remoteDir';",
+                    "cd '$remoteDir' &&",
+                    "set -o pipefail &&",
                     "NSUnbufferedIO=YES",
                     "xcodebuild test-without-building",
+                    "-disable-concurrent-destination-testing",
                     "-xctestrun ${remoteXctestrunFile.path}",
                     testBatch.toXcodebuildArguments(),
                     "-destination 'platform=iOS simulator,id=$udid' ;",
@@ -244,7 +254,12 @@ class IOSDevice(val simulator: RemoteSimulator,
             val derivedDataManager = DerivedDataManager(configuration)
 
             val remoteXctestrunFile = RemoteFileManager.remoteXctestrunFile(this@IOSDevice)
-            val xctestrunFile = prepareXctestrunFile(derivedDataManager, remoteXctestrunFile)
+            val xctestrunFile = try {
+                prepareXctestrunFile(derivedDataManager, remoteXctestrunFile)
+            } catch (e: IOException) {
+                logger.warn("Exception getting remote TCP port $e")
+                throw e
+            }
 
             derivedDataManager.sendSynchronized(
                     localPath = xctestrunFile,
@@ -339,12 +354,22 @@ class IOSDevice(val simulator: RemoteSimulator,
                 .also { logger.info("Using TCP port $it on device $deviceIdentifier") }
 
         val xctestrun = Xctestrun(derivedDataManager.xctestrunFile)
-        xctestrun.environment("TEST_HTTP_SERVER_PORT", "$remotePort")
+        xctestrun.allTargetsEnvironment("TEST_HTTP_SERVER_PORT", "$remotePort")
 
         return derivedDataManager.xctestrunFile.
                 resolveSibling(remoteXctestrunFile.name)
                 .also { it.writeBytes(xctestrun.toXMLByteArray()) }
     }
+
+    override fun toDeviceInfo() = DeviceInfo(operatingSystem = operatingSystem,
+            serialNumber = serialNumber,
+            model = model,
+            manufacturer = manufacturer,
+            networkState = networkState,
+            deviceFeatures = deviceFeatures,
+            healthy = healthy,
+            deviceLabel = simulator.label ?: serialNumber
+    )
 }
 
 private const val REACHABILITY_TIMEOUT_MILLIS = 5000

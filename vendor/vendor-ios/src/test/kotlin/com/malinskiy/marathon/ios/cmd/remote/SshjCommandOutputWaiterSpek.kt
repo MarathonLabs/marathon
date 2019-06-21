@@ -1,12 +1,9 @@
 package com.malinskiy.marathon.ios.cmd.remote
 
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import org.amshove.kluent.shouldBe
 import org.amshove.kluent.shouldBeGreaterOrEqualTo
-import org.amshove.kluent.shouldBeInRange
 import org.jetbrains.spek.api.Spek
-import org.jetbrains.spek.api.dsl.describe
 import org.jetbrains.spek.api.dsl.given
 import org.jetbrains.spek.api.dsl.it
 import kotlin.system.measureTimeMillis

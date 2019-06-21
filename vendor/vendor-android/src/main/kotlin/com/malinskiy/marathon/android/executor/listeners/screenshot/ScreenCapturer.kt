@@ -7,7 +7,6 @@ import com.android.ddmlib.testrunner.TestIdentifier
 import com.malinskiy.marathon.android.AndroidDevice
 import com.malinskiy.marathon.android.toTest
 import com.malinskiy.marathon.device.DevicePoolId
-import com.malinskiy.marathon.device.toDeviceInfo
 import com.malinskiy.marathon.io.FileManager
 import com.malinskiy.marathon.io.FileType
 import com.malinskiy.marathon.log.MarathonLogging

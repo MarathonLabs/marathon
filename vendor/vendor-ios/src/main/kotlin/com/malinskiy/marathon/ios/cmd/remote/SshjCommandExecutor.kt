@@ -4,7 +4,17 @@ import ch.qos.logback.classic.Level
 import com.malinskiy.marathon.ios.logparser.parser.DeviceFailureException
 import com.malinskiy.marathon.ios.logparser.parser.DeviceFailureReason
 import com.malinskiy.marathon.log.MarathonLogging
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineName
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.TimeoutCancellationException
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.newSingleThreadContext
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
+import kotlinx.coroutines.withTimeout
 import net.schmizz.keepalive.KeepAlive
 import net.schmizz.keepalive.KeepAliveProvider
 import net.schmizz.sshj.DefaultConfig
@@ -13,11 +23,11 @@ import net.schmizz.sshj.common.LoggerFactory
 import net.schmizz.sshj.connection.ConnectionException
 import net.schmizz.sshj.connection.ConnectionImpl
 import net.schmizz.sshj.transport.TransportException
+import net.schmizz.sshj.userauth.UserAuthException
 import org.slf4j.Logger
 import java.io.File
 import java.io.IOException
 import java.io.InputStream
-import java.lang.RuntimeException
 import java.net.ConnectException
 import java.net.InetAddress
 import java.util.concurrent.TimeoutException
@@ -84,6 +94,8 @@ class SshjCommandExecutor(connectionId: String,
             val keys = ssh.loadKeys(remotePrivateKey.path)
             ssh.connect(hostAddress, port)
             ssh.authPublickey(remoteUsername, keys)
+        } catch (e: UserAuthException) {
+            throw DeviceFailureException(DeviceFailureReason.UserAuth, e)
         } catch (e: TransportException) {
             throw DeviceFailureException(DeviceFailureReason.Unknown, e)
         } catch (e: ConnectException) {
@@ -169,24 +181,22 @@ class SshjCommandExecutor(connectionId: String,
         } catch (e: TimeoutCancellationException) {
             try {
                 session.kill()
-            } catch (e: TransportException) {
-            }
+            } catch (e: TransportException) { /* quietly continue */ }
 
             throw TimeoutException(e.message)
         } catch (e: OutputTimeoutException) {
             try {
                 session.kill()
-            } catch (e: TransportException) {
-            }
+            } catch (e: TransportException) { /* moving on */ }
 
             throw SshjCommandUnresponsiveException("Remote command \n\u001b[1m$command\u001b[0mdid not send any output over ${testOutputTimeoutMillis}ms")
         } finally {
             try {
                 session.close()
-            } catch (e: IOException) {
-            } catch (e: TransportException) {
-            } catch (e: ConnectionException) {
             }
+            catch (e: IOException) { /* what a piece of work is detekt! */ }
+            catch (e: TransportException) { /* how noble in reason */ }
+            catch (e: ConnectionException) { /* how infinite in faculty */  }
         }
         logger.trace("Execution completed after ${System.currentTimeMillis() - startTime}ms")
         session.exitStatus

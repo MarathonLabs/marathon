@@ -1,8 +1,6 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-import org.jetbrains.kotlin.gradle.dsl.Coroutines
-import org.gradle.api.plugins.ExtensionAware
-import org.junit.platform.gradle.plugin.FiltersExtension
 import org.junit.platform.gradle.plugin.EnginesExtension
+import org.junit.platform.gradle.plugin.FiltersExtension
 import org.junit.platform.gradle.plugin.JUnitPlatformExtension
 
 plugins {
@@ -39,6 +37,15 @@ distributions {
     }
 }
 
+tasks {
+    val distZipPath by registering {
+        dependsOn(":cli:distZip")
+        doLast {
+            println(getByName<Zip>("distZip").archiveFile.get().getAsFile())
+        }
+    }
+}
+
 tasks.withType<KotlinCompile> {
     kotlinOptions.jvmTarget = "1.8"
     kotlinOptions.apiVersion = "1.3"
@@ -61,6 +68,7 @@ dependencies {
     implementation(Libraries.jacksonKotlin)
     implementation(Libraries.jacksonYaml)
     implementation(Libraries.jacksonJSR310)
+    implementation(Libraries.influxDbClient)
     testCompile(TestLibraries.kluent)
     testCompile(TestLibraries.mockitoKotlin)
     testCompile(TestLibraries.spekAPI)

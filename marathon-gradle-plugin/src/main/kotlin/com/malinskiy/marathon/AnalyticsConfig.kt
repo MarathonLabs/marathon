@@ -1,8 +1,8 @@
 package com.malinskiy.marathon
 
-import groovy.lang.Closure
 import com.malinskiy.marathon.execution.AnalyticsConfiguration
 import com.malinskiy.marathon.execution.AnalyticsConfiguration.InfluxDbConfiguration.RetentionPolicyConfiguration
+import groovy.lang.Closure
 
 class AnalyticsConfig {
     var influx: InfluxConfig? = null
@@ -42,7 +42,8 @@ fun AnalyticsConfig.toAnalyticsConfiguration(): AnalyticsConfiguration {
                 password = it.password,
                 url = it.url,
                 retentionPolicyConfiguration = it.retentionPolicy?.toRetentionPolicy()
-                        ?: RetentionPolicyConfiguration.default)
+                        ?: RetentionPolicyConfiguration.default,
+                logLevel = AnalyticsConfiguration.InfluxDbConfiguration.LogLevel.VERBOSE)
     } ?: AnalyticsConfiguration.DisabledAnalytics
 }
 

@@ -32,9 +32,12 @@ class QueueActor(configuration: Configuration,
 
     private val logger = MarathonLogging.logger("QueueActor[$poolId]")
 
+    private val sortingMetricsProvider = analytics.metricsProviderProvider.create()
     private val sorting = configuration.sortingStrategy
 
-    private val queue: Queue<Test> = PriorityQueue<Test>(sorting.process(analytics))
+    private val queue: Queue<Test> = PriorityQueue<Test>(sorting.process(sortingMetricsProvider))
+
+    private val batchingMetricsProvider = analytics.metricsProviderProvider.create()
     private val batching = configuration.batchingStrategy
     private val retry = configuration.retryStrategy
 
@@ -98,6 +101,8 @@ class QueueActor(configuration: Configuration,
     }
 
     private fun onTerminate() {
+        sortingMetricsProvider.close()
+        batchingMetricsProvider.close()
         close()
     }
 
@@ -143,23 +148,28 @@ class QueueActor(configuration: Configuration,
         logger.debug { "request next batch for device ${device.serialNumber}" }
         val queueIsEmpty = queue.isEmpty()
         if (queue.isNotEmpty() && !activeBatches.containsKey(device.serialNumber)) {
-            logger.debug { "sending next batch for device ${device.serialNumber}" }
             sendBatch(device)
             return
         }
-        if (queueIsEmpty && activeBatches.isEmpty()) {
-            pool.send(DevicePoolMessage.FromQueue.Terminated)
-            onTerminate()
-        } else {
-            logger.debug {
-                "queue is empty but there are active batches present for " +
-                        "${activeBatches.keys.joinToString { it }}"
+        if (queueIsEmpty) {
+            if (activeBatches.isEmpty()) {
+                pool.send(DevicePoolMessage.FromQueue.Terminated)
+                onTerminate()
+            } else {
+                logger.debug {
+                    "queue is empty but there are active batches present for " +
+                            "${activeBatches.keys.joinToString { it }}"
+                }
             }
         }
     }
 
     private suspend fun sendBatch(device: DeviceInfo) {
-        val batch = batching.process(queue, analytics)
+        val batch =  batching.process(queue, batchingMetricsProvider)
+        logger.debug(
+                "sending a batch of ${batch.tests.size} tests " +
+                "to device ${device.serialNumber} " +
+                "(${queue.size} tests still in queue)")
         activeBatches[device.serialNumber] = batch
         pool.send(FromQueue.ExecuteBatch(device, batch))
     }

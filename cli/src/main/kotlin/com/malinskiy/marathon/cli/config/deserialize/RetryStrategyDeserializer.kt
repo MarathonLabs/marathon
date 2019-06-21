@@ -6,7 +6,6 @@ import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer
 import com.fasterxml.jackson.databind.node.ObjectNode
-import com.fasterxml.jackson.module.kotlin.treeToValue
 import com.malinskiy.marathon.exceptions.ConfigurationException
 import com.malinskiy.marathon.execution.strategy.RetryStrategy
 import com.malinskiy.marathon.execution.strategy.impl.retry.NoRetryStrategy
@@ -22,7 +21,7 @@ class RetryStrategyDeserializer : StdDeserializer<RetryStrategy>(RetryStrategy::
             "no-retry" -> NoRetryStrategy()
             "fixed-quota" -> {
                 (node as ObjectNode).remove("type")
-                return codec.treeToValue<FixedQuotaRetryStrategy>(node)
+                codec.treeToValue(node, FixedQuotaRetryStrategy::class.java)
             }
             else -> throw ConfigurationException("Unrecognized retry strategy $type")
         }

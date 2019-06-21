@@ -34,6 +34,7 @@ data class Configuration constructor(
         val ignoreFailures: Boolean,
         val isCodeCoverageEnabled: Boolean,
         val fallbackToScreenshots: Boolean,
+        val testSuiteNameMatchesClassName: Boolean,
 
         val testClassRegexes: Collection<Regex>,
         val includeSerialRegexes: Collection<Regex>,
@@ -62,6 +63,7 @@ data class Configuration constructor(
                 ignoreFailures: Boolean?,
                 isCodeCoverageEnabled: Boolean?,
                 fallbackToScreenshots: Boolean?,
+                testSuiteNameMatchesClassName: Boolean?,
 
                 testClassRegexes: Collection<Regex>?,
                 includeSerialRegexes: Collection<Regex>?,
@@ -88,6 +90,7 @@ data class Configuration constructor(
                     ignoreFailures = ignoreFailures ?: false,
                     isCodeCoverageEnabled = isCodeCoverageEnabled ?: false,
                     fallbackToScreenshots = fallbackToScreenshots ?: false,
+                    testSuiteNameMatchesClassName = testSuiteNameMatchesClassName ?: false,
                     testClassRegexes = testClassRegexes ?: listOf(Regex("^((?!Abstract).)*Test$")),
                     includeSerialRegexes = includeSerialRegexes ?: emptyList(),
                     excludeSerialRegexes = excludeSerialRegexes ?: emptyList(),
@@ -113,6 +116,7 @@ data class Configuration constructor(
                     "ignoreFailures" to ignoreFailures.toString(),
                     "isCodeCoverageEnabled" to isCodeCoverageEnabled.toString(),
                     "fallbackToScreenshots" to fallbackToScreenshots.toString(),
+                    "testSuiteNameMatchesClassName" to testSuiteNameMatchesClassName.toString(),
                     "testClassRegexes" to testClassRegexes.toString(),
                     "includeSerialRegexes" to includeSerialRegexes.toString(),
                     "excludeSerialRegexes" to excludeSerialRegexes.toString(),

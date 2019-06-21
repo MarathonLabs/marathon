@@ -15,6 +15,8 @@ object DerivedDataFileListProvider: FileListProvider {
     }
 }
 
+
+
 data class FileIOSConfiguration(
         @JsonProperty("derivedDataDir") val derivedDataDir: File,
         @JsonProperty("xctestrunPath") val xctestrunPath: File?,
@@ -23,11 +25,15 @@ data class FileIOSConfiguration(
         @JsonProperty("knownHostsPath") val knownHostsPath: File?,
         @JsonProperty("remoteRsyncPath") val remoteRsyncPath: String = "/usr/bin/rsync",
         @JsonProperty("sourceRoot") val sourceRoot: File?,
+        @JsonProperty("sourceRootsRegex") val sourceRootsRegex: Regex? = null,
+        @JsonProperty("sourceTargetName") val sourceTargetName: String?,
+        @JsonProperty("binaryParserDockerImageName") val binaryParserDockerImageName: String? = null,
         @JsonProperty("alwaysEraseSimulators") val alwaysEraseSimulators: Boolean?,
         @JsonProperty("debugSsh") val debugSsh: Boolean?,
         @JsonProperty("hideRunnerOutput") val hideRunnerOutput: Boolean?,
         @JsonProperty("compactOutput") val compactOutput: Boolean = false,
         @JsonProperty("keepAliveIntervalMillis") val keepAliveIntervalMillis: Long = 0L,
+        @JsonProperty("deviceInitializationTimeoutMillis") val deviceInitializationTimeoutMillis: Long?,
         @JsonProperty("devices") val devices: File?,
         val fileListProvider: FileListProvider = DerivedDataFileListProvider) : FileVendorConfiguration {
 
@@ -48,6 +54,8 @@ data class FileIOSConfiguration(
                 ?: marathonfileDir.resolve("Marathondevices")
         val optionalKnownHostsPath = knownHostsPath?.resolveAgainst(marathonfileDir)
         val optionalHideRunnerOutput = hideRunnerOutput ?: false
+        val optionalDeviceInitializationTimeoutMillis =
+                deviceInitializationTimeoutMillis ?: IOSConfiguration.DEFAULT_DEVICE_INITIALIZATION_TIMEOUT_MILLIS
 
         return if (optionalSourceRoot == null) {
             IOSConfiguration(
@@ -62,7 +70,11 @@ data class FileIOSConfiguration(
                     hideRunnerOutput = optionalHideRunnerOutput,
                     compactOutput = compactOutput,
                     keepAliveIntervalMillis = keepAliveIntervalMillis,
-                    devicesFile = optionalDevices)
+                    deviceInitializationTimeoutMillis = optionalDeviceInitializationTimeoutMillis,
+                    devicesFile = optionalDevices,
+                    sourceRootsRegex = sourceRootsRegex,
+                    sourceTargetName = sourceTargetName,
+                    binaryParserDockerImageName = binaryParserDockerImageName)
         } else {
             IOSConfiguration(
                     derivedDataDir = resolvedDerivedDataDir,
@@ -76,8 +88,12 @@ data class FileIOSConfiguration(
                     hideRunnerOutput = optionalHideRunnerOutput,
                     compactOutput = compactOutput,
                     keepAliveIntervalMillis = keepAliveIntervalMillis,
+                    deviceInitializationTimeoutMillis = optionalDeviceInitializationTimeoutMillis,
                     devicesFile = optionalDevices,
-                    sourceRoot = optionalSourceRoot)
+                    sourceRoot = optionalSourceRoot,
+                    sourceRootsRegex = sourceRootsRegex,
+                    sourceTargetName = sourceTargetName,
+                    binaryParserDockerImageName = binaryParserDockerImageName)
         }
     }
 }

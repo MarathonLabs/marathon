@@ -80,29 +80,39 @@ class Marathon(val configuration: Configuration) {
         return loader.first()
     }
 
-    fun run() = runBlocking {
+    fun run(printTestCountAndExit: Boolean = false, outputPrinter: OutputPrinter? = null) = runBlocking {
         try {
-            runAsync()
+            runAsync(printTestCountAndExit = printTestCountAndExit, outputPrinter = outputPrinter)
         } catch (th: Throwable) {
             log.error(th.toString())
+            log.debug(th.stackTrace.joinToString { "$it" })
             false
         }
     }
 
-    suspend fun runAsync(): Boolean {
+    suspend fun runAsync(printTestCountAndExit: Boolean = false, outputPrinter: OutputPrinter? = null): Boolean {
         configureLogging(configuration.vendorConfiguration)
         trackAnalytics(configuration)
 
         val testParser = loadTestParser(configuration.vendorConfiguration)
-        val deviceProvider = loadDeviceProvider(configuration.vendorConfiguration)
-        val analytics = analyticsFactory.create()
-
         val parsedTests = testParser.extract(configuration)
         val tests = applyTestFilters(parsedTests)
-        val shard = prepareTestShard(tests, analytics)
+
+        if (printTestCountAndExit) {
+            if (outputPrinter == null) {
+                throw IllegalArgumentException("Unable to print to null")
+            }
+            outputPrinter.print(testCount = tests.size)
+            return true
+        }
 
         log.info("Scheduling ${tests.size} tests")
         log.debug(tests.joinToString(", ") { it.toTestName() })
+
+        val deviceProvider = loadDeviceProvider(configuration.vendorConfiguration)
+        val analytics = analyticsFactory.create()
+        val shard = prepareTestShard(tests, analytics)
+
         val progressReporter = ProgressReporter()
         val currentCoroutineContext = coroutineContext
         val scheduler = Scheduler(deviceProvider, analytics, configuration, shard, progressReporter, currentCoroutineContext)
@@ -144,7 +154,6 @@ class Marathon(val configuration: Configuration) {
 
     private suspend fun onFinish(analytics: Analytics, deviceProvider: DeviceProvider) {
         analytics.terminate()
-        analytics.close()
         deviceProvider.terminate()
     }
 
@@ -171,7 +180,7 @@ class Marathon(val configuration: Configuration) {
         val shardingStrategy = configuration.shardingStrategy
         val flakinessShard = configuration.flakinessStrategy
         val shard = shardingStrategy.createShard(tests)
-        return flakinessShard.process(shard, analytics)
+        return flakinessShard.process(shard, analytics.metricsProviderProvider.create())
     }
 
     private fun trackAnalytics(configuration: Configuration) {

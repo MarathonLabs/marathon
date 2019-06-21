@@ -59,6 +59,7 @@ open class MarathonRunTask : DefaultTask(), VerificationTask {
                 extensionConfig.ignoreFailures,
                 extensionConfig.isCodeCoverageEnabled,
                 extensionConfig.fallbackToScreenshots,
+                extensionConfig.testSuiteNameMatchesClassName,
                 extensionConfig.testClassRegexes?.map { it.toRegex() },
                 extensionConfig.includeSerialRegexes?.map { it.toRegex() },
                 extensionConfig.excludeSerialRegexes?.map { it.toRegex() },

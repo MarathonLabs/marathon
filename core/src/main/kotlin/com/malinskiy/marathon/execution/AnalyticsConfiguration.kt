@@ -6,7 +6,11 @@ sealed class AnalyticsConfiguration {
                                      val user: String,
                                      val password: String,
                                      val dbName: String,
-                                     val retentionPolicyConfiguration: RetentionPolicyConfiguration) : AnalyticsConfiguration() {
+                                     val retentionPolicyConfiguration: RetentionPolicyConfiguration,
+                                     val logLevel: LogLevel) : AnalyticsConfiguration() {
+
+        enum class LogLevel { NONE, VERBOSE }
+
         data class RetentionPolicyConfiguration(val name: String,
                                                 val duration: String,
                                                 val shardDuration: String,

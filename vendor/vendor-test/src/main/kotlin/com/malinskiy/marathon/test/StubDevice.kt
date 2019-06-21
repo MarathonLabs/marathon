@@ -2,10 +2,10 @@ package com.malinskiy.marathon.test
 
 import com.malinskiy.marathon.device.Device
 import com.malinskiy.marathon.device.DeviceFeature
+import com.malinskiy.marathon.device.DeviceInfo
 import com.malinskiy.marathon.device.DevicePoolId
 import com.malinskiy.marathon.device.NetworkState
 import com.malinskiy.marathon.device.OperatingSystem
-import com.malinskiy.marathon.device.toDeviceInfo
 import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.execution.TestBatchResults
 import com.malinskiy.marathon.execution.TestResult
@@ -61,4 +61,14 @@ class StubDevice(private val prepareTimeMillis: Long = 5000L,
     override fun dispose() {
         logger.debug { "Disposing" }
     }
+
+    override fun toDeviceInfo(): DeviceInfo = DeviceInfo(
+            operatingSystem = operatingSystem,
+            serialNumber = serialNumber,
+            model = model,
+            manufacturer = manufacturer,
+            networkState = networkState,
+            deviceFeatures = deviceFeatures,
+            healthy = healthy
+    )
 }

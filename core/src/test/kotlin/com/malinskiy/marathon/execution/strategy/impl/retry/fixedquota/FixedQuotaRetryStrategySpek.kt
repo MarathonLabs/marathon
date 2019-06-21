@@ -1,16 +1,26 @@
 package com.malinskiy.marathon.execution.strategy.impl.retry.fixedquota
 
-import com.malinskiy.marathon.generateTests
 import com.malinskiy.marathon.device.DevicePoolId
 import com.malinskiy.marathon.execution.TestShard
 import com.malinskiy.marathon.generateTestResults
+import com.malinskiy.marathon.generateTests
 import org.amshove.kluent.shouldBe
 import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.describe
 import org.jetbrains.spek.api.dsl.it
 
-class FixedQuotaRetryStrategySpek : Spek({
+object FixedQuotaRetryStrategySpek : Spek({
     describe("fixed quota retry strategy tests") {
+        group("no retry test matchers") {
+            it("with sufficient quota") {
+                val poolId = DevicePoolId("DevicePoolId-1")
+                val tests = generateTests(9)
+                val testResults = generateTestResults(tests)
+                val noRetryTestMatchers = listOf(tests[0].toTestMatcher())
+                val strategy = FixedQuotaRetryStrategy(totalAllowedRetryQuota = 1, noRetryTestMatchers = noRetryTestMatchers)
+                strategy.process(poolId, testResults, TestShard(tests)).size shouldBe 1
+            }
+        }
         group("total quota tests") {
             it("total quota is 1") {
                 val strategy = FixedQuotaRetryStrategy(totalAllowedRetryQuota = 1)

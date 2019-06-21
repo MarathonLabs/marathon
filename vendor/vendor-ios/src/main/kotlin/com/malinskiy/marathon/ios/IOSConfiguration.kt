@@ -18,8 +18,16 @@ data class IOSConfiguration(val derivedDataDir: File,
                             val hideRunnerOutput: Boolean = false,
                             val compactOutput: Boolean = false,
                             val keepAliveIntervalMillis: Long = 0L,
+                            val deviceInitializationTimeoutMillis: Long = DEFAULT_DEVICE_INITIALIZATION_TIMEOUT_MILLIS,
                             val devicesFile: File? = null,
-                            val sourceRoot: File = File(".")) : VendorConfiguration {
+                            val sourceRoot: File = File("."),
+                            val sourceRootsRegex: Regex?,
+                            val sourceTargetName: String?,
+                            val binaryParserDockerImageName: String?) : VendorConfiguration {
+
+    companion object {
+        const val DEFAULT_DEVICE_INITIALIZATION_TIMEOUT_MILLIS: Long = 300_000
+    }
 
     override fun testParser(): TestParser? = IOSTestParser()
 

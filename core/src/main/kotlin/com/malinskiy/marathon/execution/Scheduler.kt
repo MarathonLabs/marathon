@@ -3,14 +3,12 @@ package com.malinskiy.marathon.execution
 import com.malinskiy.marathon.analytics.Analytics
 import com.malinskiy.marathon.device.DevicePoolId
 import com.malinskiy.marathon.device.DeviceProvider
-import com.malinskiy.marathon.device.toDeviceInfo
 import com.malinskiy.marathon.exceptions.NoDevicesException
 import com.malinskiy.marathon.execution.DevicePoolMessage.FromScheduler
 import com.malinskiy.marathon.execution.DevicePoolMessage.FromScheduler.AddDevice
 import com.malinskiy.marathon.execution.DevicePoolMessage.FromScheduler.RemoveDevice
 import com.malinskiy.marathon.execution.progress.ProgressReporter
 import com.malinskiy.marathon.log.MarathonLogging
-import com.malinskiy.marathon.test.Test
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.TimeoutCancellationException

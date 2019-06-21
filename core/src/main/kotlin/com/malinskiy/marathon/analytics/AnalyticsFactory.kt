@@ -18,7 +18,7 @@ class AnalyticsFactory(configuration: Configuration,
     private val trackerFactory = TrackerFactory(configuration, fileManager, deviceInfoReporter, testResultReporter,
             gson)
 
-    fun create(): Analytics = Analytics(trackerFactory.create(), metricsFactory.create())
+    fun create(): Analytics = Analytics(trackerFactory.create(), metricsFactory)
 
     val rawTestResultTracker = trackerFactory.rawTestResultTracker
 }

@@ -4,7 +4,6 @@ import com.android.ddmlib.testrunner.TestIdentifier
 import com.malinskiy.marathon.android.toTest
 import com.malinskiy.marathon.device.Device
 import com.malinskiy.marathon.device.DevicePoolId
-import com.malinskiy.marathon.device.toDeviceInfo
 import com.malinskiy.marathon.execution.progress.ProgressReporter
 
 class ProgressTestRunListener(private val device: Device,

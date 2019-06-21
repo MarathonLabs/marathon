@@ -31,6 +31,7 @@ import com.malinskiy.marathon.execution.strategy.impl.pooling.parameterized.Mode
 import com.malinskiy.marathon.execution.strategy.impl.pooling.parameterized.OperatingSystemVersionPoolingStrategy
 import com.malinskiy.marathon.execution.strategy.impl.retry.NoRetryStrategy
 import com.malinskiy.marathon.execution.strategy.impl.retry.fixedquota.FixedQuotaRetryStrategy
+import com.malinskiy.marathon.execution.strategy.impl.retry.fixedquota.TestNameRegexTestMatcher
 import com.malinskiy.marathon.execution.strategy.impl.sharding.CountShardingStrategy
 import com.malinskiy.marathon.execution.strategy.impl.sharding.ParallelShardingStrategy
 import com.malinskiy.marathon.execution.strategy.impl.sorting.ExecutionTimeSortingStrategy
@@ -91,7 +92,8 @@ object ConfigFactorySpec : Spek({
                         user = "root",
                         password = "root",
                         dbName = "marathon",
-                        retentionPolicyConfiguration = AnalyticsConfiguration.InfluxDbConfiguration.RetentionPolicyConfiguration.default
+                        retentionPolicyConfiguration = AnalyticsConfiguration.InfluxDbConfiguration.RetentionPolicyConfiguration.default,
+                        logLevel = AnalyticsConfiguration.InfluxDbConfiguration.LogLevel.NONE
                 )
                 configuration.poolingStrategy shouldEqual ComboPoolingStrategy(
                         listOf(
@@ -106,7 +108,12 @@ object ConfigFactorySpec : Spek({
                 configuration.sortingStrategy shouldEqual SuccessRateSortingStrategy(Instant.from(DateTimeFormatter.ISO_DATE_TIME.parse("2015-03-14T09:26:53.590Z")), false)
                 configuration.batchingStrategy shouldEqual FixedSizeBatchingStrategy(5)
                 configuration.flakinessStrategy shouldEqual ProbabilityBasedFlakinessStrategy(0.7, 3, Instant.from(DateTimeFormatter.ISO_DATE_TIME.parse("2015-03-14T09:26:53.590Z")))
-                configuration.retryStrategy shouldEqual FixedQuotaRetryStrategy(100, 2)
+                configuration.retryStrategy shouldEqual FixedQuotaRetryStrategy(
+                        totalAllowedRetryQuota = 100,
+                        retryPerTestQuota = 2,
+                        noRetryTestMatchers = listOf(TestNameRegexTestMatcher("TestPackage", "TestClass", "TestMethod"))
+                )
+
                 SimpleClassnameFilter(".*".toRegex()) shouldEqual SimpleClassnameFilter(".*".toRegex())
 
                 configuration.filteringConfiguration.whitelist shouldContainAll listOf(
@@ -212,8 +219,12 @@ object ConfigFactorySpec : Spek({
                         alwaysEraseSimulators = false,
                         hideRunnerOutput = true,
                         compactOutput = true,
-                        keepAliveIntervalMillis = 300000L,
-                        devicesFile = file.parentFile.resolve("Testdevices"))
+                        keepAliveIntervalMillis = 300_000L,
+                        deviceInitializationTimeoutMillis = 60_000L,
+                        devicesFile = file.parentFile.resolve("Testdevices"),
+                        sourceTargetName = null,
+                        sourceRootsRegex = null,
+                        binaryParserDockerImageName = null)
             }
         }
 

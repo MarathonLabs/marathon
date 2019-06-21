@@ -27,7 +27,7 @@ internal class TrackerFactory(private val configuration: Configuration,
 
     fun create(): Tracker {
         val defaultTrackers = listOf(
-                JUnitTracker(JUnitReporter(fileManager)),
+                JUnitTracker(JUnitReporter(configuration, fileManager)),
                 DeviceTracker(deviceInfoReporter),
                 TestResultsTracker(testResultReporter),
                 rawTestResultTracker,

@@ -6,7 +6,6 @@ import com.android.ddmlib.testrunner.TestIdentifier
 import com.malinskiy.marathon.android.AndroidDevice
 import com.malinskiy.marathon.android.toTest
 import com.malinskiy.marathon.device.DevicePoolId
-import com.malinskiy.marathon.device.toDeviceInfo
 import com.malinskiy.marathon.execution.Attachment
 import com.malinskiy.marathon.execution.AttachmentType
 import com.malinskiy.marathon.report.attachment.AttachmentListener

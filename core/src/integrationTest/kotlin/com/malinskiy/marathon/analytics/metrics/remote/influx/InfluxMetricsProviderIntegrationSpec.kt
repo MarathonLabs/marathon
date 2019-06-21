@@ -1,7 +1,6 @@
 package com.malinskiy.marathon.analytics.metrics.remote.influx
 
 import com.malinskiy.marathon.device.DeviceStub
-import com.malinskiy.marathon.device.toDeviceInfo
 import com.malinskiy.marathon.execution.TestStatus
 import com.malinskiy.marathon.generateTest
 import com.malinskiy.marathon.test.Test

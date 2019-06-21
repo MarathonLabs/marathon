@@ -4,10 +4,10 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.google.gson.Gson
 import com.malinskiy.marathon.device.DeviceProvider
+import com.malinskiy.marathon.exceptions.DeviceLostException
 import com.malinskiy.marathon.ios.HealthChangeListener
 import com.malinskiy.marathon.ios.IOSConfiguration
 import com.malinskiy.marathon.ios.IOSDevice
-import com.malinskiy.marathon.ios.logparser.parser.DeviceFailureException
 import com.malinskiy.marathon.ios.logparser.parser.DeviceFailureReason
 import com.malinskiy.marathon.log.MarathonLogging
 import kotlinx.coroutines.CoroutineName
@@ -23,6 +23,7 @@ import kotlinx.coroutines.withContext
 import java.io.File
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.coroutines.CoroutineContext
+import kotlin.system.measureTimeMillis
 
 private const val MAX_CONNECTION_ATTEMPTS = 16
 
@@ -47,11 +48,17 @@ class LocalListSimulatorProvider(override val coroutineContext: CoroutineContext
 
     override suspend fun start() = withContext(coroutineContext) {
         logger.info("starts providing ${simulators.count()} simulator devices")
-        val jobs = simulators.map {
-            async(context = coroutineContext) {
-                createDevice(it, RemoteSimulatorConnectionCounter.putAndGet(it.udid))?.let { connect(it) }
-            }
-        }.joinAll()
+        val marathonStartDuration = measureTimeMillis {
+            val jobs = simulators.map {
+                async(context = coroutineContext + CoroutineName("creator")) {
+                    createDevice(it, RemoteSimulatorConnectionCounter.putAndGet(it.udid))?.let { connect(it) }
+                }
+            }.also {
+                logger.debug("dispatched ${it.size} async jobs")
+            }.joinAll()
+        }
+        logger.debug("completed all jobs with ${devices.mappingCount()} stored devices")
+        logger.info("##teamcity[buildStatisticValue key='marathonStartDuration' value='$marathonStartDuration']")
     }
 
     override suspend fun stop() = withContext(coroutineContext) {
@@ -62,7 +69,7 @@ class LocalListSimulatorProvider(override val coroutineContext: CoroutineContext
         }
         devices.values.forEach {
             dispose(it)
-            logger.debug("Disposed device ${it.udid}")
+            logger.debug("disposed device ${it.udid}")
         }
         devices.clear()
     }
@@ -128,8 +135,9 @@ class LocalListSimulatorProvider(override val coroutineContext: CoroutineContext
             gson = gson,
             healthChangeListener = this
         )
-    } catch (e: DeviceFailureException) {
-        logger.error("Failed to initialize ${simulator.udid}-$connectionAttempt with reason ${e.reason}: ${e.message}")
+    } catch (e: DeviceLostException) {
+        logger.error("Failed to initialize ${simulator.udid}-$connectionAttempt: ${e.message}")
+        logger.error("Cause: ${e.cause}")
         null
     }
 

@@ -17,6 +17,9 @@ class InfluxDbConfigurationDeserializer
         val user = node?.get("user")?.asText()
         val password = node?.get("password")?.asText()
         val dbName = node?.get("dbName")?.asText()
+        val logLevel = node?.get("logLevel")?.asText()
+                ?.let { enumValueOf<AnalyticsConfiguration.InfluxDbConfiguration.LogLevel>(it) }
+                ?: AnalyticsConfiguration.InfluxDbConfiguration.LogLevel.VERBOSE
 
         val retentionPolicyNode = node?.get("retentionPolicyConfiguration")?.traverse(p.codec)
         val policyClazz = AnalyticsConfiguration.InfluxDbConfiguration.RetentionPolicyConfiguration::class.java
@@ -29,6 +32,12 @@ class InfluxDbConfigurationDeserializer
         if (password == null) throw ConfigurationException("InfluxDbConfigurationDeserializer: password should be specified")
         if (dbName == null) throw ConfigurationException("InfluxDbConfigurationDeserializer: dbName should be specified")
 
-        return AnalyticsConfiguration.InfluxDbConfiguration(url, user, password, dbName, retentionPolicyConfiguration)
+        return AnalyticsConfiguration.InfluxDbConfiguration(
+                url = url,
+                user = user,
+                password = password,
+                dbName = dbName,
+                retentionPolicyConfiguration = retentionPolicyConfiguration,
+                logLevel = logLevel)
     }
 }
