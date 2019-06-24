@@ -29,6 +29,7 @@ class MetricsProviderFactorySpek : Spek({
                     ignoreFailures = null,
                     isCodeCoverageEnabled = null,
                     fallbackToScreenshots = null,
+                    strictMode = null,
                     testClassRegexes = null,
                     includeSerialRegexes = null,
                     excludeSerialRegexes = null,

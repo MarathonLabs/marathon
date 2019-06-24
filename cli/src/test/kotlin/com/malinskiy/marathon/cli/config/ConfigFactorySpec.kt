@@ -129,6 +129,7 @@ object ConfigFactorySpec : Spek({
                 configuration.ignoreFailures shouldEqual false
                 configuration.isCodeCoverageEnabled shouldEqual false
                 configuration.fallbackToScreenshots shouldEqual false
+                configuration.strictMode shouldEqual true
                 configuration.testBatchTimeoutMillis shouldEqual 20_000
                 configuration.testOutputTimeoutMillis shouldEqual 30_000
                 configuration.debug shouldEqual true

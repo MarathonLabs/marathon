@@ -16,7 +16,7 @@ import org.testcontainers.containers.GenericContainer
 import java.io.File
 import java.nio.file.Files
 import java.nio.file.attribute.PosixFilePermissions
-import java.util.UUID
+import java.util.*
 
 object DerivedDataManagerSpek: Spek({
     val logger = MarathonLogging.logger(javaClass.simpleName)
@@ -68,6 +68,7 @@ object DerivedDataManagerSpek: Spek({
                     ignoreFailures = null,
                     isCodeCoverageEnabled = null,
                     fallbackToScreenshots = null,
+                    strictMode = null,
                     testClassRegexes = null,
                     includeSerialRegexes = null,
                     excludeSerialRegexes = null,
