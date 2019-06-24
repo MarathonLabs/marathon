@@ -4,6 +4,7 @@ import com.google.gson.Gson
 import com.malinskiy.marathon.analytics.Analytics
 import com.malinskiy.marathon.analytics.AnalyticsFactory
 import com.malinskiy.marathon.device.DeviceProvider
+import com.malinskiy.marathon.exceptions.NoDevicesException
 import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.execution.Scheduler
 import com.malinskiy.marathon.execution.TestParser
@@ -85,7 +86,14 @@ class Marathon(val configuration: Configuration) {
             runAsync()
         } catch (th: Throwable) {
             log.error(th.toString())
-            false
+
+            when(th) {
+                is NoDevicesException -> {
+                    log.warn { "No devices found" }
+                    false
+                }
+                else -> configuration.ignoreFailures
+            }
         }
     }
 

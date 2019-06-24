@@ -80,7 +80,7 @@ open class MarathonRunTask : DefaultTask(), VerificationTask {
 
         val success = Marathon(cnf).run()
 
-        if (!success && !cnf.ignoreFailures) {
+        if (!success) {
             throw GradleException("Tests failed! See ${cnf.outputDir}/html/index.html")
         }
     }
