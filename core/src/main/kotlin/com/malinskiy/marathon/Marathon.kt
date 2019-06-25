@@ -3,6 +3,7 @@ package com.malinskiy.marathon
 import com.google.gson.Gson
 import com.malinskiy.marathon.analytics.Analytics
 import com.malinskiy.marathon.analytics.AnalyticsFactory
+import com.malinskiy.marathon.config.LogicalConfigurationValidator
 import com.malinskiy.marathon.device.DeviceProvider
 import com.malinskiy.marathon.exceptions.NoDevicesException
 import com.malinskiy.marathon.execution.Configuration
@@ -43,6 +44,7 @@ class Marathon(val configuration: Configuration) {
     private val deviceInfoReporter = DeviceInfoReporter(fileManager, gson)
     private val analyticsFactory = AnalyticsFactory(configuration, fileManager, deviceInfoReporter, testResultReporter,
             gson)
+    private val configurationValidator = LogicalConfigurationValidator()
 
     private fun configureLogging(vendorConfiguration: VendorConfiguration) {
         MarathonLogging.debug = configuration.debug
@@ -104,6 +106,8 @@ class Marathon(val configuration: Configuration) {
         val testParser = loadTestParser(configuration.vendorConfiguration)
         val deviceProvider = loadDeviceProvider(configuration.vendorConfiguration)
         val analytics = analyticsFactory.create()
+
+        configurationValidator.validate(configuration)
 
         val parsedTests = testParser.extract(configuration)
         val tests = applyTestFilters(parsedTests)
