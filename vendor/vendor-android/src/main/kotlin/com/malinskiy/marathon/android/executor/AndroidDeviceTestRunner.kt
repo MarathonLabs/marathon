@@ -104,7 +104,10 @@ class AndroidDeviceTestRunner(private val device: AndroidDevice) {
 
     private fun notifyIgnoredTest(ignoredTests: List<Test>, listeners: CompositeTestRunListener) {
         ignoredTests.forEach {
-            listeners.testIgnored(it.toTestIdentifier())
+            val identifier = it.toTestIdentifier()
+            listeners.testStarted(identifier)
+            listeners.testIgnored(identifier)
+            listeners.testEnded(identifier, hashMapOf())
         }
     }
 
@@ -135,17 +138,17 @@ class AndroidDeviceTestRunner(private val device: AndroidDevice) {
 
     private fun prepareRecorderListener(feature: DeviceFeature, fileManager: FileManager, devicePoolId: DevicePoolId,
                                         attachmentProviders: MutableList<AttachmentProvider>): NoOpTestRunListener =
-        when (feature) {
-            DeviceFeature.VIDEO      -> {
-                ScreenRecorderTestRunListener(fileManager, devicePoolId, device)
-                    .also { attachmentProviders.add(it) }
-            }
+            when (feature) {
+                DeviceFeature.VIDEO -> {
+                    ScreenRecorderTestRunListener(fileManager, devicePoolId, device)
+                            .also { attachmentProviders.add(it) }
+                }
 
-            DeviceFeature.SCREENSHOT -> {
-                ScreenCapturerTestRunListener(fileManager, devicePoolId, device)
-                    .also { attachmentProviders.add(it) }
+                DeviceFeature.SCREENSHOT -> {
+                    ScreenCapturerTestRunListener(fileManager, devicePoolId, device)
+                            .also { attachmentProviders.add(it) }
+                }
             }
-        }
 
     private fun prepareTestRunner(configuration: Configuration,
                                   androidConfiguration: AndroidConfiguration,
