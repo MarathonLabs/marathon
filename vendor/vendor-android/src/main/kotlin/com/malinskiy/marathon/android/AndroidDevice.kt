@@ -188,16 +188,11 @@ class AndroidDevice(val ddmsDevice: IDevice,
         dispatcher.close()
     }
 
-    private fun selectRecorderType(preferred: DeviceFeature?, features: Collection<DeviceFeature>): DeviceFeature? {
-        if (features.contains(preferred)) {
-            return preferred
-        }
-
-        return when {
+    private fun selectRecorderType(preferred: DeviceFeature?, features: Collection<DeviceFeature>) = when {
+            features.contains(preferred) -> preferred
             features.contains(DeviceFeature.VIDEO) -> DeviceFeature.VIDEO
             features.contains(DeviceFeature.SCREENSHOT) -> DeviceFeature.SCREENSHOT
             else -> null
-        }
     }
 
     private fun prepareRecorderListener(feature: DeviceFeature, fileManager: FileManager, devicePoolId: DevicePoolId,
