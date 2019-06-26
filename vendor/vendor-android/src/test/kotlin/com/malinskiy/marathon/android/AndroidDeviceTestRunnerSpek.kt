@@ -29,8 +29,9 @@ class AndroidDeviceTestRunnerSpek : Spek({
             val device = AndroidDevice(ddmsDevice)
             val androidDeviceTestRunner = AndroidDeviceTestRunner(device)
             val apkFile = File(javaClass.classLoader.getResource("android_test_1.apk").file)
+            val output = File("")
             val configuration = Configuration(name = "",
-                    outputDir = File(""),
+                    outputDir = output,
                     analyticsConfiguration = null,
                     poolingStrategy = null,
                     shardingStrategy = null,
@@ -66,6 +67,7 @@ class AndroidDeviceTestRunnerSpek : Spek({
             verify(listener).testIgnored(eq(identifier))
             verify(listener).testEnded(eq(identifier), eq(hashMapOf()))
             verifyNoMoreInteractions(listener)
+
         }
     }
 })
