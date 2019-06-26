@@ -23,3 +23,4 @@ data class Test(val pkg: String,
 fun Test.toTestName(): String = "$pkg.$clazz#$method"
 fun Test.toSimpleSafeTestName(): String = "$clazz.$method"
 fun Test.toSafeTestName(): String = "$pkg.$clazz.$method"
+

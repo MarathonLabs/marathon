@@ -3,6 +3,7 @@ package com.malinskiy.marathon.android.executor
 import com.android.ddmlib.AdbCommandRejectedException
 import com.android.ddmlib.ShellCommandUnresponsiveException
 import com.android.ddmlib.TimeoutException
+import com.android.ddmlib.testrunner.ITestRunListener
 import com.android.ddmlib.testrunner.RemoteAndroidTestRunner
 import com.android.ddmlib.testrunner.TestIdentifier
 import com.malinskiy.marathon.android.AndroidConfiguration
@@ -44,10 +45,8 @@ class AndroidDeviceTestRunner(private val device: AndroidDevice) {
     private val logger = MarathonLogging.logger("AndroidDeviceTestRunner")
 
     fun execute(configuration: Configuration,
-                devicePoolId: DevicePoolId,
                 rawTestBatch: TestBatch,
-                deferred: CompletableDeferred<TestBatchResults>,
-                progressReporter: ProgressReporter) {
+                listener: ITestRunListener) {
 
         val ignoredTests = rawTestBatch.tests.filter { it.metaProperties.contains(JUNIT_IGNORE_META_PROPERY) }
         val testBatch = TestBatch(rawTestBatch.tests - ignoredTests)
@@ -56,31 +55,11 @@ class AndroidDeviceTestRunner(private val device: AndroidDevice) {
         val info = ApkParser().parseInstrumentationInfo(androidConfiguration.testApplicationOutput)
         val runner = prepareTestRunner(configuration, androidConfiguration, info, testBatch)
 
-        val fileManager = FileManager(configuration.outputDir)
-        val attachmentProviders = mutableListOf<AttachmentProvider>()
 
-        val features = device.deviceFeatures
-
-        val preferableRecorderType = configuration.vendorConfiguration.preferableRecorderType()
-        val recorderListener = selectRecorderType(preferableRecorderType, features)?.let { feature ->
-            prepareRecorderListener(feature, fileManager, devicePoolId, attachmentProviders)
-        } ?: NoOpTestRunListener()
-
-        val logCatListener = LogCatListener(device, devicePoolId, LogWriter(fileManager))
-                .also { attachmentProviders.add(it) }
-        val listeners = CompositeTestRunListener(
-                listOf(
-                        recorderListener,
-                        logCatListener,
-                        TestRunResultsListener(testBatch, device, deferred, attachmentProviders),
-                        DebugTestRunListener(device),
-                        ProgressTestRunListener(device, devicePoolId, progressReporter)
-                )
-        )
         try {
             clearData(androidConfiguration, info)
-            notifyIgnoredTest(ignoredTests, listeners)
-            runner.run(listeners)
+            notifyIgnoredTest(ignoredTests, listener)
+            runner.run(listener)
         } catch (e: ShellCommandUnresponsiveException) {
             logger.warn("Test got stuck. You can increase the timeout in settings if it's too strict")
             throw TestBatchExecutionException(e)
@@ -102,9 +81,12 @@ class AndroidDeviceTestRunner(private val device: AndroidDevice) {
         }
     }
 
-    private fun notifyIgnoredTest(ignoredTests: List<Test>, listeners: CompositeTestRunListener) {
+    private fun notifyIgnoredTest(ignoredTests: List<Test>, listeners: ITestRunListener) {
         ignoredTests.forEach {
-            listeners.testIgnored(it.toTestIdentifier())
+            val identifier = it.toTestIdentifier()
+            listeners.testStarted(identifier)
+            listeners.testIgnored(identifier)
+            listeners.testEnded(identifier, hashMapOf())
         }
     }
 
@@ -120,32 +102,6 @@ class AndroidDeviceTestRunner(private val device: AndroidDevice) {
             }
         }
     }
-
-    private fun selectRecorderType(preferred: DeviceFeature?, features: Collection<DeviceFeature>): DeviceFeature? {
-        if (features.contains(preferred)) {
-            return preferred
-        }
-
-        return when {
-            features.contains(DeviceFeature.VIDEO) -> DeviceFeature.VIDEO
-            features.contains(DeviceFeature.SCREENSHOT) -> DeviceFeature.SCREENSHOT
-            else -> null
-        }
-    }
-
-    private fun prepareRecorderListener(feature: DeviceFeature, fileManager: FileManager, devicePoolId: DevicePoolId,
-                                        attachmentProviders: MutableList<AttachmentProvider>): NoOpTestRunListener =
-        when (feature) {
-            DeviceFeature.VIDEO      -> {
-                ScreenRecorderTestRunListener(fileManager, devicePoolId, device)
-                    .also { attachmentProviders.add(it) }
-            }
-
-            DeviceFeature.SCREENSHOT -> {
-                ScreenCapturerTestRunListener(fileManager, devicePoolId, device)
-                    .also { attachmentProviders.add(it) }
-            }
-        }
 
     private fun prepareTestRunner(configuration: Configuration,
                                   androidConfiguration: AndroidConfiguration,
@@ -172,4 +128,4 @@ class AndroidDeviceTestRunner(private val device: AndroidDevice) {
     }
 }
 
-private fun Test.toTestIdentifier(): TestIdentifier = TestIdentifier("$pkg.$clazz", method)
+internal fun Test.toTestIdentifier(): TestIdentifier = TestIdentifier("$pkg.$clazz", method)
