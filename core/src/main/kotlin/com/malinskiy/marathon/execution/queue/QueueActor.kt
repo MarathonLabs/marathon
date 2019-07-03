@@ -20,7 +20,7 @@ import kotlinx.coroutines.channels.SendChannel
 import java.util.*
 import kotlin.coroutines.CoroutineContext
 
-class QueueActor(configuration: Configuration,
+class QueueActor(private val configuration: Configuration,
                  private val testShard: TestShard,
                  private val analytics: Analytics,
                  private val pool: SendChannel<FromQueue>,
@@ -39,6 +39,7 @@ class QueueActor(configuration: Configuration,
     private val retry = configuration.retryStrategy
 
     private val activeBatches = mutableMapOf<String, TestBatch>()
+    private val uncompletedTestsRetryCount = mutableMapOf<Test, Int>()
 
     private val testResultReporter = TestResultReporter(poolId, analytics, testShard, configuration)
 
@@ -68,9 +69,14 @@ class QueueActor(configuration: Configuration,
     }
 
     private suspend fun onBatchCompleted(device: DeviceInfo, results: TestBatchResults) {
+        val (failedUncompletedTests, uncompleted) = results.uncompleted.partition {
+            println(uncompletedTestsRetryCount[it.test])
+            (uncompletedTestsRetryCount[it.test] ?: 0) >= configuration.uncompletedTestRetryQuota
+        }
+
         val finished = results.finished
-        val failed = results.failed
-        val uncompleted = results.uncompleted
+        val failed = results.failed + failedUncompletedTests
+
         logger.debug { "handle test results ${device.serialNumber}" }
         if (finished.isNotEmpty()) {
             handleFinishedTests(finished, device)
@@ -79,7 +85,10 @@ class QueueActor(configuration: Configuration,
             handleFailedTests(failed, device)
         }
         if (uncompleted.isNotEmpty()) {
-            returnTests(uncompleted)
+            uncompleted.forEach {
+                uncompletedTestsRetryCount[it.test] = (uncompletedTestsRetryCount[it.test] ?: 0) + 1
+            }
+            returnTests(uncompleted.map { it.test })
         }
         activeBatches.remove(device.serialNumber)
     }
