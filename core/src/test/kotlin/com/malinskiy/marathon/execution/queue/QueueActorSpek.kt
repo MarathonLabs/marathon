@@ -231,6 +231,7 @@ private val DEFAULT_CONFIGURATION = Configuration(
         name = "",
         outputDir = File(""),
         analyticsConfiguration = null,
+        customAnalyticsTracker = null,
         poolingStrategy = null,
         shardingStrategy = null,
         sortingStrategy = null,
