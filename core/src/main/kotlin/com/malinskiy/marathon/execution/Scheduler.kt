@@ -1,6 +1,7 @@
 package com.malinskiy.marathon.execution
 
 import com.malinskiy.marathon.analytics.Analytics
+import com.malinskiy.marathon.device.Device
 import com.malinskiy.marathon.device.DevicePoolId
 import com.malinskiy.marathon.device.DeviceProvider
 import com.malinskiy.marathon.device.toDeviceInfo
@@ -10,7 +11,6 @@ import com.malinskiy.marathon.execution.DevicePoolMessage.FromScheduler.AddDevic
 import com.malinskiy.marathon.execution.DevicePoolMessage.FromScheduler.RemoveDevice
 import com.malinskiy.marathon.execution.progress.ProgressReporter
 import com.malinskiy.marathon.log.MarathonLogging
-import com.malinskiy.marathon.test.Test
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.TimeoutCancellationException
@@ -53,7 +53,7 @@ class Scheduler(private val deviceProvider: DeviceProvider,
             job.cancelAndJoin()
             throw NoDevicesException("")
         }
-        for(child in job.children) {
+        for (child in job.children) {
             child.join()
         }
     }
@@ -78,9 +78,15 @@ class Scheduler(private val deviceProvider: DeviceProvider,
     }
 
     private suspend fun onDeviceDisconnected(item: DeviceProvider.DeviceEvent.DeviceDisconnected) {
-        logger.debug { "device ${item.device.serialNumber} disconnected" }
+        val device = item.device
+        if(filteredByConfiguration(device)) {
+            logger.debug { "device ${device.serialNumber} is filtered out by configuration. skipping disconnect" }
+            return
+        }
+
+        logger.debug { "device ${device.serialNumber} disconnected" }
         pools.values.forEach {
-            it.send(RemoveDevice(item.device))
+            it.send(RemoveDevice(device))
         }
     }
 
@@ -88,6 +94,11 @@ class Scheduler(private val deviceProvider: DeviceProvider,
                                           parent: Job,
                                           context: CoroutineContext) {
         val device = item.device
+        if(filteredByConfiguration(device)) {
+            logger.debug { "device ${device.serialNumber} is filtered out by configuration. skipping" }
+            return
+        }
+
         val poolId = poolingStrategy.associate(device)
         logger.debug { "device ${device.serialNumber} associated with poolId ${poolId.name}" }
         pools.computeIfAbsent(poolId) { id ->
@@ -99,5 +110,18 @@ class Scheduler(private val deviceProvider: DeviceProvider,
                     "to device pool for ${device.serialNumber}"
         }
         analytics.trackDeviceConnected(poolId, device.toDeviceInfo())
+    }
+
+    private fun filteredByConfiguration(device: Device): Boolean {
+        val whiteListAccepted = when {
+            configuration.includeSerialRegexes.isEmpty() -> true
+            else -> configuration.includeSerialRegexes.any { it.matches(device.serialNumber) }
+        }
+        val blacklistAccepted = when {
+            configuration.excludeSerialRegexes.isEmpty() -> true
+            else -> configuration.excludeSerialRegexes.none { it.matches(device.serialNumber) }
+        }
+
+        return !(whiteListAccepted && blacklistAccepted)
     }
 }

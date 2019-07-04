@@ -22,13 +22,13 @@ class ConfigurationFactory {
     var debug = null
     var batchingStrategy = null
     var analyticsConfiguration = null
-    var excludeSerialRegexes = null
+    var excludeSerialRegexes : List<Regex>? = null
     var fallbackToScreenshots = null
     var strictMode = null
     var filteringConfiguration = null
     var flakinessStrategy: FlakinessStrategy? = null
     var ignoreFailures = null
-    var includeSerialRegexes = null
+    var includeSerialRegexes : List<Regex>? = null
     var isCodeCoverageEnabled = null
     var poolingStrategy = null
     var retryStrategy = null

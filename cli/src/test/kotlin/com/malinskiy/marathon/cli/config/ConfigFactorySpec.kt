@@ -123,9 +123,9 @@ object ConfigFactorySpec : Spek({
                 )
                 configuration.testClassRegexes.map { it.toString() } shouldContainAll listOf("^((?!Abstract).)*Test$")
 
-
-                configuration.includeSerialRegexes shouldEqual emptyList()
-                configuration.excludeSerialRegexes shouldEqual emptyList()
+                // Regex doesn't have proper equals method. Need to check the patter itself
+                configuration.includeSerialRegexes.joinToString(separator = "") { it.pattern } shouldEqual  """emulator-500[2,4]""".toRegex().pattern
+                configuration.excludeSerialRegexes.joinToString(separator = "") { it.pattern } shouldEqual  """emulator-5002""".toRegex().pattern
                 configuration.ignoreFailures shouldEqual false
                 configuration.isCodeCoverageEnabled shouldEqual false
                 configuration.fallbackToScreenshots shouldEqual false
