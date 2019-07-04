@@ -26,6 +26,7 @@ class ConfigurationFactory {
     var excludeSerialRegexes = null
     var fallbackToScreenshots = null
     var strictMode = null
+    var uncompletedTestRetryQuota = null
     var filteringConfiguration = null
     var flakinessStrategy: FlakinessStrategy? = null
     var ignoreFailures = null
@@ -66,6 +67,7 @@ class ConfigurationFactory {
                     isCodeCoverageEnabled,
                     fallbackToScreenshots,
                     strictMode,
+                    uncompletedTestRetryQuota,
                     testClassRegexes,
                     includeSerialRegexes,
                     excludeSerialRegexes,

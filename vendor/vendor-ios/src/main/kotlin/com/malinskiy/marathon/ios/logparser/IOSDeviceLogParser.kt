@@ -25,6 +25,7 @@ class IOSDeviceLogParser(device: Device,
     private val diagnosticLogsPathFinder: DiagnosticLogsPathFinder
     private val sessionResultsPathFinder: SessionResultsPathFinder
     init {
+        val timer = SystemTimer()
         testLogListener = TestLogListener()
         diagnosticLogsPathFinder = DiagnosticLogsPathFinder()
         sessionResultsPathFinder = SessionResultsPathFinder()
@@ -37,7 +38,7 @@ class IOSDeviceLogParser(device: Device,
                 diagnosticLogsPathFinder,
                 sessionResultsPathFinder,
                 TestRunProgressParser(
-                    SystemTimer(),
+                    timer,
                     packageNameFormatter,
                     listOf(
                         ProgressReportingListener(
@@ -46,7 +47,8 @@ class IOSDeviceLogParser(device: Device,
                             testBatch = testBatch,
                             deferredResults = deferredResults,
                             progressReporter = progressReporter,
-                            testLogListener = testLogListener
+                            testLogListener = testLogListener,
+                            timer = timer
                         ),
                         testLogListener
                     )

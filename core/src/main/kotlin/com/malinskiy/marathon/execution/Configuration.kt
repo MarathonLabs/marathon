@@ -37,6 +37,7 @@ data class Configuration constructor(
         val isCodeCoverageEnabled: Boolean,
         val fallbackToScreenshots: Boolean,
         val strictMode: Boolean,
+        val uncompletedTestRetryQuota: Int,
 
         val testClassRegexes: Collection<Regex>,
         val includeSerialRegexes: Collection<Regex>,
@@ -67,6 +68,7 @@ data class Configuration constructor(
                 isCodeCoverageEnabled: Boolean?,
                 fallbackToScreenshots: Boolean?,
                 strictMode: Boolean?,
+                uncompletedTestRetryQuota: Int?,
 
                 testClassRegexes: Collection<Regex>?,
                 includeSerialRegexes: Collection<Regex>?,
@@ -95,6 +97,7 @@ data class Configuration constructor(
                     isCodeCoverageEnabled = isCodeCoverageEnabled ?: false,
                     fallbackToScreenshots = fallbackToScreenshots ?: false,
                     strictMode = strictMode ?: false,
+                    uncompletedTestRetryQuota = uncompletedTestRetryQuota ?: Integer.MAX_VALUE,
                     testClassRegexes = testClassRegexes ?: listOf(Regex("^((?!Abstract).)*Test$")),
                     includeSerialRegexes = includeSerialRegexes ?: emptyList(),
                     excludeSerialRegexes = excludeSerialRegexes ?: emptyList(),
