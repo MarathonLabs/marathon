@@ -105,7 +105,6 @@ class DevicePoolActor(private val poolId: DevicePoolId,
     }
 
     private fun terminate() {
-        println("!debug! Terminate DevicePoolActor")
         poolJob.cancel()
         close()
     }

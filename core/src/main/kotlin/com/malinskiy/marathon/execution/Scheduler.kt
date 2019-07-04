@@ -42,7 +42,6 @@ class Scheduler(private val deviceProvider: DeviceProvider,
     private val logger = MarathonLogging.logger("Scheduler")
 
     suspend fun execute() {
-        println("!debug! Scheduler.execute")
         subscribeOnDevices(job)
 
         try {
@@ -52,20 +51,15 @@ class Scheduler(private val deviceProvider: DeviceProvider,
                 }
             }
         } catch (e: TimeoutCancellationException) {
-            println("!debug! Timeout cancellation exception")
             val children = job.children.toList()
-            println("!debug! Job children: $children (${children.map { it.isCompleted }}) (${children.size})")
 
             job.cancelAndJoin()
             throw NoDevicesException("")
         }
         val children = job.children.toList()
-        println("!debug! After discovering devices")
-        println("!debug! Job children: $children (${children.map { it.isCompleted }}) (${children.size})")
         for (child in children) {
             child.join()
         }
-        println("!debug! Scheduler child jobs finished")
     }
 
     fun getPools(): List<DevicePoolId> {
