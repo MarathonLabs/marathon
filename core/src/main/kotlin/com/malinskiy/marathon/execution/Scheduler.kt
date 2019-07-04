@@ -51,13 +51,10 @@ class Scheduler(private val deviceProvider: DeviceProvider,
                 }
             }
         } catch (e: TimeoutCancellationException) {
-            val children = job.children.toList()
-
             job.cancelAndJoin()
             throw NoDevicesException("")
         }
-        val children = job.children.toList()
-        for (child in children) {
+        for (child in job.children) {
             child.join()
         }
     }
@@ -100,7 +97,7 @@ class Scheduler(private val deviceProvider: DeviceProvider,
         }
         pools[poolId]?.send(AddDevice(device)) ?: logger.debug {
             "not sending the AddDevice event " +
-                "to device pool for ${device.serialNumber}"
+                    "to device pool for ${device.serialNumber}"
         }
         analytics.trackDeviceConnected(poolId, device.toDeviceInfo())
     }
