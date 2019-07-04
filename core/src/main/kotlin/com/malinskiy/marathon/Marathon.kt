@@ -85,7 +85,11 @@ class Marathon(val configuration: Configuration) {
 
     fun run() = runBlocking {
         try {
-            runAsync()
+            val isSuccess = runAsync()
+            when {
+                configuration.ignoreFailures -> true
+                else -> isSuccess
+            }
         } catch (th: Throwable) {
             log.error(th.toString())
 
@@ -94,7 +98,7 @@ class Marathon(val configuration: Configuration) {
                     log.warn { "No devices found" }
                     false
                 }
-                else -> configuration.ignoreFailures
+                else -> false
             }
         }
     }
