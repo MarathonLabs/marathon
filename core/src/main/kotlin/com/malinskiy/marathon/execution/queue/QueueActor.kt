@@ -70,7 +70,6 @@ class QueueActor(private val configuration: Configuration,
 
     private suspend fun onBatchCompleted(device: DeviceInfo, results: TestBatchResults) {
         val (failedUncompletedTests, uncompleted) = results.uncompleted.partition {
-            println(uncompletedTestsRetryCount[it.test])
             (uncompletedTestsRetryCount[it.test] ?: 0) >= configuration.uncompletedTestRetryQuota
         }
 
