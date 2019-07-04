@@ -148,6 +148,11 @@ class AndroidDeviceProvider : DeviceProvider, CoroutineScope {
             }
             getDevicesCountdown -= sleepTime
         }
+
+        adb.devices.forEach {
+            listener.deviceConnected(it)
+        }
+
         if (!adb.hasInitialDeviceList() || !adb.hasDevices()) {
             throw NoDevicesException("No devices found.")
         }
@@ -175,8 +180,8 @@ class AndroidDeviceProvider : DeviceProvider, CoroutineScope {
     private fun AndroidDebugBridge.hasDevices(): Boolean = devices.isNotEmpty()
 
     override suspend fun terminate() {
-        AndroidDebugBridge.disconnectBridge()
-        AndroidDebugBridge.terminate()
+//        AndroidDebugBridge.disconnectBridge()
+//        AndroidDebugBridge.terminate()
         bootWaitContext.close()
         channel.close()
     }
