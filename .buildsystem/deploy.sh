@@ -1,26 +1,7 @@
 #!/usr/bin/env bash
 cd `dirname $0`/..
 
-if [ -z "$SONATYPE_USERNAME" ]
-then
-    echo "error: please set SONATYPE_USERNAME and SONATYPE_PASSWORD environment variable"
-    exit 1
-fi
-
-if [ -z "$SONATYPE_PASSWORD" ]
-then
-    echo "error: please set SONATYPE_PASSWORD environment variable"
-    exit 1
-fi
-
-if [ -z "$GPG_PASSPHRASE" ]
-then
-    echo "error: please set GPG_PASSPHRASE environment variable"
-    exit 1
-fi
-
-DTASK=":publishDefaultPublicationToOSSHRRepository"
-
+DTASK=":publishDefaultPublicationToMavenLocal"
 TARGETS=":core$DTASK :vendor:vendor-android$DTASK :marathon-gradle-plugin$DTASK :report:execution-timeline$DTASK :report:html-report$DTASK :analytics:usage$DTASK"
 
 if [ ! -z "$TRAVIS_TAG" ]

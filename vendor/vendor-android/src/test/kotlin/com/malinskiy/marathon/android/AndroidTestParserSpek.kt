@@ -18,6 +18,7 @@ class AndroidTestParserSpek : Spek({
             val apkFile = File(javaClass.classLoader.getResource("android_test_1.apk").file)
             val configuration = Configuration(name = "",
                     outputDir = File(""),
+                    customAnalyticsTracker = null,
                     analyticsConfiguration = null,
                     poolingStrategy = null,
                     shardingStrategy = null,

@@ -26,6 +26,7 @@ object TestResultReporterSpec : Spek({
     val defaultConfig = Configuration(name = "",
             outputDir = File(""),
             analyticsConfiguration = null,
+            customAnalyticsTracker = null,
             poolingStrategy = null,
             shardingStrategy = null,
             sortingStrategy = null,

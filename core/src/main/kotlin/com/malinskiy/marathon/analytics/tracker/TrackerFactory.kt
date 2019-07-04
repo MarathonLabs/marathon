@@ -32,7 +32,8 @@ internal class TrackerFactory(private val configuration: Configuration,
                 TestResultsTracker(testResultReporter),
                 rawTestResultTracker,
                 allureTracker
-        )
+        ) + (configuration.customAnalyticsTracker?.let { listOf(it) } ?: emptyList())
+
         return when {
             configuration.analyticsConfiguration is InfluxDbConfiguration -> {
                 val config = configuration.analyticsConfiguration

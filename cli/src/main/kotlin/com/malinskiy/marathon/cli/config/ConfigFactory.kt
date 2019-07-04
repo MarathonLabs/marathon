@@ -38,7 +38,7 @@ class ConfigFactory(val mapper: ObjectMapper) {
         return Configuration(
                 config.name,
                 config.outputDir,
-
+                null,
                 config.analyticsConfiguration,
                 config.poolingStrategy,
                 config.shardingStrategy,

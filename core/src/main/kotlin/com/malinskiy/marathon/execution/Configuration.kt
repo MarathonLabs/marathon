@@ -1,5 +1,6 @@
 package com.malinskiy.marathon.execution
 
+import com.malinskiy.marathon.analytics.tracker.Tracker
 import com.malinskiy.marathon.execution.strategy.BatchingStrategy
 import com.malinskiy.marathon.execution.strategy.FlakinessStrategy
 import com.malinskiy.marathon.execution.strategy.PoolingStrategy
@@ -23,6 +24,7 @@ data class Configuration constructor(
         val outputDir: File,
 
         val analyticsConfiguration: AnalyticsConfiguration,
+        val customAnalyticsTracker: Tracker?,
         val poolingStrategy: PoolingStrategy,
         val shardingStrategy: ShardingStrategy,
         val sortingStrategy: SortingStrategy,
@@ -51,6 +53,7 @@ data class Configuration constructor(
     constructor(name: String,
                 outputDir: File,
 
+                customAnalyticsTracker: Tracker?,
                 analyticsConfiguration: AnalyticsConfiguration?,
                 poolingStrategy: PoolingStrategy?,
                 shardingStrategy: ShardingStrategy?,
@@ -79,6 +82,7 @@ data class Configuration constructor(
 
             this(name = name,
                     outputDir = outputDir,
+                    customAnalyticsTracker = customAnalyticsTracker,
                     analyticsConfiguration = analyticsConfiguration ?: AnalyticsConfiguration.DisabledAnalytics,
                     poolingStrategy = poolingStrategy ?: OmniPoolingStrategy(),
                     shardingStrategy = shardingStrategy ?: ParallelShardingStrategy(),

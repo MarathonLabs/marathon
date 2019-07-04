@@ -1,0 +1,3 @@
+install:
+  - echo "Publishing to local maven repo"
+  - ./.buildsystem/deploy.sh

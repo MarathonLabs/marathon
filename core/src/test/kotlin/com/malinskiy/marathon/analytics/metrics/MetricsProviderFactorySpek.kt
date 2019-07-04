@@ -18,6 +18,7 @@ class MetricsProviderFactorySpek : Spek({
         it("should return noop metrics provider when analytics configuration is disabled") {
             val configuration = Configuration(name = "",
                     outputDir = File(""),
+                    customAnalyticsTracker = null,
                     analyticsConfiguration = AnalyticsConfiguration.DisabledAnalytics,
                     poolingStrategy = null,
                     shardingStrategy = null,

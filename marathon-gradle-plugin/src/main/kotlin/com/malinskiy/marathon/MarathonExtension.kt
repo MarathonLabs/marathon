@@ -1,5 +1,6 @@
 package com.malinskiy.marathon
 
+import com.malinskiy.marathon.analytics.tracker.Tracker
 import com.malinskiy.marathon.device.DeviceFeature
 import groovy.lang.Closure
 import org.gradle.api.Project
@@ -7,6 +8,7 @@ import org.gradle.api.Project
 open class MarathonExtension(project: Project) {
     var name: String = "Marathon"
 
+    var customAnalyticsTracker: Tracker? = null
     var analyticsConfiguration: AnalyticsConfig? = null
 
     var poolingStrategy: PoolingStrategyConfiguration? = null

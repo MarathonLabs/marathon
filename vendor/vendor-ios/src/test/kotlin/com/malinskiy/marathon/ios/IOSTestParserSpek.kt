@@ -19,6 +19,7 @@ object IOSTestParserSpek : Spek({
             val xctestrunPath = File(javaClass.classLoader.getResource("sample-xcworkspace/derived-data/Build/Products/UITesting_iphonesimulator11.2-x86_64.xctestrun").file)
             val configuration = Configuration(name = "",
                     outputDir = File(""),
+                    customAnalyticsTracker = null,
                     analyticsConfiguration = null,
                     poolingStrategy = null,
                     shardingStrategy = null,
