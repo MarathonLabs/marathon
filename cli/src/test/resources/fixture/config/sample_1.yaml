@@ -52,8 +52,10 @@ filteringConfiguration:
     regex: ".*"
 testClassRegexes:
 - "^((?!Abstract).)*Test$"
-includeSerialRegexes: []
-excludeSerialRegexes: []
+includeSerialRegexes:
+- "emulator-500[2,4]"
+excludeSerialRegexes:
+- "emulator-5002"
 ignoreFailures: false
 isCodeCoverageEnabled: false
 fallbackToScreenshots: false
