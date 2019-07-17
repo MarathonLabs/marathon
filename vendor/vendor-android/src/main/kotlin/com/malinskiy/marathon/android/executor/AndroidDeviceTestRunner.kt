@@ -61,7 +61,7 @@ class AndroidDeviceTestRunner(private val device: AndroidDevice) {
             notifyIgnoredTest(ignoredTests, listener)
             runner.run(listener)
         } catch (e: ShellCommandUnresponsiveException) {
-            logger.warn("Test got stuck. You can increase the timeout in settings if it's too strict")
+            logger.warn("Device takes too long to answer to a command")
             throw TestBatchExecutionException(e)
         } catch (e: TimeoutException) {
             logger.warn("Test got stuck. You can increase the timeout in settings if it's too strict")
@@ -116,8 +116,12 @@ class AndroidDeviceTestRunner(private val device: AndroidDevice) {
 
         logger.debug { "tests = ${tests.toList()}" }
 
+        val ddmlibMaxTimeToOutputResponse =
+                Math.min(configuration.testOutputTimeoutMillis * testBatch.tests.size,
+                        configuration.testBatchTimeoutMillis)
+
         runner.setRunName("TestRunName")
-        runner.setMaxTimeToOutputResponse(configuration.testOutputTimeoutMillis * testBatch.tests.size, TimeUnit.MILLISECONDS)
+        runner.setMaxTimeToOutputResponse(ddmlibMaxTimeToOutputResponse, TimeUnit.MILLISECONDS)
         runner.setClassNames(tests)
 
         androidConfiguration.instrumentationArgs.forEach { key, value ->
