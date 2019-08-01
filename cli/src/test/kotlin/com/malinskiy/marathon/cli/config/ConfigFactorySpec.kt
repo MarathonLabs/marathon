@@ -161,7 +161,9 @@ object ConfigFactorySpec : Spek({
                         dbName = "marathon",
                         retentionPolicyConfiguration = AnalyticsConfiguration.InfluxDbConfiguration.RetentionPolicyConfiguration("rpMarathonTest", "90d", "1h", 5, false)
                 )
+            }
         }
+
         on("sample config 2") {
 
             val file = File(ConfigFactorySpec::class.java.getResource("/fixture/config/sample_2.yaml").file)
