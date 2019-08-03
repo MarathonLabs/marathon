@@ -31,17 +31,6 @@ class FileManager(private val output: File) {
         return File(resultsFolder, filename)
     }
 
-    fun getFiles(fileType: FileType, pool: DevicePoolId): Array<File> {
-        val fileFilter: FileFilter = SuffixFileFilter(fileType.suffix)
-        val deviceDirectory = get(output.absolutePath, fileType.dir, pool.name).toFile()
-        return deviceDirectory.listFiles(fileFilter)
-    }
-
-    fun getTestResultFilesForDevice(pool: DevicePoolId, serial: String): Array<File> {
-        val path = getDirectory(FileType.TEST_RESULT, pool, serial)
-        return path.toFile().listFiles() ?: emptyArray()
-    }
-
     private fun createDirectory(fileType: FileType, pool: DevicePoolId, device: DeviceInfo): Path =
             createDirectories(getDirectory(fileType, pool, device))
 

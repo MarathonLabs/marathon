@@ -63,10 +63,6 @@ class Scheduler(private val deviceProvider: DeviceProvider,
         }
     }
 
-    fun getPools(): List<DevicePoolId> {
-        return pools.keys.toList()
-    }
-
     private fun subscribeOnDevices(job: Job): Job {
         return launch {
             for (msg in deviceProvider.subscribe()) {
