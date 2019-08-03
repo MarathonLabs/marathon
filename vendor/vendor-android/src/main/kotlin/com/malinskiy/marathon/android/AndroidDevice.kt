@@ -2,7 +2,7 @@ package com.malinskiy.marathon.android
 
 import com.android.ddmlib.IDevice
 import com.android.ddmlib.NullOutputReceiver
-import com.malinskiy.marathon.analytics.tracker.device.InMemoryDeviceTracker
+import com.malinskiy.marathon.analytics.internal.pub.Track
 import com.malinskiy.marathon.android.exception.InvalidSerialConfiguration
 import com.malinskiy.marathon.android.executor.AndroidAppInstaller
 import com.malinskiy.marathon.android.executor.AndroidDeviceTestRunner
@@ -33,13 +33,16 @@ import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.newFixedThreadPoolContext
+import org.koin.core.KoinComponent
+import org.koin.core.inject
 import java.util.*
 import kotlin.coroutines.CoroutineContext
 
 class AndroidDevice(val ddmsDevice: IDevice,
-                    private val serialStrategy: SerialStrategy = SerialStrategy.AUTOMATIC) : Device, CoroutineScope {
+                    private val serialStrategy: SerialStrategy = SerialStrategy.AUTOMATIC) : Device, KoinComponent, CoroutineScope {
 
     val fileManager = RemoteFileManager(ddmsDevice)
+    val track: Track by inject()
 
     private val dispatcher by lazy {
         newFixedThreadPoolContext(1, "AndroidDevice - execution - ${ddmsDevice.serialNumber}")
@@ -176,7 +179,7 @@ class AndroidDevice(val ddmsDevice: IDevice,
     }
 
     override suspend fun prepare(configuration: Configuration) {
-        InMemoryDeviceTracker.trackDevicePreparing(this) {
+        track.trackDevicePreparing(this) {
             val deferred = async {
                 AndroidAppInstaller(configuration).prepareInstallation(this@AndroidDevice)
                 fileManager.removeRemoteDirectory()

@@ -5,7 +5,7 @@ import com.android.ddmlib.DdmPreferences
 import com.android.ddmlib.IDevice
 import com.android.ddmlib.TimeoutException
 import com.malinskiy.marathon.actor.unboundedChannel
-import com.malinskiy.marathon.analytics.tracker.device.InMemoryDeviceTracker
+import com.malinskiy.marathon.analytics.internal.pub.Track
 import com.malinskiy.marathon.device.DeviceProvider
 import com.malinskiy.marathon.device.DeviceProvider.DeviceEvent.DeviceConnected
 import com.malinskiy.marathon.device.DeviceProvider.DeviceEvent.DeviceDisconnected
@@ -18,6 +18,8 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.newFixedThreadPoolContext
+import org.koin.core.KoinComponent
+import org.koin.core.inject
 import java.nio.file.Paths
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ConcurrentMap
@@ -26,8 +28,9 @@ import kotlin.coroutines.CoroutineContext
 private const val DEFAULT_DDM_LIB_TIMEOUT = 30000
 private const val DEFAULT_DDM_LIB_SLEEP_TIME = 500
 
-class AndroidDeviceProvider : DeviceProvider, CoroutineScope {
+class AndroidDeviceProvider : DeviceProvider, CoroutineScope, KoinComponent {
     private val logger = MarathonLogging.logger("AndroidDeviceProvider")
+    private val track: Track by inject()
 
     private lateinit var adb: AndroidDebugBridge
 
@@ -102,7 +105,7 @@ class AndroidDeviceProvider : DeviceProvider, CoroutineScope {
             private suspend fun waitForBoot(device: AndroidDevice): Boolean {
                 var booted = false
 
-                InMemoryDeviceTracker.trackProviderDevicePreparing(device) {
+                track.trackProviderDevicePreparing(device) {
                     for (i in 1..30) {
                         if (device.booted) {
                             logger.debug { "Device ${device.serialNumber} booted!" }

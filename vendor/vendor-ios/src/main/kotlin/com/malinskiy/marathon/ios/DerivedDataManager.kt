@@ -3,8 +3,8 @@ package com.malinskiy.marathon.ios
 import com.github.fracpete.processoutput4j.output.CollectingProcessOutput
 import com.github.fracpete.rsync4j.RSync
 import com.malinskiy.marathon.execution.Configuration
+import com.malinskiy.marathon.extension.relativePathTo
 import com.malinskiy.marathon.log.MarathonLogging
-import com.malinskiy.marathon.report.html.relativePathTo
 import java.io.File
 import java.io.FileNotFoundException
 import java.util.concurrent.ConcurrentHashMap
@@ -55,7 +55,7 @@ class DerivedDataManager(val configuration: Configuration) {
     }
 
     fun send(localPath: File, remotePath: String, hostName: String, port: Int) {
-        val source= if (localPath.isDirectory) {
+        val source = if (localPath.isDirectory) {
             localPath.absolutePathWithTrailingSeparator
         } else {
             localPath.absolutePath
@@ -117,7 +117,10 @@ class DerivedDataManager(val configuration: Configuration) {
                 "-i ${iosConfiguration.remotePrivateKey} " +
                 "-l ${iosConfiguration.remoteUsername} " +
                 "-p ${port.toString()} " +
-                when (configuration.debug && iosConfiguration.debugSsh) { true -> "-vvv" else -> ""}
+                when (configuration.debug && iosConfiguration.debugSsh) {
+                    true -> "-vvv"
+                    else -> ""
+                }
     }
 }
 

@@ -2,6 +2,7 @@ package com.malinskiy.marathon.android
 
 import com.android.ddmlib.IDevice
 import com.android.sdklib.AndroidVersion
+import com.malinskiy.marathon.spek.initKoin
 import com.nhaarman.mockitokotlin2.whenever
 import org.amshove.kluent.mock
 import org.amshove.kluent.shouldBe
@@ -11,6 +12,8 @@ import org.jetbrains.spek.api.dsl.describe
 import org.jetbrains.spek.api.dsl.it
 
 class AndroidDeviceSpek : Spek({
+    initKoin()
+
     describe("android device") {
         val iDevice = mock<IDevice>()
         whenever(iDevice.serialNumber).thenReturn("serial")

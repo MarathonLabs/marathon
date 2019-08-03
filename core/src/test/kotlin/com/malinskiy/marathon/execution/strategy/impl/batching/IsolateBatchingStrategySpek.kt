@@ -1,9 +1,8 @@
 package com.malinskiy.marathon.execution.strategy.impl.batching
 
+import com.malinskiy.marathon.analytics.external.Analytics
+import com.malinskiy.marathon.analytics.external.NoOpMetricsProvider
 import com.malinskiy.marathon.generateTests
-import com.malinskiy.marathon.analytics.Analytics
-import com.malinskiy.marathon.analytics.metrics.NoOpMetricsProvider
-import com.malinskiy.marathon.analytics.tracker.NoOpTracker
 import com.malinskiy.marathon.test.Test
 import org.amshove.kluent.shouldBe
 import org.jetbrains.spek.api.Spek
@@ -13,7 +12,7 @@ import java.util.*
 
 class IsolateBatchingStrategySpek : Spek({
 
-    val analytics = Analytics(NoOpTracker(), NoOpMetricsProvider())
+    val analytics = Analytics(NoOpMetricsProvider())
 
     describe("isolate batching strategy test") {
         it("should return batches with size = 1") {

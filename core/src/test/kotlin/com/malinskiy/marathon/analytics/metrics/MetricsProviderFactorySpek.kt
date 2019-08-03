@@ -1,5 +1,7 @@
 package com.malinskiy.marathon.analytics.metrics
 
+import com.malinskiy.marathon.analytics.external.MetricsProviderFactory
+import com.malinskiy.marathon.analytics.external.NoOpMetricsProvider
 import com.malinskiy.marathon.device.DeviceFeature
 import com.malinskiy.marathon.device.DeviceProvider
 import com.malinskiy.marathon.execution.AnalyticsConfiguration

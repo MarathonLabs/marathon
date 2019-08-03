@@ -1,6 +1,7 @@
 package com.malinskiy.marathon.execution
 
-import com.malinskiy.marathon.analytics.Analytics
+import com.malinskiy.marathon.analytics.external.Analytics
+import com.malinskiy.marathon.analytics.internal.pub.Track
 import com.malinskiy.marathon.device.Device
 import com.malinskiy.marathon.device.DevicePoolId
 import com.malinskiy.marathon.device.DeviceProvider
@@ -19,6 +20,8 @@ import kotlinx.coroutines.channels.SendChannel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withTimeout
+import org.koin.core.KoinComponent
+import org.koin.core.inject
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.coroutines.CoroutineContext
 
@@ -33,7 +36,9 @@ class Scheduler(private val deviceProvider: DeviceProvider,
                 private val configuration: Configuration,
                 private val shard: TestShard,
                 private val progressReporter: ProgressReporter,
-                override val coroutineContext: CoroutineContext) : CoroutineScope {
+                override val coroutineContext: CoroutineContext) : CoroutineScope, KoinComponent {
+
+    private val track: Track by inject()
 
     private val job = Job()
     private val pools = ConcurrentHashMap<DevicePoolId, SendChannel<FromScheduler>>()
@@ -109,7 +114,7 @@ class Scheduler(private val deviceProvider: DeviceProvider,
             "not sending the AddDevice event " +
                     "to device pool for ${device.serialNumber}"
         }
-        analytics.trackDeviceConnected(poolId, device.toDeviceInfo())
+        track.deviceConnected(poolId, device.toDeviceInfo())
     }
 
     private fun filteredByConfiguration(device: Device): Boolean {

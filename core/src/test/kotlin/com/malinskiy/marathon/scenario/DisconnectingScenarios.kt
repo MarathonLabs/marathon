@@ -2,6 +2,7 @@ package com.malinskiy.marathon.scenario
 
 import com.malinskiy.marathon.device.DeviceProvider
 import com.malinskiy.marathon.execution.TestStatus
+import com.malinskiy.marathon.spek.initKoin
 import com.malinskiy.marathon.test.StubDevice
 import com.malinskiy.marathon.test.Test
 import com.malinskiy.marathon.test.assert.shouldBeEqualTo
@@ -19,6 +20,8 @@ import java.io.File
 import java.util.concurrent.TimeUnit
 
 class DisconnectingScenarios : Spek({
+    initKoin()
+
     given("two healthy devices") {
         on("execution of two tests while one device disconnects") {
             it("should pass") {

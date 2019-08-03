@@ -1,8 +1,8 @@
 package com.malinskiy.marathon.ios
 
 import com.malinskiy.marathon.execution.Configuration
+import com.malinskiy.marathon.extension.relativePathTo
 import com.malinskiy.marathon.log.MarathonLogging
-import com.malinskiy.marathon.report.html.relativePathTo
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
 import org.amshove.kluent.shouldEqual

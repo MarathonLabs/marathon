@@ -2,7 +2,7 @@ package com.malinskiy.marathon.execution
 
 import com.malinskiy.marathon.actor.Actor
 import com.malinskiy.marathon.actor.safeSend
-import com.malinskiy.marathon.analytics.Analytics
+import com.malinskiy.marathon.analytics.external.Analytics
 import com.malinskiy.marathon.device.Device
 import com.malinskiy.marathon.device.DeviceInfo
 import com.malinskiy.marathon.device.DevicePoolId
@@ -13,7 +13,6 @@ import com.malinskiy.marathon.execution.progress.ProgressReporter
 import com.malinskiy.marathon.execution.queue.QueueActor
 import com.malinskiy.marathon.execution.queue.QueueMessage
 import com.malinskiy.marathon.log.MarathonLogging
-import com.malinskiy.marathon.test.Test
 import com.malinskiy.marathon.test.TestBatch
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.SendChannel

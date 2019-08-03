@@ -6,6 +6,7 @@ import com.android.sdklib.AndroidVersion
 import com.malinskiy.marathon.android.executor.AndroidDeviceTestRunner
 import com.malinskiy.marathon.android.executor.toTestIdentifier
 import com.malinskiy.marathon.execution.Configuration
+import com.malinskiy.marathon.spek.initKoin
 import com.malinskiy.marathon.test.MetaProperty
 import com.malinskiy.marathon.test.Test
 import com.malinskiy.marathon.test.TestBatch
@@ -21,6 +22,8 @@ import org.jetbrains.spek.api.dsl.it
 import java.io.File
 
 class AndroidDeviceTestRunnerSpek : Spek({
+    initKoin()
+
     describe("AndroidDeviceTestRunner") {
         it("should handle ignored tests before execution") {
             val ddmsDevice = mock<IDevice>()

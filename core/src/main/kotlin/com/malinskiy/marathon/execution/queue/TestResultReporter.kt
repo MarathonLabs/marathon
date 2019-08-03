@@ -1,21 +1,25 @@
 package com.malinskiy.marathon.execution.queue
 
 import com.malinskiy.marathon.actor.StateMachine
-import com.malinskiy.marathon.analytics.Analytics
+import com.malinskiy.marathon.analytics.external.Analytics
+import com.malinskiy.marathon.analytics.internal.pub.Track
 import com.malinskiy.marathon.device.DeviceInfo
 import com.malinskiy.marathon.device.DevicePoolId
 import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.execution.TestResult
 import com.malinskiy.marathon.execution.TestShard
-import com.malinskiy.marathon.execution.TestStatus
 import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.test.Test
 import com.malinskiy.marathon.test.toTestName
+import org.koin.core.KoinComponent
+import org.koin.core.inject
 
 class TestResultReporter(private val poolId: DevicePoolId,
                          private val analytics: Analytics,
                          shard: TestShard,
-                         private val configuration: Configuration) {
+                         private val configuration: Configuration): KoinComponent {
+
+    private val track: Track by inject()
 
     private val tests: HashMap<String, StateMachine<TestState, TestEvent, TestAction>> = HashMap()
 
@@ -106,16 +110,18 @@ class TestResultReporter(private val poolId: DevicePoolId,
     }
 
     private fun trackTestTransition(poolId: DevicePoolId, transition: StateMachine.Transition<TestState, TestEvent, TestAction>) {
-        notifyTestFinished(transition, poolId)
-        notifyRawTestRun(transition, poolId)
-    }
+        val validTransition = transition as? StateMachine.Transition.Valid
+        val final = if (validTransition is StateMachine.Transition.Valid) {
+            when (validTransition.sideEffect) {
+                is TestAction.SaveReport -> true
+                else -> false
+            }
+        } else false
 
-    private fun notifyRawTestRun(transition: StateMachine.Transition<TestState, TestEvent, TestAction>, poolId: DevicePoolId) {
         val (testResult: TestResult?, device: DeviceInfo?) = extractEventAndDevice(transition)
+        if (testResult == null || device == null) return
 
-        // Don't report tests that didn't finish the execution
-        if (testResult == null || device == null || testResult.status == TestStatus.INCOMPLETE) return
-        analytics.trackRawTestRun(poolId, device, testResult)
+        track.test(poolId, device, testResult, final)
     }
 
     private fun extractEventAndDevice(transition: StateMachine.Transition<TestState, TestEvent, TestAction>): Pair<TestResult?, DeviceInfo?> {
@@ -133,17 +139,5 @@ class TestResultReporter(private val poolId: DevicePoolId,
             else -> null
         }
         return Pair(testResult, device)
-    }
-
-    private fun notifyTestFinished(transition: StateMachine.Transition<TestState, TestEvent, TestAction>, poolId: DevicePoolId) {
-        val validTransition = transition as? StateMachine.Transition.Valid
-        if (validTransition is StateMachine.Transition.Valid) {
-            val sideEffect = validTransition.sideEffect
-            when (sideEffect) {
-                is TestAction.SaveReport -> {
-                    analytics.trackTestFinished(poolId, sideEffect.deviceInfo, sideEffect.testResult)
-                }
-            }
-        }
     }
 }

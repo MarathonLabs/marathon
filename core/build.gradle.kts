@@ -1,9 +1,7 @@
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-import org.jetbrains.kotlin.gradle.dsl.Coroutines
-import org.gradle.api.plugins.ExtensionAware
 import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet
-import org.junit.platform.gradle.plugin.FiltersExtension
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import org.junit.platform.gradle.plugin.EnginesExtension
+import org.junit.platform.gradle.plugin.FiltersExtension
 import org.junit.platform.gradle.plugin.JUnitPlatformExtension
 
 plugins {
@@ -48,6 +46,7 @@ dependencies {
     implementation(Libraries.slf4jAPI)
     implementation(Libraries.logbackClassic)
     implementation(Libraries.influxDbClient)
+    compile(Libraries.koin)
     testCompile(project(":vendor:vendor-test"))
     testCompile(TestLibraries.kluent)
     testCompile(TestLibraries.spekAPI)
@@ -56,6 +55,7 @@ dependencies {
     testCompile(TestLibraries.testContainers)
     testCompile(TestLibraries.testContainersInflux)
     testImplementation(TestLibraries.mockitoKotlin)
+    testImplementation(TestLibraries.koin)
 }
 
 tasks.named<JacocoReport>("jacocoTestReport").configure {

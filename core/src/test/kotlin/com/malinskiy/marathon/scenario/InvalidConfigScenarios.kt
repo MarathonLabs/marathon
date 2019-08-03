@@ -5,15 +5,16 @@ import com.malinskiy.marathon.exceptions.ConfigurationException
 import com.malinskiy.marathon.execution.TestStatus
 import com.malinskiy.marathon.execution.strategy.impl.flakiness.ProbabilityBasedFlakinessStrategy
 import com.malinskiy.marathon.execution.strategy.impl.sharding.CountShardingStrategy
+import com.malinskiy.marathon.spek.initKoin
 import com.malinskiy.marathon.test.StubDevice
 import com.malinskiy.marathon.test.Test
-import com.malinskiy.marathon.test.assert.shouldBeEqualTo
 import com.malinskiy.marathon.test.setupMarathon
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.TestCoroutineContext
-import org.amshove.kluent.*
+import org.amshove.kluent.shouldBe
+import org.amshove.kluent.shouldBeInstanceOf
 import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.given
 import org.jetbrains.spek.api.dsl.it
@@ -23,6 +24,8 @@ import java.time.Instant
 import java.util.concurrent.TimeUnit
 
 class InvalidConfigScenarios : Spek({
+    initKoin()
+
     given("one healthy device") {
         on("invalid config") {
             it("should fail") {

@@ -2,7 +2,7 @@ package com.malinskiy.marathon.ios
 
 
 import com.google.gson.Gson
-import com.malinskiy.marathon.analytics.tracker.device.InMemoryDeviceTracker
+import com.malinskiy.marathon.analytics.internal.pub.Track
 import com.malinskiy.marathon.device.Device
 import com.malinskiy.marathon.device.DeviceFeature
 import com.malinskiy.marathon.device.DevicePoolId
@@ -36,6 +36,8 @@ import kotlinx.coroutines.withContext
 import net.schmizz.sshj.connection.ConnectionException
 import net.schmizz.sshj.connection.channel.OpenFailException
 import net.schmizz.sshj.transport.TransportException
+import org.koin.core.KoinComponent
+import org.koin.core.inject
 import java.io.File
 import java.io.IOException
 import java.net.InetAddress
@@ -47,11 +49,12 @@ class IOSDevice(val simulator: RemoteSimulator,
                 connectionAttempt: Int,
                 configuration: IOSConfiguration,
                 val gson: Gson,
-                private val healthChangeListener: HealthChangeListener): Device, CoroutineScope {
+                private val healthChangeListener: HealthChangeListener): Device, CoroutineScope, KoinComponent {
 
     val udid = simulator.udid
     val connectionId = "$udid@${simulator.host}-$connectionAttempt"
     private val deviceContext = newFixedThreadPoolContext(1, connectionId)
+    private val track: Track by inject()
 
     override val coroutineContext: CoroutineContext
         get() = deviceContext + Job()
@@ -238,7 +241,7 @@ class IOSDevice(val simulator: RemoteSimulator,
     override suspend fun prepare(configuration: Configuration) = withContext(coroutineContext + CoroutineName("prepare")) {
         val iosConfiguration = configuration.vendorConfiguration as IOSConfiguration
 
-        InMemoryDeviceTracker.trackDevicePreparing(this@IOSDevice) {
+        track.trackDevicePreparing(this@IOSDevice) {
             RemoteFileManager.createRemoteDirectory(this@IOSDevice)
 
             val derivedDataManager = DerivedDataManager(configuration)
