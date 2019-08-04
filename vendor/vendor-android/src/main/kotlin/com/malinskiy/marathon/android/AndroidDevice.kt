@@ -20,6 +20,7 @@ import com.malinskiy.marathon.device.DeviceFeature
 import com.malinskiy.marathon.device.DevicePoolId
 import com.malinskiy.marathon.device.NetworkState
 import com.malinskiy.marathon.device.OperatingSystem
+import com.malinskiy.marathon.exceptions.DeviceTimeoutException
 import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.execution.TestBatchResults
 import com.malinskiy.marathon.execution.progress.ProgressReporter
@@ -28,11 +29,10 @@ import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.report.attachment.AttachmentProvider
 import com.malinskiy.marathon.report.logs.LogWriter
 import com.malinskiy.marathon.test.TestBatch
+import com.malinskiy.marathon.test.calculateTimeout
 import com.malinskiy.marathon.time.SystemTimer
-import kotlinx.coroutines.CompletableDeferred
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.async
-import kotlinx.coroutines.newFixedThreadPoolContext
+import kotlinx.coroutines.*
+import java.lang.System.currentTimeMillis
 import java.util.*
 import kotlin.coroutines.CoroutineContext
 
@@ -40,14 +40,16 @@ class AndroidDevice(val ddmsDevice: IDevice,
                     private val serialStrategy: SerialStrategy = SerialStrategy.AUTOMATIC) : Device, CoroutineScope {
 
     val fileManager = RemoteFileManager(ddmsDevice)
+    var testRunResultsListener: TestRunResultsListener? = null
+
 
     private val dispatcher by lazy {
-        newFixedThreadPoolContext(1, "AndroidDevice - execution - ${ddmsDevice.serialNumber}")
+        newFixedThreadPoolContext(2, "AndroidDevice - execution - ${ddmsDevice.serialNumber}")
     }
 
     override val coroutineContext: CoroutineContext = dispatcher
 
-    val logger = MarathonLogging.logger(AndroidDevice::class.java.simpleName)
+    val logger = MarathonLogging.logger("AndroidDevice[${ddmsDevice.serialNumber}]")
 
     override val abi: String by lazy {
         ddmsDevice.getProperty("ro.product.cpu.abi") ?: "Unknown"
@@ -134,21 +136,9 @@ class AndroidDevice(val ddmsDevice: IDevice,
     override suspend fun execute(configuration: Configuration,
                                  devicePoolId: DevicePoolId,
                                  testBatch: TestBatch,
-                                 deferred: CompletableDeferred<TestBatchResults>,
+                                 resultsWayBack: CompletableDeferred<TestBatchResults>,
                                  progressReporter: ProgressReporter) {
 
-        val deferredResult = async {
-            val listeners = createListeners(configuration, devicePoolId, testBatch, deferred, progressReporter)
-            AndroidDeviceTestRunner(this@AndroidDevice).execute(configuration, testBatch, listeners)
-        }
-        deferredResult.await()
-    }
-
-    private fun createListeners(configuration: Configuration,
-                                devicePoolId: DevicePoolId,
-                                testBatch: TestBatch,
-                                deferred: CompletableDeferred<TestBatchResults>,
-                                progressReporter: ProgressReporter): CompositeTestRunListener {
         val fileManager = FileManager(configuration.outputDir)
         val attachmentProviders = mutableListOf<AttachmentProvider>()
 
@@ -164,27 +154,66 @@ class AndroidDevice(val ddmsDevice: IDevice,
 
         val timer = SystemTimer()
 
-        return CompositeTestRunListener(
+        testRunResultsListener = TestRunResultsListener(testBatch, this, resultsWayBack, timer, attachmentProviders)
+
+        val listeners = CompositeTestRunListener(
                 listOf(
                         recorderListener,
                         logCatListener,
-                        TestRunResultsListener(testBatch, this, deferred, timer, attachmentProviders),
+                        testRunResultsListener!!,
                         DebugTestRunListener(this),
                         ProgressTestRunListener(this, devicePoolId, progressReporter)
                 )
         )
+
+
+        val runner = async {
+            AndroidDeviceTestRunner(this@AndroidDevice)
+        }.await()
+
+        val deferredResult = async {
+            try {
+                runner.execute(configuration, testBatch, listeners)
+            } finally {
+                listeners.terminate()
+                testRunResultsListener!!.forceEnd()
+            }
+        }
+
+        val expectedTime: Long = testBatch
+                .calculateTimeout(configuration)
+                .run { this + this / 10L } // +10%
+
+        val expectedFinish = currentTimeMillis() + expectedTime
+
+        while (deferredResult.isActive) {
+            delay(1000)
+
+            if (expectedFinish < currentTimeMillis()) {
+                listeners.terminate()
+                forceEnd()
+                throw DeviceTimeoutException("Time for batch exceeded")
+            }
+        }
     }
 
     override suspend fun prepare(configuration: Configuration) {
-        InMemoryDeviceTracker.trackDevicePreparing(this) {
-            val deferred = async {
-                AndroidAppInstaller(configuration).prepareInstallation(this@AndroidDevice)
-                fileManager.removeRemoteDirectory()
-                fileManager.createRemoteDirectory()
-                clearLogcat(ddmsDevice)
+        withContext(Dispatchers.IO) {
+
+            InMemoryDeviceTracker.trackDevicePreparing(this@AndroidDevice) {
+                val deferred = async {
+                    AndroidAppInstaller(configuration).prepareInstallation(this@AndroidDevice)
+                    fileManager.removeRemoteDirectory()
+                    fileManager.createRemoteDirectory()
+                    clearLogcat(ddmsDevice)
+                }
+                deferred.await()
             }
-            deferred.await()
         }
+    }
+
+    override fun forceEnd() {
+        testRunResultsListener?.forceEnd()
     }
 
     override fun dispose() {
@@ -192,10 +221,10 @@ class AndroidDevice(val ddmsDevice: IDevice,
     }
 
     private fun selectRecorderType(preferred: DeviceFeature?, features: Collection<DeviceFeature>) = when {
-            features.contains(preferred) -> preferred
-            features.contains(DeviceFeature.VIDEO) -> DeviceFeature.VIDEO
-            features.contains(DeviceFeature.SCREENSHOT) -> DeviceFeature.SCREENSHOT
-            else -> null
+        features.contains(preferred) -> preferred
+        features.contains(DeviceFeature.VIDEO) -> DeviceFeature.VIDEO
+        features.contains(DeviceFeature.SCREENSHOT) -> DeviceFeature.SCREENSHOT
+        else -> null
     }
 
     private fun prepareRecorderListener(feature: DeviceFeature, fileManager: FileManager, devicePoolId: DevicePoolId,

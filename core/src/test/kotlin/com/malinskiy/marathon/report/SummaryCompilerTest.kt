@@ -11,7 +11,7 @@ import com.malinskiy.marathon.execution.TestStatus
 import com.malinskiy.marathon.io.FileManager
 import com.malinskiy.marathon.log.MarathonLogConfigurator
 import com.malinskiy.marathon.report.internal.DeviceInfoReporter
-import com.malinskiy.marathon.report.internal.TestResultReporter
+import com.malinskiy.marathon.report.internal.TestResultRepo
 import com.malinskiy.marathon.vendor.VendorConfiguration
 import org.amshove.kluent.shouldBe
 import org.jetbrains.spek.api.Spek
@@ -54,7 +54,7 @@ class SummaryCompilerTest : Spek({
 
     val fileManager = FileManager(configuration.outputDir)
     val gson = Gson()
-    val testResultReporter = TestResultReporter(fileManager, gson)
+    val testResultReporter = TestResultRepo(fileManager, gson)
     val deviceInfoReporter = DeviceInfoReporter(fileManager, gson)
     println(configuration.outputDir.absolutePath)
 

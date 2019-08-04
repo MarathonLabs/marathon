@@ -5,7 +5,8 @@ import kotlinx.coroutines.CompletableDeferred
 
 sealed class DeviceEvent {
     data class Execute(val batch: TestBatch) : DeviceEvent()
-    object Complete : DeviceEvent()
+    object InitializingComplete : DeviceEvent()
+    object RunningComplete : DeviceEvent()
     object Initialize : DeviceEvent()
     object Terminate : DeviceEvent()
     object WakeUp : DeviceEvent()

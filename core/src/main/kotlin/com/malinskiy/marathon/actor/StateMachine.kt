@@ -58,8 +58,8 @@ class StateMachine<STATE : Any, EVENT : Any, SIDE_EFFECT : Any> private construc
                     notifyOnEnter(event)
                 }
             }
+            transition.notifyOnTransition()
         }
-        transition.notifyOnTransition()
         return transition
     }
 

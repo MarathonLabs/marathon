@@ -34,7 +34,7 @@ class FileManager(private val output: File) {
     fun getFiles(fileType: FileType, pool: DevicePoolId): Array<File> {
         val fileFilter: FileFilter = SuffixFileFilter(fileType.suffix)
         val deviceDirectory = get(output.absolutePath, fileType.dir, pool.name).toFile()
-        return deviceDirectory.listFiles(fileFilter)
+        return deviceDirectory.listFiles(fileFilter) ?: emptyArray()
     }
 
     fun getTestResultFilesForDevice(pool: DevicePoolId, serial: String): Array<File> {

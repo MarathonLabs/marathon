@@ -54,6 +54,9 @@ class CompositionFilter(@SerializedName("filters") private val filters: List<Tes
 
     override fun hashCode(): Int = filters.hashCode() + op.hashCode()
 
+    override fun toString(): String =
+            "${this.javaClass.simpleName}(op=$op,filters=$filters)"
+
     enum class OPERATION {
         UNION,
         INTERSECTION,

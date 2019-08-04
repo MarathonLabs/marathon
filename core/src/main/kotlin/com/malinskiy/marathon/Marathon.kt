@@ -4,6 +4,7 @@ import com.google.gson.Gson
 import com.malinskiy.marathon.analytics.Analytics
 import com.malinskiy.marathon.analytics.AnalyticsFactory
 import com.malinskiy.marathon.config.LogicalConfigurationValidator
+import com.malinskiy.marathon.device.DevicePoolId
 import com.malinskiy.marathon.device.DeviceProvider
 import com.malinskiy.marathon.exceptions.NoDevicesException
 import com.malinskiy.marathon.execution.Configuration
@@ -13,15 +14,12 @@ import com.malinskiy.marathon.execution.TestShard
 import com.malinskiy.marathon.execution.progress.ProgressReporter
 import com.malinskiy.marathon.io.FileManager
 import com.malinskiy.marathon.log.MarathonLogging
-import com.malinskiy.marathon.report.CompositeSummaryPrinter
-import com.malinskiy.marathon.report.Summary
-import com.malinskiy.marathon.report.SummaryCompiler
-import com.malinskiy.marathon.report.SummaryPrinter
+import com.malinskiy.marathon.report.*
 import com.malinskiy.marathon.report.debug.timeline.TimelineSummaryPrinter
 import com.malinskiy.marathon.report.debug.timeline.TimelineSummaryProvider
 import com.malinskiy.marathon.report.html.HtmlSummaryPrinter
 import com.malinskiy.marathon.report.internal.DeviceInfoReporter
-import com.malinskiy.marathon.report.internal.TestResultReporter
+import com.malinskiy.marathon.report.internal.TestResultRepo
 import com.malinskiy.marathon.test.Test
 import com.malinskiy.marathon.test.toTestName
 import com.malinskiy.marathon.usageanalytics.TrackActionType
@@ -40,7 +38,7 @@ class Marathon(val configuration: Configuration) {
     private val fileManager = FileManager(configuration.outputDir)
     private val gson = Gson()
 
-    private val testResultReporter = TestResultReporter(fileManager, gson)
+    private val testResultReporter = TestResultRepo(fileManager, gson)
     private val deviceInfoReporter = DeviceInfoReporter(fileManager, gson)
     private val analyticsFactory = AnalyticsFactory(configuration, fileManager, deviceInfoReporter, testResultReporter,
             gson)
@@ -89,7 +87,7 @@ class Marathon(val configuration: Configuration) {
         } catch (th: Throwable) {
             log.error(th.toString())
 
-            when(th) {
+            when (th) {
                 is NoDevicesException -> {
                     log.warn { "No devices found" }
                     false
@@ -110,13 +108,18 @@ class Marathon(val configuration: Configuration) {
         configurationValidator.validate(configuration)
 
         val parsedTests = testParser.extract(configuration)
-        val tests = applyTestFilters(parsedTests)
+        val overallTests = applyTestFilters(parsedTests)
+        val ignored = getIgnoredTests(overallTests)
+        val tests = overallTests - ignored
+
         val shard = prepareTestShard(tests, analytics)
+
+        val progressReporter = ProgressReporter()
 
         log.info("Scheduling ${tests.size} tests")
         log.debug(tests.joinToString(", ") { it.toTestName() })
-        val progressReporter = ProgressReporter()
         val currentCoroutineContext = coroutineContext
+
         val scheduler = Scheduler(deviceProvider, analytics, configuration, shard, progressReporter, currentCoroutineContext)
 
         if (configuration.outputDir.exists()) {
@@ -130,26 +133,31 @@ class Marathon(val configuration: Configuration) {
             fun(): Long { return System.currentTimeMillis() - startTime }
         }()
 
-        val hook = installShutdownHook(scheduler, getElapsedTimeMillis)
+        val ignoredReporter = IgnoredTestsReporter(analytics)
+        ignored.forEach {
+            ignoredReporter.reportTest(it)
+        }
+
+        val hook = installShutdownHook(scheduler, ignoredReporter.fakeDevicePoolId, getElapsedTimeMillis)
 
         if (tests.isNotEmpty()) {
             scheduler.execute()
         }
 
-        printSummary(hook, scheduler, getElapsedTimeMillis)
+        printSummary(hook, scheduler, ignoredReporter.fakeDevicePoolId, getElapsedTimeMillis)
 
         onFinish(analytics, deviceProvider)
         return progressReporter.aggregateResult()
     }
 
-    private fun printSummary(shutdownHook: ShutdownHook, scheduler: Scheduler, elapsedTime: () -> Long) {
+    private fun printSummary(shutdownHook: ShutdownHook, scheduler: Scheduler, dummyReportPool: DevicePoolId, elapsedTime: () -> Long) {
         if (shutdownHook.uninstall()) {
-            printSummary(scheduler, elapsedTime())
+            printSummary(scheduler, elapsedTime(), dummyReportPool)
         }
     }
 
-    private fun installShutdownHook(scheduler: Scheduler, elapsedTime: () -> Long): ShutdownHook {
-        val shutdownHook = ShutdownHook(configuration) { printSummary(scheduler, elapsedTime()) }
+    private fun installShutdownHook(scheduler: Scheduler, dummyReportPool: DevicePoolId, elapsedTime: () -> Long): ShutdownHook {
+        val shutdownHook = ShutdownHook(configuration) { printSummary(scheduler, elapsedTime(), dummyReportPool) }
         shutdownHook.install()
         return shutdownHook
     }
@@ -160,13 +168,14 @@ class Marathon(val configuration: Configuration) {
         deviceProvider.terminate()
     }
 
-    private fun printSummary(scheduler: Scheduler, executionTime: Long) {
-        val pools = scheduler.getPools()
-        if (!pools.isEmpty()) {
-            val summaryPrinter = loadSummaryPrinter()
-            val summary = summaryCompiler.compile(scheduler.getPools())
-            printCliReport(summary, executionTime)
-            summaryPrinter.print(summary)
+    private fun printSummary(scheduler: Scheduler, executionTime: Long, dummyReportPool: DevicePoolId) {
+        scheduler.getPools().also {
+            if (it.isNotEmpty()) {
+                val summaryPrinter = loadSummaryPrinter()
+                val summary = summaryCompiler.compile(it + dummyReportPool)
+                printCliReport(summary, executionTime)
+                summaryPrinter.print(summary)
+            }
         }
     }
 
@@ -176,8 +185,21 @@ class Marathon(val configuration: Configuration) {
         }
         configuration.filteringConfiguration.whitelist.forEach { tests = it.filter(tests) }
         configuration.filteringConfiguration.blacklist.forEach { tests = it.filterNot(tests) }
+//        tests = tests.filter { !it.metaProperties.contains(JUNIT_IGNORE_META_PROPERY) } // TODO wrong place, need generic solution
         return tests
     }
+
+    private fun getIgnoredTests(parsedTests: List<Test>): List<Test> {
+        val tests: MutableSet<Test> = mutableSetOf()
+        configuration.filteringConfiguration.ignorelist.forEach {
+            tests.addAll(it.filter(parsedTests))
+        }
+        tests.forEach {
+            log.debug { "ingore test ${it.toTestName()}" }
+        }
+        return tests.toList()
+    }
+
 
     private fun prepareTestShard(tests: List<Test>, analytics: Analytics): TestShard {
         val shardingStrategy = configuration.shardingStrategy

@@ -14,7 +14,7 @@ sealed class DevicePoolMessage {
     sealed class FromDevice(val device: Device) : DevicePoolMessage() {
         class IsReady(device: Device) : FromDevice(device)
         class CompletedTestBatch(device: Device, val results: TestBatchResults) : FromDevice(device)
-        class ReturnTestBatch(device: Device, val batch: TestBatch) : FromDevice(device)
+//        class ReturnTestBatch(device: Device, val batch: TestBatch) : FromDevice(device)
     }
 
     sealed class FromQueue : DevicePoolMessage() {

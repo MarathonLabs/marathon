@@ -4,8 +4,10 @@ import com.android.ddmlib.testrunner.ITestRunListener
 import com.android.ddmlib.testrunner.TestIdentifier
 
 class CompositeTestRunListener(private val listeners: List<ITestRunListener>) : ITestRunListener {
+    var active = true
+
     private inline fun execute(f: (ITestRunListener) -> Unit) {
-        listeners.forEach(f)
+        if (active) listeners.forEach(f)
     }
 
     override fun testRunStarted(runName: String?, testCount: Int) {
@@ -42,5 +44,9 @@ class CompositeTestRunListener(private val listeners: List<ITestRunListener>) : 
 
     override fun testRunEnded(elapsedTime: Long, runMetrics: MutableMap<String, String>?) {
         execute { it.testRunEnded(elapsedTime, runMetrics) }
+    }
+
+    fun terminate() {
+        active = false
     }
 }

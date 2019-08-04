@@ -18,5 +18,7 @@ class DeviceStub(override var operatingSystem: OperatingSystem = OperatingSystem
 
     override suspend fun prepare(configuration: Configuration) {}
 
+    override fun forceEnd() {}
+
     override fun dispose() {}
 }

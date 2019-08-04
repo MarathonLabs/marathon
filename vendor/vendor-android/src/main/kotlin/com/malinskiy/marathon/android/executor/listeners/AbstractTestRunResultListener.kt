@@ -6,43 +6,73 @@ import com.android.ddmlib.testrunner.TestRunResult as DdmLibTestRunResult
 abstract class AbstractTestRunResultListener : NoOpTestRunListener() {
 
     private val runResult: DdmLibTestRunResult = DdmLibTestRunResult()
+    private var active = true
 
     override fun testRunStarted(runName: String, testCount: Int) {
-        runResult.testRunStarted(runName, testCount)
+        synchronized(runResult) {
+            if (active) runResult.testRunStarted(runName, testCount)
+        }
     }
 
     override fun testStarted(test: TestIdentifier) {
-        runResult.testStarted(test)
+        synchronized(runResult) {
+            if (active) runResult.testStarted(test)
+        }
     }
 
     override fun testFailed(test: TestIdentifier, trace: String) {
-        runResult.testFailed(test, trace)
+        synchronized(runResult) {
+            if (active) runResult.testFailed(test, trace)
+        }
     }
 
     override fun testAssumptionFailure(test: TestIdentifier, trace: String) {
-        runResult.testAssumptionFailure(test, trace)
+        synchronized(runResult) {
+            if (active) runResult.testAssumptionFailure(test, trace)
+        }
     }
 
     override fun testIgnored(test: TestIdentifier) {
-        runResult.testIgnored(test)
+        synchronized(runResult) {
+            if (active) runResult.testIgnored(test)
+        }
     }
 
     override fun testEnded(test: TestIdentifier, testMetrics: Map<String, String>) {
-        runResult.testEnded(test, testMetrics)
+        synchronized(runResult) {
+            if (active) runResult.testEnded(test, testMetrics)
+        }
     }
 
     override fun testRunFailed(errorMessage: String) {
-        runResult.testRunFailed(errorMessage)
+        synchronized(runResult) {
+            if (active) runResult.testRunFailed(errorMessage)
+        }
     }
 
     override fun testRunStopped(elapsedTime: Long) {
-        runResult.testRunStopped(elapsedTime)
+        synchronized(runResult) {
+            if (active) runResult.testRunStopped(elapsedTime)
+        }
     }
 
     override fun testRunEnded(elapsedTime: Long, runMetrics: Map<String, String>) {
-        runResult.testRunEnded(elapsedTime, runMetrics)
-        handleTestRunResults(runResult)
+        synchronized(runResult) {
+            if (active) {
+                runResult.testRunEnded(elapsedTime, runMetrics)
+                handleTestRunResults(runResult)
+            }
+        }
     }
 
     abstract fun handleTestRunResults(runResult: DdmLibTestRunResult)
+
+    fun forceEnd() {
+        synchronized(runResult) {
+            if (active) {
+                active = false
+                handleTestRunResults(runResult)
+            }
+        }
+    }
 }

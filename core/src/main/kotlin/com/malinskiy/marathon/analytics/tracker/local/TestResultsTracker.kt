@@ -4,11 +4,11 @@ import com.malinskiy.marathon.analytics.tracker.NoOpTracker
 import com.malinskiy.marathon.device.DeviceInfo
 import com.malinskiy.marathon.device.DevicePoolId
 import com.malinskiy.marathon.execution.TestResult
-import com.malinskiy.marathon.report.internal.TestResultReporter
+import com.malinskiy.marathon.report.internal.TestResultRepo
 
-internal class TestResultsTracker(private val testResultReporter: TestResultReporter) : NoOpTracker() {
+internal class TestResultsTracker(private val testResultRepo: TestResultRepo) : NoOpTracker() {
 
     override fun trackTestFinished(poolId: DevicePoolId, device: DeviceInfo, testResult: TestResult) {
-        testResultReporter.testFinished(poolId, device, testResult)
+        testResultRepo.testFinished(poolId, device, testResult)
     }
 }

@@ -49,6 +49,10 @@ class IOSDevice(val simulator: RemoteSimulator,
                 val gson: Gson,
                 private val healthChangeListener: HealthChangeListener): Device, CoroutineScope {
 
+    override fun forceEnd() {
+        TODO("not implemented")
+    }
+
     val udid = simulator.udid
     val connectionId = "$udid@${simulator.host}-$connectionAttempt"
     private val deviceContext = newFixedThreadPoolContext(1, connectionId)

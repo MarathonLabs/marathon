@@ -4,10 +4,10 @@ import com.malinskiy.marathon.device.DevicePoolId
 import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.execution.TestStatus
 import com.malinskiy.marathon.report.internal.DeviceInfoReporter
-import com.malinskiy.marathon.report.internal.TestResultReporter
+import com.malinskiy.marathon.report.internal.TestResultRepo
 
 class SummaryCompiler(private val deviceInfoSerializer: DeviceInfoReporter,
-                      private val testResultSerializer: TestResultReporter,
+                      private val testResultSerializer: TestResultRepo,
                       private val configuration: Configuration) {
 
     fun compile(pools: List<DevicePoolId>): Summary {

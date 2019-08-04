@@ -12,14 +12,14 @@ import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.io.FileManager
 import com.malinskiy.marathon.report.allure.AllureTestListener
 import com.malinskiy.marathon.report.internal.DeviceInfoReporter
-import com.malinskiy.marathon.report.internal.TestResultReporter
+import com.malinskiy.marathon.report.internal.TestResultRepo
 import com.malinskiy.marathon.report.junit.JUnitReporter
 import java.io.File
 
 internal class TrackerFactory(private val configuration: Configuration,
                               private val fileManager: FileManager,
                               private val deviceInfoReporter: DeviceInfoReporter,
-                              private val testResultReporter: TestResultReporter,
+                              private val testResultRepo: TestResultRepo,
                               private val gson: Gson) {
 
     val rawTestResultTracker = RawTestResultTracker(fileManager, gson)
@@ -29,7 +29,7 @@ internal class TrackerFactory(private val configuration: Configuration,
         val defaultTrackers = listOf(
                 JUnitTracker(JUnitReporter(fileManager)),
                 DeviceTracker(deviceInfoReporter),
-                TestResultsTracker(testResultReporter),
+                TestResultsTracker(testResultRepo),
                 rawTestResultTracker,
                 allureTracker
         )

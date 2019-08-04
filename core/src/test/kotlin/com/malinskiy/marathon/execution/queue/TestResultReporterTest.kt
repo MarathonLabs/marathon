@@ -76,7 +76,7 @@ object TestResultReporterSpec : Spek({
                 val r2 = TestResult(test, deviceInfo, TestStatus.FAILURE, 2, 3)
                 val r3 = TestResult(test, deviceInfo, TestStatus.FAILURE, 4, 5)
 
-                filter.testFinished(deviceInfo, r1)
+                filter.testPassed(deviceInfo, r1)
                 filter.testFailed(deviceInfo, r2)
                 filter.testFailed(deviceInfo, r3)
 
@@ -100,7 +100,7 @@ object TestResultReporterSpec : Spek({
 
                 filter.testFailed(deviceInfo, r1)
                 filter.testFailed(deviceInfo, r2)
-                filter.testFinished(deviceInfo, r3)
+                filter.testPassed(deviceInfo, r3)
 
                 inOrder(analytics) {
                     verify(analytics).trackRawTestRun(poolId, deviceInfo, r1)
@@ -122,7 +122,7 @@ object TestResultReporterSpec : Spek({
                 val r2 = TestResult(test, deviceInfo, TestStatus.FAILURE, 2, 3)
                 val r3 = TestResult(test, deviceInfo, TestStatus.FAILURE, 4, 5)
 
-                filter.testFinished(deviceInfo, r1)
+                filter.testPassed(deviceInfo, r1)
                 filter.testFailed(deviceInfo, r2)
                 filter.testFailed(deviceInfo, r3)
 
@@ -145,8 +145,8 @@ object TestResultReporterSpec : Spek({
                 val r3 = TestResult(test, deviceInfo, TestStatus.PASSED, 4, 5)
 
                 filter.testFailed(deviceInfo, r1)
-                filter.testFinished(deviceInfo, r2)
-                filter.testFinished(deviceInfo, r3)
+                filter.testPassed(deviceInfo, r2)
+                filter.testPassed(deviceInfo, r3)
 
                 inOrder(analytics) {
                     verify(analytics).trackTestFinished(poolId, deviceInfo, r1)

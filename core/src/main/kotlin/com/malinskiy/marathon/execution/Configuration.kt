@@ -88,7 +88,7 @@ data class Configuration constructor(
                     batchingStrategy = batchingStrategy ?: IsolateBatchingStrategy(),
                     flakinessStrategy = flakinessStrategy ?: IgnoreFlakinessStrategy(),
                     retryStrategy = retryStrategy ?: NoRetryStrategy(),
-                    filteringConfiguration = filteringConfiguration ?: FilteringConfiguration(emptyList(), emptyList()),
+                    filteringConfiguration = filteringConfiguration ?: FilteringConfiguration(emptyList(), emptyList(), emptyList()),
                     ignoreFailures = ignoreFailures ?: false,
                     isCodeCoverageEnabled = isCodeCoverageEnabled ?: false,
                     fallbackToScreenshots = fallbackToScreenshots ?: false,

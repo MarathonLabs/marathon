@@ -18,6 +18,8 @@ data class Test(val pkg: String,
     override fun hashCode(): Int {
         return Objects.hash(pkg, clazz, method)
     }
+
+    override fun toString(): String = "Test($pkg.$clazz#$method)"
 }
 
 fun Test.toTestName(): String = "$pkg.$clazz#$method"

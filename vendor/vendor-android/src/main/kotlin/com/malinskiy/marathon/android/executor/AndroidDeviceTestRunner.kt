@@ -30,26 +30,18 @@ import com.malinskiy.marathon.io.FileManager
 import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.report.attachment.AttachmentProvider
 import com.malinskiy.marathon.report.logs.LogWriter
-import com.malinskiy.marathon.test.MetaProperty
-import com.malinskiy.marathon.test.Test
-import com.malinskiy.marathon.test.TestBatch
-import com.malinskiy.marathon.test.toTestName
+import com.malinskiy.marathon.test.*
 import kotlinx.coroutines.CompletableDeferred
 import java.io.IOException
 import java.util.concurrent.TimeUnit
-
-val JUNIT_IGNORE_META_PROPERY = MetaProperty("org.junit.Ignore")
 
 class AndroidDeviceTestRunner(private val device: AndroidDevice) {
 
     private val logger = MarathonLogging.logger("AndroidDeviceTestRunner")
 
     fun execute(configuration: Configuration,
-                rawTestBatch: TestBatch,
+                testBatch: TestBatch,
                 listener: ITestRunListener) {
-
-        val ignoredTests = rawTestBatch.tests.filter { it.metaProperties.contains(JUNIT_IGNORE_META_PROPERY) }
-        val testBatch = TestBatch(rawTestBatch.tests - ignoredTests)
 
         val androidConfiguration = configuration.vendorConfiguration as AndroidConfiguration
         val info = ApkParser().parseInstrumentationInfo(androidConfiguration.testApplicationOutput)
@@ -58,7 +50,6 @@ class AndroidDeviceTestRunner(private val device: AndroidDevice) {
 
         try {
             clearData(androidConfiguration, info)
-            notifyIgnoredTest(ignoredTests, listener)
             runner.run(listener)
         } catch (e: ShellCommandUnresponsiveException) {
             logger.warn("Test got stuck. You can increase the timeout in settings if it's too strict")
@@ -78,15 +69,6 @@ class AndroidDeviceTestRunner(private val device: AndroidDevice) {
             throw TestBatchExecutionException(e)
         } finally {
 
-        }
-    }
-
-    private fun notifyIgnoredTest(ignoredTests: List<Test>, listeners: ITestRunListener) {
-        ignoredTests.forEach {
-            val identifier = it.toTestIdentifier()
-            listeners.testStarted(identifier)
-            listeners.testIgnored(identifier)
-            listeners.testEnded(identifier, hashMapOf())
         }
     }
 
@@ -116,8 +98,10 @@ class AndroidDeviceTestRunner(private val device: AndroidDevice) {
 
         logger.debug { "tests = ${tests.toList()}" }
 
+        val ddmlibMaxTimeToOutputResponse = testBatch.calculateTimeout(configuration)
+
         runner.setRunName("TestRunName")
-        runner.setMaxTimeToOutputResponse(configuration.testOutputTimeoutMillis * testBatch.tests.size, TimeUnit.MILLISECONDS)
+        runner.setMaxTimeToOutputResponse(ddmlibMaxTimeToOutputResponse, TimeUnit.MILLISECONDS)
         runner.setClassNames(tests)
 
         androidConfiguration.instrumentationArgs.forEach { key, value ->

@@ -8,8 +8,8 @@ import com.malinskiy.marathon.io.FileManager
 import com.malinskiy.marathon.io.FileType
 import java.io.FileReader
 
-class TestResultReporter(private val fileManager: FileManager,
-                         private val gson: Gson) {
+class TestResultRepo(private val fileManager: FileManager,
+                     private val gson: Gson) {
 
     fun testFinished(poolId: DevicePoolId, device: DeviceInfo, testResult: TestResult) {
         val file = fileManager.createFile(FileType.TEST_RESULT, poolId, device, testResult.test)

@@ -25,6 +25,9 @@ class StubDevice(private val prepareTimeMillis: Long = 5000L,
                  override val abi: String = "test",
                  override val serialNumber: String = "serial-1",
                  override val healthy: Boolean = true) : Device {
+    override fun forceEnd() {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
 
     val logger = MarathonLogging.logger(StubDevice::class.java.simpleName)
 
@@ -48,6 +51,7 @@ class StubDevice(private val prepareTimeMillis: Long = 5000L,
                 TestBatchResults(this,
                         results.filter { it.isSuccess },
                         results.filter { !it.isSuccess },
+                        emptySet(),
                         emptySet()
                 )
         )

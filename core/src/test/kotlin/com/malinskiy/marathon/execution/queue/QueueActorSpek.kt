@@ -39,7 +39,7 @@ class QueueActorSpek : Spek({
         val poolChannel by memoized { Channel<FromQueue>() }
         val analytics by memoized { mock<Analytics>() }
 
-        given("uncompleted tests retry quota is 0, max batch size is 1 and one test in the shard") {
+        given("incomplete tests retry quota is 0, max batch size is 1 and one test in the shard") {
             val actor by memoized {
                 createQueueActor(
                         configuration = DEFAULT_CONFIGURATION.copy(
@@ -61,7 +61,7 @@ class QueueActorSpek : Spek({
                     }
                 }
 
-                describe("received uncompleted test once") {
+                describe("received incomplete test once") {
                     beforeEachTest {
                         val results = createBatchResult(uncompleted = listOf(
                                 createTestResult(TEST_1, TestStatus.FAILURE)
@@ -91,7 +91,7 @@ class QueueActorSpek : Spek({
             }
         }
 
-        given("uncompleted tests retry quota is 1, max batch size is 1 and one test in the shard") {
+        given("incomplete tests retry quota is 1, max batch size is 1 and one test in the shard") {
             val actor by memoized {
                 createQueueActor(
                         configuration = DEFAULT_CONFIGURATION.copy(
@@ -113,7 +113,7 @@ class QueueActorSpek : Spek({
                     }
                 }
 
-                describe("received uncompleted test first time") {
+                describe("received incomplete test first time") {
                     beforeEachTest {
                         val results = createBatchResult(uncompleted = listOf(
                                 createTestResult(TEST_1, TestStatus.FAILURE)
@@ -137,7 +137,7 @@ class QueueActorSpek : Spek({
                         }
                     }
 
-                    it("should provide uncompleted test in the batch") {
+                    it("should provide incomplete test in the batch") {
                         runBlocking {
                             actor.send(QueueMessage.RequestBatch(TEST_DEVICE_INFO))
                             val response = poolChannel.receive()
@@ -146,7 +146,7 @@ class QueueActorSpek : Spek({
                         }
                     }
 
-                    describe("received uncompleted test second time") {
+                    describe("received incomplete test second time") {
                         beforeEachTest {
                             runBlocking {
                                 actor.send(QueueMessage.RequestBatch(TEST_DEVICE_INFO))
@@ -199,7 +199,8 @@ private fun createBatchResult(finished: List<TestResult> = emptyList(),
         TEST_DEVICE,
         finished,
         failed,
-        uncompleted
+        uncompleted,
+        emptyList()
 )
 
 private fun createTestResult(test: Test, status: TestStatus) = TestResult(

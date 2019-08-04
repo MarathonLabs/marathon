@@ -37,7 +37,7 @@ class DevicePoolActor(private val poolId: DevicePoolId,
             is DevicePoolMessage.FromScheduler.Terminate -> terminate()
             is DevicePoolMessage.FromDevice.IsReady -> deviceReady(msg)
             is DevicePoolMessage.FromDevice.CompletedTestBatch -> deviceCompleted(msg.device, msg.results)
-            is DevicePoolMessage.FromDevice.ReturnTestBatch -> deviceReturnedTestBatch(msg.device, msg.batch)
+//            is DevicePoolMessage.FromDevice.ReturnTestBatch -> deviceReturnedTestBatch(msg.device, msg.batch)
             is DevicePoolMessage.FromQueue.Notify -> notifyDevices()
             is DevicePoolMessage.FromQueue.Terminated -> onQueueTerminated()
             is DevicePoolMessage.FromQueue.ExecuteBatch -> executeBatch(msg.device, msg.batch)
@@ -64,10 +64,10 @@ class DevicePoolActor(private val poolId: DevicePoolId,
         terminate()
     }
 
-    private suspend fun deviceReturnedTestBatch(device: Device, batch: TestBatch) {
-        queue.send(QueueMessage.ReturnBatch(device.toDeviceInfo(), batch))
-    }
-
+//    private suspend fun deviceReturnedTestBatch(device: Device, batch: TestBatch) {
+//        queue.send(QueueMessage.ReturnBatch(device.toDeviceInfo(), batch))
+//    }
+//
     private suspend fun deviceCompleted(device: Device, results: TestBatchResults) {
         queue.send(QueueMessage.Completed(device.toDeviceInfo(), results))
     }

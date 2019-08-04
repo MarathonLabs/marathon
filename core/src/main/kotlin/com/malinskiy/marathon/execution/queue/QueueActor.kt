@@ -62,71 +62,74 @@ class QueueActor(private val configuration: Configuration,
             is QueueMessage.Completed -> {
                 onBatchCompleted(msg.device, msg.results)
             }
-            is QueueMessage.ReturnBatch -> {
-                onReturnBatch(msg.device, msg.batch)
-            }
         }
     }
 
     private suspend fun onBatchCompleted(device: DeviceInfo, results: TestBatchResults) {
-        val (uncompletedRetryQuotaExceeded, uncompleted) = results.uncompleted.partition {
-            (uncompletedTestsRetryCount[it.test] ?: 0) >= configuration.uncompletedTestRetryQuota
-        }
-
-        val finished = results.finished
-        val failed = results.failed + uncompletedRetryQuotaExceeded
-
         logger.debug { "handle test results ${device.serialNumber}" }
-        if (finished.isNotEmpty()) {
-            handleFinishedTests(finished, device)
+
+        if (results.passed.isNotEmpty()) {
+            handlePassedTests(results.passed, device)
         }
-        if (failed.isNotEmpty()) {
-            handleFailedTests(failed, device)
+        if (results.failed.isNotEmpty()) {
+            handleFailedTests(results.failed, device)
         }
-        if (uncompleted.isNotEmpty()) {
-            uncompleted.forEach {
-                uncompletedTestsRetryCount[it.test] = (uncompletedTestsRetryCount[it.test] ?: 0) + 1
-            }
-            returnTests(uncompleted.map { it.test })
+        if (results.incomplete.isNotEmpty()) {
+            handleProvenUncompletedTests(results.incomplete, device)
+        }
+        // there is no statistics if can test be missed by its quality
+        // so by default missed test is incomplete also
+        if (results.missed.isNotEmpty()) {
+            handleIncompleteTests(results.missed, device)
         }
         activeBatches.remove(device.serialNumber)
-    }
-
-    private suspend fun onReturnBatch(device: DeviceInfo, batch: TestBatch) {
-        logger.debug { "onReturnBatch ${device.serialNumber}" }
-        returnTests(batch.tests)
-        activeBatches.remove(device.serialNumber)
-        if (queue.isNotEmpty()) {
-            pool.send(FromQueue.Notify)
-        }
-    }
-
-    private fun returnTests(tests: Collection<Test>) {
-        queue.addAll(tests)
     }
 
     private fun onTerminate() {
         close()
     }
 
-    private fun handleFinishedTests(finished: Collection<TestResult>, device: DeviceInfo) {
-        finished.filter { testShard.flakyTests.contains(it.test) }.let {
-            it.forEach {
-                val oldSize = queue.size
-                queue.removeAll(listOf(it.test))
-                val diff = oldSize - queue.size
-                testResultReporter.removeTest(it.test, diff)
-                progressReporter.removeTests(poolId, diff)
-            }
+    private suspend fun handleProvenUncompletedTests(incomeIncompleted: Collection<TestResult>, device: DeviceInfo) {
+        incomeIncompleted.forEach {
+            testResultReporter.testIncomplete(device, it)
         }
-        finished.forEach {
-            testResultReporter.testFinished(device, it)
+        handleIncompleteTests(incomeIncompleted, device)
+    }
+
+    private suspend fun handleIncompleteTests(incomeIncompleted: Collection<TestResult>, device: DeviceInfo) {
+        val (retryQuotaExceeded, hasChance) = incomeIncompleted.partition {
+            (uncompletedTestsRetryCount[it.test] ?: 0) >= configuration.uncompletedTestRetryQuota
+        }
+
+        if (retryQuotaExceeded.isNotEmpty()) {
+            handleFailedTests(retryQuotaExceeded, device)
+        }
+
+        if (hasChance.isNotEmpty()) {
+            hasChance.forEach {
+                uncompletedTestsRetryCount[it.test] = (uncompletedTestsRetryCount[it.test] ?: 0) + 1
+            }
+            queue.addAll(hasChance.map { it.test })
+        }
+    }
+
+    private fun handlePassedTests(passed: Collection<TestResult>, device: DeviceInfo) {
+        val flakyThatPassed = passed.filter { testShard.flakyTests.contains(it.test) }
+
+        passed.forEach {
+            testResultReporter.testPassed(device, it)
+        }
+        flakyThatPassed.forEach {
+            val oldSize = queue.size
+            queue.removeAll(listOf(it.test))
+            val diff = oldSize - queue.size
+            testResultReporter.removeTest(it.test, diff)
+            progressReporter.removeTests(poolId, diff)
         }
     }
 
     private suspend fun handleFailedTests(failed: Collection<TestResult>,
                                           device: DeviceInfo) {
-        logger.debug { "handle failed tests ${device.serialNumber}" }
         val retryList = retry.process(poolId, failed, testShard)
 
         progressReporter.addTests(poolId, retryList.size)
@@ -149,20 +152,27 @@ class QueueActor(private val configuration: Configuration,
 
     private suspend fun onRequestBatch(device: DeviceInfo) {
         logger.debug { "request next batch for device ${device.serialNumber}" }
-        val queueIsEmpty = queue.isEmpty()
-        if (queue.isNotEmpty() && !activeBatches.containsKey(device.serialNumber)) {
+
+        if (queue.isNotEmpty()) {
+            if (activeBatches.containsKey(device.serialNumber)) {
+                return
+            }
+
             logger.debug { "sending next batch for device ${device.serialNumber}" }
             sendBatch(device)
             return
         }
-        if (queueIsEmpty && activeBatches.isEmpty()) {
+
+        // queue is empty
+        if (activeBatches.isEmpty()) {
             pool.send(DevicePoolMessage.FromQueue.Terminated)
             onTerminate()
-        } else {
-            logger.debug {
-                "queue is empty but there are active batches present for " +
-                        "${activeBatches.keys.joinToString { it }}"
-            }
+            return
+        }
+
+        logger.debug {
+            "queue is empty but there are active batches present for " +
+                    "${activeBatches.keys.joinToString { it }}"
         }
     }
 
@@ -178,7 +188,7 @@ sealed class QueueMessage {
     data class RequestBatch(val device: DeviceInfo) : QueueMessage()
     data class IsEmpty(val deferred: CompletableDeferred<Boolean>) : QueueMessage()
     data class Completed(val device: DeviceInfo, val results: TestBatchResults) : QueueMessage()
-    data class ReturnBatch(val device: DeviceInfo, val batch: TestBatch) : QueueMessage()
+//    data class ReturnBatch(val device: DeviceInfo, val batch: TestBatch) : QueueMessage()
 
     object Terminate : QueueMessage()
 }

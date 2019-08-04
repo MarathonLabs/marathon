@@ -23,6 +23,9 @@ interface Device {
                 progressReporter: ProgressReporter)
 
     suspend fun prepare(configuration: Configuration)
+
+    fun forceEnd()
+
     fun dispose()
 }
 
