@@ -19,12 +19,11 @@ interface Device {
     suspend fun execute(configuration: Configuration,
                 devicePoolId: DevicePoolId,
                 testBatch: TestBatch,
-                deferred: CompletableDeferred<TestBatchResults>,
                 progressReporter: ProgressReporter)
 
     suspend fun prepare(configuration: Configuration)
 
-    fun forceEnd()
+    fun getResults(): TestBatchResults
 
     fun dispose()
 }

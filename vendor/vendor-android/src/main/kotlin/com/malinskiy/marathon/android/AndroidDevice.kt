@@ -136,7 +136,6 @@ class AndroidDevice(val ddmsDevice: IDevice,
     override suspend fun execute(configuration: Configuration,
                                  devicePoolId: DevicePoolId,
                                  testBatch: TestBatch,
-                                 resultsWayBack: CompletableDeferred<TestBatchResults>,
                                  progressReporter: ProgressReporter) {
 
         val fileManager = FileManager(configuration.outputDir)
@@ -154,7 +153,11 @@ class AndroidDevice(val ddmsDevice: IDevice,
 
         val timer = SystemTimer()
 
-        testRunResultsListener = TestRunResultsListener(testBatch, this, resultsWayBack, timer, attachmentProviders)
+        testRunResultsListener = TestRunResultsListener(
+                testBatch = testBatch,
+                device = this,
+                timer = timer,
+                attachmentProviders = attachmentProviders)
 
         val listeners = CompositeTestRunListener(
                 listOf(
@@ -176,7 +179,6 @@ class AndroidDevice(val ddmsDevice: IDevice,
                 runner.execute(configuration, testBatch, listeners)
             } finally {
                 listeners.terminate()
-                testRunResultsListener!!.forceEnd()
             }
         }
 
@@ -189,12 +191,24 @@ class AndroidDevice(val ddmsDevice: IDevice,
         while (deferredResult.isActive) {
             delay(1000)
 
+
             if (expectedFinish < currentTimeMillis()) {
                 listeners.terminate()
-                forceEnd()
+                deferredResult.cancel()
                 throw DeviceTimeoutException("Time for batch exceeded")
             }
         }
+    }
+
+    override fun getResults(): TestBatchResults {
+        return testRunResultsListener?.getResults() ?: TestBatchResults(
+                device = this,
+                passed = emptySet(),
+                missed = emptySet(),
+                incomplete = emptySet(),
+                failed = emptySet()
+        )
+
     }
 
     override suspend fun prepare(configuration: Configuration) {
@@ -210,10 +224,6 @@ class AndroidDevice(val ddmsDevice: IDevice,
                 deferred.await()
             }
         }
-    }
-
-    override fun forceEnd() {
-        testRunResultsListener?.forceEnd()
     }
 
     override fun dispose() {

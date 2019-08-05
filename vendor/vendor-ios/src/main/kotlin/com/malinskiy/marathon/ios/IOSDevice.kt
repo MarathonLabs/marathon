@@ -49,8 +49,8 @@ class IOSDevice(val simulator: RemoteSimulator,
                 val gson: Gson,
                 private val healthChangeListener: HealthChangeListener): Device, CoroutineScope {
 
-    override fun forceEnd() {
-        TODO("not implemented")
+    override fun getResults(): TestBatchResults {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
     val udid = simulator.udid
@@ -132,7 +132,6 @@ class IOSDevice(val simulator: RemoteSimulator,
     override suspend fun execute(configuration: Configuration,
                                  devicePoolId: DevicePoolId,
                                  testBatch: TestBatch,
-                                 deferred: CompletableDeferred<TestBatchResults>,
                                  progressReporter: ProgressReporter) = withContext(coroutineContext + CoroutineName("execute")) {
         val iosConfiguration = configuration.vendorConfiguration as IOSConfiguration
         val fileManager = FileManager(configuration.outputDir)
@@ -165,8 +164,7 @@ class IOSDevice(val simulator: RemoteSimulator,
             this@IOSDevice,
             packageNameFormatter,
             devicePoolId,
-            testBatch,
-            deferred,
+            testBatch, CompletableDeferred<TestBatchResults>(), // TODO
             progressReporter,
             iosConfiguration.hideRunnerOutput
         )

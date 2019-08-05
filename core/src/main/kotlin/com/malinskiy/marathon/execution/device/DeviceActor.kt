@@ -10,15 +10,16 @@ import com.malinskiy.marathon.exceptions.TestBatchExecutionException
 import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.execution.DevicePoolMessage
 import com.malinskiy.marathon.execution.DevicePoolMessage.FromDevice.IsReady
-import com.malinskiy.marathon.execution.TestBatchResults
 import com.malinskiy.marathon.execution.progress.ProgressReporter
 import com.malinskiy.marathon.execution.withRetry
 import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.test.TestBatch
-import kotlinx.coroutines.*
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.async
 import kotlinx.coroutines.channels.SendChannel
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.launch
 import kotlin.coroutines.CoroutineContext
-import kotlin.properties.Delegates
 import kotlin.properties.Delegates.observable
 
 class DeviceActor(private val devicePoolId: DevicePoolId,
@@ -56,8 +57,7 @@ class DeviceActor(private val devicePoolId: DevicePoolId,
         }
         state<DeviceState.Ready> {
             on<DeviceEvent.Execute> {
-                val deferred = CompletableDeferred<TestBatchResults>()
-                transitionTo(DeviceState.Running(it.batch, deferred), DeviceAction.ExecuteBatch(it.batch, deferred))
+                transitionTo(DeviceState.Running(it.batch), DeviceAction.ExecuteBatch(it.batch))
             }
             on<DeviceEvent.WakeUp> {
                 transitionTo(DeviceState.Ready, DeviceAction.NotifyIsReady)
@@ -68,16 +68,16 @@ class DeviceActor(private val devicePoolId: DevicePoolId,
         }
         state<DeviceState.Running> {
             on<DeviceEvent.Terminate> {
-                transitionTo(DeviceState.Terminated, DeviceAction.StopAndTerminatee(this.result))
+                transitionTo(DeviceState.Terminated, DeviceAction.StopAndTerminatee)
             }
             on<DeviceEvent.RunningComplete> {
-                transitionTo(DeviceState.Ready, DeviceAction.SendResultAndNotifyIsReady(this.result))
+                transitionTo(DeviceState.Ready, DeviceAction.SendResultAndNotifyIsReady)
             }
             on<DeviceEvent.WakeUp> {
                 dontTransition()
             }
             on<DeviceEvent.Initialize> {
-                transitionTo(DeviceState.Initializing, DeviceAction.ReturnBatchAndInitialize(this.result))
+                transitionTo(DeviceState.Initializing, DeviceAction.ReturnBatchAndInitialize)
             }
         }
         state<DeviceState.Terminated> {
@@ -103,30 +103,25 @@ class DeviceActor(private val devicePoolId: DevicePoolId,
                     initialize()
                 }
                 is DeviceAction.SendResultAndNotifyIsReady -> {
-                    sendResults(sideEffect.result)
+                    sendResults()
                     notifyIsReady()
                 }
                 is DeviceAction.NotifyIsReady -> {
                     notifyIsReady()
                 }
                 is DeviceAction.ExecuteBatch -> {
-                    executeBatch(sideEffect.batch, sideEffect.result)
+                    executeBatch(sideEffect.batch)
                 }
                 is DeviceAction.Terminate -> {
-                    device.forceEnd()
                     terminate()
                 }
                 is DeviceAction.StopAndTerminatee -> {
-                    device.forceEnd()
-                    sendResults(sideEffect.result)
+                    sendResults()
                     terminate()
                 }
                 is DeviceAction.ReturnBatchAndInitialize -> {
-                    device.forceEnd()
-                    sendResults(sideEffect.result)
+                    sendResults()
                     initialize()
-
-//                    terminate()
                 }
             }
         }
@@ -149,10 +144,10 @@ class DeviceActor(private val devicePoolId: DevicePoolId,
         }
     }
 
-    private fun sendResults(result: CompletableDeferred<TestBatchResults>) {
+    private fun sendResults() {
         launch {
-            val testResults = result.await()
-            pool.send(DevicePoolMessage.FromDevice.CompletedTestBatch(device, testResults))
+            val result = device.getResults()
+            pool.send(DevicePoolMessage.FromDevice.CompletedTestBatch(device, result))
         }
     }
 
@@ -180,7 +175,7 @@ class DeviceActor(private val devicePoolId: DevicePoolId,
         logger.debug { "initialize ${device.serialNumber}" }
         job = async {
             try {
-                withRetry(30, 10000) {
+                withRetry(2, 10000) {
                     if (isActive) {
                         try {
                             device.prepare(configuration)
@@ -201,12 +196,12 @@ class DeviceActor(private val devicePoolId: DevicePoolId,
         }
     }
 
-    private fun executeBatch(batch: TestBatch, result: CompletableDeferred<TestBatchResults>) {
+    private fun executeBatch(batch: TestBatch) {
         logger.debug { "executeBatch ${device.serialNumber}" }
         job = async {
             try {
                 logger.debug("batch started")
-                device.execute(configuration, devicePoolId, batch, result, progressReporter)
+                device.execute(configuration, devicePoolId, batch, progressReporter)
                 logger.debug("batch finished")
 
                 state.transition(DeviceEvent.RunningComplete)

@@ -22,7 +22,6 @@ import com.android.ddmlib.testrunner.TestRunResult as DdmLibTestRunResult
 
 class TestRunResultsListener(private val testBatch: TestBatch,
                              private val device: Device,
-                             private val deferred: CompletableDeferred<TestBatchResults>,
                              private val timer: Timer,
                              attachmentProviders: List<AttachmentProvider>)
     : AbstractTestRunResultListener(), AttachmentListener {
@@ -47,7 +46,7 @@ class TestRunResultsListener(private val testBatch: TestBatch,
         attachments[test]!!.add(attachment)
     }
 
-    override fun handleTestRunResults(runResult: DdmLibTestRunResult) {
+    override fun getResults(): TestBatchResults {
         val results = mergeParameterisedResults(runResult.testResults)
         val tests = testBatch.tests.associateBy { it.identifier() }
 
@@ -90,7 +89,7 @@ class TestRunResultsListener(private val testBatch: TestBatch,
             logger.debug { "failed = ${it}" }
         }
 
-        deferred.complete(TestBatchResults(device, finished, failed, realIncompleteCorrected, missed))
+        return TestBatchResults(device, finished, failed, realIncompleteCorrected, missed)
     }
 
     private fun Collection<Test>.createUncompletedTestResults(testRunResult: com.android.ddmlib.testrunner.TestRunResult,

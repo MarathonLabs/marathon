@@ -6,14 +6,15 @@ import kotlinx.coroutines.CompletableDeferred
 
 sealed class DeviceAction {
     object Initialize : DeviceAction()
-    data class ReturnBatchAndInitialize(val result: CompletableDeferred<TestBatchResults>) : DeviceAction()
+    object ReturnBatchAndInitialize : DeviceAction()
 
     object Terminate : DeviceAction()
-    data class StopAndTerminatee(val result: CompletableDeferred<TestBatchResults>) : DeviceAction()
 
-    data class ExecuteBatch(val batch: TestBatch, val result: CompletableDeferred<TestBatchResults>) : DeviceAction()
+    object StopAndTerminatee : DeviceAction()
 
-    data class SendResultAndNotifyIsReady(val result: CompletableDeferred<TestBatchResults>) : DeviceAction()
+    data class ExecuteBatch(val batch: TestBatch) : DeviceAction()
+
+    object SendResultAndNotifyIsReady : DeviceAction()
 
     object NotifyIsReady : DeviceAction()
 }
