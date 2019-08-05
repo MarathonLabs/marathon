@@ -24,9 +24,9 @@ class TestResultReporter(private val poolId: DevicePoolId,
     private fun createState(initialCount: Int) = StateMachine.create<TestState, TestEvent, TestAction> {
         initialState(TestState.Added(initialCount))
         state<TestState.Added> {
-            on<TestEvent.Incomplete> {
-                    dontTransition(TestAction.SaveReport(it.device, it.testResult))
-            }
+//            on<TestEvent.Incomplete> {
+//                    dontTransition(TestAction.SaveReport(it.device, it.testResult))
+//            }
             on<TestEvent.Passed> {
                 if (!configuration.strictMode || count <= 1) {
                     transitionTo(TestState.Passed(it.device, it.testResult), TestAction.SaveReport(it.device, it.testResult))
@@ -46,9 +46,9 @@ class TestResultReporter(private val poolId: DevicePoolId,
             }
         }
         state<TestState.Executed> {
-            on<TestEvent.Incomplete> {
-                dontTransition(TestAction.SaveReport(it.device, it.testResult))
-            }
+//            on<TestEvent.Incomplete> {
+//                dontTransition(TestAction.SaveReport(it.device, it.testResult))
+//            }
             on<TestEvent.Failed> {
                 if (configuration.strictMode || count <= 1) {
                     transitionTo(TestState.Failed(it.device, it.testResult), TestAction.SaveReport(it.device, it.testResult))
