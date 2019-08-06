@@ -161,14 +161,14 @@ class DeviceActor(private val devicePoolId: DevicePoolId,
     }
 
     private fun sendResults() {
-        launch {
+        runBlocking {
             val result = device.getResults()
             pool.send(DevicePoolMessage.FromDevice.CompletedTestBatch(device, result))
         }
     }
 
     private fun notifyIsReady() {
-        launch {
+        runBlocking {
             pool.send(IsReady(device))
         }
     }
