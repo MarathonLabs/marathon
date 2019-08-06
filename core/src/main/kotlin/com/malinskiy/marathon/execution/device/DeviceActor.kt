@@ -109,7 +109,7 @@ class DeviceActor(private val devicePoolId: DevicePoolId,
                 return@onTransition
             }
 
-            logger.debug("Transition from ${it.fromState.javaClass.simpleName} to ${validTransition.toState} by event ${validTransition.event}")
+            logger.debug("Transition from ${it.fromState.javaClass.simpleName} to ${validTransition.toState} by event ${validTransition.event} with side effect ${validTransition.sideEffect}")
 
             val sideEffect = validTransition.sideEffect
             val justForWarning = when (sideEffect) {
