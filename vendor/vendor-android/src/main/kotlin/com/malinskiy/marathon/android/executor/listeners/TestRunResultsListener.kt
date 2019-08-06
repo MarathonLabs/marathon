@@ -47,49 +47,54 @@ class TestRunResultsListener(private val testBatch: TestBatch,
     }
 
     override fun getResults(): TestBatchResults {
-        val results = mergeParameterisedResults(runResult.testResults)
-        val tests = testBatch.tests.associateBy { it.identifier() }
+        synchronized(runResult) {
+            active = false // if results calculated, it should be frozen
 
-        val testResults = results.map {
-            it.toTestResult(device)
+            val results = mergeParameterisedResults(runResult.testResults)
+            val tests = testBatch.tests.associateBy { it.identifier() }
+
+            val testResults = results.map {
+                it.toTestResult(device)
+            }
+
+            val nonNullTestResults = testResults.filter {
+                it.test.method != "null"
+            }
+
+            val finished = nonNullTestResults.filter { results[it.test.identifier()]?.isSuccessful() ?: false }
+            val realIncomplete = nonNullTestResults.filter {
+                results[it.test.identifier()]?.status == com.android.ddmlib.testrunner.TestResult.TestStatus.INCOMPLETE
+            }
+            val failed = nonNullTestResults - finished - realIncomplete
+
+            val missed = tests
+                    .filterNot { expectedTest ->
+                        results.containsKey(expectedTest.key)
+                    }
+                    .values
+                    .createUncompletedTestResults(runResult, device)
+
+            val realIncompleteCorrected = realIncomplete.map {
+                it.copy(endTime = timer.currentTimeMillis(),
+                        stacktrace = it.stacktrace ?: runResult.runFailureMessage)
+            }
+
+            realIncompleteCorrected.forEach {
+                logger.debug { "realIncomplete = ${it.test.toTestName()}, ${device.serialNumber}" }
+            }
+            missed.forEach {
+                logger.debug { "missed = ${it}" }
+            }
+            finished.forEach {
+                logger.debug { "finished = ${it}" }
+            }
+            failed.forEach {
+                logger.debug { "failed = ${it}" }
+            }
+
+            return TestBatchResults(device, finished, failed, realIncompleteCorrected, missed)
         }
 
-        val nonNullTestResults = testResults.filter {
-            it.test.method != "null"
-        }
-
-        val finished = nonNullTestResults.filter { results[it.test.identifier()]?.isSuccessful() ?: false }
-        val realIncomplete = nonNullTestResults.filter {
-            results[it.test.identifier()]?.status == com.android.ddmlib.testrunner.TestResult.TestStatus.INCOMPLETE
-        }
-        val failed = nonNullTestResults - finished - realIncomplete
-
-        val missed = tests
-                .filterNot { expectedTest ->
-                    results.containsKey(expectedTest.key)
-                }
-                .values
-                .createUncompletedTestResults(runResult, device)
-
-        val realIncompleteCorrected = realIncomplete.map {
-            it.copy(endTime = timer.currentTimeMillis(),
-                    stacktrace = it.stacktrace ?: runResult.runFailureMessage)
-        }
-
-        realIncompleteCorrected.forEach {
-            logger.debug { "realIncomplete = ${it.test.toTestName()}, ${device.serialNumber}" }
-        }
-        missed.forEach {
-            logger.debug { "missed = ${it}" }
-        }
-        finished.forEach {
-            logger.debug { "finished = ${it}" }
-        }
-        failed.forEach {
-            logger.debug { "failed = ${it}" }
-        }
-
-        return TestBatchResults(device, finished, failed, realIncompleteCorrected, missed)
     }
 
     private fun Collection<Test>.createUncompletedTestResults(testRunResult: com.android.ddmlib.testrunner.TestRunResult,

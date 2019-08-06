@@ -10,15 +10,14 @@ import com.malinskiy.marathon.exceptions.TestBatchExecutionException
 import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.execution.DevicePoolMessage
 import com.malinskiy.marathon.execution.DevicePoolMessage.FromDevice.IsReady
+import com.malinskiy.marathon.execution.TestBatchResults
 import com.malinskiy.marathon.execution.progress.ProgressReporter
 import com.malinskiy.marathon.execution.withRetry
 import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.test.TestBatch
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.async
+import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.SendChannel
-import kotlinx.coroutines.isActive
-import kotlinx.coroutines.launch
+import mu.KLogger
 import kotlin.coroutines.CoroutineContext
 import kotlin.properties.Delegates.observable
 
@@ -30,6 +29,9 @@ class DeviceActor(private val devicePoolId: DevicePoolId,
                   parent: Job,
                   context: CoroutineContext) :
         Actor<DeviceEvent>(parent = parent, context = context) {
+
+    private val logger = MarathonLogging.logger("DevicePool[${devicePoolId.name}]_DeviceActor[${device.serialNumber}]")
+    private val karma = DeviceKarmaCounter(logger)
 
     private val state = StateMachine.create<DeviceState, DeviceEvent, DeviceAction> {
         initialState(DeviceState.Connected)
@@ -71,12 +73,27 @@ class DeviceActor(private val devicePoolId: DevicePoolId,
                 transitionTo(DeviceState.Terminated, DeviceAction.StopAndTerminatee)
             }
             on<DeviceEvent.RunningComplete> {
-                transitionTo(DeviceState.Ready, DeviceAction.SendResultAndNotifyIsReady)
+                val result = device.getResults()
+                karma.processResults(result)
+
+                when (karma.tellMyFate()) {
+                    DeviceKarmaCounter.Fate.Live ->
+                        transitionTo(DeviceState.Ready, DeviceAction.SendResultAndNotifyIsReady)
+
+                    DeviceKarmaCounter.Fate.Initialize ->
+                        transitionTo(DeviceState.Initializing, DeviceAction.ReturnBatchAndInitialize)
+
+                    DeviceKarmaCounter.Fate.Die ->
+                        transitionTo(DeviceState.Terminated, DeviceAction.StopAndTerminatee)
+                }
             }
             on<DeviceEvent.WakeUp> {
                 dontTransition()
             }
             on<DeviceEvent.Initialize> {
+                val result = device.getResults()
+                karma.processResults(result)
+
                 transitionTo(DeviceState.Initializing, DeviceAction.ReturnBatchAndInitialize)
             }
         }
@@ -126,7 +143,6 @@ class DeviceActor(private val devicePoolId: DevicePoolId,
             }
         }
     }
-    private val logger = MarathonLogging.logger("DevicePool[${devicePoolId.name}]_DeviceActor[${device.serialNumber}]")
 
     val isAvailable: Boolean
         get() {
@@ -225,6 +241,45 @@ class DeviceActor(private val devicePoolId: DevicePoolId,
         logger.debug { "terminate ${device.serialNumber}" }
         job?.cancel()
         close()
+    }
+}
+
+class DeviceKarmaCounter(val logger: KLogger) {
+    var failedTestsInRaw = 0
+    var failedBatchesInRaw = 0
+
+    fun processResults(testResults: TestBatchResults) {
+        if (testResults.passed.size > 0) {
+            failedBatchesInRaw = 0
+            failedTestsInRaw = 0
+        } else {
+            if (testResults.passed.size + testResults.failed.size + testResults.missed.size + testResults.incomplete.size > 3) {
+                failedBatchesInRaw++
+            }
+
+            failedTestsInRaw += testResults.failed.size + testResults.incomplete.size
+        }
+
+        logger.debug { "karma now is $failedTestsInRaw failed tests + $failedBatchesInRaw failed batches" }
+    }
+
+    fun tellMyFate(): Fate {
+        val fate = when {
+            failedBatchesInRaw >= 2 -> Fate.Die
+            failedBatchesInRaw >= 1 -> Fate.Initialize
+            failedTestsInRaw >= 8 -> Fate.Die
+            else -> Fate.Live
+        }
+
+        logger.debug { "karma decision is to ${fate::class.simpleName}" }
+
+        return fate
+    }
+
+    sealed class Fate {
+        object Live : Fate()
+        object Initialize : Fate()
+        object Die : Fate()
     }
 }
 

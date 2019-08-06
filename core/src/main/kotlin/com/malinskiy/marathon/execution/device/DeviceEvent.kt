@@ -1,6 +1,5 @@
 package com.malinskiy.marathon.execution.device
 
-import com.malinskiy.marathon.execution.TestBatchResults
 import com.malinskiy.marathon.test.TestBatch
 import kotlinx.coroutines.CompletableDeferred
 

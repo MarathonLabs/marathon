@@ -4,11 +4,11 @@ import com.android.ddmlib.testrunner.TestIdentifier
 import com.malinskiy.marathon.execution.TestBatchResults
 import com.android.ddmlib.testrunner.TestRunResult as DdmLibTestRunResult
 
-abstract class AbstractTestRunResultListener() : NoOpTestRunListener() {
+abstract class AbstractTestRunResultListener : NoOpTestRunListener() {
 
     val runResult: DdmLibTestRunResult = DdmLibTestRunResult()
 
-    private var active = true
+    var active = true
 
     override fun testRunStarted(runName: String, testCount: Int) {
         synchronized(runResult) {
