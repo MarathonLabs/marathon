@@ -10,6 +10,7 @@ import com.malinskiy.marathon.analytics.internal.sub.TrackerInternal
 import com.malinskiy.marathon.execution.AnalyticsConfiguration.InfluxDbConfiguration
 import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.io.FileManager
+import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.report.allure.AllureReporter
 import com.malinskiy.marathon.report.device.DeviceInfoJsonReporter
 import com.malinskiy.marathon.report.html.HtmlSummaryReporter
@@ -28,9 +29,10 @@ import java.io.File
 internal class TrackerFactory(private val configuration: Configuration,
                               private val fileManager: FileManager,
                               private val gson: Gson,
-                              private val timer: Timer): KoinComponent {
+                              private val timer: Timer) : KoinComponent {
 
     val track: Track by inject()
+    val log = MarathonLogging.logger("TrackerFactory")
 
     fun create(): TrackerInternal {
         val defaultTrackers = mutableListOf<TrackerInternal>(createExecutionReportGenerator())
@@ -52,6 +54,7 @@ internal class TrackerFactory(private val configuration: Configuration,
         val db = try {
             InfluxDbProvider(config).createDb()
         } catch (e: Exception) {
+            log.warn(e) { "Failed to reach InfluxDB at ${config.url}" }
             null
         }
         return db?.let { InfluxDbTracker(it) }
