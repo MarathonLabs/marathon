@@ -21,6 +21,14 @@ unzip -d $DESTINATION marathon-X.X.X.zip
 export PATH=$PATH:$DESTINATION/marathon-X.X.X/bin
 ```
 
+#### MacOS
+Grab the latest release with [homebrew][5]:
+
+```
+brew tap malinskiy/tap
+brew install malinskiy/tap/marathon
+```
+
 #### Gradle
 Marathon gradle plugin is published to [MavenCentral][2] so make sure you have this registry either by declaring it directly or using an aggregating registry such as [jCenter][3]. Then apply the plugin
 
@@ -44,3 +52,4 @@ All the relevant test tasks should start with **marathon** prefix such as *marat
 [2]: https://search.maven.org/
 [3]: https://bintray.com/bintray/jcenter
 [4]: https://github.com/Malinskiy/marathon/releases/latest
+[5]: https://brew.sh/
