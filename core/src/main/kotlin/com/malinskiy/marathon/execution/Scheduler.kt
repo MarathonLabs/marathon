@@ -20,8 +20,6 @@ import kotlinx.coroutines.channels.SendChannel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withTimeout
-import org.koin.core.KoinComponent
-import org.koin.core.inject
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.coroutines.CoroutineContext
 
@@ -36,9 +34,8 @@ class Scheduler(private val deviceProvider: DeviceProvider,
                 private val configuration: Configuration,
                 private val shard: TestShard,
                 private val progressReporter: ProgressReporter,
-                override val coroutineContext: CoroutineContext) : CoroutineScope, KoinComponent {
-
-    private val track: Track by inject()
+                private val track: Track,
+                override val coroutineContext: CoroutineContext) : CoroutineScope {
 
     private val job = Job()
     private val pools = ConcurrentHashMap<DevicePoolId, SendChannel<FromScheduler>>()
@@ -104,7 +101,7 @@ class Scheduler(private val deviceProvider: DeviceProvider,
         logger.debug { "device ${device.serialNumber} associated with poolId ${poolId.name}" }
         pools.computeIfAbsent(poolId) { id ->
             logger.debug { "pool actor ${id.name} is being created" }
-            DevicePoolActor(id, configuration, analytics, shard, progressReporter, parent, context)
+            DevicePoolActor(id, configuration, analytics, shard, progressReporter, track, parent, context)
         }
         pools[poolId]?.send(AddDevice(device)) ?: logger.debug {
             "not sending the AddDevice event " +

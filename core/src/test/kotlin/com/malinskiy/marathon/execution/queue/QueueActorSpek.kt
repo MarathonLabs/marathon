@@ -13,15 +13,13 @@ import com.malinskiy.marathon.execution.TestResult
 import com.malinskiy.marathon.execution.TestShard
 import com.malinskiy.marathon.execution.TestStatus
 import com.malinskiy.marathon.execution.strategy.impl.batching.FixedSizeBatchingStrategy
-import com.malinskiy.marathon.spek.declareMock
-import com.malinskiy.marathon.spek.initKoin
-import com.malinskiy.marathon.spek.inject
 import com.malinskiy.marathon.test.Test
 import com.malinskiy.marathon.test.TestVendorConfiguration
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.argumentCaptor
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.never
+import com.nhaarman.mockitokotlin2.reset
 import com.nhaarman.mockitokotlin2.verify
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
@@ -38,7 +36,11 @@ import org.jetbrains.spek.api.dsl.it
 import java.io.File
 
 class QueueActorSpek : Spek({
-    initKoin()
+    val track: Track = mock()
+
+    beforeEachTest {
+        reset(track)
+    }
 
     describe("queue actor") {
         val job by memoized { Job() }
@@ -55,7 +57,8 @@ class QueueActorSpek : Spek({
                         tests = listOf(TEST_1),
                         poolChannel = poolChannel,
                         analytics = analytics,
-                        job = job
+                        job = job,
+                        track = track
                 )
             }
             val captor = argumentCaptor<TestResult>()
@@ -75,8 +78,6 @@ class QueueActorSpek : Spek({
             }
 
             it("should report test as failed") {
-                declareMock<Track> {}
-                val track: Track by inject()
                 runBlocking {
                     actor.send(QueueMessage.RequestBatch(TEST_DEVICE_INFO))
                     poolChannel.receive()
@@ -98,7 +99,8 @@ class QueueActorSpek : Spek({
                         tests = listOf(TEST_1),
                         poolChannel = poolChannel,
                         analytics = analytics,
-                        job = job
+                        job = job,
+                        track = track
                 )
             }
             val captor = argumentCaptor<TestResult>()
@@ -118,8 +120,6 @@ class QueueActorSpek : Spek({
             }
 
             it("should not report any test finishes") {
-                declareMock<Track> {}
-                val track: Track by inject()
                 runBlocking {
                     actor.send(QueueMessage.RequestBatch(TEST_DEVICE_INFO))
                     poolChannel.receive()
@@ -157,8 +157,6 @@ class QueueActorSpek : Spek({
             }
 
             it("should report test as failed") {
-                declareMock<Track>()
-                val track: Track by inject()
                 runBlocking {
                     actor.send(QueueMessage.RequestBatch(TEST_DEVICE_INFO))
                     poolChannel.receive()
@@ -209,6 +207,7 @@ private fun createQueueActor(configuration: Configuration,
                              tests: List<Test>,
                              poolChannel: SendChannel<FromQueue>,
                              analytics: Analytics,
+                             track: Track,
                              job: Job) = QueueActor(
         configuration,
         TestShard(tests, emptyList()),
@@ -216,6 +215,7 @@ private fun createQueueActor(configuration: Configuration,
         poolChannel,
         DevicePoolId("test"),
         mock(),
+        track,
         job,
         Dispatchers.Unconfined
 )

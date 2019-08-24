@@ -3,6 +3,7 @@ package com.malinskiy.marathon.android
 import com.android.ddmlib.IDevice
 import com.android.ddmlib.testrunner.ITestRunListener
 import com.android.sdklib.AndroidVersion
+import com.malinskiy.marathon.analytics.internal.pub.Track
 import com.malinskiy.marathon.android.executor.AndroidDeviceTestRunner
 import com.malinskiy.marathon.android.executor.toTestIdentifier
 import com.malinskiy.marathon.execution.Configuration
@@ -29,7 +30,7 @@ class AndroidDeviceTestRunnerSpek : Spek({
             val ddmsDevice = mock<IDevice>()
             whenever(ddmsDevice.serialNumber).doReturn("testSerial")
             whenever(ddmsDevice.version).doReturn(AndroidVersion(26))
-            val device = AndroidDevice(ddmsDevice)
+            val device = AndroidDevice(ddmsDevice, Track())
             val androidDeviceTestRunner = AndroidDeviceTestRunner(device)
             val apkFile = File(javaClass.classLoader.getResource("android_test_1.apk").file)
             val output = File("")

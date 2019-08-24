@@ -22,16 +22,14 @@ import com.malinskiy.marathon.report.test.TestJsonReporter
 import com.malinskiy.marathon.report.timeline.TimelineReporter
 import com.malinskiy.marathon.report.timeline.TimelineSummaryProvider
 import com.malinskiy.marathon.time.Timer
-import org.koin.core.KoinComponent
-import org.koin.core.inject
 import java.io.File
 
 internal class TrackerFactory(private val configuration: Configuration,
                               private val fileManager: FileManager,
                               private val gson: Gson,
-                              private val timer: Timer) : KoinComponent {
+                              private val timer: Timer,
+                              private val track: Track) {
 
-    val track: Track by inject()
     val log = MarathonLogging.logger("TrackerFactory")
 
     fun create(): TrackerInternal {

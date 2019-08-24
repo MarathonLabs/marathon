@@ -36,8 +36,6 @@ import kotlinx.coroutines.withContext
 import net.schmizz.sshj.connection.ConnectionException
 import net.schmizz.sshj.connection.channel.OpenFailException
 import net.schmizz.sshj.transport.TransportException
-import org.koin.core.KoinComponent
-import org.koin.core.inject
 import java.io.File
 import java.io.IOException
 import java.net.InetAddress
@@ -49,12 +47,12 @@ class IOSDevice(val simulator: RemoteSimulator,
                 connectionAttempt: Int,
                 configuration: IOSConfiguration,
                 val gson: Gson,
-                private val healthChangeListener: HealthChangeListener): Device, CoroutineScope, KoinComponent {
+                private val track: Track,
+                private val healthChangeListener: HealthChangeListener): Device, CoroutineScope {
 
     val udid = simulator.udid
     val connectionId = "$udid@${simulator.host}-$connectionAttempt"
     private val deviceContext = newFixedThreadPoolContext(1, connectionId)
-    private val track: Track by inject()
 
     override val coroutineContext: CoroutineContext
         get() = deviceContext + Job()

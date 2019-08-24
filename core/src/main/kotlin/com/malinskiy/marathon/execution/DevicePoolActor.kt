@@ -3,6 +3,7 @@ package com.malinskiy.marathon.execution
 import com.malinskiy.marathon.actor.Actor
 import com.malinskiy.marathon.actor.safeSend
 import com.malinskiy.marathon.analytics.external.Analytics
+import com.malinskiy.marathon.analytics.internal.pub.Track
 import com.malinskiy.marathon.device.Device
 import com.malinskiy.marathon.device.DeviceInfo
 import com.malinskiy.marathon.device.DevicePoolId
@@ -23,6 +24,7 @@ class DevicePoolActor(private val poolId: DevicePoolId,
                       analytics: Analytics,
                       shard : TestShard,
                       private val progressReporter: ProgressReporter,
+                      track: Track,
                       parent: Job,
                       context: CoroutineContext) :
         Actor<DevicePoolMessage>(parent = parent, context = context) {
@@ -45,7 +47,17 @@ class DevicePoolActor(private val poolId: DevicePoolId,
 
     private val poolJob = Job(parent)
 
-    private val queue: QueueActor = QueueActor(configuration, shard, analytics, this, poolId, progressReporter, poolJob, context)
+    private val queue: QueueActor = QueueActor(
+            configuration,
+            shard,
+            analytics,
+            this,
+            poolId,
+            progressReporter,
+            track,
+            poolJob,
+            context
+    )
 
     private val devices = mutableMapOf<String, SendChannel<DeviceEvent>>()
 

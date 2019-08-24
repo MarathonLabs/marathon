@@ -3,6 +3,7 @@ package com.malinskiy.marathon.ios.device
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.google.gson.Gson
+import com.malinskiy.marathon.analytics.internal.pub.Track
 import com.malinskiy.marathon.device.DeviceProvider
 import com.malinskiy.marathon.ios.HealthChangeListener
 import com.malinskiy.marathon.ios.IOSConfiguration
@@ -30,7 +31,8 @@ class LocalListSimulatorProvider(override val coroutineContext: CoroutineContext
                                  private val channel: Channel<DeviceProvider.DeviceEvent>,
                                  private val configuration: IOSConfiguration,
                                  yamlObjectMapper: ObjectMapper,
-                                 private val gson: Gson) : SimulatorProvider, HealthChangeListener, CoroutineScope {
+                                 private val gson: Gson,
+                                 private val track: Track) : SimulatorProvider, HealthChangeListener, CoroutineScope {
 
     private val job = Job()
 
@@ -126,7 +128,8 @@ class LocalListSimulatorProvider(override val coroutineContext: CoroutineContext
             connectionAttempt = connectionAttempt,
             configuration = configuration,
             gson = gson,
-            healthChangeListener = this
+            healthChangeListener = this,
+            track = track
         )
     } catch (e: DeviceFailureException) {
         logger.error("Failed to initialize ${simulator.udid}-$connectionAttempt with reason ${e.reason}: ${e.message}")

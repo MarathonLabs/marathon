@@ -33,16 +33,14 @@ import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.newFixedThreadPoolContext
-import org.koin.core.KoinComponent
-import org.koin.core.inject
 import java.util.*
 import kotlin.coroutines.CoroutineContext
 
 class AndroidDevice(val ddmsDevice: IDevice,
-                    private val serialStrategy: SerialStrategy = SerialStrategy.AUTOMATIC) : Device, KoinComponent, CoroutineScope {
+                    private val track: Track,
+                    private val serialStrategy: SerialStrategy = SerialStrategy.AUTOMATIC) : Device, CoroutineScope {
 
     val fileManager = RemoteFileManager(ddmsDevice)
-    val track: Track by inject()
 
     private val dispatcher by lazy {
         newFixedThreadPoolContext(1, "AndroidDevice - execution - ${ddmsDevice.serialNumber}")

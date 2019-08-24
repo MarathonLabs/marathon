@@ -9,11 +9,12 @@ import com.malinskiy.marathon.cli.args.environment.EnvironmentReader
 import com.malinskiy.marathon.exceptions.ConfigurationException
 import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.log.MarathonLogging
+import com.malinskiy.marathon.vendor.VendorConfiguration
 import java.io.File
 
 private val logger = MarathonLogging.logger {}
 
-class ConfigFactory(val mapper: ObjectMapper) {
+class ConfigFactory(private val mapper: ObjectMapper) {
     fun create(marathonfile: File, environmentReader: EnvironmentReader): Configuration {
         logger.info { "Checking $marathonfile config" }
 
@@ -36,30 +37,30 @@ class ConfigFactory(val mapper: ObjectMapper) {
         }
 
         return Configuration(
-                config.name,
-                config.outputDir,
+                name = config.name,
+                outputDir = config.outputDir,
 
-                config.analyticsConfiguration,
-                config.poolingStrategy,
-                config.shardingStrategy,
-                config.sortingStrategy,
-                config.batchingStrategy,
-                config.flakinessStrategy,
-                config.retryStrategy,
-                config.filteringConfiguration,
-                config.ignoreFailures,
-                config.isCodeCoverageEnabled,
-                config.fallbackToScreenshots,
-                config.strictMode,
-                config.uncompletedTestRetryQuota,
-                config.testClassRegexes,
-                config.includeSerialRegexes,
-                config.excludeSerialRegexes,
-                config.testBatchTimeoutMillis,
-                config.testOutputTimeoutMillis,
-                config.debug,
-                vendorConfiguration,
-                config.analyticsTracking
+                analyticsConfiguration = config.analyticsConfiguration,
+                poolingStrategy = config.poolingStrategy,
+                shardingStrategy = config.shardingStrategy,
+                sortingStrategy = config.sortingStrategy,
+                batchingStrategy = config.batchingStrategy,
+                flakinessStrategy = config.flakinessStrategy,
+                retryStrategy = config.retryStrategy,
+                filteringConfiguration = config.filteringConfiguration,
+                ignoreFailures = config.ignoreFailures,
+                isCodeCoverageEnabled = config.isCodeCoverageEnabled,
+                fallbackToScreenshots = config.fallbackToScreenshots,
+                strictMode = config.strictMode,
+                uncompletedTestRetryQuota = config.uncompletedTestRetryQuota,
+                testClassRegexes = config.testClassRegexes,
+                includeSerialRegexes = config.includeSerialRegexes,
+                excludeSerialRegexes = config.excludeSerialRegexes,
+                testBatchTimeoutMillis = config.testBatchTimeoutMillis,
+                testOutputTimeoutMillis = config.testOutputTimeoutMillis,
+                debug = config.debug,
+                vendorConfiguration = vendorConfiguration as VendorConfiguration,
+                analyticsTracking = config.analyticsTracking
         )
     }
 

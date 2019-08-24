@@ -1,9 +1,8 @@
 package com.malinskiy.marathon
 
-import com.google.gson.Gson
-import com.malinskiy.marathon.analytics.TrackerFactory
 import com.malinskiy.marathon.analytics.external.Analytics
-import com.malinskiy.marathon.analytics.external.AnalyticsFactory
+import com.malinskiy.marathon.analytics.internal.pub.Track
+import com.malinskiy.marathon.analytics.internal.sub.TrackerInternal
 import com.malinskiy.marathon.config.LogicalConfigurationValidator
 import com.malinskiy.marathon.device.DeviceProvider
 import com.malinskiy.marathon.exceptions.NoDevicesException
@@ -12,11 +11,9 @@ import com.malinskiy.marathon.execution.Scheduler
 import com.malinskiy.marathon.execution.TestParser
 import com.malinskiy.marathon.execution.TestShard
 import com.malinskiy.marathon.execution.progress.ProgressReporter
-import com.malinskiy.marathon.io.FileManager
 import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.test.Test
 import com.malinskiy.marathon.test.toTestName
-import com.malinskiy.marathon.time.SystemTimer
 import com.malinskiy.marathon.usageanalytics.TrackActionType
 import com.malinskiy.marathon.usageanalytics.UsageAnalytics
 import com.malinskiy.marathon.usageanalytics.tracker.Event
@@ -28,14 +25,12 @@ import kotlin.coroutines.coroutineContext
 
 private val log = MarathonLogging.logger {}
 
-class Marathon(val configuration: Configuration) {
+class Marathon(val configuration: Configuration,
+               private val tracker: TrackerInternal,
+               private val analytics: Analytics,
+               private val progressReporter: ProgressReporter,
+               private val track: Track) {
 
-    private val fileManager = FileManager(configuration.outputDir)
-    private val gson = Gson()
-
-    private val timer = SystemTimer()
-    private val trackers = TrackerFactory(configuration, fileManager, gson, timer).create()
-    private val analyticsFactory = AnalyticsFactory(configuration)
     private val configurationValidator = LogicalConfigurationValidator()
 
     private fun configureLogging(vendorConfiguration: VendorConfiguration) {
@@ -83,7 +78,6 @@ class Marathon(val configuration: Configuration) {
 
         val testParser = loadTestParser(configuration.vendorConfiguration)
         val deviceProvider = loadDeviceProvider(configuration.vendorConfiguration)
-        val analytics = analyticsFactory.create()
 
         configurationValidator.validate(configuration)
 
@@ -93,9 +87,16 @@ class Marathon(val configuration: Configuration) {
 
         log.info("Scheduling ${tests.size} tests")
         log.debug(tests.joinToString(", ") { it.toTestName() })
-        val progressReporter = ProgressReporter()
         val currentCoroutineContext = coroutineContext
-        val scheduler = Scheduler(deviceProvider, analytics, configuration, shard, progressReporter, currentCoroutineContext)
+        val scheduler = Scheduler(
+                deviceProvider,
+                analytics,
+                configuration,
+                shard,
+                progressReporter,
+                track,
+                currentCoroutineContext
+        )
 
         if (configuration.outputDir.exists()) {
             log.info { "Output ${configuration.outputDir} already exists" }
@@ -129,7 +130,7 @@ class Marathon(val configuration: Configuration) {
     private suspend fun onFinish(analytics: Analytics, deviceProvider: DeviceProvider) {
         analytics.close()
         deviceProvider.terminate()
-        trackers.close()
+        tracker.close()
     }
 
     private fun applyTestFilters(parsedTests: List<Test>): List<Test> {

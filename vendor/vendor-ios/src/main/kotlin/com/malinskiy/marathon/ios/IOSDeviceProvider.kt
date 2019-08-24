@@ -6,6 +6,7 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLGenerator
 import com.fasterxml.jackson.module.kotlin.KotlinModule
 import com.google.gson.GsonBuilder
 import com.malinskiy.marathon.actor.unboundedChannel
+import com.malinskiy.marathon.analytics.internal.pub.Track
 import com.malinskiy.marathon.device.DeviceProvider
 import com.malinskiy.marathon.ios.device.LocalListSimulatorProvider
 import com.malinskiy.marathon.ios.device.SimulatorProvider
@@ -19,7 +20,7 @@ import kotlinx.coroutines.newFixedThreadPoolContext
 import kotlinx.coroutines.withContext
 import kotlin.coroutines.CoroutineContext
 
-class IOSDeviceProvider : DeviceProvider, CoroutineScope {
+class IOSDeviceProvider(private val track: Track) : DeviceProvider, CoroutineScope {
 
     private val dispatcher = newFixedThreadPoolContext(1, "IOSDeviceProvider")
     override val coroutineContext: CoroutineContext
@@ -43,7 +44,7 @@ class IOSDeviceProvider : DeviceProvider, CoroutineScope {
         val mapper = ObjectMapper(YAMLFactory().disable(YAMLGenerator.Feature.USE_NATIVE_TYPE_ID))
                 .registerModule(KotlinModule())
 
-        simulatorProvider = LocalListSimulatorProvider(coroutineContext, channel, vendorConfiguration, mapper, gson)
+        simulatorProvider = LocalListSimulatorProvider(coroutineContext, channel, vendorConfiguration, mapper, gson, track)
         simulatorProvider?.start()
     }
 

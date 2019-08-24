@@ -9,9 +9,6 @@ import com.malinskiy.marathon.execution.TestResult
 import com.malinskiy.marathon.execution.TestShard
 import com.malinskiy.marathon.execution.TestStatus
 import com.malinskiy.marathon.generateTest
-import com.malinskiy.marathon.spek.declareMock
-import com.malinskiy.marathon.spek.initKoin
-import com.malinskiy.marathon.spek.inject
 import com.malinskiy.marathon.test.Mocks
 import com.malinskiy.marathon.test.StubDeviceProvider
 import com.malinskiy.marathon.test.TestVendorConfiguration
@@ -26,7 +23,11 @@ import org.jetbrains.spek.api.dsl.on
 import java.io.File
 
 object TestResultReporterSpec : Spek({
-    initKoin()
+    val track: Track = mock()
+
+    beforeEachTest {
+        reset(track)
+    }
 
     val defaultConfig = Configuration(name = "",
             outputDir = File(""),
@@ -60,12 +61,14 @@ object TestResultReporterSpec : Spek({
     fun filterDefault() = TestResultReporter(poolId,
             analytics,
             TestShard(listOf(test,test,test)),
-            defaultConfig)
+            defaultConfig,
+            track)
 
     fun filterStrict() = TestResultReporter(poolId,
             analytics,
             TestShard(listOf(test,test,test)),
-            strictConfig)
+            strictConfig,
+            track)
     val deviceInfo = createDeviceInfo()
 
     afterEachTest {
@@ -75,9 +78,6 @@ object TestResultReporterSpec : Spek({
     given("a reporter with a default config") {
         on("success - failure - failure") {
             it("should report success") {
-                val track: Track by inject()
-                declareMock<Track>()
-
                 val filter = filterDefault()
 
                 val r1 = TestResult(test, deviceInfo, TestStatus.PASSED, 0, 1)
@@ -99,8 +99,6 @@ object TestResultReporterSpec : Spek({
 
         on("failure - failure - success") {
             it("should report success") {
-                val track: Track by inject()
-                declareMock<Track>()
                 val filter = filterDefault()
 
                 val r1 = TestResult(test, deviceInfo, TestStatus.FAILURE, 0, 1)
@@ -124,8 +122,6 @@ object TestResultReporterSpec : Spek({
     given("a reporter with a strict config") {
         on("success - failure - failure") {
             it("should report failure") {
-                val track: Track by inject()
-                declareMock<Track>()
                 val filter = filterStrict()
 
                 val r1 = TestResult(test, deviceInfo, TestStatus.PASSED, 0, 1)
@@ -147,8 +143,6 @@ object TestResultReporterSpec : Spek({
 
         on("failure - success - success") {
             it("should report failure") {
-                val track: Track by inject()
-                declareMock<Track>()
                 val filter = filterStrict()
 
                 val r1 = TestResult(test, deviceInfo, TestStatus.FAILURE, 0, 1)

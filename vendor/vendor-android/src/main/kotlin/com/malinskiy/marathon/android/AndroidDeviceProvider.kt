@@ -18,8 +18,6 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.newFixedThreadPoolContext
-import org.koin.core.KoinComponent
-import org.koin.core.inject
 import java.nio.file.Paths
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ConcurrentMap
@@ -28,9 +26,8 @@ import kotlin.coroutines.CoroutineContext
 private const val DEFAULT_DDM_LIB_TIMEOUT = 30000
 private const val DEFAULT_DDM_LIB_SLEEP_TIME = 500
 
-class AndroidDeviceProvider : DeviceProvider, CoroutineScope, KoinComponent {
+class AndroidDeviceProvider(private val track: Track) : DeviceProvider, CoroutineScope {
     private val logger = MarathonLogging.logger("AndroidDeviceProvider")
-    private val track: Track by inject()
 
     private lateinit var adb: AndroidDebugBridge
 
@@ -54,7 +51,7 @@ class AndroidDeviceProvider : DeviceProvider, CoroutineScope, KoinComponent {
             override fun deviceChanged(device: IDevice?, changeMask: Int) {
                 device?.let {
                     launch(context = bootWaitContext) {
-                        val maybeNewAndroidDevice = AndroidDevice(it)
+                        val maybeNewAndroidDevice = AndroidDevice(it, track)
                         val healthy = maybeNewAndroidDevice.healthy
 
                         logger.debug { "Device ${device.serialNumber} changed state. Healthy = $healthy" }
@@ -73,7 +70,7 @@ class AndroidDeviceProvider : DeviceProvider, CoroutineScope, KoinComponent {
             override fun deviceConnected(device: IDevice?) {
                 device?.let {
                     launch {
-                        val maybeNewAndroidDevice = AndroidDevice(it)
+                        val maybeNewAndroidDevice = AndroidDevice(it, track)
                         val healthy = maybeNewAndroidDevice.healthy
                         logger.debug { "Device ${maybeNewAndroidDevice.serialNumber} connected. Healthy = $healthy" }
 

@@ -12,7 +12,7 @@ import com.malinskiy.marathon.cli.args.environment.SystemEnvironmentReader
 import com.malinskiy.marathon.cli.config.ConfigFactory
 import com.malinskiy.marathon.cli.config.DeserializeModule
 import com.malinskiy.marathon.cli.config.time.InstantTimeProviderImpl
-import com.malinskiy.marathon.di.analyticsModule
+import com.malinskiy.marathon.di.marathonStartKoin
 import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.usageanalytics.TrackActionType
 import com.malinskiy.marathon.usageanalytics.UsageAnalytics
@@ -20,7 +20,6 @@ import com.malinskiy.marathon.usageanalytics.tracker.Event
 import com.xenomachina.argparser.ArgParser
 import com.xenomachina.argparser.SystemExitException
 import com.xenomachina.argparser.mainBody
-import org.koin.core.context.startKoin
 
 private val logger = MarathonLogging.logger {}
 
@@ -40,10 +39,9 @@ fun main(args: Array<String>): Unit = mainBody(
                 environmentReader = SystemEnvironmentReader()
         )
 
-        startKoin {
-            modules(analyticsModule)
-        }
-        val marathon = Marathon(configuration = configuration)
+        val application = marathonStartKoin(configuration)
+        val marathon: Marathon = application.koin.get()
+
         UsageAnalytics.enable = this.analyticsTracking
         UsageAnalytics.USAGE_TRACKER.trackEvent(Event(TrackActionType.RunType, "cli"))
         val success = marathon.run()

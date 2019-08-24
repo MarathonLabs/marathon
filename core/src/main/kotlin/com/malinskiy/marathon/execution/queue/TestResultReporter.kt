@@ -11,15 +11,12 @@ import com.malinskiy.marathon.execution.TestShard
 import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.test.Test
 import com.malinskiy.marathon.test.toTestName
-import org.koin.core.KoinComponent
-import org.koin.core.inject
 
 class TestResultReporter(private val poolId: DevicePoolId,
                          private val analytics: Analytics,
                          shard: TestShard,
-                         private val configuration: Configuration): KoinComponent {
-
-    private val track: Track by inject()
+                         private val configuration: Configuration,
+                         private val track: Track) {
 
     private val tests: HashMap<String, StateMachine<TestState, TestEvent, TestAction>> = HashMap()
 
