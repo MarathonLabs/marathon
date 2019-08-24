@@ -7,6 +7,7 @@ import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.test.Test
 import com.malinskiy.marathon.test.toSafeTestName
 import org.influxdb.InfluxDB
+import org.influxdb.InfluxDBIOException
 import org.influxdb.annotation.Column
 import org.influxdb.annotation.Measurement
 import org.influxdb.dto.Query
@@ -34,14 +35,15 @@ class InfluxMetricsProvider(private val influxDb: InfluxDB,
 
     override fun successRate(test: Test, limit: Instant): Double {
         if (!successRateInitialized) {
-            requestAllSuccessRates(limit).forEach {
-                val testName = it.testName
-                val mean = it.mean
-                if (testName != null && mean != null) {
-                    successRate[testName] = mean
+            successRateInitialized = safeInfluxCall {
+                requestAllSuccessRates(limit).forEach {
+                    val testName = it.testName
+                    val mean = it.mean
+                    if (testName != null && mean != null) {
+                        successRate[testName] = mean
+                    }
                 }
             }
-            successRateInitialized = true
         }
 
         val successRate = successRate[test.toSafeTestName()]
@@ -50,6 +52,18 @@ class InfluxMetricsProvider(private val influxDb: InfluxDB,
             0.0
         } else {
             successRate
+        }
+    }
+
+    /**
+     * @return true if successfully executed
+     */
+    private fun safeInfluxCall(block: () -> Unit): Boolean {
+        return try {
+            block.invoke()
+            true
+        } catch (e: InfluxDBIOException) {
+            false
         }
     }
 
@@ -69,10 +83,11 @@ class InfluxMetricsProvider(private val influxDb: InfluxDB,
                                percentile: Double,
                                limit: Instant): Double {
         if (!executionTimeInitialized) {
-            requestAllExecutionTimes(percentile, limit).forEach {
-                executionTime[it.testName!!] = it.percentile!!
+            executionTimeInitialized = safeInfluxCall {
+                requestAllExecutionTimes(percentile, limit).forEach {
+                    executionTime[it.testName!!] = it.percentile!!
+                }
             }
-            executionTimeInitialized = true
         }
 
         val executionTime = executionTime[test.toSafeTestName()]
