@@ -15,7 +15,7 @@ import java.time.Instant
 
 class InfluxMetricsProviderSpek: Spek({
     describe("InfluxMetricsProvider") {
-        it("should return default if initialization failed") {
+        it("should return default success rate if initialization failed") {
             val influxDb = mock<InfluxDB>()
             val provider = InfluxMetricsProvider(influxDb, "test")
 
@@ -24,6 +24,17 @@ class InfluxMetricsProviderSpek: Spek({
             val rate = provider.successRate(Test("com.example", "SingleTest", "method", emptyList()), Instant.now())
 
             rate shouldEqual 0.0
+        }
+
+        it("should return default execution time if initialization failed") {
+            val influxDb = mock<InfluxDB>()
+            val provider = InfluxMetricsProvider(influxDb, "test")
+
+            whenever(influxDb.query(any())).thenThrow(InfluxDBIOException(IOException("test exception")))
+
+            val executionTime = provider.executionTime(Test("com.example", "SingleTest", "method", emptyList()), 95.0, Instant.now())
+
+            executionTime shouldEqual 300_000.0
         }
     }
 })
