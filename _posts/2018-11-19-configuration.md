@@ -20,6 +20,12 @@ analyticsConfiguration:
     user: "root"
     password: "root"
     dbName: "marathon"
+    retentionPolicyConfiguration:
+      name: "rpMarathonTest"
+      duration: "90d"
+      shardDuration: "1h"
+      replicationFactor: 5
+      isDefault: false
 poolingStrategy:
 - type: "omni"
 - type: "device-model"
@@ -68,6 +74,7 @@ testClassRegexes:
 - "^((?!Abstract).)*Test$"
 includeSerialRegexes: []
 excludeSerialRegexes: []
+uncompletedTestRetryQuota: 100
 ignoreFailures: false
 isCodeCoverageEnabled: false
 fallbackToScreenshots: false
@@ -151,6 +158,7 @@ marathon {
     testClassRegexes = listOf("^((?!Abstract).)*Test$")
     includeSerialRegexes = emptyList()
     excludeSerialRegexes = emptyList()
+    uncompletedTestRetryQuota = 100
     ignoreFailures = false
     isCodeCoverageEnabled = false
     fallbackToScreenshots = false
