@@ -8,6 +8,12 @@ import com.malinskiy.marathon.execution.withRetry
 import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.test.Test
 import com.malinskiy.marathon.test.toSafeTestName
+import org.influxdb.InfluxDB
+import org.influxdb.InfluxDBIOException
+import org.influxdb.annotation.Column
+import org.influxdb.annotation.Measurement
+import org.influxdb.dto.Query
+import org.influxdb.impl.InfluxDBResultMapper
 import kotlinx.coroutines.runBlocking
 import java.time.Instant
 

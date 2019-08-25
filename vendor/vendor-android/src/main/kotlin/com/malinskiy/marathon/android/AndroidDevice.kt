@@ -6,6 +6,14 @@ import com.malinskiy.marathon.analytics.tracker.device.InMemoryDeviceTracker
 import com.malinskiy.marathon.android.exception.InvalidSerialConfiguration
 import com.malinskiy.marathon.android.executor.AndroidAppInstaller
 import com.malinskiy.marathon.android.executor.AndroidDeviceTestRunner
+import com.malinskiy.marathon.android.executor.listeners.CompositeTestRunListener
+import com.malinskiy.marathon.android.executor.listeners.DebugTestRunListener
+import com.malinskiy.marathon.android.executor.listeners.LogCatListener
+import com.malinskiy.marathon.android.executor.listeners.NoOpTestRunListener
+import com.malinskiy.marathon.android.executor.listeners.ProgressTestRunListener
+import com.malinskiy.marathon.android.executor.listeners.TestRunResultsListener
+import com.malinskiy.marathon.android.executor.listeners.screenshot.ScreenCapturerTestRunListener
+import com.malinskiy.marathon.android.executor.listeners.video.ScreenRecorderTestRunListener
 import com.malinskiy.marathon.android.serial.SerialStrategy
 import com.malinskiy.marathon.device.Device
 import com.malinskiy.marathon.device.DeviceFeature
@@ -15,8 +23,12 @@ import com.malinskiy.marathon.device.OperatingSystem
 import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.execution.TestBatchResults
 import com.malinskiy.marathon.execution.progress.ProgressReporter
+import com.malinskiy.marathon.io.FileManager
 import com.malinskiy.marathon.log.MarathonLogging
+import com.malinskiy.marathon.report.attachment.AttachmentProvider
+import com.malinskiy.marathon.report.logs.LogWriter
 import com.malinskiy.marathon.test.TestBatch
+import com.malinskiy.marathon.time.SystemTimer
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.async
@@ -91,7 +103,7 @@ class AndroidDevice(val ddmsDevice: IDevice,
         }
 
         result.apply {
-            if(this == null) throw InvalidSerialConfiguration(serialStrategy)
+            if (this == null) throw InvalidSerialConfiguration(serialStrategy)
         }
     }
 
@@ -126,9 +138,41 @@ class AndroidDevice(val ddmsDevice: IDevice,
                                  progressReporter: ProgressReporter) {
 
         val deferredResult = async {
-            AndroidDeviceTestRunner(this@AndroidDevice).execute(configuration, devicePoolId, testBatch, deferred, progressReporter)
+            val listeners = createListeners(configuration, devicePoolId, testBatch, deferred, progressReporter)
+            AndroidDeviceTestRunner(this@AndroidDevice).execute(configuration, testBatch, listeners)
         }
         deferredResult.await()
+    }
+
+    private fun createListeners(configuration: Configuration,
+                                devicePoolId: DevicePoolId,
+                                testBatch: TestBatch,
+                                deferred: CompletableDeferred<TestBatchResults>,
+                                progressReporter: ProgressReporter): CompositeTestRunListener {
+        val fileManager = FileManager(configuration.outputDir)
+        val attachmentProviders = mutableListOf<AttachmentProvider>()
+
+        val features = this.deviceFeatures
+
+        val preferableRecorderType = configuration.vendorConfiguration.preferableRecorderType()
+        val recorderListener = selectRecorderType(preferableRecorderType, features)?.let { feature ->
+            prepareRecorderListener(feature, fileManager, devicePoolId, attachmentProviders)
+        } ?: NoOpTestRunListener()
+
+        val logCatListener = LogCatListener(this, devicePoolId, LogWriter(fileManager))
+                .also { attachmentProviders.add(it) }
+
+        val timer = SystemTimer()
+
+        return CompositeTestRunListener(
+                listOf(
+                        recorderListener,
+                        logCatListener,
+                        TestRunResultsListener(testBatch, this, deferred, timer, attachmentProviders),
+                        DebugTestRunListener(this),
+                        ProgressTestRunListener(this, devicePoolId, progressReporter)
+                )
+        )
     }
 
     override suspend fun prepare(configuration: Configuration) {
@@ -146,6 +190,27 @@ class AndroidDevice(val ddmsDevice: IDevice,
     override fun dispose() {
         dispatcher.close()
     }
+
+    private fun selectRecorderType(preferred: DeviceFeature?, features: Collection<DeviceFeature>) = when {
+            features.contains(preferred) -> preferred
+            features.contains(DeviceFeature.VIDEO) -> DeviceFeature.VIDEO
+            features.contains(DeviceFeature.SCREENSHOT) -> DeviceFeature.SCREENSHOT
+            else -> null
+    }
+
+    private fun prepareRecorderListener(feature: DeviceFeature, fileManager: FileManager, devicePoolId: DevicePoolId,
+                                        attachmentProviders: MutableList<AttachmentProvider>): NoOpTestRunListener =
+            when (feature) {
+                DeviceFeature.VIDEO -> {
+                    ScreenRecorderTestRunListener(fileManager, devicePoolId, this)
+                            .also { attachmentProviders.add(it) }
+                }
+
+                DeviceFeature.SCREENSHOT -> {
+                    ScreenCapturerTestRunListener(fileManager, devicePoolId, this)
+                            .also { attachmentProviders.add(it) }
+                }
+            }
 
     private fun clearLogcat(device: IDevice) {
         val logger = MarathonLogging.logger("AndroidDevice.clearLogcat")

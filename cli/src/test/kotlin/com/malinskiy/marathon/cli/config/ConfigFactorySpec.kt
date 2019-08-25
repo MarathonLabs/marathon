@@ -73,7 +73,7 @@ object ConfigFactorySpec : Spek({
         }
 
         fun mockEnvironmentReader(path: String? = null): EnvironmentReader {
-            val environmentReader: EnvironmentReader =  mock()
+            val environmentReader: EnvironmentReader = mock()
             whenever(environmentReader.read()) `it returns` EnvironmentConfiguration(path?.let { File(it) })
             return environmentReader
         }
@@ -123,9 +123,9 @@ object ConfigFactorySpec : Spek({
                 )
                 configuration.testClassRegexes.map { it.toString() } shouldContainAll listOf("^((?!Abstract).)*Test$")
 
-
-                configuration.includeSerialRegexes shouldEqual emptyList()
-                configuration.excludeSerialRegexes shouldEqual emptyList()
+                // Regex doesn't have proper equals method. Need to check the patter itself
+                configuration.includeSerialRegexes.joinToString(separator = "") { it.pattern } shouldEqual """emulator-500[2,4]""".toRegex().pattern
+                configuration.excludeSerialRegexes.joinToString(separator = "") { it.pattern } shouldEqual """emulator-5002""".toRegex().pattern
                 configuration.ignoreFailures shouldEqual false
                 configuration.isCodeCoverageEnabled shouldEqual false
                 configuration.fallbackToScreenshots shouldEqual false
@@ -149,6 +149,21 @@ object ConfigFactorySpec : Spek({
                 )
             }
         }
+        on("sample config 1 with custom retention policy") {
+            val file = File(ConfigFactorySpec::class.java.getResource("/fixture/config/sample_1_rp.yaml").file)
+
+            it("should deserialize") {
+                val configuration = parser.create(file, mockEnvironmentReader())
+                configuration.analyticsConfiguration shouldEqual AnalyticsConfiguration.InfluxDbConfiguration(
+                        url = "http://influx.svc.cluster.local:8086",
+                        user = "root",
+                        password = "root",
+                        dbName = "marathon",
+                        retentionPolicyConfiguration = AnalyticsConfiguration.InfluxDbConfiguration.RetentionPolicyConfiguration("rpMarathonTest", "90d", "1h", 5, false)
+                )
+            }
+        }
+
         on("sample config 2") {
 
             val file = File(ConfigFactorySpec::class.java.getResource("/fixture/config/sample_2.yaml").file)

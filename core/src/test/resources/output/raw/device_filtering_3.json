@@ -1,0 +1,1 @@
+[{"package":"test","class":"SimpleTest","method":"test1","deviceSerial":"emulator-5004","status":"PASSED","ignored":false,"success":true,"timestamp":0,"duration":1},{"package":"test","class":"SimpleTest","method":"test2","deviceSerial":"emulator-5004","status":"PASSED","ignored":false,"success":true,"timestamp":1,"duration":1}]

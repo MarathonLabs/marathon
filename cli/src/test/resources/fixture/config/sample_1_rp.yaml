@@ -6,6 +6,12 @@ analyticsConfiguration:
     user: "root"
     password: "root"
     dbName: "marathon"
+    retentionPolicyConfiguration:
+      name: "rpMarathonTest"
+      duration: "90d"
+      shardDuration: "1h"
+      replicationFactor: 5
+      isDefault: false
 poolingStrategy:
 - type: "omni"
 - type: "device-model"
