@@ -81,6 +81,9 @@ class QueueActor(private val configuration: Configuration,
             handleFinishedTests(finished, device)
         }
         if (failed.isNotEmpty()) {
+            failed.forEach {
+                uncompletedTestsRetryCount[it.test] = (uncompletedTestsRetryCount[it.test] ?: 0) + 1
+            }
             handleFailedTests(failed, device)
         }
         if (uncompleted.isNotEmpty()) {
@@ -94,7 +97,9 @@ class QueueActor(private val configuration: Configuration,
 
     private suspend fun onReturnBatch(device: DeviceInfo, batch: TestBatch) {
         logger.debug { "onReturnBatch ${device.serialNumber}" }
-        returnTests(batch.tests)
+        returnTests(batch.tests.filter {
+            (uncompletedTestsRetryCount[it] ?: 0) < configuration.uncompletedTestRetryQuota
+        })
         activeBatches.remove(device.serialNumber)
         if (queue.isNotEmpty()) {
             pool.send(FromQueue.Notify)
