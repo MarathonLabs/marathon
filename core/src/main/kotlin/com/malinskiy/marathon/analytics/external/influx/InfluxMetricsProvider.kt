@@ -1,111 +1,114 @@
 package com.malinskiy.marathon.analytics.external.influx
 
 import com.malinskiy.marathon.analytics.external.MetricsProvider
+import com.malinskiy.marathon.analytics.metrics.remote.RemoteDataSource
+import com.malinskiy.marathon.analytics.tracker.remote.influx.InfluxDbProvider
 import com.malinskiy.marathon.execution.AnalyticsConfiguration
+import com.malinskiy.marathon.execution.withRetry
 import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.test.Test
 import com.malinskiy.marathon.test.toSafeTestName
 import org.influxdb.InfluxDB
+import org.influxdb.InfluxDBIOException
 import org.influxdb.annotation.Column
 import org.influxdb.annotation.Measurement
 import org.influxdb.dto.Query
 import org.influxdb.impl.InfluxDBResultMapper
+import kotlinx.coroutines.runBlocking
 import java.time.Instant
 
-@Measurement(name = "tests")
-class ExecutionTime(@Column(name = "testname", tag = true) var testName: String? = null,
-                    @Column(name = "percentile") var percentile: Double? = null)
+private data class MeasurementKey(val key: Double = Double.NaN, val limit: Instant)
 
-@Measurement(name = "tests")
-class SuccessRate(@Column(name = "testname", tag = true) var testName: String? = null,
-                  @Column(name = "mean") var mean: Double? = null)
+private class MeasurementValues(private val values: Map<String, Double>) {
+    fun get(testName: String): Double? {
+        return values[testName]
+    }
+}
 
-class InfluxMetricsProvider(private val influxDb: InfluxDB,
-                            private val dbName: String) : MetricsProvider {
+private const val RETRY_DELAY: Long = 50L
+
+
+class InfluxMetricsProvider(private val remoteDataStore: RemoteDataSource) : MetricsProvider {
 
     private val logger = MarathonLogging.logger(InfluxMetricsProvider::class.java.simpleName)
-    private val mapper = InfluxDBResultMapper()
 
-    private val successRate = mutableMapOf<String, Double>()
-    private val executionTime = mutableMapOf<String, Double>()
+    private val successRateMeasurements = mutableMapOf<MeasurementKey, MeasurementValues>()
+    private val executionTimeMeasurements = mutableMapOf<MeasurementKey, MeasurementValues>()
 
-    private var successRateInitialized = false
+    private fun emptyMeasurementValues() = MeasurementValues(emptyMap())
 
     override fun successRate(test: Test, limit: Instant): Double {
-        if (!successRateInitialized) {
-            requestAllSuccessRates(limit).forEach {
-                val testName = it.testName
-                val mean = it.mean
-                if (testName != null && mean != null) {
-                    successRate[testName] = mean
-                }
-            }
-            successRateInitialized = true
+        val key = MeasurementKey(limit = limit)
+
+        if (!successRateMeasurements.containsKey(key)) {
+            successRateMeasurements[key] = runCatching {
+                fetchSuccessRateData(limit)
+            }.onFailure {
+                logger.warn { "Cannot fetch success rate from database" }
+            }.fold({ list ->
+                MeasurementValues(list.associateBy({ it.testName }, { it.mean }))
+            }, {
+                emptyMeasurementValues()
+            })
         }
 
-        val successRate = successRate[test.toSafeTestName()]
-        return if (successRate == null) {
-            logger.warn { "No success rate found for ${test.toSafeTestName()}. Using 0 i.e. fails all the time" }
+        val testName = test.toSafeTestName()
+        return successRateMeasurements[key]?.get(testName) ?: {
+            logger.warn { "No success rate found for $testName. Using 0 i.e. fails all the time" }
             0.0
-        } else {
-            successRate
+        }()
+    }
+
+    private fun fetchSuccessRateData(limit: Instant) = runBlocking {
+        withRetry(3, RETRY_DELAY) {
+            remoteDataStore.requestAllSuccessRates(limit)
         }
     }
 
-    private fun requestAllSuccessRates(limit: Instant): List<SuccessRate> {
-        val results = influxDb.query(Query("""
-            SELECT MEAN("success")
-            FROM "tests"
-            WHERE time >= '$limit'
-            GROUP BY "testname"
-        """, dbName))
-        return mapper.toPOJO(results, SuccessRate::class.java)
-    }
-
-    var executionTimeInitialized = false
 
     override fun executionTime(test: Test,
                                percentile: Double,
                                limit: Instant): Double {
-        if (!executionTimeInitialized) {
-            requestAllExecutionTimes(percentile, limit).forEach {
-                executionTime[it.testName!!] = it.percentile!!
-            }
-            executionTimeInitialized = true
+        val key = MeasurementKey(percentile, limit)
+        if (!executionTimeMeasurements.containsKey(key)) {
+            executionTimeMeasurements[key] = runCatching {
+                fetchExecutionTime(percentile, limit)
+            }.onFailure {
+                logger.warn { "Cannot fetch execution time from database" }
+            }.fold({ list ->
+                logger.warn { list }
+                MeasurementValues(list.associateBy({ it.testName }, { it.percentile }))
+            }, {
+                emptyMeasurementValues()
+            })
         }
-
-        val executionTime = executionTime[test.toSafeTestName()]
-        return if (executionTime == null) {
-            logger.warn { "No execution time found for ${test.toSafeTestName()}. Using 300_000 seconds i.e. long test" }
+        val testName = test.toSafeTestName()
+        return executionTimeMeasurements[key]?.get(testName) ?: {
+            logger.warn { "No execution time found for $testName. Using 300_000 seconds i.e. long test" }
             300_000.0
-        } else {
-            executionTime
-        }
+        }()
     }
 
-    private fun requestAllExecutionTimes(percentile: Double,
-                                         limit: Instant): List<ExecutionTime> {
-        val results = influxDb.query(Query("""
-            SELECT PERCENTILE("duration",$percentile)
-            FROM "tests"
-            WHERE time >= '$limit'
-            GROUP BY "testname"
-        """, dbName))
-        return mapper.toPOJO(results, ExecutionTime::class.java)
+    private fun fetchExecutionTime(percentile: Double, limit: Instant) = runBlocking {
+        withRetry(3, RETRY_DELAY) {
+            remoteDataStore.requestAllExecutionTimes(percentile, limit)
+        }
     }
 
     override fun close() {
-        influxDb.close()
+        remoteDataStore.close()
     }
 
     companion object {
         fun createWithFallback(configuration: AnalyticsConfiguration.InfluxDbConfiguration, fallback: MetricsProvider): MetricsProvider {
             return try {
                 val db = InfluxDbProvider(configuration).createDb()
-                InfluxMetricsProvider(db, configuration.dbName)
+                val dataSource = InfluxDBDataSource(db, configuration.dbName)
+                InfluxMetricsProvider(dataSource)
             } catch (e: Exception) {
                 fallback
             }
         }
     }
 }
+

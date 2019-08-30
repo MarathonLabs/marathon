@@ -37,8 +37,12 @@ class InfluxMetricsProviderIntegrationSpec : Spek({
         container.newInfluxDB
     }
 
+    val dataStore = memoized(mode = CachingMode.TEST){
+        InfluxDBDataSource(influxDB.invoke(), database)
+    }
+
     val provider = memoized(mode = CachingMode.TEST) {
-        InfluxMetricsProvider(influxDB.invoke(), database)
+        InfluxMetricsProvider(dataStore.invoke())
     }
 
     describe("InfluxMetricsProvider") {
