@@ -23,7 +23,6 @@ import net.schmizz.sshj.common.LoggerFactory
 import net.schmizz.sshj.connection.ConnectionException
 import net.schmizz.sshj.connection.ConnectionImpl
 import net.schmizz.sshj.transport.TransportException
-import net.schmizz.sshj.transport.verification.OpenSSHKnownHosts
 import net.schmizz.sshj.transport.verification.PromiscuousVerifier
 import net.schmizz.sshj.userauth.UserAuthException
 import org.slf4j.Logger
@@ -53,6 +52,8 @@ class SshjCommandExecutor(connectionId: String,
     override val coroutineContext: CoroutineContext
         get() = dispatcher
     private val ssh: SSHClient
+
+    private val logger = MarathonLogging.logger(SshjCommandExecutor::class.java.simpleName)
 
     init {
         val config = DefaultConfig()
@@ -91,6 +92,7 @@ class SshjCommandExecutor(connectionId: String,
             ssh = SSHClient(config)
             if (disableHostKeyVerifier) {
                 ssh.addHostKeyVerifier(PromiscuousVerifier())
+                logger.info("HostKey verification disabled")
             }
             if (keepAliveIntervalMillis > 0) {
                 ssh.connection.keepAlive.keepAliveInterval = (keepAliveIntervalMillis / 1000).toInt()
@@ -106,10 +108,6 @@ class SshjCommandExecutor(connectionId: String,
         } catch (e: ConnectException) {
             throw DeviceFailureException(DeviceFailureReason.Unknown, e)
         }
-    }
-
-    private val logger by lazy {
-        MarathonLogging.logger(SshjCommandExecutor::class.java.simpleName)
     }
 
     override fun startSession(command: String): CommandSession = SshjCommandSession(command, ssh)

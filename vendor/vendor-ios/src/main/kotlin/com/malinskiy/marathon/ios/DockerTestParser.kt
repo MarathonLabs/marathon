@@ -28,9 +28,9 @@ class BinaryTestParser(private val binaryParserDockerImageName: String) : Docker
         }
 
         val command =
-                listOf("docker", "run") +
+                listOf("docker", "run", "--rm") +
                         pathMappings
-                                .map { listOf("--rm", "-v", "${it.first}:${it.second}:ro") }
+                                .map { listOf("-v", "${it.first}:${it.second}:ro") }
                                 .flatten() + binaryParserDockerImageName + pathMappings.map { "${it.second}" }
 
         val output = mutableListOf<String>()
