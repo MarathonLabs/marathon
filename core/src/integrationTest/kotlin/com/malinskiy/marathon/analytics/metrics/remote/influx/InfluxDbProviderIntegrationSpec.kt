@@ -47,7 +47,7 @@ class InfluxDbProviderIntegrationSpec : Spek({
 
                 thirdDbInstance = provider.createDb()
 
-                val metricsProvider = InfluxMetricsProvider(thirdDbInstance!!, database)
+                val metricsProvider = InfluxMetricsProvider(InfluxDBDataSource(thirdDbInstance!!, database))
 
                 val result = metricsProvider.executionTime(test, 50.0, Instant.now().minus(2, ChronoUnit.DAYS))
                 result shouldEqualTo 5000.0
