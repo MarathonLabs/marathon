@@ -1,5 +1,6 @@
 package com.malinskiy.marathon.analytics.metrics.remote.influx
 
+import com.malinskiy.marathon.analytics.external.influx.InfluxMetricsProvider
 import com.malinskiy.marathon.analytics.metrics.remote.ExecutionTime
 import com.malinskiy.marathon.analytics.metrics.remote.RemoteDataSource
 import com.malinskiy.marathon.analytics.metrics.remote.SuccessRate

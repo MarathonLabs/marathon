@@ -2,18 +2,12 @@ package com.malinskiy.marathon.analytics.external.influx
 
 import com.malinskiy.marathon.analytics.external.MetricsProvider
 import com.malinskiy.marathon.analytics.metrics.remote.RemoteDataSource
-import com.malinskiy.marathon.analytics.tracker.remote.influx.InfluxDbProvider
+import com.malinskiy.marathon.analytics.metrics.remote.influx.InfluxDBDataSource
 import com.malinskiy.marathon.execution.AnalyticsConfiguration
 import com.malinskiy.marathon.execution.withRetry
 import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.test.Test
 import com.malinskiy.marathon.test.toSafeTestName
-import org.influxdb.InfluxDB
-import org.influxdb.InfluxDBIOException
-import org.influxdb.annotation.Column
-import org.influxdb.annotation.Measurement
-import org.influxdb.dto.Query
-import org.influxdb.impl.InfluxDBResultMapper
 import kotlinx.coroutines.runBlocking
 import java.time.Instant
 

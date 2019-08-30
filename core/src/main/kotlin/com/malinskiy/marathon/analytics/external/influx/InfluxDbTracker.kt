@@ -1,19 +1,17 @@
 package com.malinskiy.marathon.analytics.external.influx
 
-import com.malinskiy.marathon.analytics.internal.sub.Event
 import com.malinskiy.marathon.analytics.internal.sub.TestEvent
-import com.malinskiy.marathon.analytics.internal.sub.TrackerInternal
+import com.malinskiy.marathon.analytics.internal.sub.TrackerInternalAdapter
 import com.malinskiy.marathon.execution.TestStatus
 import com.malinskiy.marathon.test.toSafeTestName
 import org.influxdb.InfluxDB
 import org.influxdb.dto.Point
 import java.util.concurrent.TimeUnit
 
-internal class InfluxDbTracker(private val influxDb: InfluxDB) : TrackerInternal {
-    override fun track(event: Event) = when {
-        event is TestEvent &&
-                //Report only success and failure
-                event.testResult.status in arrayOf(TestStatus.FAILURE, TestStatus.PASSED) -> {
+internal class InfluxDbTracker(private val influxDb: InfluxDB) : TrackerInternalAdapter() {
+    override fun trackTest(event: TestEvent) {
+        //Report only success and failure
+        if(event.testResult.status in arrayOf(TestStatus.FAILURE, TestStatus.PASSED)) {
 
             val testResult = event.testResult
             val device = event.device
@@ -30,7 +28,6 @@ internal class InfluxDbTracker(private val influxDb: InfluxDB) : TrackerInternal
                     .addField("duration", testResult.durationMillis())
                     .build())
         }
-        else -> Unit
     }
 
     override fun close() {
