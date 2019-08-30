@@ -48,7 +48,7 @@ class IOSDevice(val simulator: RemoteSimulator,
                 connectionAttempt: Int,
                 configuration: IOSConfiguration,
                 val gson: Gson,
-                private val healthChangeListener: HealthChangeListener): Device, CoroutineScope {
+                private val healthChangeListener: HealthChangeListener) : Device, CoroutineScope {
 
     val udid = simulator.udid
     val connectionId = "$udid@${simulator.host}-$connectionAttempt"
@@ -74,14 +74,15 @@ class IOSDevice(val simulator: RemoteSimulator,
         }
         hostCommandExecutor = try {
             SshjCommandExecutor(
-                connectionId = connectionId,
-                hostAddress = hostAddress,
-                remoteUsername = simulator.username ?: configuration.remoteUsername,
-                remotePrivateKey = configuration.remotePrivateKey,
-                knownHostsPath = configuration.knownHostsPath,
-                verbose = configuration.debugSsh
+                    connectionId = connectionId,
+                    hostAddress = hostAddress,
+                    remoteUsername = simulator.username ?: configuration.remoteUsername,
+                    remotePrivateKey = configuration.remotePrivateKey,
+                    knownHostsPath = configuration.knownHostsPath,
+                    verbose = configuration.debugSsh,
+                    disableHostKeyVerifier = configuration.disableHostKeyVerifier
             )
-        } catch(e: DeviceFailureException) {
+        } catch (e: DeviceFailureException) {
             deviceContext.close()
             throw DeviceLostException(e)
         }
@@ -119,7 +120,7 @@ class IOSDevice(val simulator: RemoteSimulator,
     override val manufacturer: String
         get() = "Apple"
     override val networkState: NetworkState
-        get() = when(healthy) {
+        get() = when (healthy) {
             true -> NetworkState.CONNECTED
             false -> NetworkState.DISCONNECTED
         }
@@ -142,14 +143,14 @@ class IOSDevice(val simulator: RemoteSimulator,
 
         if (iosConfiguration.alwaysEraseSimulators) {
             hostCommandExecutor.execOrNull(
-                "xcrun simctl shutdown $udid",
-                configuration.testBatchTimeoutMillis,
-                configuration.testOutputTimeoutMillis
+                    "xcrun simctl shutdown $udid",
+                    configuration.testBatchTimeoutMillis,
+                    configuration.testOutputTimeoutMillis
             )
             hostCommandExecutor.execOrNull(
-                "xcrun simctl erase $udid",
-                configuration.testBatchTimeoutMillis,
-                configuration.testOutputTimeoutMillis
+                    "xcrun simctl erase $udid",
+                    configuration.testBatchTimeoutMillis,
+                    configuration.testOutputTimeoutMillis
             )
         }
 
@@ -166,35 +167,35 @@ class IOSDevice(val simulator: RemoteSimulator,
         logger.debug("Tests = ${testBatch.tests.toList()}")
 
         val logParser = IOSDeviceLogParser(
-            this@IOSDevice,
-            packageNameFormatter,
-            devicePoolId,
-            testBatch,
-            deferred,
-            progressReporter,
-            iosConfiguration.hideRunnerOutput
+                this@IOSDevice,
+                packageNameFormatter,
+                devicePoolId,
+                testBatch,
+                deferred,
+                progressReporter,
+                iosConfiguration.hideRunnerOutput
         )
 
         val command =
                 listOf(
-                    "cd '$remoteDir' &&",
-                    "set -o pipefail &&",
-                    "NSUnbufferedIO=YES",
-                    "xcodebuild test-without-building",
-                    "-disable-concurrent-destination-testing",
-                    "-xctestrun ${remoteXctestrunFile.path}",
-                    testBatch.toXcodebuildArguments(),
-                    "-destination 'platform=iOS simulator,id=$udid' ;",
-                    "exit")
-                .joinToString(" ")
-                .also { logger.debug("\u001b[1m$it\u001b[0m") }
+                        "cd '$remoteDir' &&",
+                        "set -o pipefail &&",
+                        "NSUnbufferedIO=YES",
+                        "xcodebuild test-without-building",
+                        "-disable-concurrent-destination-testing",
+                        "-xctestrun ${remoteXctestrunFile.path}",
+                        testBatch.toXcodebuildArguments(),
+                        "-destination 'platform=iOS simulator,id=$udid' ;",
+                        "exit")
+                        .joinToString(" ")
+                        .also { logger.debug("\u001b[1m$it\u001b[0m") }
 
         val exitStatus = try {
             hostCommandExecutor.execInto(
-                command,
-                configuration.testBatchTimeoutMillis,
-                configuration.testOutputTimeoutMillis,
-                logParser::onLine
+                    command,
+                    configuration.testBatchTimeoutMillis,
+                    configuration.testOutputTimeoutMillis,
+                    logParser::onLine
             )
         } catch (e: SshjCommandUnresponsiveException) {
             logger.error("No output from remote shell")
@@ -318,8 +319,8 @@ class IOSDevice(val simulator: RemoteSimulator,
 
     private fun disableHardwareKeyboard() {
         val result =
-            hostCommandExecutor.execOrNull("/usr/libexec/PlistBuddy -c 'Add :DevicePreferences:$udid:ConnectHardwareKeyboard bool false' /Users/master/Library/Preferences/com.apple.iphonesimulator.plist" +
-                    "|| /usr/libexec/PlistBuddy -c 'Set :DevicePreferences:$udid:ConnectHardwareKeyboard false' /Users/master/Library/Preferences/com.apple.iphonesimulator.plist")
+                hostCommandExecutor.execOrNull("/usr/libexec/PlistBuddy -c 'Add :DevicePreferences:$udid:ConnectHardwareKeyboard bool false' /Users/master/Library/Preferences/com.apple.iphonesimulator.plist" +
+                        "|| /usr/libexec/PlistBuddy -c 'Set :DevicePreferences:$udid:ConnectHardwareKeyboard false' /Users/master/Library/Preferences/com.apple.iphonesimulator.plist")
         if (result?.exitStatus == 0) {
             logger.trace("Disabled hardware keyboard")
         } else {
@@ -356,8 +357,7 @@ class IOSDevice(val simulator: RemoteSimulator,
         val xctestrun = Xctestrun(derivedDataManager.xctestrunFile)
         xctestrun.allTargetsEnvironment("TEST_HTTP_SERVER_PORT", "$remotePort")
 
-        return derivedDataManager.xctestrunFile.
-                resolveSibling(remoteXctestrunFile.name)
+        return derivedDataManager.xctestrunFile.resolveSibling(remoteXctestrunFile.name)
                 .also { it.writeBytes(xctestrun.toXMLByteArray()) }
     }
 
@@ -386,7 +386,11 @@ private fun String.toInetAddressOrNull(): InetAddress? {
             } catch (e: IOException) {
                 logger.error("Error checking reachability of $this: $e")
                 false
-            }) { address } else { null }
+            }) {
+        address
+    } else {
+        null
+    }
 }
 
 private fun TestBatch.toXcodebuildArguments(): String = tests.joinToString(separator = " ") { "-only-testing:\"${it.pkg}/${it.clazz}/${it.method}\"" }

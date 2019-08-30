@@ -11,7 +11,7 @@ interface DockerTestParser {
     fun listTests(testRunnerPaths: List<File>): List<String>
 }
 
-class BinaryTestParser(private val binaryParserDockerImageName: String): DockerTestParser {
+class BinaryTestParser(private val binaryParserDockerImageName: String) : DockerTestParser {
     private val logger = MarathonLogging.logger(BinaryTestParser::class.java.simpleName)
 
     private class DockerOutputReader(private val inputStream: InputStream,
@@ -24,20 +24,18 @@ class BinaryTestParser(private val binaryParserDockerImageName: String): DockerT
 
     override fun listTests(testRunnerPaths: List<File>): List<String> {
         val pathMappings = testRunnerPaths.map {
-            it.absolutePath to File("/tmp").resolve(it.name).absolutePath }
+            it.absolutePath to File("/tmp").resolve(it.name).absolutePath
+        }
 
         val command =
                 listOf("docker", "run", "--rm") +
-                    pathMappings.map {
-                    listOf("-v", "${it.first}:${it.second}:ro") }
-                        .flatten() + binaryParserDockerImageName + pathMappings.map { it.second }
-
-        val builder = ProcessBuilder()
-                .command(command)
-                .directory(File(System.getProperty("user.dir")))
-        val process = builder.start()
+                        pathMappings
+                                .map { listOf("-v", "${it.first}:${it.second}:ro") }
+                                .flatten() + binaryParserDockerImageName + pathMappings.map { "${it.second}" }
 
         val output = mutableListOf<String>()
+        val process = ProcessBuilder().command(command).start()
+
         val outputReader = DockerOutputReader(process.inputStream) { output.add(it) }
         Executors.newSingleThreadExecutor().submit(outputReader)
         return if (process.waitFor() == 0) {
