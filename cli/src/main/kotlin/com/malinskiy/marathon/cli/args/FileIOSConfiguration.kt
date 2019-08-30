@@ -35,6 +35,7 @@ data class FileIOSConfiguration(
         @JsonProperty("keepAliveIntervalMillis") val keepAliveIntervalMillis: Long = 0L,
         @JsonProperty("deviceInitializationTimeoutMillis") val deviceInitializationTimeoutMillis: Long?,
         @JsonProperty("devices") val devices: File?,
+        @JsonProperty("disableHostKeyVerifier") val disableHostKeyVerifier: Boolean = false,
         val fileListProvider: FileListProvider = DerivedDataFileListProvider) : FileVendorConfiguration {
 
     fun toIOSConfiguration(marathonfileDir: File,
@@ -74,7 +75,8 @@ data class FileIOSConfiguration(
                     devicesFile = optionalDevices,
                     sourceRootsRegex = sourceRootsRegex,
                     sourceTargetName = sourceTargetName,
-                    binaryParserDockerImageName = binaryParserDockerImageName)
+                    binaryParserDockerImageName = binaryParserDockerImageName,
+                    disableHostKeyVerifier = disableHostKeyVerifier)
         } else {
             IOSConfiguration(
                     derivedDataDir = resolvedDerivedDataDir,
@@ -93,7 +95,8 @@ data class FileIOSConfiguration(
                     sourceRoot = optionalSourceRoot,
                     sourceRootsRegex = sourceRootsRegex,
                     sourceTargetName = sourceTargetName,
-                    binaryParserDockerImageName = binaryParserDockerImageName)
+                    binaryParserDockerImageName = binaryParserDockerImageName,
+                    disableHostKeyVerifier = disableHostKeyVerifier)
         }
     }
 }

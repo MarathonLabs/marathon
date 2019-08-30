@@ -23,6 +23,8 @@ import net.schmizz.sshj.common.LoggerFactory
 import net.schmizz.sshj.connection.ConnectionException
 import net.schmizz.sshj.connection.ConnectionImpl
 import net.schmizz.sshj.transport.TransportException
+import net.schmizz.sshj.transport.verification.OpenSSHKnownHosts
+import net.schmizz.sshj.transport.verification.PromiscuousVerifier
 import net.schmizz.sshj.userauth.UserAuthException
 import org.slf4j.Logger
 import java.io.File
@@ -44,7 +46,8 @@ class SshjCommandExecutor(connectionId: String,
                           val port: Int = DEFAULT_PORT,
                           val knownHostsPath: File? = null,
                           keepAliveIntervalMillis: Long = 0L,
-                          verbose: Boolean = false) : CommandExecutor, CoroutineScope {
+                          verbose: Boolean = false,
+                          disableHostKeyVerifier: Boolean) : CommandExecutor, CoroutineScope {
 
     private val dispatcher = newSingleThreadContext("$connectionId-ssh")
     override val coroutineContext: CoroutineContext
@@ -57,22 +60,22 @@ class SshjCommandExecutor(connectionId: String,
             override fun getLogger(clazz: Class<*>?): Logger {
                 val name = clazz?.simpleName ?: SshjCommandExecutor::class.java.simpleName
                 return MarathonLogging.logger(
-                    name = name,
+                        name = name,
+                        level = if (verbose) {
+                            Level.DEBUG
+                        } else {
+                            Level.ERROR
+                        }
+                )
+            }
+
+            override fun getLogger(name: String?): Logger = MarathonLogging.logger(
+                    name = name ?: "",
                     level = if (verbose) {
                         Level.DEBUG
                     } else {
                         Level.ERROR
                     }
-                )
-            }
-
-            override fun getLogger(name: String?): Logger = MarathonLogging.logger(
-                name = name ?: "",
-                level = if (verbose) {
-                    Level.DEBUG
-                } else {
-                    Level.ERROR
-                }
             )
         }
         config.loggerFactory = loggerFactory
@@ -86,11 +89,13 @@ class SshjCommandExecutor(connectionId: String,
 
         try {
             ssh = SSHClient(config)
+            if (disableHostKeyVerifier) {
+                ssh.addHostKeyVerifier(PromiscuousVerifier())
+            }
             if (keepAliveIntervalMillis > 0) {
                 ssh.connection.keepAlive.keepAliveInterval = (keepAliveIntervalMillis / 1000).toInt()
             }
-            knownHostsPath?.let { ssh.loadKnownHosts(it) }
-            ssh.loadKnownHosts()
+            knownHostsPath?.let { ssh.loadKnownHosts(it) } ?: run { ssh.loadKnownHosts() }
             val keys = ssh.loadKeys(remotePrivateKey.path)
             ssh.connect(hostAddress, port)
             ssh.authPublickey(remoteUsername, keys)
@@ -121,7 +126,7 @@ class SshjCommandExecutor(connectionId: String,
         }
     }
 
-    private class OutputTimeoutException: RuntimeException()
+    private class OutputTimeoutException : RuntimeException()
 
     private suspend fun exec(inContext: CoroutineContext,
                              command: String,
@@ -150,53 +155,55 @@ class SshjCommandExecutor(connectionId: String,
                 val isSessionReadable = { session.isOpen and !session.isEOF }
 
                 awaitAll(
-                    async(CoroutineName("stdout reader")) {
-                        readLines(session.inputStream,
-                            isSessionReadable,
-                            {
-                                timeoutWaiter.update()
-                                onLine(it)
+                        async(CoroutineName("stdout reader")) {
+                            readLines(session.inputStream,
+                                    isSessionReadable,
+                                    {
+                                        timeoutWaiter.update()
+                                        onLine(it)
+                                    }
+                            )
+                        },
+                        async(CoroutineName("stderr reader")) {
+                            readLines(session.errorStream,
+                                    isSessionReadable,
+                                    {
+                                        timeoutWaiter.update()
+                                        onLine(it)
+                                    }
+                            )
+                        },
+                        async(CoroutineName("Timeout waiter")) {
+                            while (isActive and isSessionReadable()) {
+                                if (timeoutWaiter.isExpired) {
+                                    throw OutputTimeoutException()
+                                }
+                                timeoutWaiter.wait()
                             }
-                        )
-                    },
-                    async(CoroutineName("stderr reader")) {
-                        readLines(session.errorStream,
-                            isSessionReadable,
-                            {
-                                timeoutWaiter.update()
-                                onLine(it)
-                            }
-                        )
-                    },
-                    async(CoroutineName("Timeout waiter")) {
-                        while (isActive and isSessionReadable()) {
-                            if (timeoutWaiter.isExpired) {
-                                throw OutputTimeoutException()
-                            }
-                            timeoutWaiter.wait()
                         }
-                    }
                 )
             }
         } catch (e: TimeoutCancellationException) {
             try {
                 session.kill()
-            } catch (e: TransportException) { /* quietly continue */ }
+            } catch (e: TransportException) { /* quietly continue */
+            }
 
             throw TimeoutException(e.message)
         } catch (e: OutputTimeoutException) {
             try {
                 session.kill()
-            } catch (e: TransportException) { /* moving on */ }
+            } catch (e: TransportException) { /* moving on */
+            }
 
             throw SshjCommandUnresponsiveException("Remote command \n\u001b[1m$command\u001b[0mdid not send any output over ${testOutputTimeoutMillis}ms")
         } finally {
             try {
                 session.close()
+            } catch (e: IOException) { /* what a piece of work is detekt! */
+            } catch (e: TransportException) { /* how noble in reason */
+            } catch (e: ConnectionException) { /* how infinite in faculty */
             }
-            catch (e: IOException) { /* what a piece of work is detekt! */ }
-            catch (e: TransportException) { /* how noble in reason */ }
-            catch (e: ConnectionException) { /* how infinite in faculty */  }
         }
         logger.trace("Execution completed after ${System.currentTimeMillis() - startTime}ms")
         session.exitStatus
@@ -242,19 +249,19 @@ class SshjCommandExecutor(connectionId: String,
                                   testOutputTimeoutMillis: Long,
                                   onLine: (String) -> Unit): Int? =
             exec(coroutineContext,
-                command,
-                maxExecutionDurationMillis,
-                testOutputTimeoutMillis,
-                onLine)
+                    command,
+                    maxExecutionDurationMillis,
+                    testOutputTimeoutMillis,
+                    onLine)
 
     override fun execBlocking(command: String,
                               maxExecutionDurationMillis: Long,
                               testOutputTimeoutMillis: Long): CommandResult = runBlocking(coroutineContext + CoroutineName("execBlocking")) {
         val lines = arrayListOf<String>()
         val exitStatus = exec(coroutineContext,
-                                    command,
-                                    maxExecutionDurationMillis,
-                                    testOutputTimeoutMillis) { lines.add(it) }
+                command,
+                maxExecutionDurationMillis,
+                testOutputTimeoutMillis) { lines.add(it) }
         CommandResult(lines.joinToString("\n"), "", exitStatus ?: 1)
     }
 }
