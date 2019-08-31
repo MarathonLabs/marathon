@@ -2,7 +2,7 @@ package com.malinskiy.marathon.ios
 
 
 import com.google.gson.Gson
-import com.malinskiy.marathon.analytics.tracker.device.InMemoryDeviceTracker
+import com.malinskiy.marathon.analytics.internal.pub.Track
 import com.malinskiy.marathon.device.Device
 import com.malinskiy.marathon.device.DeviceFeature
 import com.malinskiy.marathon.device.DevicePoolId
@@ -47,6 +47,7 @@ class IOSDevice(val simulator: RemoteSimulator,
                 connectionAttempt: Int,
                 configuration: IOSConfiguration,
                 val gson: Gson,
+                private val track: Track,
                 private val healthChangeListener: HealthChangeListener): Device, CoroutineScope {
 
     val udid = simulator.udid
@@ -238,7 +239,7 @@ class IOSDevice(val simulator: RemoteSimulator,
     override suspend fun prepare(configuration: Configuration) = withContext(coroutineContext + CoroutineName("prepare")) {
         val iosConfiguration = configuration.vendorConfiguration as IOSConfiguration
 
-        InMemoryDeviceTracker.trackDevicePreparing(this@IOSDevice) {
+        track.trackDevicePreparing(this@IOSDevice) {
             RemoteFileManager.createRemoteDirectory(this@IOSDevice)
 
             val derivedDataManager = DerivedDataManager(configuration)

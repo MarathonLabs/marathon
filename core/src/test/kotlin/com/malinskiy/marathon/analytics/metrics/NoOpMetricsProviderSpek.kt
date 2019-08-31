@@ -1,5 +1,6 @@
 package com.malinskiy.marathon.analytics.metrics
 
+import com.malinskiy.marathon.analytics.external.NoOpMetricsProvider
 import com.malinskiy.marathon.test.Test
 import org.amshove.kluent.`should be equal to`
 import org.jetbrains.spek.api.Spek

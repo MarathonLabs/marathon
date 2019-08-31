@@ -1,6 +1,7 @@
 package com.malinskiy.marathon.execution.queue
 
-import com.malinskiy.marathon.analytics.Analytics
+import com.malinskiy.marathon.analytics.external.Analytics
+import com.malinskiy.marathon.analytics.internal.pub.Track
 import com.malinskiy.marathon.createDeviceInfo
 import com.malinskiy.marathon.device.DevicePoolId
 import com.malinskiy.marathon.execution.Configuration
@@ -22,6 +23,11 @@ import org.jetbrains.spek.api.dsl.on
 import java.io.File
 
 object TestResultReporterSpec : Spek({
+    val track: Track = mock()
+
+    beforeEachTest {
+        reset(track)
+    }
 
     val defaultConfig = Configuration(name = "",
             outputDir = File(""),
@@ -55,12 +61,14 @@ object TestResultReporterSpec : Spek({
     fun filterDefault() = TestResultReporter(poolId,
             analytics,
             TestShard(listOf(test,test,test)),
-            defaultConfig)
+            defaultConfig,
+            track)
 
     fun filterStrict() = TestResultReporter(poolId,
             analytics,
             TestShard(listOf(test,test,test)),
-            strictConfig)
+            strictConfig,
+            track)
     val deviceInfo = createDeviceInfo()
 
     afterEachTest {
@@ -80,12 +88,11 @@ object TestResultReporterSpec : Spek({
                 filter.testFailed(deviceInfo, r2)
                 filter.testFailed(deviceInfo, r3)
 
-                inOrder(analytics) {
-                    verify(analytics).trackTestFinished(poolId, deviceInfo, r1)
-                    verify(analytics).trackRawTestRun(poolId, deviceInfo, r1)
-                    verify(analytics).trackRawTestRun(poolId, deviceInfo, r2)
-                    verify(analytics).trackRawTestRun(poolId, deviceInfo, r3)
-                    verifyNoMoreInteractions(analytics)
+                inOrder(track) {
+                    verify(track).test(poolId, deviceInfo, r1, true)
+                    verify(track).test(poolId, deviceInfo, r2, false)
+                    verify(track).test(poolId, deviceInfo, r3, false)
+                    verifyNoMoreInteractions(track)
                 }
             }
         }
@@ -102,12 +109,11 @@ object TestResultReporterSpec : Spek({
                 filter.testFailed(deviceInfo, r2)
                 filter.testFinished(deviceInfo, r3)
 
-                inOrder(analytics) {
-                    verify(analytics).trackRawTestRun(poolId, deviceInfo, r1)
-                    verify(analytics).trackRawTestRun(poolId, deviceInfo, r2)
-                    verify(analytics).trackTestFinished(poolId, deviceInfo, r3)
-                    verify(analytics).trackRawTestRun(poolId, deviceInfo, r3)
-                    verifyNoMoreInteractions(analytics)
+                inOrder(track) {
+                    verify(track).test(poolId, deviceInfo, r1, false)
+                    verify(track).test(poolId, deviceInfo, r2, false)
+                    verify(track).test(poolId, deviceInfo, r3, true)
+                    verifyNoMoreInteractions(track)
                 }
             }
         }
@@ -126,12 +132,11 @@ object TestResultReporterSpec : Spek({
                 filter.testFailed(deviceInfo, r2)
                 filter.testFailed(deviceInfo, r3)
 
-                inOrder(analytics) {
-                    verify(analytics).trackRawTestRun(poolId, deviceInfo, r1)
-                    verify(analytics).trackTestFinished(poolId, deviceInfo, r2)
-                    verify(analytics).trackRawTestRun(poolId, deviceInfo, r2)
-                    verify(analytics).trackRawTestRun(poolId, deviceInfo, r3)
-                    verifyNoMoreInteractions(analytics)
+                inOrder(track) {
+                    verify(track).test(poolId, deviceInfo, r1, false)
+                    verify(track).test(poolId, deviceInfo, r2, true)
+                    verify(track).test(poolId, deviceInfo, r3, false)
+                    verifyNoMoreInteractions(track)
                 }
             }
         }
@@ -148,12 +153,11 @@ object TestResultReporterSpec : Spek({
                 filter.testFinished(deviceInfo, r2)
                 filter.testFinished(deviceInfo, r3)
 
-                inOrder(analytics) {
-                    verify(analytics).trackTestFinished(poolId, deviceInfo, r1)
-                    verify(analytics).trackRawTestRun(poolId, deviceInfo, r1)
-                    verify(analytics).trackRawTestRun(poolId, deviceInfo, r2)
-                    verify(analytics).trackRawTestRun(poolId, deviceInfo, r3)
-                    verifyNoMoreInteractions(analytics)
+                inOrder(track) {
+                    verify(track).test(poolId, deviceInfo, r1, true)
+                    verify(track).test(poolId, deviceInfo, r2, false)
+                    verify(track).test(poolId, deviceInfo, r3, false)
+                    verifyNoMoreInteractions(track)
                 }
             }
         }

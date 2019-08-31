@@ -15,10 +15,15 @@ import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.given
 import org.jetbrains.spek.api.dsl.it
 import org.jetbrains.spek.api.dsl.on
+import org.koin.core.context.stopKoin
 import java.io.File
 import java.util.concurrent.TimeUnit
 
 class DeviceFilteringScenario : Spek({
+    afterEachTest {
+        stopKoin()
+    }
+
     given("one blacklisted device and empty whitelist") {
         on("execution of two tests") {
             it("should pass on one device") {

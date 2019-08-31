@@ -44,6 +44,7 @@ object Versions {
     val mockitoKotlin = "2.0.0"
     val googleAnalitycsWrapper = "2.0.0"
     val dokka = "0.9.17"
+    val koin = "2.0.1"
 }
 
 object BuildPlugins {
@@ -82,6 +83,7 @@ object Libraries {
     val scalr = "org.imgscalr:imgscalr-lib:${Versions.scalr}"
     val allure = "io.qameta.allure:allure-java-commons:${Versions.allure}"
     val allureEnvironment = "com.github.automatedowl:allure-environment-writer:${Versions.allureEnvironment}"
+    val koin = "org.koin:koin-core:${Versions.koin}"
 }
 
 object TestLibraries {
@@ -99,6 +101,7 @@ object TestLibraries {
     val junit = "junit:junit:${Versions.junit}"
     val mockitoKotlin = "com.nhaarman.mockitokotlin2:mockito-kotlin:${Versions.mockitoKotlin}"
     val jupiterEngine = "org.junit.jupiter:junit-jupiter-engine:${Versions.jupiterEngine}"
+    val koin = "org.koin:koin-test:${Versions.koin}"
 
     val testContainers = "org.testcontainers:testcontainers:${Versions.testContainers}"
     val testContainersInflux = "org.testcontainers:influxdb:${Versions.testContainers}"

@@ -2,7 +2,7 @@ package com.malinskiy.marathon.android
 
 import com.android.ddmlib.IDevice
 import com.android.ddmlib.NullOutputReceiver
-import com.malinskiy.marathon.analytics.tracker.device.InMemoryDeviceTracker
+import com.malinskiy.marathon.analytics.internal.pub.Track
 import com.malinskiy.marathon.android.exception.InvalidSerialConfiguration
 import com.malinskiy.marathon.android.executor.AndroidAppInstaller
 import com.malinskiy.marathon.android.executor.AndroidDeviceTestRunner
@@ -37,6 +37,7 @@ import java.util.*
 import kotlin.coroutines.CoroutineContext
 
 class AndroidDevice(val ddmsDevice: IDevice,
+                    private val track: Track,
                     private val serialStrategy: SerialStrategy = SerialStrategy.AUTOMATIC) : Device, CoroutineScope {
 
     val fileManager = RemoteFileManager(ddmsDevice)
@@ -176,7 +177,7 @@ class AndroidDevice(val ddmsDevice: IDevice,
     }
 
     override suspend fun prepare(configuration: Configuration) {
-        InMemoryDeviceTracker.trackDevicePreparing(this) {
+        track.trackDevicePreparing(this) {
             val deferred = async {
                 AndroidAppInstaller(configuration).prepareInstallation(this@AndroidDevice)
                 fileManager.removeRemoteDirectory()

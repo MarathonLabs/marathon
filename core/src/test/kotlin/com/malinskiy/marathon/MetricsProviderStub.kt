@@ -1,6 +1,6 @@
 package com.malinskiy.marathon
 
-import com.malinskiy.marathon.analytics.metrics.MetricsProvider
+import com.malinskiy.marathon.analytics.external.MetricsProvider
 import com.malinskiy.marathon.test.Test
 import java.time.Instant
 

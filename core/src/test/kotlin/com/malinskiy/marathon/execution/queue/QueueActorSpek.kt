@@ -1,6 +1,7 @@
 package com.malinskiy.marathon.execution.queue
 
-import com.malinskiy.marathon.analytics.Analytics
+import com.malinskiy.marathon.analytics.external.Analytics
+import com.malinskiy.marathon.analytics.internal.pub.Track
 import com.malinskiy.marathon.device.DevicePoolId
 import com.malinskiy.marathon.device.DeviceStub
 import com.malinskiy.marathon.device.toDeviceInfo
@@ -18,6 +19,7 @@ import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.argumentCaptor
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.never
+import com.nhaarman.mockitokotlin2.reset
 import com.nhaarman.mockitokotlin2.verify
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
@@ -34,12 +36,18 @@ import org.jetbrains.spek.api.dsl.it
 import java.io.File
 
 class QueueActorSpek : Spek({
+    val track: Track = mock()
+
+    beforeEachTest {
+        reset(track)
+    }
+
     describe("queue actor") {
         val job by memoized { Job() }
         val poolChannel by memoized { Channel<FromQueue>() }
         val analytics by memoized { mock<Analytics>() }
 
-        given("uncompleted tests retry quota is 0, max batch size is 1 and one test in the shard") {
+        given("uncompleted tests retry quota is 0, max batch size is 1 and one test in the shard and processing finished") {
             val actor by memoized {
                 createQueueActor(
                         configuration = DEFAULT_CONFIGURATION.copy(
@@ -49,44 +57,34 @@ class QueueActorSpek : Spek({
                         tests = listOf(TEST_1),
                         poolChannel = poolChannel,
                         analytics = analytics,
-                        job = job
+                        job = job,
+                        track = track
                 )
             }
+            val captor = argumentCaptor<TestResult>()
+            val results = createBatchResult(uncompleted = listOf(
+                    createTestResult(TEST_1, TestStatus.FAILURE)
+            ))
 
-            describe("requesting batch and handling completed batch") {
-                beforeEachTest {
-                    runBlocking {
-                        actor.send(QueueMessage.RequestBatch(TEST_DEVICE_INFO))
-                        poolChannel.receive()
-                    }
+            it("should have empty queue") {
+                val isEmptyDeferred = CompletableDeferred<Boolean>()
+                runBlocking {
+                    actor.send(QueueMessage.RequestBatch(TEST_DEVICE_INFO))
+                    poolChannel.receive()
+                    actor.send(QueueMessage.Completed(TEST_DEVICE_INFO, results))
+                    actor.send(QueueMessage.IsEmpty(isEmptyDeferred))
+                    isEmptyDeferred.await() shouldBe true
                 }
+            }
 
-                describe("received uncompleted test once") {
-                    beforeEachTest {
-                        val results = createBatchResult(uncompleted = listOf(
-                                createTestResult(TEST_1, TestStatus.FAILURE)
-                        ))
-                        runBlocking {
-                            actor.send(QueueMessage.Completed(TEST_DEVICE_INFO, results))
-                        }
-                    }
-
-                    it("should have empty queue") {
-                        val isEmptyDeferred = CompletableDeferred<Boolean>()
-                        runBlocking {
-                            actor.send(QueueMessage.IsEmpty(isEmptyDeferred))
-                            isEmptyDeferred.await() shouldBe true
-                        }
-                    }
-
-                    it("should report test as failed") {
-                        runBlocking {
-                            val captor = argumentCaptor<TestResult>()
-                            verify(analytics).trackTestFinished(any(), any(), captor.capture())
-                            captor.firstValue.test shouldBe TEST_1
-                            captor.firstValue.status shouldBe TestStatus.FAILURE
-                        }
-                    }
+            it("should report test as failed") {
+                runBlocking {
+                    actor.send(QueueMessage.RequestBatch(TEST_DEVICE_INFO))
+                    poolChannel.receive()
+                    actor.send(QueueMessage.Completed(TEST_DEVICE_INFO, results))
+                    verify(track).test(any(), any(), captor.capture(), any())
+                    captor.firstValue.test shouldBe TEST_1
+                    captor.firstValue.status shouldBe TestStatus.FAILURE
                 }
             }
         }
@@ -101,83 +99,76 @@ class QueueActorSpek : Spek({
                         tests = listOf(TEST_1),
                         poolChannel = poolChannel,
                         analytics = analytics,
-                        job = job
+                        job = job,
+                        track = track
                 )
             }
+            val captor = argumentCaptor<TestResult>()
+            val results = createBatchResult(uncompleted = listOf(
+                    createTestResult(TEST_1, TestStatus.FAILURE)
+            ))
 
-            describe("requesting batch and handling completed batch") {
-                beforeEachTest {
-                    runBlocking {
-                        actor.send(QueueMessage.RequestBatch(TEST_DEVICE_INFO))
-                        poolChannel.receive()
-                    }
+            it("should have not empty queue") {
+                val isEmptyDeferred = CompletableDeferred<Boolean>()
+                runBlocking {
+                    actor.send(QueueMessage.RequestBatch(TEST_DEVICE_INFO))
+                    poolChannel.receive()
+                    actor.send(QueueMessage.Completed(TEST_DEVICE_INFO, results))
+                    actor.send(QueueMessage.IsEmpty(isEmptyDeferred))
+                    isEmptyDeferred.await() shouldBe false
                 }
+            }
 
-                describe("received uncompleted test first time") {
-                    beforeEachTest {
-                        val results = createBatchResult(uncompleted = listOf(
-                                createTestResult(TEST_1, TestStatus.FAILURE)
-                        ))
-                        runBlocking {
-                            actor.send(QueueMessage.Completed(TEST_DEVICE_INFO, results))
-                        }
-                    }
+            it("should not report any test finishes") {
+                runBlocking {
+                    actor.send(QueueMessage.RequestBatch(TEST_DEVICE_INFO))
+                    poolChannel.receive()
+                    actor.send(QueueMessage.Completed(TEST_DEVICE_INFO, results))
+                    verify(track, never()).test(any(), any(), any(), any())
+                }
+            }
 
-                    it("should have not empty queue") {
-                        val isEmptyDeferred = CompletableDeferred<Boolean>()
-                        runBlocking {
-                            actor.send(QueueMessage.IsEmpty(isEmptyDeferred))
-                            isEmptyDeferred.await() shouldBe false
-                        }
-                    }
+            it("should provide uncompleted test in the batch") {
+                runBlocking {
+                    actor.send(QueueMessage.RequestBatch(TEST_DEVICE_INFO))
+                    poolChannel.receive()
+                    actor.send(QueueMessage.Completed(TEST_DEVICE_INFO, results))
+                    actor.send(QueueMessage.RequestBatch(TEST_DEVICE_INFO))
+                    val response = poolChannel.receive()
+                    response::class shouldBe ExecuteBatch::class
+                    (response as ExecuteBatch).batch.tests shouldContainSame listOf(TEST_1)
+                }
+            }
 
-                    it("should not report any test finishes") {
-                        runBlocking {
-                            verify(analytics, never()).trackTestFinished(any(), any(), any())
-                        }
-                    }
+            it("should have empty queue") {
+                val isEmptyDeferred = CompletableDeferred<Boolean>()
+                runBlocking {
+                    actor.send(QueueMessage.RequestBatch(TEST_DEVICE_INFO))
+                    poolChannel.receive()
+                    actor.send(QueueMessage.Completed(TEST_DEVICE_INFO, results))
 
-                    it("should provide uncompleted test in the batch") {
-                        runBlocking {
-                            actor.send(QueueMessage.RequestBatch(TEST_DEVICE_INFO))
-                            val response = poolChannel.receive()
-                            response::class shouldBe ExecuteBatch::class
-                            (response as ExecuteBatch).batch.tests shouldContainSame listOf(TEST_1)
-                        }
-                    }
+                    actor.send(QueueMessage.RequestBatch(TEST_DEVICE_INFO))
+                    poolChannel.receive()
+                    actor.send(QueueMessage.Completed(TEST_DEVICE_INFO, results))
 
-                    describe("received uncompleted test second time") {
-                        beforeEachTest {
-                            runBlocking {
-                                actor.send(QueueMessage.RequestBatch(TEST_DEVICE_INFO))
-                                poolChannel.receive()
-                            }
+                    actor.send(QueueMessage.IsEmpty(isEmptyDeferred))
+                    isEmptyDeferred.await() shouldBe true
+                }
+            }
 
-                            val results = createBatchResult(uncompleted = listOf(
-                                    createTestResult(TEST_1, TestStatus.FAILURE)
-                            ))
-                            runBlocking {
-                                actor.send(QueueMessage.Completed(TEST_DEVICE_INFO, results))
-                            }
-                        }
+            it("should report test as failed") {
+                runBlocking {
+                    actor.send(QueueMessage.RequestBatch(TEST_DEVICE_INFO))
+                    poolChannel.receive()
+                    actor.send(QueueMessage.Completed(TEST_DEVICE_INFO, results))
 
-                        it("should have empty queue") {
-                            val isEmptyDeferred = CompletableDeferred<Boolean>()
-                            runBlocking {
-                                actor.send(QueueMessage.IsEmpty(isEmptyDeferred))
-                                isEmptyDeferred.await() shouldBe true
-                            }
-                        }
+                    actor.send(QueueMessage.RequestBatch(TEST_DEVICE_INFO))
+                    poolChannel.receive()
+                    actor.send(QueueMessage.Completed(TEST_DEVICE_INFO, results))
 
-                        it("should report test as failed") {
-                            runBlocking {
-                                val captor = argumentCaptor<TestResult>()
-                                verify(analytics).trackTestFinished(any(), any(), captor.capture())
-                                captor.firstValue.test shouldBe TEST_1
-                                captor.firstValue.status shouldBe TestStatus.FAILURE
-                            }
-                        }
-                    }
+                    verify(track).test(any(), any(), captor.capture(), any())
+                    captor.firstValue.test shouldBe TEST_1
+                    captor.firstValue.status shouldBe TestStatus.FAILURE
                 }
             }
         }
@@ -216,6 +207,7 @@ private fun createQueueActor(configuration: Configuration,
                              tests: List<Test>,
                              poolChannel: SendChannel<FromQueue>,
                              analytics: Analytics,
+                             track: Track,
                              job: Job) = QueueActor(
         configuration,
         TestShard(tests, emptyList()),
@@ -223,6 +215,7 @@ private fun createQueueActor(configuration: Configuration,
         poolChannel,
         DevicePoolId("test"),
         mock(),
+        track,
         job,
         Dispatchers.Unconfined
 )

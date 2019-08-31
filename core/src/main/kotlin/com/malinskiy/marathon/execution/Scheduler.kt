@@ -1,6 +1,7 @@
 package com.malinskiy.marathon.execution
 
-import com.malinskiy.marathon.analytics.Analytics
+import com.malinskiy.marathon.analytics.external.Analytics
+import com.malinskiy.marathon.analytics.internal.pub.Track
 import com.malinskiy.marathon.device.Device
 import com.malinskiy.marathon.device.DevicePoolId
 import com.malinskiy.marathon.device.DeviceProvider
@@ -33,6 +34,7 @@ class Scheduler(private val deviceProvider: DeviceProvider,
                 private val configuration: Configuration,
                 private val shard: TestShard,
                 private val progressReporter: ProgressReporter,
+                private val track: Track,
                 override val coroutineContext: CoroutineContext) : CoroutineScope {
 
     private val job = Job()
@@ -56,10 +58,6 @@ class Scheduler(private val deviceProvider: DeviceProvider,
         for (child in job.children) {
             child.join()
         }
-    }
-
-    fun getPools(): List<DevicePoolId> {
-        return pools.keys.toList()
     }
 
     private fun subscribeOnDevices(job: Job): Job {
@@ -103,13 +101,13 @@ class Scheduler(private val deviceProvider: DeviceProvider,
         logger.debug { "device ${device.serialNumber} associated with poolId ${poolId.name}" }
         pools.computeIfAbsent(poolId) { id ->
             logger.debug { "pool actor ${id.name} is being created" }
-            DevicePoolActor(id, configuration, analytics, shard, progressReporter, parent, context)
+            DevicePoolActor(id, configuration, analytics, shard, progressReporter, track, parent, context)
         }
         pools[poolId]?.send(AddDevice(device)) ?: logger.debug {
             "not sending the AddDevice event " +
                     "to device pool for ${device.serialNumber}"
         }
-        analytics.trackDeviceConnected(poolId, device.toDeviceInfo())
+        track.deviceConnected(poolId, device.toDeviceInfo())
     }
 
     private fun filteredByConfiguration(device: Device): Boolean {

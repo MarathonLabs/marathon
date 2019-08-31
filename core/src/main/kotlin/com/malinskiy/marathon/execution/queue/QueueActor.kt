@@ -1,7 +1,8 @@
 package com.malinskiy.marathon.execution.queue
 
 import com.malinskiy.marathon.actor.Actor
-import com.malinskiy.marathon.analytics.Analytics
+import com.malinskiy.marathon.analytics.external.Analytics
+import com.malinskiy.marathon.analytics.internal.pub.Track
 import com.malinskiy.marathon.device.DeviceInfo
 import com.malinskiy.marathon.device.DevicePoolId
 import com.malinskiy.marathon.execution.Configuration
@@ -26,6 +27,7 @@ class QueueActor(private val configuration: Configuration,
                  private val pool: SendChannel<FromQueue>,
                  private val poolId: DevicePoolId,
                  private val progressReporter: ProgressReporter,
+                 private val track: Track,
                  poolJob: Job,
                  coroutineContext: CoroutineContext) :
         Actor<QueueMessage>(parent = poolJob, context = coroutineContext) {
@@ -41,7 +43,7 @@ class QueueActor(private val configuration: Configuration,
     private val activeBatches = mutableMapOf<String, TestBatch>()
     private val uncompletedTestsRetryCount = mutableMapOf<Test, Int>()
 
-    private val testResultReporter = TestResultReporter(poolId, analytics, testShard, configuration)
+    private val testResultReporter = TestResultReporter(poolId, analytics, testShard, configuration, track)
 
     init {
         queue.addAll(testShard.tests + testShard.flakyTests)

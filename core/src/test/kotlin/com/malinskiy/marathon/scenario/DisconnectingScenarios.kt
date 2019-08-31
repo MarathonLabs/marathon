@@ -15,10 +15,15 @@ import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.given
 import org.jetbrains.spek.api.dsl.it
 import org.jetbrains.spek.api.dsl.on
+import org.koin.core.context.stopKoin
 import java.io.File
 import java.util.concurrent.TimeUnit
 
 class DisconnectingScenarios : Spek({
+    afterEachTest {
+        stopKoin()
+    }
+
     given("two healthy devices") {
         on("execution of two tests while one device disconnects") {
             it("should pass") {

@@ -1,6 +1,7 @@
 package com.malinskiy.marathon.analytics.metrics.remote.influx
 
-import com.malinskiy.marathon.analytics.tracker.remote.influx.InfluxDbProvider
+import com.malinskiy.marathon.analytics.external.influx.InfluxDbProvider
+import com.malinskiy.marathon.analytics.external.influx.InfluxMetricsProvider
 import com.malinskiy.marathon.execution.AnalyticsConfiguration
 import com.malinskiy.marathon.generateTest
 import org.amshove.kluent.shouldEqualTo

@@ -7,6 +7,7 @@ import com.malinskiy.marathon.android.DEFAULT_APPLICATION_PM_CLEAR
 import com.malinskiy.marathon.android.DEFAULT_AUTO_GRANT_PERMISSION
 import com.malinskiy.marathon.android.DEFAULT_INSTALL_OPTIONS
 import com.malinskiy.marathon.android.defaultInitTimeoutMillis
+import com.malinskiy.marathon.di.marathonStartKoin
 import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.extensions.extractApplication
 import com.malinskiy.marathon.extensions.extractTestApplication
@@ -78,9 +79,12 @@ open class MarathonRunTask : DefaultTask(), VerificationTask {
         log.debug { "Ignore failures: ${cnf.ignoreFailures}" }
 
         UsageAnalytics.enable = cnf.analyticsTracking
-        UsageAnalytics.tracker.trackEvent(Event(TrackActionType.RunType, "gradle"))
+        UsageAnalytics.USAGE_TRACKER.trackEvent(Event(TrackActionType.RunType, "gradle"))
 
-        val success = Marathon(cnf).run()
+        val application = marathonStartKoin(cnf)
+        val marathon: Marathon = application.koin.get()
+
+        val success = marathon.run()
 
         val shouldReportFailure = !cnf.ignoreFailures
         if (!success && shouldReportFailure) {
