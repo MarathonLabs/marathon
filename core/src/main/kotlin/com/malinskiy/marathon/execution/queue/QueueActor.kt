@@ -76,7 +76,7 @@ class QueueActor(private val configuration: Configuration,
         }
 
         val finished = results.finished
-        val failed = results.failed + uncompletedRetryQuotaExceeded
+        val failed = results.failed + uncompletedRetryQuotaExceeded + uncompleted
 
         logger.debug { "handle test results ${device.serialNumber}" }
         if (finished.isNotEmpty()) {

@@ -18,7 +18,7 @@ import com.malinskiy.marathon.test.TestVendorConfiguration
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.argumentCaptor
 import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.never
+import com.nhaarman.mockitokotlin2.times
 import com.nhaarman.mockitokotlin2.reset
 import com.nhaarman.mockitokotlin2.verify
 import kotlinx.coroutines.CompletableDeferred
@@ -119,12 +119,15 @@ class QueueActorSpek : Spek({
                 }
             }
 
-            it("should not report any test finishes") {
+            it("should report test as failed") {
                 runBlocking {
                     actor.send(QueueMessage.RequestBatch(TEST_DEVICE_INFO))
                     poolChannel.receive()
                     actor.send(QueueMessage.Completed(TEST_DEVICE_INFO, results))
-                    verify(track, never()).test(any(), any(), any(), any())
+
+                    verify(track, times(1)).test(any(), any(), captor.capture(), any())
+                    captor.firstValue.test shouldBe TEST_1
+                    captor.firstValue.status shouldBe TestStatus.FAILURE
                 }
             }
 

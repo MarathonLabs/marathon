@@ -25,7 +25,7 @@ class ConfigurationFactory {
     var excludeSerialRegexes : List<Regex>? = null
     var fallbackToScreenshots = null
     var strictMode = null
-    var uncompletedTestRetryQuota = null
+    var uncompletedTestRetryQuota: Int? = null
     var filteringConfiguration = null
     var flakinessStrategy: FlakinessStrategy? = null
     var ignoreFailures = null

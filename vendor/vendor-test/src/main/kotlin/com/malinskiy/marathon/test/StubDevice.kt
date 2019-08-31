@@ -46,9 +46,9 @@ class StubDevice(private val prepareTimeMillis: Long = 5000L,
 
         deferred.complete(
                 TestBatchResults(this,
-                        results.filter { it.isSuccess },
-                        results.filter { !it.isSuccess },
-                        emptySet()
+                        results.filter { it.status == TestStatus.PASSED },
+                        results.filter { it.status == TestStatus.FAILURE },
+                        results.filter { it.status == TestStatus.INCOMPLETE }
                 )
         )
     }
