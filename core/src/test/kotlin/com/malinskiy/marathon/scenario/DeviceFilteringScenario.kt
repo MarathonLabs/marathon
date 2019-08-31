@@ -4,7 +4,7 @@ import com.malinskiy.marathon.device.DeviceProvider
 import com.malinskiy.marathon.execution.TestStatus
 import com.malinskiy.marathon.test.StubDevice
 import com.malinskiy.marathon.test.Test
-import com.malinskiy.marathon.test.assert.shouldBeEqualTo
+import com.malinskiy.marathon.test.assert.shouldBeEqualToAsJson
 import com.malinskiy.marathon.test.setupMarathon
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
@@ -70,7 +70,7 @@ class DeviceFilteringScenario : Spek(
 
                     job.isCompleted shouldBe true
                     File(output!!.absolutePath + "/test_result", "raw.json")
-                        .shouldBeEqualTo(File(javaClass.getResource("/output/raw/device_filtering_1.json").file))
+                        .shouldBeEqualToAsJson(File(javaClass.getResource("/output/raw/device_filtering_1.json").file))
                 }
             }
         }
@@ -120,7 +120,7 @@ class DeviceFilteringScenario : Spek(
 
                     job.isCompleted shouldBe true
                     File(output!!.absolutePath + "/test_result", "raw.json")
-                        .shouldBeEqualTo(File(javaClass.getResource("/output/raw/device_filtering_2.json").file))
+                        .shouldBeEqualToAsJson(File(javaClass.getResource("/output/raw/device_filtering_2.json").file))
                 }
             }
         }
@@ -172,7 +172,7 @@ class DeviceFilteringScenario : Spek(
 
                     job.isCompleted shouldBe true
                     File(output!!.absolutePath + "/test_result", "raw.json")
-                        .shouldBeEqualTo(File(javaClass.getResource("/output/raw/device_filtering_3.json").file))
+                        .shouldBeEqualToAsJson(File(javaClass.getResource("/output/raw/device_filtering_3.json").file))
                 }
             }
         }
