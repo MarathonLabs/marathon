@@ -12,18 +12,19 @@ import org.jetbrains.spek.api.dsl.describe
 import org.jetbrains.spek.api.dsl.it
 import java.io.File
 
-object FileIOSConfigurationSpek : Spek({
-    describe("Building an iOS file configuration") {
+object FileIOSConfigurationSpek : Spek(
+    {
+        describe("Building an iOS file configuration") {
 
-        val mockMarathonFileDir = File("")
-        val mockXctestrunFile = File("Build/uitesting.xctestrun")
-        var mockDerivedDataFiles =  { emptySequence<File>() }
-        val mockFileListProvider = object : FileListProvider {
-            override fun fileList(root: File): Iterable<File> = mockDerivedDataFiles().asIterable()
-        }
+            val mockMarathonFileDir = File("")
+            val mockXctestrunFile = File("Build/uitesting.xctestrun")
+            var mockDerivedDataFiles = { emptySequence<File>() }
+            val mockFileListProvider = object : FileListProvider {
+                override fun fileList(root: File): Iterable<File> = mockDerivedDataFiles().asIterable()
+            }
 
-        context("when xctestrun is not specified") {
-            val fileIOSConfiguration = FileIOSConfiguration(
+            context("when xctestrun is not specified") {
+                val fileIOSConfiguration = FileIOSConfiguration(
                     derivedDataDir = File("a"),
                     xctestrunPath = null,
                     remoteUsername = "user",
@@ -34,23 +35,29 @@ object FileIOSConfigurationSpek : Spek({
                     debugSsh = null,
                     alwaysEraseSimulators = true,
                     hideRunnerOutput = null,
-                    devices = null)
+                    devices = null
+                )
 
-            it("should search for such file under derived data folder") {
-                mockDerivedDataFiles = { sequenceOf(File("."), mockXctestrunFile, File("runner.app")) }
+                it("should search for such file under derived data folder") {
+                    mockDerivedDataFiles =
+                        { sequenceOf(File("."), mockXctestrunFile, File("runner.app")) }
 
-                val iosConfiguration = fileIOSConfiguration.toIOSConfiguration(mockMarathonFileDir, null)
+                    val iosConfiguration =
+                        fileIOSConfiguration.toIOSConfiguration(mockMarathonFileDir, null)
 
-                iosConfiguration.xctestrunPath shouldEqual mockXctestrunFile
-            }
+                    iosConfiguration.xctestrunPath shouldEqual mockXctestrunFile
+                }
 
-            it("should throw an exception if such file is not available") {
-                mockDerivedDataFiles =  { sequenceOf(File("."), File("runner.app")) }
+                it("should throw an exception if such file is not available") {
+                    mockDerivedDataFiles = { sequenceOf(File("."), File("runner.app")) }
 
-                val thrower = { val iosConfiguration = fileIOSConfiguration.toIOSConfiguration(mockMarathonFileDir, null) }
+                    val thrower = {
+                        val iosConfiguration =
+                            fileIOSConfiguration.toIOSConfiguration(mockMarathonFileDir, null)
+                    }
 
-                thrower shouldThrow ConfigurationException::class
+                    thrower shouldThrow ConfigurationException::class
+                }
             }
         }
-    }
-})
+    })

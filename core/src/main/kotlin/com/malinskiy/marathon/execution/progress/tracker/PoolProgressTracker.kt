@@ -1,7 +1,6 @@
 package com.malinskiy.marathon.execution.progress.tracker
 
 import com.malinskiy.marathon.actor.StateMachine
-import com.malinskiy.marathon.device.DeviceInfo
 import com.malinskiy.marathon.test.Test
 import java.util.concurrent.atomic.AtomicInteger
 
@@ -53,7 +52,7 @@ class PoolProgressTracker {
     }
 
     fun testFailed(test: Test) {
-        if(tests[test]?.state == ProgressTestState.Passed) {
+        if (tests[test]?.state == ProgressTestState.Passed) {
             //Return early because the test already passed
             return
         }

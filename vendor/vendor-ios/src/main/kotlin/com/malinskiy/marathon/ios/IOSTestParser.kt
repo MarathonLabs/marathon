@@ -21,7 +21,7 @@ class IOSTestParser : TestParser {
      */
     override fun extract(configuration: Configuration): List<Test> {
         val vendorConfiguration = configuration.vendorConfiguration as? IOSConfiguration
-                ?: throw IllegalStateException("Expected IOS configuration")
+            ?: throw IllegalStateException("Expected IOS configuration")
 
         if (!vendorConfiguration.sourceRoot.isDirectory) {
             throw IllegalArgumentException("Expected a directory at $vendorConfiguration.sourceRoot")
@@ -31,9 +31,9 @@ class IOSTestParser : TestParser {
         val targetName = xctestrun.targetName
 
         val swiftFilesWithTests = vendorConfiguration
-                .sourceRoot
-                .listFiles("swift")
-                .filter(swiftTestClassRegex)
+            .sourceRoot
+            .listFiles("swift")
+            .filter(swiftTestClassRegex)
 
         val implementedTests = mutableListOf<Test>()
         for (file in swiftFilesWithTests) {
@@ -42,7 +42,9 @@ class IOSTestParser : TestParser {
                 val className = line.firstMatchOrNull(swiftTestClassRegex)
                 val methodName = line.firstMatchOrNull(swiftTestMethodRegex)
 
-                if (className != null) { testClassName = className }
+                if (className != null) {
+                    testClassName = className
+                }
 
                 if (testClassName != null && methodName != null) {
                     implementedTests.add(Test(targetName, testClassName, methodName, emptyList()))
@@ -53,7 +55,7 @@ class IOSTestParser : TestParser {
         val filteredTests = implementedTests.filter { !xctestrun.isSkipped(it) }
 
         logger.trace { filteredTests.map { "${it.clazz}.${it.method}" }.joinToString() }
-        logger.info { "Found ${filteredTests.size} tests in ${swiftFilesWithTests.count()} files"}
+        logger.info { "Found ${filteredTests.size} tests in ${swiftFilesWithTests.count()} files" }
 
         return filteredTests
     }
@@ -68,7 +70,9 @@ private fun File.listFiles(extension: String): Sequence<File> {
 }
 
 private val MatchResult.firstGroup: String?
-    get() { return groupValues.get(1) }
+    get() {
+        return groupValues.get(1)
+    }
 
 private fun String.firstMatchOrNull(regex: Regex): String? {
     return regex.find(this)?.firstGroup

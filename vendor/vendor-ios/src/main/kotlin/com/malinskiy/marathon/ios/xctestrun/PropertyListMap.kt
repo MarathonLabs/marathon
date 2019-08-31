@@ -2,24 +2,30 @@ package com.malinskiy.marathon.ios.xctestrun
 
 typealias PropertyListMap = MutableMap<String, Any>
 
-fun PropertyListMap.valueForKeypath(vararg keys: PropertyListKey): Any? = valueForKeypath(keypath = keys.map { it.toKeyString() }.joinToString(separator = Keypath.separator))
+fun PropertyListMap.valueForKeypath(vararg keys: PropertyListKey): Any? =
+    valueForKeypath(keypath = keys.map { it.toKeyString() }.joinToString(separator = Keypath.separator))
+
 fun PropertyListMap.valueForKeypath(module: String, vararg keys: PropertyListKey): Any? {
     val keypath: Keypath = module + Keypath.separator + keys.map { it.toKeyString() }.joinToString(separator = Keypath.separator)
     return valueForKeypath(keypath = keypath)
 }
 
 class InvalidKeypathException(
-        message: String = INVALID_KEYPATH_MESSAGE,
-        val keypath: Keypath) : RuntimeException(message) {
+    message: String = INVALID_KEYPATH_MESSAGE,
+    val keypath: Keypath
+) : RuntimeException(message) {
     companion object {
         const val INVALID_KEYPATH_MESSAGE = "Invalid keypath:"
     }
+
     override val message: String = "$INVALID_KEYPATH_MESSAGE: $keypath"
 }
 
 private typealias Keypath = String
+
 private val String.Companion.separator: String
     get() = ":"
+
 private fun Keypath.keypathRoot(): String = substringBefore(Keypath.separator)
 private fun Keypath.keypathTail(): Keypath? = substringAfterOrNull(Keypath.separator)
 
@@ -31,7 +37,7 @@ private fun PropertyListMap.valueForKeypath(keypath: Keypath): Any? {
             val tail = keypath.keypathTail()
             when {
                 tail == null || tail.isEmpty() -> root
-                root is MutableMap<*,*> ->
+                root is MutableMap<*, *> ->
                     try {
                         @Suppress("UNCHECKED_CAST")
                         (root as PropertyListMap).valueForKeypath(tail)

@@ -40,10 +40,10 @@ class InfluxMetricsProvider(private val remoteDataStore: RemoteDataSource) : Met
             }.onFailure {
                 logger.warn { "Cannot fetch success rate from database" }
             }.fold({ list ->
-                MeasurementValues(list.associateBy({ it.testName }, { it.mean }))
-            }, {
-                emptyMeasurementValues()
-            })
+                       MeasurementValues(list.associateBy({ it.testName }, { it.mean }))
+                   }, {
+                       emptyMeasurementValues()
+                   })
         }
 
         val testName = test.toSafeTestName()
@@ -60,9 +60,11 @@ class InfluxMetricsProvider(private val remoteDataStore: RemoteDataSource) : Met
     }
 
 
-    override fun executionTime(test: Test,
-                               percentile: Double,
-                               limit: Instant): Double {
+    override fun executionTime(
+        test: Test,
+        percentile: Double,
+        limit: Instant
+    ): Double {
         val key = MeasurementKey(percentile, limit)
         if (!executionTimeMeasurements.containsKey(key)) {
             executionTimeMeasurements[key] = runCatching {
@@ -70,11 +72,11 @@ class InfluxMetricsProvider(private val remoteDataStore: RemoteDataSource) : Met
             }.onFailure {
                 logger.warn { "Cannot fetch execution time from database" }
             }.fold({ list ->
-                logger.warn { list }
-                MeasurementValues(list.associateBy({ it.testName }, { it.percentile }))
-            }, {
-                emptyMeasurementValues()
-            })
+                       logger.warn { list }
+                       MeasurementValues(list.associateBy({ it.testName }, { it.percentile }))
+                   }, {
+                       emptyMeasurementValues()
+                   })
         }
         val testName = test.toSafeTestName()
         return executionTimeMeasurements[key]?.get(testName) ?: {

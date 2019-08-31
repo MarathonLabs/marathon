@@ -5,10 +5,10 @@ import com.malinskiy.marathon.report.Reporter
 import com.malinskiy.marathon.time.Timer
 import java.util.concurrent.TimeUnit
 
-class StdoutReporter(private val timer: Timer): Reporter {
+class StdoutReporter(private val timer: Timer) : Reporter {
     override fun generate(executionReport: ExecutionReport) {
         val summary = executionReport.summary
-        if(summary.pools.isEmpty()) return
+        if (summary.pools.isEmpty()) return
 
         val cliReportBuilder = StringBuilder().appendln("Marathon run finished:")
         summary.pools.forEach {

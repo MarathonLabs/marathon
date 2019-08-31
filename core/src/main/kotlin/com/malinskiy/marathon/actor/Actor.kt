@@ -10,8 +10,10 @@ import kotlinx.coroutines.channels.actor
 import kotlinx.coroutines.selects.SelectClause2
 import kotlin.coroutines.CoroutineContext
 
-abstract class Actor<in T>(parent: Job? = null,
-                           val context: CoroutineContext) : SendChannel<T>, CoroutineScope {
+abstract class Actor<in T>(
+    parent: Job? = null,
+    val context: CoroutineContext
+) : SendChannel<T>, CoroutineScope {
 
     protected abstract suspend fun receive(msg: T)
     final override val coroutineContext: CoroutineContext
@@ -21,8 +23,8 @@ abstract class Actor<in T>(parent: Job? = null,
 
     @ObsoleteCoroutinesApi
     private val delegate = actor<T>(
-            capacity = Channel.UNLIMITED,
-            context = coroutineContext
+        capacity = Channel.UNLIMITED,
+        context = coroutineContext
     ) {
         for (msg in channel) {
             receive(msg)

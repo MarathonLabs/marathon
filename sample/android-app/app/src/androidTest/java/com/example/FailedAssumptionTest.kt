@@ -27,7 +27,7 @@ class FailedAssumptionTest {
 
     @Test
     @Ignore
-    fun ignoreTest(){
+    fun ignoreTest() {
 
     }
 }

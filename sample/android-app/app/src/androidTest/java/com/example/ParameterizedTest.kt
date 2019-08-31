@@ -21,13 +21,13 @@ class ParameterizedTest(private val input: Int, private val expected: Int) {
         @Parameterized.Parameters
         fun data(): Collection<Array<Any>> {
             return Arrays.asList(
-                    arrayOf<Any>(0, 0),
-                    arrayOf<Any>(1, 1),
-                    arrayOf<Any>(2, 1),
-                    arrayOf<Any>(3, 2),
-                    arrayOf<Any>(4, 3),
-                    arrayOf<Any>(5, 5),
-                    arrayOf<Any>(6, 8)
+                arrayOf<Any>(0, 0),
+                arrayOf<Any>(1, 1),
+                arrayOf<Any>(2, 1),
+                arrayOf<Any>(3, 2),
+                arrayOf<Any>(4, 3),
+                arrayOf<Any>(5, 5),
+                arrayOf<Any>(6, 8)
             )
         }
 

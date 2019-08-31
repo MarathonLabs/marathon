@@ -7,16 +7,18 @@ import com.malinskiy.marathon.ios.recording.ScreenRecorder
 import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.test.Test
 
-class ScreenRecordingListener(private val fileManager: FileManager,
-                              private val pool: DevicePoolId,
-                              private val device: IOSDevice) : TestRunListener {
+class ScreenRecordingListener(
+    private val fileManager: FileManager,
+    private val pool: DevicePoolId,
+    private val device: IOSDevice
+) : TestRunListener {
 
     private val logger = MarathonLogging.logger(ScreenRecordingListener::class.java.simpleName)
 
     private var screenRecorder: ScreenRecorder? = null
 
     override fun testStarted(test: Test) {
-        if(screenRecorder != null) {
+        if (screenRecorder != null) {
             logger.error { "Something wrong. Recorder didn't finish but called again for the same device" }
         }
         screenRecorder = ScreenRecorder(device, test)
@@ -34,7 +36,7 @@ class ScreenRecordingListener(private val fileManager: FileManager,
     }
 
     override fun batchFinished() {
-        if(screenRecorder != null) {
+        if (screenRecorder != null) {
             logger.error { "Something wrong. Recorder didn't finish but test batch already finished" }
         }
     }

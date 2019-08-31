@@ -10,20 +10,21 @@ import org.koin.core.KoinComponent
 import org.koin.core.get
 import java.io.File
 
-data class IOSConfiguration(val derivedDataDir: File,
-                            val xctestrunPath: File,
-                            val remoteUsername: String,
-                            val remotePrivateKey: File,
-                            val knownHostsPath: File?,
-                            val remoteRsyncPath: String,
-                            val debugSsh: Boolean,
-                            val alwaysEraseSimulators: Boolean,
-                            val hideRunnerOutput: Boolean = false,
-                            val compactOutput: Boolean = false,
-                            val keepAliveIntervalMillis: Long = 0L,
-                            val devicesFile: File? = null,
-                            val sourceRoot: File = File("."))
-    : VendorConfiguration, KoinComponent {
+data class IOSConfiguration(
+    val derivedDataDir: File,
+    val xctestrunPath: File,
+    val remoteUsername: String,
+    val remotePrivateKey: File,
+    val knownHostsPath: File?,
+    val remoteRsyncPath: String,
+    val debugSsh: Boolean,
+    val alwaysEraseSimulators: Boolean,
+    val hideRunnerOutput: Boolean = false,
+    val compactOutput: Boolean = false,
+    val keepAliveIntervalMillis: Long = 0L,
+    val devicesFile: File? = null,
+    val sourceRoot: File = File(".")
+) : VendorConfiguration, KoinComponent {
 
     override fun testParser(): TestParser? = get()
 

@@ -16,7 +16,14 @@ class TimelineSummaryProvider {
         }
 
         val providerData = report.deviceProviderPreparingEvent.map {
-            Data(MetricType.DEVICE_PROVIDER_INIT.name, MetricType.DEVICE_PROVIDER_INIT, it.start.toEpochMilli(), it.finish.toEpochMilli(), 0.0, 0.0)
+            Data(
+                MetricType.DEVICE_PROVIDER_INIT.name,
+                MetricType.DEVICE_PROVIDER_INIT,
+                it.start.toEpochMilli(),
+                it.finish.toEpochMilli(),
+                0.0,
+                0.0
+            )
         }
 
         return (testData + preparingData + providerData).sortedBy { it.startDate }
@@ -31,11 +38,13 @@ class TimelineSummaryProvider {
     data class TestMetric(val expectedValue: Double, val variance: Double)
 
     private fun createData(event: TestEvent, status: TestStatus, preparedTestName: String, testMetric: TestMetric): Data {
-        return Data(preparedTestName,
-                status.toMetricType(),
-                event.testResult.startTime,
-                event.testResult.endTime,
-                testMetric.expectedValue, testMetric.variance)
+        return Data(
+            preparedTestName,
+            status.toMetricType(),
+            event.testResult.startTime,
+            event.testResult.endTime,
+            testMetric.expectedValue, testMetric.variance
+        )
     }
 
     private fun getTestMetric(execution: TestEvent): TestMetric {
@@ -63,12 +72,12 @@ class TimelineSummaryProvider {
 
     private fun aggregateExecutionStats(list: List<Measure>): ExecutionStats {
         val summaryIdle = list
-                .map { it.executionStats.idleTimeMillis }
-                .sum()
+            .map { it.executionStats.idleTimeMillis }
+            .sum()
         val avgTestExecutionTime = list
-                .map { it.executionStats.averageTestExecutionTimeMillis }
-                .average()
-                .toLong()
+            .map { it.executionStats.averageTestExecutionTimeMillis }
+            .average()
+            .toLong()
         return ExecutionStats(summaryIdle, avgTestExecutionTime)
     }
 
@@ -86,10 +95,10 @@ class TimelineSummaryProvider {
 
         val reports = keys.map { key ->
             key to ExecutionReport(
-                    deviceConnectedEvents = deviceConnectedEvents[key] ?: emptyList(),
-                    devicePreparingEvents = devicePreparingEvent[key] ?: emptyList(),
-                    deviceProviderPreparingEvent = deviceProviderPreparingEvents[key] ?: emptyList(),
-                    testEvents = testEvents[key] ?: emptyList()
+                deviceConnectedEvents = deviceConnectedEvents[key] ?: emptyList(),
+                devicePreparingEvents = devicePreparingEvent[key] ?: emptyList(),
+                deviceProviderPreparingEvent = deviceProviderPreparingEvents[key] ?: emptyList(),
+                testEvents = testEvents[key] ?: emptyList()
             )
         }.toMap()
 

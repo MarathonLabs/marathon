@@ -39,10 +39,10 @@ class IOSDeviceProvider(private val track: Track) : DeviceProvider, CoroutineSco
         logger.debug("Initializing IOSDeviceProvider")
 
         val gson = GsonBuilder().registerTypeAdapter(SimctlDeviceList::class.java, SimctlDeviceListDeserializer())
-                .create()
+            .create()
 
         val mapper = ObjectMapper(YAMLFactory().disable(YAMLGenerator.Feature.USE_NATIVE_TYPE_ID))
-                .registerModule(KotlinModule())
+            .registerModule(KotlinModule())
 
         simulatorProvider = LocalListSimulatorProvider(coroutineContext, channel, vendorConfiguration, mapper, gson, track)
         simulatorProvider?.start()

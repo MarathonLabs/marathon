@@ -15,16 +15,18 @@ import com.malinskiy.marathon.log.MarathonLogging
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.delay
 
-class StubDevice(private val prepareTimeMillis: Long = 5000L,
-                 private val testTimeMillis: Long = 5000L,
-                 override val operatingSystem: OperatingSystem = OperatingSystem("25"),
-                 override val model: String = "test",
-                 override val manufacturer: String = "test",
-                 override val networkState: NetworkState = NetworkState.CONNECTED,
-                 override val deviceFeatures: Collection<DeviceFeature> = listOf(),
-                 override val abi: String = "test",
-                 override val serialNumber: String = "serial-1",
-                 override val healthy: Boolean = true) : Device {
+class StubDevice(
+    private val prepareTimeMillis: Long = 5000L,
+    private val testTimeMillis: Long = 5000L,
+    override val operatingSystem: OperatingSystem = OperatingSystem("25"),
+    override val model: String = "test",
+    override val manufacturer: String = "test",
+    override val networkState: NetworkState = NetworkState.CONNECTED,
+    override val deviceFeatures: Collection<DeviceFeature> = listOf(),
+    override val abi: String = "test",
+    override val serialNumber: String = "serial-1",
+    override val healthy: Boolean = true
+) : Device {
 
     val logger = MarathonLogging.logger(StubDevice::class.java.simpleName)
 
@@ -32,7 +34,13 @@ class StubDevice(private val prepareTimeMillis: Long = 5000L,
     var executionIndexMap: MutableMap<Test, Int> = mutableMapOf()
     var timeCounter: Long = 0
 
-    override suspend fun execute(configuration: Configuration, devicePoolId: DevicePoolId, testBatch: TestBatch, deferred: CompletableDeferred<TestBatchResults>, progressReporter: ProgressReporter) {
+    override suspend fun execute(
+        configuration: Configuration,
+        devicePoolId: DevicePoolId,
+        testBatch: TestBatch,
+        deferred: CompletableDeferred<TestBatchResults>,
+        progressReporter: ProgressReporter
+    ) {
         delay(testTimeMillis)
 
         val results = testBatch.tests.map {
@@ -45,11 +53,12 @@ class StubDevice(private val prepareTimeMillis: Long = 5000L,
         }
 
         deferred.complete(
-                TestBatchResults(this,
-                        results.filter { it.isSuccess },
-                        results.filter { !it.isSuccess },
-                        emptySet()
-                )
+            TestBatchResults(
+                this,
+                results.filter { it.isSuccess },
+                results.filter { !it.isSuccess },
+                emptySet()
+            )
         )
     }
 

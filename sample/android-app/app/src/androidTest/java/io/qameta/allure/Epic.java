@@ -1,7 +1,5 @@
 package io.qameta.allure;
 
-import java.lang.annotation.*;
-
 /**
  * Used to mark tests with epic label.
  */
@@ -12,5 +10,4 @@ import java.lang.annotation.*;
 public @interface Epic {
 
     String value();
-
 }

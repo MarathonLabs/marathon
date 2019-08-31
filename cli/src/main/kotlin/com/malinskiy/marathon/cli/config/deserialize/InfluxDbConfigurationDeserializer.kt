@@ -9,7 +9,8 @@ import com.malinskiy.marathon.execution.AnalyticsConfiguration
 
 class InfluxDbConfigurationDeserializer
     : StdDeserializer<AnalyticsConfiguration.InfluxDbConfiguration>(
-        AnalyticsConfiguration.InfluxDbConfiguration::class.java) {
+    AnalyticsConfiguration.InfluxDbConfiguration::class.java
+) {
     override fun deserialize(p: JsonParser?, ctxt: DeserializationContext?): AnalyticsConfiguration.InfluxDbConfiguration {
         val node: JsonNode? = p?.codec?.readTree(p)
 
@@ -21,8 +22,8 @@ class InfluxDbConfigurationDeserializer
         val retentionPolicyNode = node?.get("retentionPolicyConfiguration")?.traverse(p.codec)
         val policyClazz = AnalyticsConfiguration.InfluxDbConfiguration.RetentionPolicyConfiguration::class.java
         val retentionPolicyConfiguration =
-                retentionPolicyNode?.let { ctxt?.readValue(retentionPolicyNode, policyClazz) }
-                        ?: AnalyticsConfiguration.InfluxDbConfiguration.RetentionPolicyConfiguration.default
+            retentionPolicyNode?.let { ctxt?.readValue(retentionPolicyNode, policyClazz) }
+                ?: AnalyticsConfiguration.InfluxDbConfiguration.RetentionPolicyConfiguration.default
 
         if (url == null) throw ConfigurationException("InfluxDbConfigurationDeserializer: url should be specified")
         if (user == null) throw ConfigurationException("InfluxDbConfigurationDeserializer: user should be specified")

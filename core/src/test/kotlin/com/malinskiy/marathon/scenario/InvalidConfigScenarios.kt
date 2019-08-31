@@ -23,53 +23,54 @@ import java.io.File
 import java.time.Instant
 import java.util.concurrent.TimeUnit
 
-class InvalidConfigScenarios : Spek({
-    afterEachTest {
-        stopKoin()
-    }
+class InvalidConfigScenarios : Spek(
+    {
+        afterEachTest {
+            stopKoin()
+        }
 
-    given("one healthy device") {
-        on("invalid config") {
-            it("should fail") {
-                var output: File? = null
-                val context = TestCoroutineContext("testing context")
+        given("one healthy device") {
+            on("invalid config") {
+                it("should fail") {
+                    var output: File? = null
+                    val context = TestCoroutineContext("testing context")
 
-                val marathon = setupMarathon {
-                    val test = Test("test", "SimpleTest", "test", emptySet())
-                    val device = StubDevice()
+                    val marathon = setupMarathon {
+                        val test = Test("test", "SimpleTest", "test", emptySet())
+                        val device = StubDevice()
 
-                    configuration {
-                        output = outputDir
+                        configuration {
+                            output = outputDir
 
-                        tests {
-                            listOf(test)
+                            tests {
+                                listOf(test)
+                            }
+
+                            flakinessStrategy = ProbabilityBasedFlakinessStrategy(.2, 2, Instant.now())
+                            shardingStrategy = CountShardingStrategy(2)
+
+                            vendorConfiguration.deviceProvider.context = context
+
+                            devices {
+                                delay(1000)
+                                it.send(DeviceProvider.DeviceEvent.DeviceConnected(device))
+                            }
                         }
 
-                        flakinessStrategy = ProbabilityBasedFlakinessStrategy(.2, 2, Instant.now())
-                        shardingStrategy = CountShardingStrategy(2)
-
-                        vendorConfiguration.deviceProvider.context = context
-
-                        devices {
-                            delay(1000)
-                            it.send(DeviceProvider.DeviceEvent.DeviceConnected(device))
-                        }
+                        device.executionResults = mapOf(
+                            test to arrayOf(TestStatus.PASSED)
+                        )
                     }
 
-                    device.executionResults = mapOf(
-                            test to arrayOf(TestStatus.PASSED)
-                    )
+                    val job = GlobalScope.launch(context = context) {
+                        marathon.runAsync()
+                    }
+
+                    context.advanceTimeBy(20, TimeUnit.SECONDS)
+
+                    job.isCompleted shouldBe true
+                    context.exceptions[0] shouldBeInstanceOf ConfigurationException::class.java
                 }
-
-                val job = GlobalScope.launch(context = context) {
-                    marathon.runAsync()
-                }
-
-                context.advanceTimeBy(20, TimeUnit.SECONDS)
-
-                job.isCompleted shouldBe true
-                context.exceptions[0] shouldBeInstanceOf ConfigurationException::class.java
             }
         }
-    }
-})
+    })

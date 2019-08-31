@@ -7,15 +7,17 @@ import com.malinskiy.marathon.test.Test
 import java.time.Instant
 import java.util.*
 
-class SuccessRateSortingStrategy(@JsonProperty("timeLimit") private val timeLimit: Instant,
-                                 @JsonProperty("ascending") private val ascending: Boolean = false) : SortingStrategy {
+class SuccessRateSortingStrategy(
+    @JsonProperty("timeLimit") private val timeLimit: Instant,
+    @JsonProperty("ascending") private val ascending: Boolean = false
+) : SortingStrategy {
     override fun process(metricsProvider: MetricsProvider): Comparator<Test> {
         val comparator = Comparator.comparingDouble<Test>
         {
             metricsProvider.successRate(it, timeLimit)
         }
 
-        return when(ascending) {
+        return when (ascending) {
             true -> comparator
             false -> comparator.reversed()
         }

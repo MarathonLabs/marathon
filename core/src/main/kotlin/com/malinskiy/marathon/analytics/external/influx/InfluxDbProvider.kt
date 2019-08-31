@@ -18,9 +18,9 @@ class InfluxDbProvider(configuration: AnalyticsConfiguration.InfluxDbConfigurati
 
     fun createDb(): InfluxDB {
         val okHttpBuilder = OkHttpClient.Builder()
-                .connectTimeout(TIMEOUT_SEC, TimeUnit.SECONDS)
-                .readTimeout(TIMEOUT_SEC, TimeUnit.SECONDS)
-                .writeTimeout(TIMEOUT_SEC, TimeUnit.SECONDS)
+            .connectTimeout(TIMEOUT_SEC, TimeUnit.SECONDS)
+            .readTimeout(TIMEOUT_SEC, TimeUnit.SECONDS)
+            .writeTimeout(TIMEOUT_SEC, TimeUnit.SECONDS)
 
         val influxDb = if (user.isNotEmpty() && password.isNotEmpty()) {
             InfluxDBFactory.connect(url, user, password, okHttpBuilder)

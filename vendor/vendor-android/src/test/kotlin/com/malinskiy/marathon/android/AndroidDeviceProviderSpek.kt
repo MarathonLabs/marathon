@@ -8,19 +8,20 @@ import org.jetbrains.spek.api.dsl.given
 import org.jetbrains.spek.api.dsl.it
 import org.jetbrains.spek.api.dsl.on
 
-class AndroidDeviceProviderSpek: Spek({
-    given("A provider") {
-        on("terminate") {
-            it("should close the channel") {
-                val provider = AndroidDeviceProvider(Track())
+class AndroidDeviceProviderSpek : Spek(
+    {
+        given("A provider") {
+            on("terminate") {
+                it("should close the channel") {
+                    val provider = AndroidDeviceProvider(Track())
 
-                runBlocking {
-                    provider.terminate()
+                    runBlocking {
+                        provider.terminate()
+                    }
+
+                    provider.subscribe().isClosedForReceive shouldEqual true
+                    provider.subscribe().isClosedForSend shouldEqual true
                 }
-
-                provider.subscribe().isClosedForReceive shouldEqual true
-                provider.subscribe().isClosedForSend shouldEqual true
             }
         }
-    }
-})
+    })

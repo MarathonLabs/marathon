@@ -12,11 +12,13 @@ import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.test.Test
 import com.malinskiy.marathon.test.toTestName
 
-class TestResultReporter(private val poolId: DevicePoolId,
-                         private val analytics: Analytics,
-                         shard: TestShard,
-                         private val configuration: Configuration,
-                         private val track: Track) {
+class TestResultReporter(
+    private val poolId: DevicePoolId,
+    private val analytics: Analytics,
+    shard: TestShard,
+    private val configuration: Configuration,
+    private val track: Track
+) {
 
     private val tests: HashMap<String, StateMachine<TestState, TestEvent, TestAction>> = HashMap()
 

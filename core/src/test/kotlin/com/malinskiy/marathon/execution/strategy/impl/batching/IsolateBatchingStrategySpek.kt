@@ -10,23 +10,24 @@ import org.jetbrains.spek.api.dsl.describe
 import org.jetbrains.spek.api.dsl.it
 import java.util.*
 
-class IsolateBatchingStrategySpek : Spek({
+class IsolateBatchingStrategySpek : Spek(
+    {
 
-    val analytics = Analytics(NoOpMetricsProvider())
+        val analytics = Analytics(NoOpMetricsProvider())
 
-    describe("isolate batching strategy test") {
-        it("should return batches with size = 1") {
-            val strategy = IsolateBatchingStrategy()
-            val queue = LinkedList<Test>()
-            val tests = generateTests(50)
-            queue.addAll(tests)
-            queue.size shouldBe 50
-            strategy.process(queue, analytics).tests.size shouldBe 1
-            queue.size shouldBe 49
-            strategy.process(queue, analytics).tests.size shouldBe 1
-            queue.size shouldBe 48
-            strategy.process(queue, analytics).tests.size shouldBe 1
-            queue.size shouldBe 47
+        describe("isolate batching strategy test") {
+            it("should return batches with size = 1") {
+                val strategy = IsolateBatchingStrategy()
+                val queue = LinkedList<Test>()
+                val tests = generateTests(50)
+                queue.addAll(tests)
+                queue.size shouldBe 50
+                strategy.process(queue, analytics).tests.size shouldBe 1
+                queue.size shouldBe 49
+                strategy.process(queue, analytics).tests.size shouldBe 1
+                queue.size shouldBe 48
+                strategy.process(queue, analytics).tests.size shouldBe 1
+                queue.size shouldBe 47
+            }
         }
-    }
-})
+    })

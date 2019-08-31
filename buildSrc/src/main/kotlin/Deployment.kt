@@ -7,9 +7,9 @@ import org.gradle.kotlin.dsl.configure
 import org.gradle.kotlin.dsl.creating
 import org.gradle.kotlin.dsl.extra
 import org.gradle.kotlin.dsl.get
-import org.gradle.kotlin.dsl.the
 import org.gradle.kotlin.dsl.getValue
 import org.gradle.kotlin.dsl.provideDelegate
+import org.gradle.kotlin.dsl.the
 import org.gradle.plugins.signing.SigningExtension
 import java.net.URI
 
@@ -21,9 +21,9 @@ object Deployment {
     var deployUrl: String? = null
 
     val snapshotDeployUrl = System.getenv("SONATYPE_SNAPSHOTS_URL")
-            ?: "https://oss.sonatype.org/content/repositories/snapshots/"
+        ?: "https://oss.sonatype.org/content/repositories/snapshots/"
     val releaseDeployUrl = System.getenv("SONATYPE_RELEASES_URL")
-            ?: "https://oss.sonatype.org/service/local/staging/deploy/maven2/"
+        ?: "https://oss.sonatype.org/service/local/staging/deploy/maven2/"
 
     fun initialize(project: Project) {
         val releaseMode: String? by project

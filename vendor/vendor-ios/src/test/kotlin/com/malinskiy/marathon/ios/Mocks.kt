@@ -15,9 +15,15 @@ class Mocks {
                 val mock = mock(CommandSession::class)
                 override fun startSession(command: String): CommandSession = mock
 
-                override fun execBlocking(command: String, maxExecutionDurationMillis: Long, testOutputTimeoutMillis: Long): CommandResult = CommandResult("", "", 0)
+                override fun execBlocking(command: String, maxExecutionDurationMillis: Long, testOutputTimeoutMillis: Long): CommandResult =
+                    CommandResult("", "", 0)
 
-                override suspend fun execInto(command: String, maxExecutionDurationMillis: Long, testOutputTimeoutMillis: Long, onLine: (String) -> Unit): Int? = 0
+                override suspend fun execInto(
+                    command: String,
+                    maxExecutionDurationMillis: Long,
+                    testOutputTimeoutMillis: Long,
+                    onLine: (String) -> Unit
+                ): Int? = 0
 
                 override fun close() {}
             }
@@ -29,14 +35,14 @@ class Mocks {
             private val gson = GsonBuilder().registerTypeAdapter(SimctlDeviceList::class.java, SimctlDeviceListDeserializer()).create()
 
             val DEFAULT = com.malinskiy.marathon.ios.IOSDevice(
-                    RemoteSimulator("localhost", "63D0962A-0A41-4BE9-A99E-E6220412BEB1", null),
-                    1,
-                    mock(IOSConfiguration::class),
-                    gson,
-                    mock(),
-                    object : HealthChangeListener {
-                        override suspend fun onDisconnect(device: com.malinskiy.marathon.ios.IOSDevice) {}
-                    })
+                RemoteSimulator("localhost", "63D0962A-0A41-4BE9-A99E-E6220412BEB1", null),
+                1,
+                mock(IOSConfiguration::class),
+                gson,
+                mock(),
+                object : HealthChangeListener {
+                    override suspend fun onDisconnect(device: com.malinskiy.marathon.ios.IOSDevice) {}
+                })
         }
     }
 

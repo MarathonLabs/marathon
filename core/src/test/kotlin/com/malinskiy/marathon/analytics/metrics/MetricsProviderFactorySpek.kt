@@ -15,10 +15,12 @@ import org.jetbrains.spek.api.dsl.describe
 import org.jetbrains.spek.api.dsl.it
 import java.io.File
 
-class MetricsProviderFactorySpek : Spek({
-    describe("test metrics provider") {
-        it("should return noop metrics provider when analytics configuration is disabled") {
-            val configuration = Configuration(name = "",
+class MetricsProviderFactorySpek : Spek(
+    {
+        describe("test metrics provider") {
+            it("should return noop metrics provider when analytics configuration is disabled") {
+                val configuration = Configuration(
+                    name = "",
                     outputDir = File(""),
                     analyticsConfiguration = AnalyticsConfiguration.DisabledAnalytics,
                     poolingStrategy = null,
@@ -46,10 +48,10 @@ class MetricsProviderFactorySpek : Spek({
                         override fun preferableRecorderType(): DeviceFeature? = null
                     },
                     analyticsTracking = false
-            )
-            val factory = MetricsProviderFactory(configuration)
-            val metricsProvider = factory.create()
-            metricsProvider shouldBeInstanceOf NoOpMetricsProvider::class
+                )
+                val factory = MetricsProviderFactory(configuration)
+                val metricsProvider = factory.create()
+                metricsProvider shouldBeInstanceOf NoOpMetricsProvider::class
+            }
         }
-    }
-})
+    })
