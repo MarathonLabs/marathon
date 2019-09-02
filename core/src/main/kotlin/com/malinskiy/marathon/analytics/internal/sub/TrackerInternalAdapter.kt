@@ -2,7 +2,7 @@ package com.malinskiy.marathon.analytics.internal.sub
 
 abstract class TrackerInternalAdapter : TrackerInternal {
     final override fun track(event: Event) {
-        when(event) {
+        when (event) {
             is DeviceConnectedEvent -> trackDeviceConnected(event)
             is DevicePreparingEvent -> trackDevicePreparing(event)
             is DeviceProviderPreparingEvent -> trackDeviceProviderPreparing(event)

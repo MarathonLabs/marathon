@@ -9,8 +9,12 @@ import com.malinskiy.marathon.execution.AnalyticsConfiguration
 
 class RetentionPolicyConfigurationDeserializer
     : StdDeserializer<AnalyticsConfiguration.InfluxDbConfiguration.RetentionPolicyConfiguration>(
-        AnalyticsConfiguration.InfluxDbConfiguration.RetentionPolicyConfiguration::class.java) {
-    override fun deserialize(p: JsonParser?, ctxt: DeserializationContext?): AnalyticsConfiguration.InfluxDbConfiguration.RetentionPolicyConfiguration {
+    AnalyticsConfiguration.InfluxDbConfiguration.RetentionPolicyConfiguration::class.java
+) {
+    override fun deserialize(
+        p: JsonParser?,
+        ctxt: DeserializationContext?
+    ): AnalyticsConfiguration.InfluxDbConfiguration.RetentionPolicyConfiguration {
         val node: JsonNode? = p?.codec?.readTree(p)
         val name = node?.get("name")?.asText()
         val duration = node?.get("duration")?.asText()
@@ -24,6 +28,12 @@ class RetentionPolicyConfigurationDeserializer
         if (replicationFactor == null) throw ConfigurationException("RetentionPolicyConfigurationDeserializer: replicationFactor should be specified")
         if (isDefault == null) throw ConfigurationException("RetentionPolicyConfigurationDeserializer: isDefault should be specified")
 
-        return AnalyticsConfiguration.InfluxDbConfiguration.RetentionPolicyConfiguration(name, duration, shardDuration, replicationFactor, isDefault)
+        return AnalyticsConfiguration.InfluxDbConfiguration.RetentionPolicyConfiguration(
+            name,
+            duration,
+            shardDuration,
+            replicationFactor,
+            isDefault
+        )
     }
 }

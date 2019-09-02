@@ -2,10 +2,12 @@ package com.malinskiy.marathon.ios.simctl.model
 
 import com.google.gson.annotations.SerializedName
 
-data class SimctlDevice(val runtime: String,
-                        val state: State,
-                        val name: String,
-                        val udid: String) {
+data class SimctlDevice(
+    val runtime: String,
+    val state: State,
+    val name: String,
+    val udid: String
+) {
     enum class State {
         Unknown,
         @SerializedName("Booted")

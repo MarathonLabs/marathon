@@ -15,9 +15,11 @@ import com.malinskiy.marathon.report.logs.LogWriter
 import java.util.concurrent.atomic.AtomicReference
 import kotlin.concurrent.thread
 
-class LogCatListener(private val device: AndroidDevice,
-                     private val devicePoolId: DevicePoolId,
-                     private val logWriter: LogWriter) : NoOpTestRunListener(), AttachmentProvider {
+class LogCatListener(
+    private val device: AndroidDevice,
+    private val devicePoolId: DevicePoolId,
+    private val logWriter: LogWriter
+) : NoOpTestRunListener(), AttachmentProvider {
     private val attachmentListeners = mutableListOf<AttachmentListener>()
 
     override fun registerListener(listener: AttachmentListener) {

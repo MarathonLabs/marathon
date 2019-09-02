@@ -45,6 +45,7 @@ object Versions {
     val googleAnalitycsWrapper = "2.0.0"
     val dokka = "0.9.17"
     val koin = "2.0.1"
+    val jsonAssert = "1.5.0"
 }
 
 object BuildPlugins {
@@ -102,6 +103,7 @@ object TestLibraries {
     val mockitoKotlin = "com.nhaarman.mockitokotlin2:mockito-kotlin:${Versions.mockitoKotlin}"
     val jupiterEngine = "org.junit.jupiter:junit-jupiter-engine:${Versions.jupiterEngine}"
     val koin = "org.koin:koin-test:${Versions.koin}"
+    val jsonAssert = "org.skyscreamer:jsonassert:${Versions.jsonAssert}"
 
     val testContainers = "org.testcontainers:testcontainers:${Versions.testContainers}"
     val testContainersInflux = "org.testcontainers:influxdb:${Versions.testContainers}"

@@ -14,23 +14,31 @@ import java.time.Instant
 class InfluxDBDataSource(private val influxDb: InfluxDB, private val dbName: String) : RemoteDataSource {
 
     @Measurement(name = "tests")
-    class InfluxExecutionTime(@Column(name = "testname", tag = true) var testName: String? = null,
-                              @Column(name = "percentile") var percentile: Double? = null)
+    class InfluxExecutionTime(
+        @Column(name = "testname", tag = true) var testName: String? = null,
+        @Column(name = "percentile") var percentile: Double? = null
+    )
 
     @Measurement(name = "tests")
-    class InfluxSuccessRate(@Column(name = "testname", tag = true) var testName: String? = null,
-                            @Column(name = "mean") var mean: Double? = null)
+    class InfluxSuccessRate(
+        @Column(name = "testname", tag = true) var testName: String? = null,
+        @Column(name = "mean") var mean: Double? = null
+    )
 
 
     private val mapper = InfluxDBResultMapper()
 
     override fun requestAllSuccessRates(limit: Instant): List<SuccessRate> {
-        val results = influxDb.query(Query("""
+        val results = influxDb.query(
+            Query(
+                """
             SELECT MEAN("success")
             FROM "tests"
             WHERE time >= '$limit'
             GROUP BY "testname"
-        """, dbName))
+        """, dbName
+            )
+        )
         return mapper.toPOJO(results, InfluxSuccessRate::class.java).filter {
             it.testName != null && it.mean != null
         }.map {
@@ -38,14 +46,20 @@ class InfluxDBDataSource(private val influxDb: InfluxDB, private val dbName: Str
         }
     }
 
-    override fun requestAllExecutionTimes(percentile: Double,
-                                          limit: Instant): List<ExecutionTime> {
-        val results = influxDb.query(Query("""
+    override fun requestAllExecutionTimes(
+        percentile: Double,
+        limit: Instant
+    ): List<ExecutionTime> {
+        val results = influxDb.query(
+            Query(
+                """
             SELECT PERCENTILE("duration",$percentile)
             FROM "tests"
             WHERE time >= '$limit'
             GROUP BY "testname"
-        """, dbName))
+        """, dbName
+            )
+        )
         return mapper.toPOJO(results, InfluxExecutionTime::class.java).filter {
             it.testName != null && it.percentile != null
         }.map {

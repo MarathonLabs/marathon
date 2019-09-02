@@ -23,14 +23,16 @@ import kotlinx.coroutines.launch
 import kotlin.coroutines.CoroutineContext
 import kotlin.properties.Delegates
 
-class DeviceActor(private val devicePoolId: DevicePoolId,
-                  private val pool: SendChannel<DevicePoolMessage>,
-                  private val configuration: Configuration,
-                  val device: Device,
-                  private val progressReporter: ProgressReporter,
-                  parent: Job,
-                  context: CoroutineContext) :
-        Actor<DeviceEvent>(parent = parent, context = context) {
+class DeviceActor(
+    private val devicePoolId: DevicePoolId,
+    private val pool: SendChannel<DevicePoolMessage>,
+    private val configuration: Configuration,
+    val device: Device,
+    private val progressReporter: ProgressReporter,
+    parent: Job,
+    context: CoroutineContext
+) :
+    Actor<DeviceEvent>(parent = parent, context = context) {
 
     private val state = StateMachine.create<DeviceState, DeviceEvent, DeviceAction> {
         initialState(DeviceState.Connected)

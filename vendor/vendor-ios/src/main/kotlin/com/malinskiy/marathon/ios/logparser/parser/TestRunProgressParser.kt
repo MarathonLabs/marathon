@@ -7,9 +7,11 @@ import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.test.Test
 import com.malinskiy.marathon.time.Timer
 
-class TestRunProgressParser(private val timer: Timer,
-                            private val packageNameFormatter: PackageNameFormatter,
-                            private val listeners: Collection<TestRunListener>) : StreamingLogParser {
+class TestRunProgressParser(
+    private val timer: Timer,
+    private val packageNameFormatter: PackageNameFormatter,
+    private val listeners: Collection<TestRunListener>
+) : StreamingLogParser {
 
     override fun close() {
         listeners.forEach { it.batchFinished() }
@@ -18,7 +20,8 @@ class TestRunProgressParser(private val timer: Timer,
     val logger = MarathonLogging.logger(TestRunProgressParser::class.java.simpleName)
 
     val TEST_CASE_STARTED = """Test Case '-\[([a-zA-Z0-9_.]+)\.([a-zA-Z0-9_]+) ([a-zA-Z0-9_]+)]' started\.""".toRegex()
-    val TEST_CASE_FINISHED = """Test Case '-\[([a-zA-Z0-9_.]+)\.([a-zA-Z0-9_]+) ([a-zA-Z0-9_]+)]' (passed|failed) \(([\d\.]+) seconds\)\.""".toRegex()
+    val TEST_CASE_FINISHED =
+        """Test Case '-\[([a-zA-Z0-9_.]+)\.([a-zA-Z0-9_]+) ([a-zA-Z0-9_]+)]' (passed|failed) \(([\d\.]+) seconds\)\.""".toRegex()
 
     override fun onLine(line: String) {
         if (line.matches(TEST_CASE_STARTED)) {

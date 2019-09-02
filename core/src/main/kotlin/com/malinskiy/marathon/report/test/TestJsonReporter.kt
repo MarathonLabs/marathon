@@ -6,8 +6,10 @@ import com.malinskiy.marathon.io.FileManager
 import com.malinskiy.marathon.io.FileType
 import com.malinskiy.marathon.report.Reporter
 
-internal class TestJsonReporter(private val fileManager: FileManager,
-                                private val gson: Gson) : Reporter {
+internal class TestJsonReporter(
+    private val fileManager: FileManager,
+    private val gson: Gson
+) : Reporter {
     override fun generate(executionReport: ExecutionReport) {
         for (testEvent in executionReport.testEvents.filter { it.final }) {
             val file = fileManager.createFile(FileType.TEST_RESULT, testEvent.poolId, testEvent.device, testEvent.testResult.test)

@@ -29,13 +29,15 @@ import kotlin.coroutines.CoroutineContext
  * 2) Create device pools using PoolingStrategy
  */
 
-class Scheduler(private val deviceProvider: DeviceProvider,
-                private val analytics: Analytics,
-                private val configuration: Configuration,
-                private val shard: TestShard,
-                private val progressReporter: ProgressReporter,
-                private val track: Track,
-                override val coroutineContext: CoroutineContext) : CoroutineScope {
+class Scheduler(
+    private val deviceProvider: DeviceProvider,
+    private val analytics: Analytics,
+    private val configuration: Configuration,
+    private val shard: TestShard,
+    private val progressReporter: ProgressReporter,
+    private val track: Track,
+    override val coroutineContext: CoroutineContext
+) : CoroutineScope {
 
     private val job = Job()
     private val pools = ConcurrentHashMap<DevicePoolId, SendChannel<FromScheduler>>()
@@ -77,7 +79,7 @@ class Scheduler(private val deviceProvider: DeviceProvider,
 
     private suspend fun onDeviceDisconnected(item: DeviceProvider.DeviceEvent.DeviceDisconnected) {
         val device = item.device
-        if(filteredByConfiguration(device)) {
+        if (filteredByConfiguration(device)) {
             logger.debug { "device ${device.serialNumber} is filtered out by configuration. skipping disconnect" }
             return
         }
@@ -88,11 +90,13 @@ class Scheduler(private val deviceProvider: DeviceProvider,
         }
     }
 
-    private suspend fun onDeviceConnected(item: DeviceProvider.DeviceEvent.DeviceConnected,
-                                          parent: Job,
-                                          context: CoroutineContext) {
+    private suspend fun onDeviceConnected(
+        item: DeviceProvider.DeviceEvent.DeviceConnected,
+        parent: Job,
+        context: CoroutineContext
+    ) {
         val device = item.device
-        if(filteredByConfiguration(device)) {
+        if (filteredByConfiguration(device)) {
             logger.debug { "device ${device.serialNumber} is filtered out by configuration. skipping" }
             return
         }

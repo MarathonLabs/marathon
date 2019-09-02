@@ -43,12 +43,14 @@ import java.net.UnknownHostException
 import java.util.concurrent.TimeoutException
 import kotlin.coroutines.CoroutineContext
 
-class IOSDevice(val simulator: RemoteSimulator,
-                connectionAttempt: Int,
-                configuration: IOSConfiguration,
-                val gson: Gson,
-                private val track: Track,
-                private val healthChangeListener: HealthChangeListener): Device, CoroutineScope {
+class IOSDevice(
+    val simulator: RemoteSimulator,
+    connectionAttempt: Int,
+    configuration: IOSConfiguration,
+    val gson: Gson,
+    private val track: Track,
+    private val healthChangeListener: HealthChangeListener
+) : Device, CoroutineScope {
 
     val udid = simulator.udid
     val connectionId = "$udid@${simulator.host}-$connectionAttempt"
@@ -80,7 +82,7 @@ class IOSDevice(val simulator: RemoteSimulator,
                 knownHostsPath = configuration.knownHostsPath,
                 verbose = configuration.debugSsh
             )
-        } catch(e: DeviceFailureException) {
+        } catch (e: DeviceFailureException) {
             deviceContext.close()
             throw e
         }
@@ -111,7 +113,7 @@ class IOSDevice(val simulator: RemoteSimulator,
     override val manufacturer: String
         get() = "Apple"
     override val networkState: NetworkState
-        get() = when(healthy) {
+        get() = when (healthy) {
             true -> NetworkState.CONNECTED
             false -> NetworkState.DISCONNECTED
         }
@@ -126,11 +128,13 @@ class IOSDevice(val simulator: RemoteSimulator,
     var failureReason: DeviceFailureReason? = null
         private set
 
-    override suspend fun execute(configuration: Configuration,
-                                 devicePoolId: DevicePoolId,
-                                 testBatch: TestBatch,
-                                 deferred: CompletableDeferred<TestBatchResults>,
-                                 progressReporter: ProgressReporter) = withContext(coroutineContext + CoroutineName("execute")) {
+    override suspend fun execute(
+        configuration: Configuration,
+        devicePoolId: DevicePoolId,
+        testBatch: TestBatch,
+        deferred: CompletableDeferred<TestBatchResults>,
+        progressReporter: ProgressReporter
+    ) = withContext(coroutineContext + CoroutineName("execute")) {
         val iosConfiguration = configuration.vendorConfiguration as IOSConfiguration
         val fileManager = FileManager(configuration.outputDir)
 
@@ -169,14 +173,15 @@ class IOSDevice(val simulator: RemoteSimulator,
         )
 
         val command =
-                listOf(
-                    "cd '$remoteDir';",
-                    "NSUnbufferedIO=YES",
-                    "xcodebuild test-without-building",
-                    "-xctestrun ${remoteXctestrunFile.path}",
-                    testBatch.toXcodebuildArguments(),
-                    "-destination 'platform=iOS simulator,id=$udid' ;",
-                    "exit")
+            listOf(
+                "cd '$remoteDir';",
+                "NSUnbufferedIO=YES",
+                "xcodebuild test-without-building",
+                "-xctestrun ${remoteXctestrunFile.path}",
+                testBatch.toXcodebuildArguments(),
+                "-destination 'platform=iOS simulator,id=$udid' ;",
+                "exit"
+            )
                 .joinToString(" ")
                 .also { logger.debug("\u001b[1m$it\u001b[0m") }
 
@@ -248,17 +253,17 @@ class IOSDevice(val simulator: RemoteSimulator,
             val xctestrunFile = prepareXctestrunFile(derivedDataManager, remoteXctestrunFile)
 
             derivedDataManager.sendSynchronized(
-                    localPath = xctestrunFile,
-                    remotePath = remoteXctestrunFile.absolutePath,
-                    hostName = hostCommandExecutor.hostAddress.hostName,
-                    port = hostCommandExecutor.port
+                localPath = xctestrunFile,
+                remotePath = remoteXctestrunFile.absolutePath,
+                hostName = hostCommandExecutor.hostAddress.hostName,
+                port = hostCommandExecutor.port
             )
 
             derivedDataManager.sendSynchronized(
-                    localPath = derivedDataManager.productsDir,
-                    remotePath = RemoteFileManager.remoteDirectory(this@IOSDevice).path,
-                    hostName = hostCommandExecutor.hostAddress.hostName,
-                    port = hostCommandExecutor.port
+                localPath = derivedDataManager.productsDir,
+                remotePath = RemoteFileManager.remoteDirectory(this@IOSDevice).path,
+                hostName = hostCommandExecutor.hostAddress.hostName,
+                port = hostCommandExecutor.port
             )
 
             this@IOSDevice.derivedDataManager = derivedDataManager
@@ -267,18 +272,18 @@ class IOSDevice(val simulator: RemoteSimulator,
             if (!iosConfiguration.alwaysEraseSimulators) {
                 try {
                     hostCommandExecutor.exec(
-                            "xcrun simctl shutdown $udid",
-                            configuration.testBatchTimeoutMillis,
-                            configuration.testOutputTimeoutMillis
+                        "xcrun simctl shutdown $udid",
+                        configuration.testBatchTimeoutMillis,
+                        configuration.testOutputTimeoutMillis
                     )
                 } catch (e: Exception) {
                     logger.warn("Exception shutting down remote simulator $e")
                 }
                 try {
                     hostCommandExecutor.exec(
-                            "xcrun simctl erase $udid",
-                            configuration.testBatchTimeoutMillis,
-                            configuration.testOutputTimeoutMillis
+                        "xcrun simctl erase $udid",
+                        configuration.testBatchTimeoutMillis,
+                        configuration.testOutputTimeoutMillis
                     )
                 } catch (e: Exception) {
                     logger.warn("Exception erasing remote simulator $e")
@@ -304,8 +309,10 @@ class IOSDevice(val simulator: RemoteSimulator,
 
     private fun disableHardwareKeyboard() {
         val result =
-            hostCommandExecutor.execOrNull("/usr/libexec/PlistBuddy -c 'Add :DevicePreferences:$udid:ConnectHardwareKeyboard bool false' /Users/master/Library/Preferences/com.apple.iphonesimulator.plist" +
-                    "|| /usr/libexec/PlistBuddy -c 'Set :DevicePreferences:$udid:ConnectHardwareKeyboard false' /Users/master/Library/Preferences/com.apple.iphonesimulator.plist")
+            hostCommandExecutor.execOrNull(
+                "/usr/libexec/PlistBuddy -c 'Add :DevicePreferences:$udid:ConnectHardwareKeyboard bool false' /Users/master/Library/Preferences/com.apple.iphonesimulator.plist" +
+                        "|| /usr/libexec/PlistBuddy -c 'Set :DevicePreferences:$udid:ConnectHardwareKeyboard false' /Users/master/Library/Preferences/com.apple.iphonesimulator.plist"
+            )
         if (result?.exitStatus == 0) {
             logger.trace("Disabled hardware keyboard")
         } else {
@@ -337,14 +344,13 @@ class IOSDevice(val simulator: RemoteSimulator,
 
     private fun prepareXctestrunFile(derivedDataManager: DerivedDataManager, remoteXctestrunFile: File): File {
         val remotePort = RemoteSimulatorFeatureProvider.availablePort(this)
-                .also { logger.info("Using TCP port $it on device $deviceIdentifier") }
+            .also { logger.info("Using TCP port $it on device $deviceIdentifier") }
 
         val xctestrun = Xctestrun(derivedDataManager.xctestrunFile)
         xctestrun.environment("TEST_HTTP_SERVER_PORT", "$remotePort")
 
-        return derivedDataManager.xctestrunFile.
-                resolveSibling(remoteXctestrunFile.name)
-                .also { it.writeBytes(xctestrun.toXMLByteArray()) }
+        return derivedDataManager.xctestrunFile.resolveSibling(remoteXctestrunFile.name)
+            .also { it.writeBytes(xctestrun.toXMLByteArray()) }
     }
 }
 
@@ -358,11 +364,17 @@ private fun String.toInetAddressOrNull(): InetAddress? {
         return null
     }
     return if (try {
-                address.isReachable(REACHABILITY_TIMEOUT_MILLIS)
-            } catch (e: IOException) {
-                logger.error("Error checking reachability of $this: $e")
-                false
-            }) { address } else { null }
+            address.isReachable(REACHABILITY_TIMEOUT_MILLIS)
+        } catch (e: IOException) {
+            logger.error("Error checking reachability of $this: $e")
+            false
+        }
+    ) {
+        address
+    } else {
+        null
+    }
 }
 
-private fun TestBatch.toXcodebuildArguments(): String = tests.joinToString(separator = " ") { "-only-testing:\"${it.pkg}/${it.clazz}/${it.method}\"" }
+private fun TestBatch.toXcodebuildArguments(): String =
+    tests.joinToString(separator = " ") { "-only-testing:\"${it.pkg}/${it.clazz}/${it.method}\"" }

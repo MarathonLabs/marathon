@@ -25,9 +25,11 @@ import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.math.roundToLong
 
-class HtmlSummaryReporter(private val gson: Gson,
-                          private val rootOutput: File,
-                          private val configuration: Configuration) : Reporter {
+class HtmlSummaryReporter(
+    private val gson: Gson,
+    private val rootOutput: File,
+    private val configuration: Configuration
+) : Reporter {
 
     /**
      * Following file tree structure will be created:
@@ -65,7 +67,8 @@ class HtmlSummaryReporter(private val gson: Gson,
             }
         }
 
-        indexHtmlFile.writeText(indexHtml
+        indexHtmlFile.writeText(
+            indexHtml
                 .replace("\${relative_path}", indexHtmlFile.relativePathToHtmlDir())
                 .replace("\${data_json}", "window.mainData = $htmlIndexJson")
                 .replace("\${log}", "")
@@ -78,7 +81,8 @@ class HtmlSummaryReporter(private val gson: Gson,
             val poolJson = gson.toJson(pool.toHtmlPoolSummary())
             val poolHtmlFile = File(poolsDir, "${pool.poolId.name}.html")
 
-            poolHtmlFile.writeText(indexHtml
+            poolHtmlFile.writeText(
+                indexHtml
                     .replace("\${relative_path}", poolHtmlFile.relativePathToHtmlDir())
                     .replace("\${data_json}", "window.pool = $poolJson")
                     .replace("\${log}", "")
@@ -86,32 +90,34 @@ class HtmlSummaryReporter(private val gson: Gson,
             )
 
             pool.tests.map { it to File(File(poolsDir, pool.poolId.name), it.device.serialNumber).apply { mkdirs() } }
-                    .map { (test, testDir) -> Triple(test, test.toHtmlFullTest(poolId = pool.poolId.name), testDir) }
-                    .forEach { (test, htmlTest, testDir) ->
-                        val testJson = gson.toJson(htmlTest)
-                        val testHtmlFile = File(testDir, "${htmlTest.id}.html")
+                .map { (test, testDir) -> Triple(test, test.toHtmlFullTest(poolId = pool.poolId.name), testDir) }
+                .forEach { (test, htmlTest, testDir) ->
+                    val testJson = gson.toJson(htmlTest)
+                    val testHtmlFile = File(testDir, "${htmlTest.id}.html")
 
-                        testHtmlFile.writeText(indexHtml
-                                .replace("\${relative_path}", testHtmlFile.relativePathToHtmlDir())
-                                .replace("\${data_json}", "window.test = $testJson")
-                                .replace("\${log}", generateLogcatHtml(test.stacktrace ?: ""))
-                                .replace("\${date}", formattedDate)
-                        )
+                    testHtmlFile.writeText(
+                        indexHtml
+                            .replace("\${relative_path}", testHtmlFile.relativePathToHtmlDir())
+                            .replace("\${data_json}", "window.test = $testJson")
+                            .replace("\${log}", generateLogcatHtml(test.stacktrace ?: ""))
+                            .replace("\${date}", formattedDate)
+                    )
 
-                        val logDir = File(testDir, "logs")
-                        logDir.mkdirs()
+                    val logDir = File(testDir, "logs")
+                    logDir.mkdirs()
 
-                        val testLogDetails = toHtmlTestLogDetails(pool.poolId.name, htmlTest)
-                        val testLogJson = gson.toJson(testLogDetails)
-                        val testLogHtmlFile = File(logDir, "${htmlTest.id}.html")
+                    val testLogDetails = toHtmlTestLogDetails(pool.poolId.name, htmlTest)
+                    val testLogJson = gson.toJson(testLogDetails)
+                    val testLogHtmlFile = File(logDir, "${htmlTest.id}.html")
 
-                        testLogHtmlFile.writeText(indexHtml
-                                .replace("\${relative_path}", testLogHtmlFile.relativePathToHtmlDir())
-                                .replace("\${data_json}", "window.logs = $testLogJson")
-                                .replace("\${log}", "")
-                                .replace("\${date}", formattedDate)
-                        )
-                    }
+                    testLogHtmlFile.writeText(
+                        indexHtml
+                            .replace("\${relative_path}", testLogHtmlFile.relativePathToHtmlDir())
+                            .replace("\${data_json}", "window.logs = $testLogJson")
+                            .replace("\${log}", "")
+                            .replace("\${date}", formattedDate)
+                    )
+                }
         }
     }
 
@@ -120,11 +126,11 @@ class HtmlSummaryReporter(private val gson: Gson,
     fun generateLogcatHtml(logcatOutput: String): String = when (logcatOutput.isNotEmpty()) {
         false -> ""
         true -> logcatOutput
-                .lines()
-                .map { line -> """<div class="log__${cssClassForLogcatLine(line)}">${StringEscapeUtils.escapeXml11(line)}</div>""" }
-                .fold(StringBuilder("""<div class="content"><div class="card log">""")) { stringBuilder, line ->
-                    stringBuilder.appendln(line)
-                }.appendln("""</div></div>""").toString()
+            .lines()
+            .map { line -> """<div class="log__${cssClassForLogcatLine(line)}">${StringEscapeUtils.escapeXml11(line)}</div>""" }
+            .fold(StringBuilder("""<div class="content"><div class="card log">""")) { stringBuilder, line ->
+                stringBuilder.appendln(line)
+            }.appendln("""</div></div>""").toString()
     }
 
     fun cssClassForLogcatLine(logcatLine: String): String {
@@ -142,33 +148,34 @@ class HtmlSummaryReporter(private val gson: Gson,
     }
 
     fun DeviceInfo.toHtmlDevice() = HtmlDevice(
-            apiLevel = operatingSystem.version,
-            isTablet = false,
-            serial = serialNumber,
-            modelName = model
+        apiLevel = operatingSystem.version,
+        isTablet = false,
+        serial = serialNumber,
+        modelName = model
     )
 
     fun TestResult.toHtmlFullTest(poolId: String) = HtmlFullTest(
-            poolId = poolId,
-            id = "${test.pkg}.${test.clazz}.${test.method}",
-            packageName = test.pkg,
-            className = test.clazz,
-            name = test.method,
-            durationMillis = durationMillis(),
-            status = status.toHtmlStatus(),
-            deviceId = this.device.serialNumber,
-            diagnosticVideo = device.deviceFeatures.contains(DeviceFeature.VIDEO),
-            diagnosticScreenshots = device.deviceFeatures.contains(DeviceFeature.SCREENSHOT),
-            stacktrace = stacktrace,
-            screenshot = when (device.deviceFeatures.contains(DeviceFeature.SCREENSHOT)) {
-                true -> "../../../../screenshot/$poolId/${device.serialNumber}/${test.pkg}.${test.clazz}%23${test.method}.gif"
-                false -> ""
-            },
-            video = when (device.deviceFeatures.contains(DeviceFeature.VIDEO)) {
-                true -> "../../../../video/$poolId/${device.serialNumber}/${test.pkg}.${test.clazz}%23${test.method}.mp4"
-                false -> ""
-            },
-            logFile = "../../../../logs/$poolId/${device.serialNumber}/${test.pkg}.${test.clazz}%23${test.method}.log")
+        poolId = poolId,
+        id = "${test.pkg}.${test.clazz}.${test.method}",
+        packageName = test.pkg,
+        className = test.clazz,
+        name = test.method,
+        durationMillis = durationMillis(),
+        status = status.toHtmlStatus(),
+        deviceId = this.device.serialNumber,
+        diagnosticVideo = device.deviceFeatures.contains(DeviceFeature.VIDEO),
+        diagnosticScreenshots = device.deviceFeatures.contains(DeviceFeature.SCREENSHOT),
+        stacktrace = stacktrace,
+        screenshot = when (device.deviceFeatures.contains(DeviceFeature.SCREENSHOT)) {
+            true -> "../../../../screenshot/$poolId/${device.serialNumber}/${test.pkg}.${test.clazz}%23${test.method}.gif"
+            false -> ""
+        },
+        video = when (device.deviceFeatures.contains(DeviceFeature.VIDEO)) {
+            true -> "../../../../video/$poolId/${device.serialNumber}/${test.pkg}.${test.clazz}%23${test.method}.mp4"
+            false -> ""
+        },
+        logFile = "../../../../logs/$poolId/${device.serialNumber}/${test.pkg}.${test.clazz}%23${test.method}.log"
+    )
 
     fun TestStatus.toHtmlStatus() = when (this) {
         TestStatus.PASSED -> Status.Passed
@@ -178,27 +185,27 @@ class HtmlSummaryReporter(private val gson: Gson,
     }
 
     fun PoolSummary.toHtmlPoolSummary() = HtmlPoolSummary(
-            id = poolId.name,
-            tests = tests.map { it.toHtmlShortSuite() },
-            passedCount = passed,
-            failedCount = failed,
-            ignoredCount = ignored,
-            durationMillis = durationMillis,
-            devices = devices.map { it.toHtmlDevice() }
+        id = poolId.name,
+        tests = tests.map { it.toHtmlShortSuite() },
+        passedCount = passed,
+        failedCount = failed,
+        ignoredCount = ignored,
+        durationMillis = durationMillis,
+        devices = devices.map { it.toHtmlDevice() }
     )
 
 
     fun Summary.toHtmlIndex() = HtmlIndex(
-            title = configuration.name,
-            totalFailed = pools.sumBy { it.failed },
-            totalIgnored = pools.sumBy { it.ignored },
-            totalPassed = pools.sumBy { it.passed },
-            totalFlaky = pools.sumBy { it.flaky },
-            totalDuration = totalDuration(pools),
-            averageDuration = averageDuration(pools),
-            maxDuration = maxDuration(pools),
-            minDuration = minDuration(pools),
-            pools = pools.map { it.toHtmlPoolSummary() }
+        title = configuration.name,
+        totalFailed = pools.sumBy { it.failed },
+        totalIgnored = pools.sumBy { it.ignored },
+        totalPassed = pools.sumBy { it.passed },
+        totalFlaky = pools.sumBy { it.flaky },
+        totalDuration = totalDuration(pools),
+        averageDuration = averageDuration(pools),
+        maxDuration = maxDuration(pools),
+        minDuration = minDuration(pools),
+        pools = pools.map { it.toHtmlPoolSummary() }
     )
 
     fun totalDuration(poolSummaries: List<PoolSummary>): Long {
@@ -210,28 +217,31 @@ class HtmlSummaryReporter(private val gson: Gson,
     fun minDuration(poolSummaries: List<PoolSummary>) = durationPerPool(poolSummaries).min() ?: 0
 
     private fun durationPerPool(poolSummaries: List<PoolSummary>) =
-            poolSummaries.map { it.tests }
-                    .map { it.sumByDouble { it.durationMillis() * 1.0 } }.map { it.toLong() }
+        poolSummaries.map { it.tests }
+            .map { it.sumByDouble { it.durationMillis() * 1.0 } }.map { it.toLong() }
 
     fun maxDuration(poolSummaries: List<PoolSummary>) = durationPerPool(poolSummaries).max() ?: 0
 
 
     fun TestResult.toHtmlShortSuite() = HtmlShortTest(
-            id = "${test.pkg}.${test.clazz}.${test.method}",
-            packageName = test.pkg,
-            className = test.clazz,
-            name = test.method,
-            durationMillis = durationMillis(),
-            status = status.toHtmlStatus(),
-            deviceId = this.device.serialNumber)
+        id = "${test.pkg}.${test.clazz}.${test.method}",
+        packageName = test.pkg,
+        className = test.clazz,
+        name = test.method,
+        durationMillis = durationMillis(),
+        status = status.toHtmlStatus(),
+        deviceId = this.device.serialNumber
+    )
 
-    fun toHtmlTestLogDetails(poolId: String,
-                             fullTest: HtmlFullTest) = HtmlTestLogDetails(
-            poolId = poolId,
-            testId = fullTest.id,
-            displayName = fullTest.name,
-            deviceId = fullTest.deviceId,
-            logPath = "../../../../../logs/$poolId/${fullTest.deviceId}/${fullTest.packageName}.${fullTest.className}%23${fullTest.name}.log"
+    fun toHtmlTestLogDetails(
+        poolId: String,
+        fullTest: HtmlFullTest
+    ) = HtmlTestLogDetails(
+        poolId = poolId,
+        testId = fullTest.id,
+        displayName = fullTest.name,
+        deviceId = fullTest.deviceId,
+        logPath = "../../../../../logs/$poolId/${fullTest.deviceId}/${fullTest.packageName}.${fullTest.className}%23${fullTest.name}.log"
     )
 
 

@@ -30,8 +30,10 @@ class FileVendorConfigurationDeserializer : StdDeserializer<FileVendorConfigurat
                 (node as ObjectNode).remove("type")
                 codec.treeToValue<FileAndroidConfiguration>(node)
             }
-            else -> throw ConfigurationException("Unrecognized vendor type $type. " +
-                    "Valid options are $TYPE_ANDROID and $TYPE_IOS")
+            else -> throw ConfigurationException(
+                "Unrecognized vendor type $type. " +
+                        "Valid options are $TYPE_ANDROID and $TYPE_IOS"
+            )
         }
     }
 }

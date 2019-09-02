@@ -19,15 +19,17 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.SendChannel
 import kotlin.coroutines.CoroutineContext
 
-class DevicePoolActor(private val poolId: DevicePoolId,
-                      private val configuration: Configuration,
-                      analytics: Analytics,
-                      shard : TestShard,
-                      private val progressReporter: ProgressReporter,
-                      track: Track,
-                      parent: Job,
-                      context: CoroutineContext) :
-        Actor<DevicePoolMessage>(parent = parent, context = context) {
+class DevicePoolActor(
+    private val poolId: DevicePoolId,
+    private val configuration: Configuration,
+    analytics: Analytics,
+    shard: TestShard,
+    private val progressReporter: ProgressReporter,
+    track: Track,
+    parent: Job,
+    context: CoroutineContext
+) :
+    Actor<DevicePoolMessage>(parent = parent, context = context) {
 
     private val logger = MarathonLogging.logger("DevicePoolActor[${poolId.name}]")
 
@@ -48,15 +50,15 @@ class DevicePoolActor(private val poolId: DevicePoolId,
     private val poolJob = Job(parent)
 
     private val queue: QueueActor = QueueActor(
-            configuration,
-            shard,
-            analytics,
-            this,
-            poolId,
-            progressReporter,
-            track,
-            poolJob,
-            context
+        configuration,
+        shard,
+        analytics,
+        this,
+        poolId,
+        progressReporter,
+        track,
+        poolJob,
+        context
     )
 
     private val devices = mutableMapOf<String, SendChannel<DeviceEvent>>()
@@ -92,8 +94,8 @@ class DevicePoolActor(private val poolId: DevicePoolId,
     private suspend fun maybeRequestBatch(avoidingDevice: Device? = null) {
         val availableDevices = devices.values.asSequence()
             .map { it as DeviceActor }
-            .filter { it.isAvailable}
-            .filter { it.device != avoidingDevice}
+            .filter { it.isAvailable }
+            .filter { it.device != avoidingDevice }
             .toList()
         if (availableDevices.isEmpty()) {
             if (avoidingDevice != null) {

@@ -24,19 +24,19 @@ import com.xenomachina.argparser.mainBody
 private val logger = MarathonLogging.logger {}
 
 fun main(args: Array<String>): Unit = mainBody(
-        programName = "marathon v${BuildConfig.VERSION}"
+    programName = "marathon v${BuildConfig.VERSION}"
 ) {
     ArgParser(args).parseInto(::MarathonCliConfiguration).run {
         logger.info { "Starting marathon" }
 
         val mapper = ObjectMapper(YAMLFactory().disable(YAMLGenerator.Feature.USE_NATIVE_TYPE_ID))
         mapper.registerModule(DeserializeModule(InstantTimeProviderImpl()))
-                .registerModule(KotlinModule())
-                .registerModule(JavaTimeModule())
+            .registerModule(KotlinModule())
+            .registerModule(JavaTimeModule())
 
         val configuration = ConfigFactory(mapper).create(
-                marathonfile = marathonfile,
-                environmentReader = SystemEnvironmentReader()
+            marathonfile = marathonfile,
+            environmentReader = SystemEnvironmentReader()
         )
 
         val application = marathonStartKoin(configuration)

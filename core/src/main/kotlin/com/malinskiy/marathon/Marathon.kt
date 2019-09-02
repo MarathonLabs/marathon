@@ -25,11 +25,13 @@ import kotlin.coroutines.coroutineContext
 
 private val log = MarathonLogging.logger {}
 
-class Marathon(val configuration: Configuration,
-               private val tracker: TrackerInternal,
-               private val analytics: Analytics,
-               private val progressReporter: ProgressReporter,
-               private val track: Track) {
+class Marathon(
+    val configuration: Configuration,
+    private val tracker: TrackerInternal,
+    private val analytics: Analytics,
+    private val progressReporter: ProgressReporter,
+    private val track: Track
+) {
 
     private val configurationValidator = LogicalConfigurationValidator()
 
@@ -41,7 +43,7 @@ class Marathon(val configuration: Configuration,
 
     private suspend fun loadDeviceProvider(vendorConfiguration: VendorConfiguration): DeviceProvider {
         val vendorDeviceProvider = vendorConfiguration.deviceProvider()
-                ?: ServiceLoader.load(DeviceProvider::class.java).first()
+            ?: ServiceLoader.load(DeviceProvider::class.java).first()
 
         vendorDeviceProvider.initialize(configuration.vendorConfiguration)
         return vendorDeviceProvider
@@ -89,13 +91,13 @@ class Marathon(val configuration: Configuration,
         log.debug(tests.joinToString(", ") { it.toTestName() })
         val currentCoroutineContext = coroutineContext
         val scheduler = Scheduler(
-                deviceProvider,
-                analytics,
-                configuration,
-                shard,
-                progressReporter,
-                track,
-                currentCoroutineContext
+            deviceProvider,
+            analytics,
+            configuration,
+            shard,
+            progressReporter,
+            track,
+            currentCoroutineContext
         )
 
         if (configuration.outputDir.exists()) {

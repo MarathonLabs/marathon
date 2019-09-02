@@ -64,9 +64,9 @@ class DerivedDataManager(val configuration: Configuration) {
 
         val sshString = getSshString(port)
         val rsync = getRsyncBase()
-                .rsh(sshString)
-                .source(source)
-                .destination(destination)
+            .rsh(sshString)
+            .source(source)
+            .destination(destination)
 
         val output = CollectingProcessOutput()
         output.monitor(rsync.builder())
@@ -87,9 +87,9 @@ class DerivedDataManager(val configuration: Configuration) {
 
         val sshString = getSshString(port)
         val rsync = getRsyncBase()
-                .rsh(sshString)
-                .source(source)
-                .destination(destination)
+            .rsh(sshString)
+            .source(source)
+            .destination(destination)
 
         val output = CollectingProcessOutput()
         output.timeOut = 30
@@ -104,12 +104,12 @@ class DerivedDataManager(val configuration: Configuration) {
 
     private fun getRsyncBase(): RSync {
         return RSync()
-                .a()
-                .partial(true)
-                .partialDir(".rsync-partial")
-                .delayUpdates(true)
-                .rsyncPath(iosConfiguration.remoteRsyncPath)
-                .verbose(configuration.debug)
+            .a()
+            .partial(true)
+            .partialDir(".rsync-partial")
+            .delayUpdates(true)
+            .rsyncPath(iosConfiguration.remoteRsyncPath)
+            .verbose(configuration.debug)
     }
 
     private fun getSshString(port: Int): String {
@@ -131,14 +131,14 @@ private val File.absolutePathWithTrailingSeparator: String
 
 private fun RSync.a(): RSync {
     return this
-            .recursive(true)
-            .links(true)
-            .perms(true)
-            .times(true)
-            .group(true)
-            .owner(true)
-            .devices(true)
-            .specials(true)
+        .recursive(true)
+        .links(true)
+        .perms(true)
+        .times(true)
+        .group(true)
+        .owner(true)
+        .devices(true)
+        .specials(true)
 }
 
 private fun File.isDescendantOf(dir: File): Boolean {

@@ -1,5 +1,5 @@
 package com.malinskiy.marathon.usageanalytics.tracker
 
-interface UsageTracker{
+interface UsageTracker {
     fun trackEvent(event: Event)
 }

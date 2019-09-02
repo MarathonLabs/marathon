@@ -13,13 +13,15 @@ import com.malinskiy.marathon.test.toSafeTestName
 import com.malinskiy.marathon.time.Timer
 import kotlinx.coroutines.CompletableDeferred
 
-class ProgressReportingListener(private val device: Device,
-                                private val poolId: DevicePoolId,
-                                private val testBatch: TestBatch,
-                                private val deferredResults: CompletableDeferred<TestBatchResults>,
-                                private val progressReporter: ProgressReporter,
-                                private val testLogListener: TestLogListener,
-                                private val timer: Timer) : TestRunListener {
+class ProgressReportingListener(
+    private val device: Device,
+    private val poolId: DevicePoolId,
+    private val testBatch: TestBatch,
+    private val deferredResults: CompletableDeferred<TestBatchResults>,
+    private val progressReporter: ProgressReporter,
+    private val testLogListener: TestLogListener,
+    private val timer: Timer
+) : TestRunListener {
 
     private val success: MutableList<TestResult> = mutableListOf()
     private val failure: MutableList<TestResult> = mutableListOf()
@@ -39,12 +41,12 @@ class ProgressReportingListener(private val device: Device,
         val lastCompletedTestEndTime = received.maxBy { it.endTime }?.endTime ?: timer.currentTimeMillis()
         return map {
             TestResult(
-                    it,
-                    device.toDeviceInfo(),
-                    TestStatus.FAILURE,
-                    lastCompletedTestEndTime,
-                    lastCompletedTestEndTime,
-                    testLogListener.getLastLog()
+                it,
+                device.toDeviceInfo(),
+                TestStatus.FAILURE,
+                lastCompletedTestEndTime,
+                lastCompletedTestEndTime,
+                testLogListener.getLastLog()
             )
         }
     }

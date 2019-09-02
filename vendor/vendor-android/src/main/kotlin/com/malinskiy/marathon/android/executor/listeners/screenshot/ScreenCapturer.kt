@@ -24,10 +24,12 @@ import javax.imageio.stream.FileImageOutputStream
 import kotlin.system.measureTimeMillis
 
 
-class ScreenCapturer(val device: AndroidDevice,
-                     private val poolId: DevicePoolId,
-                     private val fileManager: FileManager,
-                     val test: TestIdentifier) {
+class ScreenCapturer(
+    val device: AndroidDevice,
+    private val poolId: DevicePoolId,
+    private val fileManager: FileManager,
+    val test: TestIdentifier
+) {
 
     suspend fun start() = coroutineScope {
         val outputStream = FileImageOutputStream(fileManager.createFile(FileType.SCREENSHOT, poolId, device.toDeviceInfo(), test.toTest()))

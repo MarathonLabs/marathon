@@ -20,10 +20,11 @@ import kotlin.system.measureTimeMillis
 
 const val MS_IN_SECOND: Long = 1_000L
 
-internal class ScreenRecorderTestRunListener(private val fileManager: FileManager,
-                                             private val pool: DevicePoolId,
-                                             private val device: AndroidDevice)
-    : NoOpTestRunListener(), AttachmentProvider {
+internal class ScreenRecorderTestRunListener(
+    private val fileManager: FileManager,
+    private val pool: DevicePoolId,
+    private val device: AndroidDevice
+) : NoOpTestRunListener(), AttachmentProvider {
 
     val attachmentListeners = mutableListOf<AttachmentListener>()
 

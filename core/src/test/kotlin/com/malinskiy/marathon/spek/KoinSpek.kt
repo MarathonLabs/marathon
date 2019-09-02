@@ -24,18 +24,18 @@ fun Spec.initKoin() {
 }
 
 inline fun <reified T> Spec.get(
-        qualifier: Qualifier? = null,
-        noinline parameters: ParametersDefinition? = null
+    qualifier: Qualifier? = null,
+    noinline parameters: ParametersDefinition? = null
 ): T =
-        getKoin().get(qualifier, parameters)
+    getKoin().get(qualifier, parameters)
 
 inline fun <reified T> Spec.inject(
-        qualifier: Qualifier? = null,
-        noinline parameters: ParametersDefinition? = null
+    qualifier: Qualifier? = null,
+    noinline parameters: ParametersDefinition? = null
 ): Lazy<T> =
-        getKoin().inject(qualifier, parameters)
+    getKoin().inject(qualifier, parameters)
 
 inline fun <reified S, reified P> Spec.bind(
-        noinline parameters: ParametersDefinition? = null
+    noinline parameters: ParametersDefinition? = null
 ): S =
-        getKoin().bind<S, P>(parameters)
+    getKoin().bind<S, P>(parameters)

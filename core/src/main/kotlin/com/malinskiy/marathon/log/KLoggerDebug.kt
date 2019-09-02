@@ -3,7 +3,7 @@ package com.malinskiy.marathon.log
 import mu.KLogger
 import org.slf4j.Marker
 
-class KLoggerDebug(underlyingLogger: KLogger): KLogger by underlyingLogger {
+class KLoggerDebug(underlyingLogger: KLogger) : KLogger by underlyingLogger {
     override fun debug(msg: () -> Any?) {
         super.warn(msg)
     }

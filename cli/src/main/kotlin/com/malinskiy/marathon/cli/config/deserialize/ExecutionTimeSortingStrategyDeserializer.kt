@@ -13,21 +13,20 @@ import com.malinskiy.marathon.execution.strategy.impl.sorting.ExecutionTimeSorti
 import java.time.Duration
 import java.time.Instant
 
-class ExecutionTimeSortingStrategyDeserializer(private val instantTimeProvider: InstantTimeProvider):
-        StdDeserializer<ExecutionTimeSortingStrategy>(ExecutionTimeSortingStrategy::class.java) {
+class ExecutionTimeSortingStrategyDeserializer(private val instantTimeProvider: InstantTimeProvider) :
+    StdDeserializer<ExecutionTimeSortingStrategy>(ExecutionTimeSortingStrategy::class.java) {
     override fun deserialize(p: JsonParser?, ctxt: DeserializationContext?): ExecutionTimeSortingStrategy {
         val codec = p?.codec as ObjectMapper
         val node: JsonNode = codec.readTree(p) ?: throw ConfigurationException("Invalid sorting strategy")
 
         val percentile = node.findValue("percentile")?.asDouble()
-                ?: throw ConfigurationException("Missing percentile value")
+            ?: throw ConfigurationException("Missing percentile value")
 
         val timeLimitValue = node.findValue("timeLimit")
-                ?: throw ConfigurationException("Missing time limit value")
+            ?: throw ConfigurationException("Missing time limit value")
         val instant = codec.treeToValueOrNull(timeLimitValue, Instant::class.java)
-                ?: codec.treeToValueOrNull(timeLimitValue, Duration::class.java)?.
-                        addToInstant(instantTimeProvider.referenceTime())
-                ?: throw ConfigurationException("bbb")
+            ?: codec.treeToValueOrNull(timeLimitValue, Duration::class.java)?.addToInstant(instantTimeProvider.referenceTime())
+            ?: throw ConfigurationException("bbb")
 
         return ExecutionTimeSortingStrategy(percentile, instant)
     }
@@ -38,6 +37,8 @@ private fun <T> ObjectMapper.treeToValueOrNull(node: TreeNode, clazz: Class<T>):
     val result: T
     try {
         result = treeToValue(node, clazz)
-    } catch (e: InvalidFormatException) { return null }
+    } catch (e: InvalidFormatException) {
+        return null
+    }
     return result
 }

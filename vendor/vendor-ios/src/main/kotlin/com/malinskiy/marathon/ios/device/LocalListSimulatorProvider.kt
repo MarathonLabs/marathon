@@ -27,12 +27,14 @@ import kotlin.coroutines.CoroutineContext
 
 private const val MAX_CONNECTION_ATTEMPTS = 16
 
-class LocalListSimulatorProvider(override val coroutineContext: CoroutineContext,
-                                 private val channel: Channel<DeviceProvider.DeviceEvent>,
-                                 private val configuration: IOSConfiguration,
-                                 yamlObjectMapper: ObjectMapper,
-                                 private val gson: Gson,
-                                 private val track: Track) : SimulatorProvider, HealthChangeListener, CoroutineScope {
+class LocalListSimulatorProvider(
+    override val coroutineContext: CoroutineContext,
+    private val channel: Channel<DeviceProvider.DeviceEvent>,
+    private val configuration: IOSConfiguration,
+    yamlObjectMapper: ObjectMapper,
+    private val gson: Gson,
+    private val track: Track
+) : SimulatorProvider, HealthChangeListener, CoroutineScope {
 
     private val job = Job()
 
@@ -105,10 +107,10 @@ class LocalListSimulatorProvider(override val coroutineContext: CoroutineContext
 
     private fun connect(device: IOSDevice) {
         devices.put(device.serialNumber, device)
-                ?.let {
-                    logger.error("replaced existing device $it with new $device.")
-                    dispose(it)
-                }
+            ?.let {
+                logger.error("replaced existing device $it with new $device.")
+                dispose(it)
+            }
         notifyConnected(device)
     }
 

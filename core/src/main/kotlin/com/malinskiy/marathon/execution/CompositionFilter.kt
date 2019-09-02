@@ -3,8 +3,10 @@ package com.malinskiy.marathon.execution
 import com.google.gson.annotations.SerializedName
 import com.malinskiy.marathon.test.Test
 
-class CompositionFilter(@SerializedName("filters") private val filters: List<TestFilter>,
-                        @SerializedName("op") private val op: OPERATION) : TestFilter {
+class CompositionFilter(
+    @SerializedName("filters") private val filters: List<TestFilter>,
+    @SerializedName("op") private val op: OPERATION
+) : TestFilter {
     override fun filter(tests: List<Test>): List<Test> {
         return when (op) {
             OPERATION.UNION -> filterWithUnionOperation(tests)

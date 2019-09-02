@@ -6,14 +6,16 @@ import com.malinskiy.marathon.execution.TestResult
 import com.malinskiy.marathon.execution.TestShard
 import com.malinskiy.marathon.execution.strategy.RetryStrategy
 
-class FixedQuotaRetryStrategy(@JsonProperty("totalAllowedRetryQuota") totalAllowedRetryQuota: Int = 200,
-                              @JsonProperty("retryPerTestQuota") retryPerTestQuota: Int = 3) : RetryStrategy {
+class FixedQuotaRetryStrategy(
+    @JsonProperty("totalAllowedRetryQuota") totalAllowedRetryQuota: Int = 200,
+    @JsonProperty("retryPerTestQuota") retryPerTestQuota: Int = 3
+) : RetryStrategy {
     private val retryWatchdog = RetryWatchdog(totalAllowedRetryQuota, retryPerTestQuota)
     private val poolTestCaseFailureAccumulator = PoolTestFailureAccumulator()
 
     override fun process(devicePoolId: DevicePoolId, tests: Collection<TestResult>, testShard: TestShard): List<TestResult> {
         return tests.filter { testResult ->
-            poolTestCaseFailureAccumulator.record(devicePoolId, testResult.test )
+            poolTestCaseFailureAccumulator.record(devicePoolId, testResult.test)
             val flakinessResultCount = testShard.flakyTests.count { it == testResult.test }
             retryWatchdog.requestRetry(poolTestCaseFailureAccumulator.getCount(devicePoolId, testResult.test) + flakinessResultCount)
         }

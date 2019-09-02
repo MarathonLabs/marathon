@@ -24,11 +24,13 @@ import com.malinskiy.marathon.report.timeline.TimelineSummaryProvider
 import com.malinskiy.marathon.time.Timer
 import java.io.File
 
-internal class TrackerFactory(private val configuration: Configuration,
-                              private val fileManager: FileManager,
-                              private val gson: Gson,
-                              private val timer: Timer,
-                              private val track: Track) {
+internal class TrackerFactory(
+    private val configuration: Configuration,
+    private val fileManager: FileManager,
+    private val gson: Gson,
+    private val timer: Timer,
+    private val track: Track
+) {
 
     val log = MarathonLogging.logger("TrackerFactory")
 
@@ -59,7 +61,8 @@ internal class TrackerFactory(private val configuration: Configuration,
     }
 
     private fun createExecutionReportGenerator(): ExecutionReportGenerator {
-        return ExecutionReportGenerator(listOf(
+        return ExecutionReportGenerator(
+            listOf(
                 DeviceInfoJsonReporter(fileManager, gson),
                 JUnitReporter(JUnitWriter(fileManager)),
                 TimelineReporter(TimelineSummaryProvider(), gson, configuration.outputDir),
@@ -68,6 +71,7 @@ internal class TrackerFactory(private val configuration: Configuration,
                 AllureReporter(configuration, File(configuration.outputDir, "allure-results")),
                 HtmlSummaryReporter(gson, configuration.outputDir, configuration),
                 StdoutReporter(timer)
-        ))
+            )
+        )
     }
 }

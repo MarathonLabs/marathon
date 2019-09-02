@@ -10,8 +10,8 @@ pluginManagement {
                 useModule("com.android.tools.build:gradle:${requested.version}")
             } else
                 if (requested.id.id == "marathon") {
-                useModule("com.malinskiy.marathon:marathon-gradle-plugin:${requested.version}")
-            }
+                    useModule("com.malinskiy.marathon:marathon-gradle-plugin:${requested.version}")
+                }
         }
     }
 }

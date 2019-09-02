@@ -12,5 +12,5 @@ internal class NoOpMetricsProvider : MetricsProvider {
         return 0.0
     }
 
-    override fun close() { }
+    override fun close() {}
 }

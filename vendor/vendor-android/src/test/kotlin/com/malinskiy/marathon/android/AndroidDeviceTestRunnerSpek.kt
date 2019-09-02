@@ -22,19 +22,21 @@ import org.jetbrains.spek.api.dsl.describe
 import org.jetbrains.spek.api.dsl.it
 import java.io.File
 
-class AndroidDeviceTestRunnerSpek : Spek({
-    initKoin()
+class AndroidDeviceTestRunnerSpek : Spek(
+    {
+        initKoin()
 
-    describe("AndroidDeviceTestRunner") {
-        it("should handle ignored tests before execution") {
-            val ddmsDevice = mock<IDevice>()
-            whenever(ddmsDevice.serialNumber).doReturn("testSerial")
-            whenever(ddmsDevice.version).doReturn(AndroidVersion(26))
-            val device = AndroidDevice(ddmsDevice, Track())
-            val androidDeviceTestRunner = AndroidDeviceTestRunner(device)
-            val apkFile = File(javaClass.classLoader.getResource("android_test_1.apk").file)
-            val output = File("")
-            val configuration = Configuration(name = "",
+        describe("AndroidDeviceTestRunner") {
+            it("should handle ignored tests before execution") {
+                val ddmsDevice = mock<IDevice>()
+                whenever(ddmsDevice.serialNumber).doReturn("testSerial")
+                whenever(ddmsDevice.version).doReturn(AndroidVersion(26))
+                val device = AndroidDevice(ddmsDevice, Track())
+                val androidDeviceTestRunner = AndroidDeviceTestRunner(device)
+                val apkFile = File(javaClass.classLoader.getResource("android_test_1.apk").file)
+                val output = File("")
+                val configuration = Configuration(
+                    name = "",
                     outputDir = output,
                     analyticsConfiguration = null,
                     poolingStrategy = null,
@@ -56,23 +58,24 @@ class AndroidDeviceTestRunnerSpek : Spek({
                     testOutputTimeoutMillis = null,
                     debug = null,
                     vendorConfiguration = AndroidConfiguration(
-                            File(""),
-                            applicationOutput = File(""),
-                            testApplicationOutput = apkFile
+                        File(""),
+                        applicationOutput = File(""),
+                        testApplicationOutput = apkFile
                     ),
                     analyticsTracking = false
-            )
-            val ignoredTest = Test("ignored", "ignored", "ignored", listOf(MetaProperty("org.junit.Ignore")))
-            val identifier = ignoredTest.toTestIdentifier()
-            val validTest = Test("test", "test", "test", emptyList())
-            val batch = TestBatch(listOf(ignoredTest, validTest))
-            val listener = mock<ITestRunListener>()
-            androidDeviceTestRunner.execute(configuration, batch, listener)
-            verify(listener).testStarted(eq(identifier))
-            verify(listener).testIgnored(eq(identifier))
-            verify(listener).testEnded(eq(identifier), eq(hashMapOf()))
-            verifyNoMoreInteractions(listener)
+                )
+                val ignoredTest =
+                    Test("ignored", "ignored", "ignored", listOf(MetaProperty("org.junit.Ignore")))
+                val identifier = ignoredTest.toTestIdentifier()
+                val validTest = Test("test", "test", "test", emptyList())
+                val batch = TestBatch(listOf(ignoredTest, validTest))
+                val listener = mock<ITestRunListener>()
+                androidDeviceTestRunner.execute(configuration, batch, listener)
+                verify(listener).testStarted(eq(identifier))
+                verify(listener).testIgnored(eq(identifier))
+                verify(listener).testEnded(eq(identifier), eq(hashMapOf()))
+                verifyNoMoreInteractions(listener)
 
+            }
         }
-    }
-})
+    })
