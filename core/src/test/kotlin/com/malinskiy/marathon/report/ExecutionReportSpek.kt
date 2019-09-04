@@ -28,9 +28,11 @@ import java.io.File
 import java.time.Instant
 
 
-class ExecutionReportSpek : Spek({
+class ExecutionReportSpek : Spek(
+    {
 
-    val configuration = Configuration(name = "",
+        val configuration = Configuration(
+            name = "",
             outputDir = File("src/test/resources/output/"),
             analyticsConfiguration = AnalyticsConfiguration.DisabledAnalytics,
             poolingStrategy = null,
@@ -57,18 +59,31 @@ class ExecutionReportSpek : Spek({
                 override fun logConfigurator(): MarathonLogConfigurator? = null
                 override fun preferableRecorderType(): DeviceFeature? = null
             },
-            analyticsTracking = false)
+            analyticsTracking = false
+        )
 
-    val fileManager = FileManager(configuration.outputDir)
-    val gson = Gson()
-    println(configuration.outputDir.absolutePath)
+        val fileManager = FileManager(configuration.outputDir)
+        val gson = Gson()
+        println(configuration.outputDir.absolutePath)
 
-    fun createTestEvent(deviceInfo: DeviceInfo, methodName: String, status: TestStatus): TestEvent {
-        return TestEvent(Instant.now(), DevicePoolId("myPool"), deviceInfo, TestResult(Test("com", "example", methodName, emptyList()), deviceInfo, status, 0, 100), true)
-    }
+        fun createTestEvent(deviceInfo: DeviceInfo, methodName: String, status: TestStatus): TestEvent {
+            return TestEvent(
+                Instant.now(),
+                DevicePoolId("myPool"),
+                deviceInfo,
+                TestResult(
+                    Test("com", "example", methodName, emptyList()),
+                    deviceInfo,
+                    status,
+                    0,
+                    100
+                ),
+                true
+            )
+        }
 
-    given("an ExecutionReport") {
-        val device = DeviceInfo(
+        given("an ExecutionReport") {
+            val device = DeviceInfo(
                 operatingSystem = OperatingSystem("23"),
                 serialNumber = "xxyyzz",
                 model = "Android SDK built for x86",
@@ -76,32 +91,32 @@ class ExecutionReportSpek : Spek({
                 networkState = NetworkState.CONNECTED,
                 deviceFeatures = listOf(DeviceFeature.SCREENSHOT, DeviceFeature.VIDEO),
                 healthy = true
-        )
-        val report = ExecutionReport(
+            )
+            val report = ExecutionReport(
                 deviceProviderPreparingEvent = emptyList(),
                 devicePreparingEvents = emptyList(),
                 deviceConnectedEvents = listOf(
-                        DeviceConnectedEvent(Instant.now(), DevicePoolId("myPool"), device)
+                    DeviceConnectedEvent(Instant.now(), DevicePoolId("myPool"), device)
                 ),
                 testEvents = listOf(
-                        createTestEvent(device, "test1", TestStatus.INCOMPLETE),
-                        createTestEvent(device, "test2", TestStatus.PASSED),
-                        createTestEvent(device, "test3", TestStatus.FAILURE)
+                    createTestEvent(device, "test1", TestStatus.INCOMPLETE),
+                    createTestEvent(device, "test2", TestStatus.PASSED),
+                    createTestEvent(device, "test3", TestStatus.FAILURE)
                 )
-        )
+            )
 
-        on("execution report summary") {
-            val summary = report.summary
-            val tests = summary.pools.flatMap { it.tests }
-            it("should not include the INCOMPLETE test") {
-                tests.filter { it.status == TestStatus.INCOMPLETE }.count() shouldBe 0
-            }
-            it("should include 1 PASSED test") {
-                tests.filter { it.status == TestStatus.PASSED }.count() shouldBe 1
-            }
-            it("should include 1 FAILED test") {
-                tests.filter { it.status == TestStatus.FAILURE }.count() shouldBe 1
+            on("execution report summary") {
+                val summary = report.summary
+                val tests = summary.pools.flatMap { it.tests }
+                it("should not include the INCOMPLETE test") {
+                    tests.filter { it.status == TestStatus.INCOMPLETE }.count() shouldBe 0
+                }
+                it("should include 1 PASSED test") {
+                    tests.filter { it.status == TestStatus.PASSED }.count() shouldBe 1
+                }
+                it("should include 1 FAILED test") {
+                    tests.filter { it.status == TestStatus.FAILURE }.count() shouldBe 1
+                }
             }
         }
-    }
-})
+    })

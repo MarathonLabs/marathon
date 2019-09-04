@@ -12,7 +12,7 @@ class IgnoreFlakinessStrategy : FlakinessStrategy {
     override fun hashCode() = javaClass.canonicalName.hashCode()
 
     override fun equals(other: Any?): Boolean {
-        if(other == null) return false
+        if (other == null) return false
         val javaClass: Class<Any> = other.javaClass
         return this.javaClass.canonicalName == javaClass.canonicalName
     }

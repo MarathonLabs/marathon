@@ -20,10 +20,10 @@ class ExecutionReportGenerator(private val reporters: List<Reporter>) : TrackerI
 
     override fun close() {
         val report = ExecutionReport(
-                deviceConnectedEvents.sortedBy { it.instant },
-                devicePreparingEvents.sortedBy { it.start },
-                deviceProviderPreparingEvents.sortedBy { it.start },
-                testEvents.sortedBy { it.instant })
+            deviceConnectedEvents.sortedBy { it.instant },
+            devicePreparingEvents.sortedBy { it.start },
+            deviceProviderPreparingEvents.sortedBy { it.start },
+            testEvents.sortedBy { it.instant })
 
         for (reporter in reporters) {
             reporter.generate(report)

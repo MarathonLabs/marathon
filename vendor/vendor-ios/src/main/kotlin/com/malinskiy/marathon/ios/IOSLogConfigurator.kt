@@ -16,7 +16,7 @@ import net.schmizz.sshj.transport.kex.Curve25519SHA256
 import net.schmizz.sshj.transport.random.BouncyCastleRandom
 import org.slf4j.LoggerFactory
 
-class IOSLogConfigurator: MarathonLogConfigurator  {
+class IOSLogConfigurator : MarathonLogConfigurator {
     override fun configure(vendorConfiguration: VendorConfiguration) {
         val iosConfiguration = vendorConfiguration as? IOSConfiguration
 

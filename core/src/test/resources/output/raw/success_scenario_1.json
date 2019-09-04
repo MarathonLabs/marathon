@@ -1,1 +1,13 @@
-[{"package":"test","class":"SimpleTest","method":"test","deviceSerial":"serial-1","status":"PASSED","ignored":false,"success":true,"timestamp":0,"duration":1}]
+[
+  {
+    "package": "test",
+    "class": "SimpleTest",
+    "method": "test",
+    "deviceSerial": "serial-1",
+    "status": "PASSED",
+    "ignored": false,
+    "success": true,
+    "timestamp": 0,
+    "duration": 1
+  }
+]

@@ -14,12 +14,16 @@ import java.time.Instant
  * (0.5 x 0.5 x 0.5 = 0.125 is the probability of all tests failing, so with probability 0.875 > 0.8 at least one of tests will pass).
  */
 
-class ProbabilityBasedFlakinessStrategy(val minSuccessRate: Double,
-                                        val maxCount: Int,
-                                        val timeLimit: Instant) : FlakinessStrategy {
+class ProbabilityBasedFlakinessStrategy(
+    val minSuccessRate: Double,
+    val maxCount: Int,
+    val timeLimit: Instant
+) : FlakinessStrategy {
 
-    override fun process(testShard: TestShard,
-                         metricsProvider: MetricsProvider): TestShard {
+    override fun process(
+        testShard: TestShard,
+        metricsProvider: MetricsProvider
+    ): TestShard {
         val tests = testShard.tests
         val output = mutableListOf<Test>()
         tests.forEach {

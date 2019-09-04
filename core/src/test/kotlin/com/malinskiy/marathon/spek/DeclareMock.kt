@@ -13,8 +13,8 @@ import org.koin.test.mock.getDefinition
  * @author Arnaud Giuliani
  */
 inline fun <reified T : Any> TestBody.declareMock(
-        qualifier: Qualifier? = null,
-        noinline stubbing: (T.() -> Unit)? = null
+    qualifier: Qualifier? = null,
+    noinline stubbing: (T.() -> Unit)? = null
 ): T {
     val koin = GlobalContext.get().koin
     val clazz = T::class

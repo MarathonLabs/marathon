@@ -2,11 +2,11 @@
 <html lang="en">
 
 <head>
-    <meta charset="utf-8">
-    <title>Test Execution</title>
+  <meta charset="utf-8">
+  <title>Test Execution</title>
 
-    <link href='https://fonts.googleapis.com/css?family=Muli' rel='stylesheet' type='text/css'>
-    <link href='chart.css' rel='stylesheet' type='text/css'>
+  <link href='https://fonts.googleapis.com/css?family=Muli' rel='stylesheet' type='text/css'>
+  <link href='chart.css' rel='stylesheet' type='text/css'>
 </head>
 
 <body>
@@ -14,15 +14,21 @@
 <p id="testChart"></p>
 
 <script src="https://momentjs.com/downloads/moment.js" type="text/javascript"></script>
-<script src="https://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+<script charset="utf-8" src="https://d3js.org/d3.v3.min.js"></script>
 
 <script>
     moment.locale('en');
+
+
+
 </script>
 <script src="chart.js"></script>
 
 <script type="text/javascript">
     var dataset = ${dataset}
+
+
+
 </script>
 
 <script>
@@ -30,6 +36,9 @@
     d3.select("#testChart")
         .datum(dataset)
         .call(chart);
+
+
+
 </script>
 </body>
 </html>

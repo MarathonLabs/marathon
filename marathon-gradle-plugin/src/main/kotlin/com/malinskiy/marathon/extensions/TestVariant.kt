@@ -10,28 +10,30 @@ import org.gradle.api.GradleException
 import java.io.File
 
 fun TestVariant.extractTestApplication() = com.malinskiy.marathon.extensions.executeGradleCompat(
-        exec = {
-            extractTestApplication3_3_plus(this)
-        },
-        fallback = {
-            extractTestApplicationBefore3_3(this)
-        }
+    exec = {
+        extractTestApplication3_3_plus(this)
+    },
+    fallback = {
+        extractTestApplicationBefore3_3(this)
+    }
 )
 
 private fun extractTestApplicationBefore3_3(variant: TestVariant): File {
     val output = variant.outputs.first()
 
-    return File(when (output) {
-        is ApkVariantOutput -> {
-            File(variant.packageApplication.outputDirectory.path, output.outputFileName).path
+    return File(
+        when (output) {
+            is ApkVariantOutput -> {
+                File(variant.packageApplication.outputDirectory.path, output.outputFileName).path
+            }
+            is LibraryVariantOutput -> {
+                output.outputFile.path
+            }
+            else -> {
+                throw RuntimeException("Can't find instrumentationApk")
+            }
         }
-        is LibraryVariantOutput -> {
-            output.outputFile.path
-        }
-        else -> {
-            throw RuntimeException("Can't find instrumentationApk")
-        }
-    })
+    )
 }
 
 private fun extractTestApplication3_3_plus(output: TestVariant): File {

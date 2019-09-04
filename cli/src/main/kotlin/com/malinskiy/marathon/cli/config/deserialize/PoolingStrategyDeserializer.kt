@@ -14,21 +14,21 @@ import com.malinskiy.marathon.execution.strategy.impl.pooling.parameterized.Manu
 import com.malinskiy.marathon.execution.strategy.impl.pooling.parameterized.ModelPoolingStrategy
 import com.malinskiy.marathon.execution.strategy.impl.pooling.parameterized.OperatingSystemVersionPoolingStrategy
 
-class PoolingStrategyDeserializer: StdDeserializer<PoolingStrategy>(PoolingStrategy::class.java) {
+class PoolingStrategyDeserializer : StdDeserializer<PoolingStrategy>(PoolingStrategy::class.java) {
     override fun deserialize(p: JsonParser?, ctxt: DeserializationContext?): PoolingStrategy {
         val node: JsonNode? = p?.codec?.readTree(p)
 
         val list = mutableListOf<PoolingStrategy>()
 
-        if(node == null) throw ConfigurationException("Missing pooling strategy")
-        if(!node.isArray) throw ConfigurationException("Pooling strategy should be an array")
+        if (node == null) throw ConfigurationException("Missing pooling strategy")
+        if (!node.isArray) throw ConfigurationException("Pooling strategy should be an array")
 
 
         val arrayNode = node as ArrayNode
         arrayNode.forEach {
             val type = it.get("type").asText()
             list.add(
-                    deserializeStrategy(type)
+                deserializeStrategy(type)
             )
         }
 

@@ -32,19 +32,21 @@ object MarathonLogging {
 
         if (internalLogger == null) {
             if (debug && !warningPrinted) {
-                println("Can't change log level during runtime for " +
-                        "${logger.underlyingLogger.javaClass.simpleName}. " +
-                        "Please configure your logger separately. " +
-                        "Wrapping the log and redirecting everything into warn for now")
+                println(
+                    "Can't change log level during runtime for " +
+                            "${logger.underlyingLogger.javaClass.simpleName}. " +
+                            "Please configure your logger separately. " +
+                            "Wrapping the log and redirecting everything into warn for now"
+                )
                 warningPrinted = true
             }
             return KLoggerDebug(logger)
         } else {
             internalLogger.level = level
-                    ?: when {
-                debug -> Level.DEBUG
-                else -> Level.ERROR
-            }
+                ?: when {
+                    debug -> Level.DEBUG
+                    else -> Level.ERROR
+                }
         }
 
         return logger

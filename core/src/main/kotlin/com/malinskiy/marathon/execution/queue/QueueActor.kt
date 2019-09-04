@@ -21,16 +21,18 @@ import kotlinx.coroutines.channels.SendChannel
 import java.util.*
 import kotlin.coroutines.CoroutineContext
 
-class QueueActor(private val configuration: Configuration,
-                 private val testShard: TestShard,
-                 private val analytics: Analytics,
-                 private val pool: SendChannel<FromQueue>,
-                 private val poolId: DevicePoolId,
-                 private val progressReporter: ProgressReporter,
-                 private val track: Track,
-                 poolJob: Job,
-                 coroutineContext: CoroutineContext) :
-        Actor<QueueMessage>(parent = poolJob, context = coroutineContext) {
+class QueueActor(
+    private val configuration: Configuration,
+    private val testShard: TestShard,
+    private val analytics: Analytics,
+    private val pool: SendChannel<FromQueue>,
+    private val poolId: DevicePoolId,
+    private val progressReporter: ProgressReporter,
+    private val track: Track,
+    poolJob: Job,
+    coroutineContext: CoroutineContext
+) :
+    Actor<QueueMessage>(parent = poolJob, context = coroutineContext) {
 
     private val logger = MarathonLogging.logger("QueueActor[$poolId]")
 
@@ -126,8 +128,10 @@ class QueueActor(private val configuration: Configuration,
         }
     }
 
-    private suspend fun handleFailedTests(failed: Collection<TestResult>,
-                                          device: DeviceInfo) {
+    private suspend fun handleFailedTests(
+        failed: Collection<TestResult>,
+        device: DeviceInfo
+    ) {
         logger.debug { "handle failed tests ${device.serialNumber}" }
         val retryList = retry.process(poolId, failed, testShard)
 

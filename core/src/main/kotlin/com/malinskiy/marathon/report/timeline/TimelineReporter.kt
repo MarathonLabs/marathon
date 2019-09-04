@@ -8,9 +8,11 @@ import java.io.File
 import java.io.InputStream
 
 
-class TimelineReporter(private val provider: TimelineSummaryProvider,
-                       private val gson: Gson,
-                       private val rootOutput: File) : Reporter {
+class TimelineReporter(
+    private val provider: TimelineSummaryProvider,
+    private val gson: Gson,
+    private val rootOutput: File
+) : Reporter {
 
     override fun generate(executionReport: ExecutionReport) {
         val htmlDir = File(rootOutput, "/html")
@@ -33,5 +35,6 @@ class TimelineReporter(private val provider: TimelineSummaryProvider,
 
     val logger = MarathonLogging.logger(TimelineSummaryProvider::class.java.simpleName)
 
-    private fun inputStreamFromResources(path: String): InputStream = TimelineExecutionResult::class.java.classLoader.getResourceAsStream(path)
+    private fun inputStreamFromResources(path: String): InputStream =
+        TimelineExecutionResult::class.java.classLoader.getResourceAsStream(path)
 }

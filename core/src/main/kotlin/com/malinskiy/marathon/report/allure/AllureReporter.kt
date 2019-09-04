@@ -29,7 +29,7 @@ import io.qameta.allure.util.ResultsUtils
 import java.io.File
 import java.util.*
 
-class AllureReporter(val configuration: Configuration, private val outputDirectory: File): Reporter {
+class AllureReporter(val configuration: Configuration, private val outputDirectory: File) : Reporter {
 
     private val lifecycle: AllureLifecycle by lazy { AllureLifecycle(FileSystemResultsWriter(outputDirectory.toPath())) }
 
@@ -48,7 +48,8 @@ class AllureReporter(val configuration: Configuration, private val outputDirecto
         }
 
         allureEnvironmentWriter(
-                builder.build(), outputDirectory.absolutePath + File.separator)
+            builder.build(), outputDirectory.absolutePath + File.separator
+        )
     }
 
     private fun createTestResult(uuid: String, device: DeviceInfo, testResult: TestResult): io.qameta.allure.model.TestResult {
@@ -66,33 +67,33 @@ class AllureReporter(val configuration: Configuration, private val outputDirecto
 
         val allureAttachments: List<Attachment> = testResult.attachments.map {
             Attachment()
-                    .setName(it.type.name.toLowerCase().capitalize())
-                    .setSource(it.file.absolutePath)
-                    .setType(it.type.toMimeType())
+                .setName(it.type.name.toLowerCase().capitalize())
+                .setSource(it.file.absolutePath)
+                .setType(it.type.toMimeType())
         }
 
         val allureTestResult = io.qameta.allure.model.TestResult()
-                .setUuid(uuid)
-                .setFullName(fullName)
-                .setHistoryId(getHistoryId(test))
-                .setStatus(status)
-                .setStart(testResult.startTime)
-                .setStop(testResult.endTime)
-                .setAttachments(allureAttachments)
-                .setParameters()
-                .setLabels(
-                        ResultsUtils.createHostLabel().setValue(device.serialNumber),
-                        ResultsUtils.createPackageLabel(test.pkg),
-                        ResultsUtils.createTestClassLabel(test.clazz),
-                        ResultsUtils.createTestMethodLabel(test.method),
-                        ResultsUtils.createSuiteLabel(suite)
-                )
+            .setUuid(uuid)
+            .setFullName(fullName)
+            .setHistoryId(getHistoryId(test))
+            .setStatus(status)
+            .setStart(testResult.startTime)
+            .setStop(testResult.endTime)
+            .setAttachments(allureAttachments)
+            .setParameters()
+            .setLabels(
+                ResultsUtils.createHostLabel().setValue(device.serialNumber),
+                ResultsUtils.createPackageLabel(test.pkg),
+                ResultsUtils.createTestClassLabel(test.clazz),
+                ResultsUtils.createTestMethodLabel(test.method),
+                ResultsUtils.createSuiteLabel(suite)
+            )
 
         testResult.stacktrace?.let {
             allureTestResult.setStatusDetails(
-                    StatusDetails()
-                            .setMessage(it.lines().first())
-                            .setTrace(it)
+                StatusDetails()
+                    .setMessage(it.lines().first())
+                    .setTrace(it)
             )
         }
 
@@ -108,7 +109,7 @@ class AllureReporter(val configuration: Configuration, private val outputDirecto
     }
 
     private fun getHistoryId(test: Test) =
-            ResultsUtils.generateMethodSignatureHash(test.clazz, test.method, emptyList())
+        ResultsUtils.generateMethodSignatureHash(test.clazz, test.method, emptyList())
 
     private fun Test.getOptionalLabels(): Collection<Label> {
         val list = mutableListOf<Label>()

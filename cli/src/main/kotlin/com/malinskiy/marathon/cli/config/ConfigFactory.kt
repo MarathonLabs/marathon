@@ -28,7 +28,7 @@ class ConfigFactory(private val mapper: ObjectMapper) {
         val fileVendorConfiguration = config.vendorConfiguration
         val vendorConfiguration = when (fileVendorConfiguration) {
             is FileIOSConfiguration -> fileVendorConfiguration.toIOSConfiguration(
-                    marathonfile.canonicalFile.parentFile
+                marathonfile.canonicalFile.parentFile
             )
             is FileAndroidConfiguration -> {
                 fileVendorConfiguration.toAndroidConfiguration(environmentReader.read().androidSdk)
@@ -37,30 +37,30 @@ class ConfigFactory(private val mapper: ObjectMapper) {
         }
 
         return Configuration(
-                name = config.name,
-                outputDir = config.outputDir,
+            name = config.name,
+            outputDir = config.outputDir,
 
-                analyticsConfiguration = config.analyticsConfiguration,
-                poolingStrategy = config.poolingStrategy,
-                shardingStrategy = config.shardingStrategy,
-                sortingStrategy = config.sortingStrategy,
-                batchingStrategy = config.batchingStrategy,
-                flakinessStrategy = config.flakinessStrategy,
-                retryStrategy = config.retryStrategy,
-                filteringConfiguration = config.filteringConfiguration,
-                ignoreFailures = config.ignoreFailures,
-                isCodeCoverageEnabled = config.isCodeCoverageEnabled,
-                fallbackToScreenshots = config.fallbackToScreenshots,
-                strictMode = config.strictMode,
-                uncompletedTestRetryQuota = config.uncompletedTestRetryQuota,
-                testClassRegexes = config.testClassRegexes,
-                includeSerialRegexes = config.includeSerialRegexes,
-                excludeSerialRegexes = config.excludeSerialRegexes,
-                testBatchTimeoutMillis = config.testBatchTimeoutMillis,
-                testOutputTimeoutMillis = config.testOutputTimeoutMillis,
-                debug = config.debug,
-                vendorConfiguration = vendorConfiguration as VendorConfiguration,
-                analyticsTracking = config.analyticsTracking
+            analyticsConfiguration = config.analyticsConfiguration,
+            poolingStrategy = config.poolingStrategy,
+            shardingStrategy = config.shardingStrategy,
+            sortingStrategy = config.sortingStrategy,
+            batchingStrategy = config.batchingStrategy,
+            flakinessStrategy = config.flakinessStrategy,
+            retryStrategy = config.retryStrategy,
+            filteringConfiguration = config.filteringConfiguration,
+            ignoreFailures = config.ignoreFailures,
+            isCodeCoverageEnabled = config.isCodeCoverageEnabled,
+            fallbackToScreenshots = config.fallbackToScreenshots,
+            strictMode = config.strictMode,
+            uncompletedTestRetryQuota = config.uncompletedTestRetryQuota,
+            testClassRegexes = config.testClassRegexes,
+            includeSerialRegexes = config.includeSerialRegexes,
+            excludeSerialRegexes = config.excludeSerialRegexes,
+            testBatchTimeoutMillis = config.testBatchTimeoutMillis,
+            testOutputTimeoutMillis = config.testOutputTimeoutMillis,
+            debug = config.debug,
+            vendorConfiguration = vendorConfiguration as VendorConfiguration,
+            analyticsTracking = config.analyticsTracking
         )
     }
 

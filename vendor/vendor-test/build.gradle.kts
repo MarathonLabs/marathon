@@ -1,8 +1,4 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-import org.jetbrains.kotlin.gradle.dsl.Coroutines
-import org.junit.platform.gradle.plugin.EnginesExtension
-import org.junit.platform.gradle.plugin.FiltersExtension
-import org.junit.platform.gradle.plugin.JUnitPlatformExtension
 
 plugins {
     `java-library`
@@ -15,6 +11,7 @@ dependencies {
     implementation(Libraries.kotlinCoroutines)
     implementation(Libraries.kotlinLogging)
     implementation(Libraries.kotlinReflect)
+    implementation(TestLibraries.jsonAssert)
     implementation(TestLibraries.spekAPI)
     implementation(TestLibraries.kluent)
     implementation(TestLibraries.mockitoKotlin)
