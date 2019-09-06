@@ -12,7 +12,6 @@ import com.malinskiy.marathon.android.ApkParser
 import com.malinskiy.marathon.android.InstrumentationInfo
 import com.malinskiy.marathon.android.safeClearPackage
 import com.malinskiy.marathon.exceptions.DeviceLostException
-import com.malinskiy.marathon.exceptions.TestBatchExecutionException
 import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.test.MetaProperty
@@ -20,11 +19,17 @@ import com.malinskiy.marathon.test.Test
 import com.malinskiy.marathon.test.TestBatch
 import com.malinskiy.marathon.test.toTestName
 import java.io.IOException
+import java.util.*
 import java.util.concurrent.TimeUnit
 
 val JUNIT_IGNORE_META_PROPERY = MetaProperty("org.junit.Ignore")
+const val ERROR_STUCK = "Test got stuck. You can increase the timeout in settings if it's too strict"
 
 class AndroidDeviceTestRunner(private val device: AndroidDevice) {
+
+    companion object {
+        private val random = Random(5)
+    }
 
     private val logger = MarathonLogging.logger("AndroidDeviceTestRunner")
 
@@ -47,21 +52,22 @@ class AndroidDeviceTestRunner(private val device: AndroidDevice) {
             notifyIgnoredTest(ignoredTests, listener)
             runner.run(listener)
         } catch (e: ShellCommandUnresponsiveException) {
-            logger.warn("Test got stuck. You can increase the timeout in settings if it's too strict")
-            throw TestBatchExecutionException(e)
+            logger.warn(ERROR_STUCK)
+            listener.testRunFailed(ERROR_STUCK)
         } catch (e: TimeoutException) {
-            logger.warn("Test got stuck. You can increase the timeout in settings if it's too strict")
-            throw TestBatchExecutionException(e)
+            logger.warn(ERROR_STUCK)
+            listener.testRunFailed(ERROR_STUCK)
         } catch (e: AdbCommandRejectedException) {
-            logger.error(e) { "adb error while running tests ${testBatch.tests.map { it.toTestName() }}" }
+            val errorMessage = "adb error while running tests ${testBatch.tests.map { it.toTestName() }}"
+            logger.error(e) { errorMessage }
+            listener.testRunFailed(errorMessage)
             if (e.isDeviceOffline) {
                 throw DeviceLostException(e)
-            } else {
-                throw TestBatchExecutionException(e)
             }
         } catch (e: IOException) {
-            logger.error(e) { "Error while running tests ${testBatch.tests.map { it.toTestName() }}" }
-            throw TestBatchExecutionException(e)
+            val errorMessage = "adb error while running tests ${testBatch.tests.map { it.toTestName() }}"
+            logger.error(e) { errorMessage }
+            listener.testRunFailed(errorMessage)
         } finally {
 
         }

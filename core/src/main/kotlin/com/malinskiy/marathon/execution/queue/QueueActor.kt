@@ -15,6 +15,7 @@ import com.malinskiy.marathon.execution.progress.ProgressReporter
 import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.test.Test
 import com.malinskiy.marathon.test.TestBatch
+import com.malinskiy.marathon.test.toTestName
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.SendChannel
@@ -77,6 +78,10 @@ class QueueActor(
             (uncompletedTestsRetryCount[it.test] ?: 0) >= configuration.uncompletedTestRetryQuota
         }
 
+        if (uncompletedRetryQuotaExceeded.isNotEmpty()) {
+            logger.debug { "uncompletedRetryQuotaExceeded for ${uncompletedRetryQuotaExceeded.joinToString(separator = ", ") { it.test.toTestName() }}" }
+        }
+
         val finished = results.finished
         val failed = results.failed + uncompletedRetryQuotaExceeded + uncompleted
 
@@ -98,7 +103,21 @@ class QueueActor(
 
     private suspend fun onReturnBatch(device: DeviceInfo, batch: TestBatch) {
         logger.debug { "onReturnBatch ${device.serialNumber}" }
-        returnTests(batch.tests)
+
+        val uncompletedTests = batch.tests
+        uncompletedTests.forEach {
+            uncompletedTestsRetryCount[it] = (uncompletedTestsRetryCount[it] ?: 0) + 1
+        }
+
+        val (uncompletedRetryQuotaExceeded, uncompleted) = uncompletedTests.partition {
+            (uncompletedTestsRetryCount[it] ?: 0) >= configuration.uncompletedTestRetryQuota
+        }
+
+        if (uncompletedRetryQuotaExceeded.isNotEmpty()) {
+            logger.debug { "uncompletedRetryQuotaExceeded for ${uncompletedRetryQuotaExceeded.joinToString(separator = ", ") { it.toTestName() }}" }
+        }
+
+        returnTests(uncompleted)
         activeBatches.remove(device.serialNumber)
         if (queue.isNotEmpty()) {
             pool.send(FromQueue.Notify)
