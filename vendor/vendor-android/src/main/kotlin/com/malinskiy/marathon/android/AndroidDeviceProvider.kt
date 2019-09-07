@@ -76,7 +76,7 @@ class AndroidDeviceProvider(
                     launch {
                         val maybeNewAndroidDevice = AndroidDevice(it, track, timer)
                         val healthy = maybeNewAndroidDevice.healthy
-                        logger.error("Device ${maybeNewAndroidDevice.serialNumber} connected. Healthy = $healthy")
+                        logger.debug("Device ${maybeNewAndroidDevice.serialNumber} connected. Healthy = $healthy")
 
                         if (healthy) {
                             verifyBooted(maybeNewAndroidDevice)
