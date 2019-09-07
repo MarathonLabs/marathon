@@ -27,6 +27,7 @@ import com.malinskiy.marathon.ios.simctl.Simctl
 import com.malinskiy.marathon.ios.xctestrun.Xctestrun
 import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.test.TestBatch
+import com.malinskiy.marathon.time.Timer
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
@@ -49,7 +50,8 @@ class IOSDevice(
     configuration: IOSConfiguration,
     val gson: Gson,
     private val track: Track,
-    private val healthChangeListener: HealthChangeListener
+    private val healthChangeListener: HealthChangeListener,
+    private val timer: Timer
 ) : Device, CoroutineScope {
 
     val udid = simulator.udid
@@ -169,7 +171,8 @@ class IOSDevice(
             testBatch,
             deferred,
             progressReporter,
-            iosConfiguration.hideRunnerOutput
+            iosConfiguration.hideRunnerOutput,
+            timer
         )
 
         val command =

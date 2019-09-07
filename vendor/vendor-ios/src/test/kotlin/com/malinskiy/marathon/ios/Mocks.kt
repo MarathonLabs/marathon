@@ -42,7 +42,9 @@ class Mocks {
                 mock(),
                 object : HealthChangeListener {
                     override suspend fun onDisconnect(device: com.malinskiy.marathon.ios.IOSDevice) {}
-                })
+                },
+                mock()
+            )
         }
     }
 

@@ -11,6 +11,7 @@ import com.malinskiy.marathon.spek.initKoin
 import com.malinskiy.marathon.test.MetaProperty
 import com.malinskiy.marathon.test.Test
 import com.malinskiy.marathon.test.TestBatch
+import com.malinskiy.marathon.time.SystemTimer
 import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.verify
@@ -21,6 +22,7 @@ import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.describe
 import org.jetbrains.spek.api.dsl.it
 import java.io.File
+import java.time.Clock
 
 class AndroidDeviceTestRunnerSpek : Spek(
     {
@@ -31,7 +33,7 @@ class AndroidDeviceTestRunnerSpek : Spek(
                 val ddmsDevice = mock<IDevice>()
                 whenever(ddmsDevice.serialNumber).doReturn("testSerial")
                 whenever(ddmsDevice.version).doReturn(AndroidVersion(26))
-                val device = AndroidDevice(ddmsDevice, Track())
+                val device = AndroidDevice(ddmsDevice, Track(), SystemTimer(Clock.systemDefaultZone()))
                 val androidDeviceTestRunner = AndroidDeviceTestRunner(device)
                 val apkFile = File(javaClass.classLoader.getResource("android_test_1.apk").file)
                 val output = File("")
