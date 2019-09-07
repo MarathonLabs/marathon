@@ -22,6 +22,8 @@ import kotlinx.coroutines.isActive
 import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import org.apache.commons.text.StringSubstitutor
+import org.apache.commons.text.lookup.StringLookupFactory
 import java.io.File
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.coroutines.CoroutineContext
@@ -44,10 +46,13 @@ class LocalListSimulatorProvider(
 
     private val simulators: List<RemoteSimulator>
     private val devices = ConcurrentHashMap<String, IOSDevice>()
+    private val environmentVariableSubstitutor = StringSubstitutor(StringLookupFactory.INSTANCE.environmentVariableStringLookup())
+
 
     init {
         val file = configuration.devicesFile ?: File(System.getProperty("user.dir"), "Marathondevices")
-        val configuredSimulators: List<RemoteSimulator>? = yamlObjectMapper.readValue(file)
+        val devicesWithEnvironmentVariablesReplaced = environmentVariableSubstitutor.replace(file.readText())
+        val configuredSimulators: List<RemoteSimulator>? = yamlObjectMapper.readValue(devicesWithEnvironmentVariablesReplaced)
         simulators = configuredSimulators ?: emptyList()
     }
 

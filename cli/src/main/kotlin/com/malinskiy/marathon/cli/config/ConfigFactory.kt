@@ -10,11 +10,15 @@ import com.malinskiy.marathon.exceptions.ConfigurationException
 import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.vendor.VendorConfiguration
+import org.apache.commons.text.StringSubstitutor
+import org.apache.commons.text.lookup.StringLookupFactory
 import java.io.File
 
 private val logger = MarathonLogging.logger {}
 
 class ConfigFactory(private val mapper: ObjectMapper) {
+    private val environmentVariableSubstitutor = StringSubstitutor(StringLookupFactory.INSTANCE.environmentVariableStringLookup())
+
     fun create(marathonfile: File, environmentReader: EnvironmentReader): Configuration {
         logger.info { "Checking $marathonfile config" }
 
@@ -65,8 +69,9 @@ class ConfigFactory(private val mapper: ObjectMapper) {
     }
 
     private fun readConfigFile(configFile: File): FileConfiguration? {
+        val configWithEnvironmentVariablesReplaced = environmentVariableSubstitutor.replace(configFile.readText())
         try {
-            return mapper.readValue(configFile.bufferedReader(), FileConfiguration::class.java)
+            return mapper.readValue(configWithEnvironmentVariablesReplaced, FileConfiguration::class.java)
         } catch (e: MismatchedInputException) {
             logger.error { "Invalid config file ${configFile.absolutePath}. Error parsing ${e.targetType.canonicalName}" }
             throw ConfigurationException(e)
