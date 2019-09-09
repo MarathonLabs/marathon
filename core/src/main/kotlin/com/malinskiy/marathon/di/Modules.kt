@@ -16,6 +16,7 @@ import org.koin.core.KoinApplication
 import org.koin.core.context.startKoin
 import org.koin.core.definition.DefinitionFactory
 import org.koin.dsl.module
+import java.time.Clock
 
 val analyticsModule = module {
     single<Track> { Track() }
@@ -26,7 +27,8 @@ val analyticsModule = module {
 val coreModule = module {
     single<FileManager> { FileManager(get<Configuration>().outputDir) }
     single<Gson> { Gson() }
-    single<Timer> { SystemTimer() }
+    single<Clock> { Clock.systemDefaultZone() }
+    single<Timer> { SystemTimer(get()) }
     single<ProgressReporter> { ProgressReporter() }
     single<Marathon> { Marathon(get(), get(), get(), get(), get()) }
 }

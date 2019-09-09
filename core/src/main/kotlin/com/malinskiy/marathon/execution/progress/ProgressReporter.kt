@@ -65,7 +65,9 @@ class ProgressReporter {
 
     fun progress(): Float {
         val size = reporters.size
-        return reporters.values.sumByDouble { it.progress().toDouble() }.toFloat() / size
+        return reporters.values.sumByDouble {
+            it.progress().toDouble()
+        }.toFloat() / size
     }
 
     fun progress(poolId: DevicePoolId): Float {

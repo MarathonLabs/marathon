@@ -21,6 +21,7 @@ dependencies {
     implementation(Libraries.jacksonAnnotations)
     implementation(Libraries.scalr)
     implementation(project(":core"))
+    implementation(Libraries.logbackClassic)
     testImplementation(project(":vendor:vendor-test"))
     testImplementation(TestLibraries.kluent)
     testImplementation(TestLibraries.mockitoKotlin)

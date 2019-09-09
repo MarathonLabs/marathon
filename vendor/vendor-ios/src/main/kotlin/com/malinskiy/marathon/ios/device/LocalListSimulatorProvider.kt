@@ -11,6 +11,7 @@ import com.malinskiy.marathon.ios.IOSDevice
 import com.malinskiy.marathon.ios.logparser.parser.DeviceFailureException
 import com.malinskiy.marathon.ios.logparser.parser.DeviceFailureReason
 import com.malinskiy.marathon.log.MarathonLogging
+import com.malinskiy.marathon.time.Timer
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
@@ -21,6 +22,8 @@ import kotlinx.coroutines.isActive
 import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import org.apache.commons.text.StringSubstitutor
+import org.apache.commons.text.lookup.StringLookupFactory
 import java.io.File
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.coroutines.CoroutineContext
@@ -33,7 +36,8 @@ class LocalListSimulatorProvider(
     private val configuration: IOSConfiguration,
     yamlObjectMapper: ObjectMapper,
     private val gson: Gson,
-    private val track: Track
+    private val track: Track,
+    private val timer: Timer
 ) : SimulatorProvider, HealthChangeListener, CoroutineScope {
 
     private val job = Job()
@@ -42,10 +46,13 @@ class LocalListSimulatorProvider(
 
     private val simulators: List<RemoteSimulator>
     private val devices = ConcurrentHashMap<String, IOSDevice>()
+    private val environmentVariableSubstitutor = StringSubstitutor(StringLookupFactory.INSTANCE.environmentVariableStringLookup())
+
 
     init {
         val file = configuration.devicesFile ?: File(System.getProperty("user.dir"), "Marathondevices")
-        val configuredSimulators: List<RemoteSimulator>? = yamlObjectMapper.readValue(file)
+        val devicesWithEnvironmentVariablesReplaced = environmentVariableSubstitutor.replace(file.readText())
+        val configuredSimulators: List<RemoteSimulator>? = yamlObjectMapper.readValue(devicesWithEnvironmentVariablesReplaced)
         simulators = configuredSimulators ?: emptyList()
     }
 
@@ -122,7 +129,7 @@ class LocalListSimulatorProvider(
         channel.send(element = DeviceProvider.DeviceEvent.DeviceDisconnected(device))
     }
 
-    // occassionaly, device constructor would throw an exception when remote simctl command
+    // occasionally, device constructor would throw an exception when remote simctl command
     // fails with message that simulator services to be no longer available
     private fun createDevice(simulator: RemoteSimulator, connectionAttempt: Int): IOSDevice? = try {
         IOSDevice(
@@ -131,7 +138,8 @@ class LocalListSimulatorProvider(
             configuration = configuration,
             gson = gson,
             healthChangeListener = this,
-            track = track
+            track = track,
+            timer = timer
         )
     } catch (e: DeviceFailureException) {
         logger.error("Failed to initialize ${simulator.udid}-$connectionAttempt with reason ${e.reason}: ${e.message}")
