@@ -46,7 +46,7 @@ class StubDevice(
         delay(testTimeMillis)
 
         if (crashWithTestBatchException) {
-            throw TestBatchExecutionException("why not?")
+            throw TestBatchExecutionException("user requested the device to crash via crashWithTestBatchException parameter")
         }
 
         val results = testBatch.tests.map {
