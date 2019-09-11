@@ -5,5 +5,4 @@ package com.malinskiy.marathon.exceptions
  */
 class DeviceLostException : RuntimeException {
     constructor(cause: Throwable) : super(cause)
-    constructor(message: String) : super(message)
 }

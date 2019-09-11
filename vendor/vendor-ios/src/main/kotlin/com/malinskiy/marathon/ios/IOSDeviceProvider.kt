@@ -13,6 +13,7 @@ import com.malinskiy.marathon.ios.device.SimulatorProvider
 import com.malinskiy.marathon.ios.simctl.model.SimctlDeviceList
 import com.malinskiy.marathon.ios.simctl.model.SimctlDeviceListDeserializer
 import com.malinskiy.marathon.log.MarathonLogging
+import com.malinskiy.marathon.time.Timer
 import com.malinskiy.marathon.vendor.VendorConfiguration
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.channels.Channel
@@ -20,7 +21,10 @@ import kotlinx.coroutines.newFixedThreadPoolContext
 import kotlinx.coroutines.withContext
 import kotlin.coroutines.CoroutineContext
 
-class IOSDeviceProvider(private val track: Track) : DeviceProvider, CoroutineScope {
+class IOSDeviceProvider(
+    private val track: Track,
+    private val timer: Timer
+) : DeviceProvider, CoroutineScope {
 
     private val dispatcher = newFixedThreadPoolContext(1, "IOSDeviceProvider")
     override val coroutineContext: CoroutineContext
@@ -44,7 +48,7 @@ class IOSDeviceProvider(private val track: Track) : DeviceProvider, CoroutineSco
         val mapper = ObjectMapper(YAMLFactory().disable(YAMLGenerator.Feature.USE_NATIVE_TYPE_ID))
             .registerModule(KotlinModule())
 
-        simulatorProvider = LocalListSimulatorProvider(coroutineContext, channel, vendorConfiguration, mapper, gson, track)
+        simulatorProvider = LocalListSimulatorProvider(coroutineContext, channel, vendorConfiguration, mapper, gson, track, timer)
         simulatorProvider?.start()
     }
 

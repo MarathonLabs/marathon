@@ -14,7 +14,7 @@ import com.malinskiy.marathon.ios.logparser.parser.DiagnosticLogsPathFinder
 import com.malinskiy.marathon.ios.logparser.parser.SessionResultsPathFinder
 import com.malinskiy.marathon.ios.logparser.parser.TestRunProgressParser
 import com.malinskiy.marathon.test.TestBatch
-import com.malinskiy.marathon.time.SystemTimer
+import com.malinskiy.marathon.time.Timer
 import kotlinx.coroutines.CompletableDeferred
 
 class IOSDeviceLogParser(
@@ -24,7 +24,8 @@ class IOSDeviceLogParser(
     testBatch: TestBatch,
     deferredResults: CompletableDeferred<TestBatchResults>,
     progressReporter: ProgressReporter,
-    hideRunnerOutput: Boolean
+    hideRunnerOutput: Boolean,
+    val timer: Timer
 ) : StreamingLogParser {
 
     private val underlyingLogParser: StreamingLogParser
@@ -33,7 +34,6 @@ class IOSDeviceLogParser(
     private val sessionResultsPathFinder: SessionResultsPathFinder
 
     init {
-        val timer = SystemTimer()
         testLogListener = TestLogListener()
         diagnosticLogsPathFinder = DiagnosticLogsPathFinder()
         sessionResultsPathFinder = SessionResultsPathFinder()

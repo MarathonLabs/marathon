@@ -17,5 +17,6 @@ vendorConfiguration:
   type: "iOS"
   derivedDataDir: "derived-data"
   sourceRoot: "sample-appUITests"
-  remoteUsername: "username"
-  remotePrivateKey: "id_rsa"
+  knownHostsPath: ${HOME}/.ssh/known_hosts
+  remoteUsername: ${USER}
+  remotePrivateKey: ${HOME}/.ssh/marathon

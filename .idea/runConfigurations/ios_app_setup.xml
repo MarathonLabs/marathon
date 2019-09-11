@@ -1,0 +1,9 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="ios-app-setup" type="ShConfigurationType">
+    <option name="SCRIPT_PATH" value="$PROJECT_DIR$/sample/ios-app/ios-app-setup.sh" />
+    <option name="SCRIPT_OPTIONS" value="" />
+    <option name="INTERPRETER_PATH" value="/bin/bash" />
+    <option name="INTERPRETER_OPTIONS" value="" />
+    <method v="2" />
+  </configuration>
+</component>

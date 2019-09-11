@@ -1,12 +1,21 @@
 package com.malinskiy.marathon.time
 
-import kotlin.system.measureTimeMillis
+import java.time.Clock
 
-class SystemTimer : Timer {
-    override val startTimeMillis = System.currentTimeMillis()
+class SystemTimer(private val clock: Clock) : Timer {
+    override val startTimeMillis = clock.millis()
     override val elapsedTimeMillis: Long
-        get() = System.currentTimeMillis() - startTimeMillis
+        get() = clock.millis() - startTimeMillis
 
-    override fun currentTimeMillis() = System.currentTimeMillis()
+    override fun currentTimeMillis() = clock.millis()
     override fun measure(block: () -> Unit) = measureTimeMillis(block)
+
+    /**
+     * Executes the given [block] and returns elapsed time in milliseconds.
+     */
+    private fun measureTimeMillis(block: () -> Unit): Long {
+        val start = clock.millis()
+        block()
+        return clock.millis() - start
+    }
 }

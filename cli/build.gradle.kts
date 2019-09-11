@@ -59,6 +59,7 @@ dependencies {
     implementation(Libraries.jacksonKotlin)
     implementation(Libraries.jacksonYaml)
     implementation(Libraries.jacksonJSR310)
+    implementation(Libraries.apacheCommonsText)
     testCompile(TestLibraries.kluent)
     testCompile(TestLibraries.mockitoKotlin)
     testCompile(TestLibraries.spekAPI)

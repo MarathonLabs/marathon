@@ -28,7 +28,7 @@ import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.report.attachment.AttachmentProvider
 import com.malinskiy.marathon.report.logs.LogWriter
 import com.malinskiy.marathon.test.TestBatch
-import com.malinskiy.marathon.time.SystemTimer
+import com.malinskiy.marathon.time.Timer
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.async
@@ -39,6 +39,7 @@ import kotlin.coroutines.CoroutineContext
 class AndroidDevice(
     val ddmsDevice: IDevice,
     private val track: Track,
+    private val timer: Timer,
     private val serialStrategy: SerialStrategy = SerialStrategy.AUTOMATIC
 ) : Device, CoroutineScope {
 
@@ -168,8 +169,6 @@ class AndroidDevice(
 
         val logCatListener = LogCatListener(this, devicePoolId, LogWriter(fileManager))
             .also { attachmentProviders.add(it) }
-
-        val timer = SystemTimer()
 
         return CompositeTestRunListener(
             listOf(

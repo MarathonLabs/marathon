@@ -43,6 +43,8 @@ jobs:
             tags: true
     - stage: deploy-cli
       script: ./gradlew :cli:assembleDist -PreleaseMode=RELEASE
+      before_deploy:
+        - rm -f cli/build/distributions/marathon-*-SNAPSHOT.zip || true
       deploy:
         provider: releases
         api_key: $GITHUB_OAUTH_TOKEN

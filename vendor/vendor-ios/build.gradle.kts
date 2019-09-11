@@ -26,6 +26,7 @@ dependencies {
     implementation(Libraries.jacksonYaml)
     implementation(Libraries.jansi)
     implementation(project(":core"))
+    implementation(Libraries.apacheCommonsText)
     testImplementation(TestLibraries.kluent)
     testImplementation(TestLibraries.mockitoKotlin)
     testImplementation(TestLibraries.spekAPI)

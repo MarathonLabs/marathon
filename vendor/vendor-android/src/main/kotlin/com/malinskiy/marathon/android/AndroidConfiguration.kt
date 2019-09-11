@@ -36,7 +36,7 @@ data class AndroidConfiguration(
 
     override fun deviceProvider(): DeviceProvider? = get()
 
-    override fun logConfigurator(): MarathonLogConfigurator? = null
+    override fun logConfigurator(): MarathonLogConfigurator = AndroidLogConfigurator()
 
     override fun preferableRecorderType(): DeviceFeature? = preferableRecorderType
 
