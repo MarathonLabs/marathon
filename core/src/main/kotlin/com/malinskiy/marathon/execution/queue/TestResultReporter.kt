@@ -41,6 +41,9 @@ class TestResultReporter(
                     transitionTo(TestState.Executed(it.device, it.testResult, count - 1))
                 }
             }
+            on<TestEvent.Retry> {
+                dontTransition()
+            }
             on<TestEvent.Remove> {
                 transitionTo(this.copy(count = this.count - it.diff))
             }

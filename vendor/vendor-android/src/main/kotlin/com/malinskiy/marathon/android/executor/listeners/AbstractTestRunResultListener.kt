@@ -33,10 +33,12 @@ abstract class AbstractTestRunResultListener : NoOpTestRunListener() {
 
     override fun testRunFailed(errorMessage: String) {
         runResult.testRunFailed(errorMessage)
+        handleTestRunResults(runResult)
     }
 
     override fun testRunStopped(elapsedTime: Long) {
         runResult.testRunStopped(elapsedTime)
+        handleTestRunResults(runResult)
     }
 
     override fun testRunEnded(elapsedTime: Long, runMetrics: Map<String, String>) {

@@ -6,6 +6,7 @@ import com.malinskiy.marathon.device.DevicePoolId
 import com.malinskiy.marathon.device.NetworkState
 import com.malinskiy.marathon.device.OperatingSystem
 import com.malinskiy.marathon.device.toDeviceInfo
+import com.malinskiy.marathon.exceptions.TestBatchExecutionException
 import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.execution.TestBatchResults
 import com.malinskiy.marathon.execution.TestResult
@@ -25,7 +26,8 @@ class StubDevice(
     override val deviceFeatures: Collection<DeviceFeature> = listOf(),
     override val abi: String = "test",
     override val serialNumber: String = "serial-1",
-    override val healthy: Boolean = true
+    override val healthy: Boolean = true,
+    val crashWithTestBatchException: Boolean = false
 ) : Device {
 
     val logger = MarathonLogging.logger(StubDevice::class.java.simpleName)
@@ -43,6 +45,10 @@ class StubDevice(
     ) {
         delay(testTimeMillis)
 
+        if (crashWithTestBatchException) {
+            throw TestBatchExecutionException("user requested the device to crash via crashWithTestBatchException parameter")
+        }
+
         val results = testBatch.tests.map {
             val i = executionIndexMap.getOrDefault(it, 0)
             val result = executionResults[it]!![i]
@@ -53,11 +59,10 @@ class StubDevice(
         }
 
         deferred.complete(
-            TestBatchResults(
-                this,
-                results.filter { it.isSuccess },
-                results.filter { !it.isSuccess },
-                emptySet()
+            TestBatchResults(this,
+                             results.filter { it.status == TestStatus.PASSED },
+                             results.filter { it.status == TestStatus.FAILURE },
+                             results.filter { it.status == TestStatus.INCOMPLETE }
             )
         )
     }

@@ -29,6 +29,7 @@ class TestRunResultsListener(
 ) : AbstractTestRunResultListener(), AttachmentListener {
 
     private val attachments: MutableMap<Test, MutableList<Attachment>> = mutableMapOf()
+    private val creationTime = timer.currentTimeMillis()
 
     init {
         attachmentProviders.forEach {
@@ -93,15 +94,15 @@ class TestRunResultsListener(
             .values
             .maxBy { it.endTime }
             ?.endTime
-            ?: timer.currentTimeMillis()
+            ?: creationTime
 
         return map {
             TestResult(
                 it,
                 device.toDeviceInfo(),
-                TestStatus.FAILURE,
+                TestStatus.INCOMPLETE,
                 lastCompletedTestEndTime,
-                lastCompletedTestEndTime,
+                timer.currentTimeMillis(),
                 testRunResult.runFailureMessage
             )
         }
