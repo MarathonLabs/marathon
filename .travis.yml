@@ -34,11 +34,15 @@ jobs:
       script: skip
       deploy:
         - provider: script
-          script: bash .buildsystem/deploy.sh
+          script: bash .buildsystem/deploy-sonatype.sh
           on:
             branch: develop
         - provider: script
-          script: bash .buildsystem/deploy.sh
+          script: bash .buildsystem/deploy-sonatype.sh
+          on:
+            tags: true
+        - provider: script
+          script: bash .buildsystem/deploy-github.sh
           on:
             tags: true
     - stage: deploy-cli
