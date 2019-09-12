@@ -66,7 +66,7 @@ class ExecutionReportSpek : Spek(
         val gson = Gson()
         println(configuration.outputDir.absolutePath)
 
-        fun createTestEvent(deviceInfo: DeviceInfo, methodName: String, status: TestStatus): TestEvent {
+        fun createTestEvent(deviceInfo: DeviceInfo, methodName: String, status: TestStatus, final: Boolean = true): TestEvent {
             return TestEvent(
                 Instant.now(),
                 DevicePoolId("myPool"),
@@ -78,11 +78,11 @@ class ExecutionReportSpek : Spek(
                     0,
                     100
                 ),
-                true
+                final
             )
         }
 
-        given("an ExecutionReport") {
+        given("an ExecutionReport without retries") {
             val device = DeviceInfo(
                 operatingSystem = OperatingSystem("23"),
                 serialNumber = "xxyyzz",
@@ -116,6 +116,48 @@ class ExecutionReportSpek : Spek(
                 }
                 it("should include 1 FAILED test") {
                     tests.filter { it.status == TestStatus.FAILURE }.count() shouldBe 1
+                }
+            }
+        }
+
+        given("an ExecutionReport with retries") {
+            val device = DeviceInfo(
+                operatingSystem = OperatingSystem("23"),
+                serialNumber = "xxyyzz",
+                model = "Android SDK built for x86",
+                manufacturer = "unknown",
+                networkState = NetworkState.CONNECTED,
+                deviceFeatures = listOf(DeviceFeature.SCREENSHOT, DeviceFeature.VIDEO),
+                healthy = true
+            )
+            val report = ExecutionReport(
+                deviceProviderPreparingEvent = emptyList(),
+                devicePreparingEvents = emptyList(),
+                deviceConnectedEvents = listOf(
+                    DeviceConnectedEvent(Instant.now(), DevicePoolId("myPool"), device)
+                ),
+                testEvents = listOf(
+                    createTestEvent(device, "test2", TestStatus.FAILURE, false),
+                    createTestEvent(device, "test2", TestStatus.FAILURE, false),
+                    createTestEvent(device, "test2", TestStatus.PASSED, true),
+                    createTestEvent(device, "test3", TestStatus.FAILURE, false),
+                    createTestEvent(device, "test3", TestStatus.FAILURE, false),
+                    createTestEvent(device, "test3", TestStatus.FAILURE, true)
+                )
+            )
+
+            on("execution report summary") {
+                val summary = report.summary
+                val tests = summary.pools.flatMap { it.tests }
+                it("should include only one instance of test2 and it's PASSED") {
+                    val tests = tests.filter { it.test.method == "test2" }
+                    tests.size shouldBe 1
+                    tests.first().status shouldBe TestStatus.PASSED
+                }
+                it("should include only one instance of test3 and it's FAILED") {
+                    val tests = tests.filter { it.test.method == "test3" }
+                    tests.size shouldBe 1
+                    tests.first().status shouldBe TestStatus.FAILURE
                 }
             }
         }

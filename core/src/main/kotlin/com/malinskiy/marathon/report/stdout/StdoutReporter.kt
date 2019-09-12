@@ -12,7 +12,12 @@ class StdoutReporter(private val timer: Timer) : Reporter {
 
         val cliReportBuilder = StringBuilder().appendln("Marathon run finished:")
         summary.pools.forEach {
-            cliReportBuilder.appendln("Device pool ${it.poolId.name}: ${it.passed} passed, ${it.failed} failed, ${it.ignored} ignored tests")
+            cliReportBuilder.appendln(
+                "Device pool ${it.poolId.name}:\n" +
+                        "\t${it.passed} passed, ${it.failed} failed, ${it.ignored} ignored tests\n" +
+                        "\tFlakiness overhead: ${it.rawDurationMillis - it.durationMillis}ms\n" +
+                        "\tRaw: ${it.rawPassed} passed, ${it.rawFailed} failed, ${it.rawIgnored} ignored, ${it.rawIncomplete} incomplete tests"
+            )
         }
 
         val hours = TimeUnit.MILLISECONDS.toHours(timer.elapsedTimeMillis)
