@@ -8,7 +8,7 @@ android: vendor/vendor-android/**/*
 gradle-plugin: marathon-gradle-plugin/**/*
 sample: sample/**/*
 build:
-  - **/*.build.gradle
+  - '**/*.build.gradle'
   - buildSrc/**/*
   - default-detekt-config.yml
   - .buildsystem/**/*
