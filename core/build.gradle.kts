@@ -11,6 +11,7 @@ plugins {
     id("org.jetbrains.dokka")
     id("org.junit.platform.gradle.plugin")
     jacoco
+    id("de.fuerstenau.buildconfig") version "1.1.8"
 }
 
 sourceSets {
@@ -26,6 +27,12 @@ sourceSets {
             kotlin.srcDirs("src/integrationTest/kotlin")
         }
     }
+}
+
+buildConfig {
+    appName = project.name
+    version = Versions.marathon
+    buildConfigField("String", "BUGSNAG_TOKEN", System.getenv("BUGSNAG_TOKEN"))
 }
 
 dependencies {
@@ -47,6 +54,7 @@ dependencies {
     implementation(Libraries.logbackClassic)
     implementation(Libraries.influxDbClient)
     api(Libraries.koin)
+    api(Libraries.bugsnag)
     testImplementation(project(":vendor:vendor-test"))
     testImplementation(TestLibraries.kluent)
     testImplementation(TestLibraries.spekAPI)

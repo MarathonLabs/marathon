@@ -6,6 +6,8 @@ import com.android.build.gradle.LibraryExtension
 import com.android.build.gradle.LibraryPlugin
 import com.android.build.gradle.api.BaseVariantOutput
 import com.android.build.gradle.api.TestVariant
+import com.malinskiy.marathon.exceptions.AppType
+import com.malinskiy.marathon.exceptions.BugsnagExceptionsReporter
 import com.malinskiy.marathon.extensions.executeGradleCompat
 import com.malinskiy.marathon.log.MarathonLogging
 import org.gradle.api.Plugin
@@ -21,6 +23,7 @@ class MarathonPlugin : Plugin<Project> {
 
     override fun apply(project: Project) {
         log.info { "Applying marathon plugin" }
+        BugsnagExceptionsReporter().start(AppType.GRADLE_PLUGIN)
 
         val extension: MarathonExtension = project.extensions.create("marathon", MarathonExtension::class.java, project)
 

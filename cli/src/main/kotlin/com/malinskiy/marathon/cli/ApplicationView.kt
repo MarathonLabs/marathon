@@ -13,6 +13,8 @@ import com.malinskiy.marathon.cli.config.ConfigFactory
 import com.malinskiy.marathon.cli.config.DeserializeModule
 import com.malinskiy.marathon.cli.config.time.InstantTimeProviderImpl
 import com.malinskiy.marathon.di.marathonStartKoin
+import com.malinskiy.marathon.exceptions.AppType
+import com.malinskiy.marathon.exceptions.BugsnagExceptionsReporter
 import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.usageanalytics.TrackActionType
 import com.malinskiy.marathon.usageanalytics.UsageAnalytics
@@ -28,6 +30,7 @@ fun main(args: Array<String>): Unit = mainBody(
 ) {
     ArgParser(args).parseInto(::MarathonCliConfiguration).run {
         logger.info { "Starting marathon" }
+        BugsnagExceptionsReporter().start(AppType.CLI)
 
         val mapper = ObjectMapper(YAMLFactory().disable(YAMLGenerator.Feature.USE_NATIVE_TYPE_ID))
         mapper.registerModule(DeserializeModule(InstantTimeProviderImpl()))
