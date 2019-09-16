@@ -1,1 +1,0 @@
-../_posts/2015-05-26-targets.md

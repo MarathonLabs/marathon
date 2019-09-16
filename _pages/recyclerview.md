@@ -1,1 +1,0 @@
-../_posts/2017-05-10-recyclerview.md

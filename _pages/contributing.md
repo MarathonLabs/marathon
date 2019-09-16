@@ -1,1 +1,0 @@
-../_posts/2016-10-13-contributing.md

@@ -1,1 +1,0 @@
-../_posts/2017-04-17-generatedapi.md
