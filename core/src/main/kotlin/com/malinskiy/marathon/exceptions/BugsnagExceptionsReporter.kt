@@ -5,14 +5,21 @@ import com.malinskiy.marathon.BuildConfig
 import java.util.*
 
 class BugsnagExceptionsReporter : ExceptionsReporter {
-    private val bugsnag: Bugsnag by lazy {
-        val bytes = Base64.getDecoder().decode(BuildConfig.BUGSNAG_TOKEN)
-        Bugsnag(String(bytes))
+    private val bugsnag: Bugsnag? by lazy {
+        val bugsnagToken = BuildConfig.BUGSNAG_TOKEN
+        if (bugsnagToken.isNullOrEmpty()) {
+            null
+        } else {
+            val bytes = Base64.getDecoder().decode(bugsnagToken)
+            Bugsnag(String(bytes))
+        }
     }
 
     override fun start(appType: AppType) {
-        bugsnag.setAppType(appType.value)
-        bugsnag.setAppVersion(BuildConfig.VERSION)
+        bugsnag?.apply {
+            setAppType(appType.value)
+            setAppVersion(BuildConfig.VERSION)
+        }
     }
 }
 
