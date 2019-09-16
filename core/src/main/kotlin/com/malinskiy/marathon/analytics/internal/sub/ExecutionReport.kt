@@ -41,7 +41,7 @@ data class ExecutionReport(
                     && it.status != TestStatus.IGNORED
                     && it.status != TestStatus.ASSUMPTION_FAILURE
         }
-        val duration = tests.sumByDouble { it.durationMillis() * 1.0 }.toLong()
+        val duration = tests.map { it.durationMillis() }.sum()
 
         val rawTests = poolTestEvents
             .map { it.testResult }
@@ -52,7 +52,7 @@ data class ExecutionReport(
         }
         val rawFailed = rawTests.count { it.status == TestStatus.FAILURE }
         val rawIncomplete = rawTests.count { it.status == TestStatus.INCOMPLETE }
-        val rawDuration = rawTests.sumByDouble { it.durationMillis() * 1.0 }.toLong()
+        val rawDuration = rawTests.map { it.durationMillis() }.sum()
 
         return PoolSummary(
             poolId = poolId,
