@@ -16,6 +16,8 @@ import java.net.URI
 object Deployment {
     val user = System.getenv("SONATYPE_USERNAME")
     val password = System.getenv("SONATYPE_PASSWORD")
+    val githubUser = System.getenv("GITHUB_MAVEN_USERNAME")
+    val githubPassword = System.getenv("GITHUB_MAVEN_PASSWORD")
     var releaseMode: String? = null
     var versionSuffix: String? = null
     var deployUrl: String? = null
@@ -24,6 +26,7 @@ object Deployment {
         ?: "https://oss.sonatype.org/content/repositories/snapshots/"
     val releaseDeployUrl = System.getenv("SONATYPE_RELEASES_URL")
         ?: "https://oss.sonatype.org/service/local/staging/deploy/maven2/"
+    val githubDeployUrl = "https://maven.pkg.github.com/Malinskiy"
 
     fun initialize(project: Project) {
         val releaseMode: String? by project
@@ -80,7 +83,15 @@ object Deployment {
                         username = Deployment.user
                         password = Deployment.password
                     }
-                    setUrl(URI.create(Deployment.deployUrl))
+                    url = URI.create(Deployment.deployUrl)
+                }
+                maven {
+                    name = "GitHub"
+                    credentials {
+                        username = Deployment.githubUser
+                        password = Deployment.githubPassword
+                    }
+                    url = URI.create(Deployment.githubDeployUrl)
                 }
             }
         }

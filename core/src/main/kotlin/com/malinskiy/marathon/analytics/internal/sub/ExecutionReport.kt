@@ -24,7 +24,10 @@ data class ExecutionReport(
     private fun compilePoolSummary(poolId: DevicePoolId): PoolSummary {
         val devices = deviceConnectedEvents.filter { it.poolId == poolId }.map { it.device }.distinctBy { it.serialNumber }
 
-        val tests = testEvents.filter { it.poolId == poolId }
+        val poolTestEvents = testEvents.filter { it.poolId == poolId }
+        val poolTestFinalEvents = poolTestEvents.filter { it.final }
+
+        val tests = poolTestFinalEvents
             .map { it.testResult }
             .filter { it.status != TestStatus.INCOMPLETE }
 
@@ -38,7 +41,19 @@ data class ExecutionReport(
                     && it.status != TestStatus.IGNORED
                     && it.status != TestStatus.ASSUMPTION_FAILURE
         }
-        val duration = tests.sumByDouble { it.durationMillis() * 1.0 }.toLong()
+        val duration = tests.map { it.durationMillis() }.sum()
+
+        val rawTests = poolTestEvents
+            .map { it.testResult }
+        val rawPassed = rawTests.count { it.status == TestStatus.PASSED }
+        val rawIgnored = rawTests.count {
+            it.status == TestStatus.IGNORED
+                    || it.status == TestStatus.ASSUMPTION_FAILURE
+        }
+        val rawFailed = rawTests.count { it.status == TestStatus.FAILURE }
+        val rawIncomplete = rawTests.count { it.status == TestStatus.INCOMPLETE }
+        val rawDuration = rawTests.map { it.durationMillis() }.sum()
+
         return PoolSummary(
             poolId = poolId,
             tests = tests,
@@ -47,7 +62,12 @@ data class ExecutionReport(
             failed = failed,
             flaky = 0,
             durationMillis = duration,
-            devices = devices
+            devices = devices,
+            rawPassed = rawPassed,
+            rawFailed = rawFailed,
+            rawIgnored = rawIgnored,
+            rawIncomplete = rawIncomplete,
+            rawDurationMillis = rawDuration
         )
     }
 }
