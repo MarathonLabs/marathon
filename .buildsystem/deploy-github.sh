@@ -22,7 +22,7 @@ TARGETS=":core$DTASK :vendor:vendor-android$DTASK :marathon-gradle-plugin$DTASK 
 
 if [ -n "$TRAVIS_TAG" ]; then
   echo "on a tag -> deploy release version $TRAVIS_TAG"
-  ./gradlew "$TARGETS" -PreleaseMode=RELEASE
+  ./gradlew $TARGETS -PreleaseMode=RELEASE
 else
   echo "not on a tag -> skipping deployment to GitHub"
 fi
