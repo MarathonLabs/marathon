@@ -41,10 +41,10 @@ jobs:
           script: bash .buildsystem/deploy-sonatype.sh
           on:
             tags: true
-        - provider: script
-          script: bash .buildsystem/deploy-github.sh
-          on:
-            tags: true
+        # - provider: script
+        #   script: bash .buildsystem/deploy-github.sh
+        #   on:
+        #     tags: true
     - stage: deploy-cli
       script: ./gradlew :cli:assembleDist -PreleaseMode=RELEASE
       before_deploy:
