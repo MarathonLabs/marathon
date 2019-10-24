@@ -4,6 +4,7 @@ import com.android.ddmlib.IDevice
 import com.android.ddmlib.NullOutputReceiver
 import com.malinskiy.marathon.android.safeExecuteShellCommand
 import com.malinskiy.marathon.log.MarathonLogging
+import com.android.ddmlib.CollectingOutputReceiver
 
 internal class ScreenRecorderStopper(private val deviceInterface: IDevice) {
     private val nullOutputReceiver = NullOutputReceiver()
@@ -17,7 +18,7 @@ internal class ScreenRecorderStopper(private val deviceInterface: IDevice) {
         }
     }
 
-    private fun grepPid(receiver: CollectingShellOutputReceiver) {
+    private fun grepPid(receiver: CollectingOutputReceiver) {
         if (deviceInterface.version.isGreaterOrEqualThan(26)) {
             deviceInterface.safeExecuteShellCommand("ps -A | grep screenrecord", receiver)
         } else {
@@ -26,7 +27,7 @@ internal class ScreenRecorderStopper(private val deviceInterface: IDevice) {
     }
 
     private fun attemptToGracefullyKillScreenRecord(): Boolean {
-        val receiver = CollectingShellOutputReceiver()
+        val receiver = CollectingOutputReceiver()
         try {
             grepPid(receiver)
             val pid = extractPidOfScreenRecordProcess(receiver)
@@ -51,8 +52,8 @@ internal class ScreenRecorderStopper(private val deviceInterface: IDevice) {
 
     }
 
-    private fun extractPidOfScreenRecordProcess(receiver: CollectingShellOutputReceiver): String {
-        val output = receiver.output()
+    private fun extractPidOfScreenRecordProcess(receiver: CollectingOutputReceiver): String {
+        val output = receiver.output
         if (output.isBlank()) {
             return ""
         }

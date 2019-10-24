@@ -1,11 +1,11 @@
 package com.malinskiy.marathon.android.executor
 
+import com.android.ddmlib.CollectingOutputReceiver
 import com.android.ddmlib.IDevice
 import com.android.ddmlib.InstallException
 import com.malinskiy.marathon.android.AndroidConfiguration
 import com.malinskiy.marathon.android.AndroidDevice
 import com.malinskiy.marathon.android.ApkParser
-import com.malinskiy.marathon.android.executor.listeners.video.CollectingShellOutputReceiver
 import com.malinskiy.marathon.android.safeExecuteShellCommand
 import com.malinskiy.marathon.android.safeInstallPackage
 import com.malinskiy.marathon.android.safeUninstallPackage
@@ -57,9 +57,9 @@ class AndroidAppInstaller(configuration: Configuration) {
     }
 
     private fun installed(ddmsDevice: IDevice, appPackage: String): Boolean {
-        val receiver = CollectingShellOutputReceiver()
+        val receiver = CollectingOutputReceiver()
         ddmsDevice.safeExecuteShellCommand("pm list packages", receiver)
-        val lines = receiver.output().lines()
+        val lines = receiver.output.lines()
         return lines.any { it == "package:$appPackage" }
     }
 
