@@ -40,7 +40,7 @@ class AndroidDevice(
     val ddmsDevice: IDevice,
     private val track: Track,
     private val timer: Timer,
-    private val serialStrategy: SerialStrategy = SerialStrategy.AUTOMATIC
+    private val serialStrategy: SerialStrategy
 ) : Device, CoroutineScope {
 
     val fileManager = RemoteFileManager(ddmsDevice)

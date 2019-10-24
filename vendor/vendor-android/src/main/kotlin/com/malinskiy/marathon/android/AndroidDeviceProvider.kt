@@ -55,7 +55,7 @@ class AndroidDeviceProvider(
             override fun deviceChanged(device: IDevice?, changeMask: Int) {
                 device?.let {
                     launch(context = bootWaitContext) {
-                        val maybeNewAndroidDevice = AndroidDevice(it, track, timer)
+                        val maybeNewAndroidDevice = AndroidDevice(it, track, timer, vendorConfiguration.serialStrategy)
                         val healthy = maybeNewAndroidDevice.healthy
 
                         logger.debug { "Device ${device.serialNumber} changed state. Healthy = $healthy" }
@@ -74,7 +74,7 @@ class AndroidDeviceProvider(
             override fun deviceConnected(device: IDevice?) {
                 device?.let {
                     launch {
-                        val maybeNewAndroidDevice = AndroidDevice(it, track, timer)
+                        val maybeNewAndroidDevice = AndroidDevice(it, track, timer, vendorConfiguration.serialStrategy)
                         val healthy = maybeNewAndroidDevice.healthy
                         logger.debug("Device ${maybeNewAndroidDevice.serialNumber} connected. Healthy = $healthy")
 
