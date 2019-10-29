@@ -6,6 +6,7 @@ import com.malinskiy.marathon.analytics.internal.sub.TrackerInternal
 import com.malinskiy.marathon.config.LogicalConfigurationValidator
 import com.malinskiy.marathon.device.DeviceProvider
 import com.malinskiy.marathon.exceptions.NoDevicesException
+import com.malinskiy.marathon.exceptions.NoTestCasesFoundException
 import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.execution.Scheduler
 import com.malinskiy.marathon.execution.TestParser
@@ -84,6 +85,7 @@ class Marathon(
         configurationValidator.validate(configuration)
 
         val parsedTests = testParser.extract(configuration)
+        if (parsedTests.isEmpty()) throw NoTestCasesFoundException("No tests cases were found")
         val tests = applyTestFilters(parsedTests)
         val shard = prepareTestShard(tests, analytics)
 

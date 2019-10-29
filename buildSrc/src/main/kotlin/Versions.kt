@@ -46,6 +46,8 @@ object Versions {
     val dokka = "0.9.17"
     val koin = "2.0.1"
     val jsonAssert = "1.5.0"
+    val ktor = "1.2.3"
+    val assertk = "0.19"
 }
 
 object BuildPlugins {
@@ -85,6 +87,7 @@ object Libraries {
     val allure = "io.qameta.allure:allure-java-commons:${Versions.allure}"
     val allureEnvironment = "com.github.automatedowl:allure-environment-writer:${Versions.allureEnvironment}"
     val koin = "org.koin:koin-core:${Versions.koin}"
+    val ktorNetwork = "io.ktor:ktor-network:${Versions.ktor}"
 }
 
 object TestLibraries {
@@ -104,6 +107,7 @@ object TestLibraries {
     val jupiterEngine = "org.junit.jupiter:junit-jupiter-engine:${Versions.jupiterEngine}"
     val koin = "org.koin:koin-test:${Versions.koin}"
     val jsonAssert = "org.skyscreamer:jsonassert:${Versions.jsonAssert}"
+    val assertk = "com.willowtreeapps.assertk:assertk:${Versions.assertk}"
 
     val testContainers = "org.testcontainers:testcontainers:${Versions.testContainers}"
     val testContainersInflux = "org.testcontainers:influxdb:${Versions.testContainers}"

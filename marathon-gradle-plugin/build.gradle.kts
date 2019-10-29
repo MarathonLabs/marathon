@@ -20,7 +20,7 @@ dependencies {
     implementation(gradleApi())
     implementation(Libraries.kotlinLogging)
     implementation(project(":core"))
-    implementation(project(":vendor:vendor-android"))
+    implementation(project(":vendor:vendor-android:ddmlib"))
     implementation(BuildPlugins.androidGradle)
     implementation(project(":analytics:usage"))
 }
