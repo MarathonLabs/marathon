@@ -14,13 +14,13 @@ import java.time.Duration
 import java.time.Instant
 
 class FixedSizeBatchingStrategyDeserializer(private val instantTimeProvider: InstantTimeProvider) :
-        StdDeserializer<FixedSizeBatchingStrategy>(FixedSizeBatchingStrategy::class.java) {
+    StdDeserializer<FixedSizeBatchingStrategy>(FixedSizeBatchingStrategy::class.java) {
     override fun deserialize(p: JsonParser?, ctxt: DeserializationContext?): FixedSizeBatchingStrategy {
         val codec = p?.codec as ObjectMapper
         val node: JsonNode = codec.readTree(p) ?: throw ConfigurationException("Invalid sorting strategy")
 
         val size = node.findValue("size")?.asInt()
-                ?: throw ConfigurationException("Missing size value")
+            ?: throw ConfigurationException("Missing size value")
 
         val durationMillis = node.findValue("durationMillis")?.asLong()
         val percentile = node.findValue("percentile")?.asDouble()
@@ -29,7 +29,7 @@ class FixedSizeBatchingStrategyDeserializer(private val instantTimeProvider: Ins
         val timeLimitValue: JsonNode? = node.findValue("timeLimit")
         val instant = timeLimitValue?.let {
             codec.treeToValueOrNull(timeLimitValue, Instant::class.java)
-                    ?: codec.treeToValueOrNull(timeLimitValue, Duration::class.java)?.addToInstant(instantTimeProvider.referenceTime())
+                ?: codec.treeToValueOrNull(timeLimitValue, Duration::class.java)?.addToInstant(instantTimeProvider.referenceTime())
         }
 
         return FixedSizeBatchingStrategy(size, durationMillis, percentile, instant, lastMileLength ?: 0)

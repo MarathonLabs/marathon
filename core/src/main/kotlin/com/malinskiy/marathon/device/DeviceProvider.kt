@@ -12,5 +12,5 @@ interface DeviceProvider {
     val deviceInitializationTimeoutMillis: Long
     suspend fun initialize(vendorConfiguration: VendorConfiguration)
     suspend fun terminate()
-    fun subscribe() : Channel<DeviceEvent>
+    fun subscribe(): Channel<DeviceEvent>
 }

@@ -15,9 +15,15 @@ class Mocks {
                 val mock = mock(CommandSession::class)
                 override fun startSession(command: String): CommandSession = mock
 
-                override fun execBlocking(command: String, maxExecutionDurationMillis: Long, testOutputTimeoutMillis: Long): CommandResult = CommandResult("", "", 0)
+                override fun execBlocking(command: String, maxExecutionDurationMillis: Long, testOutputTimeoutMillis: Long): CommandResult =
+                    CommandResult("", "", 0)
 
-                override suspend fun execInto(command: String, maxExecutionDurationMillis: Long, testOutputTimeoutMillis: Long, onLine: (String) -> Unit): Int? = 0
+                override suspend fun execInto(
+                    command: String,
+                    maxExecutionDurationMillis: Long,
+                    testOutputTimeoutMillis: Long,
+                    onLine: (String) -> Unit
+                ): Int? = 0
 
                 override fun close() {}
             }
@@ -33,9 +39,12 @@ class Mocks {
                 1,
                 mock(IOSConfiguration::class),
                 gson,
+                mock(),
                 object : HealthChangeListener {
-                    override suspend fun onDisconnect(device: com.malinskiy.marathon.ios.IOSDevice) { }
-                })
+                    override suspend fun onDisconnect(device: com.malinskiy.marathon.ios.IOSDevice) {}
+                },
+                mock()
+            )
         }
     }
 

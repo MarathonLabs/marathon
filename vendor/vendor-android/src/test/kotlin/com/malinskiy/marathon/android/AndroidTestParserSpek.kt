@@ -10,13 +10,15 @@ import org.jetbrains.spek.api.dsl.it
 import org.jetbrains.spek.api.dsl.on
 import java.io.File
 
-class AndroidTestParserSpek : Spek({
-    describe("android test parser") {
-        val parser = AndroidTestParser()
+class AndroidTestParserSpek : Spek(
+    {
+        describe("android test parser") {
+            val parser = AndroidTestParser()
 
-        on("android test apk") {
-            val apkFile = File(javaClass.classLoader.getResource("android_test_1.apk").file)
-            val configuration = Configuration(name = "",
+            on("android test apk") {
+                val apkFile = File(javaClass.classLoader.getResource("android_test_1.apk").file)
+                val configuration = Configuration(
+                    name = "",
                     outputDir = File(""),
                     customAnalyticsTracker = null,
                     analyticsConfiguration = null,
@@ -39,26 +41,27 @@ class AndroidTestParserSpek : Spek({
                     testOutputTimeoutMillis = null,
                     debug = null,
                     vendorConfiguration = AndroidConfiguration(
-                            File(""),
-                            applicationOutput = File(""),
-                            testApplicationOutput = apkFile
+                        File(""),
+                        applicationOutput = File(""),
+                        testApplicationOutput = apkFile
                     ),
                     analyticsTracking = false
-            )
-
-            it("should return proper list of test methods") {
-                val extractedTests = parser.extract(configuration)
-                extractedTests shouldEqual listOf(
-                        Test("com.example", "MainActivityTest", "testText",
-                                listOf(
-                                        MetaProperty("org.junit.Test"),
-                                        MetaProperty("kotlin.Metadata"),
-                                        MetaProperty("org.junit.runner.RunWith")
-                                )
-                        )
                 )
+
+                it("should return proper list of test methods") {
+                    val extractedTests = parser.extract(configuration)
+                    extractedTests shouldEqual listOf(
+                        Test(
+                            "com.example", "MainActivityTest", "testText",
+                            listOf(
+                                MetaProperty("org.junit.Test"),
+                                MetaProperty("kotlin.Metadata"),
+                                MetaProperty("org.junit.runner.RunWith")
+                            )
+                        )
+                    )
+                }
             }
         }
-    }
-})
+    })
 

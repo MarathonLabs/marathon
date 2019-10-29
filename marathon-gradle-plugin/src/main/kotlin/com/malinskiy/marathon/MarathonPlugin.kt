@@ -78,13 +78,13 @@ class MarathonPlugin : Plugin<Project> {
                     outputs.upToDateWhen { false }
 
                     executeGradleCompat(
-                            exec = {
-                                dependsOn(variant.testedVariant.assembleProvider, variant.assembleProvider)
-                            },
-                            fallback = {
-                                @Suppress("DEPRECATION")
-                                dependsOn(variant.testedVariant.assemble, variant.assemble)
-                            }
+                        exec = {
+                            dependsOn(variant.testedVariant.assembleProvider, variant.assembleProvider)
+                        },
+                        fallback = {
+                            @Suppress("DEPRECATION")
+                            dependsOn(variant.testedVariant.assemble, variant.assemble)
+                        }
                     )
                 })
             }
@@ -107,9 +107,11 @@ class MarathonPlugin : Plugin<Project> {
          */
         private fun checkTestedVariants(baseVariantOutput: BaseVariantOutput) {
             if (baseVariantOutput.outputs.size > 1) {
-                throw UnsupportedOperationException("The Marathon plugin does not support abi splits for app APKs, " +
-                        "but supports testing via a universal APK. "
-                        + "Add the flag \"universalApk true\" in the android.splits.abi configuration.")
+                throw UnsupportedOperationException(
+                    "The Marathon plugin does not support abi splits for app APKs, " +
+                            "but supports testing via a universal APK. "
+                            + "Add the flag \"universalApk true\" in the android.splits.abi configuration."
+                )
             }
 
         }

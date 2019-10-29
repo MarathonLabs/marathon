@@ -9,11 +9,16 @@ import com.malinskiy.marathon.cli.args.environment.EnvironmentReader
 import com.malinskiy.marathon.exceptions.ConfigurationException
 import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.log.MarathonLogging
+import com.malinskiy.marathon.vendor.VendorConfiguration
+import org.apache.commons.text.StringSubstitutor
+import org.apache.commons.text.lookup.StringLookupFactory
 import java.io.File
 
 private val logger = MarathonLogging.logger {}
 
-class ConfigFactory(val mapper: ObjectMapper) {
+class ConfigFactory(private val mapper: ObjectMapper) {
+    private val environmentVariableSubstitutor = StringSubstitutor(StringLookupFactory.INSTANCE.environmentVariableStringLookup())
+
     fun create(marathonfile: File, environmentReader: EnvironmentReader): Configuration {
         logger.info { "Checking $marathonfile config" }
 
@@ -27,7 +32,7 @@ class ConfigFactory(val mapper: ObjectMapper) {
         val fileVendorConfiguration = config.vendorConfiguration
         val vendorConfiguration = when (fileVendorConfiguration) {
             is FileIOSConfiguration -> fileVendorConfiguration.toIOSConfiguration(
-                    marathonfile.canonicalFile.parentFile
+                marathonfile.canonicalFile.parentFile
             )
             is FileAndroidConfiguration -> {
                 fileVendorConfiguration.toAndroidConfiguration(environmentReader.read().androidSdk)
@@ -36,36 +41,37 @@ class ConfigFactory(val mapper: ObjectMapper) {
         }
 
         return Configuration(
-                config.name,
-                config.outputDir,
-                null,
-                config.analyticsConfiguration,
-                config.poolingStrategy,
-                config.shardingStrategy,
-                config.sortingStrategy,
-                config.batchingStrategy,
-                config.flakinessStrategy,
-                config.retryStrategy,
-                config.filteringConfiguration,
-                config.ignoreFailures,
-                config.isCodeCoverageEnabled,
-                config.fallbackToScreenshots,
-                config.strictMode,
-                config.uncompletedTestRetryQuota,
-                config.testClassRegexes,
-                config.includeSerialRegexes,
-                config.excludeSerialRegexes,
-                config.testBatchTimeoutMillis,
-                config.testOutputTimeoutMillis,
-                config.debug,
-                vendorConfiguration,
-                config.analyticsTracking
+            name = config.name,
+            outputDir = config.outputDir,
+            analyticsConfiguration = config.analyticsConfiguration,
+            customAnalyticsTracker = null,
+            poolingStrategy = config.poolingStrategy,
+            shardingStrategy = config.shardingStrategy,
+            sortingStrategy = config.sortingStrategy,
+            batchingStrategy = config.batchingStrategy,
+            flakinessStrategy = config.flakinessStrategy,
+            retryStrategy = config.retryStrategy,
+            filteringConfiguration = config.filteringConfiguration,
+            ignoreFailures = config.ignoreFailures,
+            isCodeCoverageEnabled = config.isCodeCoverageEnabled,
+            fallbackToScreenshots = config.fallbackToScreenshots,
+            strictMode = config.strictMode,
+            uncompletedTestRetryQuota = config.uncompletedTestRetryQuota,
+            testClassRegexes = config.testClassRegexes,
+            includeSerialRegexes = config.includeSerialRegexes,
+            excludeSerialRegexes = config.excludeSerialRegexes,
+            testBatchTimeoutMillis = config.testBatchTimeoutMillis,
+            testOutputTimeoutMillis = config.testOutputTimeoutMillis,
+            debug = config.debug,
+            vendorConfiguration = vendorConfiguration as VendorConfiguration,
+            analyticsTracking = config.analyticsTracking
         )
     }
 
     private fun readConfigFile(configFile: File): FileConfiguration? {
+        val configWithEnvironmentVariablesReplaced = environmentVariableSubstitutor.replace(configFile.readText())
         try {
-            return mapper.readValue(configFile.bufferedReader(), FileConfiguration::class.java)
+            return mapper.readValue(configWithEnvironmentVariablesReplaced, FileConfiguration::class.java)
         } catch (e: MismatchedInputException) {
             logger.error { "Invalid config file ${configFile.absolutePath}. Error parsing ${e.targetType.canonicalName}" }
             throw ConfigurationException(e)

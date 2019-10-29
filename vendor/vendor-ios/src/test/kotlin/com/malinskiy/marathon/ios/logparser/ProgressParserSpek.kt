@@ -3,7 +3,6 @@ package com.malinskiy.marathon.ios.logparser
 import com.malinskiy.marathon.ios.logparser.formatter.PackageNameFormatter
 import com.malinskiy.marathon.ios.logparser.listener.TestRunListener
 import com.malinskiy.marathon.ios.logparser.parser.TestRunProgressParser
-
 import com.malinskiy.marathon.test.Test
 import com.malinskiy.marathon.time.Timer
 import com.nhaarman.mockitokotlin2.atLeastOnce
@@ -27,64 +26,98 @@ import org.jetbrains.spek.api.dsl.it
 import org.jetbrains.spek.api.dsl.on
 import java.io.File
 
-class ProgressParserSpek : Spek({
-    describe("TestRunProgressParser") {
-        val mockFormatter = mock(PackageNameFormatter::class)
-        val mockListener = mock(TestRunListener::class)
-        val mockTimer = mock(Timer::class)
-        val mockedTimeMillis = 1537187696000L
-        When calling mockTimer.currentTimeMillis() itReturns mockedTimeMillis
+class ProgressParserSpek : Spek(
+    {
+        describe("TestRunProgressParser") {
+            val mockFormatter = mock(PackageNameFormatter::class)
+            val mockListener = mock(TestRunListener::class)
+            val mockTimer = mock(Timer::class)
+            val mockedTimeMillis = 1537187696000L
+            When calling mockTimer.currentTimeMillis() itReturns mockedTimeMillis
 
-        val progressParser = TestRunProgressParser(mockTimer, mockFormatter, listOf(mockListener))
+            val progressParser = TestRunProgressParser(mockTimer, mockFormatter, listOf(mockListener))
 
-        beforeEachTest { When calling mockFormatter.format(any()) itAnswers withFirstArg() }
-        afterEachTest { reset(mockListener, mockFormatter) }
+            beforeEachTest { When calling mockFormatter.format(any()) itAnswers withFirstArg() }
+            afterEachTest { reset(mockListener, mockFormatter) }
 
-        on("parsing testing output") {
-            val testOutputFile = File(javaClass.classLoader.getResource("fixtures/test_output/success_0.log").file)
+            on("parsing testing output") {
+                val testOutputFile =
+                    File(javaClass.classLoader.getResource("fixtures/test_output/success_0.log").file)
 
-            it("should apply package name formatter") {
-                testOutputFile.readLines().forEach {
-                    progressParser.onLine(it)
+                it("should apply package name formatter") {
+                    testOutputFile.readLines().forEach {
+                        progressParser.onLine(it)
+                    }
+
+                    verify(
+                        mockFormatter,
+                        atLeastOnce()
+                    ) that mockFormatter.format("sample_appUITests") was called
                 }
-
-                verify(mockFormatter, atLeastOnce()) that mockFormatter.format("sample_appUITests") was called
             }
-        }
 
-        on("parsing single success output") {
-            val testOutputFile = File(javaClass.classLoader.getResource("fixtures/test_output/success_0.log").file)
+            on("parsing single success output") {
+                val testOutputFile =
+                    File(javaClass.classLoader.getResource("fixtures/test_output/success_0.log").file)
 
-            it("should report single start and success") {
-                testOutputFile.readLines().forEach {
-                    progressParser.onLine(it)
-                }
+                it("should report single start and success") {
+                    testOutputFile.readLines().forEach {
+                        progressParser.onLine(it)
+                    }
 
-                Verify on mockListener that mockListener.testStarted(Test("sample_appUITests", "MoreTests", "testPresentModal", emptyList())) was called
-                Verify on mockListener that mockListener.testPassed(Test("sample_appUITests", "MoreTests", "testPresentModal", emptyList()),
+                    Verify on mockListener that mockListener.testStarted(
+                        Test(
+                            "sample_appUITests",
+                            "MoreTests",
+                            "testPresentModal",
+                            emptyList()
+                        )
+                    ) was called
+                    Verify on mockListener that mockListener.testPassed(
+                        Test("sample_appUITests", "MoreTests", "testPresentModal", emptyList()),
                         mockedTimeMillis - 5315,
-                        mockedTimeMillis) was called
-            }
-        }
-
-        on("parsing multiple success output") {
-            val testOutputFile = File(javaClass.classLoader.getResource("fixtures/test_output/success_multiple_0.log").file)
-
-            it("should report multiple starts and successes") {
-                testOutputFile.readLines().forEach {
-                    progressParser.onLine(it)
+                        mockedTimeMillis
+                    ) was called
                 }
+            }
 
-                Verify on mockListener that mockListener.testStarted(Test("sample_appUITests", "FlakyTests", "testTextFlaky1", emptyList())) was called
-                Verify on mockListener that mockListener.testStarted(Test("sample_appUITests", "FlakyTests", "testTextFlaky2", emptyList())) was called
+            on("parsing multiple success output") {
+                val testOutputFile =
+                    File(javaClass.classLoader.getResource("fixtures/test_output/success_multiple_0.log").file)
 
-                Verify on mockListener that mockListener.testPassed(Test("sample_appUITests", "FlakyTests", "testTextFlaky1", emptyList()),
+                it("should report multiple starts and successes") {
+                    testOutputFile.readLines().forEach {
+                        progressParser.onLine(it)
+                    }
+
+                    Verify on mockListener that mockListener.testStarted(
+                        Test(
+                            "sample_appUITests",
+                            "FlakyTests",
+                            "testTextFlaky1",
+                            emptyList()
+                        )
+                    ) was called
+                    Verify on mockListener that mockListener.testStarted(
+                        Test(
+                            "sample_appUITests",
+                            "FlakyTests",
+                            "testTextFlaky2",
+                            emptyList()
+                        )
+                    ) was called
+
+                    Verify on mockListener that mockListener.testPassed(
+                        Test("sample_appUITests", "FlakyTests", "testTextFlaky1", emptyList()),
                         mockedTimeMillis - 4415,
-                        mockedTimeMillis) was called
-                Verify on mockListener that mockListener.testPassed(Test("sample_appUITests", "FlakyTests", "testTextFlaky2", emptyList()),
+                        mockedTimeMillis
+                    ) was called
+                    Verify on mockListener that mockListener.testPassed(
+                        Test("sample_appUITests", "FlakyTests", "testTextFlaky2", emptyList()),
                         mockedTimeMillis - 4118,
-                        mockedTimeMillis) was called
+                        mockedTimeMillis
+                    ) was called
+                }
             }
         }
-    }
-})
+    })

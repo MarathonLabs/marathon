@@ -8,9 +8,11 @@ import com.malinskiy.marathon.log.MarathonLogging
 import java.util.concurrent.TimeUnit.SECONDS
 import kotlin.system.measureTimeMillis
 
-internal class ScreenRecorder(private val device: IDevice,
-                              private val receiver : CollectingOutputReceiver,
-                              private val remoteFilePath : String) : Runnable {
+internal class ScreenRecorder(
+    private val device: IDevice,
+    private val receiver: CollectingOutputReceiver,
+    private val remoteFilePath: String
+) : Runnable {
 
     override fun run() {
         try {
@@ -32,8 +34,8 @@ internal class ScreenRecorder(private val device: IDevice,
         private const val DURATION = 180
         private const val BITRATE_MB_PER_SECOND = 1
         private val options = ScreenRecorderOptions.Builder()
-                .setTimeLimit(DURATION.toLong(), SECONDS)
-                .setBitRate(BITRATE_MB_PER_SECOND)
-                .build()
+            .setTimeLimit(DURATION.toLong(), SECONDS)
+            .setBitRate(BITRATE_MB_PER_SECOND)
+            .build()
     }
 }

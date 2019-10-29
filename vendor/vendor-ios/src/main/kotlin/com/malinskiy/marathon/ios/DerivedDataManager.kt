@@ -3,8 +3,8 @@ package com.malinskiy.marathon.ios
 import com.github.fracpete.processoutput4j.output.CollectingProcessOutput
 import com.github.fracpete.rsync4j.RSync
 import com.malinskiy.marathon.execution.Configuration
+import com.malinskiy.marathon.extension.relativePathTo
 import com.malinskiy.marathon.log.MarathonLogging
-import com.malinskiy.marathon.report.html.relativePathTo
 import java.io.File
 import java.io.FileNotFoundException
 import java.util.concurrent.ConcurrentHashMap
@@ -55,7 +55,7 @@ class DerivedDataManager(val configuration: Configuration) {
     }
 
     fun send(localPath: File, remotePath: String, hostName: String, port: Int) {
-        val source= if (localPath.isDirectory) {
+        val source = if (localPath.isDirectory) {
             localPath.absolutePathWithTrailingSeparator
         } else {
             localPath.absolutePath
@@ -64,9 +64,9 @@ class DerivedDataManager(val configuration: Configuration) {
 
         val sshString = getSshString(port)
         val rsync = getRsyncBase()
-                .rsh(sshString)
-                .source(source)
-                .destination(destination)
+            .rsh(sshString)
+            .source(source)
+            .destination(destination)
 
         val output = CollectingProcessOutput()
         output.monitor(rsync.builder())
@@ -87,9 +87,9 @@ class DerivedDataManager(val configuration: Configuration) {
 
         val sshString = getSshString(port)
         val rsync = getRsyncBase()
-                .rsh(sshString)
-                .source(source)
-                .destination(destination)
+            .rsh(sshString)
+            .source(source)
+            .destination(destination)
 
         val output = CollectingProcessOutput()
         output.timeOut = 30
@@ -104,12 +104,12 @@ class DerivedDataManager(val configuration: Configuration) {
 
     private fun getRsyncBase(): RSync {
         return RSync()
-                .a()
-                .partial(true)
-                .partialDir(".rsync-partial")
-                .delayUpdates(true)
-                .rsyncPath(iosConfiguration.remoteRsyncPath)
-                .verbose(configuration.debug)
+            .a()
+            .partial(true)
+            .partialDir(".rsync-partial")
+            .delayUpdates(true)
+            .rsyncPath(iosConfiguration.remoteRsyncPath)
+            .verbose(configuration.debug)
     }
 
     private fun getSshString(port: Int): String {
@@ -117,7 +117,10 @@ class DerivedDataManager(val configuration: Configuration) {
                 "-i ${iosConfiguration.remotePrivateKey} " +
                 "-l ${iosConfiguration.remoteUsername} " +
                 "-p ${port.toString()} " +
-                when (configuration.debug && iosConfiguration.debugSsh) { true -> "-vvv" else -> ""}
+                when (configuration.debug && iosConfiguration.debugSsh) {
+                    true -> "-vvv"
+                    else -> ""
+                }
     }
 }
 
@@ -128,14 +131,14 @@ private val File.absolutePathWithTrailingSeparator: String
 
 private fun RSync.a(): RSync {
     return this
-            .recursive(true)
-            .links(true)
-            .perms(true)
-            .times(true)
-            .group(true)
-            .owner(true)
-            .devices(true)
-            .specials(true)
+        .recursive(true)
+        .links(true)
+        .perms(true)
+        .times(true)
+        .group(true)
+        .owner(true)
+        .devices(true)
+        .specials(true)
 }
 
 private fun File.isDescendantOf(dir: File): Boolean {

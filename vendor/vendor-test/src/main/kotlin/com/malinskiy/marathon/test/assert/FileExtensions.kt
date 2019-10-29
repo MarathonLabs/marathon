@@ -1,6 +1,9 @@
 package com.malinskiy.marathon.test.assert
 
-import org.amshove.kluent.shouldBeEqualTo
+import org.skyscreamer.jsonassert.JSONAssert
+import org.skyscreamer.jsonassert.JSONCompareMode
 import java.io.File
 
-fun File.shouldBeEqualTo(expected: File) = readText().shouldBeEqualTo(expected.readText())
+fun File.shouldBeEqualToAsJson(expected: File) {
+    JSONAssert.assertEquals(expected.readText(), readText(), JSONCompareMode.LENIENT)
+}

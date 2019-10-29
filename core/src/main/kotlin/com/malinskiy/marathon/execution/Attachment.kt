@@ -9,7 +9,7 @@ enum class AttachmentType {
     VIDEO,
     LOG;
 
-    fun toMimeType() = when(this) {
+    fun toMimeType() = when (this) {
         SCREENSHOT -> "image/gif"
         VIDEO -> "video/mp4"
         LOG -> "text/txt"

@@ -11,11 +11,19 @@ package com.malinskiy.marathon.android.executor.listeners.screenshot
 // Commons, 171 Second Street, Suite 300, San Francisco, California, 94105, USA.
 
 
-import javax.imageio.*
-import javax.imageio.metadata.*
-import javax.imageio.stream.*
-import java.awt.image.*
-import java.io.*
+import java.awt.image.RenderedImage
+import java.io.File
+import java.io.IOException
+import javax.imageio.IIOException
+import javax.imageio.IIOImage
+import javax.imageio.ImageIO
+import javax.imageio.ImageTypeSpecifier
+import javax.imageio.ImageWriteParam
+import javax.imageio.ImageWriter
+import javax.imageio.metadata.IIOMetadata
+import javax.imageio.metadata.IIOMetadataNode
+import javax.imageio.stream.FileImageOutputStream
+import javax.imageio.stream.ImageOutputStream
 
 class GifSequenceWriter
 /**
@@ -31,10 +39,11 @@ class GifSequenceWriter
  */
 @Throws(IIOException::class, IOException::class)
 constructor(
-        outputStream: ImageOutputStream,
-        imageType: Int,
-        timeBetweenFramesMS: Int,
-        loopContinuously: Boolean) {
+    outputStream: ImageOutputStream,
+    imageType: Int,
+    timeBetweenFramesMS: Int,
+    loopContinuously: Boolean
+) {
     protected var gifWriter: ImageWriter
     protected var imageWriteParam: ImageWriteParam
     protected var imageMetaData: IIOMetadata
@@ -45,35 +54,42 @@ constructor(
         imageWriteParam = gifWriter.defaultWriteParam
         val imageTypeSpecifier = ImageTypeSpecifier.createFromBufferedImageType(imageType)
 
-        imageMetaData = gifWriter.getDefaultImageMetadata(imageTypeSpecifier,
-                imageWriteParam)
+        imageMetaData = gifWriter.getDefaultImageMetadata(
+            imageTypeSpecifier,
+            imageWriteParam
+        )
 
         val metaFormatName = imageMetaData.nativeMetadataFormatName
 
         val root = imageMetaData.getAsTree(metaFormatName) as IIOMetadataNode
 
         val graphicsControlExtensionNode = getNode(
-                root,
-                "GraphicControlExtension")
+            root,
+            "GraphicControlExtension"
+        )
 
         graphicsControlExtensionNode.setAttribute("disposalMethod", "none")
         graphicsControlExtensionNode.setAttribute("userInputFlag", "FALSE")
         graphicsControlExtensionNode.setAttribute(
-                "transparentColorFlag",
-                "FALSE")
+            "transparentColorFlag",
+            "FALSE"
+        )
         graphicsControlExtensionNode.setAttribute(
-                "delayTime",
-                Integer.toString(timeBetweenFramesMS / 10))
+            "delayTime",
+            Integer.toString(timeBetweenFramesMS / 10)
+        )
         graphicsControlExtensionNode.setAttribute(
-                "transparentColorIndex",
-                "0")
+            "transparentColorIndex",
+            "0"
+        )
 
         val commentsNode = getNode(root, "CommentExtensions")
         commentsNode.setAttribute("CommentExtension", "Created by MAH")
 
         val appEntensionsNode = getNode(
-                root,
-                "ApplicationExtensions")
+            root,
+            "ApplicationExtensions"
+        )
 
         val child = IIOMetadataNode("ApplicationExtension")
 
@@ -90,16 +106,19 @@ constructor(
         gifWriter.output = outputStream
 
         gifWriter.prepareWriteSequence(
-                null)
+            null
+        )
     }
 
     @Throws(IOException::class)
     fun writeToSequence(img: RenderedImage) {
         gifWriter.writeToSequence(
-                IIOImage(
-                        img, null,
-                        imageMetaData),
-                imageWriteParam)
+            IIOImage(
+                img, null,
+                imageMetaData
+            ),
+            imageWriteParam
+        )
     }
 
     /**
@@ -141,8 +160,9 @@ constructor(
          * @return the child node, if found or a new node created with the given name.
          */
         private fun getNode(
-                rootNode: IIOMetadataNode,
-                nodeName: String): IIOMetadataNode {
+            rootNode: IIOMetadataNode,
+            nodeName: String
+        ): IIOMetadataNode {
             val nNodes = rootNode.length
             for (i in 0 until nNodes) {
                 if (rootNode.item(i).nodeName.compareTo(nodeName, ignoreCase = true) == 0) {
@@ -188,7 +208,8 @@ constructor(
                 output.close()
             } else {
                 println(
-                        "Usage: java GifSequenceWriter [list of gif files] [output file]")
+                    "Usage: java GifSequenceWriter [list of gif files] [output file]"
+                )
             }
         }
     }

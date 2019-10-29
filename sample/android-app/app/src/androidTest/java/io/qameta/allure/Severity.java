@@ -12,5 +12,4 @@ import java.lang.annotation.*;
 public @interface Severity {
 
     SeverityLevel value();
-
 }

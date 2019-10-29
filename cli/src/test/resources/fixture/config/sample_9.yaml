@@ -7,5 +7,5 @@ vendorConfiguration:
   testApplicationApk: "kotlin-buildscript/build/outputs/apk/androidTest/debug/kotlin-buildscript-debug-androidTest.apk"
 filteringConfiguration:
   blacklist:
-  - type: "simple-class-name"
-    regex: ".*"
+    - type: "simple-class-name"
+      regex: ".*"

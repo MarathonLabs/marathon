@@ -1,33 +1,33 @@
 package com.malinskiy.marathon.ios.xctestrun
 
-import com.dd.plist.PropertyListParser
 import com.dd.plist.NSObject
+import com.dd.plist.PropertyListParser
 import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.test.Test
+import java.io.ByteArrayInputStream
+import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileInputStream
 import java.io.InputStream
-import java.io.ByteArrayOutputStream
-import java.io.ByteArrayInputStream
 import kotlin.Suppress as suppress
 
 @suppress(unchecked)
 class Xctestrun(inputStream: InputStream) {
 
-    constructor(file: File): this(FileInputStream(file))
+    constructor(file: File) : this(FileInputStream(file))
 
     val logger = MarathonLogging.logger(javaClass.simpleName)
 
     val propertyList: PropertyListMap = PropertyListParser
-            .parse(inputStream)
-            .toJavaObject() as? PropertyListMap
-            ?: throw IllegalArgumentException("could not parse xctestrun")
+        .parse(inputStream)
+        .toJavaObject() as? PropertyListMap
+        ?: throw IllegalArgumentException("could not parse xctestrun")
 
     // testable target properties
 
     private val target = PropertyListKey.TargetName(
-            propertyList.keys.firstOrNull { it != PropertyListKey.__xctestrun_metadata__.toKeyString() }
-                    ?: throw IllegalArgumentException("xctestrun file does not define any testable targets")
+        propertyList.keys.firstOrNull { it != PropertyListKey.__xctestrun_metadata__.toKeyString() }
+            ?: throw IllegalArgumentException("xctestrun file does not define any testable targets")
     )
 
     /**
@@ -84,7 +84,7 @@ class Xctestrun(inputStream: InputStream) {
     /**
      * Defines or updates environment variables with values from specified map.
      */
-    fun environment(environmentVariables:  Map<String,String>) {
+    fun environment(environmentVariables: Map<String, String>) {
         this.environmentVariables.putAll(environmentVariables)
     }
 
@@ -98,7 +98,7 @@ class Xctestrun(inputStream: InputStream) {
     /**
      * Defines or updates environment variables with values from specified map.
      */
-    fun testingEnvironment(environmentVariables:  Map<String,String>) {
+    fun testingEnvironment(environmentVariables: Map<String, String>) {
         testingEnvironmentVariables.putAll(environmentVariables)
     }
 
@@ -117,8 +117,9 @@ class Xctestrun(inputStream: InputStream) {
     fun toXMLByteArray(): ByteArray {
         val outputStream = ByteArrayOutputStream()
         PropertyListParser.saveAsXML(
-                NSObject.fromJavaObject(propertyList),
-                outputStream)
+            NSObject.fromJavaObject(propertyList),
+            outputStream
+        )
         return outputStream.toByteArray()
     }
 
@@ -150,7 +151,7 @@ class Xctestrun(inputStream: InputStream) {
      * ignores key order when comparing Map nodes, and element order when comparing Array nodes.
      */
     private fun areEqual(l: Any?, r: Any?): Boolean {
-        if (l is Map<*, *> && r is Map<*,*>) {
+        if (l is Map<*, *> && r is Map<*, *>) {
             if (l.keys.size != r.keys.size) {
                 return false
             }
@@ -168,15 +169,15 @@ class Xctestrun(inputStream: InputStream) {
 
     private val skippedTestMethodsByClass: Map<String, List<String>> by lazy {
         skipTestIdentifiers
-                .map {
-                    val parts = it.toString().split("/")
-                    parts.first() to parts.getOrNull(1)
-                }
-                .groupBy(
-                        { it.first },
-                        { it.second }
-                )
-                .mapValues { it.value.filterNotNull() }
+            .map {
+                val parts = it.toString().split("/")
+                parts.first() to parts.getOrNull(1)
+            }
+            .groupBy(
+                { it.first },
+                { it.second }
+            )
+            .mapValues { it.value.filterNotNull() }
     }
 }
 

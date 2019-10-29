@@ -20,14 +20,16 @@ import kotlinx.coroutines.CompletableDeferred
 import com.android.ddmlib.testrunner.TestResult as DdmLibTestResult
 import com.android.ddmlib.testrunner.TestRunResult as DdmLibTestRunResult
 
-class TestRunResultsListener(private val testBatch: TestBatch,
-                             private val device: Device,
-                             private val deferred: CompletableDeferred<TestBatchResults>,
-                             private val timer: Timer,
-                             attachmentProviders: List<AttachmentProvider>)
-    : AbstractTestRunResultListener(), AttachmentListener {
+class TestRunResultsListener(
+    private val testBatch: TestBatch,
+    private val device: Device,
+    private val deferred: CompletableDeferred<TestBatchResults>,
+    private val timer: Timer,
+    attachmentProviders: List<AttachmentProvider>
+) : AbstractTestRunResultListener(), AttachmentListener {
 
     private val attachments: MutableMap<Test, MutableList<Attachment>> = mutableMapOf()
+    private val creationTime = timer.currentTimeMillis()
 
     init {
         attachmentProviders.forEach {
@@ -67,11 +69,11 @@ class TestRunResultsListener(private val testBatch: TestBatch,
         }
 
         val uncompleted = tests
-                .filterNot { expectedTest ->
-                    results.containsKey(expectedTest.key)
-                }
-                .values
-                .createUncompletedTestResults(runResult, device)
+            .filterNot { expectedTest ->
+                results.containsKey(expectedTest.key)
+            }
+            .values
+            .createUncompletedTestResults(runResult, device)
 
         if (uncompleted.isNotEmpty()) {
             uncompleted.forEach {
@@ -82,24 +84,26 @@ class TestRunResultsListener(private val testBatch: TestBatch,
         deferred.complete(TestBatchResults(device, finished, failed, uncompleted))
     }
 
-    private fun Collection<Test>.createUncompletedTestResults(testRunResult: com.android.ddmlib.testrunner.TestRunResult,
-                                                              device: Device): Collection<TestResult> {
+    private fun Collection<Test>.createUncompletedTestResults(
+        testRunResult: com.android.ddmlib.testrunner.TestRunResult,
+        device: Device
+    ): Collection<TestResult> {
 
         val lastCompletedTestEndTime = testRunResult
-                .testResults
-                .values
-                .maxBy { it.endTime }
-                ?.endTime
-                ?: timer.currentTimeMillis()
+            .testResults
+            .values
+            .maxBy { it.endTime }
+            ?.endTime
+            ?: creationTime
 
         return map {
             TestResult(
-                    it,
-                    device.toDeviceInfo(),
-                    TestStatus.FAILURE,
-                    lastCompletedTestEndTime,
-                    lastCompletedTestEndTime,
-                    testRunResult.runFailureMessage
+                it,
+                device.toDeviceInfo(),
+                TestStatus.INCOMPLETE,
+                lastCompletedTestEndTime,
+                timer.currentTimeMillis(),
+                testRunResult.runFailureMessage
             )
         }
     }
@@ -127,13 +131,15 @@ class TestRunResultsListener(private val testBatch: TestBatch,
         val testInstanceFromBatch = testBatch.tests.find { "${it.pkg}.${it.clazz}" == key.className && it.method == key.testName }
         val test = key.toTest()
         val attachments = attachments[test] ?: emptyList<Attachment>()
-        return TestResult(test = testInstanceFromBatch ?: test,
-                device = device.toDeviceInfo(),
-                status = value.status.toMarathonStatus(),
-                startTime = value.startTime,
-                endTime = value.endTime,
-                stacktrace = value.stackTrace,
-                attachments = attachments)
+        return TestResult(
+            test = testInstanceFromBatch ?: test,
+            device = device.toDeviceInfo(),
+            status = value.status.toMarathonStatus(),
+            startTime = value.startTime,
+            endTime = value.endTime,
+            stacktrace = value.stackTrace,
+            attachments = attachments
+        )
     }
 
 
@@ -142,9 +148,9 @@ class TestRunResultsListener(private val testBatch: TestBatch,
     }
 
     private fun DdmLibTestResult.isSuccessful() =
-            status == DdmLibTestResult.TestStatus.PASSED ||
-                    status == DdmLibTestResult.TestStatus.IGNORED ||
-                    status == DdmLibTestResult.TestStatus.ASSUMPTION_FAILURE
+        status == DdmLibTestResult.TestStatus.PASSED ||
+                status == DdmLibTestResult.TestStatus.IGNORED ||
+                status == DdmLibTestResult.TestStatus.ASSUMPTION_FAILURE
 
 }
 

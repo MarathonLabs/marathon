@@ -1,5 +1,4 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-import org.jetbrains.kotlin.gradle.dsl.Coroutines
 import org.junit.platform.gradle.plugin.EnginesExtension
 import org.junit.platform.gradle.plugin.FiltersExtension
 import org.junit.platform.gradle.plugin.JUnitPlatformExtension
@@ -22,11 +21,13 @@ dependencies {
     implementation(Libraries.jacksonAnnotations)
     implementation(Libraries.scalr)
     implementation(project(":core"))
+    implementation(Libraries.logbackClassic)
     testImplementation(project(":vendor:vendor-test"))
     testImplementation(TestLibraries.kluent)
     testImplementation(TestLibraries.mockitoKotlin)
     testImplementation(TestLibraries.spekAPI)
     testRuntime(TestLibraries.spekJUnitPlatformEngine)
+    testImplementation(TestLibraries.koin)
 }
 
 Deployment.initialize(project)
