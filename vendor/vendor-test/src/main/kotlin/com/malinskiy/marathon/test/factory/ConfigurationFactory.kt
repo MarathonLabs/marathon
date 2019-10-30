@@ -23,14 +23,14 @@ class ConfigurationFactory {
     var batchingStrategy = null
     var customAnalyticsTracker = null
     var analyticsConfiguration = null
-    var excludeSerialRegexes = null
+    var excludeSerialRegexes: List<Regex>? = null
     var fallbackToScreenshots = null
     var strictMode = null
-    var uncompletedTestRetryQuota = null
+    var uncompletedTestRetryQuota: Int? = null
     var filteringConfiguration = null
     var flakinessStrategy: FlakinessStrategy? = null
     var ignoreFailures = null
-    var includeSerialRegexes = null
+    var includeSerialRegexes: List<Regex>? = null
     var isCodeCoverageEnabled = null
     var poolingStrategy = null
     var retryStrategy = null
@@ -52,29 +52,30 @@ class ConfigurationFactory {
     }
 
     fun build(): Configuration =
-            Configuration(name,
-                    outputDir,
-                    analyticsConfiguration,
-                    customAnalyticsTracker,
-                    poolingStrategy,
-                    shardingStrategy,
-                    sortingStrategy,
-                    batchingStrategy,
-                    flakinessStrategy,
-                    retryStrategy,
-                    filteringConfiguration,
-                    ignoreFailures,
-                    isCodeCoverageEnabled,
-                    fallbackToScreenshots,
-                    strictMode,
-                    uncompletedTestRetryQuota,
-                    testClassRegexes,
-                    includeSerialRegexes,
-                    excludeSerialRegexes,
-                    testBatchTimeoutMillis,
-                    testOutputTimeoutMillis,
-                    debug,
-                    vendorConfiguration,
-                    analyticsTracking
-                    )
+        Configuration(
+            name,
+            outputDir,
+            analyticsConfiguration,
+            customAnalyticsTracker,
+            poolingStrategy,
+            shardingStrategy,
+            sortingStrategy,
+            batchingStrategy,
+            flakinessStrategy,
+            retryStrategy,
+            filteringConfiguration,
+            ignoreFailures,
+            isCodeCoverageEnabled,
+            fallbackToScreenshots,
+            strictMode,
+            uncompletedTestRetryQuota,
+            testClassRegexes,
+            includeSerialRegexes,
+            excludeSerialRegexes,
+            testBatchTimeoutMillis,
+            testOutputTimeoutMillis,
+            debug,
+            vendorConfiguration,
+            analyticsTracking
+        )
 }

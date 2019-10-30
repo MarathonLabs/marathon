@@ -10,20 +10,20 @@ object RemoteSimulatorFeatureProvider {
     }
 
     private fun featureIsAvailable(device: IOSDevice, feature: DeviceFeature): Boolean = when (feature) {
-            DeviceFeature.SCREENSHOT -> true
-            DeviceFeature.VIDEO -> {
-                device.hostCommandExecutor.execBlocking(
-                        "/usr/sbin/system_profiler -detailLevel mini -xml SPDisplaysDataType"
-                ).let {
-                    it.exitStatus == 0
-                            && it.stdout.contains("spdisplays_metalfeatureset")
+        DeviceFeature.SCREENSHOT -> true
+        DeviceFeature.VIDEO -> {
+            device.hostCommandExecutor.execBlocking(
+                "/usr/sbin/system_profiler -detailLevel mini -xml SPDisplaysDataType"
+            ).let {
+                it.exitStatus == 0
+                        && it.stdout.contains("spdisplays_metalfeatureset")
             }
         }
     }
 
     fun availablePort(device: IOSDevice): Int {
         val commandResult = device.hostCommandExecutor.execBlocking(
-                """ruby -e 'require "socket"; puts Addrinfo.tcp("", 0).bind {|s| s.local_address.ip_port }'"""
+            """ruby -e 'require "socket"; puts Addrinfo.tcp("", 0).bind {|s| s.local_address.ip_port }'"""
         )
         return when {
             commandResult.exitStatus == 0 -> commandResult.stdout.trim().toIntOrNull()

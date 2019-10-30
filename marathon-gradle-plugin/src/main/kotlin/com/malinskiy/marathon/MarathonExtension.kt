@@ -1,6 +1,6 @@
 package com.malinskiy.marathon
 
-import com.malinskiy.marathon.analytics.tracker.Tracker
+import com.malinskiy.marathon.analytics.internal.pub.Tracker
 import com.malinskiy.marathon.device.DeviceFeature
 import groovy.lang.Closure
 import org.gradle.api.Project

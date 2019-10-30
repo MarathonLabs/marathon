@@ -7,6 +7,7 @@ import com.malinskiy.marathon.android.DEFAULT_APPLICATION_PM_CLEAR
 import com.malinskiy.marathon.android.DEFAULT_AUTO_GRANT_PERMISSION
 import com.malinskiy.marathon.android.DEFAULT_INSTALL_OPTIONS
 import com.malinskiy.marathon.android.defaultInitTimeoutMillis
+import com.malinskiy.marathon.di.marathonStartKoin
 import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.extensions.extractApplication
 import com.malinskiy.marathon.extensions.extractTestApplication
@@ -40,36 +41,37 @@ open class MarathonRunTask : DefaultTask(), VerificationTask {
         val instrumentationApk = testVariant.extractTestApplication()
         val applicationApk = applicationVariant.extractApplication()
 
-        val baseOutputDir = if (extensionConfig.baseOutputDir != null) File(extensionConfig.baseOutputDir) else File(project.buildDir, "reports/marathon")
+        val baseOutputDir =
+            if (extensionConfig.baseOutputDir != null) File(extensionConfig.baseOutputDir) else File(project.buildDir, "reports/marathon")
         val output = File(baseOutputDir, flavorName)
 
         val vendorConfiguration = createAndroidConfiguration(extensionConfig, applicationApk, instrumentationApk)
 
         cnf = Configuration(
-                extensionConfig.name,
-                output,
-                extensionConfig.customAnalyticsTracker,
-                extensionConfig.analyticsConfiguration?.toAnalyticsConfiguration(),
-                extensionConfig.poolingStrategy?.toStrategy(),
-                extensionConfig.shardingStrategy?.toStrategy(),
-                extensionConfig.sortingStrategy?.toStrategy(),
-                extensionConfig.batchingStrategy?.toStrategy(),
-                extensionConfig.flakinessStrategy?.toStrategy(),
-                extensionConfig.retryStrategy?.toStrategy(),
-                extensionConfig.filteringConfiguration?.toFilteringConfiguration(),
-                extensionConfig.ignoreFailures,
-                extensionConfig.isCodeCoverageEnabled,
-                extensionConfig.fallbackToScreenshots,
-                extensionConfig.strictMode,
-                extensionConfig.uncompletedTestRetryQuota,
-                extensionConfig.testClassRegexes?.map { it.toRegex() },
-                extensionConfig.includeSerialRegexes?.map { it.toRegex() },
-                extensionConfig.excludeSerialRegexes?.map { it.toRegex() },
-                extensionConfig.testBatchTimeoutMillis,
-                extensionConfig.testOutputTimeoutMillis,
-                extensionConfig.debug,
-                vendorConfiguration,
-                extensionConfig.analyticsTracking
+            extensionConfig.name,
+            output,
+            extensionConfig.analyticsConfiguration?.toAnalyticsConfiguration(),
+            extensionConfig.customAnalyticsTracker,
+            extensionConfig.poolingStrategy?.toStrategy(),
+            extensionConfig.shardingStrategy?.toStrategy(),
+            extensionConfig.sortingStrategy?.toStrategy(),
+            extensionConfig.batchingStrategy?.toStrategy(),
+            extensionConfig.flakinessStrategy?.toStrategy(),
+            extensionConfig.retryStrategy?.toStrategy(),
+            extensionConfig.filteringConfiguration?.toFilteringConfiguration(),
+            extensionConfig.ignoreFailures,
+            extensionConfig.isCodeCoverageEnabled,
+            extensionConfig.fallbackToScreenshots,
+            extensionConfig.strictMode,
+            extensionConfig.uncompletedTestRetryQuota,
+            extensionConfig.testClassRegexes?.map { it.toRegex() },
+            extensionConfig.includeSerialRegexes?.map { it.toRegex() },
+            extensionConfig.excludeSerialRegexes?.map { it.toRegex() },
+            extensionConfig.testBatchTimeoutMillis,
+            extensionConfig.testOutputTimeoutMillis,
+            extensionConfig.debug,
+            vendorConfiguration,
+            extensionConfig.analyticsTracking
         )
 
         val androidConfiguration = cnf.vendorConfiguration as? AndroidConfiguration
@@ -79,18 +81,24 @@ open class MarathonRunTask : DefaultTask(), VerificationTask {
         log.debug { "Ignore failures: ${cnf.ignoreFailures}" }
 
         UsageAnalytics.enable = cnf.analyticsTracking
-        UsageAnalytics.tracker.trackEvent(Event(TrackActionType.RunType, "gradle"))
+        UsageAnalytics.USAGE_TRACKER.trackEvent(Event(TrackActionType.RunType, "gradle"))
 
-        val success = Marathon(cnf).run()
+        val application = marathonStartKoin(cnf)
+        val marathon: Marathon = application.koin.get()
 
-        if (!success) {
+        val success = marathon.run()
+
+        val shouldReportFailure = !cnf.ignoreFailures
+        if (!success && shouldReportFailure) {
             throw GradleException("Tests failed! See ${cnf.outputDir}/html/index.html")
         }
     }
 
-    private fun createAndroidConfiguration(extension: MarathonExtension,
-                                           applicationApk: File?,
-                                           instrumentationApk: File): AndroidConfiguration {
+    private fun createAndroidConfiguration(
+        extension: MarathonExtension,
+        applicationApk: File?,
+        instrumentationApk: File
+    ): AndroidConfiguration {
         val autoGrantPermission = extension.autoGrantPermission ?: DEFAULT_AUTO_GRANT_PERMISSION
         val instrumentationArgs = extension.instrumentationArgs
         val applicationPmClear = extension.applicationPmClear ?: DEFAULT_APPLICATION_PM_CLEAR
@@ -99,16 +107,18 @@ open class MarathonRunTask : DefaultTask(), VerificationTask {
         val installOptions = extension.installOptions ?: DEFAULT_INSTALL_OPTIONS
         val preferableRecorderType = extension.preferableRecorderType
 
-        return AndroidConfiguration(sdk,
-                applicationApk,
-                instrumentationApk,
-                autoGrantPermission,
-                instrumentationArgs,
-                applicationPmClear,
-                testApplicationPmClear,
-                adbInitTimeout,
-                installOptions,
-                preferableRecorderType)
+        return AndroidConfiguration(
+            sdk,
+            applicationApk,
+            instrumentationApk,
+            autoGrantPermission,
+            instrumentationArgs,
+            applicationPmClear,
+            testApplicationPmClear,
+            adbInitTimeout,
+            installOptions,
+            preferableRecorderType
+        )
     }
 
     override fun getIgnoreFailures(): Boolean = ignoreFailure

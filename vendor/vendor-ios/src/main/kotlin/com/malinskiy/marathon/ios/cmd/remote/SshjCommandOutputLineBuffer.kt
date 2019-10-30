@@ -2,7 +2,7 @@ package com.malinskiy.marathon.ios.cmd.remote
 
 import java.io.Closeable
 
-class SshjCommandOutputLineBuffer(private val onLine: (String) -> Unit): Closeable {
+class SshjCommandOutputLineBuffer(private val onLine: (String) -> Unit) : Closeable {
     private val stringBuffer = StringBuffer(16384)
 
     fun append(bytes: ByteArray) = append(bytes, bytes.size)
@@ -50,13 +50,13 @@ private fun StringBuffer.deleteWhile(predicate: (Char) -> Boolean): StringBuffer
 private fun StringBuffer.normalizeEOL(): StringBuffer {
     var index = 0
     while (index < length) {
-        if (index + 1 < length && get(index) == '\r' && get(index+1) == '\n') {
+        if (index + 1 < length && get(index) == '\r' && get(index + 1) == '\n') {
             deleteCharAt(index)
         } else {
             if (get(index) == '\r') {
                 setCharAt(index, '\n')
             }
-            index ++
+            index++
         }
     }
     return this

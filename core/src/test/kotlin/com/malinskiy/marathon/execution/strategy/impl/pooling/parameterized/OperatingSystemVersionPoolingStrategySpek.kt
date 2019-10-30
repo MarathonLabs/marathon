@@ -7,13 +7,16 @@ import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.describe
 import org.jetbrains.spek.api.dsl.it
 
-class OperatingSystemVersionPoolingStrategySpek : Spek({
-    describe("pooling strategy based on sdk version tests") {
-        val strategy by memoized { OperatingSystemVersionPoolingStrategy() }
-        it("should return DevicePoolId with name equals to device operating system version") {
-            val operatingSystemVersionName = "27"
-            val device = DeviceStub(operatingSystem = OperatingSystem(operatingSystemVersionName))
-            strategy.associate(device).name shouldBeEqualTo operatingSystemVersionName
+class OperatingSystemVersionPoolingStrategySpek : Spek(
+    {
+        describe("pooling strategy based on sdk version tests") {
+            val strategy by memoized { OperatingSystemVersionPoolingStrategy() }
+            it("should return DevicePoolId with name equals to device operating system version") {
+                val operatingSystemVersionName = "27"
+                val device = DeviceStub(
+                    operatingSystem = OperatingSystem(operatingSystemVersionName)
+                )
+                strategy.associate(device).name shouldBeEqualTo operatingSystemVersionName
+            }
         }
-    }
-})
+    })

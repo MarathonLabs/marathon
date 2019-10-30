@@ -3,7 +3,6 @@ package com.malinskiy.marathon.execution.progress
 import com.malinskiy.marathon.device.DeviceInfo
 import com.malinskiy.marathon.device.DevicePoolId
 import com.malinskiy.marathon.execution.progress.tracker.PoolProgressTracker
-import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.test.Test
 import com.malinskiy.marathon.test.toTestName
 import java.util.concurrent.ConcurrentHashMap
@@ -66,7 +65,9 @@ class ProgressReporter(private val strictMode: Boolean) {
 
     fun progress(): Float {
         val size = reporters.size
-        return reporters.values.sumByDouble { it.progress().toDouble() }.toFloat() / size
+        return reporters.values.sumByDouble {
+            it.progress().toDouble()
+        }.toFloat() / size
     }
 
     fun progress(poolId: DevicePoolId): Float {

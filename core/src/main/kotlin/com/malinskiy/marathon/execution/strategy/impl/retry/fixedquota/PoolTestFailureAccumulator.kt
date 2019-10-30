@@ -41,7 +41,7 @@ class PoolTestFailureAccumulator {
     }
 
     fun getCount(pool: DevicePoolId, test: Test): Int =
-            map[pool]?.find { it.test == test }?.counter?.get() ?: 0
+        map[pool]?.find { it.test == test }?.counter?.get() ?: 0
 
     private fun createNew(test: Test): TestRetryCounter {
         return TestRetryCounter(test, AtomicInteger(0))

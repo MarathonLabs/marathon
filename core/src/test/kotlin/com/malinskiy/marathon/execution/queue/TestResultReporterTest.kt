@@ -1,6 +1,7 @@
 package com.malinskiy.marathon.execution.queue
 
-import com.malinskiy.marathon.analytics.Analytics
+import com.malinskiy.marathon.analytics.external.Analytics
+import com.malinskiy.marathon.analytics.internal.pub.Track
 import com.malinskiy.marathon.createDeviceInfo
 import com.malinskiy.marathon.device.DevicePoolId
 import com.malinskiy.marathon.execution.Configuration
@@ -21,9 +22,16 @@ import org.jetbrains.spek.api.dsl.it
 import org.jetbrains.spek.api.dsl.on
 import java.io.File
 
-object TestResultReporterSpec : Spek({
+object TestResultReporterSpec : Spek(
+    {
+        val track: Track = mock()
 
-    val defaultConfig = Configuration(name = "",
+        beforeEachTest {
+            reset(track)
+        }
+
+        val defaultConfig = Configuration(
+            name = "",
             outputDir = File(""),
             analyticsConfiguration = null,
             customAnalyticsTracker = null,
@@ -47,116 +55,119 @@ object TestResultReporterSpec : Spek({
             debug = false,
             vendorConfiguration = TestVendorConfiguration(Mocks.TestParser.DEFAULT, StubDeviceProvider()),
             analyticsTracking = false
-    )
-    val strictConfig = defaultConfig.copy(strictMode = true)
-    val analytics = mock(Analytics::class)
-    val test = generateTest()
-    val poolId = DevicePoolId("test")
+        )
+        val strictConfig = defaultConfig.copy(strictMode = true)
+        val analytics = mock(Analytics::class)
+        val test = generateTest()
+        val poolId = DevicePoolId("test")
 
-    fun filterDefault() = TestResultReporter(poolId,
+        fun filterDefault() = TestResultReporter(
+            poolId,
             analytics,
-            TestShard(listOf(test,test,test)),
-            defaultConfig)
+            TestShard(listOf(test, test, test)),
+            defaultConfig,
+            track
+        )
 
-    fun filterStrict() = TestResultReporter(poolId,
+        fun filterStrict() = TestResultReporter(
+            poolId,
             analytics,
-            TestShard(listOf(test,test,test)),
-            strictConfig)
-    val deviceInfo = createDeviceInfo()
+            TestShard(listOf(test, test, test)),
+            strictConfig,
+            track
+        )
 
-    afterEachTest {
-        reset(analytics)
-    }
+        val deviceInfo = createDeviceInfo()
 
-    given("a reporter with a default config") {
-        on("success - failure - failure") {
-            it("should report success") {
-                val filter = filterDefault()
+        afterEachTest {
+            reset(analytics)
+        }
 
-                val r1 = TestResult(test, deviceInfo, TestStatus.PASSED, 0, 1)
-                val r2 = TestResult(test, deviceInfo, TestStatus.FAILURE, 2, 3)
-                val r3 = TestResult(test, deviceInfo, TestStatus.FAILURE, 4, 5)
+        given("a reporter with a default config") {
+            on("success - failure - failure") {
+                it("should report success") {
+                    val filter = filterDefault()
 
-                filter.testFinished(deviceInfo, r1)
-                filter.testFailed(deviceInfo, r2)
-                filter.testFailed(deviceInfo, r3)
+                    val r1 = TestResult(test, deviceInfo, TestStatus.PASSED, 0, 1)
+                    val r2 = TestResult(test, deviceInfo, TestStatus.FAILURE, 2, 3)
+                    val r3 = TestResult(test, deviceInfo, TestStatus.FAILURE, 4, 5)
 
-                inOrder(analytics) {
-                    verify(analytics).trackTestFinished(poolId, deviceInfo, r1)
-                    verify(analytics).trackRawTestRun(poolId, deviceInfo, r1)
-                    verify(analytics).trackRawTestRun(poolId, deviceInfo, r2)
-                    verify(analytics).trackRawTestRun(poolId, deviceInfo, r3)
-                    verifyNoMoreInteractions(analytics)
+                    filter.testFinished(deviceInfo, r1)
+                    filter.testFailed(deviceInfo, r2)
+                    filter.testFailed(deviceInfo, r3)
+
+                    inOrder(track) {
+                        verify(track).test(poolId, deviceInfo, r1, true)
+                        verify(track).test(poolId, deviceInfo, r2, false)
+                        verify(track).test(poolId, deviceInfo, r3, false)
+                        verifyNoMoreInteractions(track)
+                    }
+                }
+            }
+
+            on("failure - failure - success") {
+                it("should report success") {
+                    val filter = filterDefault()
+
+                    val r1 = TestResult(test, deviceInfo, TestStatus.FAILURE, 0, 1)
+                    val r2 = TestResult(test, deviceInfo, TestStatus.FAILURE, 2, 3)
+                    val r3 = TestResult(test, deviceInfo, TestStatus.PASSED, 4, 5)
+
+                    filter.testFailed(deviceInfo, r1)
+                    filter.testFailed(deviceInfo, r2)
+                    filter.testFinished(deviceInfo, r3)
+
+                    inOrder(track) {
+                        verify(track).test(poolId, deviceInfo, r1, false)
+                        verify(track).test(poolId, deviceInfo, r2, false)
+                        verify(track).test(poolId, deviceInfo, r3, true)
+                        verifyNoMoreInteractions(track)
+                    }
                 }
             }
         }
 
-        on("failure - failure - success") {
-            it("should report success") {
-                val filter = filterDefault()
+        given("a reporter with a strict config") {
+            on("success - failure - failure") {
+                it("should report failure") {
+                    val filter = filterStrict()
 
-                val r1 = TestResult(test, deviceInfo, TestStatus.FAILURE, 0, 1)
-                val r2 = TestResult(test, deviceInfo, TestStatus.FAILURE, 2, 3)
-                val r3 = TestResult(test, deviceInfo, TestStatus.PASSED, 4, 5)
+                    val r1 = TestResult(test, deviceInfo, TestStatus.PASSED, 0, 1)
+                    val r2 = TestResult(test, deviceInfo, TestStatus.FAILURE, 2, 3)
+                    val r3 = TestResult(test, deviceInfo, TestStatus.FAILURE, 4, 5)
 
-                filter.testFailed(deviceInfo, r1)
-                filter.testFailed(deviceInfo, r2)
-                filter.testFinished(deviceInfo, r3)
+                    filter.testFinished(deviceInfo, r1)
+                    filter.testFailed(deviceInfo, r2)
+                    filter.testFailed(deviceInfo, r3)
 
-                inOrder(analytics) {
-                    verify(analytics).trackRawTestRun(poolId, deviceInfo, r1)
-                    verify(analytics).trackRawTestRun(poolId, deviceInfo, r2)
-                    verify(analytics).trackTestFinished(poolId, deviceInfo, r3)
-                    verify(analytics).trackRawTestRun(poolId, deviceInfo, r3)
-                    verifyNoMoreInteractions(analytics)
+                    inOrder(track) {
+                        verify(track).test(poolId, deviceInfo, r1, false)
+                        verify(track).test(poolId, deviceInfo, r2, true)
+                        verify(track).test(poolId, deviceInfo, r3, false)
+                        verifyNoMoreInteractions(track)
+                    }
+                }
+            }
+
+            on("failure - success - success") {
+                it("should report failure") {
+                    val filter = filterStrict()
+
+                    val r1 = TestResult(test, deviceInfo, TestStatus.FAILURE, 0, 1)
+                    val r2 = TestResult(test, deviceInfo, TestStatus.PASSED, 2, 3)
+                    val r3 = TestResult(test, deviceInfo, TestStatus.PASSED, 4, 5)
+
+                    filter.testFailed(deviceInfo, r1)
+                    filter.testFinished(deviceInfo, r2)
+                    filter.testFinished(deviceInfo, r3)
+
+                    inOrder(track) {
+                        verify(track).test(poolId, deviceInfo, r1, true)
+                        verify(track).test(poolId, deviceInfo, r2, false)
+                        verify(track).test(poolId, deviceInfo, r3, false)
+                        verifyNoMoreInteractions(track)
+                    }
                 }
             }
         }
-    }
-
-    given("a reporter with a strict config") {
-        on("success - failure - failure") {
-            it("should report failure") {
-                val filter = filterStrict()
-
-                val r1 = TestResult(test, deviceInfo, TestStatus.PASSED, 0, 1)
-                val r2 = TestResult(test, deviceInfo, TestStatus.FAILURE, 2, 3)
-                val r3 = TestResult(test, deviceInfo, TestStatus.FAILURE, 4, 5)
-
-                filter.testFinished(deviceInfo, r1)
-                filter.testFailed(deviceInfo, r2)
-                filter.testFailed(deviceInfo, r3)
-
-                inOrder(analytics) {
-                    verify(analytics).trackRawTestRun(poolId, deviceInfo, r1)
-                    verify(analytics).trackTestFinished(poolId, deviceInfo, r2)
-                    verify(analytics).trackRawTestRun(poolId, deviceInfo, r2)
-                    verify(analytics).trackRawTestRun(poolId, deviceInfo, r3)
-                    verifyNoMoreInteractions(analytics)
-                }
-            }
-        }
-
-        on("failure - success - success") {
-            it("should report failure") {
-                val filter = filterStrict()
-
-                val r1 = TestResult(test, deviceInfo, TestStatus.FAILURE, 0, 1)
-                val r2 = TestResult(test, deviceInfo, TestStatus.PASSED, 2, 3)
-                val r3 = TestResult(test, deviceInfo, TestStatus.PASSED, 4, 5)
-
-                filter.testFailed(deviceInfo, r1)
-                filter.testFinished(deviceInfo, r2)
-                filter.testFinished(deviceInfo, r3)
-
-                inOrder(analytics) {
-                    verify(analytics).trackTestFinished(poolId, deviceInfo, r1)
-                    verify(analytics).trackRawTestRun(poolId, deviceInfo, r1)
-                    verify(analytics).trackRawTestRun(poolId, deviceInfo, r2)
-                    verify(analytics).trackRawTestRun(poolId, deviceInfo, r3)
-                    verifyNoMoreInteractions(analytics)
-                }
-            }
-        }
-    }
-})
+    })

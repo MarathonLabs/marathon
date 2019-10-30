@@ -8,8 +8,11 @@ sealed class DeviceState {
     object Connected : DeviceState()
     object Ready : DeviceState()
     object Initializing : DeviceState()
-    data class Running(val testBatch: TestBatch,
-                       val result: CompletableDeferred<TestBatchResults>) : DeviceState()
+    data class Running(
+        val testBatch: TestBatch,
+        val result: CompletableDeferred<TestBatchResults>
+    ) : DeviceState()
+
     object Terminated : DeviceState()
 
     override fun toString(): String = "DeviceState.${this::class.java.simpleName}"

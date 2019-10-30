@@ -4,7 +4,7 @@ import com.malinskiy.marathon.ios.cmd.remote.CommandResult
 import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.test.Test
 import java.io.File
-import java.util.UUID
+import java.util.*
 
 object RemoteFileManager {
 
@@ -15,15 +15,19 @@ object RemoteFileManager {
     fun remoteDirectory(device: IOSDevice): File = File(OUTPUT_DIR)
 
     fun createRemoteDirectory(device: IOSDevice) {
-        executeCommand(device,
-                """mkdir -p "${remoteDirectory(device)}"""",
-                "Could not create remote directory ${remoteDirectory(device)}")
+        executeCommand(
+            device,
+            """mkdir -p "${remoteDirectory(device)}"""",
+            "Could not create remote directory ${remoteDirectory(device)}"
+        )
     }
 
     fun removeRemoteDirectory(device: IOSDevice) {
-        executeCommand(device,
-                """rm -rf "${remoteDirectory(device)}"""",
-                "Unable to remove directory ${remoteDirectory(device)}")
+        executeCommand(
+            device,
+            """rm -rf "${remoteDirectory(device)}"""",
+            "Unable to remove directory ${remoteDirectory(device)}"
+        )
     }
 
     fun remoteXctestrunFile(device: IOSDevice): File = remoteFile(device, File(xctestrunFileName(device)))
@@ -42,7 +46,7 @@ object RemoteFileManager {
             logger.error(errorMessage, e)
         }
 
-        if (output == null || output.exitStatus != 0 ) {
+        if (output == null || output.exitStatus != 0) {
             logger.error(errorMessage)
         }
 

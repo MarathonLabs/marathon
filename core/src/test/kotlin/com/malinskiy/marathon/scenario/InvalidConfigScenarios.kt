@@ -7,64 +7,70 @@ import com.malinskiy.marathon.execution.strategy.impl.flakiness.ProbabilityBased
 import com.malinskiy.marathon.execution.strategy.impl.sharding.CountShardingStrategy
 import com.malinskiy.marathon.test.StubDevice
 import com.malinskiy.marathon.test.Test
-import com.malinskiy.marathon.test.assert.shouldBeEqualTo
 import com.malinskiy.marathon.test.setupMarathon
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.TestCoroutineContext
-import org.amshove.kluent.*
+import org.amshove.kluent.shouldBe
+import org.amshove.kluent.shouldBeInstanceOf
 import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.given
 import org.jetbrains.spek.api.dsl.it
 import org.jetbrains.spek.api.dsl.on
+import org.koin.core.context.stopKoin
 import java.io.File
 import java.time.Instant
 import java.util.concurrent.TimeUnit
 
-class InvalidConfigScenarios : Spek({
-    given("one healthy device") {
-        on("invalid config") {
-            it("should fail") {
-                var output: File? = null
-                val context = TestCoroutineContext("testing context")
+class InvalidConfigScenarios : Spek(
+    {
+        afterEachTest {
+            stopKoin()
+        }
 
-                val marathon = setupMarathon {
-                    val test = Test("test", "SimpleTest", "test", emptySet())
-                    val device = StubDevice()
+        given("one healthy device") {
+            on("invalid config") {
+                it("should fail") {
+                    var output: File? = null
+                    val context = TestCoroutineContext("testing context")
 
-                    configuration {
-                        output = outputDir
+                    val marathon = setupMarathon {
+                        val test = Test("test", "SimpleTest", "test", emptySet())
+                        val device = StubDevice()
 
-                        tests {
-                            listOf(test)
+                        configuration {
+                            output = outputDir
+
+                            tests {
+                                listOf(test)
+                            }
+
+                            flakinessStrategy = ProbabilityBasedFlakinessStrategy(.2, 2, Instant.now())
+                            shardingStrategy = CountShardingStrategy(2)
+
+                            vendorConfiguration.deviceProvider.context = context
+
+                            devices {
+                                delay(1000)
+                                it.send(DeviceProvider.DeviceEvent.DeviceConnected(device))
+                            }
                         }
 
-                        flakinessStrategy = ProbabilityBasedFlakinessStrategy(.2, 2, Instant.now())
-                        shardingStrategy = CountShardingStrategy(2)
-
-                        vendorConfiguration.deviceProvider.context = context
-
-                        devices {
-                            delay(1000)
-                            it.send(DeviceProvider.DeviceEvent.DeviceConnected(device))
-                        }
+                        device.executionResults = mapOf(
+                            test to arrayOf(TestStatus.PASSED)
+                        )
                     }
 
-                    device.executionResults = mapOf(
-                            test to arrayOf(TestStatus.PASSED)
-                    )
+                    val job = GlobalScope.launch(context = context) {
+                        marathon.runAsync()
+                    }
+
+                    context.advanceTimeBy(20, TimeUnit.SECONDS)
+
+                    job.isCompleted shouldBe true
+                    context.exceptions[0] shouldBeInstanceOf ConfigurationException::class.java
                 }
-
-                val job = GlobalScope.launch(context = context) {
-                    marathon.runAsync()
-                }
-
-                context.advanceTimeBy(20, TimeUnit.SECONDS)
-
-                job.isCompleted shouldBe true
-                context.exceptions[0] shouldBeInstanceOf ConfigurationException::class.java
             }
         }
-    }
-})
+    })

@@ -54,6 +54,7 @@ class PoolProgressTracker(private val strictMode: Boolean) {
     private val totalTests = AtomicInteger(0)
     private val completed = AtomicInteger(0)
     private val failed = AtomicInteger(0)
+    private val ignored = AtomicInteger(0)
 
     fun testStarted(test: Test) {
         tests.computeIfAbsent(test) { _ -> createState() }
@@ -75,6 +76,7 @@ class PoolProgressTracker(private val strictMode: Boolean) {
         failed.updateAndGet {
             it + 1
         }
+        updateStatus(test, ProgressEvent.Failed)
     }
 
     fun testPassed(test: Test) {
@@ -96,6 +98,9 @@ class PoolProgressTracker(private val strictMode: Boolean) {
     }
 
     fun testIgnored(test: Test) {
+        ignored.updateAndGet {
+            it + 1
+        }
         updateStatus(test, ProgressEvent.Ignored)
     }
 
@@ -118,7 +123,7 @@ class PoolProgressTracker(private val strictMode: Boolean) {
     }
 
     fun progress(): Float {
-        return (completed.toFloat() + failed.toFloat()) / totalTests.toFloat()
+        return (completed.toFloat() + failed.toFloat() + ignored.toFloat()) / totalTests.toFloat()
     }
 
     fun addTests(count: Int) {

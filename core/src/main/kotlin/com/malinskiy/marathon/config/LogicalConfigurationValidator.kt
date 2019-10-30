@@ -10,9 +10,11 @@ class LogicalConfigurationValidator : ConfigurationValidator {
         when {
             configuration.flakinessStrategy !is IgnoreFlakinessStrategy &&
                     configuration.shardingStrategy !is ParallelShardingStrategy -> {
-                throw ConfigurationException("Configuration is invalid: " +
-                        "can't use complex sharding and complex flakiness strategy at the same time. " +
-                        "See: https://github.com/Malinskiy/marathon/issues/197")
+                throw ConfigurationException(
+                    "Configuration is invalid: " +
+                            "can't use complex sharding and complex flakiness strategy at the same time. " +
+                            "See: https://github.com/Malinskiy/marathon/issues/197"
+                )
             }
         }
     }

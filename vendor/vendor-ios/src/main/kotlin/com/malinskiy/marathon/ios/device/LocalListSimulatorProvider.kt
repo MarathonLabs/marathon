@@ -3,6 +3,7 @@ package com.malinskiy.marathon.ios.device
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.google.gson.Gson
+import com.malinskiy.marathon.analytics.internal.pub.Track
 import com.malinskiy.marathon.device.DeviceProvider
 import com.malinskiy.marathon.ios.HealthChangeListener
 import com.malinskiy.marathon.ios.IOSConfiguration
@@ -10,6 +11,7 @@ import com.malinskiy.marathon.ios.IOSDevice
 import com.malinskiy.marathon.ios.logparser.parser.DeviceFailureException
 import com.malinskiy.marathon.ios.logparser.parser.DeviceFailureReason
 import com.malinskiy.marathon.log.MarathonLogging
+import com.malinskiy.marathon.time.Timer
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
@@ -20,17 +22,23 @@ import kotlinx.coroutines.isActive
 import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import org.apache.commons.text.StringSubstitutor
+import org.apache.commons.text.lookup.StringLookupFactory
 import java.io.File
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.coroutines.CoroutineContext
 
 private const val MAX_CONNECTION_ATTEMPTS = 16
 
-class LocalListSimulatorProvider(override val coroutineContext: CoroutineContext,
-                                 private val channel: Channel<DeviceProvider.DeviceEvent>,
-                                 private val configuration: IOSConfiguration,
-                                 yamlObjectMapper: ObjectMapper,
-                                 private val gson: Gson) : SimulatorProvider, HealthChangeListener, CoroutineScope {
+class LocalListSimulatorProvider(
+    override val coroutineContext: CoroutineContext,
+    private val channel: Channel<DeviceProvider.DeviceEvent>,
+    private val configuration: IOSConfiguration,
+    yamlObjectMapper: ObjectMapper,
+    private val gson: Gson,
+    private val track: Track,
+    private val timer: Timer
+) : SimulatorProvider, HealthChangeListener, CoroutineScope {
 
     private val job = Job()
 
@@ -38,10 +46,13 @@ class LocalListSimulatorProvider(override val coroutineContext: CoroutineContext
 
     private val simulators: List<RemoteSimulator>
     private val devices = ConcurrentHashMap<String, IOSDevice>()
+    private val environmentVariableSubstitutor = StringSubstitutor(StringLookupFactory.INSTANCE.environmentVariableStringLookup())
+
 
     init {
         val file = configuration.devicesFile ?: File(System.getProperty("user.dir"), "Marathondevices")
-        val configuredSimulators: List<RemoteSimulator>? = yamlObjectMapper.readValue(file)
+        val devicesWithEnvironmentVariablesReplaced = environmentVariableSubstitutor.replace(file.readText())
+        val configuredSimulators: List<RemoteSimulator>? = yamlObjectMapper.readValue(devicesWithEnvironmentVariablesReplaced)
         simulators = configuredSimulators ?: emptyList()
     }
 
@@ -103,10 +114,10 @@ class LocalListSimulatorProvider(override val coroutineContext: CoroutineContext
 
     private fun connect(device: IOSDevice) {
         devices.put(device.serialNumber, device)
-                ?.let {
-                    logger.error("replaced existing device $it with new $device.")
-                    dispose(it)
-                }
+            ?.let {
+                logger.error("replaced existing device $it with new $device.")
+                dispose(it)
+            }
         notifyConnected(device)
     }
 
@@ -118,7 +129,7 @@ class LocalListSimulatorProvider(override val coroutineContext: CoroutineContext
         channel.send(element = DeviceProvider.DeviceEvent.DeviceDisconnected(device))
     }
 
-    // occassionaly, device constructor would throw an exception when remote simctl command
+    // occasionally, device constructor would throw an exception when remote simctl command
     // fails with message that simulator services to be no longer available
     private fun createDevice(simulator: RemoteSimulator, connectionAttempt: Int): IOSDevice? = try {
         IOSDevice(
@@ -126,7 +137,9 @@ class LocalListSimulatorProvider(override val coroutineContext: CoroutineContext
             connectionAttempt = connectionAttempt,
             configuration = configuration,
             gson = gson,
-            healthChangeListener = this
+            healthChangeListener = this,
+            track = track,
+            timer = timer
         )
     } catch (e: DeviceFailureException) {
         logger.error("Failed to initialize ${simulator.udid}-$connectionAttempt with reason ${e.reason}: ${e.message}")

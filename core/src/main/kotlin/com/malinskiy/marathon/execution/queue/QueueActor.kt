@@ -1,7 +1,8 @@
 package com.malinskiy.marathon.execution.queue
 
 import com.malinskiy.marathon.actor.Actor
-import com.malinskiy.marathon.analytics.Analytics
+import com.malinskiy.marathon.analytics.external.Analytics
+import com.malinskiy.marathon.analytics.internal.pub.Track
 import com.malinskiy.marathon.device.DeviceInfo
 import com.malinskiy.marathon.device.DevicePoolId
 import com.malinskiy.marathon.execution.Configuration
@@ -14,21 +15,25 @@ import com.malinskiy.marathon.execution.progress.ProgressReporter
 import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.test.Test
 import com.malinskiy.marathon.test.TestBatch
+import com.malinskiy.marathon.test.toTestName
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.SendChannel
 import java.util.*
 import kotlin.coroutines.CoroutineContext
 
-class QueueActor(private val configuration: Configuration,
-                 private val testShard: TestShard,
-                 private val analytics: Analytics,
-                 private val pool: SendChannel<FromQueue>,
-                 private val poolId: DevicePoolId,
-                 private val progressReporter: ProgressReporter,
-                 poolJob: Job,
-                 coroutineContext: CoroutineContext) :
-        Actor<QueueMessage>(parent = poolJob, context = coroutineContext) {
+class QueueActor(
+    private val configuration: Configuration,
+    private val testShard: TestShard,
+    private val analytics: Analytics,
+    private val pool: SendChannel<FromQueue>,
+    private val poolId: DevicePoolId,
+    private val progressReporter: ProgressReporter,
+    private val track: Track,
+    poolJob: Job,
+    coroutineContext: CoroutineContext
+) :
+    Actor<QueueMessage>(parent = poolJob, context = coroutineContext) {
 
     private val logger = MarathonLogging.logger("QueueActor[$poolId]")
 
@@ -41,7 +46,7 @@ class QueueActor(private val configuration: Configuration,
     private val activeBatches = mutableMapOf<String, TestBatch>()
     private val uncompletedTestsRetryCount = mutableMapOf<Test, Int>()
 
-    private val testResultReporter = TestResultReporter(poolId, analytics, testShard, configuration)
+    private val testResultReporter = TestResultReporter(poolId, analytics, testShard, configuration, track)
 
     init {
         queue.addAll(testShard.tests + testShard.flakyTests)
@@ -69,12 +74,16 @@ class QueueActor(private val configuration: Configuration,
     }
 
     private suspend fun onBatchCompleted(device: DeviceInfo, results: TestBatchResults) {
-        val (failedUncompletedTests, uncompleted) = results.uncompleted.partition {
+        val (uncompletedRetryQuotaExceeded, uncompleted) = results.uncompleted.partition {
             (uncompletedTestsRetryCount[it.test] ?: 0) >= configuration.uncompletedTestRetryQuota
         }
 
+        if (uncompletedRetryQuotaExceeded.isNotEmpty()) {
+            logger.debug { "uncompletedRetryQuotaExceeded for ${uncompletedRetryQuotaExceeded.joinToString(separator = ", ") { it.test.toTestName() }}" }
+        }
+
         val finished = results.finished
-        val failed = results.failed + failedUncompletedTests
+        val failed = results.failed + uncompletedRetryQuotaExceeded + uncompleted
 
         logger.debug { "handle test results ${device.serialNumber}" }
         if (finished.isNotEmpty()) {
@@ -94,7 +103,21 @@ class QueueActor(private val configuration: Configuration,
 
     private suspend fun onReturnBatch(device: DeviceInfo, batch: TestBatch) {
         logger.debug { "onReturnBatch ${device.serialNumber}" }
-        returnTests(batch.tests)
+
+        val uncompletedTests = batch.tests
+        uncompletedTests.forEach {
+            uncompletedTestsRetryCount[it] = (uncompletedTestsRetryCount[it] ?: 0) + 1
+        }
+
+        val (uncompletedRetryQuotaExceeded, uncompleted) = uncompletedTests.partition {
+            (uncompletedTestsRetryCount[it] ?: 0) >= configuration.uncompletedTestRetryQuota
+        }
+
+        if (uncompletedRetryQuotaExceeded.isNotEmpty()) {
+            logger.debug { "uncompletedRetryQuotaExceeded for ${uncompletedRetryQuotaExceeded.joinToString(separator = ", ") { it.toTestName() }}" }
+        }
+
+        returnTests(uncompleted)
         activeBatches.remove(device.serialNumber)
         if (queue.isNotEmpty()) {
             pool.send(FromQueue.Notify)
@@ -124,8 +147,10 @@ class QueueActor(private val configuration: Configuration,
         }
     }
 
-    private suspend fun handleFailedTests(failed: Collection<TestResult>,
-                                          device: DeviceInfo) {
+    private suspend fun handleFailedTests(
+        failed: Collection<TestResult>,
+        device: DeviceInfo
+    ) {
         logger.debug { "handle failed tests ${device.serialNumber}" }
         val retryList = retry.process(poolId, failed, testShard)
 

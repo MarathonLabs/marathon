@@ -2,8 +2,10 @@ package com.malinskiy.marathon.execution.strategy.impl.retry.fixedquota
 
 import java.util.concurrent.atomic.AtomicInteger
 
-internal class RetryWatchdog(private val totalAllowedRetryQuota: Int,
-                             private val maxRetryPerTestQuota: Int) {
+internal class RetryWatchdog(
+    private val totalAllowedRetryQuota: Int,
+    private val maxRetryPerTestQuota: Int
+) {
 
     private val totalAllowedRetryLeft: AtomicInteger = AtomicInteger(totalAllowedRetryQuota)
 

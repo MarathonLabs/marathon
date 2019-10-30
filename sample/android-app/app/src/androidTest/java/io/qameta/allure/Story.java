@@ -12,5 +12,4 @@ import java.lang.annotation.*;
 public @interface Story {
 
     String value();
-
 }
