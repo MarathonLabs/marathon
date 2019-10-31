@@ -8,6 +8,7 @@ import com.android.ddmlib.testrunner.RemoteAndroidTestRunner
 import com.android.ddmlib.testrunner.TestIdentifier
 import com.malinskiy.marathon.android.AndroidConfiguration
 import com.malinskiy.marathon.android.AndroidDevice
+import com.malinskiy.marathon.android.AndroidComponentInfo
 import com.malinskiy.marathon.android.ApkParser
 import com.malinskiy.marathon.android.InstrumentationInfo
 import com.malinskiy.marathon.android.safeClearPackage
@@ -38,14 +39,14 @@ class AndroidDeviceTestRunner(private val device: AndroidDevice) {
         rawTestBatch: TestBatch,
         listener: ITestRunListener
     ) {
+        val androidComponentInfo = rawTestBatch.componentInfo as AndroidComponentInfo
 
         val ignoredTests = rawTestBatch.tests.filter { it.metaProperties.contains(JUNIT_IGNORE_META_PROPERY) }
-        val testBatch = TestBatch(rawTestBatch.tests - ignoredTests)
+        val testBatch = TestBatch(rawTestBatch.tests - ignoredTests, rawTestBatch.componentInfo)
 
         val androidConfiguration = configuration.vendorConfiguration as AndroidConfiguration
-        val info = ApkParser().parseInstrumentationInfo(androidConfiguration.testApplicationOutput)
+        val info = ApkParser().parseInstrumentationInfo(androidComponentInfo.testApplicationOutput)
         val runner = prepareTestRunner(configuration, androidConfiguration, info, testBatch)
-
 
         try {
             clearData(androidConfiguration, info)

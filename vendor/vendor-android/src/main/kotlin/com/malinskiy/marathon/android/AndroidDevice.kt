@@ -7,10 +7,12 @@ import com.malinskiy.marathon.android.exception.InvalidSerialConfiguration
 import com.malinskiy.marathon.android.executor.AndroidAppInstaller
 import com.malinskiy.marathon.android.executor.AndroidDeviceTestRunner
 import com.malinskiy.marathon.android.executor.listeners.CompositeTestRunListener
+import com.malinskiy.marathon.android.executor.listeners.DdmlibTestRunListener
 import com.malinskiy.marathon.android.executor.listeners.DebugTestRunListener
 import com.malinskiy.marathon.android.executor.listeners.LogCatListener
 import com.malinskiy.marathon.android.executor.listeners.NoOpTestRunListener
 import com.malinskiy.marathon.android.executor.listeners.ProgressTestRunListener
+import com.malinskiy.marathon.android.executor.listeners.TestRunListener
 import com.malinskiy.marathon.android.executor.listeners.TestRunResultsListener
 import com.malinskiy.marathon.android.executor.listeners.screenshot.ScreenCapturerTestRunListener
 import com.malinskiy.marathon.android.executor.listeners.video.ScreenRecorderTestRunListener
@@ -143,11 +145,19 @@ class AndroidDevice(
         progressReporter: ProgressReporter
     ) {
 
+        val androidComponentInfo = testBatch.componentInfo as AndroidComponentInfo
+        ensureInstalled(configuration, androidComponentInfo)
+
         val deferredResult = async {
             val listeners = createListeners(configuration, devicePoolId, testBatch, deferred, progressReporter)
-            AndroidDeviceTestRunner(this@AndroidDevice).execute(configuration, testBatch, listeners)
+            val ddmLibListener = DdmlibTestRunListener(testBatch.componentInfo, listeners)
+            AndroidDeviceTestRunner(this@AndroidDevice).execute(configuration, testBatch, ddmLibListener)
         }
         deferredResult.await()
+    }
+
+    private suspend fun ensureInstalled(configuration: Configuration, componentInfo: AndroidComponentInfo) {
+        AndroidAppInstaller(configuration).ensureInstalled(this, componentInfo)
     }
 
     private fun createListeners(
@@ -184,7 +194,6 @@ class AndroidDevice(
     override suspend fun prepare(configuration: Configuration) {
         track.trackDevicePreparing(this) {
             val deferred = async {
-                AndroidAppInstaller(configuration).prepareInstallation(this@AndroidDevice)
                 fileManager.removeRemoteDirectory()
                 fileManager.createRemoteDirectory()
                 clearLogcat(ddmsDevice)
@@ -207,7 +216,7 @@ class AndroidDevice(
     private fun prepareRecorderListener(
         feature: DeviceFeature, fileManager: FileManager, devicePoolId: DevicePoolId,
         attachmentProviders: MutableList<AttachmentProvider>
-    ): NoOpTestRunListener =
+    ): TestRunListener =
         when (feature) {
             DeviceFeature.VIDEO -> {
                 ScreenRecorderTestRunListener(fileManager, devicePoolId, this)

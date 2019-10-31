@@ -8,6 +8,7 @@ import com.android.ddmlib.ShellCommandUnresponsiveException
 import com.android.ddmlib.TimeoutException
 import com.android.ddmlib.testrunner.TestIdentifier
 import com.malinskiy.marathon.log.MarathonLogging
+import com.malinskiy.marathon.test.Test
 
 import java.io.IOException
 
@@ -49,7 +50,7 @@ class RemoteFileManager(private val device: IDevice) {
         }
     }
 
-    fun remoteVideoForTest(test: TestIdentifier): String {
+    fun remoteVideoForTest(test: Test): String {
         return remoteFileForTest(videoFileName(test))
     }
 
@@ -57,5 +58,5 @@ class RemoteFileManager(private val device: IDevice) {
         return "$outputDir/$filename"
     }
 
-    private fun videoFileName(test: TestIdentifier): String = "${test.className}-${test.testName}.mp4"
+    private fun videoFileName(test: Test): String = "${test.clazz}-${test.method}.mp4"
 }

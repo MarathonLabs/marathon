@@ -1,6 +1,6 @@
 package com.malinskiy.marathon.ios
 
-import com.malinskiy.marathon.execution.Configuration
+import com.malinskiy.marathon.execution.ComponentInfo
 import com.malinskiy.marathon.execution.TestParser
 import com.malinskiy.marathon.ios.xctestrun.Xctestrun
 import com.malinskiy.marathon.log.MarathonLogging
@@ -19,18 +19,18 @@ class IOSTestParser : TestParser {
      *  specified in Marathonfile. When not specified, starts in working directory. Result excludes any tests
      *  marked as skipped in `xctestrun` file.
      */
-    override fun extract(configuration: Configuration): List<Test> {
-        val vendorConfiguration = configuration.vendorConfiguration as? IOSConfiguration
-            ?: throw IllegalStateException("Expected IOS configuration")
+    override fun extract(componentInfo: ComponentInfo): List<Test> {
+        val iOsTestJob = componentInfo as? IOSComponentInfo
+            ?: throw IllegalStateException("Expected IOS component info")
 
-        if (!vendorConfiguration.sourceRoot.isDirectory) {
-            throw IllegalArgumentException("Expected a directory at $vendorConfiguration.sourceRoot")
+        if (!iOsTestJob.sourceRoot.isDirectory) {
+            throw IllegalArgumentException("Expected a directory at $iOsTestJob.sourceRoot")
         }
 
-        val xctestrun = Xctestrun(vendorConfiguration.xctestrunPath)
+        val xctestrun = Xctestrun(iOsTestJob.xctestrunPath)
         val targetName = xctestrun.targetName
 
-        val swiftFilesWithTests = vendorConfiguration
+        val swiftFilesWithTests = iOsTestJob
             .sourceRoot
             .listFiles("swift")
             .filter(swiftTestClassRegex)
@@ -47,7 +47,7 @@ class IOSTestParser : TestParser {
                 }
 
                 if (testClassName != null && methodName != null) {
-                    implementedTests.add(Test(targetName, testClassName, methodName, emptyList()))
+                    implementedTests.add(Test(targetName, testClassName, methodName, emptyList(), componentInfo))
                 }
             }
         }

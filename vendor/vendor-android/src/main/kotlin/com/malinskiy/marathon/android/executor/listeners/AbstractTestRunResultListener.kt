@@ -1,9 +1,10 @@
 package com.malinskiy.marathon.android.executor.listeners
 
-import com.android.ddmlib.testrunner.TestIdentifier
+import com.malinskiy.marathon.android.executor.toTestIdentifier
+import com.malinskiy.marathon.test.Test
 import com.android.ddmlib.testrunner.TestRunResult as DdmLibTestRunResult
 
-abstract class AbstractTestRunResultListener : NoOpTestRunListener() {
+abstract class AbstractTestRunResultListener : TestRunListener {
 
     private val runResult: DdmLibTestRunResult = DdmLibTestRunResult()
 
@@ -11,24 +12,24 @@ abstract class AbstractTestRunResultListener : NoOpTestRunListener() {
         runResult.testRunStarted(runName, testCount)
     }
 
-    override fun testStarted(test: TestIdentifier) {
-        runResult.testStarted(test)
+    override fun testStarted(test: Test) {
+        runResult.testStarted(test.toTestIdentifier())
     }
 
-    override fun testFailed(test: TestIdentifier, trace: String) {
-        runResult.testFailed(test, trace)
+    override fun testFailed(test: Test, trace: String) {
+        runResult.testFailed(test.toTestIdentifier(), trace)
     }
 
-    override fun testAssumptionFailure(test: TestIdentifier, trace: String) {
-        runResult.testAssumptionFailure(test, trace)
+    override fun testAssumptionFailure(test: Test, trace: String) {
+        runResult.testAssumptionFailure(test.toTestIdentifier(), trace)
     }
 
-    override fun testIgnored(test: TestIdentifier) {
-        runResult.testIgnored(test)
+    override fun testIgnored(test: Test) {
+        runResult.testIgnored(test.toTestIdentifier())
     }
 
-    override fun testEnded(test: TestIdentifier, testMetrics: Map<String, String>) {
-        runResult.testEnded(test, testMetrics)
+    override fun testEnded(test: Test, testMetrics: Map<String, String>) {
+        runResult.testEnded(test.toTestIdentifier(), testMetrics)
     }
 
     override fun testRunFailed(errorMessage: String) {

@@ -4,6 +4,7 @@ import com.malinskiy.marathon.android.di.androidModule
 import com.malinskiy.marathon.android.serial.SerialStrategy
 import com.malinskiy.marathon.device.DeviceFeature
 import com.malinskiy.marathon.device.DeviceProvider
+import com.malinskiy.marathon.execution.ComponentInfoExtractor
 import com.malinskiy.marathon.execution.TestParser
 import com.malinskiy.marathon.log.MarathonLogConfigurator
 import com.malinskiy.marathon.vendor.VendorConfiguration
@@ -33,6 +34,8 @@ data class AndroidConfiguration(
 ) : VendorConfiguration, KoinComponent {
 
     override fun testParser(): TestParser? = get()
+
+    override fun componentInfoExtractor(): ComponentInfoExtractor? = get()
 
     override fun deviceProvider(): DeviceProvider? = get()
 

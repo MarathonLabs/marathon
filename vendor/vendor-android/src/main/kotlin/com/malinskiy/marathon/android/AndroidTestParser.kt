@@ -3,16 +3,16 @@ package com.malinskiy.marathon.android
 import com.linkedin.dex.parser.DecodedValue
 import com.linkedin.dex.parser.DexParser
 import com.linkedin.dex.parser.TestAnnotation
-import com.malinskiy.marathon.execution.Configuration
+import com.malinskiy.marathon.execution.ComponentInfo
 import com.malinskiy.marathon.execution.TestParser
 import com.malinskiy.marathon.test.MetaProperty
 import com.malinskiy.marathon.test.Test
 
 class AndroidTestParser : TestParser {
-    override fun extract(configuration: Configuration): List<Test> {
-        val androidConfiguration = configuration.vendorConfiguration as AndroidConfiguration
+    override fun extract(componentInfo: ComponentInfo): List<Test> {
+        val androidComponentInfo = componentInfo as AndroidComponentInfo
 
-        val tests = DexParser.findTestMethods(androidConfiguration.testApplicationOutput.absolutePath)
+        val tests = DexParser.findTestMethods(androidComponentInfo.testApplicationOutput.absolutePath)
         return tests.map {
             val testName = it.testName
             val annotations = it.annotations.map { it.toMetaProperty() }
@@ -27,10 +27,10 @@ class AndroidTestParser : TestParser {
             val packageName = packageAndClassName.substring(0 until lastDotIndex)
             val className = packageAndClassName.substring(lastDotIndex + 1 until packageAndClassName.length)
 
-            Test(packageName, className, methodName, annotations)
+            Test(packageName, className, methodName, annotations, componentInfo)
         }.also {
             if (it.isEmpty()) {
-                throw NoTestCasesFoundException("No tests cases were found in the test APK: ${androidConfiguration.testApplicationOutput.absolutePath}")
+                throw NoTestCasesFoundException("No tests cases were found in the test APK: ${androidComponentInfo.testApplicationOutput.absolutePath}")
             }
         }
     }

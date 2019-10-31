@@ -48,6 +48,7 @@ class IOSDeviceLogParser(
                 TestRunProgressParser(
                     timer,
                     packageNameFormatter,
+                    testBatch.componentInfo,
                     listOf(
                         ProgressReportingListener(
                             device = device,

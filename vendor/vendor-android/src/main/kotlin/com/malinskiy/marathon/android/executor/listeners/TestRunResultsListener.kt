@@ -81,7 +81,7 @@ class TestRunResultsListener(
             }
         }
 
-        deferred.complete(TestBatchResults(device, finished, failed, uncompleted))
+        deferred.complete(TestBatchResults(device, testBatch.componentInfo, finished, failed, uncompleted))
     }
 
     private fun Collection<Test>.createUncompletedTestResults(
@@ -129,7 +129,7 @@ class TestRunResultsListener(
 
     private fun Map.Entry<TestIdentifier, DdmLibTestResult>.toTestResult(device: Device): TestResult {
         val testInstanceFromBatch = testBatch.tests.find { "${it.pkg}.${it.clazz}" == key.className && it.method == key.testName }
-        val test = key.toTest()
+        val test = key.toTest(testBatch.componentInfo)
         val attachments = attachments[test] ?: emptyList<Attachment>()
         return TestResult(
             test = testInstanceFromBatch ?: test,

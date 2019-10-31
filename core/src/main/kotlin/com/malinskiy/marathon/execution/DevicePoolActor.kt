@@ -23,7 +23,6 @@ class DevicePoolActor(
     private val poolId: DevicePoolId,
     private val configuration: Configuration,
     analytics: Analytics,
-    shard: TestShard,
     private val progressReporter: ProgressReporter,
     track: Track,
     parent: Job,
@@ -36,6 +35,7 @@ class DevicePoolActor(
     override suspend fun receive(msg: DevicePoolMessage) {
         when (msg) {
             is DevicePoolMessage.FromScheduler.AddDevice -> addDevice(msg.device)
+            is DevicePoolMessage.FromScheduler.AddTests -> addTests(msg.shard)
             is DevicePoolMessage.FromScheduler.RemoveDevice -> removeDevice(msg.device)
             is DevicePoolMessage.FromScheduler.Terminate -> terminate()
             is DevicePoolMessage.FromDevice.IsReady -> deviceReady(msg)
@@ -51,7 +51,6 @@ class DevicePoolActor(
 
     private val queue: QueueActor = QueueActor(
         configuration,
-        shard,
         analytics,
         this,
         poolId,
@@ -145,5 +144,9 @@ class DevicePoolActor(
         val actor = DeviceActor(poolId, this, configuration, device, progressReporter, poolJob, coroutineContext)
         devices[device.serialNumber] = actor
         actor.safeSend(DeviceEvent.Initialize)
+    }
+
+    private suspend fun addTests(shard: TestShard) {
+        queue.send(QueueMessage.AddTests(shard))
     }
 }

@@ -24,7 +24,6 @@ import kotlin.coroutines.CoroutineContext
 
 class QueueActor(
     private val configuration: Configuration,
-    private val testShard: TestShard,
     private val analytics: Analytics,
     private val pool: SendChannel<FromQueue>,
     private val poolId: DevicePoolId,
@@ -46,15 +45,17 @@ class QueueActor(
     private val activeBatches = mutableMapOf<String, TestBatch>()
     private val uncompletedTestsRetryCount = mutableMapOf<Test, Int>()
 
-    private val testResultReporter = TestResultReporter(poolId, analytics, testShard, configuration, track)
-
-    init {
-        queue.addAll(testShard.tests + testShard.flakyTests)
-        progressReporter.totalTests(poolId, queue.size)
-    }
+    private val testResultReporter = TestResultReporter(poolId, analytics, configuration, track)
+    private val flakyTests: MutableSet<Test> = hashSetOf()
 
     override suspend fun receive(msg: QueueMessage) {
         when (msg) {
+            is QueueMessage.AddTests -> {
+                testResultReporter.addTests(msg.shard)
+                queue.addAll(msg.shard.tests + msg.shard.flakyTests)
+                progressReporter.totalTests(poolId, queue.size)
+                flakyTests.addAll(msg.shard.flakyTests)
+            }
             is QueueMessage.RequestBatch -> {
                 onRequestBatch(msg.device)
             }
@@ -133,13 +134,14 @@ class QueueActor(
     }
 
     private fun handleFinishedTests(finished: Collection<TestResult>, device: DeviceInfo) {
-        finished.filter { testShard.flakyTests.contains(it.test) }.let {
+        finished.filter { flakyTests.contains(it.test) }.let {
             it.forEach {
                 val oldSize = queue.size
                 queue.removeAll(listOf(it.test))
                 val diff = oldSize - queue.size
                 testResultReporter.removeTest(it.test, diff)
                 progressReporter.removeTests(poolId, diff)
+                flakyTests.remove(it.test)
             }
         }
         finished.forEach {
@@ -152,7 +154,7 @@ class QueueActor(
         device: DeviceInfo
     ) {
         logger.debug { "handle failed tests ${device.serialNumber}" }
-        val retryList = retry.process(poolId, failed, testShard)
+        val retryList = retry.process(poolId, failed, flakyTests)
 
         progressReporter.addTests(poolId, retryList.size)
         queue.addAll(retryList.map { it.test })
@@ -200,6 +202,7 @@ class QueueActor(
 
 
 sealed class QueueMessage {
+    data class AddTests(val shard: TestShard) : QueueMessage()
     data class RequestBatch(val device: DeviceInfo) : QueueMessage()
     data class IsEmpty(val deferred: CompletableDeferred<Boolean>) : QueueMessage()
     data class Completed(val device: DeviceInfo, val results: TestBatchResults) : QueueMessage()

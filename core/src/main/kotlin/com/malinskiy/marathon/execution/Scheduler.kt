@@ -11,6 +11,7 @@ import com.malinskiy.marathon.execution.DevicePoolMessage.FromScheduler
 import com.malinskiy.marathon.execution.DevicePoolMessage.FromScheduler.AddDevice
 import com.malinskiy.marathon.execution.DevicePoolMessage.FromScheduler.RemoveDevice
 import com.malinskiy.marathon.execution.progress.ProgressReporter
+import com.malinskiy.marathon.execution.queue.QueueActor
 import com.malinskiy.marathon.log.MarathonLogging
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
@@ -33,7 +34,6 @@ class Scheduler(
     private val deviceProvider: DeviceProvider,
     private val analytics: Analytics,
     private val configuration: Configuration,
-    private val shard: TestShard,
     private val progressReporter: ProgressReporter,
     private val track: Track,
     override val coroutineContext: CoroutineContext
@@ -45,7 +45,7 @@ class Scheduler(
 
     private val logger = MarathonLogging.logger("Scheduler")
 
-    suspend fun execute() {
+    suspend fun initialize() {
         subscribeOnDevices(job)
 
         try {
@@ -58,8 +58,17 @@ class Scheduler(
             job.cancelAndJoin()
             throw NoDevicesException("")
         }
+    }
+
+    suspend fun waitForCompletion() {
         for (child in job.children) {
             child.join()
+        }
+    }
+
+    suspend fun addTests(shard: TestShard) {
+        pools.values.forEach {
+            it.send(FromScheduler.AddTests(shard))
         }
     }
 
@@ -106,7 +115,7 @@ class Scheduler(
         logger.debug { "device ${device.serialNumber} associated with poolId ${poolId.name}" }
         pools.computeIfAbsent(poolId) { id ->
             logger.debug { "pool actor ${id.name} is being created" }
-            DevicePoolActor(id, configuration, analytics, shard, progressReporter, track, parent, context)
+            DevicePoolActor(id, configuration, analytics, progressReporter, track, parent, context)
         }
         pools[poolId]?.send(AddDevice(device)) ?: logger.debug {
             "not sending the AddDevice event " +

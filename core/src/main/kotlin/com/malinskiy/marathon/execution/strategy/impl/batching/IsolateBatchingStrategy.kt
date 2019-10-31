@@ -7,7 +7,10 @@ import com.malinskiy.marathon.test.TestBatch
 import java.util.*
 
 class IsolateBatchingStrategy : BatchingStrategy {
-    override fun process(queue: Queue<Test>, analytics: Analytics): TestBatch = TestBatch(listOf(queue.poll()))
+    override fun process(queue: Queue<Test>, analytics: Analytics): TestBatch {
+        val test = queue.poll()
+        return TestBatch(listOf(test), test.componentInfo)
+    }
 
     override fun hashCode() = javaClass.canonicalName.hashCode()
 
