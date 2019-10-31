@@ -57,30 +57,31 @@ object IOSTestParserSpek : Spek(
                     ),
                     analyticsTracking = false
                 )
+                val iosComponentInfo = IOSComponentInfoExtractor().extract(configuration)
 
                 it("should return accurate list of tests") {
-                    val extractedTests = parser.extract(configuration)
+                    val extractedTests = parser.extract(iosComponentInfo)
 
                     extractedTests shouldContainSame listOf(
-                        Test("sample-appUITests", "StoryboardTests", "testButton", emptyList()),
-                        Test("sample-appUITests", "StoryboardTests", "testLabel", emptyList()),
-                        Test("sample-appUITests", "MoreTests", "testPresentModal", emptyList()),
-                        Test("sample-appUITests", "CrashingTests", "testButton", emptyList()),
-                        Test("sample-appUITests", "FailingTests", "testAlwaysFailing", emptyList()),
-                        Test("sample-appUITests", "FlakyTests", "testTextFlaky", emptyList()),
-                        Test("sample-appUITests", "FlakyTests", "testTextFlaky1", emptyList()),
-                        Test("sample-appUITests", "FlakyTests", "testTextFlaky2", emptyList()),
-                        Test("sample-appUITests", "FlakyTests", "testTextFlaky3", emptyList()),
-                        Test("sample-appUITests", "FlakyTests", "testTextFlaky4", emptyList()),
-                        Test("sample-appUITests", "FlakyTests", "testTextFlaky5", emptyList()),
-                        Test("sample-appUITests", "FlakyTests", "testTextFlaky6", emptyList()),
-                        Test("sample-appUITests", "FlakyTests", "testTextFlaky7", emptyList()),
-                        Test("sample-appUITests", "FlakyTests", "testTextFlaky8", emptyList()),
-                        Test("sample-appUITests", "SlowTests", "testTextSlow", emptyList()),
-                        Test("sample-appUITests", "SlowTests", "testTextSlow1", emptyList()),
-                        Test("sample-appUITests", "SlowTests", "testTextSlow2", emptyList()),
-                        Test("sample-appUITests", "SlowTests", "testTextSlow3", emptyList()),
-                        Test("sample-appUITests", "SlowTests", "testTextSlow4", emptyList())
+                        Test("sample-appUITests", "StoryboardTests", "testButton", emptyList(), iosComponentInfo),
+                        Test("sample-appUITests", "StoryboardTests", "testLabel", emptyList(), iosComponentInfo),
+                        Test("sample-appUITests", "MoreTests", "testPresentModal", emptyList(), iosComponentInfo),
+                        Test("sample-appUITests", "CrashingTests", "testButton", emptyList(), iosComponentInfo),
+                        Test("sample-appUITests", "FailingTests", "testAlwaysFailing", emptyList(), iosComponentInfo),
+                        Test("sample-appUITests", "FlakyTests", "testTextFlaky", emptyList(), iosComponentInfo),
+                        Test("sample-appUITests", "FlakyTests", "testTextFlaky1", emptyList(), iosComponentInfo),
+                        Test("sample-appUITests", "FlakyTests", "testTextFlaky2", emptyList(), iosComponentInfo),
+                        Test("sample-appUITests", "FlakyTests", "testTextFlaky3", emptyList(), iosComponentInfo),
+                        Test("sample-appUITests", "FlakyTests", "testTextFlaky4", emptyList(), iosComponentInfo),
+                        Test("sample-appUITests", "FlakyTests", "testTextFlaky5", emptyList(), iosComponentInfo),
+                        Test("sample-appUITests", "FlakyTests", "testTextFlaky6", emptyList(), iosComponentInfo),
+                        Test("sample-appUITests", "FlakyTests", "testTextFlaky7", emptyList(), iosComponentInfo),
+                        Test("sample-appUITests", "FlakyTests", "testTextFlaky8", emptyList(), iosComponentInfo),
+                        Test("sample-appUITests", "SlowTests", "testTextSlow", emptyList(), iosComponentInfo),
+                        Test("sample-appUITests", "SlowTests", "testTextSlow1", emptyList(), iosComponentInfo),
+                        Test("sample-appUITests", "SlowTests", "testTextSlow2", emptyList(), iosComponentInfo),
+                        Test("sample-appUITests", "SlowTests", "testTextSlow3", emptyList(), iosComponentInfo),
+                        Test("sample-appUITests", "SlowTests", "testTextSlow4", emptyList(), iosComponentInfo)
                     )
                 }
             }

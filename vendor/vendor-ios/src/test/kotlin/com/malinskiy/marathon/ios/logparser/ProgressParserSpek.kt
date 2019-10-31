@@ -1,5 +1,6 @@
 package com.malinskiy.marathon.ios.logparser
 
+import com.malinskiy.marathon.ios.IOSComponentInfo
 import com.malinskiy.marathon.ios.logparser.formatter.PackageNameFormatter
 import com.malinskiy.marathon.ios.logparser.listener.TestRunListener
 import com.malinskiy.marathon.ios.logparser.parser.TestRunProgressParser
@@ -33,9 +34,10 @@ class ProgressParserSpek : Spek(
             val mockListener = mock(TestRunListener::class)
             val mockTimer = mock(Timer::class)
             val mockedTimeMillis = 1537187696000L
+            val componentInfo = IOSComponentInfo(File("."), File("."), File("."))
             When calling mockTimer.currentTimeMillis() itReturns mockedTimeMillis
 
-            val progressParser = TestRunProgressParser(mockTimer, mockFormatter, listOf(mockListener))
+            val progressParser = TestRunProgressParser(mockTimer, mockFormatter, componentInfo, listOf(mockListener))
 
             beforeEachTest { When calling mockFormatter.format(any()) itAnswers withFirstArg() }
             afterEachTest { reset(mockListener, mockFormatter) }
@@ -70,11 +72,12 @@ class ProgressParserSpek : Spek(
                             "sample_appUITests",
                             "MoreTests",
                             "testPresentModal",
-                            emptyList()
+                            emptyList(),
+                            componentInfo
                         )
                     ) was called
                     Verify on mockListener that mockListener.testPassed(
-                        Test("sample_appUITests", "MoreTests", "testPresentModal", emptyList()),
+                        Test("sample_appUITests", "MoreTests", "testPresentModal", emptyList(), componentInfo),
                         mockedTimeMillis - 5315,
                         mockedTimeMillis
                     ) was called
@@ -95,7 +98,8 @@ class ProgressParserSpek : Spek(
                             "sample_appUITests",
                             "FlakyTests",
                             "testTextFlaky1",
-                            emptyList()
+                            emptyList(),
+                            componentInfo
                         )
                     ) was called
                     Verify on mockListener that mockListener.testStarted(
@@ -103,17 +107,18 @@ class ProgressParserSpek : Spek(
                             "sample_appUITests",
                             "FlakyTests",
                             "testTextFlaky2",
-                            emptyList()
+                            emptyList(),
+                            componentInfo
                         )
                     ) was called
 
                     Verify on mockListener that mockListener.testPassed(
-                        Test("sample_appUITests", "FlakyTests", "testTextFlaky1", emptyList()),
+                        Test("sample_appUITests", "FlakyTests", "testTextFlaky1", emptyList(), componentInfo),
                         mockedTimeMillis - 4415,
                         mockedTimeMillis
                     ) was called
                     Verify on mockListener that mockListener.testPassed(
-                        Test("sample_appUITests", "FlakyTests", "testTextFlaky2", emptyList()),
+                        Test("sample_appUITests", "FlakyTests", "testTextFlaky2", emptyList(), componentInfo),
                         mockedTimeMillis - 4118,
                         mockedTimeMillis
                     ) was called

@@ -14,7 +14,7 @@ class FixedQuotaRetryStrategy(
     private val retryWatchdog = RetryWatchdog(totalAllowedRetryQuota, retryPerTestQuota)
     private val poolTestCaseFailureAccumulator = PoolTestFailureAccumulator()
 
-    override fun process(devicePoolId: DevicePoolId, tests: Collection<TestResult>, flakyTests: Set<Test>): List<TestResult> {
+    override fun process(devicePoolId: DevicePoolId, tests: Collection<TestResult>, flakyTests: List<Test>): List<TestResult> {
         return tests.filter { testResult ->
             poolTestCaseFailureAccumulator.record(devicePoolId, testResult.test)
             val flakinessResultCount = flakyTests.count { it == testResult.test }

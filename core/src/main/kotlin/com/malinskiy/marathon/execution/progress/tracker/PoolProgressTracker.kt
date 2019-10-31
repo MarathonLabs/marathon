@@ -4,7 +4,7 @@ import com.malinskiy.marathon.actor.StateMachine
 import com.malinskiy.marathon.test.Test
 import java.util.concurrent.atomic.AtomicInteger
 
-class PoolProgressTracker(private val strictMode: Boolean) {
+class PoolProgressTracker {
 
     private val tests = mutableMapOf<Test, StateMachine<ProgressTestState, ProgressEvent, Any>>()
 
@@ -23,11 +23,7 @@ class PoolProgressTracker(private val strictMode: Boolean) {
         }
         state<ProgressTestState.Passed> {
             on<ProgressEvent.Failed> {
-                if (strictMode) {
-                    transitionTo(ProgressTestState.Failed)
-                } else {
-                    dontTransition()
-                }
+                dontTransition()
             }
             on<ProgressEvent.Ignored> {
                 dontTransition()
@@ -35,11 +31,7 @@ class PoolProgressTracker(private val strictMode: Boolean) {
         }
         state<ProgressTestState.Failed> {
             on<ProgressEvent.Passed> {
-                if (strictMode) {
-                    dontTransition()
-                } else {
-                    transitionTo(ProgressTestState.Passed)
-                }
+                transitionTo(ProgressTestState.Passed)
             }
         }
         state<ProgressTestState.Ignored> {
@@ -61,18 +53,6 @@ class PoolProgressTracker(private val strictMode: Boolean) {
     }
 
     fun testFailed(test: Test) {
-        if (tests[test]?.state == ProgressTestState.Passed) {
-            if (strictMode) {
-                completed.updateAndGet {
-                    it - 1
-                }
-            } else {
-                //Return early because the test already passed
-                return
-            }
-        }
-
-        updateStatus(test, ProgressEvent.Failed)
         failed.updateAndGet {
             it + 1
         }
@@ -80,17 +60,6 @@ class PoolProgressTracker(private val strictMode: Boolean) {
     }
 
     fun testPassed(test: Test) {
-        if (tests[test]?.state == ProgressTestState.Failed) {
-            if (strictMode) {
-                //Return early because the test already failed
-                return
-            } else {
-                failed.updateAndGet {
-                    it - 1
-                }
-            }
-        }
-
         completed.updateAndGet {
             it + 1
         }

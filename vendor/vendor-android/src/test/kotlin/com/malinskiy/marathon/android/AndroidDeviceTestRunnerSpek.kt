@@ -68,11 +68,12 @@ class AndroidDeviceTestRunnerSpek : Spek(
                     ),
                     analyticsTracking = false
                 )
+                val componentInfo = AndroidComponentInfoExtractor().extract(configuration)
                 val ignoredTest =
-                    Test("ignored", "ignored", "ignored", listOf(MetaProperty("org.junit.Ignore")))
+                    Test("ignored", "ignored", "ignored", listOf(MetaProperty("org.junit.Ignore")), componentInfo)
                 val identifier = ignoredTest.toTestIdentifier()
-                val validTest = Test("test", "test", "test", emptyList())
-                val batch = TestBatch(listOf(ignoredTest, validTest))
+                val validTest = Test("test", "test", "test", emptyList(), componentInfo)
+                val batch = TestBatch(listOf(ignoredTest, validTest), componentInfo)
                 val listener = mock<ITestRunListener>()
                 androidDeviceTestRunner.execute(configuration, batch, listener)
                 verify(listener).testStarted(eq(identifier))

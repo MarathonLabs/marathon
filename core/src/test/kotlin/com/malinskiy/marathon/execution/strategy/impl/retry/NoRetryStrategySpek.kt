@@ -17,8 +17,7 @@ class NoRetryStrategySpek : Spek(
                 val testResults = generateTestResults(tests)
                 val strategy = NoRetryStrategy()
                 val devicePoolId = DevicePoolId("devicePoolId")
-                val testShard = TestShard(tests)
-                val result = strategy.process(devicePoolId, testResults, testShard)
+                val result = strategy.process(devicePoolId, testResults, emptyList())
                 result.shouldBeEmpty()
             }
         }

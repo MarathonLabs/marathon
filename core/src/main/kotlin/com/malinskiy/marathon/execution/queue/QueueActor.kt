@@ -46,15 +46,15 @@ class QueueActor(
     private val uncompletedTestsRetryCount = mutableMapOf<Test, Int>()
 
     private val testResultReporter = TestResultReporter(poolId, analytics, configuration, track)
-    private val flakyTests: MutableSet<Test> = hashSetOf()
+    private var flakyTests: List<Test> = emptyList()
 
     override suspend fun receive(msg: QueueMessage) {
         when (msg) {
-            is QueueMessage.AddTests -> {
-                testResultReporter.addTests(msg.shard)
+            is QueueMessage.AddShard -> {
+                testResultReporter.addShard(msg.shard)
                 queue.addAll(msg.shard.tests + msg.shard.flakyTests)
                 progressReporter.totalTests(poolId, queue.size)
-                flakyTests.addAll(msg.shard.flakyTests)
+                flakyTests = flakyTests + msg.shard.flakyTests
             }
             is QueueMessage.RequestBatch -> {
                 onRequestBatch(msg.device)
@@ -141,7 +141,7 @@ class QueueActor(
                 val diff = oldSize - queue.size
                 testResultReporter.removeTest(it.test, diff)
                 progressReporter.removeTests(poolId, diff)
-                flakyTests.remove(it.test)
+                flakyTests = flakyTests.filter { item -> item != it.test }
             }
         }
         finished.forEach {
@@ -202,7 +202,7 @@ class QueueActor(
 
 
 sealed class QueueMessage {
-    data class AddTests(val shard: TestShard) : QueueMessage()
+    data class AddShard(val shard: TestShard) : QueueMessage()
     data class RequestBatch(val device: DeviceInfo) : QueueMessage()
     data class IsEmpty(val deferred: CompletableDeferred<Boolean>) : QueueMessage()
     data class Completed(val device: DeviceInfo, val results: TestBatchResults) : QueueMessage()

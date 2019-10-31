@@ -7,7 +7,7 @@ import com.malinskiy.marathon.execution.strategy.RetryStrategy
 import com.malinskiy.marathon.test.Test
 
 class NoRetryStrategy : RetryStrategy {
-    override fun process(devicePoolId: DevicePoolId, tests: Collection<TestResult>, flakyTests: Set<Test>): List<TestResult> {
+    override fun process(devicePoolId: DevicePoolId, tests: Collection<TestResult>, flakyTests: List<Test>): List<TestResult> {
         return emptyList()
     }
 

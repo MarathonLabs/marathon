@@ -14,6 +14,7 @@ import com.malinskiy.marathon.execution.TestShard
 import com.malinskiy.marathon.execution.TestStatus
 import com.malinskiy.marathon.execution.strategy.impl.batching.FixedSizeBatchingStrategy
 import com.malinskiy.marathon.test.Test
+import com.malinskiy.marathon.test.TestComponentInfo
 import com.malinskiy.marathon.test.TestVendorConfiguration
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.argumentCaptor
@@ -124,17 +125,17 @@ class QueueActorSpek : Spek(
                     }
                 }
 
-            it("should report test as failed") {
-                runBlocking {
-                    actor.send(QueueMessage.RequestBatch(TEST_DEVICE_INFO))
-                    poolChannel.receive()
-                    actor.send(QueueMessage.Completed(TEST_DEVICE_INFO, results))
+                it("should report test as failed") {
+                    runBlocking {
+                        actor.send(QueueMessage.RequestBatch(TEST_DEVICE_INFO))
+                        poolChannel.receive()
+                        actor.send(QueueMessage.Completed(TEST_DEVICE_INFO, results))
 
-                    verify(track, times(1)).test(any(), any(), captor.capture(), any())
-                    captor.firstValue.test shouldBe TEST_1
-                    captor.firstValue.status shouldBe TestStatus.FAILURE
+                        verify(track, times(1)).test(any(), any(), captor.capture(), any())
+                        captor.firstValue.test shouldBe TEST_1
+                        captor.firstValue.status shouldBe TestStatus.FAILURE
+                    }
                 }
-            }
 
                 it("should provide uncompleted test in the batch") {
                     runBlocking {
@@ -190,7 +191,7 @@ class QueueActorSpek : Spek(
 private val TEST_DEVICE = DeviceStub()
 private val TEST_DEVICE_INFO = TEST_DEVICE.toDeviceInfo()
 
-private val TEST_1 = Test("", "", "test1", emptyList())
+private val TEST_1 = Test("", "", "test1", emptyList(), TestComponentInfo())
 
 private fun createBatchResult(
     finished: List<TestResult> = emptyList(),
@@ -198,6 +199,7 @@ private fun createBatchResult(
     uncompleted: List<TestResult> = emptyList()
 ): TestBatchResults = TestBatchResults(
     TEST_DEVICE,
+    TestComponentInfo(),
     finished,
     failed,
     uncompleted
@@ -222,7 +224,6 @@ private fun createQueueActor(
     job: Job
 ) = QueueActor(
     configuration,
-    TestShard(tests, emptyList()),
     analytics,
     poolChannel,
     DevicePoolId("test"),
@@ -231,6 +232,11 @@ private fun createQueueActor(
     job,
     Dispatchers.Unconfined
 )
+    .apply {
+        runBlocking {
+            send(QueueMessage.AddShard(TestShard(tests, emptyList())))
+        }
+    }
 
 private val DEFAULT_CONFIGURATION = Configuration(
     name = "",
@@ -257,7 +263,8 @@ private val DEFAULT_CONFIGURATION = Configuration(
     debug = null,
     vendorConfiguration = TestVendorConfiguration(
         testParser = mock(),
-        deviceProvider = mock()
+        deviceProvider = mock(),
+        componentInfoExtractor = mock()
     ),
     analyticsTracking = false
 )

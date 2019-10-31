@@ -10,11 +10,11 @@ import kotlin.math.roundToInt
 
 const val HUNDRED_PERCENT_IN_FLOAT: Float = 100.0f
 
-class ProgressReporter(private val strictMode: Boolean) {
+class ProgressReporter {
     private val reporters = ConcurrentHashMap<DevicePoolId, PoolProgressTracker>()
 
     private inline fun <T> execute(poolId: DevicePoolId, f: (PoolProgressTracker) -> T): T {
-        val reporter = reporters[poolId] ?: PoolProgressTracker(strictMode)
+        val reporter = reporters[poolId] ?: PoolProgressTracker()
         val result = f(reporter)
         reporters[poolId] = reporter
         return result

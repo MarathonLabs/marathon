@@ -47,9 +47,10 @@ class AndroidTestParserSpek : Spek(
                     ),
                     analyticsTracking = false
                 )
+                val componentInfo = AndroidComponentInfoExtractor().extract(configuration)
 
                 it("should return proper list of test methods") {
-                    val extractedTests = parser.extract(configuration)
+                    val extractedTests = parser.extract(componentInfo)
                     extractedTests shouldEqual listOf(
                         Test(
                             "com.example", "MainActivityTest", "testText",
@@ -57,7 +58,8 @@ class AndroidTestParserSpek : Spek(
                                 MetaProperty("org.junit.Test"),
                                 MetaProperty("kotlin.Metadata"),
                                 MetaProperty("org.junit.runner.RunWith")
-                            )
+                            ),
+                            componentInfo
                         )
                     )
                 }

@@ -84,7 +84,7 @@ class TestResultReporter(
         }
     }
 
-    fun addTests(shard: TestShard) {
+    fun addShard(shard: TestShard) {
         val allTests = shard.tests + shard.flakyTests
         allTests.groupBy { it }.map {
             val count = it.value.size

@@ -147,6 +147,6 @@ class DevicePoolActor(
     }
 
     private suspend fun addTests(shard: TestShard) {
-        queue.send(QueueMessage.AddTests(shard))
+        queue.send(QueueMessage.AddShard(shard))
     }
 }

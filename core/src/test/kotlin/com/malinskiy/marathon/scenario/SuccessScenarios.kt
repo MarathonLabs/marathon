@@ -4,6 +4,7 @@ import com.malinskiy.marathon.device.DeviceProvider
 import com.malinskiy.marathon.execution.TestStatus
 import com.malinskiy.marathon.test.StubDevice
 import com.malinskiy.marathon.test.Test
+import com.malinskiy.marathon.test.TestComponentInfo
 import com.malinskiy.marathon.test.assert.shouldBeEqualToAsJson
 import com.malinskiy.marathon.test.setupMarathon
 import kotlinx.coroutines.GlobalScope
@@ -32,7 +33,7 @@ class SuccessScenarios : Spek(
                     val context = TestCoroutineContext("testing context")
 
                     val marathon = setupMarathon {
-                        val test = Test("test", "SimpleTest", "test", emptySet())
+                        val test = Test("test", "SimpleTest", "test", emptySet(), TestComponentInfo())
                         val device = StubDevice()
 
                         configuration {
