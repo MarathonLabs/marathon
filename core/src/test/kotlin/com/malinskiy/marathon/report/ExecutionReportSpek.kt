@@ -11,6 +11,7 @@ import com.malinskiy.marathon.device.DeviceProvider
 import com.malinskiy.marathon.device.NetworkState
 import com.malinskiy.marathon.device.OperatingSystem
 import com.malinskiy.marathon.execution.AnalyticsConfiguration
+import com.malinskiy.marathon.execution.ComponentInfoExtractor
 import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.execution.TestParser
 import com.malinskiy.marathon.execution.TestResult
@@ -18,6 +19,7 @@ import com.malinskiy.marathon.execution.TestStatus
 import com.malinskiy.marathon.io.FileManager
 import com.malinskiy.marathon.log.MarathonLogConfigurator
 import com.malinskiy.marathon.test.Test
+import com.malinskiy.marathon.test.TestComponentInfo
 import com.malinskiy.marathon.vendor.VendorConfiguration
 import org.amshove.kluent.shouldBe
 import org.jetbrains.spek.api.Spek
@@ -34,6 +36,7 @@ class ExecutionReportSpek : Spek(
         val configuration = Configuration(
             name = "",
             outputDir = File("src/test/resources/output/"),
+            customAnalyticsTracker = null,
             analyticsConfiguration = AnalyticsConfiguration.DisabledAnalytics,
             poolingStrategy = null,
             shardingStrategy = null,
@@ -58,6 +61,7 @@ class ExecutionReportSpek : Spek(
                 override fun deviceProvider(): DeviceProvider? = null
                 override fun logConfigurator(): MarathonLogConfigurator? = null
                 override fun preferableRecorderType(): DeviceFeature? = null
+                override fun componentInfoExtractor(): ComponentInfoExtractor? = null
             },
             analyticsTracking = false
         )
@@ -72,7 +76,7 @@ class ExecutionReportSpek : Spek(
                 DevicePoolId("myPool"),
                 deviceInfo,
                 TestResult(
-                    Test("com", "example", methodName, emptyList()),
+                    Test("com", "example", methodName, emptyList(), TestComponentInfo()),
                     deviceInfo,
                     status,
                     0,

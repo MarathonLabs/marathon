@@ -15,7 +15,6 @@ import com.malinskiy.marathon.test.toTestName
 class TestResultReporter(
     private val poolId: DevicePoolId,
     private val analytics: Analytics,
-    shard: TestShard,
     private val configuration: Configuration,
     private val track: Track
 ) {
@@ -85,7 +84,7 @@ class TestResultReporter(
         }
     }
 
-    init {
+    fun addShard(shard: TestShard) {
         val allTests = shard.tests + shard.flakyTests
         allTests.groupBy { it }.map {
             val count = it.value.size

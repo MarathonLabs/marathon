@@ -37,7 +37,6 @@ import kotlinx.coroutines.withContext
 import net.schmizz.sshj.connection.ConnectionException
 import net.schmizz.sshj.connection.channel.OpenFailException
 import net.schmizz.sshj.transport.TransportException
-import java.io.File
 import java.io.IOException
 import java.net.InetAddress
 import java.net.UnknownHostException
@@ -138,6 +137,7 @@ class IOSDevice(
         progressReporter: ProgressReporter
     ) = withContext(coroutineContext + CoroutineName("execute")) {
         val iosConfiguration = configuration.vendorConfiguration as IOSConfiguration
+        val iosTestJob = testBatch.componentInfo as IOSComponentInfo
         val fileManager = FileManager(configuration.outputDir)
 
         if (iosConfiguration.alwaysEraseSimulators) {
@@ -159,7 +159,7 @@ class IOSDevice(
 
         logger.debug("Remote xctestrun = $remoteXctestrunFile")
 
-        val xctestrun = Xctestrun(iosConfiguration.xctestrunPath)
+        val xctestrun = Xctestrun(iosTestJob.xctestrunPath)
         val packageNameFormatter = TestLogPackageNameFormatter(xctestrun.productModuleName, xctestrun.targetName)
 
         logger.debug("Tests = ${testBatch.tests.toList()}")
@@ -252,22 +252,23 @@ class IOSDevice(
 
             val derivedDataManager = DerivedDataManager(configuration)
 
-            val remoteXctestrunFile = RemoteFileManager.remoteXctestrunFile(this@IOSDevice)
-            val xctestrunFile = prepareXctestrunFile(derivedDataManager, remoteXctestrunFile)
+            // TODO: should be done before each test execution
+//            val remoteXctestrunFile = RemoteFileManager.remoteXctestrunFile(this@IOSDevice)
+//            val xctestrunFile = prepareXctestrunFile(derivedDataManager, remoteXctestrunFile)
 
-            derivedDataManager.sendSynchronized(
-                localPath = xctestrunFile,
-                remotePath = remoteXctestrunFile.absolutePath,
-                hostName = hostCommandExecutor.hostAddress.hostName,
-                port = hostCommandExecutor.port
-            )
-
-            derivedDataManager.sendSynchronized(
-                localPath = derivedDataManager.productsDir,
-                remotePath = RemoteFileManager.remoteDirectory(this@IOSDevice).path,
-                hostName = hostCommandExecutor.hostAddress.hostName,
-                port = hostCommandExecutor.port
-            )
+//            derivedDataManager.sendSynchronized(
+//                localPath = xctestrunFile,
+//                remotePath = remoteXctestrunFile.absolutePath,
+//                hostName = hostCommandExecutor.hostAddress.hostName,
+//                port = hostCommandExecutor.port
+//            )
+//
+//            derivedDataManager.sendSynchronized(
+//                localPath = derivedDataManager.productsDir,
+//                remotePath = RemoteFileManager.remoteDirectory(this@IOSDevice).path,
+//                hostName = hostCommandExecutor.hostAddress.hostName,
+//                port = hostCommandExecutor.port
+//            )
 
             this@IOSDevice.derivedDataManager = derivedDataManager
 
@@ -345,16 +346,16 @@ class IOSDevice(
     private val deviceIdentifier: String
         get() = "${hostCommandExecutor.hostAddress.hostAddress}:$udid"
 
-    private fun prepareXctestrunFile(derivedDataManager: DerivedDataManager, remoteXctestrunFile: File): File {
-        val remotePort = RemoteSimulatorFeatureProvider.availablePort(this)
-            .also { logger.info("Using TCP port $it on device $deviceIdentifier") }
-
-        val xctestrun = Xctestrun(derivedDataManager.xctestrunFile)
-        xctestrun.environment("TEST_HTTP_SERVER_PORT", "$remotePort")
-
-        return derivedDataManager.xctestrunFile.resolveSibling(remoteXctestrunFile.name)
-            .also { it.writeBytes(xctestrun.toXMLByteArray()) }
-    }
+//    private fun prepareXctestrunFile(derivedDataManager: DerivedDataManager, remoteXctestrunFile: File): File {
+//        val remotePort = RemoteSimulatorFeatureProvider.availablePort(this)
+//            .also { logger.info("Using TCP port $it on device $deviceIdentifier") }
+//
+//        val xctestrun = Xctestrun(derivedDataManager.xctestrunFile)
+//        xctestrun.environment("TEST_HTTP_SERVER_PORT", "$remotePort")
+//
+//        return derivedDataManager.xctestrunFile.resolveSibling(remoteXctestrunFile.name)
+//            .also { it.writeBytes(xctestrun.toXMLByteArray()) }
+//    }
 }
 
 private const val REACHABILITY_TIMEOUT_MILLIS = 5000

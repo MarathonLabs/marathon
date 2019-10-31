@@ -4,6 +4,7 @@ import com.android.ddmlib.IDevice
 import com.android.ddmlib.InstallException
 import com.malinskiy.marathon.android.AndroidConfiguration
 import com.malinskiy.marathon.android.AndroidDevice
+import com.malinskiy.marathon.android.AndroidComponentInfo
 import com.malinskiy.marathon.android.ApkParser
 import com.malinskiy.marathon.android.executor.listeners.video.CollectingShellOutputReceiver
 import com.malinskiy.marathon.android.safeExecuteShellCommand
@@ -24,14 +25,16 @@ class AndroidAppInstaller(configuration: Configuration) {
     private val logger = MarathonLogging.logger("AndroidAppInstaller")
     private val androidConfiguration = configuration.vendorConfiguration as AndroidConfiguration
 
-    suspend fun prepareInstallation(device: AndroidDevice) {
-        val applicationInfo = ApkParser().parseInstrumentationInfo(androidConfiguration.testApplicationOutput)
+    suspend fun ensureInstalled(device: AndroidDevice, componentInfo: AndroidComponentInfo) {
+        // TODO: we need to skip the installation if we detected that the app is already installed
+
+        val applicationInfo = ApkParser().parseInstrumentationInfo(componentInfo.testApplicationOutput)
         logger.debug { "Installing application output to ${device.serialNumber}" }
-        androidConfiguration.applicationOutput?.let {
+        componentInfo.applicationOutput?.let {
             reinstall(device, applicationInfo.applicationPackage, it)
         }
         logger.debug { "Installing instrumentation package to ${device.serialNumber}" }
-        reinstall(device, applicationInfo.instrumentationPackage, androidConfiguration.testApplicationOutput)
+        reinstall(device, applicationInfo.instrumentationPackage, componentInfo.testApplicationOutput)
         logger.debug { "Prepare installation finished for ${device.serialNumber}" }
     }
 

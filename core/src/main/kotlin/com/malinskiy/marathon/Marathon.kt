@@ -6,6 +6,7 @@ import com.malinskiy.marathon.analytics.internal.sub.TrackerInternal
 import com.malinskiy.marathon.config.LogicalConfigurationValidator
 import com.malinskiy.marathon.device.DeviceProvider
 import com.malinskiy.marathon.exceptions.NoDevicesException
+import com.malinskiy.marathon.execution.ComponentInfoExtractor
 import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.execution.Scheduler
 import com.malinskiy.marathon.execution.TestParser
@@ -58,6 +59,15 @@ class Marathon(
         return loader.first()
     }
 
+    private fun loadComponentInfoExtractor(vendorConfiguration: VendorConfiguration): ComponentInfoExtractor {
+        val componentInfoExtractor = vendorConfiguration.componentInfoExtractor()
+        if (componentInfoExtractor != null) {
+            return componentInfoExtractor
+        }
+        val loader = ServiceLoader.load(ComponentInfoExtractor::class.java)
+        return loader.first()
+    }
+
     fun run() = runBlocking {
         try {
             val isSuccess = runAsync()
@@ -87,7 +97,8 @@ class Marathon(
 
         configurationValidator.validate(configuration)
 
-        val parsedTests = testParser.extract(configuration)
+        val componentInfo = loadComponentInfoExtractor(configuration.vendorConfiguration).extract(configuration)
+        val parsedTests = testParser.extract(componentInfo)
         val tests = applyTestFilters(parsedTests)
         val shard = prepareTestShard(tests, analytics)
 
@@ -98,7 +109,6 @@ class Marathon(
             deviceProvider,
             analytics,
             configuration,
-            shard,
             progressReporter,
             track,
             currentCoroutineContext
@@ -113,7 +123,11 @@ class Marathon(
         val hook = installShutdownHook { onFinish(analytics, deviceProvider) }
 
         if (tests.isNotEmpty()) {
-            scheduler.execute()
+            with(scheduler) {
+                initialize()
+                addTests(shard)
+                waitForCompletion()
+            }
         }
 
         onFinish(analytics, deviceProvider)

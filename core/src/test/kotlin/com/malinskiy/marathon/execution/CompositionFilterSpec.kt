@@ -2,6 +2,7 @@ package com.malinskiy.marathon.execution
 
 import com.malinskiy.marathon.test.MetaProperty
 import com.malinskiy.marathon.test.Test
+import com.malinskiy.marathon.test.TestComponentInfo
 import org.amshove.kluent.shouldEqual
 import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.given
@@ -91,7 +92,7 @@ object CompositionFilterSpec : Spek(
     })
 
 private fun stubTest(className: String, vararg annotations: MetaProperty) =
-    Test("com.example", className, "fakeMethod", listOf(*annotations))
+    Test("com.example", className, "fakeMethod", listOf(*annotations), TestComponentInfo())
 
 private fun stubTest(className: String, vararg annotations: String) =
-    Test("com.sample", className, "fakeMethod", annotations.map { MetaProperty(it) })
+    Test("com.sample", className, "fakeMethod", annotations.map { MetaProperty(it) }, TestComponentInfo())

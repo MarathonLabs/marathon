@@ -1,5 +1,6 @@
 package com.malinskiy.marathon.ios.xctestrun
 
+import com.malinskiy.marathon.ios.IOSComponentInfo
 import com.malinskiy.marathon.test.Test
 import org.amshove.kluent.shouldEqual
 import org.amshove.kluent.shouldHaveKey
@@ -16,6 +17,7 @@ object XctestrunSpek : Spek(
     {
         val file =
             File(javaClass.classLoader.getResource("fixtures/xctestrun/UITesting_iphonesimulator11.2-x86_64.xctestrun").file)
+        val componentInfo = IOSComponentInfo(File("."), File("."), File("."))
 
         describe("Xctestrun") {
             on("parsing") {
@@ -27,9 +29,9 @@ object XctestrunSpek : Spek(
                 }
 
                 it("should accurately determine skipped tests") {
-                    val test1 = Test("sample-appUITests", "SkippedSuite", "anyTest", listOf())
-                    val test2 = Test("sample-appUITests", "StoryboardTests", "testDisabledButton", listOf())
-                    val test3 = Test("sample-appUITests", "StoryboardTests", "testLabel", listOf())
+                    val test1 = Test("sample-appUITests", "SkippedSuite", "anyTest", listOf(), componentInfo)
+                    val test2 = Test("sample-appUITests", "StoryboardTests", "testDisabledButton", listOf(), componentInfo)
+                    val test3 = Test("sample-appUITests", "StoryboardTests", "testLabel", listOf(), componentInfo)
 
                     xctestrun.isSkipped(test1) shouldEqual true
                     xctestrun.isSkipped(test2) shouldEqual true

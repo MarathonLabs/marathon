@@ -6,6 +6,7 @@ import com.malinskiy.marathon.analytics.external.influx.InfluxMetricsProvider
 import com.malinskiy.marathon.device.DeviceFeature
 import com.malinskiy.marathon.device.DeviceProvider
 import com.malinskiy.marathon.execution.AnalyticsConfiguration
+import com.malinskiy.marathon.execution.ComponentInfoExtractor
 import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.execution.TestParser
 import com.malinskiy.marathon.log.MarathonLogConfigurator
@@ -48,6 +49,7 @@ class MetricsProviderFactorySpek : Spek(
                         override fun deviceProvider(): DeviceProvider? = null
                         override fun logConfigurator(): MarathonLogConfigurator? = null
                         override fun preferableRecorderType(): DeviceFeature? = null
+                        override fun componentInfoExtractor(): ComponentInfoExtractor? = null
                     },
                     analyticsTracking = false
                 )
@@ -67,6 +69,7 @@ class MetricsProviderFactorySpek : Spek(
                 val configuration = Configuration(
                     name = "",
                     outputDir = File(""),
+                    customAnalyticsTracker = null,
                     analyticsConfiguration = analyticsConfiguration,
                     poolingStrategy = null,
                     shardingStrategy = null,
@@ -91,6 +94,7 @@ class MetricsProviderFactorySpek : Spek(
                         override fun deviceProvider(): DeviceProvider? = null
                         override fun logConfigurator(): MarathonLogConfigurator? = null
                         override fun preferableRecorderType(): DeviceFeature? = null
+                        override fun componentInfoExtractor(): ComponentInfoExtractor? = null
                     },
                     analyticsTracking = false
                 )
@@ -110,6 +114,7 @@ class MetricsProviderFactorySpek : Spek(
                 val configuration = Configuration(
                     name = "",
                     outputDir = File(""),
+                    customAnalyticsTracker = null,
                     analyticsConfiguration = analyticsConfiguration,
                     poolingStrategy = null,
                     shardingStrategy = null,
@@ -134,6 +139,7 @@ class MetricsProviderFactorySpek : Spek(
                         override fun deviceProvider(): DeviceProvider? = null
                         override fun logConfigurator(): MarathonLogConfigurator? = null
                         override fun preferableRecorderType(): DeviceFeature? = null
+                        override fun componentInfoExtractor(): ComponentInfoExtractor? = null
                     },
                     analyticsTracking = false
                 )

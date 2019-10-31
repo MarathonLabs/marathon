@@ -29,7 +29,7 @@ val coreModule = module {
     single<Gson> { Gson() }
     single<Clock> { Clock.systemDefaultZone() }
     single<Timer> { SystemTimer(get()) }
-    single<ProgressReporter> { ProgressReporter(get<Configuration>().strictMode) }
+    single<ProgressReporter> { ProgressReporter() }
     single<Marathon> { Marathon(get(), get(), get(), get(), get()) }
 }
 

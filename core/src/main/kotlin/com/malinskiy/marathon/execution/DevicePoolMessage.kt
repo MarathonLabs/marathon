@@ -7,6 +7,7 @@ import com.malinskiy.marathon.test.TestBatch
 sealed class DevicePoolMessage {
     sealed class FromScheduler : DevicePoolMessage() {
         data class AddDevice(val device: Device) : FromScheduler()
+        data class AddTests(val shard: TestShard) : FromScheduler()
         data class RemoveDevice(val device: Device) : FromScheduler()
         object Terminate : FromScheduler()
     }

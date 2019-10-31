@@ -12,8 +12,6 @@ import java.util.concurrent.locks.Lock
 import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.withLock
 
-private const val PRODUCTS_PATH = "Build/Products"
-
 class DerivedDataManager(val configuration: Configuration) {
     companion object {
         private val hostnameLocksMap = ConcurrentHashMap<String, Lock>()
@@ -23,11 +21,11 @@ class DerivedDataManager(val configuration: Configuration) {
 
     private val iosConfiguration: IOSConfiguration = configuration.vendorConfiguration as IOSConfiguration
 
-    val productsDir: File
-        get() = iosConfiguration.derivedDataDir.resolve(PRODUCTS_PATH)
-
-    val xctestrunFile: File
-        get() = iosConfiguration.xctestrunPath
+//    val productsDir: File
+//        get() = iosConfiguration.derivedDataDir.resolve(PRODUCTS_PATH)
+//
+//    val xctestrunFile: File
+//        get() = iosConfiguration.xctestrunPath
 
     init {
         if (configuration.debug) {
@@ -36,9 +34,9 @@ class DerivedDataManager(val configuration: Configuration) {
         if (!iosConfiguration.remotePrivateKey.exists()) {
             throw FileNotFoundException("Private key not found at ${iosConfiguration.remotePrivateKey}")
         }
-        if (xctestrunFile.relativePathTo(productsDir) != xctestrunFile.name) {
-            throw FileNotFoundException("xctestrun file must be located in build products directory.")
-        }
+//        if (xctestrunFile.relativePathTo(productsDir) != xctestrunFile.name) {
+//            throw FileNotFoundException("xctestrun file must be located in build products directory.")
+//        }
     }
 
     private val rsyncVersion: String

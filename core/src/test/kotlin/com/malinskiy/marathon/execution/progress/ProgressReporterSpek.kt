@@ -4,6 +4,7 @@ import com.malinskiy.marathon.device.DevicePoolId
 import com.malinskiy.marathon.device.toDeviceInfo
 import com.malinskiy.marathon.test.StubDevice
 import com.malinskiy.marathon.test.Test
+import com.malinskiy.marathon.test.TestComponentInfo
 import org.amshove.kluent.shouldEqualTo
 import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.describe
@@ -18,9 +19,9 @@ class ProgressReporterSpek : Spek(
             it("should report proper progress for one pool") {
                 val poolId = DevicePoolId("testpool")
 
-                val test1 = Test("com.example", "SimpleTest", "method1", emptyList())
-                val test2 = Test("com.example", "SimpleTest", "method2", emptyList())
-                val test3 = Test("com.example", "SimpleTest", "method3", emptyList())
+                val test1 = Test("com.example", "SimpleTest", "method1", emptyList(), TestComponentInfo())
+                val test2 = Test("com.example", "SimpleTest", "method2", emptyList(), TestComponentInfo())
+                val test3 = Test("com.example", "SimpleTest", "method3", emptyList(), TestComponentInfo())
 
                 reporter.totalTests(poolId, 3)
                 reporter.progress().shouldEqualTo(.0f)

@@ -1,6 +1,7 @@
 package com.malinskiy.marathon.execution.strategy.impl.batching
 
 import com.malinskiy.marathon.analytics.external.Analytics
+import com.malinskiy.marathon.execution.ComponentInfo
 import com.malinskiy.marathon.execution.strategy.BatchingStrategy
 import com.malinskiy.marathon.test.Test
 import com.malinskiy.marathon.test.TestBatch
@@ -17,18 +18,31 @@ class FixedSizeBatchingStrategy(
 
     override fun process(queue: Queue<Test>, analytics: Analytics): TestBatch {
         if (queue.size < lastMileLength && queue.isNotEmpty()) {
-            //We optimize last mile by disabling batching completely.
+            // We optimize last mile by disabling batching completely.
             // This allows us to parallelize the test runs at the end instead of running batches in series
-            return TestBatch(listOf(queue.poll()))
+            val item = queue.poll()
+            return TestBatch(listOf(item), item.componentInfo)
         }
 
+        var componentInfo: ComponentInfo? = null
         var counter = 0
         var expectedBatchDuration = 0.0
         val duplicates = mutableListOf<Test>()
         val result = mutableSetOf<Test>()
+
         while (counter < size && queue.isNotEmpty()) {
             counter++
+
+            if (componentInfo != null) {
+                val nextItem = queue.peek()
+
+                // Ensure that we have only one component info per batch
+                if (componentInfo != nextItem.componentInfo) break
+            }
+
             val item = queue.poll()
+            componentInfo = item.componentInfo
+
             if (result.contains(item)) {
                 duplicates.add(item)
             } else {
@@ -44,10 +58,12 @@ class FixedSizeBatchingStrategy(
                 if (expectedBatchDuration >= durationMillis) break
             }
         }
+
         if (duplicates.isNotEmpty()) {
             queue.addAll(duplicates)
         }
-        return TestBatch(result.toList())
+
+        return TestBatch(result.toList(), componentInfo!!)
     }
 
     override fun equals(other: Any?): Boolean {
@@ -68,6 +84,4 @@ class FixedSizeBatchingStrategy(
     override fun toString(): String {
         return "FixedSizeBatchingStrategy(size=$size, durationMillis=$durationMillis, percentile=$percentile, timeLimit=$timeLimit, lastMileLength=$lastMileLength)"
     }
-
-
 }

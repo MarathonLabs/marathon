@@ -3,10 +3,8 @@ package com.malinskiy.marathon.android.executor.listeners.video
 import com.android.ddmlib.CollectingOutputReceiver
 import com.android.ddmlib.IDevice
 import com.android.ddmlib.SyncException
-import com.android.ddmlib.testrunner.TestIdentifier
 import com.malinskiy.marathon.android.AndroidDevice
-import com.malinskiy.marathon.android.executor.listeners.NoOpTestRunListener
-import com.malinskiy.marathon.android.toTest
+import com.malinskiy.marathon.android.executor.listeners.TestRunListener
 import com.malinskiy.marathon.device.DevicePoolId
 import com.malinskiy.marathon.device.toDeviceInfo
 import com.malinskiy.marathon.execution.Attachment
@@ -16,6 +14,7 @@ import com.malinskiy.marathon.io.FileType
 import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.report.attachment.AttachmentListener
 import com.malinskiy.marathon.report.attachment.AttachmentProvider
+import com.malinskiy.marathon.test.Test
 import kotlin.system.measureTimeMillis
 
 const val MS_IN_SECOND: Long = 1_000L
@@ -24,7 +23,7 @@ internal class ScreenRecorderTestRunListener(
     private val fileManager: FileManager,
     private val pool: DevicePoolId,
     private val device: AndroidDevice
-) : NoOpTestRunListener(), AttachmentProvider {
+) : TestRunListener, AttachmentProvider {
 
     val attachmentListeners = mutableListOf<AttachmentListener>()
 
@@ -43,7 +42,7 @@ internal class ScreenRecorderTestRunListener(
 
     private val awaitMillis = MS_IN_SECOND
 
-    override fun testStarted(test: TestIdentifier) {
+    override fun testStarted(test: Test) {
         hasFailed = false
 
         receiver = CollectingOutputReceiver()
@@ -54,21 +53,21 @@ internal class ScreenRecorderTestRunListener(
         }
     }
 
-    override fun testFailed(test: TestIdentifier, trace: String) {
+    override fun testFailed(test: Test, trace: String) {
         hasFailed = true
     }
 
-    override fun testAssumptionFailure(test: TestIdentifier, trace: String) {
+    override fun testAssumptionFailure(test: Test, trace: String) {
         receiver!!.cancel()
         pullVideo(test)
     }
 
-    override fun testEnded(test: TestIdentifier, testMetrics: Map<String, String>) {
+    override fun testEnded(test: Test, testMetrics: Map<String, String>) {
         receiver!!.cancel()
         pullVideo(test)
     }
 
-    private fun pullVideo(test: TestIdentifier) {
+    private fun pullVideo(test: Test) {
         try {
             val join = measureTimeMillis {
                 recorder?.join(awaitMillis)
@@ -89,17 +88,17 @@ internal class ScreenRecorderTestRunListener(
         }
     }
 
-    private fun pullTestVideo(test: TestIdentifier) {
-        val localVideoFile = fileManager.createFile(FileType.VIDEO, pool, device.toDeviceInfo(), test.toTest())
+    private fun pullTestVideo(test: Test) {
+        val localVideoFile = fileManager.createFile(FileType.VIDEO, pool, device.toDeviceInfo(), test)
         val remoteFilePath = device.fileManager.remoteVideoForTest(test)
         val millis = measureTimeMillis {
             device.fileManager.pullFile(remoteFilePath, localVideoFile.toString())
         }
         logger.trace { "Pulling finished in ${millis}ms $remoteFilePath " }
-        attachmentListeners.forEach { it.onAttachment(test.toTest(), Attachment(localVideoFile, AttachmentType.VIDEO)) }
+        attachmentListeners.forEach { it.onAttachment(test, Attachment(localVideoFile, AttachmentType.VIDEO)) }
     }
 
-    private fun removeTestVideo(test: TestIdentifier) {
+    private fun removeTestVideo(test: Test) {
         val remoteFilePath = device.fileManager.remoteVideoForTest(test)
         val millis = measureTimeMillis {
             device.fileManager.removeRemotePath(remoteFilePath)

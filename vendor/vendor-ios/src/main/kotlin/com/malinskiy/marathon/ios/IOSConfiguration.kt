@@ -2,6 +2,7 @@ package com.malinskiy.marathon.ios
 
 import com.malinskiy.marathon.device.DeviceFeature
 import com.malinskiy.marathon.device.DeviceProvider
+import com.malinskiy.marathon.execution.ComponentInfoExtractor
 import com.malinskiy.marathon.execution.TestParser
 import com.malinskiy.marathon.ios.di.iosModule
 import com.malinskiy.marathon.log.MarathonLogConfigurator
@@ -29,6 +30,8 @@ data class IOSConfiguration(
     override fun testParser(): TestParser? = get()
 
     override fun deviceProvider(): DeviceProvider? = get()
+
+    override fun componentInfoExtractor(): ComponentInfoExtractor? = get()
 
     override fun logConfigurator(): MarathonLogConfigurator? = IOSLogConfigurator()
 

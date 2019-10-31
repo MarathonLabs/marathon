@@ -10,6 +10,7 @@ import com.malinskiy.marathon.execution.TestShard
 import com.malinskiy.marathon.execution.TestStatus
 import com.malinskiy.marathon.generateTest
 import com.malinskiy.marathon.test.Mocks
+import com.malinskiy.marathon.test.StubComponentInfoExtractor
 import com.malinskiy.marathon.test.StubDeviceProvider
 import com.malinskiy.marathon.test.TestVendorConfiguration
 import com.nhaarman.mockitokotlin2.inOrder
@@ -53,7 +54,7 @@ object TestResultReporterSpec : Spek(
             testBatchTimeoutMillis = null,
             testOutputTimeoutMillis = null,
             debug = false,
-            vendorConfiguration = TestVendorConfiguration(Mocks.TestParser.DEFAULT, StubDeviceProvider()),
+            vendorConfiguration = TestVendorConfiguration(Mocks.TestParser.DEFAULT, StubDeviceProvider(), StubComponentInfoExtractor()),
             analyticsTracking = false
         )
         val strictConfig = defaultConfig.copy(strictMode = true)
@@ -64,18 +65,20 @@ object TestResultReporterSpec : Spek(
         fun filterDefault() = TestResultReporter(
             poolId,
             analytics,
-            TestShard(listOf(test, test, test)),
             defaultConfig,
             track
-        )
+        ).apply {
+            addShard(TestShard(listOf(test, test, test)))
+        }
 
         fun filterStrict() = TestResultReporter(
             poolId,
             analytics,
-            TestShard(listOf(test, test, test)),
             strictConfig,
             track
-        )
+        ).apply {
+            addShard(TestShard(listOf(test, test, test)))
+        }
 
         val deviceInfo = createDeviceInfo()
 

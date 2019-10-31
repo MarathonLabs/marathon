@@ -4,6 +4,7 @@ import com.malinskiy.marathon.device.DeviceProvider
 import com.malinskiy.marathon.execution.TestStatus
 import com.malinskiy.marathon.test.StubDevice
 import com.malinskiy.marathon.test.Test
+import com.malinskiy.marathon.test.TestComponentInfo
 import com.malinskiy.marathon.test.assert.shouldBeEqualToAsJson
 import com.malinskiy.marathon.test.setupMarathon
 import kotlinx.coroutines.GlobalScope
@@ -32,8 +33,8 @@ class DisconnectingScenarios : Spek(
                     val context = TestCoroutineContext("testing context")
 
                     val marathon = setupMarathon {
-                        val test1 = Test("test", "SimpleTest", "test1", emptySet())
-                        val test2 = Test("test", "SimpleTest", "test2", emptySet())
+                        val test1 = Test("test", "SimpleTest", "test1", emptySet(), TestComponentInfo())
+                        val test2 = Test("test", "SimpleTest", "test2", emptySet(), TestComponentInfo())
                         val device1 = StubDevice(serialNumber = "serial-1")
                         val device2 = StubDevice(serialNumber = "serial-2")
 

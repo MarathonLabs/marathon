@@ -1,5 +1,6 @@
 package com.malinskiy.marathon.ios.logparser.parser
 
+import com.malinskiy.marathon.execution.ComponentInfo
 import com.malinskiy.marathon.ios.logparser.StreamingLogParser
 import com.malinskiy.marathon.ios.logparser.formatter.PackageNameFormatter
 import com.malinskiy.marathon.ios.logparser.listener.TestRunListener
@@ -10,6 +11,7 @@ import com.malinskiy.marathon.time.Timer
 class TestRunProgressParser(
     private val timer: Timer,
     private val packageNameFormatter: PackageNameFormatter,
+    private val componentInfo: ComponentInfo,
     private val listeners: Collection<TestRunListener>
 ) : StreamingLogParser {
 
@@ -42,7 +44,7 @@ class TestRunProgressParser(
         logger.debug { "Test $pkg.$clazz.$method finished with result <$result> after $duration seconds" }
 
         if (pkg != null && clazz != null && method != null && result != null && duration != null) {
-            val test = Test(pkg, clazz, method, emptyList())
+            val test = Test(pkg, clazz, method, emptyList(), componentInfo)
 
             val endTime = timer.currentTimeMillis()
             val startTime = endTime - Math.round(duration * 1000)
@@ -66,7 +68,7 @@ class TestRunProgressParser(
         val method = matchResult?.groups?.get(3)?.value
 
         if (pkg != null && clazz != null && method != null) {
-            val test = Test(pkg, clazz, method, emptyList())
+            val test = Test(pkg, clazz, method, emptyList(), componentInfo)
             logger.trace { "Test $pkg.$clazz.$method started" }
             listeners.forEach { it.testStarted(test) }
         }

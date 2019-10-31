@@ -1,6 +1,7 @@
 package com.malinskiy.marathon.execution
 
 import com.malinskiy.marathon.test.Test
+import com.malinskiy.marathon.test.TestComponentInfo
 import org.amshove.kluent.shouldEqual
 import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.given
@@ -35,4 +36,4 @@ object SimpleClassnameFilterSpec : Spek(
         }
     })
 
-private fun stubTest(clazz: String) = Test("com.example", clazz, "fakeMethod", emptyList())
+private fun stubTest(clazz: String) = Test("com.example", clazz, "fakeMethod", emptyList(), TestComponentInfo())

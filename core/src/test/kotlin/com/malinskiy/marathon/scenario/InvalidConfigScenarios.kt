@@ -7,6 +7,7 @@ import com.malinskiy.marathon.execution.strategy.impl.flakiness.ProbabilityBased
 import com.malinskiy.marathon.execution.strategy.impl.sharding.CountShardingStrategy
 import com.malinskiy.marathon.test.StubDevice
 import com.malinskiy.marathon.test.Test
+import com.malinskiy.marathon.test.TestComponentInfo
 import com.malinskiy.marathon.test.setupMarathon
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
@@ -36,7 +37,7 @@ class InvalidConfigScenarios : Spek(
                     val context = TestCoroutineContext("testing context")
 
                     val marathon = setupMarathon {
-                        val test = Test("test", "SimpleTest", "test", emptySet())
+                        val test = Test("test", "SimpleTest", "test", emptySet(), TestComponentInfo())
                         val device = StubDevice()
 
                         configuration {
