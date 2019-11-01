@@ -27,4 +27,8 @@ class MappingTracker(private val trackerInternal: TrackerInternal) : Tracker {
     override fun test(poolId: DevicePoolId, device: DeviceInfo, testResult: TestResult, final: Boolean) {
         trackerInternal.track(TestEvent(Instant.now(), poolId, device, testResult, final))
     }
+
+    override fun close() {
+        trackerInternal.close()
+    }
 }
