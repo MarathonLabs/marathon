@@ -45,7 +45,7 @@ tasks.withType<KotlinCompile> {
 dependencies {
     implementation(project(":core"))
     implementation(project(":vendor:vendor-ios"))
-    implementation(project(":vendor:vendor-android:ddmlib"))
+    implementation(project(":vendor:vendor-android:base"))
     implementation(project(":analytics:usage"))
     implementation(Libraries.kotlinStdLib)
     implementation(Libraries.kotlinCoroutines)

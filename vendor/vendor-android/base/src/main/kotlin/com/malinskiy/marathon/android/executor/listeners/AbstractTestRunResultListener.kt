@@ -1,5 +1,6 @@
 package com.malinskiy.marathon.android.executor.listeners
 
+import com.malinskiy.marathon.android.model.TestRunResult
 import com.malinskiy.marathon.test.Test
 
 abstract class AbstractTestRunResultListener : NoOpTestRunListener() {

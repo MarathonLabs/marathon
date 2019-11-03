@@ -1,12 +1,17 @@
 package com.malinskiy.marathon.android
 
-import com.malinskiy.marathon.android.executor.listeners.LineListener
+import com.android.sdklib.AndroidVersion
+import com.malinskiy.marathon.android.executor.listeners.line.LineListener
+import com.malinskiy.marathon.android.executor.listeners.video.ScreenRecorderOptions
 import com.malinskiy.marathon.device.Device
 import java.awt.image.BufferedImage
 import java.util.concurrent.TimeUnit
 
-interface AndroidDevice: Device {
+interface AndroidDevice : Device {
     val apiLevel: Int
+    val version: AndroidVersion
+
+    val fileManager: RemoteFileManager
 
     fun getExternalStorageMount(): String
 
@@ -19,4 +24,5 @@ interface AndroidDevice: Device {
 
     fun addLogcatListener(listener: LineListener)
     fun removeLogcatListener(listener: LineListener)
+    fun safeStartScreenRecorder(remoteFilePath: String, listener: LineListener, options: ScreenRecorderOptions)
 }

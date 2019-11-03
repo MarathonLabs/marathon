@@ -21,6 +21,7 @@ dependencies {
     implementation(Libraries.scalr)
     implementation(project(":core"))
     implementation(Libraries.logbackClassic)
+    implementation(Libraries.androidCommon)
     testImplementation(project(":vendor:vendor-test"))
     testImplementation(TestLibraries.kluent)
     testImplementation(TestLibraries.mockitoKotlin)

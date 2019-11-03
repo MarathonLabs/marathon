@@ -1,6 +1,7 @@
 package com.malinskiy.marathon.android.executor.listeners
 
 import com.malinskiy.marathon.android.model.TestIdentifier
+import com.malinskiy.marathon.android.model.TestRunResult
 import com.malinskiy.marathon.device.Device
 import com.malinskiy.marathon.device.toDeviceInfo
 import com.malinskiy.marathon.execution.Attachment
@@ -45,7 +46,7 @@ class TestRunResultsListener(
     private val logger = MarathonLogging.logger("TestRunResultsListener")
 
     override fun handleTestRunResults(runResult: TestRunResult) {
-        val results = mergeParameterisedResults(runResult.testResults)
+        val results = mergeParameterisedResults(runResult.getTestResults())
         val tests = testBatch.tests.associateBy { it.identifier() }
 
         val testResults = results.map {
@@ -57,16 +58,16 @@ class TestRunResultsListener(
         }
 
         val finished = nonNullTestResults.filter {
-            results[it.test.identifier()]?.isSuccessful() ?: false
+            results[it.test]?.isSuccessful() ?: false
         }
 
         val failed = nonNullTestResults.filterNot {
-            results[it.test.identifier()]?.isSuccessful() ?: false
+            results[it.test]?.isSuccessful() ?: false
         }
 
         val uncompleted = tests
             .filterNot { expectedTest ->
-                results.containsKey(expectedTest.key)
+                results.containsKey(expectedTest.value)
             }
             .values
             .createUncompletedTestResults(runResult, device)
@@ -81,12 +82,12 @@ class TestRunResultsListener(
     }
 
     private fun Collection<Test>.createUncompletedTestResults(
-        testRunResult: com.android.ddmlib.testrunner.TestRunResult,
+        testRunResult: TestRunResult,
         device: Device
     ): Collection<TestResult> {
 
         val lastCompletedTestEndTime = testRunResult
-            .testResults
+            .getTestResults()
             .values
             .maxBy { it.endTime }
             ?.endTime
@@ -99,7 +100,7 @@ class TestRunResultsListener(
                 TestStatus.INCOMPLETE,
                 lastCompletedTestEndTime,
                 timer.currentTimeMillis(),
-                testRunResult.runFailureMessage
+                testRunResult.getRunFailureMessage()
             )
         }
     }
@@ -132,9 +133,9 @@ class TestRunResultsListener(
         return result.toMap()
     }
 
-    private fun Map.Entry<TestIdentifier, TestResult>.toTestResult(device: Device): TestResult {
-        val testInstanceFromBatch = testBatch.tests.find { "${it.pkg}.${it.clazz}" == key.className && it.method == key.testName }
-        val test = key.toTest()
+    private fun Map.Entry<Test, TestResult>.toTestResult(device: Device): TestResult {
+        val testInstanceFromBatch = testBatch.tests.find { "${it.pkg}.${it.clazz}" == key.clazz && it.method == key.method }
+        val test = key
         val attachments = attachments[test] ?: emptyList<Attachment>()
         return TestResult(
             test = testInstanceFromBatch ?: test,

@@ -1,15 +1,20 @@
 package com.malinskiy.marathon.android.ddmlib
 
 import com.android.ddmlib.AdbCommandRejectedException
+import com.android.ddmlib.CollectingOutputReceiver
 import com.android.ddmlib.IDevice
 import com.android.ddmlib.IDevice.MNT_EXTERNAL_STORAGE
 import com.android.ddmlib.InstallException
 import com.android.ddmlib.NullOutputReceiver
 import com.android.ddmlib.RawImage
 import com.android.ddmlib.ShellCommandUnresponsiveException
+import com.android.ddmlib.SyncException
 import com.android.ddmlib.TimeoutException
 import com.android.ddmlib.logcat.LogCatMessage
 import com.android.ddmlib.logcat.LogCatReceiverTask
+import com.android.ddmlib.testrunner.ITestRunListener
+import com.android.ddmlib.testrunner.TestIdentifier
+import com.android.sdklib.AndroidVersion
 import com.malinskiy.marathon.analytics.internal.pub.Track
 import com.malinskiy.marathon.android.AndroidAppInstaller
 import com.malinskiy.marathon.android.AndroidDevice
@@ -17,14 +22,18 @@ import com.malinskiy.marathon.android.RemoteFileManager
 import com.malinskiy.marathon.android.ddmlib.shell.receiver.CollectingShellOutputReceiver
 import com.malinskiy.marathon.android.exception.CommandRejectedException
 import com.malinskiy.marathon.android.exception.InvalidSerialConfiguration
+import com.malinskiy.marathon.android.exception.TransferException
+import com.malinskiy.marathon.android.executor.listeners.AndroidTestRunListener
 import com.malinskiy.marathon.android.executor.listeners.CompositeTestRunListener
 import com.malinskiy.marathon.android.executor.listeners.DebugTestRunListener
-import com.malinskiy.marathon.android.executor.listeners.LineListener
+import com.malinskiy.marathon.android.executor.listeners.line.LineListener
 import com.malinskiy.marathon.android.executor.listeners.LogCatListener
 import com.malinskiy.marathon.android.executor.listeners.NoOpTestRunListener
 import com.malinskiy.marathon.android.executor.listeners.ProgressTestRunListener
 import com.malinskiy.marathon.android.executor.listeners.TestRunResultsListener
 import com.malinskiy.marathon.android.executor.listeners.screenshot.ScreenCapturerTestRunListener
+import com.malinskiy.marathon.android.executor.listeners.video.ScreenRecorderOptions
+import com.malinskiy.marathon.android.executor.listeners.video.ScreenRecorderTestRunListener
 import com.malinskiy.marathon.android.serial.SerialStrategy
 import com.malinskiy.marathon.device.Device
 import com.malinskiy.marathon.device.DeviceFeature
@@ -58,6 +67,9 @@ class DdmlibAndroidDevice(
     private val timer: Timer,
     private val serialStrategy: SerialStrategy = SerialStrategy.AUTOMATIC
 ) : Device, CoroutineScope, AndroidDevice {
+    override val fileManager = RemoteFileManager(this)
+
+    override val version: AndroidVersion = ddmsDevice.version
     override fun removeLogcatListener(listener: LineListener) {
         logcatListeners.getAndUpdate { it.apply { remove(listener) } }
     }
@@ -65,19 +77,25 @@ class DdmlibAndroidDevice(
     private val nullOutputReceiver = NullOutputReceiver()
 
     private val receiver = LogCatReceiverTask(ddmsDevice)
+
     private var logcatThread = thread(name = "LogCatLogger-${ddmsDevice.serialNumber}") {
         receiver.run()
     }
     private val ref = AtomicReference<MutableList<LogCatMessage>>(mutableListOf())
     private val logcatListeners = AtomicReference<MutableList<LineListener>>(mutableListOf())
     private val listener: (MutableList<LogCatMessage>) -> Unit = {
-        logcatListeners.get().forEach { listener ->
-            listener.onLine("${it.timestamp} ${it.pid}-${it.tid}/${it.appName} ${it.logLevel.priorityLetter}/${it.tag}: ${it.message}")
+        it.forEach { msg ->
+            logcatListeners.get().forEach { listener ->
+                listener.onLine("${msg.timestamp} ${msg.pid}-${msg.tid}/${msg.appName} ${msg.logLevel.priorityLetter}/${msg.tag}: ${msg.message}")
+            }
         }
     }
-
     override fun pullFile(remoteFilePath: String, localFilePath: String) {
-        ddmsDevice.pullFile(remoteFilePath, localFilePath)
+        try {
+            ddmsDevice.pullFile(remoteFilePath, localFilePath)
+        } catch (e: SyncException) {
+            throw TransferException(e)
+        }
     }
 
     override fun getExternalStorageMount(): String = ddmsDevice.getMountPoint(MNT_EXTERNAL_STORAGE)!!
@@ -101,14 +119,33 @@ class DdmlibAndroidDevice(
             val rawImage = ddmsDevice.getScreenshot(timeout, units)
             bufferedImageFrom(rawImage)
         } catch (e: TimeoutException) {
-            throw java.util.concurrent.TimeoutException(e)
+            throw java.util.concurrent.TimeoutException(e.message)
         } catch (e: AdbCommandRejectedException) {
             throw CommandRejectedException(e)
         }
     }
 
+    override fun safeStartScreenRecorder(remoteFilePath: String,
+                                         listener: LineListener,
+                                         options: ScreenRecorderOptions) {
+        val recorderOptions = com.android.ddmlib.ScreenRecorderOptions.Builder()
+            .setBitRate(options.bitrateMbps)
+            .setShowTouches(options.showTouches)
+            .setSize(options.width, options.height)
+            .setTimeLimit(options.timeLimit, options.timeLimitUnits)
+            .build()
+
+        ddmsDevice.safeStartScreenRecorder(remoteFilePath,
+                                           recorderOptions,
+                                           CollectingOutputReceiver())
+    }
+
     override fun addLogcatListener(listener: LineListener) {
-        receiver.addLogCatListener(listener)
+        receiver.addLogCatListener {
+            it.forEach { message ->
+                listener.onLine(message.toString())
+            }
+        }
     }
 
     private fun bufferedImageFrom(rawImage: RawImage): BufferedImage {
@@ -124,8 +161,6 @@ class DdmlibAndroidDevice(
         }
         return image
     }
-
-    val fileManager = RemoteFileManager(this)
 
     private val dispatcher by lazy {
         newFixedThreadPoolContext(1, "AndroidDevice - execution - ${ddmsDevice.serialNumber}")
@@ -236,9 +271,10 @@ class DdmlibAndroidDevice(
     ) {
 
         val deferredResult = async {
-            val listeners = createListeners(configuration, devicePoolId, testBatch, deferred, progressReporter)
+            val listener = createListeners(configuration, devicePoolId, testBatch, deferred, progressReporter)
+                .toDdmlibTestListener()
             AndroidDeviceTestRunner(this@DdmlibAndroidDevice)
-                .execute(configuration, testBatch, listeners)
+                .execute(configuration, testBatch, listener)
         }
         deferredResult.await()
     }
@@ -338,5 +374,46 @@ class DdmlibAndroidDevice(
 
     override fun toString(): String {
         return "AndroidDevice(model=$model, serial=$serialNumber)"
+    }
+}
+
+private fun AndroidTestRunListener.toDdmlibTestListener(): ITestRunListener {
+    return object : ITestRunListener {
+        override fun testRunStarted(runName: String?, testCount: Int) {
+            this@toDdmlibTestListener.testRunStarted(runName ?: "", testCount)
+        }
+
+        override fun testStarted(test: TestIdentifier) {
+            this@toDdmlibTestListener.testStarted(test.toTest())
+        }
+
+        override fun testAssumptionFailure(test: TestIdentifier, trace: String?) {
+            this@toDdmlibTestListener.testAssumptionFailure(test.toTest(), trace ?: "")
+        }
+
+        override fun testRunStopped(elapsedTime: Long) {
+            this@toDdmlibTestListener.testRunStopped(elapsedTime)
+        }
+
+        override fun testFailed(test: TestIdentifier, trace: String?) {
+            this@toDdmlibTestListener.testFailed(test.toTest(), trace ?: "")
+        }
+
+        override fun testEnded(test: TestIdentifier, testMetrics: MutableMap<String, String>?) {
+            this@toDdmlibTestListener.testEnded(test.toTest(), testMetrics ?: emptyMap<String, String>())
+        }
+
+        override fun testIgnored(test: TestIdentifier) {
+            this@toDdmlibTestListener.testIgnored(test.toTest())
+        }
+
+        override fun testRunFailed(errorMessage: String?) {
+            this@toDdmlibTestListener.testRunFailed(errorMessage ?: "")
+        }
+
+        override fun testRunEnded(elapsedTime: Long, runMetrics: MutableMap<String, String>?) {
+            this@toDdmlibTestListener.testRunEnded(elapsedTime, runMetrics ?: emptyMap())
+        }
+
     }
 }
