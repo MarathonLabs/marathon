@@ -8,6 +8,7 @@ import com.android.build.gradle.api.BaseVariantOutput
 import com.android.build.gradle.api.TestVariant
 import com.malinskiy.marathon.extensions.executeGradleCompat
 import com.malinskiy.marathon.log.MarathonLogging
+import com.malinskiy.marathon.properties.MarathonProperties
 import com.malinskiy.marathon.properties.getProperties
 import org.gradle.api.Plugin
 import org.gradle.api.Project
@@ -24,10 +25,13 @@ class MarathonPlugin : Plugin<Project> {
         log.info { "Applying marathon plugin" }
 
         val properties = getProperties(project.rootProject)
-        val isWorkerEnabled = properties.isCommonWorkerEnabled
-        if (isWorkerEnabled) TODO()
+        if (properties.isCommonWorkerEnabled) {
+            if (project.rootProject.extensions.findByName(EXTENSION_NAME) == null) {
+                project.rootProject.extensions.create(EXTENSION_NAME, MarathonExtension::class.java, project)
+            }
+        }
 
-        val extension: MarathonExtension = project.extensions.create("marathon", MarathonExtension::class.java, project)
+        project.extensions.create(EXTENSION_NAME, MarathonExtension::class.java, project)
 
         project.afterEvaluate {
             val appPlugin = project.plugins.findPlugin(AppPlugin::class.java)
@@ -50,36 +54,46 @@ class MarathonPlugin : Plugin<Project> {
             }
             val testedExtension = appExtension ?: libraryExtension
 
-            val conf = extensions.getByName("marathon") as? MarathonExtension ?: MarathonExtension(project)
-
             testedExtension!!.testVariants.all {
                 log.info { "Applying marathon for $this" }
-                val testTaskForVariant = createTask(this, project, conf, testedExtension.sdkDirectory)
+                val testTaskForVariant = createTask(this, project, properties, testedExtension.sdkDirectory)
                 marathonTask.dependsOn(testTaskForVariant)
             }
         }
     }
 
     companion object {
-        private fun createTask(variant: TestVariant, project: Project, config: MarathonExtension, sdkDirectory: File): MarathonRunTask {
+        private fun createTask(
+            variant: TestVariant,
+            project: Project,
+            properties: MarathonProperties,
+            sdkDirectory: File
+        ): Task {
             checkTestVariants(variant)
-
-            val marathonTask = project.tasks.create("$TASK_PREFIX${variant.name.capitalize()}", MarathonRunTask::class.java)
+            val taskType = if (properties.isCommonWorkerEnabled) MarathonWorkerRunTask::class.java else MarathonRunTask::class.java
+            val marathonTask = project.tasks.create("$TASK_PREFIX${variant.name.capitalize()}", taskType)
 
             variant.testedVariant.outputs.all {
                 val testedOutput = this
                 log.info { "Processing output $testedOutput" }
 
                 checkTestedVariants(testedOutput)
-                marathonTask.configure(closureOf<MarathonRunTask> {
+
+                val config = createConfiguration(
+                    marathonExtensionName = EXTENSION_NAME,
+                    project = project,
+                    properties = properties,
+                    sdkDirectory = sdkDirectory,
+                    flavorName = variant.name,
+                    applicationVariant = variant.testedVariant,
+                    testVariant = variant
+                )
+
+                marathonTask.configure(closureOf<BaseMarathonRunTask> {
                     group = JavaBasePlugin.VERIFICATION_GROUP
                     description = "Runs instrumentation tests on all the connected devices for '${variant.name}' " +
                             "variation and generates a report with screenshots"
-                    flavorName = variant.name
-                    applicationVariant = variant.testedVariant
-                    testVariant = variant
-                    extensionConfig = config
-                    sdk = sdkDirectory
+                    configuration = config
                     outputs.upToDateWhen { false }
 
                     executeGradleCompat(
@@ -125,5 +139,7 @@ class MarathonPlugin : Plugin<Project> {
          * Task name prefix.
          */
         private const val TASK_PREFIX = "marathon"
+
+        private const val EXTENSION_NAME = "marathon"
     }
 }

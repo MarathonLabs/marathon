@@ -10,7 +10,7 @@ class AndroidComponentInfoExtractor : ComponentInfoExtractor {
         val androidConfiguration = configuration.vendorConfiguration as AndroidConfiguration
 
         return AndroidComponentInfo(
-            configuration.outputDir,
+            configuration.name,
             androidConfiguration.applicationOutput,
             androidConfiguration.testApplicationOutput
         )
