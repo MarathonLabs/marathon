@@ -4,10 +4,10 @@ import com.malinskiy.marathon.execution.ComponentInfo
 import java.io.File
 
 data class IOSComponentInfo(
-    override val outputDir: File,
     val xctestrunPath: File,
     val derivedDataDir: File,
-    val sourceRoot: File = File(".")
+    val sourceRoot: File = File("."),
+    override val name: String = "root"
 ) : ComponentInfo {
 
     val productsDir = derivedDataDir.resolve(PRODUCTS_PATH)

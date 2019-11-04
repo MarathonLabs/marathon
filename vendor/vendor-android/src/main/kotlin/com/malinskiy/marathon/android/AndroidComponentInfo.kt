@@ -4,7 +4,7 @@ import com.malinskiy.marathon.execution.ComponentInfo
 import java.io.File
 
 data class AndroidComponentInfo(
-    override val outputDir: File,
+    override val name: String,
     val applicationOutput: File?,
     val testApplicationOutput: File
 ) : ComponentInfo

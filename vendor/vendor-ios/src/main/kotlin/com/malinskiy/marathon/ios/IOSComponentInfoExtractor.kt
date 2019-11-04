@@ -10,10 +10,10 @@ class IOSComponentInfoExtractor : ComponentInfoExtractor {
         val iosConfiguration = configuration.vendorConfiguration as IOSConfiguration
 
         return IOSComponentInfo(
-            configuration.outputDir,
             iosConfiguration.xctestrunPath,
             iosConfiguration.derivedDataDir,
-            iosConfiguration.sourceRoot
+            iosConfiguration.sourceRoot,
+            configuration.name
         )
     }
 }

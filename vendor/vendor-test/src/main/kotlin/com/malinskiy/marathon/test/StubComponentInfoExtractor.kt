@@ -7,7 +7,7 @@ import com.malinskiy.marathon.execution.Configuration
 class StubComponentInfoExtractor : ComponentInfoExtractor {
 
     override fun extract(configuration: Configuration): ComponentInfo {
-        return TestComponentInfo("test", configuration.outputDir)
+        return TestComponentInfo("test", configuration.name)
     }
 
 }
