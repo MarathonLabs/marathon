@@ -150,7 +150,7 @@ class Marathon(
     private suspend fun onFinish(analytics: Analytics, deviceProvider: DeviceProvider) {
         analytics.close()
         deviceProvider.terminate()
-        tracker.close()
+        track.close()
     }
 
     private fun applyTestFilters(parsedTests: List<Test>): List<Test> {

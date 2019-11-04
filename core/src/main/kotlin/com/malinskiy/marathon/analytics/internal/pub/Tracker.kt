@@ -18,4 +18,5 @@ interface Tracker {
      *              reporters such as jUnit should handle this as an indication to save report
      */
     fun test(poolId: DevicePoolId, device: DeviceInfo, testResult: TestResult, final: Boolean)
+    fun close()
 }
