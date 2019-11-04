@@ -8,6 +8,7 @@ import com.android.build.gradle.api.BaseVariantOutput
 import com.android.build.gradle.api.TestVariant
 import com.malinskiy.marathon.extensions.executeGradleCompat
 import com.malinskiy.marathon.log.MarathonLogging
+import com.malinskiy.marathon.properties.getProperties
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.Task
@@ -21,6 +22,10 @@ class MarathonPlugin : Plugin<Project> {
 
     override fun apply(project: Project) {
         log.info { "Applying marathon plugin" }
+
+        val properties = getProperties(project.rootProject)
+        val isWorkerEnabled = properties.isCommonWorkerEnabled
+        if (isWorkerEnabled) TODO()
 
         val extension: MarathonExtension = project.extensions.create("marathon", MarathonExtension::class.java, project)
 
