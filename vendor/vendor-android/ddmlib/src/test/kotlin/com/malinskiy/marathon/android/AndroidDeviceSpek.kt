@@ -3,6 +3,7 @@ package com.malinskiy.marathon.android
 import com.android.ddmlib.IDevice
 import com.android.sdklib.AndroidVersion
 import com.malinskiy.marathon.analytics.internal.pub.Track
+import com.malinskiy.marathon.android.ddmlib.DdmlibAndroidDevice
 import com.malinskiy.marathon.android.serial.SerialStrategy
 import com.malinskiy.marathon.time.SystemTimer
 import com.nhaarman.mockitokotlin2.whenever

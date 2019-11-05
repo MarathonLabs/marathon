@@ -1,6 +1,7 @@
 package com.malinskiy.marathon.android
 
 import com.malinskiy.marathon.analytics.internal.pub.Track
+import com.malinskiy.marathon.android.ddmlib.DdmlibDeviceProvider
 import com.malinskiy.marathon.time.SystemTimer
 import kotlinx.coroutines.runBlocking
 import org.amshove.kluent.shouldEqual
@@ -15,7 +16,7 @@ class AndroidDeviceProviderSpek : Spek(
         given("A provider") {
             on("terminate") {
                 it("should close the channel") {
-                    val provider = AndroidDeviceProvider(Track(), SystemTimer(Clock.systemDefaultZone()))
+                    val provider = DdmlibDeviceProvider(Track(), SystemTimer(Clock.systemDefaultZone()))
 
                     runBlocking {
                         provider.terminate()

@@ -4,8 +4,9 @@ import com.android.ddmlib.IDevice
 import com.android.ddmlib.testrunner.ITestRunListener
 import com.android.sdklib.AndroidVersion
 import com.malinskiy.marathon.analytics.internal.pub.Track
-import com.malinskiy.marathon.android.executor.AndroidDeviceTestRunner
-import com.malinskiy.marathon.android.executor.toTestIdentifier
+import com.malinskiy.marathon.android.ddmlib.AndroidDeviceTestRunner
+import com.malinskiy.marathon.android.ddmlib.DdmlibAndroidDevice
+import com.malinskiy.marathon.android.ddmlib.toTestIdentifier
 import com.malinskiy.marathon.android.serial.SerialStrategy
 import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.spek.initKoin
@@ -18,6 +19,7 @@ import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
 import com.nhaarman.mockitokotlin2.whenever
+import ddmlibModule
 import org.amshove.kluent.mock
 import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.describe
@@ -63,7 +65,8 @@ class AndroidDeviceTestRunnerSpek : Spek(
                     vendorConfiguration = AndroidConfiguration(
                         File(""),
                         applicationOutput = File(""),
-                        testApplicationOutput = apkFile
+                        testApplicationOutput = apkFile,
+                        implementationModules = listOf(ddmlibModule)
                     ),
                     analyticsTracking = false
                 )

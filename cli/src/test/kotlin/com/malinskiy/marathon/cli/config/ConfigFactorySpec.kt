@@ -38,6 +38,7 @@ import com.malinskiy.marathon.execution.strategy.impl.sorting.NoSortingStrategy
 import com.malinskiy.marathon.execution.strategy.impl.sorting.SuccessRateSortingStrategy
 import com.malinskiy.marathon.ios.IOSConfiguration
 import com.nhaarman.mockitokotlin2.whenever
+import ddmlibModule
 import org.amshove.kluent.`it returns`
 import org.amshove.kluent.`should be instance of`
 import org.amshove.kluent.mock
@@ -155,6 +156,7 @@ object ConfigFactorySpec : Spek(
                         File("/local/android"),
                         File("kotlin-buildscript/build/outputs/apk/debug/kotlin-buildscript-debug.apk"),
                         File("kotlin-buildscript/build/outputs/apk/androidTest/debug/kotlin-buildscript-debug-androidTest.apk"),
+                        listOf(ddmlibModule),
                         true,
                         mapOf("debug" to "false"),
                         true,
@@ -223,6 +225,7 @@ object ConfigFactorySpec : Spek(
                         File("/local/android"),
                         File("kotlin-buildscript/build/outputs/apk/debug/kotlin-buildscript-debug.apk"),
                         File("kotlin-buildscript/build/outputs/apk/androidTest/debug/kotlin-buildscript-debug-androidTest.apk"),
+                        listOf(ddmlibModule),
                         false,
                         mapOf(),
                         false,
@@ -290,6 +293,7 @@ object ConfigFactorySpec : Spek(
                         environmentReader.read().androidSdk!!,
                         File("kotlin-buildscript/build/outputs/apk/debug/kotlin-buildscript-debug.apk"),
                         File("kotlin-buildscript/build/outputs/apk/androidTest/debug/kotlin-buildscript-debug-androidTest.apk"),
+                        listOf(ddmlibModule),
                         false,
                         mapOf(),
                         false,

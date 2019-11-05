@@ -3,7 +3,7 @@ package com.malinskiy.marathon.android
 import com.malinskiy.marathon.test.Test
 
 class RemoteFileManager(private val device: AndroidDevice) {
-    private val outputDir = device.getExternalStorageMount()
+    private val outputDir by lazy { device.getExternalStorageMount() }
 
     fun removeRemotePath(remotePath: String) {
         device.executeCommand("rm $remotePath", "Could not delete remote file(s): $remotePath")

@@ -69,7 +69,7 @@ class DdmlibAndroidDevice(
 ) : Device, CoroutineScope, AndroidDevice {
     override val fileManager = RemoteFileManager(this)
 
-    override val version: AndroidVersion = ddmsDevice.version
+    override val version: AndroidVersion by lazy { ddmsDevice.version }
     override fun removeLogcatListener(listener: LineListener) {
         logcatListeners.getAndUpdate { it.apply { remove(listener) } }
     }

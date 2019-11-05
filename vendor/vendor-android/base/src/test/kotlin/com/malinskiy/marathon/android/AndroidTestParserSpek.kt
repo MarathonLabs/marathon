@@ -42,7 +42,8 @@ class AndroidTestParserSpek : Spek(
                     vendorConfiguration = AndroidConfiguration(
                         File(""),
                         applicationOutput = File(""),
-                        testApplicationOutput = apkFile
+                        testApplicationOutput = apkFile,
+                        implementationModules = emptyList()
                     ),
                     analyticsTracking = false
                 )
