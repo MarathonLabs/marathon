@@ -21,6 +21,7 @@ dependencies {
     implementation(Libraries.kotlinLogging)
     implementation(project(":core"))
     implementation(project(":vendor:vendor-android:base"))
+    implementation(project(":vendor:vendor-android:ddmlib"))
     implementation(BuildPlugins.androidGradle)
     implementation(project(":analytics:usage"))
 }

@@ -9,6 +9,7 @@ import com.malinskiy.marathon.log.MarathonLogConfigurator
 import com.malinskiy.marathon.vendor.VendorConfiguration
 import org.koin.core.KoinComponent
 import org.koin.core.get
+import org.koin.core.module.Module
 import java.io.File
 
 const val defaultInitTimeoutMillis = 30_000
@@ -22,6 +23,7 @@ data class AndroidConfiguration(
     val androidSdk: File,
     val applicationOutput: File?,
     val testApplicationOutput: File,
+    val implementationModules: List<Module>,
     val autoGrantPermission: Boolean = DEFAULT_AUTO_GRANT_PERMISSION,
     val instrumentationArgs: Map<String, String> = emptyMap(),
     val applicationPmClear: Boolean = DEFAULT_APPLICATION_PM_CLEAR,
@@ -32,6 +34,8 @@ data class AndroidConfiguration(
     val serialStrategy: SerialStrategy = SerialStrategy.AUTOMATIC
 ) : VendorConfiguration, KoinComponent {
 
+    private val koinModules = listOf(androidModule) + implementationModules
+
     override fun testParser(): TestParser? = get()
 
     override fun deviceProvider(): DeviceProvider? = get()
@@ -40,5 +44,5 @@ data class AndroidConfiguration(
 
     override fun preferableRecorderType(): DeviceFeature? = preferableRecorderType
 
-    override fun modules() = listOf(androidModule)
+    override fun modules() = koinModules
 }

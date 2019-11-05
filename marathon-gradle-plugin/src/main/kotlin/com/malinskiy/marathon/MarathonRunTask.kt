@@ -15,6 +15,7 @@ import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.usageanalytics.TrackActionType
 import com.malinskiy.marathon.usageanalytics.UsageAnalytics
 import com.malinskiy.marathon.usageanalytics.tracker.Event
+import ddmlibModule
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
 import org.gradle.api.tasks.OutputDirectory
@@ -107,16 +108,17 @@ open class MarathonRunTask : DefaultTask(), VerificationTask {
         val preferableRecorderType = extension.preferableRecorderType
 
         return AndroidConfiguration(
-            sdk,
-            applicationApk,
-            instrumentationApk,
-            autoGrantPermission,
-            instrumentationArgs,
-            applicationPmClear,
-            testApplicationPmClear,
-            adbInitTimeout,
-            installOptions,
-            preferableRecorderType
+            androidSdk = sdk,
+            applicationOutput = applicationApk,
+            testApplicationOutput = instrumentationApk,
+            implementationModules = listOf(ddmlibModule),
+            autoGrantPermission = autoGrantPermission,
+            instrumentationArgs = instrumentationArgs,
+            applicationPmClear = applicationPmClear,
+            testApplicationPmClear = testApplicationPmClear,
+            adbInitTimeoutMillis = adbInitTimeout,
+            installOptions = installOptions,
+            preferableRecorderType = preferableRecorderType
         )
     }
 
