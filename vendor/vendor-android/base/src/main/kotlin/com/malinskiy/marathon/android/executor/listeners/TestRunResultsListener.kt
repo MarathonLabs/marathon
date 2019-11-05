@@ -146,11 +146,11 @@ class TestRunResultsListener(
         return TestIdentifier("$pkg.$clazz", method)
     }
 
-    private fun AndroidTestResult.isSuccessful() =
-        status == TestStatus.PASSED ||
-                status == TestStatus.IGNORED ||
-                status == TestStatus.ASSUMPTION_FAILURE
-
+    private fun AndroidTestResult.isSuccessful(): Boolean =
+        when (status) {
+            AndroidTestStatus.PASSED, AndroidTestStatus.IGNORED, AndroidTestStatus.ASSUMPTION_FAILURE -> true
+            else -> false
+        }
 }
 
 private operator fun AndroidTestStatus.plus(value: AndroidTestStatus): AndroidTestStatus {
