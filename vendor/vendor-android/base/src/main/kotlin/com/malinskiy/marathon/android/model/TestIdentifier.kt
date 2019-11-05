@@ -16,7 +16,16 @@
 
 package com.malinskiy.marathon.android.model
 
+import com.malinskiy.marathon.test.Test
+
 data class TestIdentifier(
     val className: String,
     val testName: String
-)
+) {
+    fun toTest(): Test {
+        val pkg = className.substringBeforeLast(".")
+        val className = className.substringAfterLast(".")
+        val methodName = testName
+        return Test(pkg, className, methodName, emptyList())
+    }
+}

@@ -2,6 +2,7 @@ package com.malinskiy.marathon.android.executor.listeners.screenshot
 
 import com.malinskiy.marathon.android.AndroidDevice
 import com.malinskiy.marathon.android.executor.listeners.NoOpTestRunListener
+import com.malinskiy.marathon.android.model.TestIdentifier
 import com.malinskiy.marathon.device.DevicePoolId
 import com.malinskiy.marathon.device.toDeviceInfo
 import com.malinskiy.marathon.execution.Attachment
@@ -11,7 +12,6 @@ import com.malinskiy.marathon.io.FileType
 import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.report.attachment.AttachmentListener
 import com.malinskiy.marathon.report.attachment.AttachmentProvider
-import com.malinskiy.marathon.test.Test
 import com.malinskiy.marathon.test.toSimpleSafeTestName
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
@@ -38,24 +38,26 @@ class ScreenCapturerTestRunListener(
     override val coroutineContext: CoroutineContext
         get() = threadPoolDispatcher
 
-    override fun testStarted(test: Test) {
+    override fun testStarted(test: TestIdentifier) {
         super.testStarted(test)
-        logger.debug { "Starting recording for ${test.toSimpleSafeTestName()}" }
+        val toTest = test.toTest()
+        logger.debug { "Starting recording for ${toTest.toSimpleSafeTestName()}" }
         screenCapturerJob = async {
-            ScreenCapturer(device, pool, fileManager, test).start()
+            ScreenCapturer(device, pool, fileManager, toTest).start()
         }
     }
 
-    override fun testEnded(test: Test, testMetrics: Map<String, String>) {
+    override fun testEnded(test: TestIdentifier, testMetrics: Map<String, String>) {
         super.testEnded(test, testMetrics)
-        logger.debug { "Finished recording for ${test.toSimpleSafeTestName()}" }
+        val toTest = test.toTest()
+        logger.debug { "Finished recording for ${toTest.toSimpleSafeTestName()}" }
         screenCapturerJob?.cancel()
         threadPoolDispatcher.close()
 
         attachmentListeners.forEach {
-            val file = fileManager.createFile(FileType.SCREENSHOT, pool, device.toDeviceInfo(), test)
+            val file = fileManager.createFile(FileType.SCREENSHOT, pool, device.toDeviceInfo(), toTest)
             val attachment = Attachment(file, AttachmentType.SCREENSHOT)
-            it.onAttachment(test, attachment)
+            it.onAttachment(toTest, attachment)
         }
     }
 }

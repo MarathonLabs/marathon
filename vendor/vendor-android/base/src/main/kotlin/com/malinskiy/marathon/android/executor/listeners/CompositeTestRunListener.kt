@@ -1,6 +1,6 @@
 package com.malinskiy.marathon.android.executor.listeners
 
-import com.malinskiy.marathon.test.Test
+import com.malinskiy.marathon.android.model.TestIdentifier
 
 class CompositeTestRunListener(private val listeners: List<AndroidTestRunListener>) : AndroidTestRunListener {
     private inline fun execute(f: (AndroidTestRunListener) -> Unit) {
@@ -11,11 +11,11 @@ class CompositeTestRunListener(private val listeners: List<AndroidTestRunListene
         execute { it.testRunStarted(runName, testCount) }
     }
 
-    override fun testStarted(test: Test) {
+    override fun testStarted(test: TestIdentifier) {
         execute { it.testStarted(test) }
     }
 
-    override fun testAssumptionFailure(test: Test, trace: String) {
+    override fun testAssumptionFailure(test: TestIdentifier, trace: String) {
         execute { it.testAssumptionFailure(test, trace) }
     }
 
@@ -23,15 +23,15 @@ class CompositeTestRunListener(private val listeners: List<AndroidTestRunListene
         execute { it.testRunStopped(elapsedTime) }
     }
 
-    override fun testFailed(test: Test, trace: String) {
+    override fun testFailed(test: TestIdentifier, trace: String) {
         execute { it.testFailed(test, trace) }
     }
 
-    override fun testEnded(test: Test, testMetrics: Map<String, String>) {
+    override fun testEnded(test: TestIdentifier, testMetrics: Map<String, String>) {
         execute { it.testEnded(test, testMetrics) }
     }
 
-    override fun testIgnored(test: Test) {
+    override fun testIgnored(test: TestIdentifier) {
         execute { it.testIgnored(test) }
     }
 

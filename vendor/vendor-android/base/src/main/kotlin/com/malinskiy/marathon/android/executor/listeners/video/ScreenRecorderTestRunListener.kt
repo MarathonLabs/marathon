@@ -2,9 +2,10 @@ package com.malinskiy.marathon.android.executor.listeners.video
 
 import com.malinskiy.marathon.android.AndroidDevice
 import com.malinskiy.marathon.android.exception.TransferException
-import com.malinskiy.marathon.android.executor.listeners.line.LineListener
 import com.malinskiy.marathon.android.executor.listeners.NoOpTestRunListener
+import com.malinskiy.marathon.android.executor.listeners.line.LineListener
 import com.malinskiy.marathon.android.executor.listeners.line.OutputLineListener
+import com.malinskiy.marathon.android.model.TestIdentifier
 import com.malinskiy.marathon.device.DevicePoolId
 import com.malinskiy.marathon.device.toDeviceInfo
 import com.malinskiy.marathon.execution.Attachment
@@ -41,27 +42,27 @@ class ScreenRecorderTestRunListener(
 
     private val awaitMillis = MS_IN_SECOND
 
-    override fun testStarted(test: Test) {
+    override fun testStarted(test: TestIdentifier) {
         hasFailed = false
 
         receiver = OutputLineListener()
 
-        val screenRecorder = ScreenRecorder(device, receiver!!, device.fileManager.remoteVideoForTest(test))
+        val screenRecorder = ScreenRecorder(device, receiver!!, device.fileManager.remoteVideoForTest(test.toTest()))
         recorder = kotlin.concurrent.thread {
             screenRecorder.run()
         }
     }
 
-    override fun testFailed(test: Test, trace: String) {
+    override fun testFailed(test: TestIdentifier, trace: String) {
         hasFailed = true
     }
 
-    override fun testAssumptionFailure(test: Test, trace: String) {
-        pullVideo(test)
+    override fun testAssumptionFailure(test: TestIdentifier, trace: String) {
+        pullVideo(test.toTest())
     }
 
-    override fun testEnded(test: Test, testMetrics: Map<String, String>) {
-        pullVideo(test)
+    override fun testEnded(test: TestIdentifier, testMetrics: Map<String, String>) {
+        pullVideo(test.toTest())
     }
 
     private fun pullVideo(test: Test) {

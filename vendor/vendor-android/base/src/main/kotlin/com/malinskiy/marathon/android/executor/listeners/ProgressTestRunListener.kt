@@ -1,10 +1,10 @@
 package com.malinskiy.marathon.android.executor.listeners
 
+import com.malinskiy.marathon.android.model.TestIdentifier
 import com.malinskiy.marathon.device.Device
 import com.malinskiy.marathon.device.DevicePoolId
 import com.malinskiy.marathon.device.toDeviceInfo
 import com.malinskiy.marathon.execution.progress.ProgressReporter
-import com.malinskiy.marathon.test.Test
 
 class ProgressTestRunListener(
     private val device: Device,
@@ -12,33 +12,33 @@ class ProgressTestRunListener(
     private val progressTracker: ProgressReporter
 ) : NoOpTestRunListener() {
 
-    private val failed = mutableMapOf<Test, Boolean>()
-    private val ignored = mutableMapOf<Test, Boolean>()
+    private val failed = mutableMapOf<TestIdentifier, Boolean>()
+    private val ignored = mutableMapOf<TestIdentifier, Boolean>()
 
-    override fun testStarted(test: Test) {
+    override fun testStarted(test: TestIdentifier) {
         failed[test] = false
         ignored[test] = false
-        progressTracker.testStarted(poolId, device.toDeviceInfo(), test)
+        progressTracker.testStarted(poolId, device.toDeviceInfo(), test.toTest())
     }
 
-    override fun testFailed(test: Test, trace: String) {
+    override fun testFailed(test: TestIdentifier, trace: String) {
         failed[test] = true
     }
 
-    override fun testAssumptionFailure(test: Test, trace: String) {
+    override fun testAssumptionFailure(test: TestIdentifier, trace: String) {
         testIgnored(test)
     }
 
-    override fun testEnded(test: Test, testMetrics: Map<String, String>) {
+    override fun testEnded(test: TestIdentifier, testMetrics: Map<String, String>) {
         if (failed[test] == true) {
-            progressTracker.testFailed(poolId, device.toDeviceInfo(), test)
+            progressTracker.testFailed(poolId, device.toDeviceInfo(), test.toTest())
         } else if (ignored[test] == false) {
-            progressTracker.testPassed(poolId, device.toDeviceInfo(), test)
+            progressTracker.testPassed(poolId, device.toDeviceInfo(), test.toTest())
         }
     }
 
-    override fun testIgnored(test: Test) {
+    override fun testIgnored(test: TestIdentifier) {
         ignored[test] = true
-        progressTracker.testIgnored(poolId, device.toDeviceInfo(), test)
+        progressTracker.testIgnored(poolId, device.toDeviceInfo(), test.toTest())
     }
 }

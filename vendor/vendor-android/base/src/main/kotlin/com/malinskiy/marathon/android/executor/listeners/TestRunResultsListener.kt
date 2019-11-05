@@ -1,7 +1,9 @@
 package com.malinskiy.marathon.android.executor.listeners
 
+import com.malinskiy.marathon.android.model.AndroidTestResult
+import com.malinskiy.marathon.android.model.AndroidTestStatus
 import com.malinskiy.marathon.android.model.TestIdentifier
-import com.malinskiy.marathon.android.model.TestRunResult
+import com.malinskiy.marathon.android.model.TestRunResultsAccumulator
 import com.malinskiy.marathon.device.Device
 import com.malinskiy.marathon.device.toDeviceInfo
 import com.malinskiy.marathon.execution.Attachment
@@ -45,8 +47,8 @@ class TestRunResultsListener(
 
     private val logger = MarathonLogging.logger("TestRunResultsListener")
 
-    override fun handleTestRunResults(runResult: TestRunResult) {
-        val results = mergeParameterisedResults(runResult.getTestResults())
+    override fun handleTestRunResults(runResult: TestRunResultsAccumulator) {
+        val results = mergeParameterisedResults(runResult.testResults)
         val tests = testBatch.tests.associateBy { it.identifier() }
 
         val testResults = results.map {
@@ -58,16 +60,16 @@ class TestRunResultsListener(
         }
 
         val finished = nonNullTestResults.filter {
-            results[it.test]?.isSuccessful() ?: false
+            results[it.test.identifier()]?.isSuccessful() ?: false
         }
 
         val failed = nonNullTestResults.filterNot {
-            results[it.test]?.isSuccessful() ?: false
+            results[it.test.identifier()]?.isSuccessful() ?: false
         }
 
         val uncompleted = tests
             .filterNot { expectedTest ->
-                results.containsKey(expectedTest.value)
+                results.containsKey(expectedTest.key)
             }
             .values
             .createUncompletedTestResults(runResult, device)
@@ -82,12 +84,12 @@ class TestRunResultsListener(
     }
 
     private fun Collection<Test>.createUncompletedTestResults(
-        testRunResult: TestRunResult,
+        testRunResult: TestRunResultsAccumulator,
         device: Device
     ): Collection<TestResult> {
 
         val lastCompletedTestEndTime = testRunResult
-            .getTestResults()
+            .testResults
             .values
             .maxBy { it.endTime }
             ?.endTime
@@ -100,30 +102,22 @@ class TestRunResultsListener(
                 TestStatus.INCOMPLETE,
                 lastCompletedTestEndTime,
                 timer.currentTimeMillis(),
-                testRunResult.getRunFailureMessage()
+                testRunResult.runFailureMessage
             )
         }
     }
 
-    private fun mergeParameterisedResults(results: MutableMap<Test, TestResult>): Map<Test, TestResult> {
-        val result = mutableMapOf<Test, TestResult>()
+    private fun mergeParameterisedResults(results: MutableMap<TestIdentifier, AndroidTestResult>): Map<TestIdentifier, AndroidTestResult> {
+        val result = mutableMapOf<TestIdentifier, AndroidTestResult>()
         for (e in results) {
             val test = e.key
-            if (test.method.matches(""".+\[\d+]""".toRegex())) {
-                val realIdentifier = Test(test.pkg, test.clazz, test.method.split("[")[0], test.metaProperties)
+            if (test.testName.matches(""".+\[\d+]""".toRegex())) {
+                val realIdentifier = TestIdentifier(e.key.className, e.key.testName.split("[")[0])
                 val maybeExistingParameterizedResult = result[realIdentifier]
                 if (maybeExistingParameterizedResult == null) {
                     result[realIdentifier] = e.value
                 } else {
-                    result[realIdentifier] = TestResult(
-                        maybeExistingParameterizedResult.test,
-                        maybeExistingParameterizedResult.device,
-                        maybeExistingParameterizedResult.status + e.value.status,
-                        maybeExistingParameterizedResult.startTime,
-                        maybeExistingParameterizedResult.endTime,
-                        maybeExistingParameterizedResult.stacktrace,
-                        maybeExistingParameterizedResult.attachments
-                    )
+                    result[realIdentifier]?.status = maybeExistingParameterizedResult.status + e.value.status
                 }
             } else {
                 result[test] = e.value
@@ -133,17 +127,17 @@ class TestRunResultsListener(
         return result.toMap()
     }
 
-    private fun Map.Entry<Test, TestResult>.toTestResult(device: Device): TestResult {
-        val testInstanceFromBatch = testBatch.tests.find { "${it.pkg}.${it.clazz}" == key.clazz && it.method == key.method }
-        val test = key
+    private fun Map.Entry<TestIdentifier, AndroidTestResult>.toTestResult(device: Device): TestResult {
+        val testInstanceFromBatch = testBatch.tests.find { "${it.pkg}.${it.clazz}" == key.className && it.method == key.testName }
+        val test = key.toTest()
         val attachments = attachments[test] ?: emptyList<Attachment>()
         return TestResult(
             test = testInstanceFromBatch ?: test,
             device = device.toDeviceInfo(),
-            status = value.status,
+            status = value.status.toMarathonStatus(),
             startTime = value.startTime,
             endTime = value.endTime,
-            stacktrace = value.stacktrace,
+            stacktrace = value.stackTrace,
             attachments = attachments
         )
     }
@@ -152,19 +146,19 @@ class TestRunResultsListener(
         return TestIdentifier("$pkg.$clazz", method)
     }
 
-    private fun TestResult.isSuccessful() =
+    private fun AndroidTestResult.isSuccessful() =
         status == TestStatus.PASSED ||
                 status == TestStatus.IGNORED ||
                 status == TestStatus.ASSUMPTION_FAILURE
 
 }
 
-private operator fun TestStatus.plus(value: TestStatus): TestStatus {
+private operator fun AndroidTestStatus.plus(value: AndroidTestStatus): AndroidTestStatus {
     return when (this) {
-        TestStatus.FAILURE -> TestStatus.FAILURE
-        TestStatus.PASSED -> value
-        TestStatus.IGNORED -> TestStatus.IGNORED
-        TestStatus.INCOMPLETE -> TestStatus.INCOMPLETE
-        TestStatus.ASSUMPTION_FAILURE -> TestStatus.ASSUMPTION_FAILURE
+        AndroidTestStatus.FAILURE -> AndroidTestStatus.FAILURE
+        AndroidTestStatus.PASSED -> value
+        AndroidTestStatus.IGNORED -> AndroidTestStatus.IGNORED
+        AndroidTestStatus.INCOMPLETE -> AndroidTestStatus.INCOMPLETE
+        AndroidTestStatus.ASSUMPTION_FAILURE -> AndroidTestStatus.ASSUMPTION_FAILURE
     }
 }

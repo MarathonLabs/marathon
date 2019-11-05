@@ -1,32 +1,32 @@
 package com.malinskiy.marathon.android.executor.listeners
 
-import com.malinskiy.marathon.android.model.TestRunResult
-import com.malinskiy.marathon.test.Test
+import com.malinskiy.marathon.android.model.TestIdentifier
+import com.malinskiy.marathon.android.model.TestRunResultsAccumulator
 
 abstract class AbstractTestRunResultListener : NoOpTestRunListener() {
-    private val runResult = TestRunResult()
+    private val runResult = TestRunResultsAccumulator()
 
     override fun testRunStarted(runName: String, testCount: Int) {
         runResult.testRunStarted(runName, testCount)
     }
 
-    override fun testStarted(test: Test) {
+    override fun testStarted(test: TestIdentifier) {
         runResult.testStarted(test)
     }
 
-    override fun testFailed(test: Test, trace: String) {
+    override fun testFailed(test: TestIdentifier, trace: String) {
         runResult.testFailed(test, trace)
     }
 
-    override fun testAssumptionFailure(test: Test, trace: String) {
+    override fun testAssumptionFailure(test: TestIdentifier, trace: String) {
         runResult.testAssumptionFailure(test, trace)
     }
 
-    override fun testIgnored(test: Test) {
+    override fun testIgnored(test: TestIdentifier) {
         runResult.testIgnored(test)
     }
 
-    override fun testEnded(test: Test, testMetrics: Map<String, String>) {
+    override fun testEnded(test: TestIdentifier, testMetrics: Map<String, String>) {
         runResult.testEnded(test, testMetrics)
     }
 
@@ -45,5 +45,5 @@ abstract class AbstractTestRunResultListener : NoOpTestRunListener() {
         handleTestRunResults(runResult)
     }
 
-    abstract fun handleTestRunResults(runResult: TestRunResult)
+    abstract fun handleTestRunResults(runResult: TestRunResultsAccumulator)
 }

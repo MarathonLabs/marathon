@@ -26,11 +26,11 @@ import com.malinskiy.marathon.android.exception.TransferException
 import com.malinskiy.marathon.android.executor.listeners.AndroidTestRunListener
 import com.malinskiy.marathon.android.executor.listeners.CompositeTestRunListener
 import com.malinskiy.marathon.android.executor.listeners.DebugTestRunListener
-import com.malinskiy.marathon.android.executor.listeners.line.LineListener
 import com.malinskiy.marathon.android.executor.listeners.LogCatListener
 import com.malinskiy.marathon.android.executor.listeners.NoOpTestRunListener
 import com.malinskiy.marathon.android.executor.listeners.ProgressTestRunListener
 import com.malinskiy.marathon.android.executor.listeners.TestRunResultsListener
+import com.malinskiy.marathon.android.executor.listeners.line.LineListener
 import com.malinskiy.marathon.android.executor.listeners.screenshot.ScreenCapturerTestRunListener
 import com.malinskiy.marathon.android.executor.listeners.video.ScreenRecorderOptions
 import com.malinskiy.marathon.android.executor.listeners.video.ScreenRecorderTestRunListener
@@ -90,6 +90,7 @@ class DdmlibAndroidDevice(
             }
         }
     }
+
     override fun pullFile(remoteFilePath: String, localFilePath: String) {
         try {
             ddmsDevice.pullFile(remoteFilePath, localFilePath)
@@ -125,9 +126,11 @@ class DdmlibAndroidDevice(
         }
     }
 
-    override fun safeStartScreenRecorder(remoteFilePath: String,
-                                         listener: LineListener,
-                                         options: ScreenRecorderOptions) {
+    override fun safeStartScreenRecorder(
+        remoteFilePath: String,
+        listener: LineListener,
+        options: ScreenRecorderOptions
+    ) {
         val recorderOptions = com.android.ddmlib.ScreenRecorderOptions.Builder()
             .setBitRate(options.bitrateMbps)
             .setShowTouches(options.showTouches)
@@ -135,9 +138,11 @@ class DdmlibAndroidDevice(
             .setTimeLimit(options.timeLimit, options.timeLimitUnits)
             .build()
 
-        ddmsDevice.safeStartScreenRecorder(remoteFilePath,
-                                           recorderOptions,
-                                           CollectingOutputReceiver())
+        ddmsDevice.safeStartScreenRecorder(
+            remoteFilePath,
+            recorderOptions,
+            CollectingOutputReceiver()
+        )
     }
 
     override fun addLogcatListener(listener: LineListener) {
@@ -384,11 +389,11 @@ private fun AndroidTestRunListener.toDdmlibTestListener(): ITestRunListener {
         }
 
         override fun testStarted(test: TestIdentifier) {
-            this@toDdmlibTestListener.testStarted(test.toTest())
+            this@toDdmlibTestListener.testStarted(test.toMarathonTestIdentifier())
         }
 
         override fun testAssumptionFailure(test: TestIdentifier, trace: String?) {
-            this@toDdmlibTestListener.testAssumptionFailure(test.toTest(), trace ?: "")
+            this@toDdmlibTestListener.testAssumptionFailure(test.toMarathonTestIdentifier(), trace ?: "")
         }
 
         override fun testRunStopped(elapsedTime: Long) {
@@ -396,15 +401,15 @@ private fun AndroidTestRunListener.toDdmlibTestListener(): ITestRunListener {
         }
 
         override fun testFailed(test: TestIdentifier, trace: String?) {
-            this@toDdmlibTestListener.testFailed(test.toTest(), trace ?: "")
+            this@toDdmlibTestListener.testFailed(test.toMarathonTestIdentifier(), trace ?: "")
         }
 
         override fun testEnded(test: TestIdentifier, testMetrics: MutableMap<String, String>?) {
-            this@toDdmlibTestListener.testEnded(test.toTest(), testMetrics ?: emptyMap<String, String>())
+            this@toDdmlibTestListener.testEnded(test.toMarathonTestIdentifier(), testMetrics ?: emptyMap())
         }
 
         override fun testIgnored(test: TestIdentifier) {
-            this@toDdmlibTestListener.testIgnored(test.toTest())
+            this@toDdmlibTestListener.testIgnored(test.toMarathonTestIdentifier())
         }
 
         override fun testRunFailed(errorMessage: String?) {
@@ -417,3 +422,5 @@ private fun AndroidTestRunListener.toDdmlibTestListener(): ITestRunListener {
 
     }
 }
+
+private fun TestIdentifier.toMarathonTestIdentifier() = com.malinskiy.marathon.android.model.TestIdentifier(this.className, this.testName)
