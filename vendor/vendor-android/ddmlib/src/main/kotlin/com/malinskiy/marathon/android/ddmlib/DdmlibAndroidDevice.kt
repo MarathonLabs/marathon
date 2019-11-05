@@ -65,7 +65,7 @@ class DdmlibAndroidDevice(
     val ddmsDevice: IDevice,
     private val track: Track,
     private val timer: Timer,
-    private val serialStrategy: SerialStrategy = SerialStrategy.AUTOMATIC
+    private val serialStrategy: SerialStrategy
 ) : Device, CoroutineScope, AndroidDevice {
     override val fileManager = RemoteFileManager(this)
 

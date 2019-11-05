@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 cd $(dirname $0)/..
 
+
 if [ -z "$SONATYPE_USERNAME" ]; then
   echo "error: please set SONATYPE_USERNAME environment variable"
   exit 1
@@ -22,8 +23,8 @@ TARGETS=":core$DTASK :vendor:vendor-android$DTASK :marathon-gradle-plugin$DTASK 
 
 if [ -z "$TRAVIS_TAG" ]; then
   echo "not on a tag -> deploy snapshot version"
-  ./gradlew "$TARGETS" -PreleaseMode=SNAPSHOT
+  ./gradlew $TARGETS -PreleaseMode=SNAPSHOT
 else
   echo "on a tag -> deploy release version $TRAVIS_TAG"
-  ./gradlew "$TARGETS" -PreleaseMode=RELEASE
+  ./gradlew $TARGETS -PreleaseMode=RELEASE
 fi
