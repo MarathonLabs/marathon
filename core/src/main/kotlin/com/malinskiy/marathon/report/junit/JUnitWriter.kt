@@ -12,9 +12,7 @@ import java.util.*
 import javax.xml.stream.XMLOutputFactory
 import javax.xml.stream.XMLStreamWriter
 
-class JUnitWriter(private val fileManager: FileManager, isFinal: Boolean) {
-
-    private val fileType = if (isFinal) FileType.TEST_FINAL else FileType.TEST
+class JUnitWriter(private val fileManager: FileManager, private val fileType: FileType) {
 
     fun testFinished(devicePoolId: DevicePoolId, device: DeviceInfo, testResult: TestResult) {
         val file = fileManager.createFile(fileType, devicePoolId, device, testResult.test)
