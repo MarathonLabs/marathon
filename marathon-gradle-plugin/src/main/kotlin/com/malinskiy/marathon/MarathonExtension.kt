@@ -45,6 +45,7 @@ open class MarathonExtension(project: Project) {
     //Android specific for now
     var autoGrantPermission: Boolean? = null
     var instrumentationArgs: MutableMap<String, String> = mutableMapOf()
+    var enableKaspressoStepsListener: Boolean? = null
 
     //Kotlin way
     fun analytics(block: AnalyticsConfig.() -> Unit) {
