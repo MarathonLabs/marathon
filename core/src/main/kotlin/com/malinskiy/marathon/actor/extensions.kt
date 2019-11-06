@@ -6,6 +6,6 @@ import kotlinx.coroutines.channels.SendChannel
 fun <T> unboundedChannel() = Channel<T>(Channel.UNLIMITED)
 
 suspend fun <T> SendChannel<T>.safeSend(element: T) {
-    if(isClosedForSend) return
+    if (isClosedForSend) return
     send(element)
 }

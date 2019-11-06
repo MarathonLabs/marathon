@@ -1,6 +1,5 @@
 package com.malinskiy.marathon.android
 
-import com.android.annotations.NonNull
 import com.android.ddmlib.AdbCommandRejectedException
 import com.android.ddmlib.IDevice
 import com.android.ddmlib.IShellOutputReceiver
@@ -20,11 +19,13 @@ const val ADB_SCREEN_RECORD_TIMEOUT = 10L
 fun IDevice.safeUninstallPackage(packageName: String): String? {
     try {
         val receiver = InstallReceiver()
-        executeShellCommand("pm uninstall $packageName",
-                receiver,
-                ADB_INSTALL_TIMEOUT_MINUTES,
-                ADB_INSTALL_TIMEOUT_MINUTES,
-                TimeUnit.MINUTES)
+        executeShellCommand(
+            "pm uninstall $packageName",
+            receiver,
+            ADB_INSTALL_TIMEOUT_MINUTES,
+            ADB_INSTALL_TIMEOUT_MINUTES,
+            TimeUnit.MINUTES
+        )
 
         return receiver.errorMessage
     } catch (e: TimeoutException) {
@@ -41,13 +42,15 @@ fun IDevice.safeUninstallPackage(packageName: String): String? {
 fun IDevice.safeInstallPackage(packageFilePath: String, reinstall: Boolean, vararg extraArgs: String): String? {
     val receiver = InstallReceiver()
 
-    installPackage(packageFilePath,
-            reinstall,
-            receiver,
-            ADB_INSTALL_TIMEOUT_MINUTES,
-            ADB_INSTALL_TIMEOUT_MINUTES,
-            TimeUnit.MINUTES,
-            *extraArgs)
+    installPackage(
+        packageFilePath,
+        reinstall,
+        receiver,
+        ADB_INSTALL_TIMEOUT_MINUTES,
+        ADB_INSTALL_TIMEOUT_MINUTES,
+        TimeUnit.MINUTES,
+        *extraArgs
+    )
 
     return receiver.errorMessage
 }
@@ -66,11 +69,13 @@ fun IDevice.safeClearPackage(packageName: String): String? {
 
     try {
         val receiver = SimpleOutputReceiver()
-        executeShellCommand("pm clear $packageName",
-                receiver,
-                ADB_SHORT_TIMEOUT_SECONDS,
-                ADB_SHORT_TIMEOUT_SECONDS,
-                TimeUnit.SECONDS)
+        executeShellCommand(
+            "pm clear $packageName",
+            receiver,
+            ADB_SHORT_TIMEOUT_SECONDS,
+            ADB_SHORT_TIMEOUT_SECONDS,
+            TimeUnit.SECONDS
+        )
 
         result = receiver.output()
     } catch (e: TimeoutException) {
@@ -82,8 +87,10 @@ fun IDevice.safeClearPackage(packageName: String): String? {
     }
 }
 
-fun getScreenRecorderCommand(@NonNull remoteFilePath: String,
-                             @NonNull options: ScreenRecorderOptions): String {
+fun getScreenRecorderCommand(
+    remoteFilePath: String,
+    options: ScreenRecorderOptions
+): String {
     val sb = StringBuilder()
 
     sb.append("screenrecord")
@@ -118,7 +125,7 @@ fun getScreenRecorderCommand(@NonNull remoteFilePath: String,
     return sb.toString()
 }
 
-class SimpleOutputReceiver: MultiLineReceiver() {
+class SimpleOutputReceiver : MultiLineReceiver() {
     private val buffer = StringBuffer()
 
     fun output() = buffer.toString()
@@ -128,5 +135,6 @@ class SimpleOutputReceiver: MultiLineReceiver() {
             buffer.append(it)
         }
     }
+
     override fun isCancelled() = false
 }

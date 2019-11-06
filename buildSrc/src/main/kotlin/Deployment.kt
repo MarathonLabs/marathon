@@ -7,23 +7,26 @@ import org.gradle.kotlin.dsl.configure
 import org.gradle.kotlin.dsl.creating
 import org.gradle.kotlin.dsl.extra
 import org.gradle.kotlin.dsl.get
-import org.gradle.kotlin.dsl.the
 import org.gradle.kotlin.dsl.getValue
 import org.gradle.kotlin.dsl.provideDelegate
+import org.gradle.kotlin.dsl.the
 import org.gradle.plugins.signing.SigningExtension
 import java.net.URI
 
 object Deployment {
     val user = System.getenv("SONATYPE_USERNAME")
     val password = System.getenv("SONATYPE_PASSWORD")
+    val githubUser = System.getenv("GITHUB_MAVEN_USERNAME")
+    val githubPassword = System.getenv("GITHUB_MAVEN_PASSWORD")
     var releaseMode: String? = null
     var versionSuffix: String? = null
     var deployUrl: String? = null
 
     val snapshotDeployUrl = System.getenv("SONATYPE_SNAPSHOTS_URL")
-            ?: "https://oss.sonatype.org/content/repositories/snapshots/"
+        ?: "https://oss.sonatype.org/content/repositories/snapshots/"
     val releaseDeployUrl = System.getenv("SONATYPE_RELEASES_URL")
-            ?: "https://oss.sonatype.org/service/local/staging/deploy/maven2/"
+        ?: "https://oss.sonatype.org/service/local/staging/deploy/maven2/"
+    val githubDeployUrl = "https://maven.pkg.github.com/Malinskiy"
 
     fun initialize(project: Project) {
         val releaseMode: String? by project
@@ -80,7 +83,15 @@ object Deployment {
                         username = Deployment.user
                         password = Deployment.password
                     }
-                    setUrl(URI.create(Deployment.deployUrl))
+                    url = URI.create(Deployment.deployUrl)
+                }
+                maven {
+                    name = "GitHub"
+                    credentials {
+                        username = Deployment.githubUser
+                        password = Deployment.githubPassword
+                    }
+                    url = URI.create(Deployment.githubDeployUrl)
                 }
             }
         }

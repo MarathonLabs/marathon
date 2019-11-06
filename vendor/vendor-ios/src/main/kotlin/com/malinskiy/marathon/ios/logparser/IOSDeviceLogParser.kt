@@ -7,23 +7,32 @@ import com.malinskiy.marathon.execution.progress.ProgressReporter
 import com.malinskiy.marathon.ios.logparser.formatter.PackageNameFormatter
 import com.malinskiy.marathon.ios.logparser.listener.ProgressReportingListener
 import com.malinskiy.marathon.ios.logparser.listener.TestLogListener
-import com.malinskiy.marathon.ios.logparser.parser.*
+import com.malinskiy.marathon.ios.logparser.parser.CompositeLogParser
+import com.malinskiy.marathon.ios.logparser.parser.DebugLogPrinter
+import com.malinskiy.marathon.ios.logparser.parser.DeviceFailureParser
+import com.malinskiy.marathon.ios.logparser.parser.DiagnosticLogsPathFinder
+import com.malinskiy.marathon.ios.logparser.parser.SessionResultsPathFinder
+import com.malinskiy.marathon.ios.logparser.parser.TestRunProgressParser
 import com.malinskiy.marathon.test.TestBatch
-import com.malinskiy.marathon.time.SystemTimer
+import com.malinskiy.marathon.time.Timer
 import kotlinx.coroutines.CompletableDeferred
 
-class IOSDeviceLogParser(device: Device,
-                         packageNameFormatter: PackageNameFormatter,
-                         poolId: DevicePoolId,
-                         testBatch: TestBatch,
-                         deferredResults: CompletableDeferred<TestBatchResults>,
-                         progressReporter: ProgressReporter,
-                         hideRunnerOutput: Boolean): StreamingLogParser {
+class IOSDeviceLogParser(
+    device: Device,
+    packageNameFormatter: PackageNameFormatter,
+    poolId: DevicePoolId,
+    testBatch: TestBatch,
+    deferredResults: CompletableDeferred<TestBatchResults>,
+    progressReporter: ProgressReporter,
+    hideRunnerOutput: Boolean,
+    val timer: Timer
+) : StreamingLogParser {
 
     private val underlyingLogParser: StreamingLogParser
     private val testLogListener: TestLogListener
     private val diagnosticLogsPathFinder: DiagnosticLogsPathFinder
     private val sessionResultsPathFinder: SessionResultsPathFinder
+
     init {
         testLogListener = TestLogListener()
         diagnosticLogsPathFinder = DiagnosticLogsPathFinder()
@@ -37,7 +46,7 @@ class IOSDeviceLogParser(device: Device,
                 diagnosticLogsPathFinder,
                 sessionResultsPathFinder,
                 TestRunProgressParser(
-                    SystemTimer(),
+                    timer,
                     packageNameFormatter,
                     listOf(
                         ProgressReportingListener(
@@ -46,7 +55,8 @@ class IOSDeviceLogParser(device: Device,
                             testBatch = testBatch,
                             deferredResults = deferredResults,
                             progressReporter = progressReporter,
-                            testLogListener = testLogListener
+                            testLogListener = testLogListener,
+                            timer = timer
                         ),
                         testLogListener
                     )

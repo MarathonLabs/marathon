@@ -1,21 +1,23 @@
 package com.malinskiy.marathon.execution.strategy.impl.sorting
 
 import com.fasterxml.jackson.annotation.JsonProperty
-import com.malinskiy.marathon.analytics.metrics.MetricsProvider
+import com.malinskiy.marathon.analytics.external.MetricsProvider
 import com.malinskiy.marathon.execution.strategy.SortingStrategy
 import com.malinskiy.marathon.test.Test
 import java.time.Instant
 import java.util.*
 
-class SuccessRateSortingStrategy(@JsonProperty("timeLimit") private val timeLimit: Instant,
-                                 @JsonProperty("ascending") private val ascending: Boolean = false) : SortingStrategy {
+class SuccessRateSortingStrategy(
+    @JsonProperty("timeLimit") private val timeLimit: Instant,
+    @JsonProperty("ascending") private val ascending: Boolean = false
+) : SortingStrategy {
     override fun process(metricsProvider: MetricsProvider): Comparator<Test> {
         val comparator = Comparator.comparingDouble<Test>
         {
             metricsProvider.successRate(it, timeLimit)
         }
 
-        return when(ascending) {
+        return when (ascending) {
             true -> comparator
             false -> comparator.reversed()
         }

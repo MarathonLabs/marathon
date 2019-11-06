@@ -2,6 +2,7 @@ package com.malinskiy.marathon.android
 
 import com.android.ddmlib.AdbCommandRejectedException
 import com.android.ddmlib.IDevice
+import com.android.ddmlib.IDevice.MNT_EXTERNAL_STORAGE
 import com.android.ddmlib.NullOutputReceiver
 import com.android.ddmlib.ShellCommandUnresponsiveException
 import com.android.ddmlib.TimeoutException
@@ -10,28 +11,33 @@ import com.malinskiy.marathon.log.MarathonLogging
 
 import java.io.IOException
 
-object RemoteFileManager {
+class RemoteFileManager(private val device: IDevice) {
 
     private val logger = MarathonLogging.logger("RemoteFileManager")
 
-    private const val OUTPUT_DIR = "/sdcard/marathon"
-    private val NO_OP_RECEIVER = NullOutputReceiver()
+    private val outputDir = device.getMountPoint(MNT_EXTERNAL_STORAGE)
 
-    fun removeRemotePath(device: IDevice, remotePath: String) {
-        executeCommand(device, "rm $remotePath", "Could not delete remote file(s): $remotePath")
+    private val nullOutputReceiver = NullOutputReceiver()
+
+    fun removeRemotePath(remotePath: String) {
+        executeCommand("rm $remotePath", "Could not delete remote file(s): $remotePath")
     }
 
-    fun createRemoteDirectory(device: IDevice) {
-        executeCommand(device, "mkdir $OUTPUT_DIR", "Could not create remote directory: $OUTPUT_DIR")
+    fun pullFile(remoteFilePath: String, localFilePath: String) {
+        device.pullFile(remoteFilePath, localFilePath)
     }
 
-    fun removeRemoteDirectory(device: IDevice) {
-        executeCommand(device, "rm -r $OUTPUT_DIR", "Could not delete remote directory: $OUTPUT_DIR")
+    fun createRemoteDirectory() {
+        executeCommand("mkdir $outputDir", "Could not create remote directory: $outputDir")
     }
 
-    private fun executeCommand(device: IDevice, command: String, errorMessage: String) {
+    fun removeRemoteDirectory() {
+        executeCommand("rm -r $outputDir", "Could not delete remote directory: $outputDir")
+    }
+
+    private fun executeCommand(command: String, errorMessage: String) {
         try {
-            device.safeExecuteShellCommand(command, NO_OP_RECEIVER)
+            device.safeExecuteShellCommand(command, nullOutputReceiver)
         } catch (e: TimeoutException) {
             logger.error(errorMessage, e)
         } catch (e: AdbCommandRejectedException) {
@@ -48,7 +54,7 @@ object RemoteFileManager {
     }
 
     private fun remoteFileForTest(filename: String): String {
-        return "$OUTPUT_DIR/$filename"
+        return "$outputDir/$filename"
     }
 
     private fun videoFileName(test: TestIdentifier): String = "${test.className}-${test.testName}.mp4"

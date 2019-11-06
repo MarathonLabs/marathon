@@ -13,7 +13,7 @@ data class SimpleClassnameFilter(@JsonProperty("regex") val regex: Regex) : Test
     override fun filterNot(tests: List<Test>): List<Test> = tests.filterNot { regex.matches(it.clazz) }
 
     override fun equals(other: Any?): Boolean {
-        if(other !is SimpleClassnameFilter) return false
+        if (other !is SimpleClassnameFilter) return false
         return regex.toString().contentEquals(other.regex.toString())
     }
 
@@ -29,7 +29,7 @@ data class FullyQualifiedClassnameFilter(@JsonProperty("regex") val regex: Regex
     override fun filterNot(tests: List<Test>): List<Test> = tests.filterNot { regex.matches("${it.pkg}.${it.clazz}") }
 
     override fun equals(other: Any?): Boolean {
-        if(other !is FullyQualifiedClassnameFilter) return false
+        if (other !is FullyQualifiedClassnameFilter) return false
         return regex.toString().contentEquals(other.regex.toString())
     }
 
@@ -45,7 +45,7 @@ data class TestPackageFilter(@JsonProperty("regex") val regex: Regex) : TestFilt
     override fun filterNot(tests: List<Test>): List<Test> = tests.filterNot { regex.matches(it.pkg) }
 
     override fun equals(other: Any?): Boolean {
-        if(other !is TestPackageFilter) return false
+        if (other !is TestPackageFilter) return false
         return regex.toString().contentEquals(other.regex.toString())
     }
 
@@ -61,7 +61,7 @@ data class AnnotationFilter(@JsonProperty("regex") val regex: Regex) : TestFilte
     override fun filterNot(tests: List<Test>): List<Test> = tests.filterNot { it.metaProperties.map { it.name }.any(regex::matches) }
 
     override fun equals(other: Any?): Boolean {
-        if(other !is AnnotationFilter) return false
+        if (other !is AnnotationFilter) return false
         return regex.toString().contentEquals(other.regex.toString())
     }
 
@@ -72,12 +72,12 @@ data class AnnotationFilter(@JsonProperty("regex") val regex: Regex) : TestFilte
     }
 }
 
-data class TestMethodFilter(@JsonProperty("regex") val regex: Regex): TestFilter {
+data class TestMethodFilter(@JsonProperty("regex") val regex: Regex) : TestFilter {
     override fun filter(tests: List<Test>): List<Test> = tests.filter { regex.matches(it.method) }
     override fun filterNot(tests: List<Test>): List<Test> = tests.filterNot { regex.matches(it.method) }
 
     override fun equals(other: Any?): Boolean {
-        if(other !is TestMethodFilter) return false
+        if (other !is TestMethodFilter) return false
         return regex.toString().contentEquals(other.regex.toString())
     }
 

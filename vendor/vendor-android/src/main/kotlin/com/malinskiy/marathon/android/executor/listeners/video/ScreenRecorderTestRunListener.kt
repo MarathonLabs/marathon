@@ -5,8 +5,6 @@ import com.android.ddmlib.IDevice
 import com.android.ddmlib.SyncException
 import com.android.ddmlib.testrunner.TestIdentifier
 import com.malinskiy.marathon.android.AndroidDevice
-import com.malinskiy.marathon.android.RemoteFileManager
-import com.malinskiy.marathon.android.RemoteFileManager.removeRemotePath
 import com.malinskiy.marathon.android.executor.listeners.NoOpTestRunListener
 import com.malinskiy.marathon.android.toTest
 import com.malinskiy.marathon.device.DevicePoolId
@@ -22,10 +20,11 @@ import kotlin.system.measureTimeMillis
 
 const val MS_IN_SECOND: Long = 1_000L
 
-internal class ScreenRecorderTestRunListener(private val fileManager: FileManager,
-                                             private val pool: DevicePoolId,
-                                             private val device: AndroidDevice)
-    : NoOpTestRunListener(), AttachmentProvider {
+internal class ScreenRecorderTestRunListener(
+    private val fileManager: FileManager,
+    private val pool: DevicePoolId,
+    private val device: AndroidDevice
+) : NoOpTestRunListener(), AttachmentProvider {
 
     val attachmentListeners = mutableListOf<AttachmentListener>()
 
@@ -48,7 +47,8 @@ internal class ScreenRecorderTestRunListener(private val fileManager: FileManage
         hasFailed = false
 
         receiver = CollectingOutputReceiver()
-        val screenRecorder = ScreenRecorder(deviceInterface, test, receiver!!)
+
+        val screenRecorder = ScreenRecorder(deviceInterface, receiver!!, device.fileManager.remoteVideoForTest(test))
         recorder = kotlin.concurrent.thread {
             screenRecorder.run()
         }
@@ -91,18 +91,18 @@ internal class ScreenRecorderTestRunListener(private val fileManager: FileManage
 
     private fun pullTestVideo(test: TestIdentifier) {
         val localVideoFile = fileManager.createFile(FileType.VIDEO, pool, device.toDeviceInfo(), test.toTest())
-        val remoteFilePath = RemoteFileManager.remoteVideoForTest(test)
+        val remoteFilePath = device.fileManager.remoteVideoForTest(test)
         val millis = measureTimeMillis {
-            deviceInterface.pullFile(remoteFilePath, localVideoFile.toString())
+            device.fileManager.pullFile(remoteFilePath, localVideoFile.toString())
         }
         logger.trace { "Pulling finished in ${millis}ms $remoteFilePath " }
         attachmentListeners.forEach { it.onAttachment(test.toTest(), Attachment(localVideoFile, AttachmentType.VIDEO)) }
     }
 
     private fun removeTestVideo(test: TestIdentifier) {
-        val remoteFilePath = RemoteFileManager.remoteVideoForTest(test)
+        val remoteFilePath = device.fileManager.remoteVideoForTest(test)
         val millis = measureTimeMillis {
-            removeRemotePath(deviceInterface, remoteFilePath)
+            device.fileManager.removeRemotePath(remoteFilePath)
         }
         logger.trace { "Removed file in ${millis}ms $remoteFilePath" }
     }

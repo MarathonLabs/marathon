@@ -10,26 +10,45 @@ import com.malinskiy.marathon.execution.progress.ProgressReporter
 import com.malinskiy.marathon.test.Test
 import com.malinskiy.marathon.test.TestBatch
 import com.malinskiy.marathon.test.toSafeTestName
+import com.malinskiy.marathon.time.Timer
 import kotlinx.coroutines.CompletableDeferred
 
-class ProgressReportingListener(private val device: Device,
-                                private val poolId: DevicePoolId,
-                                private val testBatch: TestBatch,
-                                private val deferredResults: CompletableDeferred<TestBatchResults>,
-                                private val progressReporter: ProgressReporter,
-                                private val testLogListener: TestLogListener): TestRunListener {
+class ProgressReportingListener(
+    private val device: Device,
+    private val poolId: DevicePoolId,
+    private val testBatch: TestBatch,
+    private val deferredResults: CompletableDeferred<TestBatchResults>,
+    private val progressReporter: ProgressReporter,
+    private val testLogListener: TestLogListener,
+    private val timer: Timer
+) : TestRunListener {
 
     private val success: MutableList<TestResult> = mutableListOf()
     private val failure: MutableList<TestResult> = mutableListOf()
 
     override fun batchFinished() {
-        val received = (success + failure).map { it.test.toSafeTestName() }.toHashSet()
+        val received = (success + failure)
+        val receivedTestNames = received.map { it.test.toSafeTestName() }.toHashSet()
 
-        val incompleteTests = testBatch.tests.filter {
-            !received.contains(it.toSafeTestName())
+        val uncompleted = testBatch.tests.filter {
+            !receivedTestNames.contains(it.toSafeTestName())
+        }.createUncompletedTestResults(received)
+
+        deferredResults.complete(TestBatchResults(device, success, failure, uncompleted))
+    }
+
+    private fun List<Test>.createUncompletedTestResults(received: Collection<TestResult>): Collection<TestResult> {
+        val lastCompletedTestEndTime = received.maxBy { it.endTime }?.endTime ?: timer.currentTimeMillis()
+        return map {
+            TestResult(
+                it,
+                device.toDeviceInfo(),
+                TestStatus.FAILURE,
+                lastCompletedTestEndTime,
+                lastCompletedTestEndTime,
+                testLogListener.getLastLog()
+            )
         }
-
-        deferredResults.complete(TestBatchResults(device, success, failure, incompleteTests))
     }
 
     override fun testFailed(test: Test, startTime: Long, endTime: Long) {

@@ -20,10 +20,11 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.newFixedThreadPoolContext
 import kotlin.coroutines.CoroutineContext
 
-class ScreenCapturerTestRunListener(private val fileManager: FileManager,
-                                    private val pool: DevicePoolId,
-                                    private val device: AndroidDevice)
-    : NoOpTestRunListener(), CoroutineScope, AttachmentProvider {
+class ScreenCapturerTestRunListener(
+    private val fileManager: FileManager,
+    private val pool: DevicePoolId,
+    private val device: AndroidDevice
+) : NoOpTestRunListener(), CoroutineScope, AttachmentProvider {
 
     val attachmentListeners = mutableListOf<AttachmentListener>()
 

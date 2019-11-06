@@ -1,0 +1,17 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="android-library" type="JetRunConfigurationType" factoryName="Kotlin">
+    <module name="marathon.cli.main" />
+    <option name="VM_PARAMETERS" value="" />
+    <option name="PROGRAM_PARAMETERS" value="" />
+    <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
+    <option name="ALTERNATIVE_JRE_PATH" />
+    <option name="PASS_PARENT_ENVS" value="true" />
+    <option name="MAIN_CLASS_NAME" value="com.malinskiy.marathon.cli.ApplicationViewKt" />
+    <option name="WORKING_DIRECTORY" value="file://sample/android-library" />
+    <method v="2">
+      <option name="Gradle.BeforeRunTask" enabled="true" tasks="publishAllPublicationsToLocalRepository" externalProjectPath="$PROJECT_DIR$" vmOptions="" scriptParameters="" />
+      <option name="Gradle.BeforeRunTask" enabled="false" tasks=":library:assembleDebug :library:assembleDebugAndroidTest" externalProjectPath="$PROJECT_DIR$/sample/android-library" vmOptions="" scriptParameters="" />
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>

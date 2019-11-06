@@ -1,6 +1,6 @@
 package com.malinskiy.marathon.ios.device
 
-import java.util.Collections
+import java.util.*
 
 object RemoteSimulatorConnectionCounter {
     private val udids = Collections.synchronizedList(mutableListOf<String>())

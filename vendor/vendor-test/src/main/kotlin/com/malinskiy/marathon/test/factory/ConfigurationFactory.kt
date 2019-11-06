@@ -2,6 +2,8 @@ package com.malinskiy.marathon.test.factory
 
 import com.malinskiy.marathon.device.DeviceProvider
 import com.malinskiy.marathon.execution.Configuration
+import com.malinskiy.marathon.execution.strategy.FlakinessStrategy
+import com.malinskiy.marathon.execution.strategy.ShardingStrategy
 import com.malinskiy.marathon.test.Mocks
 import com.malinskiy.marathon.test.StubDeviceProvider
 import com.malinskiy.marathon.test.Test
@@ -20,16 +22,18 @@ class ConfigurationFactory {
     var debug = null
     var batchingStrategy = null
     var analyticsConfiguration = null
-    var excludeSerialRegexes = null
+    var excludeSerialRegexes: List<Regex>? = null
     var fallbackToScreenshots = null
+    var strictMode = null
+    var uncompletedTestRetryQuota: Int? = null
     var filteringConfiguration = null
-    var flakinessStrategy = null
+    var flakinessStrategy: FlakinessStrategy? = null
     var ignoreFailures = null
-    var includeSerialRegexes = null
+    var includeSerialRegexes: List<Regex>? = null
     var isCodeCoverageEnabled = null
     var poolingStrategy = null
     var retryStrategy = null
-    var shardingStrategy = null
+    var shardingStrategy: ShardingStrategy? = null
     var sortingStrategy = null
     var testClassRegexes = null
     var testBatchTimeoutMillis = null
@@ -47,26 +51,29 @@ class ConfigurationFactory {
     }
 
     fun build(): Configuration =
-            Configuration(name,
-                    outputDir,
-                    analyticsConfiguration,
-                    poolingStrategy,
-                    shardingStrategy,
-                    sortingStrategy,
-                    batchingStrategy,
-                    flakinessStrategy,
-                    retryStrategy,
-                    filteringConfiguration,
-                    ignoreFailures,
-                    isCodeCoverageEnabled,
-                    fallbackToScreenshots,
-                    testClassRegexes,
-                    includeSerialRegexes,
-                    excludeSerialRegexes,
-                    testBatchTimeoutMillis,
-                    testOutputTimeoutMillis,
-                    debug,
-                    vendorConfiguration,
-                    analyticsTracking
-                    )
+        Configuration(
+            name,
+            outputDir,
+            analyticsConfiguration,
+            poolingStrategy,
+            shardingStrategy,
+            sortingStrategy,
+            batchingStrategy,
+            flakinessStrategy,
+            retryStrategy,
+            filteringConfiguration,
+            ignoreFailures,
+            isCodeCoverageEnabled,
+            fallbackToScreenshots,
+            strictMode,
+            uncompletedTestRetryQuota,
+            testClassRegexes,
+            includeSerialRegexes,
+            excludeSerialRegexes,
+            testBatchTimeoutMillis,
+            testOutputTimeoutMillis,
+            debug,
+            vendorConfiguration,
+            analyticsTracking
+        )
 }

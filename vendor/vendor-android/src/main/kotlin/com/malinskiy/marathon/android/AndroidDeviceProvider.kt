@@ -5,12 +5,13 @@ import com.android.ddmlib.DdmPreferences
 import com.android.ddmlib.IDevice
 import com.android.ddmlib.TimeoutException
 import com.malinskiy.marathon.actor.unboundedChannel
-import com.malinskiy.marathon.analytics.tracker.device.InMemoryDeviceTracker
+import com.malinskiy.marathon.analytics.internal.pub.Track
 import com.malinskiy.marathon.device.DeviceProvider
 import com.malinskiy.marathon.device.DeviceProvider.DeviceEvent.DeviceConnected
 import com.malinskiy.marathon.device.DeviceProvider.DeviceEvent.DeviceDisconnected
 import com.malinskiy.marathon.exceptions.NoDevicesException
 import com.malinskiy.marathon.log.MarathonLogging
+import com.malinskiy.marathon.time.Timer
 import com.malinskiy.marathon.vendor.VendorConfiguration
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.channels.Channel
@@ -26,7 +27,10 @@ import kotlin.coroutines.CoroutineContext
 private const val DEFAULT_DDM_LIB_TIMEOUT = 30000
 private const val DEFAULT_DDM_LIB_SLEEP_TIME = 500
 
-class AndroidDeviceProvider : DeviceProvider, CoroutineScope {
+class AndroidDeviceProvider(
+    private val track: Track,
+    private val timer: Timer
+) : DeviceProvider, CoroutineScope {
     private val logger = MarathonLogging.logger("AndroidDeviceProvider")
 
     private lateinit var adb: AndroidDebugBridge
@@ -51,7 +55,7 @@ class AndroidDeviceProvider : DeviceProvider, CoroutineScope {
             override fun deviceChanged(device: IDevice?, changeMask: Int) {
                 device?.let {
                     launch(context = bootWaitContext) {
-                        val maybeNewAndroidDevice = AndroidDevice(it)
+                        val maybeNewAndroidDevice = AndroidDevice(it, track, timer, vendorConfiguration.serialStrategy)
                         val healthy = maybeNewAndroidDevice.healthy
 
                         logger.debug { "Device ${device.serialNumber} changed state. Healthy = $healthy" }
@@ -70,9 +74,9 @@ class AndroidDeviceProvider : DeviceProvider, CoroutineScope {
             override fun deviceConnected(device: IDevice?) {
                 device?.let {
                     launch {
-                        val maybeNewAndroidDevice = AndroidDevice(it)
+                        val maybeNewAndroidDevice = AndroidDevice(it, track, timer, vendorConfiguration.serialStrategy)
                         val healthy = maybeNewAndroidDevice.healthy
-                        logger.debug { "Device ${maybeNewAndroidDevice.serialNumber} connected channel.isFull = ${channel.isFull}. Healthy = $healthy" }
+                        logger.debug("Device ${maybeNewAndroidDevice.serialNumber} connected. Healthy = $healthy")
 
                         if (healthy) {
                             verifyBooted(maybeNewAndroidDevice)
@@ -102,7 +106,7 @@ class AndroidDeviceProvider : DeviceProvider, CoroutineScope {
             private suspend fun waitForBoot(device: AndroidDevice): Boolean {
                 var booted = false
 
-                InMemoryDeviceTracker.trackProviderDevicePreparing(device) {
+                track.trackProviderDevicePreparing(device) {
                     for (i in 1..30) {
                         if (device.booted) {
                             logger.debug { "Device ${device.serialNumber} booted!" }

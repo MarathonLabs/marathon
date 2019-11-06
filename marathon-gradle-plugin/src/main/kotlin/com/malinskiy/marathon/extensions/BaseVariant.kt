@@ -8,14 +8,14 @@ import com.android.build.gradle.api.LibraryVariantOutput
 import java.io.File
 
 fun BaseVariant.extractApplication(): File? =
-        executeGradleCompat(
-                exec = {
-                    extractApplication3_3_plus(this)
-                },
-                fallback = {
-                    extractApplicationBefore3_3(this)
-                }
-        )
+    executeGradleCompat(
+        exec = {
+            extractApplication3_3_plus(this)
+        },
+        fallback = {
+            extractApplicationBefore3_3(this)
+        }
+    )
 
 private fun extractApplication3_3_plus(output: BaseVariant): File? {
     val applicationProvider = when (output) {

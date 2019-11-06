@@ -1,8 +1,8 @@
 package com.malinskiy.marathon.ios
 
 import com.malinskiy.marathon.execution.Configuration
+import com.malinskiy.marathon.extension.relativePathTo
 import com.malinskiy.marathon.log.MarathonLogging
-import com.malinskiy.marathon.report.html.relativePathTo
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
 import org.amshove.kluent.shouldEqual
@@ -16,46 +16,60 @@ import org.testcontainers.containers.GenericContainer
 import java.io.File
 import java.nio.file.Files
 import java.nio.file.attribute.PosixFilePermissions
-import java.util.UUID
+import java.util.*
 
-object DerivedDataManagerSpek: Spek({
-    val logger = MarathonLogging.logger(javaClass.simpleName)
+object DerivedDataManagerSpek : Spek(
+    {
+        val logger = MarathonLogging.logger(javaClass.simpleName)
 
-    describe("DerivedDataManager") {
-        val device: IOSDevice = mock()
-        whenever(device.udid).thenReturn(UUID.randomUUID().toString())
+        describe("DerivedDataManager") {
+            val device: IOSDevice = mock()
+            whenever(device.udid).thenReturn(UUID.randomUUID().toString())
 
-        val privateKey = File(javaClass.classLoader.getResource("fixtures/derived-data-manager/test_rsa").file)
-        try {
-            Files.setPosixFilePermissions(privateKey.toPath(), PosixFilePermissions.fromString("rw-------"))
-        } catch(e: Exception) { }
-        logger.debug { "Using private key $privateKey" }
-        val publicKeyResourcePath = "fixtures/derived-data-manager/test_rsa.pub"
+            val privateKey =
+                File(javaClass.classLoader.getResource("fixtures/derived-data-manager/test_rsa").file)
+            try {
+                Files.setPosixFilePermissions(
+                    privateKey.toPath(),
+                    PosixFilePermissions.fromString("rw-------")
+                )
+            } catch (e: Exception) {
+            }
+            logger.debug { "Using private key $privateKey" }
+            val publicKeyResourcePath = "fixtures/derived-data-manager/test_rsa.pub"
 
-        // https://github.com/testcontainers/testcontainers-java/issues/318
-        class KGenericContainer(imageName: String) : GenericContainer<KGenericContainer>(imageName)
+            // https://github.com/testcontainers/testcontainers-java/issues/318
+            class KGenericContainer(imageName: String) : GenericContainer<KGenericContainer>(imageName)
 
-        lateinit var container: KGenericContainer
-        lateinit var containerHost: String
-        var sshPort: Int = 0
+            lateinit var container: KGenericContainer
+            lateinit var containerHost: String
+            var sshPort: Int = 0
 
-        beforeGroup {
+            beforeGroup {
 
-            container = KGenericContainer("axiom/rsync-server")
-                    .withClasspathResourceMapping(publicKeyResourcePath, "/root/.ssh/authorized_keys", BindMode.READ_WRITE)
+                container = KGenericContainer("axiom/rsync-server")
+                    .withClasspathResourceMapping(
+                        publicKeyResourcePath,
+                        "/root/.ssh/authorized_keys",
+                        BindMode.READ_WRITE
+                    )
                     .withExposedPorts(22, 873)
 
-            container.start()
+                container.start()
 
-            containerHost = container.containerIpAddress
-            sshPort = container.getMappedPort(22)
-        }
+                containerHost = container.containerIpAddress
+                sshPort = container.getMappedPort(22)
+            }
 
-        on("connection") {
-            val sourceRoot = File(javaClass.classLoader.getResource("sample-xcworkspace/sample-appUITests").file)
-            val derivedDataDir = File(javaClass.classLoader.getResource("sample-xcworkspace/derived-data").file)
-            val xctestrunPath = File(javaClass.classLoader.getResource("sample-xcworkspace/derived-data/Build/Products/UITesting_iphonesimulator11.2-x86_64.xctestrun").file)
-            val configuration = Configuration(name = "",
+            on("connection") {
+                val sourceRoot =
+                    File(javaClass.classLoader.getResource("sample-xcworkspace/sample-appUITests").file)
+                val derivedDataDir =
+                    File(javaClass.classLoader.getResource("sample-xcworkspace/derived-data").file)
+                val xctestrunPath =
+                    File(javaClass.classLoader.getResource("sample-xcworkspace/derived-data/Build/Products/UITesting_iphonesimulator11.2-x86_64.xctestrun").file)
+                val configuration = Configuration(
+                    name = "",
                     outputDir = File(""),
                     analyticsConfiguration = null,
                     poolingStrategy = null,
@@ -68,83 +82,88 @@ object DerivedDataManagerSpek: Spek({
                     ignoreFailures = null,
                     isCodeCoverageEnabled = null,
                     fallbackToScreenshots = null,
+                    strictMode = null,
+                    uncompletedTestRetryQuota = null,
                     testClassRegexes = null,
                     includeSerialRegexes = null,
                     excludeSerialRegexes = null,
                     testBatchTimeoutMillis = null,
                     testOutputTimeoutMillis = null,
                     debug = false,
-                    vendorConfiguration =  IOSConfiguration(
-                            derivedDataDir = derivedDataDir,
-                            xctestrunPath = xctestrunPath,
-                            remoteUsername = "root",
-                            remotePrivateKey = privateKey,
-                            knownHostsPath = null,
-                            remoteRsyncPath = "/usr/bin/rsync",
-                            sourceRoot = sourceRoot,
-                            debugSsh = false,
-                            alwaysEraseSimulators = true),
+                    vendorConfiguration = IOSConfiguration(
+                        derivedDataDir = derivedDataDir,
+                        xctestrunPath = xctestrunPath,
+                        remoteUsername = "root",
+                        remotePrivateKey = privateKey,
+                        knownHostsPath = null,
+                        remoteRsyncPath = "/usr/bin/rsync",
+                        sourceRoot = sourceRoot,
+                        debugSsh = false,
+                        alwaysEraseSimulators = true
+                    ),
                     analyticsTracking = false
-            )
+                )
 
-            sshPort shouldNotEqual 0
+                sshPort shouldNotEqual 0
 
-            it("should determine products location") {
-                val manager = DerivedDataManager(configuration = configuration)
+                it("should determine products location") {
+                    val manager = DerivedDataManager(configuration = configuration)
 
-                manager.productsDir shouldEqual derivedDataDir.resolve("Build/Products/")
-            }
+                    manager.productsDir shouldEqual derivedDataDir.resolve("Build/Products/")
+                }
 
-            it("should send all files") {
-                val manager = DerivedDataManager(configuration = configuration)
+                it("should send all files") {
+                    val manager = DerivedDataManager(configuration = configuration)
 
-                val productsDir = manager.productsDir
-                val remoteDir = "/data/${device.udid}/"
+                    val productsDir = manager.productsDir
+                    val remoteDir = "/data/${device.udid}/"
 
-                // Upload
-                manager.send(
+                    // Upload
+                    manager.send(
                         localPath = productsDir,
                         remotePath = remoteDir,
                         hostName = containerHost,
                         port = sshPort
-                )
+                    )
 
-                val uploadResults = container.execInContainer("/usr/bin/find", remoteDir).stdout
+                    val uploadResults = container.execInContainer("/usr/bin/find", remoteDir).stdout
                         .split("\n")
                         .filter { it.isNotEmpty() }
                         .map { File(it).relativePathTo(File(remoteDir)) }
                         .toSet()
 
-                val expectedFiles = productsDir.walkTopDown().map { it.relativePathTo(productsDir) }.toSet()
+                    val expectedFiles =
+                        productsDir.walkTopDown().map { it.relativePathTo(productsDir) }.toSet()
 
-                uploadResults shouldEqual expectedFiles
-            }
+                    uploadResults shouldEqual expectedFiles
+                }
 
-            it("should receive all files") {
+                it("should receive all files") {
 
-                val manager = DerivedDataManager(configuration = configuration)
+                    val manager = DerivedDataManager(configuration = configuration)
 
-                val productsDir = manager.productsDir
-                val remoteDir = "/data/${device.udid}/"
+                    val productsDir = manager.productsDir
+                    val remoteDir = "/data/${device.udid}/"
 
-                // Download
-                val tempDir = createTempDir()
+                    // Download
+                    val tempDir = createTempDir()
 
-                manager.receive(
+                    manager.receive(
                         remotePath = remoteDir,
                         localPath = tempDir,
                         hostName = containerHost,
                         port = sshPort
-                )
+                    )
 
-                val tempFiles = tempDir.walkTopDown().map { it.relativePathTo(tempDir) }.toSet()
-                val expectedFiles = productsDir.walkTopDown().map { it.relativePathTo(productsDir) }.toSet()
+                    val tempFiles = tempDir.walkTopDown().map { it.relativePathTo(tempDir) }.toSet()
+                    val expectedFiles =
+                        productsDir.walkTopDown().map { it.relativePathTo(productsDir) }.toSet()
 
-                // Compare
-                tempFiles shouldEqual expectedFiles
+                    // Compare
+                    tempFiles shouldEqual expectedFiles
 
-                tempDir.deleteRecursively()
+                    tempDir.deleteRecursively()
+                }
             }
         }
-    }
-})
+    })

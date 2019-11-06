@@ -5,11 +5,13 @@ import com.malinskiy.marathon.execution.TestStatus
 import com.malinskiy.marathon.test.Test
 import java.time.Instant
 
-data class TestData(val test: Test,
-                    val device: DeviceInfo,
-                    val status: TestStatus,
-                    val duration: Long,
-                    val whenWasSent: Instant) {
+data class TestData(
+    val test: Test,
+    val device: DeviceInfo,
+    val status: TestStatus,
+    val duration: Long,
+    val whenWasSent: Instant
+) {
     val isIgnored
         get() = when (status) {
             TestStatus.IGNORED, TestStatus.ASSUMPTION_FAILURE -> true

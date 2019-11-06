@@ -1,11 +1,13 @@
 package com.malinskiy.marathon.test
 
-import java.util.Objects
+import java.util.*
 
-data class Test(val pkg: String,
-                val clazz: String,
-                val method: String,
-                val metaProperties: Collection<MetaProperty>) {
+data class Test(
+    val pkg: String,
+    val clazz: String,
+    val method: String,
+    val metaProperties: Collection<MetaProperty>
+) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other == null || javaClass != other.javaClass) return false
@@ -23,3 +25,4 @@ data class Test(val pkg: String,
 fun Test.toTestName(): String = "$pkg.$clazz#$method"
 fun Test.toSimpleSafeTestName(): String = "$clazz.$method"
 fun Test.toSafeTestName(): String = "$pkg.$clazz.$method"
+

@@ -1,25 +1,17 @@
 package com.malinskiy.marathon
 
-import com.google.gson.Gson
-import com.malinskiy.marathon.analytics.Analytics
-import com.malinskiy.marathon.analytics.AnalyticsFactory
+import com.malinskiy.marathon.analytics.external.Analytics
+import com.malinskiy.marathon.analytics.internal.pub.Track
+import com.malinskiy.marathon.analytics.internal.sub.TrackerInternal
+import com.malinskiy.marathon.config.LogicalConfigurationValidator
 import com.malinskiy.marathon.device.DeviceProvider
+import com.malinskiy.marathon.exceptions.NoDevicesException
 import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.execution.Scheduler
 import com.malinskiy.marathon.execution.TestParser
 import com.malinskiy.marathon.execution.TestShard
 import com.malinskiy.marathon.execution.progress.ProgressReporter
-import com.malinskiy.marathon.io.FileManager
 import com.malinskiy.marathon.log.MarathonLogging
-import com.malinskiy.marathon.report.CompositeSummaryPrinter
-import com.malinskiy.marathon.report.Summary
-import com.malinskiy.marathon.report.SummaryCompiler
-import com.malinskiy.marathon.report.SummaryPrinter
-import com.malinskiy.marathon.report.debug.timeline.TimelineSummaryPrinter
-import com.malinskiy.marathon.report.debug.timeline.TimelineSummaryProvider
-import com.malinskiy.marathon.report.html.HtmlSummaryPrinter
-import com.malinskiy.marathon.report.internal.DeviceInfoReporter
-import com.malinskiy.marathon.report.internal.TestResultReporter
 import com.malinskiy.marathon.test.Test
 import com.malinskiy.marathon.test.toTestName
 import com.malinskiy.marathon.usageanalytics.TrackActionType
@@ -27,21 +19,21 @@ import com.malinskiy.marathon.usageanalytics.UsageAnalytics
 import com.malinskiy.marathon.usageanalytics.tracker.Event
 import com.malinskiy.marathon.vendor.VendorConfiguration
 import kotlinx.coroutines.runBlocking
+import org.koin.core.context.stopKoin
 import java.util.*
-import java.util.concurrent.TimeUnit
 import kotlin.coroutines.coroutineContext
 
 private val log = MarathonLogging.logger {}
 
-class Marathon(val configuration: Configuration) {
+class Marathon(
+    val configuration: Configuration,
+    private val tracker: TrackerInternal,
+    private val analytics: Analytics,
+    private val progressReporter: ProgressReporter,
+    private val track: Track
+) {
 
-    private val fileManager = FileManager(configuration.outputDir)
-    private val gson = Gson()
-
-    private val testResultReporter = TestResultReporter(fileManager, gson)
-    private val deviceInfoReporter = DeviceInfoReporter(fileManager, gson)
-    private val analyticsFactory = AnalyticsFactory(configuration, fileManager, deviceInfoReporter, testResultReporter,
-            gson)
+    private val configurationValidator = LogicalConfigurationValidator()
 
     private fun configureLogging(vendorConfiguration: VendorConfiguration) {
         MarathonLogging.debug = configuration.debug
@@ -49,23 +41,9 @@ class Marathon(val configuration: Configuration) {
         vendorConfiguration.logConfigurator()?.configure(vendorConfiguration)
     }
 
-    private val summaryCompiler = SummaryCompiler(deviceInfoReporter, testResultReporter, configuration)
-
-    private fun loadSummaryPrinter(): SummaryPrinter {
-        val outputDir = configuration.outputDir
-        val htmlSummaryPrinter = HtmlSummaryPrinter(gson, outputDir)
-        if (configuration.debug) {
-            return CompositeSummaryPrinter(listOf(
-                    htmlSummaryPrinter,
-                    TimelineSummaryPrinter(TimelineSummaryProvider(analyticsFactory.rawTestResultTracker), gson, outputDir)
-            ))
-        }
-        return htmlSummaryPrinter
-    }
-
     private suspend fun loadDeviceProvider(vendorConfiguration: VendorConfiguration): DeviceProvider {
         val vendorDeviceProvider = vendorConfiguration.deviceProvider()
-                ?: ServiceLoader.load(DeviceProvider::class.java).first()
+            ?: ServiceLoader.load(DeviceProvider::class.java).first()
 
         vendorDeviceProvider.initialize(configuration.vendorConfiguration)
         return vendorDeviceProvider
@@ -85,7 +63,14 @@ class Marathon(val configuration: Configuration) {
             runAsync()
         } catch (th: Throwable) {
             log.error(th.toString())
-            false
+
+            when (th) {
+                is NoDevicesException -> {
+                    log.warn { "No devices found" }
+                    false
+                }
+                else -> configuration.ignoreFailures
+            }
         }
     }
 
@@ -95,7 +80,8 @@ class Marathon(val configuration: Configuration) {
 
         val testParser = loadTestParser(configuration.vendorConfiguration)
         val deviceProvider = loadDeviceProvider(configuration.vendorConfiguration)
-        val analytics = analyticsFactory.create()
+
+        configurationValidator.validate(configuration)
 
         val parsedTests = testParser.extract(configuration)
         val tests = applyTestFilters(parsedTests)
@@ -103,9 +89,16 @@ class Marathon(val configuration: Configuration) {
 
         log.info("Scheduling ${tests.size} tests")
         log.debug(tests.joinToString(", ") { it.toTestName() })
-        val progressReporter = ProgressReporter()
         val currentCoroutineContext = coroutineContext
-        val scheduler = Scheduler(deviceProvider, analytics, configuration, shard, progressReporter, currentCoroutineContext)
+        val scheduler = Scheduler(
+            deviceProvider,
+            analytics,
+            configuration,
+            shard,
+            progressReporter,
+            track,
+            currentCoroutineContext
+        )
 
         if (configuration.outputDir.exists()) {
             log.info { "Output ${configuration.outputDir} already exists" }
@@ -113,34 +106,33 @@ class Marathon(val configuration: Configuration) {
         }
         configuration.outputDir.mkdirs()
 
-        val getElapsedTimeMillis: () -> Long = {
-            val startTime = System.currentTimeMillis()
-            fun(): Long { return System.currentTimeMillis() - startTime }
-        }()
+        val hook = installShutdownHook { onFinish(analytics, deviceProvider) }
 
-        val shutdownHook = ShutdownHook(configuration) { printSummary(scheduler, getElapsedTimeMillis()) }
-        shutdownHook.install()
-
-        scheduler.execute()
-
-        if (shutdownHook.uninstall()) {
-            printSummary(scheduler, getElapsedTimeMillis())
+        if (tests.isNotEmpty()) {
+            scheduler.execute()
         }
 
-        analytics.terminate()
-        analytics.close()
-        deviceProvider.terminate()
+        onFinish(analytics, deviceProvider)
+        hook.uninstall()
+
+        stopKoin()
         return progressReporter.aggregateResult()
     }
 
-    private fun printSummary(scheduler: Scheduler, executionTime: Long) {
-        val pools = scheduler.getPools()
-        if (!pools.isEmpty()) {
-            val summaryPrinter = loadSummaryPrinter()
-            val summary = summaryCompiler.compile(scheduler.getPools())
-            printCliReport(summary, executionTime)
-            summaryPrinter.print(summary)
+    private fun installShutdownHook(block: suspend () -> Unit): ShutdownHook {
+        val shutdownHook = ShutdownHook(configuration) {
+            runBlocking {
+                block.invoke()
+            }
         }
+        shutdownHook.install()
+        return shutdownHook
+    }
+
+    private suspend fun onFinish(analytics: Analytics, deviceProvider: DeviceProvider) {
+        analytics.close()
+        deviceProvider.terminate()
+        tracker.close()
     }
 
     private fun applyTestFilters(parsedTests: List<Test>): List<Test> {
@@ -160,7 +152,7 @@ class Marathon(val configuration: Configuration) {
     }
 
     private fun trackAnalytics(configuration: Configuration) {
-        UsageAnalytics.tracker.run {
+        UsageAnalytics.USAGE_TRACKER.run {
             trackEvent(Event(TrackActionType.VendorConfiguration, configuration.vendorConfiguration.javaClass.name))
             trackEvent(Event(TrackActionType.PoolingStrategy, configuration.poolingStrategy.javaClass.name))
             trackEvent(Event(TrackActionType.ShardingStrategy, configuration.shardingStrategy.javaClass.name))
@@ -169,19 +161,5 @@ class Marathon(val configuration: Configuration) {
             trackEvent(Event(TrackActionType.BatchingStrategy, configuration.batchingStrategy.javaClass.name))
             trackEvent(Event(TrackActionType.FlakinessStrategy, configuration.flakinessStrategy.javaClass.name))
         }
-    }
-
-    private fun printCliReport(summary: Summary, executionTime: Long) {
-        val cliReportBuilder = StringBuilder().appendln("Marathon run finished:")
-        summary.pools.forEach {
-            cliReportBuilder.appendln("Device pool ${it.poolId.name}: ${it.passed} passed, ${it.failed} failed, ${it.ignored} ignored tests")
-        }
-
-        val hours = TimeUnit.MILLISECONDS.toHours(executionTime)
-        val minutes = TimeUnit.MILLISECONDS.toMinutes(executionTime) % 60
-        val seconds = TimeUnit.MILLISECONDS.toSeconds(executionTime) % 60
-        cliReportBuilder.appendln("Total time: ${hours}H ${minutes}m ${seconds}s")
-
-        println(cliReportBuilder)
     }
 }

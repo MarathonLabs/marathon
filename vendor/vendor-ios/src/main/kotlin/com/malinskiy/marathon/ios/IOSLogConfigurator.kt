@@ -8,7 +8,7 @@ import ch.qos.logback.classic.spi.ILoggingEvent
 import ch.qos.logback.core.ConsoleAppender
 import ch.qos.logback.core.encoder.LayoutWrappingEncoder
 import com.malinskiy.marathon.log.MarathonLogConfigurator
-import com.malinskiy.marathon.report.debug.timeline.TimelineSummaryProvider
+import com.malinskiy.marathon.report.timeline.TimelineSummaryProvider
 import com.malinskiy.marathon.vendor.VendorConfiguration
 import net.schmizz.sshj.DefaultConfig
 import net.schmizz.sshj.common.KeyType
@@ -16,7 +16,7 @@ import net.schmizz.sshj.transport.kex.Curve25519SHA256
 import net.schmizz.sshj.transport.random.BouncyCastleRandom
 import org.slf4j.LoggerFactory
 
-class IOSLogConfigurator: MarathonLogConfigurator  {
+class IOSLogConfigurator : MarathonLogConfigurator {
     override fun configure(vendorConfiguration: VendorConfiguration) {
         val iosConfiguration = vendorConfiguration as? IOSConfiguration
 
