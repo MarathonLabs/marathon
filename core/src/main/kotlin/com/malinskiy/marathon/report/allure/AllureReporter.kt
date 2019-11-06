@@ -2,12 +2,16 @@ package com.malinskiy.marathon.report.allure
 
 import com.github.automatedowl.tools.AllureEnvironmentWriter.allureEnvironmentWriter
 import com.google.common.collect.ImmutableMap
+import com.google.gson.GsonBuilder
+import com.google.gson.reflect.TypeToken
 import com.malinskiy.marathon.analytics.internal.sub.ExecutionReport
 import com.malinskiy.marathon.device.DeviceInfo
 import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.execution.TestResult
 import com.malinskiy.marathon.execution.TestStatus
 import com.malinskiy.marathon.report.Reporter
+import com.malinskiy.marathon.report.allure.steps.AllureStageDeserializer
+import com.malinskiy.marathon.report.allure.steps.AllureStatusDeserializer
 import com.malinskiy.marathon.test.Test
 import com.malinskiy.marathon.test.toSimpleSafeTestName
 import io.qameta.allure.AllureLifecycle
@@ -23,15 +27,25 @@ import io.qameta.allure.Story
 import io.qameta.allure.TmsLink
 import io.qameta.allure.model.Attachment
 import io.qameta.allure.model.Label
+import io.qameta.allure.model.Stage
 import io.qameta.allure.model.Status
 import io.qameta.allure.model.StatusDetails
+import io.qameta.allure.model.StepResult
 import io.qameta.allure.util.ResultsUtils
+import java.lang.reflect.Type
 import java.io.File
 import java.util.*
 
 class AllureReporter(val configuration: Configuration, private val outputDirectory: File) : Reporter {
 
     private val lifecycle: AllureLifecycle by lazy { AllureLifecycle(FileSystemResultsWriter(outputDirectory.toPath())) }
+    private val stepsListType: Type by lazy { object : TypeToken<List<StepResult>>() {}.type }
+    private val gson by lazy {
+        GsonBuilder()
+            .registerTypeAdapter(Status::class.java, AllureStatusDeserializer())
+            .registerTypeAdapter(Stage::class.java, AllureStageDeserializer())
+            .create()
+    }
 
     override fun generate(executionReport: ExecutionReport) {
         executionReport.testEvents.forEach { testEvent ->
@@ -72,6 +86,8 @@ class AllureReporter(val configuration: Configuration, private val outputDirecto
                 .setType(it.type.toMimeType())
         }
 
+        val allureSteps = testResult.stepsJson?.let { gson.fromJson<List<StepResult>>(it, stepsListType) } ?: listOf()
+
         val allureTestResult = io.qameta.allure.model.TestResult()
             .setUuid(uuid)
             .setFullName(fullName)
@@ -80,6 +96,7 @@ class AllureReporter(val configuration: Configuration, private val outputDirecto
             .setStart(testResult.startTime)
             .setStop(testResult.endTime)
             .setAttachments(allureAttachments)
+            .setSteps(allureSteps)
             .setParameters()
             .setLabels(
                 ResultsUtils.createHostLabel().setValue(device.serialNumber),
