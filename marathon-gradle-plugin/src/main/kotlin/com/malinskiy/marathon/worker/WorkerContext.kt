@@ -29,7 +29,7 @@ class WorkerContext : WorkerHandler {
         workerExecutor: WorkerExecutor,
         parameters: () -> MarathonWorkParameters
     ) {
-        if (!isRunning.compareAndSet(false, true)) return
+        if (isRunning.getAndSet(true)) return
 
         this.parameters = parameters()
 
