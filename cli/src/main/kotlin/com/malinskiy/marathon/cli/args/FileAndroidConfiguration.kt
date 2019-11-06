@@ -2,6 +2,7 @@ package com.malinskiy.marathon.cli.args
 
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.malinskiy.marathon.android.AndroidConfiguration
+import com.malinskiy.marathon.android.DEFAULT_ENABLE_KASPRESSO_STEPS_LISTENER
 import com.malinskiy.marathon.android.DEFAULT_INSTALL_OPTIONS
 import com.malinskiy.marathon.android.defaultInitTimeoutMillis
 import com.malinskiy.marathon.android.serial.SerialStrategy
@@ -20,7 +21,8 @@ data class FileAndroidConfiguration(
     @JsonProperty("adbInitTimeoutMillis") val adbInitTimeoutMillis: Int?,
     @JsonProperty("installOptions") val installOptions: String?,
     @JsonProperty("preferableRecorderType") val preferableRecorderType: DeviceFeature?,
-    @JsonProperty("serialStrategy") val serialStrategy: SerialStrategy = SerialStrategy.AUTOMATIC
+    @JsonProperty("serialStrategy") val serialStrategy: SerialStrategy = SerialStrategy.AUTOMATIC,
+    @JsonProperty("enableKaspressoStepsListener") val enableKaspressoStepsListener: Boolean?
 ) : FileVendorConfiguration {
 
     fun toAndroidConfiguration(environmentAndroidSdk: File?): AndroidConfiguration {
@@ -39,7 +41,8 @@ data class FileAndroidConfiguration(
             adbInitTimeoutMillis = adbInitTimeoutMillis ?: defaultInitTimeoutMillis,
             installOptions = installOptions ?: DEFAULT_INSTALL_OPTIONS,
             preferableRecorderType = preferableRecorderType,
-            serialStrategy = serialStrategy
+            serialStrategy = serialStrategy,
+            enableKaspressoStepsListener = enableKaspressoStepsListener ?: DEFAULT_ENABLE_KASPRESSO_STEPS_LISTENER
         )
     }
 }

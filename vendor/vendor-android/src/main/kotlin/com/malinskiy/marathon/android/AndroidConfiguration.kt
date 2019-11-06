@@ -17,6 +17,7 @@ const val DEFAULT_AUTO_GRANT_PERMISSION = false
 const val DEFAULT_APPLICATION_PM_CLEAR = false
 const val DEFAULT_TEST_APPLICATION_PM_CLEAR = false
 const val DEFAULT_INSTALL_OPTIONS = ""
+const val DEFAULT_ENABLE_KASPRESSO_STEPS_LISTENER = false
 
 data class AndroidConfiguration(
     val androidSdk: File,
@@ -29,7 +30,8 @@ data class AndroidConfiguration(
     val adbInitTimeoutMillis: Int = defaultInitTimeoutMillis,
     val installOptions: String = DEFAULT_INSTALL_OPTIONS,
     val preferableRecorderType: DeviceFeature? = null,
-    val serialStrategy: SerialStrategy = SerialStrategy.AUTOMATIC
+    val serialStrategy: SerialStrategy = SerialStrategy.AUTOMATIC,
+    val enableKaspressoStepsListener: Boolean = DEFAULT_ENABLE_KASPRESSO_STEPS_LISTENER
 ) : VendorConfiguration, KoinComponent {
 
     override fun testParser(): TestParser? = get()
