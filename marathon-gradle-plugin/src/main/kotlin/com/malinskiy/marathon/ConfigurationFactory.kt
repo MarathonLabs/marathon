@@ -31,7 +31,7 @@ internal fun createConfiguration(
     val instrumentationApk = testVariant.extractTestApplication()
     val applicationApk = applicationVariant.extractApplication()
 
-    val output = getOutputDirectory(project, extensionConfig, flavorName)
+    val output = getOutputDirectory(targetProject, extensionConfig, flavorName)
     val vendorConfiguration = createAndroidConfiguration(extensionConfig, applicationApk, instrumentationApk, sdkDirectory)
 
     return Configuration(

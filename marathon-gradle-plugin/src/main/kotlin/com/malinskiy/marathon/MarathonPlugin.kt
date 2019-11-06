@@ -9,7 +9,7 @@ import com.android.build.gradle.api.TestVariant
 import com.malinskiy.marathon.extensions.executeGradleCompat
 import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.properties.MarathonProperties
-import com.malinskiy.marathon.properties.getProperties
+import com.malinskiy.marathon.properties.marathonProperties
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.Task
@@ -24,10 +24,22 @@ class MarathonPlugin : Plugin<Project> {
     override fun apply(project: Project) {
         log.info { "Applying marathon plugin" }
 
-        val properties = getProperties(project.rootProject)
+        val properties = project.rootProject.marathonProperties
         if (properties.isCommonWorkerEnabled) {
             if (project.rootProject.extensions.findByName(EXTENSION_NAME) == null) {
                 project.rootProject.extensions.create(EXTENSION_NAME, MarathonExtension::class.java, project)
+
+                project.gradle.taskGraph.addTaskExecutionGraphListener { graph ->
+                    val allMarathonTasks = graph
+                        .allTasks
+                        .filterIsInstance<MarathonWorkerRunTask>()
+
+                    MarathonWorkerRunTask.setExpectedTasks(allMarathonTasks)
+                }
+
+                project.gradle.buildFinished {
+                    MarathonWorkerRunTask.setExpectedTasks(emptyList())
+                }
             }
         }
 

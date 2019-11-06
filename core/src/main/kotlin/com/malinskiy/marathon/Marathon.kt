@@ -6,6 +6,7 @@ import com.malinskiy.marathon.analytics.internal.sub.TrackerInternal
 import com.malinskiy.marathon.config.LogicalConfigurationValidator
 import com.malinskiy.marathon.device.DeviceProvider
 import com.malinskiy.marathon.exceptions.NoDevicesException
+import com.malinskiy.marathon.execution.ComponentInfo
 import com.malinskiy.marathon.execution.ComponentInfoExtractor
 import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.execution.Scheduler
@@ -32,9 +33,14 @@ class Marathon(
     private val analytics: Analytics,
     private val progressReporter: ProgressReporter,
     private val track: Track
-) {
+) : MarathonRunner {
 
     private val configurationValidator = LogicalConfigurationValidator()
+
+    private lateinit var deviceProvider: DeviceProvider
+    private lateinit var testParser: TestParser
+    private lateinit var scheduler: Scheduler
+    private lateinit var hook: ShutdownHook
 
     private fun configureLogging(vendorConfiguration: VendorConfiguration) {
         MarathonLogging.debug = configuration.debug
@@ -89,23 +95,25 @@ class Marathon(
     }
 
     suspend fun runAsync(): Boolean {
+        start()
+
+        val componentInfo = loadComponentInfoExtractor(configuration.vendorConfiguration).extract(configuration)
+        scheduleTests(componentInfo)
+
+        return waitForCompletionAndDispose()
+    }
+
+    override suspend fun start() {
         configureLogging(configuration.vendorConfiguration)
         trackAnalytics(configuration)
 
-        val testParser = loadTestParser(configuration.vendorConfiguration)
-        val deviceProvider = loadDeviceProvider(configuration.vendorConfiguration)
+        testParser = loadTestParser(configuration.vendorConfiguration)
+        deviceProvider = loadDeviceProvider(configuration.vendorConfiguration)
 
         configurationValidator.validate(configuration)
 
-        val componentInfo = loadComponentInfoExtractor(configuration.vendorConfiguration).extract(configuration)
-        val parsedTests = testParser.extract(componentInfo)
-        val tests = applyTestFilters(parsedTests)
-        val shard = prepareTestShard(tests, analytics)
-
-        log.info("Scheduling ${tests.size} tests")
-        log.debug(tests.joinToString(", ") { it.toTestName() })
         val currentCoroutineContext = coroutineContext
-        val scheduler = Scheduler(
+        scheduler = Scheduler(
             deviceProvider,
             analytics,
             configuration,
@@ -120,15 +128,22 @@ class Marathon(
         }
         configuration.outputDir.mkdirs()
 
-        val hook = installShutdownHook { onFinish(analytics, deviceProvider) }
+        hook = installShutdownHook { onFinish(analytics, deviceProvider) }
+        scheduler.initialize()
+    }
 
-        if (tests.isNotEmpty()) {
-            with(scheduler) {
-                initialize()
-                addTests(shard)
-                waitForCompletion()
-            }
-        }
+    override suspend fun scheduleTests(componentInfo: ComponentInfo) {
+        val parsedTests = testParser.extract(componentInfo)
+        val tests = applyTestFilters(parsedTests)
+        val shard = prepareTestShard(tests, analytics)
+
+        log.info("Scheduling ${tests.size} tests")
+        log.debug(tests.joinToString(", ") { it.toTestName() })
+        scheduler.addTests(shard)
+    }
+
+    override suspend fun waitForCompletionAndDispose(): Boolean {
+        scheduler.waitForCompletion()
 
         onFinish(analytics, deviceProvider)
         hook.uninstall()
