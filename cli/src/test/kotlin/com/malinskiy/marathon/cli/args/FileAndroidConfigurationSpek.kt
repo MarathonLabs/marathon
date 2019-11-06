@@ -24,7 +24,8 @@ object FileAndroidConfigurationSpek : Spek(
                     null,
                     null,
                     null,
-                    SerialStrategy.AUTOMATIC
+                    SerialStrategy.AUTOMATIC,
+                    null
                 )
             }
 
@@ -81,6 +82,17 @@ object FileAndroidConfigurationSpek : Spek(
                 }
                 it("should be equal if provided") {
                     configuration.copy(installOptions = "-d").toAndroidConfiguration(env).installOptions shouldEqual "-d"
+                }
+            }
+            group("enable Kaspresso steps listener") {
+                it("should be false by default") {
+                    configuration.toAndroidConfiguration(env).enableKaspressoStepsListener shouldEqual false
+                }
+                it("should be equal") {
+                    configuration.copy(enableKaspressoStepsListener = false)
+                        .toAndroidConfiguration(env).enableKaspressoStepsListener shouldEqual false
+                    configuration.copy(enableKaspressoStepsListener = true)
+                        .toAndroidConfiguration(env).enableKaspressoStepsListener shouldEqual true
                 }
             }
         }
