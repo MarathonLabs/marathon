@@ -19,6 +19,7 @@ Deployment.initialize(project)
 dependencies {
     implementation(gradleApi())
     implementation(Libraries.kotlinLogging)
+    implementation(Libraries.kotlinCoroutines)
     implementation(project(":core"))
     implementation(project(":vendor:vendor-android"))
     implementation(BuildPlugins.androidGradle)

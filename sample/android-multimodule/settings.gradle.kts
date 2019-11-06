@@ -16,7 +16,7 @@ pluginManagement {
     }
 }
 
-rootProject.name = "android-app"
+rootProject.name = "multi-module"
 rootProject.buildFileName = "build.gradle.kts"
 include("app")
 include("library")
