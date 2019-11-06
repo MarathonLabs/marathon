@@ -27,6 +27,7 @@ import com.malinskiy.marathon.io.FileManager
 import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.report.attachment.AttachmentProvider
 import com.malinskiy.marathon.report.logs.LogWriter
+import com.malinskiy.marathon.report.steps.StepsJsonProvider
 import com.malinskiy.marathon.test.TestBatch
 import com.malinskiy.marathon.time.Timer
 import kotlinx.coroutines.CompletableDeferred
@@ -159,6 +160,7 @@ class AndroidDevice(
     ): CompositeTestRunListener {
         val fileManager = FileManager(configuration.outputDir)
         val attachmentProviders = mutableListOf<AttachmentProvider>()
+        val stepsJsonProviders = mutableListOf<StepsJsonProvider>()
 
         val features = this.deviceFeatures
 
@@ -166,15 +168,22 @@ class AndroidDevice(
         val recorderListener = selectRecorderType(preferableRecorderType, features)?.let { feature ->
             prepareRecorderListener(feature, fileManager, devicePoolId, attachmentProviders)
         } ?: NoOpTestRunListener()
+        val isKaspressoStepsListenerEnabled = (configuration.vendorConfiguration as? AndroidConfiguration)
+            ?.enableKaspressoStepsListener == true
 
         val logCatListener = LogCatListener(this, devicePoolId, LogWriter(fileManager))
-            .also { attachmentProviders.add(it) }
+            .also { listener ->
+                attachmentProviders.add(listener)
+                if (isKaspressoStepsListenerEnabled) {
+                    stepsJsonProviders.add(listener)
+                }
+            }
 
         return CompositeTestRunListener(
             listOf(
                 recorderListener,
                 logCatListener,
-                TestRunResultsListener(testBatch, this, deferred, timer, attachmentProviders),
+                TestRunResultsListener(testBatch, this, deferred, timer, attachmentProviders, stepsJsonProviders),
                 DebugTestRunListener(this),
                 ProgressTestRunListener(this, devicePoolId, progressReporter)
             )
