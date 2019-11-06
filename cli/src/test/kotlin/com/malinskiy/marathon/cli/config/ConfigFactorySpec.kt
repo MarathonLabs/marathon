@@ -162,7 +162,8 @@ object ConfigFactorySpec : Spek(
                         30_000,
                         "-d",
                         DeviceFeature.SCREENSHOT,
-                        SerialStrategy.AUTOMATIC
+                        SerialStrategy.AUTOMATIC,
+                        true
                     )
                 }
             }
@@ -230,7 +231,8 @@ object ConfigFactorySpec : Spek(
                         30_000,
                         "",
                         null,
-                        SerialStrategy.AUTOMATIC
+                        SerialStrategy.AUTOMATIC,
+                        false
                     )
                 }
             }
@@ -297,7 +299,8 @@ object ConfigFactorySpec : Spek(
                         30_000,
                         "",
                         null,
-                        SerialStrategy.HOSTNAME
+                        SerialStrategy.HOSTNAME,
+                        false
                     )
                 }
             }
