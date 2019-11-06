@@ -10,7 +10,8 @@ data class TestResult(
     val startTime: Long,
     val endTime: Long,
     val stacktrace: String? = null,
-    val attachments: List<Attachment> = emptyList()
+    val attachments: List<Attachment> = emptyList(),
+    val stepsJson: String? = null
 ) {
     fun durationMillis() = endTime - startTime
 
