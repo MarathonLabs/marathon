@@ -5,8 +5,10 @@ import com.android.build.gradle.api.TestVariant
 import com.malinskiy.marathon.android.AndroidConfiguration
 import com.malinskiy.marathon.android.DEFAULT_APPLICATION_PM_CLEAR
 import com.malinskiy.marathon.android.DEFAULT_AUTO_GRANT_PERMISSION
+import com.malinskiy.marathon.android.DEFAULT_ENABLE_KASPRESSO_STEPS_LISTENER
 import com.malinskiy.marathon.android.DEFAULT_INSTALL_OPTIONS
 import com.malinskiy.marathon.android.defaultInitTimeoutMillis
+import com.malinskiy.marathon.android.serial.SerialStrategy
 import com.malinskiy.marathon.di.marathonStartKoin
 import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.extensions.extractApplication
@@ -105,6 +107,7 @@ open class MarathonRunTask : DefaultTask(), VerificationTask {
         val adbInitTimeout = extension.adbInitTimeout ?: defaultInitTimeoutMillis
         val installOptions = extension.installOptions ?: DEFAULT_INSTALL_OPTIONS
         val preferableRecorderType = extension.preferableRecorderType
+        val enableKaspressoStepsListener = extension.enableKaspressoStepsListener ?: DEFAULT_ENABLE_KASPRESSO_STEPS_LISTENER
 
         return AndroidConfiguration(
             sdk,
@@ -116,7 +119,9 @@ open class MarathonRunTask : DefaultTask(), VerificationTask {
             testApplicationPmClear,
             adbInitTimeout,
             installOptions,
-            preferableRecorderType
+            preferableRecorderType,
+            SerialStrategy.AUTOMATIC,
+            enableKaspressoStepsListener
         )
     }
 
