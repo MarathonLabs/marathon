@@ -10,10 +10,12 @@ import com.malinskiy.marathon.analytics.internal.sub.TrackerInternal
 import com.malinskiy.marathon.execution.AnalyticsConfiguration.InfluxDbConfiguration
 import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.io.FileManager
+import com.malinskiy.marathon.io.FileType
 import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.report.allure.AllureReporter
 import com.malinskiy.marathon.report.device.DeviceInfoJsonReporter
 import com.malinskiy.marathon.report.html.HtmlSummaryReporter
+import com.malinskiy.marathon.report.junit.FinalJUnitReporter
 import com.malinskiy.marathon.report.junit.JUnitReporter
 import com.malinskiy.marathon.report.junit.JUnitWriter
 import com.malinskiy.marathon.report.raw.RawJsonReporter
@@ -65,7 +67,8 @@ internal class TrackerFactory(
         return ExecutionReportGenerator(
             listOf(
                 DeviceInfoJsonReporter(fileManager, gson),
-                JUnitReporter(JUnitWriter(fileManager)),
+                JUnitReporter(JUnitWriter(fileManager, FileType.TEST)),
+                FinalJUnitReporter(JUnitWriter(fileManager, FileType.TEST_FINAL)),
                 TimelineReporter(TimelineSummaryProvider(), gson, configuration.outputDir),
                 RawJsonReporter(fileManager, gson),
                 TestJsonReporter(fileManager, gson),

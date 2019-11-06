@@ -12,9 +12,10 @@ import java.util.*
 import javax.xml.stream.XMLOutputFactory
 import javax.xml.stream.XMLStreamWriter
 
-class JUnitWriter(private val fileManager: FileManager) {
+class JUnitWriter(private val fileManager: FileManager, private val fileType: FileType) {
+
     fun testFinished(devicePoolId: DevicePoolId, device: DeviceInfo, testResult: TestResult) {
-        val file = fileManager.createFile(FileType.TEST, devicePoolId, device, testResult.test)
+        val file = fileManager.createFile(fileType, devicePoolId, device, testResult.test)
         file.createNewFile()
 
         val writer = XMLOutputFactory.newFactory().createXMLStreamWriter(FileOutputStream(file), "UTF-8")
