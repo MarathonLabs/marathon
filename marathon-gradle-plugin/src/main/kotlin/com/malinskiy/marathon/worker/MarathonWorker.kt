@@ -29,7 +29,10 @@ open class MarathonWorker @Inject constructor() : WorkAction<WorkParameters.None
 
         marathon = parameters.marathonFactory()
 
+        // TODO: we need to support empty queue in Marathon, currently it fails if we start it without tests
+        val firstComponent = context.componentsChannel.receive()
         marathon.start()
+        marathon.scheduleTests(firstComponent)
 
         for (component in context.componentsChannel) {
             log.debug("Scheduling tests for $component")
@@ -63,11 +66,11 @@ open class MarathonWorker @Inject constructor() : WorkAction<WorkParameters.None
 
         override fun accept(action: WorkerAction) = context.accept(action)
 
-        override fun ensureWorkerStarted(
+        override fun startWorker(
             workerExecutor: WorkerExecutor,
             parameters: () -> MarathonWorkParameters
         ) {
-            context.ensureWorkerStarted(workerExecutor, parameters)
+            context.startWorker(workerExecutor, parameters)
         }
 
     }
