@@ -2,10 +2,12 @@ package com.malinskiy.marathon
 
 import com.malinskiy.marathon.android.AndroidConfiguration
 import com.malinskiy.marathon.di.marathonStartKoin
+import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.usageanalytics.TrackActionType
 import com.malinskiy.marathon.usageanalytics.UsageAnalytics
 import com.malinskiy.marathon.usageanalytics.tracker.Event
+import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
 import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.TaskAction
@@ -14,7 +16,9 @@ import java.io.File
 
 private val log = MarathonLogging.logger {}
 
-open class MarathonRunTask : BaseMarathonRunTask(), VerificationTask {
+open class MarathonRunTask : DefaultTask(), VerificationTask {
+
+    lateinit var configuration: Configuration
 
     var ignoreFailure: Boolean = false
 

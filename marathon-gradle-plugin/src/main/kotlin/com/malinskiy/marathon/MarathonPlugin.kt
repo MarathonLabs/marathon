@@ -6,14 +6,20 @@ import com.android.build.gradle.LibraryExtension
 import com.android.build.gradle.LibraryPlugin
 import com.android.build.gradle.api.BaseVariantOutput
 import com.android.build.gradle.api.TestVariant
+import com.malinskiy.marathon.android.androidSdkLocation
 import com.malinskiy.marathon.extensions.executeGradleCompat
 import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.properties.MarathonProperties
 import com.malinskiy.marathon.properties.marathonProperties
+import com.malinskiy.marathon.worker.MarathonWorker
+import com.malinskiy.marathon.worker.StartWorkerTask
+import com.malinskiy.marathon.worker.WorkerAction
+import org.gradle.api.DefaultTask
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.api.plugins.JavaBasePlugin
+import org.gradle.api.tasks.TaskProvider
 import org.gradle.kotlin.dsl.closureOf
 import java.io.File
 
@@ -25,21 +31,19 @@ class MarathonPlugin : Plugin<Project> {
         log.info { "Applying marathon plugin" }
 
         val properties = project.rootProject.marathonProperties
-        if (properties.isCommonWorkerEnabled) {
+        val androidSdkLocation = project.androidSdkLocation
+
+        val isCommonWorkerEnabled = properties.isCommonWorkerEnabled && project.gradle.startParameter.taskNames.contains(WORKER_TASK_NAME)
+
+        if (isCommonWorkerEnabled) {
             if (project.rootProject.extensions.findByName(EXTENSION_NAME) == null) {
                 project.rootProject.extensions.create(EXTENSION_NAME, MarathonExtension::class.java, project)
 
-                project.gradle.taskGraph.addTaskExecutionGraphListener { graph ->
-                    val allMarathonTasks = graph
-                        .allTasks
-                        .filterIsInstance<MarathonWorkerRunTask>()
-
-                    MarathonWorkerRunTask.setExpectedTasks(allMarathonTasks)
+                project.rootProject.tasks.register(WORKER_TASK_NAME, StartWorkerTask::class.java) {
+                    configuration = createCommonConfiguration(project.rootProject, EXTENSION_NAME, androidSdkLocation)
                 }
 
-                project.gradle.buildFinished {
-                    MarathonWorkerRunTask.setExpectedTasks(emptyList())
-                }
+                project.setUpWorkerFinishHandler()
             }
         }
 
@@ -68,22 +72,62 @@ class MarathonPlugin : Plugin<Project> {
 
             testedExtension!!.testVariants.all {
                 log.info { "Applying marathon for $this" }
-                val testTaskForVariant = createTask(this, project, properties, testedExtension.sdkDirectory)
+                val testTaskForVariant = registerTask(this, project, properties, androidSdkLocation)
                 marathonTask.dependsOn(testTaskForVariant)
             }
         }
     }
 
     companion object {
-        private fun createTask(
+
+        private fun Project.setUpWorkerFinishHandler() {
+            gradle.taskGraph.addTaskExecutionGraphListener { graph ->
+                val allMarathonTasks = graph
+                    .allTasks
+                    .filterIsInstance<MarathonScheduleTestsToWorkerTask>()
+                    .filter { it.isEnabled }
+                    .toMutableSet()
+
+                graph.afterTask {
+                    if (this is MarathonScheduleTestsToWorkerTask) {
+                        allMarathonTasks.remove(this)
+
+                        if (allMarathonTasks.isEmpty()) {
+                            MarathonWorker.accept(WorkerAction.Finish)
+                        }
+                    }
+                }
+            }
+        }
+
+        private fun registerTask(
             variant: TestVariant,
             project: Project,
             properties: MarathonProperties,
             sdkDirectory: File
-        ): Task {
+        ): TaskProvider<out DefaultTask> {
             checkTestVariants(variant)
-            val taskType = if (properties.isCommonWorkerEnabled) MarathonWorkerRunTask::class.java else MarathonRunTask::class.java
-            val marathonTask = project.tasks.create("$TASK_PREFIX${variant.name.capitalize()}", taskType)
+
+            val taskType =
+                if (properties.isCommonWorkerEnabled) MarathonScheduleTestsToWorkerTask::class.java else MarathonRunTask::class.java
+            val marathonTask = project.tasks.register("$TASK_PREFIX${variant.name.capitalize()}", taskType)
+
+            marathonTask.configure {
+                group = JavaBasePlugin.VERIFICATION_GROUP
+                description = "Runs instrumentation tests on all the connected devices for '${variant.name}' " +
+                        "variation and generates a report with screenshots"
+                outputs.upToDateWhen { false }
+
+                executeGradleCompat(
+                    exec = {
+                        dependsOn(variant.testedVariant.assembleProvider, variant.assembleProvider)
+                    },
+                    fallback = {
+                        @Suppress("DEPRECATION")
+                        dependsOn(variant.testedVariant.assemble, variant.assemble)
+                    }
+                )
+            }
 
             variant.testedVariant.outputs.all {
                 val testedOutput = this
@@ -91,33 +135,31 @@ class MarathonPlugin : Plugin<Project> {
 
                 checkTestedVariants(testedOutput)
 
-                val config = createConfiguration(
-                    marathonExtensionName = EXTENSION_NAME,
-                    project = project,
-                    properties = properties,
-                    sdkDirectory = sdkDirectory,
-                    flavorName = variant.name,
-                    applicationVariant = variant.testedVariant,
-                    testVariant = variant
-                )
-
-                marathonTask.configure(closureOf<BaseMarathonRunTask> {
-                    group = JavaBasePlugin.VERIFICATION_GROUP
-                    description = "Runs instrumentation tests on all the connected devices for '${variant.name}' " +
-                            "variation and generates a report with screenshots"
-                    configuration = config
-                    outputs.upToDateWhen { false }
-
-                    executeGradleCompat(
-                        exec = {
-                            dependsOn(variant.testedVariant.assembleProvider, variant.assembleProvider)
-                        },
-                        fallback = {
-                            @Suppress("DEPRECATION")
-                            dependsOn(variant.testedVariant.assemble, variant.assemble)
-                        }
+                if (properties.isCommonWorkerEnabled) {
+                    val componentInfo = createComponentInfo(
+                        project = project,
+                        flavorName = variant.name,
+                        applicationVariant = variant.testedVariant,
+                        testVariant = variant
                     )
-                })
+
+                    marathonTask.configure {
+                        (this as MarathonScheduleTestsToWorkerTask).componentInfo = componentInfo
+                    }
+                } else {
+                    val config = createConfiguration(
+                        marathonExtensionName = EXTENSION_NAME,
+                        project = project,
+                        sdkDirectory = sdkDirectory,
+                        flavorName = variant.name,
+                        applicationVariant = variant.testedVariant,
+                        testVariant = variant
+                    )
+
+                    marathonTask.configure {
+                        (this as MarathonRunTask).configuration = config
+                    }
+                }
             }
 
             return marathonTask
@@ -151,6 +193,7 @@ class MarathonPlugin : Plugin<Project> {
          * Task name prefix.
          */
         private const val TASK_PREFIX = "marathon"
+        private const val WORKER_TASK_NAME = "marathonWorker"
 
         private const val EXTENSION_NAME = "marathon"
     }

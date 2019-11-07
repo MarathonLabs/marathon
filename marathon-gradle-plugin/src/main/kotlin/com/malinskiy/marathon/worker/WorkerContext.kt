@@ -25,7 +25,7 @@ class WorkerContext : WorkerHandler {
         }
     }
 
-    override fun ensureWorkerStarted(
+    override fun startWorker(
         workerExecutor: WorkerExecutor,
         parameters: () -> MarathonWorkParameters
     ) {
