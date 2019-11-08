@@ -130,7 +130,11 @@ object DerivedDataManagerSpek : Spek(
                     logger.debug { stdout }
 
                     val uploadResults = stdout
-                        .split('\n')
+                        /**
+                         * Workaround for cases where find inserts \n in the middle of path
+                         */
+                        .split("\n/")
+                        .map { "/" + it.replace("\n", "") }
                         .filter { it.isNotEmpty() }
                         .map { File(it).relativePathTo(File(remoteDir)) }
                         .toSet()
