@@ -17,18 +17,12 @@ import com.malinskiy.marathon.test.Test
 import com.malinskiy.marathon.test.TestBatch
 import com.malinskiy.marathon.test.toTestName
 import java.io.IOException
-import java.util.*
 import java.util.concurrent.TimeUnit
 
 val JUNIT_IGNORE_META_PROPERY = MetaProperty("org.junit.Ignore")
 const val ERROR_STUCK = "Test got stuck. You can increase the timeout in settings if it's too strict"
 
 class AndroidDeviceTestRunner(private val device: DdmlibAndroidDevice) {
-
-    companion object {
-        private val random = Random(5)
-    }
-
     private val logger = MarathonLogging.logger("AndroidDeviceTestRunner")
 
     fun execute(
