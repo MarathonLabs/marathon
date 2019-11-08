@@ -35,7 +35,12 @@ class AndroidDeviceSpek : Spek(
                 val default = AndroidVersion.DEFAULT
                 whenever(iDevice.version).thenReturn(default)
                 whenever(iDevice.getProperty("ro.build.version.sdk")).thenReturn("INVALID_VERSION")
-                DdmlibAndroidDevice(iDevice, track, timer, SerialStrategy.AUTOMATIC).operatingSystem.version shouldBeEqualTo default.apiString
+                DdmlibAndroidDevice(
+                    iDevice,
+                    track,
+                    timer,
+                    SerialStrategy.AUTOMATIC
+                ).operatingSystem.version shouldBeEqualTo default.apiString
             }
         }
     })
