@@ -70,10 +70,6 @@ class DdmlibAndroidDevice(
     override val fileManager = RemoteFileManager(this)
 
     override val version: AndroidVersion by lazy { ddmsDevice.version }
-    override fun removeLogcatListener(listener: LineListener) {
-        logcatListeners.getAndUpdate { it.apply { remove(listener) } }
-    }
-
     private val nullOutputReceiver = NullOutputReceiver()
 
     private val receiver = LogCatReceiverTask(ddmsDevice)
@@ -81,7 +77,7 @@ class DdmlibAndroidDevice(
     private var logcatThread = thread(name = "LogCatLogger-${ddmsDevice.serialNumber}") {
         receiver.run()
     }
-    private val ref = AtomicReference<MutableList<LogCatMessage>>(mutableListOf())
+
     private val logcatListeners = AtomicReference<MutableList<LineListener>>(mutableListOf())
     private val listener: (MutableList<LogCatMessage>) -> Unit = {
         it.forEach { msg ->
@@ -89,6 +85,14 @@ class DdmlibAndroidDevice(
                 listener.onLine("${msg.timestamp} ${msg.pid}-${msg.tid}/${msg.appName} ${msg.logLevel.priorityLetter}/${msg.tag}: ${msg.message}")
             }
         }
+    }
+
+    override fun addLogcatListener(listener: LineListener) {
+        logcatListeners.getAndUpdate { it.apply { add(listener) } }
+    }
+
+    override fun removeLogcatListener(listener: LineListener) {
+        logcatListeners.getAndUpdate { it.apply { remove(listener) } }
     }
 
     override fun pullFile(remoteFilePath: String, localFilePath: String) {
@@ -145,14 +149,6 @@ class DdmlibAndroidDevice(
         )
     }
 
-    override fun addLogcatListener(listener: LineListener) {
-        receiver.addLogCatListener {
-            it.forEach { message ->
-                listener.onLine(message.toString())
-            }
-        }
-    }
-
     private fun bufferedImageFrom(rawImage: RawImage): BufferedImage {
         val image = BufferedImage(rawImage.width, rawImage.height, BufferedImage.TYPE_INT_ARGB)
 
@@ -179,10 +175,6 @@ class DdmlibAndroidDevice(
         ddmsDevice.getProperty("ro.product.cpu.abi") ?: "Unknown"
     }
 
-    companion object {
-        private const val JELLY_BEAN_SDK_VERSION = 16
-    }
-
     override val model: String by lazy {
         ddmsDevice.getProperty("ro.product.model") ?: "Unknown"
     }
@@ -195,7 +187,7 @@ class DdmlibAndroidDevice(
         get() {
             val videoSupport = ddmsDevice.supportsFeature(IDevice.Feature.SCREEN_RECORD) &&
                     manufacturer != "Genymotion"
-            val screenshotSupport = ddmsDevice.version.isGreaterOrEqualThan(JELLY_BEAN_SDK_VERSION)
+            val screenshotSupport = ddmsDevice.version.isGreaterOrEqualThan(AndroidVersion.VersionCodes.JELLY_BEAN)
 
             val features = mutableListOf<DeviceFeature>()
 
@@ -322,12 +314,16 @@ class DdmlibAndroidDevice(
                 fileManager.removeRemoteDirectory()
                 fileManager.createRemoteDirectory()
                 clearLogcat(ddmsDevice)
+                receiver.addLogCatListener(listener)
+
             }
             deferred.await()
         }
     }
 
     override fun dispose() {
+        logcatThread.interrupt()
+        receiver.removeLogCatListener(listener)
         dispatcher.close()
     }
 
