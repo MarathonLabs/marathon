@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 cd $(dirname $0)/..
 
-
 if [ -z "$SONATYPE_USERNAME" ]; then
   echo "error: please set SONATYPE_USERNAME environment variable"
   exit 1
@@ -17,9 +16,10 @@ if [ -z "$GPG_PASSPHRASE" ]; then
   exit 1
 fi
 
-DTASK=":publishDefaultPublicationToOSSHRRepository"
-
-TARGETS=":core$DTASK :vendor:vendor-android$DTASK :marathon-gradle-plugin$DTASK :report:execution-timeline$DTASK :report:html-report$DTASK :analytics:usage$DTASK"
+TARGETS=""
+for i in ":core" ":vendor:vendor-android:base" ":vendor:vendor-android:ddmlib" ":marathon-gradle-plugin" ":report:execution-timeline" ":report:html-report" ":analytics:usage"; do
+  TARGETS="$TARGETS $i:publishDefaultPublicationToOSSHRRepository"
+done
 
 if [ -z "$TRAVIS_TAG" ]; then
   echo "not on a tag -> deploy snapshot version"
