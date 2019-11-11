@@ -9,6 +9,7 @@ import com.malinskiy.marathon.device.DeviceInfo
 import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.execution.TestResult
 import com.malinskiy.marathon.execution.TestStatus
+import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.report.Reporter
 import com.malinskiy.marathon.report.allure.steps.AllureStageDeserializer
 import com.malinskiy.marathon.report.allure.steps.AllureStatusDeserializer
@@ -46,6 +47,7 @@ class AllureReporter(val configuration: Configuration, private val outputDirecto
             .registerTypeAdapter(Stage::class.java, AllureStageDeserializer())
             .create()
     }
+    private val logger = MarathonLogging.logger("AllureReporter")
 
     override fun generate(executionReport: ExecutionReport) {
         executionReport.testEvents.forEach { testEvent ->
@@ -86,7 +88,14 @@ class AllureReporter(val configuration: Configuration, private val outputDirecto
                 .setType(it.type.toMimeType())
         }
 
-        val allureSteps = testResult.stepsJson?.let { gson.fromJson<List<StepResult>>(it, stepsListType) } ?: listOf()
+        val allureSteps = testResult.stepsJson?.let {
+            try {
+                gson.fromJson<List<StepResult>>(it, stepsListType)
+            } catch (ex: Exception) {
+                logger.error(ex) { "Error stepsJson: $it" }
+                listOf<StepResult>()
+            }
+        } ?: listOf()
 
         val allureTestResult = io.qameta.allure.model.TestResult()
             .setUuid(uuid)
