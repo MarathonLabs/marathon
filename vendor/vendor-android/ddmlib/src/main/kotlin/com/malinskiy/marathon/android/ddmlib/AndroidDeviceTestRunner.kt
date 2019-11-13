@@ -39,11 +39,12 @@ class AndroidDeviceTestRunner(private val device: DdmlibAndroidDevice) {
         val info = ApkParser().parseInstrumentationInfo(androidConfiguration.testApplicationOutput)
         val runner = prepareTestRunner(configuration, androidConfiguration, info, testBatch)
 
-
         try {
-            clearData(androidConfiguration, info)
             notifyIgnoredTest(ignoredTests, listener)
-            runner.run(listener)
+            if (testBatch.tests.isNotEmpty()) {
+                clearData(androidConfiguration, info)
+                runner.run(listener)
+            }
         } catch (e: ShellCommandUnresponsiveException) {
             logger.warn(ERROR_STUCK)
             listener.testRunFailed(ERROR_STUCK)
