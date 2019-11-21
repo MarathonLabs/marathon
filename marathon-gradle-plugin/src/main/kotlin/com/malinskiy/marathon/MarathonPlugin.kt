@@ -12,8 +12,6 @@ import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.properties.MarathonProperties
 import com.malinskiy.marathon.properties.marathonProperties
 import com.malinskiy.marathon.worker.MarathonWorker
-import com.malinskiy.marathon.worker.StartWorkerTask
-import com.malinskiy.marathon.worker.WorkerAction
 import org.gradle.api.DefaultTask
 import org.gradle.api.Plugin
 import org.gradle.api.Project
@@ -33,21 +31,13 @@ class MarathonPlugin : Plugin<Project> {
         val properties = project.rootProject.marathonProperties
         val androidSdkLocation = project.androidSdkLocation
 
-        val isCommonWorkerEnabled = properties.isCommonWorkerEnabled && project.gradle.startParameter.taskNames.contains(WORKER_TASK_NAME)
-
-        if (isCommonWorkerEnabled) {
-            if (project.rootProject.extensions.findByName(EXTENSION_NAME) == null) {
-                project.rootProject.extensions.create(EXTENSION_NAME, MarathonExtension::class.java, project)
-
-                project.rootProject.tasks.register(WORKER_TASK_NAME, StartWorkerTask::class.java) {
-                    configuration = createCommonConfiguration(project.rootProject, EXTENSION_NAME, androidSdkLocation)
-                }
-
-                project.setUpWorkerFinishHandler()
-            }
+        if (properties.isCommonWorkerEnabled) {
+            project.setUpWorker()
         }
 
-        project.extensions.create(EXTENSION_NAME, MarathonExtension::class.java, project)
+        if (project.extensions.findByName(EXTENSION_NAME) == null) {
+            project.extensions.create(EXTENSION_NAME, MarathonExtension::class.java, project)
+        }
 
         project.afterEvaluate {
             val appPlugin = project.plugins.findPlugin(AppPlugin::class.java)
@@ -80,22 +70,19 @@ class MarathonPlugin : Plugin<Project> {
 
     companion object {
 
-        private fun Project.setUpWorkerFinishHandler() {
-            gradle.taskGraph.addTaskExecutionGraphListener { graph ->
-                val allMarathonTasks = graph
-                    .allTasks
-                    .filterIsInstance<MarathonScheduleTestsToWorkerTask>()
-                    .filter { it.isEnabled }
-                    .toMutableSet()
+        private fun Project.setUpWorker() {
+            if (project.rootProject.extensions.findByName(EXTENSION_NAME) == null) {
+                project.rootProject.extensions.create(EXTENSION_NAME, MarathonExtension::class.java, project.rootProject)
 
-                graph.afterTask {
-                    if (this is MarathonScheduleTestsToWorkerTask) {
-                        allMarathonTasks.remove(this)
+                gradle.projectsEvaluated {
+                    println("Projects evaluated")
 
-                        if (allMarathonTasks.isEmpty()) {
-                            MarathonWorker.accept(WorkerAction.Finish)
-                        }
-                    }
+                    val configuration = createCommonConfiguration(project.rootProject, EXTENSION_NAME, androidSdkLocation)
+                    MarathonWorker.initialize(configuration)
+                }
+
+                gradle.buildFinished {
+                    MarathonWorker.stop()
                 }
             }
         }
@@ -193,7 +180,6 @@ class MarathonPlugin : Plugin<Project> {
          * Task name prefix.
          */
         private const val TASK_PREFIX = "marathon"
-        private const val WORKER_TASK_NAME = "marathonWorker"
 
         private const val EXTENSION_NAME = "marathon"
     }

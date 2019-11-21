@@ -11,10 +11,9 @@ import com.malinskiy.marathon.android.safeInstallPackage
 import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.execution.withRetry
 import com.malinskiy.marathon.log.MarathonLogging
+import org.koin.core.time.measureDuration
 import java.io.File
-import java.io.FileInputStream
 import java.math.BigInteger
-import java.security.DigestInputStream
 import java.security.MessageDigest
 
 class AndroidAppInstaller(configuration: Configuration) {
@@ -63,8 +62,16 @@ class AndroidAppInstaller(configuration: Configuration) {
     }
 
     private fun isApkInstalled(ddmsDevice: IDevice, appPackage: String, appApk: File): Boolean {
-        val hashOnDevice = getHashOnDevice(ddmsDevice, appPackage) ?: return false
-        val fileHash = appApk.calculateHash()
+        val (hashOnDevice, time) = measureDuration {
+            getHashOnDevice(ddmsDevice, appPackage)
+        }
+        if (hashOnDevice == null) return false
+
+        val (fileHash, localTime) = measureDuration {
+            appApk.calculateHash()
+        }
+
+        logger.debug("Calculating hash on device took: $time ms, local: $localTime ms")
         return hashOnDevice == fileHash
     }
 
@@ -95,12 +102,22 @@ class AndroidAppInstaller(configuration: Configuration) {
 
     private fun File.calculateHash(): String {
         val messageDigest = MessageDigest.getInstance("MD5")
-        val input = FileInputStream(this)
-        val digestStream = DigestInputStream(input, messageDigest)
-        while (digestStream.read() != -1) {
-            // invoke reading to compute the digest
-        }
-        val digest = digestStream.messageDigest.digest()
+
+        val digest = inputStream()
+            .use {
+                val buffer = ByteArray(DEFAULT_BUFFER_SIZE)
+                var bytesRead: Int
+
+                do {
+                    bytesRead = it.read(buffer);
+                    if (bytesRead > 0) {
+                        messageDigest.update(buffer, 0, bytesRead);
+                    }
+                } while (bytesRead != -1)
+
+                messageDigest.digest()
+            }
+
         return BigInteger(1, digest).toString(16)
     }
 

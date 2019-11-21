@@ -3,7 +3,6 @@ package com.malinskiy.marathon
 import com.malinskiy.marathon.android.AndroidComponentInfo
 import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.worker.MarathonWorker
-import com.malinskiy.marathon.worker.WorkerAction.ScheduleTests
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.TaskAction
 
@@ -17,7 +16,8 @@ open class MarathonScheduleTestsToWorkerTask : DefaultTask() {
     fun scheduleTests() {
         log.info { "Scheduling instrumentation tests ${componentInfo.testApplicationOutput} for app ${componentInfo.applicationOutput}" }
 
-        MarathonWorker.accept(ScheduleTests(componentInfo))
+        MarathonWorker.ensureStarted()
+        MarathonWorker.scheduleTests(componentInfo)
     }
 
 }
