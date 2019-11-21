@@ -11,6 +11,7 @@ import com.malinskiy.marathon.android.safeInstallPackage
 import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.execution.withRetry
 import com.malinskiy.marathon.log.MarathonLogging
+import org.koin.core.time.measureDuration
 import java.io.File
 import java.math.BigInteger
 import java.security.MessageDigest
@@ -61,8 +62,16 @@ class AndroidAppInstaller(configuration: Configuration) {
     }
 
     private fun isApkInstalled(ddmsDevice: IDevice, appPackage: String, appApk: File): Boolean {
-        val hashOnDevice = getHashOnDevice(ddmsDevice, appPackage) ?: return false
-        val fileHash = appApk.calculateHash()
+        val (hashOnDevice, time) = measureDuration {
+            getHashOnDevice(ddmsDevice, appPackage)
+        }
+        if (hashOnDevice == null) return false
+
+        val (fileHash, localTime) = measureDuration {
+            appApk.calculateHash()
+        }
+
+        logger.debug("Calculating hash on device took: $time ms, local: $localTime ms")
         return hashOnDevice == fileHash
     }
 
