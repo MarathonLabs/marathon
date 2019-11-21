@@ -2,24 +2,28 @@ package com.malinskiy.marathon.android.executor
 
 import com.android.ddmlib.IDevice
 import com.android.ddmlib.InstallException
+import com.malinskiy.marathon.android.AndroidComponentInfo
 import com.malinskiy.marathon.android.AndroidConfiguration
 import com.malinskiy.marathon.android.AndroidDevice
-import com.malinskiy.marathon.android.AndroidComponentInfo
 import com.malinskiy.marathon.android.ApkParser
-import com.malinskiy.marathon.android.executor.listeners.video.CollectingShellOutputReceiver
 import com.malinskiy.marathon.android.safeExecuteShellCommand
 import com.malinskiy.marathon.android.safeInstallPackage
-import com.malinskiy.marathon.android.safeUninstallPackage
 import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.execution.withRetry
 import com.malinskiy.marathon.log.MarathonLogging
 import java.io.File
+import java.io.FileInputStream
+import java.math.BigInteger
+import java.security.DigestInputStream
+import java.security.MessageDigest
 
 class AndroidAppInstaller(configuration: Configuration) {
 
     companion object {
         private const val MAX_RETIRES = 3
         private const val MARSHMALLOW_VERSION_CODE = 23
+        private const val MD5_HASH_SIZE = 32
+        private const val PACKAGE_PREFIX = "package:"
     }
 
     private val logger = MarathonLogging.logger("AndroidAppInstaller")
@@ -31,27 +35,26 @@ class AndroidAppInstaller(configuration: Configuration) {
         val applicationInfo = ApkParser().parseInstrumentationInfo(componentInfo.testApplicationOutput)
         logger.debug { "Installing application output to ${device.serialNumber}" }
         componentInfo.applicationOutput?.let {
-            reinstall(device, applicationInfo.applicationPackage, it)
+            ensureInstalled(device, applicationInfo.applicationPackage, it)
         }
         logger.debug { "Installing instrumentation package to ${device.serialNumber}" }
-        reinstall(device, applicationInfo.instrumentationPackage, componentInfo.testApplicationOutput)
+        ensureInstalled(device, applicationInfo.instrumentationPackage, componentInfo.testApplicationOutput)
         logger.debug { "Prepare installation finished for ${device.serialNumber}" }
     }
 
     @Suppress("TooGenericExceptionThrown")
-    private suspend fun reinstall(device: AndroidDevice, appPackage: String, appApk: File) {
+    private suspend fun ensureInstalled(device: AndroidDevice, appPackage: String, appApk: File) {
         val ddmsDevice = device.ddmsDevice
 
         withRetry(attempts = MAX_RETIRES, delayTime = 1000) {
             try {
-                if (installed(ddmsDevice, appPackage)) {
-                    logger.info("Uninstalling $appPackage from ${device.serialNumber}")
-                    val uninstallMessage = ddmsDevice.safeUninstallPackage(appPackage)
-                    uninstallMessage?.let { logger.debug { it } }
+                if (isApkInstalled(ddmsDevice, appPackage, appApk)) {
+                    logger.info("Skipping installation of $appPackage on ${device.serialNumber} - APK is already installed")
+                } else {
+                    logger.info("Installing $appPackage, ${appApk.absolutePath} to ${device.serialNumber}")
+                    val installMessage = ddmsDevice.safeInstallPackage(appApk.absolutePath, true, optionalParams(ddmsDevice))
+                    installMessage?.let { logger.debug { it } }
                 }
-                logger.info("Installing $appPackage, ${appApk.absolutePath} to ${device.serialNumber}")
-                val installMessage = ddmsDevice.safeInstallPackage(appApk.absolutePath, true, optionalParams(ddmsDevice))
-                installMessage?.let { logger.debug { it } }
             } catch (e: InstallException) {
                 logger.error(e) { "Error while installing $appPackage, ${appApk.absolutePath} on ${device.serialNumber}" }
                 throw RuntimeException("Error while installing $appPackage on ${device.serialNumber}", e)
@@ -59,11 +62,46 @@ class AndroidAppInstaller(configuration: Configuration) {
         }
     }
 
-    private fun installed(ddmsDevice: IDevice, appPackage: String): Boolean {
-        val receiver = CollectingShellOutputReceiver()
-        ddmsDevice.safeExecuteShellCommand("pm list packages", receiver)
-        val lines = receiver.output().lines()
-        return lines.any { it == "package:$appPackage" }
+    private fun isApkInstalled(ddmsDevice: IDevice, appPackage: String, appApk: File): Boolean {
+        val hashOnDevice = getHashOnDevice(ddmsDevice, appPackage) ?: return false
+        val fileHash = appApk.calculateHash()
+        return hashOnDevice == fileHash
+    }
+
+    private fun getHashOnDevice(ddmsDevice: IDevice, appPackage: String): String? {
+        val apkPaths = ddmsDevice
+            .safeExecuteShellCommand("pm path $appPackage")
+            .lines()
+            .map { it.removePrefix(PACKAGE_PREFIX) }
+            .filter { it.isNotBlank() }
+
+        if (apkPaths.isEmpty()) return null
+        if (apkPaths.size > 1) {
+            logger.warn { "Multiple packages of $appPackage installed on ${ddmsDevice.serialNumber}, skipping hash check" }
+            return null
+        }
+
+        val apkPath = apkPaths.first()
+        val md5Output = ddmsDevice.safeExecuteShellCommand("md5sum \"$apkPath\"")
+
+        val hash = md5Output.substringBefore(" ")
+        if (hash.length != MD5_HASH_SIZE) {
+            logger.warn { "Error while calculating hash for $appPackage on ${ddmsDevice.serialNumber}: ${md5Output}, skipping hash check" }
+            return null
+        }
+
+        return hash
+    }
+
+    private fun File.calculateHash(): String {
+        val messageDigest = MessageDigest.getInstance("MD5")
+        val input = FileInputStream(this)
+        val digestStream = DigestInputStream(input, messageDigest)
+        while (digestStream.read() != -1) {
+            // invoke reading to compute the digest
+        }
+        val digest = digestStream.messageDigest.digest()
+        return BigInteger(1, digest).toString(16)
     }
 
     private fun optionalParams(device: IDevice): String {

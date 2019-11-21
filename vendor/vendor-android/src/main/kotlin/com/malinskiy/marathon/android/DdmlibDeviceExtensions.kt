@@ -9,6 +9,7 @@ import com.android.ddmlib.MultiLineReceiver
 import com.android.ddmlib.ScreenRecorderOptions
 import com.android.ddmlib.ShellCommandUnresponsiveException
 import com.android.ddmlib.TimeoutException
+import com.malinskiy.marathon.android.executor.listeners.video.CollectingShellOutputReceiver
 import java.io.IOException
 import java.util.concurrent.TimeUnit
 
@@ -57,6 +58,12 @@ fun IDevice.safeInstallPackage(packageFilePath: String, reinstall: Boolean, vara
 
 fun IDevice.safeExecuteShellCommand(command: String, receiver: IShellOutputReceiver) {
     executeShellCommand(command, receiver, ADB_SHORT_TIMEOUT_SECONDS, ADB_SHORT_TIMEOUT_SECONDS, TimeUnit.SECONDS)
+}
+
+fun IDevice.safeExecuteShellCommand(command: String): String {
+    val receiver = CollectingShellOutputReceiver()
+    executeShellCommand(command, receiver, ADB_SHORT_TIMEOUT_SECONDS, ADB_SHORT_TIMEOUT_SECONDS, TimeUnit.SECONDS)
+    return receiver.output()
 }
 
 fun IDevice.safeStartScreenRecorder(remoteFilePath: String, options: ScreenRecorderOptions, receiver: IShellOutputReceiver) {
