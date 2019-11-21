@@ -98,7 +98,7 @@ data class Configuration constructor(
                 fallbackToScreenshots = fallbackToScreenshots ?: false,
                 strictMode = strictMode ?: false,
                 uncompletedTestRetryQuota = uncompletedTestRetryQuota ?: Integer.MAX_VALUE,
-                testClassRegexes = testClassRegexes ?: listOf(Regex("^((?!Abstract).)*Test$")),
+                testClassRegexes = testClassRegexes ?: listOf(Regex("^((?!Abstract).)*Test[s]*$")),
                 includeSerialRegexes = includeSerialRegexes ?: emptyList(),
                 excludeSerialRegexes = excludeSerialRegexes ?: emptyList(),
                 testBatchTimeoutMillis = testBatchTimeoutMillis ?: DEFAULT_EXECUTION_TIMEOUT_MILLIS,

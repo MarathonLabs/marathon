@@ -211,7 +211,7 @@ object ConfigFactorySpec : Spek(
                     configuration.filteringConfiguration.whitelist.shouldBeEmpty()
                     configuration.filteringConfiguration.blacklist.shouldBeEmpty()
 
-                    configuration.testClassRegexes.map { it.toString() } shouldContainAll listOf("^((?!Abstract).)*Test$")
+                    configuration.testClassRegexes.map { it.toString() } shouldContainAll listOf("^((?!Abstract).)*Test[s]*$")
 
                     configuration.includeSerialRegexes shouldEqual emptyList()
                     configuration.excludeSerialRegexes shouldEqual emptyList()
