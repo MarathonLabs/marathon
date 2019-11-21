@@ -1,8 +1,11 @@
 package com.malinskiy.marathon.worker
 
-import org.gradle.workers.WorkerExecutor
+import com.malinskiy.marathon.execution.ComponentInfo
+import com.malinskiy.marathon.execution.Configuration
 
 interface WorkerHandler {
-    fun accept(action: WorkerAction)
-    fun startWorker(workerExecutor: WorkerExecutor, parameters: () -> MarathonWorkParameters)
+    fun initialize(configuration: Configuration)
+    fun ensureStarted()
+    fun scheduleTests(componentInfo: ComponentInfo)
+    fun stop()
 }
