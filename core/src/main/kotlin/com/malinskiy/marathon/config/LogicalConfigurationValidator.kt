@@ -17,7 +17,7 @@ class LogicalConfigurationValidator : ConfigurationValidator {
                 )
             }
             configuration.flakinessStrategy !is IgnoreFlakinessStrategy &&
-                    configuration.cacheEnabled -> {
+                    configuration.cache.isEnabled -> {
                 throw ConfigurationException("Complex flakiness strategy and caching is not supported yet")
             }
         }

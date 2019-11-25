@@ -2,6 +2,7 @@ package com.malinskiy.marathon
 
 import com.malinskiy.marathon.analytics.internal.pub.Tracker
 import com.malinskiy.marathon.device.DeviceFeature
+import com.malinskiy.marathon.execution.CacheConfiguration
 import groovy.lang.Closure
 import org.gradle.api.Project
 
@@ -21,7 +22,7 @@ open class MarathonExtension(project: Project) {
 
     var baseOutputDir: String? = null
 
-    var cacheEnabled: Boolean? = null
+    var cache: CachePluginConfiguration? = null
     var ignoreFailures: Boolean? = null
     var isCodeCoverageEnabled: Boolean? = null
     var fallbackToScreenshots: Boolean? = null

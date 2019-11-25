@@ -7,6 +7,9 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.KotlinModule
 import com.malinskiy.marathon.android.AndroidConfiguration
 import com.malinskiy.marathon.android.serial.SerialStrategy
+import com.malinskiy.marathon.cache.config.Credentials
+import com.malinskiy.marathon.cache.config.LocalCacheConfiguration
+import com.malinskiy.marathon.cache.config.RemoteCacheConfiguration
 import com.malinskiy.marathon.cli.args.EnvironmentConfiguration
 import com.malinskiy.marathon.cli.args.environment.EnvironmentReader
 import com.malinskiy.marathon.cli.config.time.InstantTimeProvider
@@ -122,6 +125,9 @@ object ConfigFactorySpec : Spek(
                     configuration.retryStrategy shouldEqual FixedQuotaRetryStrategy(100, 2)
                     SimpleClassnameFilter(".*".toRegex()) shouldEqual SimpleClassnameFilter(".*".toRegex())
 
+                    configuration.cache.local shouldEqual LocalCacheConfiguration.Disabled
+                    configuration.cache.remote shouldEqual RemoteCacheConfiguration.Disabled
+
                     configuration.filteringConfiguration.whitelist shouldContainAll listOf(
                         SimpleClassnameFilter(".*".toRegex()),
                         FullyQualifiedClassnameFilter(".*".toRegex()),
@@ -183,6 +189,35 @@ object ConfigFactorySpec : Spek(
                             "1h",
                             5,
                             false
+                        )
+                    )
+                }
+            }
+
+            on("config with custom local caching policy") {
+                val file =
+                    File(ConfigFactorySpec::class.java.getResource("/fixture/config/sample_11_local_cache.yaml").file)
+
+                it("should deserialize") {
+                    val configuration = parser.create(file, mockEnvironmentReader())
+                    configuration.cache.local shouldEqual LocalCacheConfiguration.Enabled(
+                        directory = File("~/.marathon/cache"),
+                        removeUnusedEntriesAfterDays = 256
+                    )
+                }
+            }
+
+            on("config with custom remote caching policy") {
+                val file =
+                    File(ConfigFactorySpec::class.java.getResource("/fixture/config/sample_12_remote_cache.yaml").file)
+
+                it("should deserialize") {
+                    val configuration = parser.create(file, mockEnvironmentReader())
+                    configuration.cache.remote shouldEqual RemoteCacheConfiguration.Enabled(
+                        url = "https://test-cache.abc/cache",
+                        credentials = Credentials(
+                            userName = "test",
+                            password = "abc"
                         )
                     )
                 }

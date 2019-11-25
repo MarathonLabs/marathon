@@ -29,7 +29,7 @@ class AndroidTestParserSpek : Spek(
                     flakinessStrategy = null,
                     retryStrategy = null,
                     filteringConfiguration = null,
-                    cacheEnabled = null,
+                    cache = null,
                     ignoreFailures = null,
                     isCodeCoverageEnabled = null,
                     fallbackToScreenshots = null,

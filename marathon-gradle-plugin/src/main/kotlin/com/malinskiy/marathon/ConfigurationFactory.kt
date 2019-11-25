@@ -90,7 +90,7 @@ private fun createConfiguration(
     extensionConfig.flakinessStrategy?.toStrategy(),
     extensionConfig.retryStrategy?.toStrategy(),
     extensionConfig.filteringConfiguration?.toFilteringConfiguration(),
-    extensionConfig.cacheEnabled,
+    extensionConfig.cache?.toCacheConfiguration(),
     extensionConfig.ignoreFailures,
     extensionConfig.isCodeCoverageEnabled,
     extensionConfig.fallbackToScreenshots,
