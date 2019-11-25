@@ -33,6 +33,7 @@ data class Configuration constructor(
     val retryStrategy: RetryStrategy,
     val filteringConfiguration: FilteringConfiguration,
 
+    val cacheEnabled: Boolean,
     val ignoreFailures: Boolean,
     val isCodeCoverageEnabled: Boolean,
     val fallbackToScreenshots: Boolean,
@@ -66,6 +67,7 @@ data class Configuration constructor(
         retryStrategy: RetryStrategy?,
         filteringConfiguration: FilteringConfiguration?,
 
+        cacheEnabled: Boolean?,
         ignoreFailures: Boolean?,
         isCodeCoverageEnabled: Boolean?,
         fallbackToScreenshots: Boolean?,
@@ -97,6 +99,7 @@ data class Configuration constructor(
                 flakinessStrategy = flakinessStrategy ?: IgnoreFlakinessStrategy(),
                 retryStrategy = retryStrategy ?: NoRetryStrategy(),
                 filteringConfiguration = filteringConfiguration ?: FilteringConfiguration(emptyList(), emptyList()),
+                cacheEnabled = cacheEnabled ?: false,
                 ignoreFailures = ignoreFailures ?: false,
                 isCodeCoverageEnabled = isCodeCoverageEnabled ?: false,
                 fallbackToScreenshots = fallbackToScreenshots ?: false,
@@ -124,6 +127,7 @@ data class Configuration constructor(
             "flakiness" to flakinessStrategy.toString(),
             "retry" to retryStrategy.toString(),
             "filtering" to filteringConfiguration.toString(),
+            "cacheEnabled" to cacheEnabled.toString(),
             "ignoreFailures" to ignoreFailures.toString(),
             "isCodeCoverageEnabled" to isCodeCoverageEnabled.toString(),
             "fallbackToScreenshots" to fallbackToScreenshots.toString(),

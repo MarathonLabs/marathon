@@ -43,6 +43,7 @@ object TestResultReporterSpec : Spek(
             flakinessStrategy = null,
             retryStrategy = null,
             filteringConfiguration = null,
+            cacheEnabled = null,
             ignoreFailures = null,
             isCodeCoverageEnabled = null,
             fallbackToScreenshots = null,

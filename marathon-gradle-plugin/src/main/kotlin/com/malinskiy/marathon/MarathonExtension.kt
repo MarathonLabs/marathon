@@ -21,6 +21,7 @@ open class MarathonExtension(project: Project) {
 
     var baseOutputDir: String? = null
 
+    var cacheEnabled: Boolean? = null
     var ignoreFailures: Boolean? = null
     var isCodeCoverageEnabled: Boolean? = null
     var fallbackToScreenshots: Boolean? = null

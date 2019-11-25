@@ -23,6 +23,7 @@ data class FileConfiguration(
     var retryStrategy: RetryStrategy?,
     var filteringConfiguration: FilteringConfiguration?,
 
+    var cacheEnabled: Boolean?,
     var ignoreFailures: Boolean?,
     var isCodeCoverageEnabled: Boolean?,
     var fallbackToScreenshots: Boolean?,
