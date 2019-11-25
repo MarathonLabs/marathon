@@ -30,6 +30,7 @@ class ConfigurationFactory {
     var uncompletedTestRetryQuota: Int? = null
     var filteringConfiguration = null
     var flakinessStrategy: FlakinessStrategy? = null
+    var cache = null
     var ignoreFailures = null
     var includeSerialRegexes: List<Regex>? = null
     var isCodeCoverageEnabled = null
@@ -65,6 +66,7 @@ class ConfigurationFactory {
             flakinessStrategy,
             retryStrategy,
             filteringConfiguration,
+            cache,
             ignoreFailures,
             isCodeCoverageEnabled,
             fallbackToScreenshots,

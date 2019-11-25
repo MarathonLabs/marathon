@@ -67,6 +67,8 @@ class Scheduler(
     }
 
     suspend fun addTests(shard: TestShard) {
+        // TODO: if caching is enabled, add tests to cache controller first
+
         pools.values.forEach {
             it.send(FromScheduler.AddTests(shard))
         }

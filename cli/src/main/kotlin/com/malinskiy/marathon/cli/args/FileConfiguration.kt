@@ -1,6 +1,7 @@
 package com.malinskiy.marathon.cli.args
 
 import com.malinskiy.marathon.execution.AnalyticsConfiguration
+import com.malinskiy.marathon.execution.CacheConfiguration
 import com.malinskiy.marathon.execution.FilteringConfiguration
 import com.malinskiy.marathon.execution.strategy.BatchingStrategy
 import com.malinskiy.marathon.execution.strategy.FlakinessStrategy
@@ -23,6 +24,7 @@ data class FileConfiguration(
     var retryStrategy: RetryStrategy?,
     var filteringConfiguration: FilteringConfiguration?,
 
+    var cache: CacheConfiguration?,
     var ignoreFailures: Boolean?,
     var isCodeCoverageEnabled: Boolean?,
     var fallbackToScreenshots: Boolean?,

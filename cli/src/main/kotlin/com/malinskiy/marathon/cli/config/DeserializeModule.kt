@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.module.SimpleModule
 import com.malinskiy.marathon.cli.args.FileVendorConfiguration
 import com.malinskiy.marathon.cli.config.deserialize.AnalyticsConfigurationDeserializer
 import com.malinskiy.marathon.cli.config.deserialize.BatchingStrategyDeserializer
+import com.malinskiy.marathon.cli.config.deserialize.CacheConfigurationDeserializer
 import com.malinskiy.marathon.cli.config.deserialize.ExecutionTimeSortingStrategyDeserializer
 import com.malinskiy.marathon.cli.config.deserialize.FileVendorConfigurationDeserializer
 import com.malinskiy.marathon.cli.config.deserialize.FixedSizeBatchingStrategyDeserializer
@@ -18,6 +19,7 @@ import com.malinskiy.marathon.cli.config.deserialize.SortingStrategyDeserializer
 import com.malinskiy.marathon.cli.config.deserialize.TestFilterDeserializer
 import com.malinskiy.marathon.cli.config.time.InstantTimeProvider
 import com.malinskiy.marathon.execution.AnalyticsConfiguration
+import com.malinskiy.marathon.execution.CacheConfiguration
 import com.malinskiy.marathon.execution.TestFilter
 import com.malinskiy.marathon.execution.strategy.BatchingStrategy
 import com.malinskiy.marathon.execution.strategy.FlakinessStrategy
@@ -46,6 +48,7 @@ class DeserializeModule(instantTimeProvider: InstantTimeProvider) : SimpleModule
         )
         addDeserializer(BatchingStrategy::class.java, BatchingStrategyDeserializer())
         addDeserializer(FlakinessStrategy::class.java, FlakinessStrategyDeserializer())
+        addDeserializer(CacheConfiguration::class.java, CacheConfigurationDeserializer())
         addDeserializer(
             ProbabilityBasedFlakinessStrategy::class.java,
             ProbabilityBasedFlakinessStrategyDeserializer(instantTimeProvider)

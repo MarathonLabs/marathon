@@ -16,6 +16,10 @@ class LogicalConfigurationValidator : ConfigurationValidator {
                             "See: https://github.com/Malinskiy/marathon/issues/197"
                 )
             }
+            configuration.flakinessStrategy !is IgnoreFlakinessStrategy &&
+                    configuration.cache.isEnabled -> {
+                throw ConfigurationException("Complex flakiness strategy and caching is not supported yet")
+            }
         }
     }
 }

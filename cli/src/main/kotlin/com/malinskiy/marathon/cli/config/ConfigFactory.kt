@@ -52,6 +52,7 @@ class ConfigFactory(private val mapper: ObjectMapper) {
             flakinessStrategy = config.flakinessStrategy,
             retryStrategy = config.retryStrategy,
             filteringConfiguration = config.filteringConfiguration,
+            cache = config.cache,
             ignoreFailures = config.ignoreFailures,
             isCodeCoverageEnabled = config.isCodeCoverageEnabled,
             fallbackToScreenshots = config.fallbackToScreenshots,
