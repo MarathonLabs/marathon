@@ -39,7 +39,7 @@ open class CachePluginConfiguration {
 }
 
 private val DEFAULT_LOCAL_CACHE_DIRECTORY = File("~/cache/marathon")
-private const val DEFAULT_LOCAL_UNUSED_ENTRIES_DELETE_AFTER_DAYS = 10
+private const val DEFAULT_LOCAL_UNUSED_ENTRIES_DELETE_AFTER_DAYS = 7
 
 open class LocalCacheExtension {
     var directory: File = DEFAULT_LOCAL_CACHE_DIRECTORY
