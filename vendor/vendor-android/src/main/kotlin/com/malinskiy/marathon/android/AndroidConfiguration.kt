@@ -2,6 +2,7 @@ package com.malinskiy.marathon.android
 
 import com.malinskiy.marathon.android.di.androidModule
 import com.malinskiy.marathon.android.serial.SerialStrategy
+import com.malinskiy.marathon.cache.test.key.ComponentCacheKeyProvider
 import com.malinskiy.marathon.device.DeviceFeature
 import com.malinskiy.marathon.device.DeviceProvider
 import com.malinskiy.marathon.execution.ComponentInfoExtractor
@@ -36,6 +37,8 @@ data class AndroidConfiguration(
     override fun testParser(): TestParser? = get()
 
     override fun componentInfoExtractor(): ComponentInfoExtractor? = get()
+
+    override fun componentCacheKeyProvider(): ComponentCacheKeyProvider? = get()
 
     override fun deviceProvider(): DeviceProvider? = get()
 

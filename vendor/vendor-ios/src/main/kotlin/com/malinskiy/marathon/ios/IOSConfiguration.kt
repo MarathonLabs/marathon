@@ -1,5 +1,6 @@
 package com.malinskiy.marathon.ios
 
+import com.malinskiy.marathon.cache.test.key.ComponentCacheKeyProvider
 import com.malinskiy.marathon.device.DeviceFeature
 import com.malinskiy.marathon.device.DeviceProvider
 import com.malinskiy.marathon.execution.ComponentInfoExtractor
@@ -33,10 +34,11 @@ data class IOSConfiguration(
 
     override fun componentInfoExtractor(): ComponentInfoExtractor? = get()
 
+    override fun componentCacheKeyProvider(): ComponentCacheKeyProvider? = get()
+
     override fun logConfigurator(): MarathonLogConfigurator? = IOSLogConfigurator()
 
     override fun preferableRecorderType(): DeviceFeature? = null
 
     override fun modules() = listOf(iosModule)
 }
-

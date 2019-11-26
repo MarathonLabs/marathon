@@ -42,7 +42,8 @@ class AndroidDevice(
     val ddmsDevice: IDevice,
     private val track: Track,
     private val timer: Timer,
-    private val serialStrategy: SerialStrategy
+    private val serialStrategy: SerialStrategy,
+    private val androidAppInstaller: AndroidAppInstaller
 ) : Device, CoroutineScope {
 
     val fileManager = RemoteFileManager(ddmsDevice)
@@ -146,7 +147,7 @@ class AndroidDevice(
     ) {
 
         val androidComponentInfo = testBatch.componentInfo as AndroidComponentInfo
-        ensureInstalled(configuration, androidComponentInfo)
+        ensureInstalled(androidComponentInfo)
 
         val deferredResult = async {
             val listeners = createListeners(configuration, devicePoolId, testBatch, deferred, progressReporter)
@@ -156,8 +157,8 @@ class AndroidDevice(
         deferredResult.await()
     }
 
-    private suspend fun ensureInstalled(configuration: Configuration, componentInfo: AndroidComponentInfo) {
-        AndroidAppInstaller(configuration).ensureInstalled(this, componentInfo)
+    private suspend fun ensureInstalled(componentInfo: AndroidComponentInfo) {
+        androidAppInstaller.ensureInstalled(this, componentInfo)
     }
 
     private fun createListeners(

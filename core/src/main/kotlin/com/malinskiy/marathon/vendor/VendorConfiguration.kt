@@ -1,5 +1,6 @@
 package com.malinskiy.marathon.vendor
 
+import com.malinskiy.marathon.cache.test.key.ComponentCacheKeyProvider
 import com.malinskiy.marathon.device.DeviceFeature
 import com.malinskiy.marathon.device.DeviceProvider
 import com.malinskiy.marathon.execution.ComponentInfoExtractor
@@ -13,6 +14,7 @@ interface VendorConfiguration {
     fun deviceProvider(): DeviceProvider?
     fun preferableRecorderType(): DeviceFeature?
     fun componentInfoExtractor(): ComponentInfoExtractor?
+    fun componentCacheKeyProvider(): ComponentCacheKeyProvider?
 
     fun modules(): List<Module> = emptyList()
 }

@@ -2,6 +2,7 @@ package com.malinskiy.marathon.android
 
 import com.malinskiy.marathon.analytics.internal.pub.Track
 import com.malinskiy.marathon.time.SystemTimer
+import com.nhaarman.mockitokotlin2.mock
 import kotlinx.coroutines.runBlocking
 import org.amshove.kluent.shouldEqual
 import org.jetbrains.spek.api.Spek
@@ -15,7 +16,7 @@ class AndroidDeviceProviderSpek : Spek(
         given("A provider") {
             on("terminate") {
                 it("should close the channel") {
-                    val provider = AndroidDeviceProvider(Track(), SystemTimer(Clock.systemDefaultZone()))
+                    val provider = AndroidDeviceProvider(Track(), SystemTimer(Clock.systemDefaultZone()), mock())
 
                     runBlocking {
                         provider.terminate()

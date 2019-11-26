@@ -10,13 +10,15 @@ import com.malinskiy.marathon.android.safeExecuteShellCommand
 import com.malinskiy.marathon.android.safeInstallPackage
 import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.execution.withRetry
+import com.malinskiy.marathon.io.FileHasher
 import com.malinskiy.marathon.log.MarathonLogging
 import org.koin.core.time.measureDuration
 import java.io.File
-import java.math.BigInteger
-import java.security.MessageDigest
 
-class AndroidAppInstaller(configuration: Configuration) {
+class AndroidAppInstaller(
+    private val fileHasher: FileHasher,
+    configuration: Configuration
+) {
 
     companion object {
         private const val MAX_RETIRES = 3
@@ -61,17 +63,9 @@ class AndroidAppInstaller(configuration: Configuration) {
         }
     }
 
-    private fun isApkInstalled(ddmsDevice: IDevice, appPackage: String, appApk: File): Boolean {
-        val (hashOnDevice, time) = measureDuration {
-            getHashOnDevice(ddmsDevice, appPackage)
-        }
-        if (hashOnDevice == null) return false
-
-        val (fileHash, localTime) = measureDuration {
-            appApk.calculateHash()
-        }
-
-        logger.debug("Calculating hash on device took: $time ms, local: $localTime ms")
+    private suspend fun isApkInstalled(ddmsDevice: IDevice, appPackage: String, appApk: File): Boolean {
+        val hashOnDevice = getHashOnDevice(ddmsDevice, appPackage) ?: return false
+        val fileHash = fileHasher.getHash(appApk)
         return hashOnDevice == fileHash
     }
 
@@ -98,27 +92,6 @@ class AndroidAppInstaller(configuration: Configuration) {
         }
 
         return hash
-    }
-
-    private fun File.calculateHash(): String {
-        val messageDigest = MessageDigest.getInstance("MD5")
-
-        val digest = inputStream()
-            .use {
-                val buffer = ByteArray(DEFAULT_BUFFER_SIZE)
-                var bytesRead: Int
-
-                do {
-                    bytesRead = it.read(buffer);
-                    if (bytesRead > 0) {
-                        messageDigest.update(buffer, 0, bytesRead);
-                    }
-                } while (bytesRead != -1)
-
-                messageDigest.digest()
-            }
-
-        return BigInteger(1, digest).toString(16)
     }
 
     private fun optionalParams(device: IDevice): String {

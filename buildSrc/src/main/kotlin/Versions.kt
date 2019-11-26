@@ -3,6 +3,7 @@ object Versions {
 
     val kotlin = "1.3.50"
     val coroutines = "1.3.1"
+    val ktor = "1.2.6"
 
     val ddmlib = "26.3.0"
     val dexTestParser = "2.1.1"
@@ -25,6 +26,7 @@ object Versions {
     val gson = "2.8.5"
     val apacheCommonsText = "1.3"
     val apacheCommonsIO = "2.6"
+    val apacheCommonsCollections = "4.4"
     val influxDbClient = "2.13"
     val argParser = "2.0.7"
     val jacksonDatabind = "2.9.5"
@@ -65,10 +67,14 @@ object Libraries {
     val slf4jAPI = "ch.frankel.log4k:slf4k-api:${Versions.slf4jAPI}"
     val logbackClassic = "ch.qos.logback:logback-classic:${Versions.logbackClassic}"
     val kotlinCoroutines = "org.jetbrains.kotlinx:kotlinx-coroutines-core:${Versions.coroutines}"
+    val ktorClient = "io.ktor:ktor-client-core:${Versions.ktor}"
+    val ktorAuth = "io.ktor:ktor-client-auth-jvm:${Versions.ktor}"
+    val ktorApacheClient = "io.ktor:ktor-client-apache:${Versions.ktor}"
     val axmlParser = "com.shazam:axmlparser:${Versions.axmlParser}"
     val gson = "com.google.code.gson:gson:${Versions.gson}"
     val apacheCommonsText = "org.apache.commons:commons-text:${Versions.apacheCommonsText}"
     val apacheCommonsIO = "commons-io:commons-io:${Versions.apacheCommonsIO}"
+    val apacheCommonsCollections = "org.apache.commons:commons-collections4:${Versions.apacheCommonsCollections}"
     val influxDbClient = "org.influxdb:influxdb-java:${Versions.influxDbClient}"
     val argParser = "com.xenomachina:kotlin-argparser:${Versions.argParser}"
     val jacksonDatabind = "com.fasterxml.jackson.core:jackson-databind:${Versions.jacksonDatabind}"
@@ -92,6 +98,7 @@ object TestLibraries {
     val spekJUnitPlatformEngine = "org.jetbrains.spek:spek-junit-platform-engine:${Versions.spek}"
     val kluent = "org.amshove.kluent:kluent:${Versions.kluent}"
     val kakao = "com.agoda.kakao:kakao:${Versions.kakao}"
+    val ktorClientMock = "io.ktor:ktor-client-mock-jvm:${Versions.ktor}"
 
     val espressoRunner = "com.android.support.test:runner:${Versions.espressoRunner}"
     val espressoRules = "com.android.support.test:rules:${Versions.espressoRules}"

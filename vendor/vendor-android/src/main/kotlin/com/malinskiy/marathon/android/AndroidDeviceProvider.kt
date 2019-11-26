@@ -6,6 +6,7 @@ import com.android.ddmlib.IDevice
 import com.android.ddmlib.TimeoutException
 import com.malinskiy.marathon.actor.unboundedChannel
 import com.malinskiy.marathon.analytics.internal.pub.Track
+import com.malinskiy.marathon.android.executor.AndroidAppInstaller
 import com.malinskiy.marathon.device.DeviceProvider
 import com.malinskiy.marathon.device.DeviceProvider.DeviceEvent.DeviceConnected
 import com.malinskiy.marathon.device.DeviceProvider.DeviceEvent.DeviceDisconnected
@@ -29,7 +30,8 @@ private const val DEFAULT_DDM_LIB_SLEEP_TIME = 500
 
 class AndroidDeviceProvider(
     private val track: Track,
-    private val timer: Timer
+    private val timer: Timer,
+    private val androidAppInstaller: AndroidAppInstaller
 ) : DeviceProvider, CoroutineScope {
     private val logger = MarathonLogging.logger("AndroidDeviceProvider")
 
@@ -53,7 +55,7 @@ class AndroidDeviceProvider(
             override fun deviceChanged(device: IDevice?, changeMask: Int) {
                 device?.let {
                     launch(context = bootWaitContext) {
-                        val maybeNewAndroidDevice = AndroidDevice(it, track, timer, vendorConfiguration.serialStrategy)
+                        val maybeNewAndroidDevice = AndroidDevice(it, track, timer, vendorConfiguration.serialStrategy, androidAppInstaller)
                         val healthy = maybeNewAndroidDevice.healthy
 
                         logger.debug { "Device ${device.serialNumber} changed state. Healthy = $healthy" }
@@ -72,7 +74,7 @@ class AndroidDeviceProvider(
             override fun deviceConnected(device: IDevice?) {
                 device?.let {
                     launch {
-                        val maybeNewAndroidDevice = AndroidDevice(it, track, timer, vendorConfiguration.serialStrategy)
+                        val maybeNewAndroidDevice = AndroidDevice(it, track, timer, vendorConfiguration.serialStrategy, androidAppInstaller)
                         val healthy = maybeNewAndroidDevice.healthy
                         logger.debug("Device ${maybeNewAndroidDevice.serialNumber} connected. Healthy = $healthy")
 

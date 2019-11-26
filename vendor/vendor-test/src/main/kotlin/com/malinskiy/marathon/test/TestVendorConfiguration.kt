@@ -1,5 +1,6 @@
 package com.malinskiy.marathon.test
 
+import com.malinskiy.marathon.cache.test.key.ComponentCacheKeyProvider
 import com.malinskiy.marathon.device.DeviceFeature
 import com.malinskiy.marathon.execution.ComponentInfoExtractor
 import com.malinskiy.marathon.execution.TestParser
@@ -15,4 +16,5 @@ class TestVendorConfiguration(
     override fun deviceProvider() = deviceProvider
     override fun logConfigurator() = null
     override fun preferableRecorderType(): DeviceFeature? = null
+    override fun componentCacheKeyProvider(): ComponentCacheKeyProvider? = null
 }
