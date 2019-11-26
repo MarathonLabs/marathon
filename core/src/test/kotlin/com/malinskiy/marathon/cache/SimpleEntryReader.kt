@@ -15,6 +15,5 @@ class SimpleEntryReader : CacheEntryReader {
     override suspend fun readFrom(input: ByteReadChannel) {
         readInvoked = true
         bytes = input.readRemaining().readBytes()
-        println(bytes)
     }
 }
