@@ -53,6 +53,6 @@ class TestCacheKeyFactory(
             object : OutputStream() {
                 override fun write(b: Int) {}
             },
-            MessageDigest.getInstance("SHA-256")
+            MessageDigest.getInstance("MD5")
         )
 }
