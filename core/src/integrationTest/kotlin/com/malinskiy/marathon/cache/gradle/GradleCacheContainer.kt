@@ -11,7 +11,7 @@ class GradleCacheContainer constructor(image: String = "$DEFAULT_IMAGE_NAME:$DEF
         addExposedPorts(DEFAULT_PORT)
         waitStrategy = Wait
             .forLogMessage(".*Build cache node started(?s).*", 1)
-            .withStartupTimeout(Duration.ofSeconds(60))
+            .withStartupTimeout(Duration.ofSeconds(DEFAULT_STARTUP_TIMEOUT_SECONDS))
     }
 
     val cacheUrl: String
@@ -24,5 +24,6 @@ class GradleCacheContainer constructor(image: String = "$DEFAULT_IMAGE_NAME:$DEF
         private const val DEFAULT_IMAGE_NAME = "gradle/build-cache-node"
         private const val DEFAULT_TAG = "9.0"
         private const val DEFAULT_PORT = 5071
+        private const val DEFAULT_STARTUP_TIMEOUT_SECONDS = 60L
     }
 }
