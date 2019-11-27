@@ -9,7 +9,10 @@ import com.malinskiy.marathon.analytics.internal.pub.Track
 import com.malinskiy.marathon.analytics.internal.sub.TrackerInternal
 import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.execution.progress.ProgressReporter
+import com.malinskiy.marathon.io.CachedFileHasher
+import com.malinskiy.marathon.io.FileHasher
 import com.malinskiy.marathon.io.FileManager
+import com.malinskiy.marathon.io.Md5FileHasher
 import com.malinskiy.marathon.time.SystemTimer
 import com.malinskiy.marathon.time.Timer
 import org.koin.core.KoinApplication
@@ -26,6 +29,7 @@ val analyticsModule = module {
 
 val coreModule = module {
     single<FileManager> { FileManager(get<Configuration>().outputDir) }
+    single<FileHasher> { CachedFileHasher(Md5FileHasher()) }
     single<Gson> { Gson() }
     single<Clock> { Clock.systemDefaultZone() }
     single<Timer> { SystemTimer(get()) }

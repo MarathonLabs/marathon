@@ -3,6 +3,7 @@ package com.malinskiy.marathon.analytics.metrics
 import com.malinskiy.marathon.analytics.external.MetricsProviderFactory
 import com.malinskiy.marathon.analytics.external.NoOpMetricsProvider
 import com.malinskiy.marathon.analytics.external.influx.InfluxMetricsProvider
+import com.malinskiy.marathon.cache.test.key.ComponentCacheKeyProvider
 import com.malinskiy.marathon.device.DeviceFeature
 import com.malinskiy.marathon.device.DeviceProvider
 import com.malinskiy.marathon.execution.AnalyticsConfiguration
@@ -51,6 +52,7 @@ class MetricsProviderFactorySpek : Spek(
                         override fun logConfigurator(): MarathonLogConfigurator? = null
                         override fun preferableRecorderType(): DeviceFeature? = null
                         override fun componentInfoExtractor(): ComponentInfoExtractor? = null
+                        override fun componentCacheKeyProvider(): ComponentCacheKeyProvider? = null
                     },
                     analyticsTracking = false
                 )
@@ -97,6 +99,7 @@ class MetricsProviderFactorySpek : Spek(
                         override fun logConfigurator(): MarathonLogConfigurator? = null
                         override fun preferableRecorderType(): DeviceFeature? = null
                         override fun componentInfoExtractor(): ComponentInfoExtractor? = null
+                        override fun componentCacheKeyProvider(): ComponentCacheKeyProvider? = null
                     },
                     analyticsTracking = false
                 )
@@ -143,6 +146,7 @@ class MetricsProviderFactorySpek : Spek(
                         override fun logConfigurator(): MarathonLogConfigurator? = null
                         override fun preferableRecorderType(): DeviceFeature? = null
                         override fun componentInfoExtractor(): ComponentInfoExtractor? = null
+                        override fun componentCacheKeyProvider(): ComponentCacheKeyProvider? = null
                     },
                     analyticsTracking = false
                 )

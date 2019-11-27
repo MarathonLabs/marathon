@@ -1,8 +1,8 @@
 package com.malinskiy.marathon.cache
 
-import java.io.OutputStream
+import kotlinx.coroutines.io.ByteWriteChannel
 
 interface CacheEntryWriter {
-    fun writeTo(output: OutputStream)
+    suspend fun writeTo(output: ByteWriteChannel)
     val size: Long
 }

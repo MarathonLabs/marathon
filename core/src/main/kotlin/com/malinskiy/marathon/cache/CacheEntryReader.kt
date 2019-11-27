@@ -1,7 +1,7 @@
 package com.malinskiy.marathon.cache
 
-import java.io.InputStream
+import kotlinx.coroutines.io.ByteReadChannel
 
 interface CacheEntryReader {
-    fun readFrom(input: InputStream)
+    suspend fun readFrom(input: ByteReadChannel)
 }

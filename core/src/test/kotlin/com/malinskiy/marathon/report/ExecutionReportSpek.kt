@@ -4,6 +4,7 @@ import com.google.gson.Gson
 import com.malinskiy.marathon.analytics.internal.sub.DeviceConnectedEvent
 import com.malinskiy.marathon.analytics.internal.sub.ExecutionReport
 import com.malinskiy.marathon.analytics.internal.sub.TestEvent
+import com.malinskiy.marathon.cache.test.key.ComponentCacheKeyProvider
 import com.malinskiy.marathon.device.DeviceFeature
 import com.malinskiy.marathon.device.DeviceInfo
 import com.malinskiy.marathon.device.DevicePoolId
@@ -63,6 +64,7 @@ class ExecutionReportSpek : Spek(
                 override fun logConfigurator(): MarathonLogConfigurator? = null
                 override fun preferableRecorderType(): DeviceFeature? = null
                 override fun componentInfoExtractor(): ComponentInfoExtractor? = null
+                override fun componentCacheKeyProvider(): ComponentCacheKeyProvider? = null
             },
             analyticsTracking = false
         )
