@@ -1,4 +1,4 @@
-`package com.malinskiy.marathon.cache.test.serialization
+package com.malinskiy.marathon.cache.test.serialization
 
 import com.malinskiy.marathon.cache.CacheEntryReader
 import com.malinskiy.marathon.device.DeviceFeature
