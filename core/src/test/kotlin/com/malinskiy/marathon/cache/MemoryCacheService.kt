@@ -2,6 +2,7 @@ package com.malinskiy.marathon.cache
 
 import kotlinx.coroutines.io.ByteChannel
 import kotlinx.coroutines.io.ByteReadChannel
+import kotlinx.coroutines.io.close
 import kotlinx.coroutines.io.readRemaining
 import kotlinx.io.core.readBytes
 
@@ -18,6 +19,7 @@ class MemoryCacheService : CacheService {
     override suspend fun store(key: CacheKey, writer: CacheEntryWriter) {
         val channel = ByteChannel()
         writer.writeTo(channel)
+        channel.close()
         cache[key] = channel.readRemaining().readBytes()
     }
 

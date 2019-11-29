@@ -15,8 +15,9 @@ import org.amshove.kluent.shouldEqual
 import org.amshove.kluent.shouldNotEqual
 import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.it
-import org.jetbrains.spek.api.dsl.xdescribe
+import org.jetbrains.spek.api.dsl.xit
 import java.io.File
+import org.jetbrains.spek.api.dsl.describe
 
 class TestResultsCacheSpek : Spek(
     {
@@ -25,8 +26,7 @@ class TestResultsCacheSpek : Spek(
             TestResultsCache(service)
         }
 
-        // ignored as it's not implemented yet
-        xdescribe("TestResultsCache") {
+        describe("TestResultsCache") {
             it("should return null when load test with empty cache") {
                 runBlocking {
                     val result = cache.load(SimpleCacheKey("test"), createTest())
@@ -67,7 +67,8 @@ class TestResultsCacheSpek : Spek(
                 }
             }
 
-            it("should return saved test result when load after saving with attachment") {
+            // TODO: attachments are not supported yet
+            xit("should return saved test result when load after saving with attachment") {
                 val tempFile = File.createTempFile("test", "123").apply {
                     writeText("abc")
                     deleteOnExit()
