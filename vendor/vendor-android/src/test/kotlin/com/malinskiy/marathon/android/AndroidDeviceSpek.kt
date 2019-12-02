@@ -26,17 +26,17 @@ class AndroidDeviceSpek : Spek(
 
             it("model return Unknown if ddmDevice property ro.product.model") {
                 whenever(iDevice.getProperty("ro.product.model")).thenReturn(null)
-                AndroidDevice(iDevice, track, timer, SerialStrategy.AUTOMATIC, appInstaller).model shouldBe "Unknown"
+                AndroidDevice(iDevice, track, timer, SerialStrategy.AUTOMATIC, appInstaller, mock()).model shouldBe "Unknown"
             }
             it("manufacturer return Unknown if ddmlib property ") {
                 whenever(iDevice.getProperty("ro.product.manufacturer")).thenReturn(null)
-                AndroidDevice(iDevice, track, timer, SerialStrategy.AUTOMATIC, appInstaller).manufacturer shouldBe "Unknown"
+                AndroidDevice(iDevice, track, timer, SerialStrategy.AUTOMATIC, appInstaller, mock()).manufacturer shouldBe "Unknown"
             }
             it("should return ddmlib version instead of ro.build.version.sdk property value") {
                 val default = AndroidVersion.DEFAULT
                 whenever(iDevice.version).thenReturn(default)
                 whenever(iDevice.getProperty("ro.build.version.sdk")).thenReturn("INVALID_VERSION")
-                AndroidDevice(iDevice, track, timer, SerialStrategy.AUTOMATIC, appInstaller).operatingSystem.version shouldBeEqualTo default.apiString
+                AndroidDevice(iDevice, track, timer, SerialStrategy.AUTOMATIC, appInstaller, mock()).operatingSystem.version shouldBeEqualTo default.apiString
             }
         }
     })

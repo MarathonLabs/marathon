@@ -11,6 +11,7 @@ import com.malinskiy.marathon.device.DeviceProvider
 import com.malinskiy.marathon.device.DeviceProvider.DeviceEvent.DeviceConnected
 import com.malinskiy.marathon.device.DeviceProvider.DeviceEvent.DeviceDisconnected
 import com.malinskiy.marathon.exceptions.NoDevicesException
+import com.malinskiy.marathon.io.AttachmentManager
 import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.time.Timer
 import com.malinskiy.marathon.vendor.VendorConfiguration
@@ -31,7 +32,8 @@ private const val DEFAULT_DDM_LIB_SLEEP_TIME = 500
 class AndroidDeviceProvider(
     private val track: Track,
     private val timer: Timer,
-    private val androidAppInstaller: AndroidAppInstaller
+    private val androidAppInstaller: AndroidAppInstaller,
+    private val attachmentManager: AttachmentManager
 ) : DeviceProvider, CoroutineScope {
     private val logger = MarathonLogging.logger("AndroidDeviceProvider")
 
@@ -55,7 +57,8 @@ class AndroidDeviceProvider(
             override fun deviceChanged(device: IDevice?, changeMask: Int) {
                 device?.let {
                     launch(context = bootWaitContext) {
-                        val maybeNewAndroidDevice = AndroidDevice(it, track, timer, vendorConfiguration.serialStrategy, androidAppInstaller)
+                        val maybeNewAndroidDevice =
+                            AndroidDevice(it, track, timer, vendorConfiguration.serialStrategy, androidAppInstaller, attachmentManager)
                         val healthy = maybeNewAndroidDevice.healthy
 
                         logger.debug { "Device ${device.serialNumber} changed state. Healthy = $healthy" }
@@ -74,7 +77,15 @@ class AndroidDeviceProvider(
             override fun deviceConnected(device: IDevice?) {
                 device?.let {
                     launch {
-                        val maybeNewAndroidDevice = AndroidDevice(it, track, timer, vendorConfiguration.serialStrategy, androidAppInstaller)
+                        val maybeNewAndroidDevice = AndroidDevice(
+                            ddmsDevice = it,
+                            track = track,
+                            timer = timer,
+                            serialStrategy = vendorConfiguration.serialStrategy,
+                            androidAppInstaller = androidAppInstaller,
+                            attachmentManager = attachmentManager
+                        )
+
                         val healthy = maybeNewAndroidDevice.healthy
                         logger.debug("Device ${maybeNewAndroidDevice.serialNumber} connected. Healthy = $healthy")
 

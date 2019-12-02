@@ -5,12 +5,16 @@ import com.malinskiy.marathon.cache.CacheService
 import com.malinskiy.marathon.cache.test.serialization.TestResultEntryReader
 import com.malinskiy.marathon.cache.test.serialization.TestResultEntryWriter
 import com.malinskiy.marathon.execution.TestResult
+import com.malinskiy.marathon.io.AttachmentManager
 import com.malinskiy.marathon.test.Test
 
-class TestResultsCache(private val cacheService: CacheService) {
+class TestResultsCache(
+    private val cacheService: CacheService,
+    private val attachmentManager: AttachmentManager
+) {
 
     suspend fun load(key: CacheKey, test: Test): TestResult? {
-        val reader = TestResultEntryReader(test)
+        val reader = TestResultEntryReader(test, attachmentManager)
         if (!cacheService.load(key, reader)) {
             return null
         }

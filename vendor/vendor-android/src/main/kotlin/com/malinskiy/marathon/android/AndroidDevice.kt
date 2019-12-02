@@ -25,6 +25,7 @@ import com.malinskiy.marathon.device.OperatingSystem
 import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.execution.TestBatchResults
 import com.malinskiy.marathon.execution.progress.ProgressReporter
+import com.malinskiy.marathon.io.AttachmentManager
 import com.malinskiy.marathon.io.FileManager
 import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.report.attachment.AttachmentProvider
@@ -43,7 +44,8 @@ class AndroidDevice(
     private val track: Track,
     private val timer: Timer,
     private val serialStrategy: SerialStrategy,
-    private val androidAppInstaller: AndroidAppInstaller
+    private val androidAppInstaller: AndroidAppInstaller,
+    private val attachmentManager: AttachmentManager
 ) : Device, CoroutineScope {
 
     val fileManager = RemoteFileManager(ddmsDevice)
@@ -178,7 +180,7 @@ class AndroidDevice(
             prepareRecorderListener(feature, fileManager, devicePoolId, attachmentProviders)
         } ?: NoOpTestRunListener()
 
-        val logCatListener = LogCatListener(this, devicePoolId, LogWriter(fileManager))
+        val logCatListener = LogCatListener(this, LogWriter(attachmentManager))
             .also { attachmentProviders.add(it) }
 
         return CompositeTestRunListener(
@@ -220,12 +222,12 @@ class AndroidDevice(
     ): TestRunListener =
         when (feature) {
             DeviceFeature.VIDEO -> {
-                ScreenRecorderTestRunListener(fileManager, devicePoolId, this)
+                ScreenRecorderTestRunListener(attachmentManager, this)
                     .also { attachmentProviders.add(it) }
             }
 
             DeviceFeature.SCREENSHOT -> {
-                ScreenCapturerTestRunListener(fileManager, devicePoolId, this)
+                ScreenCapturerTestRunListener(attachmentManager, devicePoolId, this)
                     .also { attachmentProviders.add(it) }
             }
         }

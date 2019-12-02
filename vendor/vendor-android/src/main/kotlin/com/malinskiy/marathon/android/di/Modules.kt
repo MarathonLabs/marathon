@@ -10,7 +10,7 @@ import com.malinskiy.marathon.execution.TestParser
 import org.koin.dsl.module
 
 val androidModule = module {
-    single<DeviceProvider?> { AndroidDeviceProvider(get(), get(), get()) }
+    single<DeviceProvider?> { AndroidDeviceProvider(get(), get(), get(), get()) }
     single<AndroidAppInstaller?> { AndroidAppInstaller(get(), get()) }
     single<TestParser?> { AndroidTestParser() }
     single<ComponentInfoExtractor?> { AndroidComponentInfoExtractor() }

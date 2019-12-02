@@ -36,7 +36,14 @@ class AndroidDeviceTestRunnerSpek : Spek(
                 whenever(ddmsDevice.serialNumber).doReturn("testSerial")
                 whenever(ddmsDevice.version).doReturn(AndroidVersion(26))
                 val appInstaller = mock<AndroidAppInstaller>()
-                val device = AndroidDevice(ddmsDevice, Track(), SystemTimer(Clock.systemDefaultZone()), SerialStrategy.AUTOMATIC, appInstaller)
+                val device = AndroidDevice(
+                    ddmsDevice,
+                    Track(),
+                    SystemTimer(Clock.systemDefaultZone()),
+                    SerialStrategy.AUTOMATIC,
+                    appInstaller,
+                    mock()
+                )
                 val androidDeviceTestRunner = AndroidDeviceTestRunner(device)
                 val apkFile = File(javaClass.classLoader.getResource("android_test_1.apk").file)
                 val output = File("")
