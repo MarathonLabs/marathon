@@ -5,14 +5,25 @@ import com.malinskiy.marathon.device.DeviceFeature
 import com.malinskiy.marathon.device.DeviceInfo
 import com.malinskiy.marathon.device.NetworkState
 import com.malinskiy.marathon.device.OperatingSystem
+import com.malinskiy.marathon.execution.Attachment
+import com.malinskiy.marathon.execution.AttachmentType
 import com.malinskiy.marathon.execution.TestResult
 import com.malinskiy.marathon.execution.TestStatus
+import com.malinskiy.marathon.io.AttachmentManager
+import com.malinskiy.marathon.io.FileType
 import com.malinskiy.marathon.test.Test
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.io.ByteReadChannel
 import kotlinx.coroutines.io.readPacket
+import kotlinx.coroutines.withContext
 import kotlinx.io.streams.readerUTF8
+import kotlinx.io.streams.writePacket
+import java.io.File
 
-class TestResultEntryReader(private val test: Test) : CacheEntryReader {
+class TestResultEntryReader(
+    private val test: Test,
+    private val attachmentManager: AttachmentManager
+) : CacheEntryReader {
 
     val testResult: TestResult
         get() = _testResult
@@ -20,6 +31,7 @@ class TestResultEntryReader(private val test: Test) : CacheEntryReader {
     private lateinit var _testResult: TestResult
 
     override suspend fun readFrom(input: ByteReadChannel) {
+
         _testResult = TestResult(
             test = test,
             device = input.readDeviceInfo(),
@@ -27,10 +39,32 @@ class TestResultEntryReader(private val test: Test) : CacheEntryReader {
             startTime = input.readLong(),
             endTime = input.readLong(),
             stacktrace = input.readString(),
-            attachments = emptyList()
+            attachments = input.readAttachments()
         )
+    }
 
-        // TODO: deserialize attachments
+    private suspend fun ByteReadChannel.readAttachments(): List<Attachment> {
+        val attachmentCount = readInt()
+        return (0 until attachmentCount).map {
+            val type = AttachmentType.values()[readInt()]
+            val fileType = FileType.values()[readInt()]
+
+            attachmentManager
+                .createAttachment(fileType, type)
+                .also { attachment -> readFile(attachment.file) }
+        }
+    }
+
+    private suspend fun ByteReadChannel.readFile(output: File) {
+        val readChannel = this
+        return withContext(Dispatchers.IO) {
+            val fileSize = readLong()
+            output
+                .outputStream()
+                .use {
+                    it.writePacket(readChannel.readPacket(fileSize.toInt()))
+                }
+        }
     }
 
     private suspend fun ByteReadChannel.readDeviceInfo(): DeviceInfo {

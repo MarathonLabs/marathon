@@ -9,10 +9,12 @@ import com.malinskiy.marathon.analytics.internal.sub.ExecutionReportGenerator
 import com.malinskiy.marathon.analytics.internal.sub.TrackerInternal
 import com.malinskiy.marathon.execution.AnalyticsConfiguration.InfluxDbConfiguration
 import com.malinskiy.marathon.execution.Configuration
+import com.malinskiy.marathon.io.AttachmentManager
 import com.malinskiy.marathon.io.FileManager
 import com.malinskiy.marathon.io.FileType
 import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.report.allure.AllureReporter
+import com.malinskiy.marathon.report.attachment.AttachmentsReporter
 import com.malinskiy.marathon.report.device.DeviceInfoJsonReporter
 import com.malinskiy.marathon.report.html.HtmlSummaryReporter
 import com.malinskiy.marathon.report.junit.FinalJUnitReporter
@@ -29,6 +31,7 @@ import java.io.File
 internal class TrackerFactory(
     private val configuration: Configuration,
     private val fileManager: FileManager,
+    private val attachmentManager: AttachmentManager,
     private val gson: Gson,
     private val timer: Timer,
     private val track: Track
@@ -74,6 +77,7 @@ internal class TrackerFactory(
                 TestJsonReporter(fileManager, gson),
                 AllureReporter(configuration, File(configuration.outputDir, "allure-results")),
                 HtmlSummaryReporter(gson, configuration.outputDir, configuration),
+                AttachmentsReporter(attachmentManager),
                 StdoutReporter(timer)
             )
         )

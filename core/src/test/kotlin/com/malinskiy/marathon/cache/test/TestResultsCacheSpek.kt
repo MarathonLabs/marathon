@@ -7,6 +7,7 @@ import com.malinskiy.marathon.execution.Attachment
 import com.malinskiy.marathon.execution.AttachmentType
 import com.malinskiy.marathon.execution.TestResult
 import com.malinskiy.marathon.execution.TestStatus
+import com.malinskiy.marathon.io.AttachmentManager
 import com.malinskiy.marathon.io.FileType
 import com.malinskiy.marathon.test.Test
 import com.malinskiy.marathon.test.TestComponentInfo
@@ -14,16 +15,17 @@ import kotlinx.coroutines.runBlocking
 import org.amshove.kluent.shouldEqual
 import org.amshove.kluent.shouldNotEqual
 import org.jetbrains.spek.api.Spek
-import org.jetbrains.spek.api.dsl.it
-import org.jetbrains.spek.api.dsl.xit
-import java.io.File
 import org.jetbrains.spek.api.dsl.describe
+import org.jetbrains.spek.api.dsl.it
+import java.io.File
+import java.nio.file.Files
 
 class TestResultsCacheSpek : Spek(
     {
         val cache by memoized {
             val service = MemoryCacheService()
-            TestResultsCache(service)
+            val attachmentManager = AttachmentManager(Files.createTempDirectory("test_output").toFile())
+            TestResultsCache(service, attachmentManager)
         }
 
         describe("TestResultsCache") {
@@ -67,8 +69,7 @@ class TestResultsCacheSpek : Spek(
                 }
             }
 
-            // TODO: attachments are not supported yet
-            xit("should return saved test result when load after saving with attachment") {
+            it("should return saved test result when load after saving with attachment") {
                 val tempFile = File.createTempFile("test", "123").apply {
                     writeText("abc")
                     deleteOnExit()
@@ -76,15 +77,18 @@ class TestResultsCacheSpek : Spek(
 
                 runBlocking {
                     val test = createTest()
-                    val testResult = createTestResult(attachments = listOf(Attachment(tempFile, AttachmentType.LOG)))
+                    val testResult = createTestResult(
+                        attachments = listOf(Attachment(tempFile, AttachmentType.LOG, FileType.LOG))
+                    )
 
-                    cache.store(SimpleCacheKey("test"), testResult)
-                    val result = cache.load(SimpleCacheKey("test"), test)
+                    cache.store(SimpleCacheKey("some-key"), testResult)
+                    val result = cache.load(SimpleCacheKey("some-key"), test)
 
                     result shouldNotEqual null
                     result!!.attachments.size shouldEqual 1
                     result.attachments.first().file.readText() shouldEqual "abc"
-                    result.attachments.first().type shouldEqual FileType.LOG
+                    result.attachments.first().type shouldEqual AttachmentType.LOG
+                    result.attachments.first().fileType shouldEqual FileType.LOG
                 }
             }
         }

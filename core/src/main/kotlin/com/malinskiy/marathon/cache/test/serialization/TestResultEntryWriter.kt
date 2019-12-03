@@ -2,10 +2,15 @@ package com.malinskiy.marathon.cache.test.serialization
 
 import com.malinskiy.marathon.cache.CacheEntryWriter
 import com.malinskiy.marathon.device.DeviceInfo
+import com.malinskiy.marathon.execution.Attachment
 import com.malinskiy.marathon.execution.TestResult
+import io.ktor.util.cio.readChannel
 import kotlinx.coroutines.io.ByteWriteChannel
+import kotlinx.coroutines.io.cancel
+import kotlinx.coroutines.io.copyTo
 import kotlinx.coroutines.io.writeBoolean
 import kotlinx.io.core.buildPacket
+import java.io.File
 
 class TestResultEntryWriter(private val testResult: TestResult) : CacheEntryWriter {
 
@@ -16,7 +21,27 @@ class TestResultEntryWriter(private val testResult: TestResult) : CacheEntryWrit
         output.writeLong(testResult.endTime)
         output.writeString(testResult.stacktrace)
 
-        // TODO: serialize attachments
+        output.writeInt(testResult.attachments.size)
+        testResult.attachments.forEach {
+            output.writeAttachment(it)
+        }
+    }
+
+    private suspend fun ByteWriteChannel.writeAttachment(attachment: Attachment) {
+        writeInt(attachment.type.ordinal)
+        writeInt(attachment.fileType.ordinal)
+        writeFile(attachment.file)
+    }
+
+    private suspend fun ByteWriteChannel.writeFile(file: File) {
+        val readChannel = file.readChannel()
+        try {
+            val fileLength = file.length()
+            writeLong(file.length())
+            readChannel.copyTo(this, limit = fileLength)
+        } finally {
+            readChannel.cancel()
+        }
     }
 
     private suspend fun ByteWriteChannel.writeDeviceInfo(deviceInfo: DeviceInfo) {

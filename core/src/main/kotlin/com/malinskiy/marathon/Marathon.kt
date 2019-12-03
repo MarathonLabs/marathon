@@ -13,6 +13,7 @@ import com.malinskiy.marathon.execution.Scheduler
 import com.malinskiy.marathon.execution.TestParser
 import com.malinskiy.marathon.execution.TestShard
 import com.malinskiy.marathon.execution.progress.ProgressReporter
+import com.malinskiy.marathon.io.AttachmentManager
 import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.test.Test
 import com.malinskiy.marathon.test.toTestName
@@ -32,6 +33,7 @@ class Marathon(
     private val tracker: TrackerInternal,
     private val analytics: Analytics,
     private val progressReporter: ProgressReporter,
+    private val attachmentManager: AttachmentManager,
     private val track: Track
 ) : MarathonRunner {
 
@@ -128,7 +130,7 @@ class Marathon(
         }
         configuration.outputDir.mkdirs()
 
-        hook = installShutdownHook { onFinish(analytics, deviceProvider) }
+        hook = installShutdownHook { onFinish(analytics, deviceProvider, attachmentManager) }
         scheduler.initialize()
     }
 
@@ -145,7 +147,7 @@ class Marathon(
     override suspend fun waitForCompletionAndDispose(): Boolean {
         scheduler.waitForCompletion()
 
-        onFinish(analytics, deviceProvider)
+        onFinish(analytics, deviceProvider, attachmentManager)
         hook.uninstall()
 
         stopKoin()
@@ -162,9 +164,14 @@ class Marathon(
         return shutdownHook
     }
 
-    private suspend fun onFinish(analytics: Analytics, deviceProvider: DeviceProvider) {
+    private suspend fun onFinish(
+        analytics: Analytics,
+        deviceProvider: DeviceProvider,
+        attachmentManager: AttachmentManager
+    ) {
         analytics.close()
         deviceProvider.terminate()
+        attachmentManager.terminate()
         track.close()
     }
 
