@@ -1,8 +1,10 @@
 package com.malinskiy.marathon.analytics.metrics.remote.influx
 
+import com.malinskiy.marathon.analytics.external.influx.InfluxDbProvider
 import com.malinskiy.marathon.analytics.external.influx.InfluxMetricsProvider
 import com.malinskiy.marathon.device.DeviceStub
 import com.malinskiy.marathon.device.toDeviceInfo
+import com.malinskiy.marathon.execution.AnalyticsConfiguration
 import com.malinskiy.marathon.execution.TestStatus
 import com.malinskiy.marathon.generateTest
 import com.malinskiy.marathon.test.Test
@@ -26,17 +28,27 @@ class InfluxMetricsProviderIntegrationSpec : Spek(
         val database = "marathonDb"
         val rpName = "rpMarathon"
 
-        val container = KInfluxDBContainer().withAuthEnabled(false).withDatabase(database)
+        val test = generateTest()
+        val container = KInfluxDBContainer().withAuthEnabled(false)
+
+        val influxDB = memoized(mode = CachingMode.GROUP) {
+            val configuration = AnalyticsConfiguration.InfluxDbConfiguration(
+                url = container.url,
+                dbName = database,
+                user = "",
+                password = "",
+                retentionPolicyConfiguration = AnalyticsConfiguration.InfluxDbConfiguration.RetentionPolicyConfiguration.default
+            )
+            InfluxDbProvider(configuration).createDb()
+        }
 
         beforeGroup {
             container.start()
-        }
-        afterGroup {
-            container.stop()
+            prepareData(influxDB.invoke(), test, database, rpName)
         }
 
-        val influxDB = memoized(mode = CachingMode.GROUP) {
-            container.newInfluxDB
+        afterGroup {
+            container.stop()
         }
 
         val dataStore = memoized(mode = CachingMode.TEST) {
@@ -48,7 +60,6 @@ class InfluxMetricsProviderIntegrationSpec : Spek(
         }
 
         describe("InfluxMetricsProvider") {
-            val test = generateTest()
             on("empty db") {
                 it("success rate default value is 0.0") {
                     val result = provider.invoke().successRate(test, Instant.now())
@@ -60,9 +71,6 @@ class InfluxMetricsProviderIntegrationSpec : Spek(
                 }
             }
             group("execution time") {
-                beforeGroup {
-                    prepareData(influxDB.invoke(), test)
-                }
                 it("50 percentile for last two days") {
                     val result = provider.invoke()
                         .executionTime(test, 50.0, Instant.now().minus(2, ChronoUnit.DAYS))
@@ -91,9 +99,6 @@ class InfluxMetricsProviderIntegrationSpec : Spek(
                 }
             }
             group("test success rate") {
-                beforeGroup {
-                    prepareData(influxDB.invoke(), test)
-                }
                 it("should return 1.0 for last 50 minutes") {
                     val result = provider.invoke()
                         .successRate(test, Instant.now().minus(50, ChronoUnit.MINUTES))
@@ -113,7 +118,7 @@ class InfluxMetricsProviderIntegrationSpec : Spek(
         }
     })
 
-fun prepareData(influxDb: InfluxDB, test: Test) {
+fun prepareData(influxDb: InfluxDB, test: Test, database: String, rpName: String) {
     val instant = Instant.now()
     val device = DeviceStub()
     val list = listOf(
@@ -189,22 +194,28 @@ fun prepareData(influxDb: InfluxDB, test: Test) {
         )
     )
     list.forEach {
-        sendData(it, influxDb)
+        sendData(it, influxDb, database, rpName)
     }
+    influxDb.flush()
 }
 
-fun sendData(item: TestData, influxDB: InfluxDB) {
-    influxDB.write(
-        Point.measurement("tests")
-            .time(item.whenWasSent.toEpochMilli(), TimeUnit.MILLISECONDS)
-            .tag("testname", item.test.toSafeTestName())
-            .tag("package", item.test.pkg)
-            .tag("class", item.test.clazz)
-            .tag("method", item.test.method)
-            .tag("deviceSerial", item.device.serialNumber)
-            .addField("ignored", if (item.isIgnored) 1.0 else 0.0)
-            .addField("success", if (item.status == TestStatus.PASSED) 1.0 else 0.0)
-            .addField("duration", item.duration)
-            .build()
+fun sendData(
+    item: TestData,
+    influxDB: InfluxDB,
+    database: String,
+    rpName: String
+) {
+    influxDB.write(database, rpName,
+                   Point.measurement("tests")
+                       .time(item.whenWasSent.toEpochMilli(), TimeUnit.MILLISECONDS)
+                       .tag("testname", item.test.toSafeTestName())
+                       .tag("package", item.test.pkg)
+                       .tag("class", item.test.clazz)
+                       .tag("method", item.test.method)
+                       .tag("deviceSerial", item.device.serialNumber)
+                       .addField("ignored", if (item.isIgnored) 1.0 else 0.0)
+                       .addField("success", if (item.status == TestStatus.PASSED) 1.0 else 0.0)
+                       .addField("duration", item.duration)
+                       .build()
     )
 }

@@ -47,7 +47,7 @@ class InfluxDbProviderIntegrationSpec : Spek(
 
 
                     val secondDbInstance = provider.createDb()
-                    prepareData(secondDbInstance, test)
+                    prepareData(secondDbInstance, test, database, rpName)
                     secondDbInstance.close()
 
                     thirdDbInstance = provider.createDb()
