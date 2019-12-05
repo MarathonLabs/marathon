@@ -14,7 +14,9 @@ import io.ktor.client.request.put
 import io.ktor.client.response.HttpResponse
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.content.OutgoingContent
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.io.ByteWriteChannel
+import kotlinx.coroutines.withContext
 import java.io.IOException
 import java.net.URI
 import java.net.URL
@@ -25,29 +27,33 @@ class GradleHttpCacheService(private val configuration: RemoteCacheConfiguration
     private val baseUri = URI.create(configuration.url)
 
     override suspend fun load(key: CacheKey, reader: CacheEntryReader): Boolean =
-        try {
-            val response = httpClient.get<HttpResponse>(url = key.entryUrl())
-            if (response.status != HttpStatusCode.OK) {
+        withContext(Dispatchers.IO) {
+            try {
+                val response = httpClient.get<HttpResponse>(url = key.entryUrl())
+                if (response.status != HttpStatusCode.OK) {
+                    false
+                } else {
+                    reader.readFrom(response.content)
+                    true
+                }
+            } catch (exception: IOException) {
                 false
-            } else {
-                reader.readFrom(response.content)
-                true
             }
-        } catch (exception: IOException) {
-            false
         }
 
     override suspend fun store(key: CacheKey, writer: CacheEntryWriter) {
-        try {
-            httpClient.put<HttpResponse>(url = key.entryUrl()) {
-                body = object : OutgoingContent.WriteChannelContent() {
-                    override suspend fun writeTo(channel: ByteWriteChannel) {
-                        writer.writeTo(channel)
+        withContext(Dispatchers.IO) {
+            try {
+                httpClient.put<HttpResponse>(url = key.entryUrl()) {
+                    body = object : OutgoingContent.WriteChannelContent() {
+                        override suspend fun writeTo(channel: ByteWriteChannel) {
+                            writer.writeTo(channel)
+                        }
                     }
                 }
+            } catch (exception: IOException) {
+                // ignore
             }
-        } catch (exception: IOException) {
-            // ignore
         }
     }
 

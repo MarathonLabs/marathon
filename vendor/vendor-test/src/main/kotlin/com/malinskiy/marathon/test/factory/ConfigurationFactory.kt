@@ -5,6 +5,7 @@ import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.execution.strategy.FlakinessStrategy
 import com.malinskiy.marathon.execution.strategy.ShardingStrategy
 import com.malinskiy.marathon.test.Mocks
+import com.malinskiy.marathon.test.StubComponentCacheKeyProvider
 import com.malinskiy.marathon.test.StubComponentInfoExtractor
 import com.malinskiy.marathon.test.StubDeviceProvider
 import com.malinskiy.marathon.test.Test
@@ -19,7 +20,12 @@ import java.nio.file.Files
 class ConfigurationFactory {
     var name = "DEFAULT_TEST_CONFIG"
     var outputDir = Files.createTempDirectory("test-run").toFile()
-    var vendorConfiguration = TestVendorConfiguration(Mocks.TestParser.DEFAULT, StubDeviceProvider(), StubComponentInfoExtractor())
+    var vendorConfiguration = TestVendorConfiguration(
+        Mocks.TestParser.DEFAULT,
+        StubDeviceProvider(),
+        StubComponentInfoExtractor(),
+        StubComponentCacheKeyProvider()
+    )
     var debug = null
     var batchingStrategy = null
     var customAnalyticsTracker = null

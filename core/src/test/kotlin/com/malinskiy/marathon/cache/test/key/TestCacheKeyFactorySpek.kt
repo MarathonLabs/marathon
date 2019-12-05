@@ -5,6 +5,7 @@ import com.malinskiy.marathon.device.DevicePoolId
 import com.malinskiy.marathon.execution.ComponentInfo
 import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.test.Mocks
+import com.malinskiy.marathon.test.StubComponentCacheKeyProvider
 import com.malinskiy.marathon.test.StubComponentInfoExtractor
 import com.malinskiy.marathon.test.StubDeviceProvider
 import com.malinskiy.marathon.test.Test
@@ -203,6 +204,11 @@ private fun createConfiguration(codeCoverageEnabled: Boolean = false) = Configur
     testBatchTimeoutMillis = null,
     testOutputTimeoutMillis = null,
     debug = false,
-    vendorConfiguration = TestVendorConfiguration(Mocks.TestParser.DEFAULT, StubDeviceProvider(), StubComponentInfoExtractor()),
+    vendorConfiguration = TestVendorConfiguration(
+        Mocks.TestParser.DEFAULT,
+        StubDeviceProvider(),
+        StubComponentInfoExtractor(),
+        StubComponentCacheKeyProvider()
+    ),
     analyticsTracking = false
 )

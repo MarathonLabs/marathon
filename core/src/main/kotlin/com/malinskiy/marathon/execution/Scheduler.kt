@@ -2,6 +2,10 @@ package com.malinskiy.marathon.execution
 
 import com.malinskiy.marathon.analytics.external.Analytics
 import com.malinskiy.marathon.analytics.internal.pub.Track
+import com.malinskiy.marathon.cache.test.CacheResult
+import com.malinskiy.marathon.cache.test.CacheTestReporter
+import com.malinskiy.marathon.cache.test.TestCacheLoader
+import com.malinskiy.marathon.cache.test.TestCacheSaver
 import com.malinskiy.marathon.device.Device
 import com.malinskiy.marathon.device.DevicePoolId
 import com.malinskiy.marathon.device.DeviceProvider
@@ -11,7 +15,6 @@ import com.malinskiy.marathon.execution.DevicePoolMessage.FromScheduler
 import com.malinskiy.marathon.execution.DevicePoolMessage.FromScheduler.AddDevice
 import com.malinskiy.marathon.execution.DevicePoolMessage.FromScheduler.RemoveDevice
 import com.malinskiy.marathon.execution.progress.ProgressReporter
-import com.malinskiy.marathon.execution.queue.QueueActor
 import com.malinskiy.marathon.log.MarathonLogging
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
@@ -32,12 +35,15 @@ import kotlin.coroutines.CoroutineContext
 
 class Scheduler(
     private val deviceProvider: DeviceProvider,
+    private val cacheLoader: TestCacheLoader,
+    private val cacheSaver: TestCacheSaver,
+    private val cachedTestsReporter: CacheTestReporter,
     private val analytics: Analytics,
     private val configuration: Configuration,
     private val progressReporter: ProgressReporter,
     private val track: Track,
-    override val coroutineContext: CoroutineContext
-) : CoroutineScope {
+    context: CoroutineContext
+) {
 
     private val job = Job()
     private val pools = ConcurrentHashMap<DevicePoolId, SendChannel<FromScheduler>>()
@@ -45,8 +51,14 @@ class Scheduler(
 
     private val logger = MarathonLogging.logger("Scheduler")
 
+    private val scope: CoroutineScope = CoroutineScope(context)
+
     suspend fun initialize() {
         subscribeOnDevices(job)
+        subscribeToCacheController()
+
+        cacheLoader.initialize(scope)
+        cacheSaver.initialize(scope)
 
         try {
             withTimeout(deviceProvider.deviceInitializationTimeoutMillis) {
@@ -60,22 +72,39 @@ class Scheduler(
         }
     }
 
-    suspend fun waitForCompletion() {
+    suspend fun stopAndWaitForCompletion() {
+        cacheLoader.stop()
+
+        pools.values.forEach {
+            it.send(FromScheduler.RequestStop)
+        }
+
         for (child in job.children) {
             child.join()
         }
+
+        cacheSaver.terminate()
     }
 
     suspend fun addTests(shard: TestShard) {
-        // TODO: if caching is enabled, add tests to cache controller first
+        pools.keys.forEach { pool ->
+            cacheLoader.addTests(pool, shard)
+        }
+    }
 
-        pools.values.forEach {
-            it.send(FromScheduler.AddTests(shard))
+    private fun subscribeToCacheController() {
+        scope.launch {
+            for (cacheResult in cacheLoader.results) {
+                when (cacheResult) {
+                    is CacheResult.Miss -> pools.getValue(cacheResult.pool).send(FromScheduler.AddTests(cacheResult.testShard))
+                    is CacheResult.Hit -> cachedTestsReporter.onCachedTest(cacheResult.pool, cacheResult.testResult)
+                }
+            }
         }
     }
 
     private fun subscribeOnDevices(job: Job): Job {
-        return launch {
+        return scope.launch {
             for (msg in deviceProvider.subscribe()) {
                 when (msg) {
                     is DeviceProvider.DeviceEvent.DeviceConnected -> {

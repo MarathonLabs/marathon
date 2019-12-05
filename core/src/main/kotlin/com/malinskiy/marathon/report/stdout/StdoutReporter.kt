@@ -15,6 +15,7 @@ class StdoutReporter(private val timer: Timer) : Reporter {
             cliReportBuilder.appendln(
                 "Device pool ${it.poolId.name}:\n" +
                         "\t${it.passed} passed, ${it.failed} failed, ${it.ignored} ignored tests\n" +
+                        "\t${it.fromCache} from cache\n" +
                         "\tFlakiness overhead: ${it.rawDurationMillis - it.durationMillis}ms\n" +
                         "\tRaw: ${it.rawPassed} passed, ${it.rawFailed} failed, ${it.rawIgnored} ignored, ${it.rawIncomplete} incomplete tests"
             )

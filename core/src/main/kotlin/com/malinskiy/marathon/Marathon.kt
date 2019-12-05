@@ -3,6 +3,9 @@ package com.malinskiy.marathon
 import com.malinskiy.marathon.analytics.external.Analytics
 import com.malinskiy.marathon.analytics.internal.pub.Track
 import com.malinskiy.marathon.analytics.internal.sub.TrackerInternal
+import com.malinskiy.marathon.cache.test.CacheTestReporter
+import com.malinskiy.marathon.cache.test.TestCacheLoader
+import com.malinskiy.marathon.cache.test.TestCacheSaver
 import com.malinskiy.marathon.config.LogicalConfigurationValidator
 import com.malinskiy.marathon.device.DeviceProvider
 import com.malinskiy.marathon.exceptions.NoDevicesException
@@ -32,6 +35,9 @@ class Marathon(
     val configuration: Configuration,
     private val tracker: TrackerInternal,
     private val analytics: Analytics,
+    private val testCacheLoader: TestCacheLoader,
+    private val testCacheSaver: TestCacheSaver,
+    private val cachedTestsReporter: CacheTestReporter,
     private val progressReporter: ProgressReporter,
     private val attachmentManager: AttachmentManager,
     private val track: Track
@@ -102,7 +108,7 @@ class Marathon(
         val componentInfo = loadComponentInfoExtractor(configuration.vendorConfiguration).extract(configuration)
         scheduleTests(componentInfo)
 
-        return waitForCompletionAndDispose()
+        return stopAndWaitForCompletion()
     }
 
     override suspend fun start() {
@@ -117,6 +123,9 @@ class Marathon(
         val currentCoroutineContext = coroutineContext
         scheduler = Scheduler(
             deviceProvider,
+            testCacheLoader,
+            testCacheSaver,
+            cachedTestsReporter,
             analytics,
             configuration,
             progressReporter,
@@ -144,14 +153,16 @@ class Marathon(
         scheduler.addTests(shard)
     }
 
-    override suspend fun waitForCompletionAndDispose(): Boolean {
-        scheduler.waitForCompletion()
+    override suspend fun stopAndWaitForCompletion(): Boolean {
+        try {
+            scheduler.stopAndWaitForCompletion()
+            onFinish(analytics, deviceProvider, attachmentManager)
+        } finally {
+            hook.uninstall()
 
-        onFinish(analytics, deviceProvider, attachmentManager)
-        hook.uninstall()
-
-        stopKoin()
-        return progressReporter.aggregateResult()
+            stopKoin()
+            return progressReporter.aggregateResult()
+        }
     }
 
     private fun installShutdownHook(block: suspend () -> Unit): ShutdownHook {

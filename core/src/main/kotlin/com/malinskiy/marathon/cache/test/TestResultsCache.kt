@@ -6,19 +6,28 @@ import com.malinskiy.marathon.cache.test.serialization.TestResultEntryReader
 import com.malinskiy.marathon.cache.test.serialization.TestResultEntryWriter
 import com.malinskiy.marathon.execution.TestResult
 import com.malinskiy.marathon.io.AttachmentManager
+import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.test.Test
+import java.lang.Exception
 
 class TestResultsCache(
     private val cacheService: CacheService,
     private val attachmentManager: AttachmentManager
 ) {
 
+    private val logger = MarathonLogging.logger("TestResultsCache")
+
     suspend fun load(key: CacheKey, test: Test): TestResult? {
-        val reader = TestResultEntryReader(test, attachmentManager)
-        if (!cacheService.load(key, reader)) {
+        try {
+            val reader = TestResultEntryReader(test, attachmentManager)
+            if (!cacheService.load(key, reader)) {
+                return null
+            }
+            return reader.testResult
+        } catch (exception: Exception) {
+            logger.warn("Error during loading cache entry for $test", exception)
             return null
         }
-        return reader.testResult
     }
 
     suspend fun store(key: CacheKey, testResult: TestResult) {

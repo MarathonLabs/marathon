@@ -9,6 +9,7 @@ data class TestResult(
     val status: TestStatus,
     val startTime: Long,
     val endTime: Long,
+    val isFromCache: Boolean = false,
     val stacktrace: String? = null,
     val attachments: List<Attachment> = emptyList()
 ) {
@@ -32,6 +33,7 @@ data class TestResult(
         return "TestResult(test=${test}, " +
                 "device=${device}, status=${status}, " +
                 "startTime=${startTime}, endTime=${endTime}, " +
+                "isFromCache=${isFromCache}, " +
                 "stacktrace=${stacktrace?.take(24)})"
     }
 }

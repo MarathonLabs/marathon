@@ -3,6 +3,7 @@ package com.malinskiy.marathon.cache.test
 import com.malinskiy.marathon.cache.MemoryCacheService
 import com.malinskiy.marathon.cache.SimpleCacheKey
 import com.malinskiy.marathon.createDeviceInfo
+import com.malinskiy.marathon.device.DeviceFeature
 import com.malinskiy.marathon.execution.Attachment
 import com.malinskiy.marathon.execution.AttachmentType
 import com.malinskiy.marathon.execution.TestResult
@@ -46,7 +47,9 @@ class TestResultsCacheSpek : Spek(
                         componentInfo = TestComponentInfo(someInfo = "someInfo", name = "component-name"),
                         metaProperties = emptyList()
                     )
-                    val deviceInfo = createDeviceInfo()
+                    val deviceInfo = createDeviceInfo(
+                        deviceFeatures = listOf(DeviceFeature.SCREENSHOT, DeviceFeature.VIDEO)
+                    )
                     val testResult = TestResult(
                         test = test,
                         device = deviceInfo,

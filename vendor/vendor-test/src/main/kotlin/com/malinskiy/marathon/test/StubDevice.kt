@@ -53,7 +53,7 @@ class StubDevice(
             val i = executionIndexMap.getOrDefault(it, 0)
             val result = executionResults[it]!![i]
             executionIndexMap[it] = i + 1
-            val testResult = TestResult(it, toDeviceInfo(), result, timeCounter, timeCounter + 1, null)
+            val testResult = TestResult(it, toDeviceInfo(), result, timeCounter, timeCounter + 1)
             timeCounter += 1
             testResult
         }

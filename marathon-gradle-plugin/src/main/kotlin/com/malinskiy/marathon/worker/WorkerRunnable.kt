@@ -24,11 +24,7 @@ class WorkerRunnable(
 
         val application = marathonStartKoin(configuration)
         marathon = application.koin.get<Marathon>()
-
-        // TODO: we need to support empty queue in Marathon, currently it fails if we start it without tests
-        val firstComponent = componentsChannel.receive()
         marathon.start()
-        marathon.scheduleTests(firstComponent)
 
         for (component in componentsChannel) {
             log.debug("Scheduling tests for $component")
@@ -36,11 +32,11 @@ class WorkerRunnable(
         }
 
         log.debug("Waiting for completion")
-        waitForCompletionAndDispose()
+        stopAndWaitForCompletion()
     }
 
-    private suspend fun waitForCompletionAndDispose() {
-        val success = marathon.waitForCompletionAndDispose()
+    private suspend fun stopAndWaitForCompletion() {
+        val success = marathon.stopAndWaitForCompletion()
 
         val shouldReportFailure = !configuration.ignoreFailures
         if (!success && shouldReportFailure) {

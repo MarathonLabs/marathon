@@ -10,6 +10,7 @@ import com.malinskiy.marathon.execution.TestShard
 import com.malinskiy.marathon.execution.TestStatus
 import com.malinskiy.marathon.generateTest
 import com.malinskiy.marathon.test.Mocks
+import com.malinskiy.marathon.test.StubComponentCacheKeyProvider
 import com.malinskiy.marathon.test.StubComponentInfoExtractor
 import com.malinskiy.marathon.test.StubDeviceProvider
 import com.malinskiy.marathon.test.TestVendorConfiguration
@@ -55,7 +56,12 @@ object TestResultReporterSpec : Spek(
             testBatchTimeoutMillis = null,
             testOutputTimeoutMillis = null,
             debug = false,
-            vendorConfiguration = TestVendorConfiguration(Mocks.TestParser.DEFAULT, StubDeviceProvider(), StubComponentInfoExtractor()),
+            vendorConfiguration = TestVendorConfiguration(
+                Mocks.TestParser.DEFAULT,
+                StubDeviceProvider(),
+                StubComponentInfoExtractor(),
+                StubComponentCacheKeyProvider()
+            ),
             analyticsTracking = false
         )
         val strictConfig = defaultConfig.copy(strictMode = true)
