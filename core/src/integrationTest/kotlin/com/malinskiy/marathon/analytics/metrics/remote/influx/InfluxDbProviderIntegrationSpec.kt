@@ -15,6 +15,7 @@ import java.time.temporal.ChronoUnit
 class InfluxDbProviderIntegrationSpec : Spek(
     {
         val database = "marathonTest"
+        val rpName = "rpMarathon"
 
         val container = KInfluxDBContainer().withAuthEnabled(false)
 
@@ -52,7 +53,7 @@ class InfluxDbProviderIntegrationSpec : Spek(
                     thirdDbInstance = provider.createDb()
 
                     val metricsProvider =
-                        InfluxMetricsProvider(InfluxDBDataSource(thirdDbInstance!!, database))
+                        InfluxMetricsProvider(InfluxDBDataSource(thirdDbInstance!!, database, rpName))
 
                     val result = metricsProvider.executionTime(
                         test,

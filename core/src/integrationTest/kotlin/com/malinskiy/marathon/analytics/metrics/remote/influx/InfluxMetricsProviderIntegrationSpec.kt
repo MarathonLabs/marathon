@@ -24,6 +24,7 @@ class InfluxMetricsProviderIntegrationSpec : Spek(
     {
 
         val database = "marathonDb"
+        val rpName = "rpMarathon"
 
         val container = KInfluxDBContainer().withAuthEnabled(false).withDatabase(database)
 
@@ -39,7 +40,7 @@ class InfluxMetricsProviderIntegrationSpec : Spek(
         }
 
         val dataStore = memoized(mode = CachingMode.TEST) {
-            InfluxDBDataSource(influxDB.invoke(), database)
+            InfluxDBDataSource(influxDB.invoke(), database, rpName)
         }
 
         val provider = memoized(mode = CachingMode.TEST) {
