@@ -24,15 +24,19 @@ class TestResultsCache(
                 return null
             }
             return reader.testResult
-        } catch (exception: Exception) {
+        } catch (exception: Throwable) {
             logger.warn("Error during loading cache entry for $test", exception)
             return null
         }
     }
 
     suspend fun store(key: CacheKey, testResult: TestResult) {
-        val writer = TestResultEntryWriter(testResult)
-        cacheService.store(key, writer)
+        try {
+            val writer = TestResultEntryWriter(testResult)
+            cacheService.store(key, writer)
+        } catch (exception: Throwable) {
+            logger.warn("Error during storing cache entry for ${testResult.test}", exception)
+        }
     }
 
     fun terminate() {

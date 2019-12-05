@@ -23,10 +23,13 @@ import java.nio.file.Files
 
 class TestResultsCacheSpek : Spek(
     {
+        val cacheService by memoized {
+            MemoryCacheService()
+        }
+
         val cache by memoized {
-            val service = MemoryCacheService()
             val attachmentManager = AttachmentManager(Files.createTempDirectory("test_output").toFile())
-            TestResultsCache(service, attachmentManager)
+            TestResultsCache(cacheService, attachmentManager)
         }
 
         describe("TestResultsCache") {
@@ -94,10 +97,36 @@ class TestResultsCacheSpek : Spek(
                     result.attachments.first().fileType shouldEqual FileType.LOG
                 }
             }
+
+            it("should return null when exception occurred during reading") {
+                val tempFile = File.createTempFile("test", "123").apply {
+                    writeText("abc")
+                    deleteOnExit()
+                }
+
+                runBlocking {
+                    val testResult = createTestResult()
+                    cache.store(SimpleCacheKey("test"), testResult)
+                    cacheService.throwExceptions()
+
+                    val result = cache.load(SimpleCacheKey("test"), testResult.test)
+
+                    result shouldEqual null
+                }
+            }
+
+            it("should not fail when error occurred during writing") {
+                runBlocking {
+                    cacheService.throwExceptions()
+                    val testResult = createTestResult()
+
+                    cache.store(SimpleCacheKey("test"), testResult)
+                }
+            }
         }
     })
 
-private fun createTestResult(attachments: List<Attachment>) = TestResult(
+private fun createTestResult(attachments: List<Attachment> = emptyList()) = TestResult(
     test = createTest(),
     device = createDeviceInfo(),
     status = TestStatus.PASSED,
