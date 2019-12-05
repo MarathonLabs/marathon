@@ -72,7 +72,7 @@ class DevicePoolActor(
     }
 
     private suspend fun onNoBatchesAvailable() {
-        delay(1000)
+        delay(EMPTY_QUEUE_CHECK_PERIOD)
         notifyDevices()
     }
 
@@ -159,5 +159,9 @@ class DevicePoolActor(
 
     private suspend fun addTests(shard: TestShard) {
         queue.send(QueueMessage.AddShard(shard))
+    }
+
+    private companion object {
+        private const val EMPTY_QUEUE_CHECK_PERIOD = 1000L
     }
 }
