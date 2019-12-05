@@ -126,8 +126,15 @@ object DerivedDataManagerSpek : Spek(
                         port = sshPort
                     )
 
-                    val uploadResults = container.execInContainer("/usr/bin/find", remoteDir).stdout
-                        .split("\n")
+                    val stdout = container.execInContainer("/usr/bin/find", remoteDir).stdout
+                    logger.debug { stdout }
+
+                    val uploadResults = stdout
+                        /**
+                         * Workaround for cases where find inserts \n in the middle of path
+                         */
+                        .split("\n/")
+                        .map { "/" + it.replace("\n", "") }
                         .filter { it.isNotEmpty() }
                         .map { File(it).relativePathTo(File(remoteDir)) }
                         .toSet()

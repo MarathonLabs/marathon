@@ -1,7 +1,7 @@
 object Versions {
-    val marathon = System.getenv("DEPLOY_VERSION_OVERRIDE") ?: "0.5.1"
+    val marathon = System.getenv("DEPLOY_VERSION_OVERRIDE") ?: "0.5.2"
 
-    val kotlin = "1.3.50"
+    val kotlin = "1.3.61"
     val coroutines = "1.3.1"
 
     val ddmlib = "26.3.0"
@@ -47,6 +47,7 @@ object Versions {
     val dokka = "0.9.17"
     val koin = "2.0.1"
     val jsonAssert = "1.5.0"
+    val assertk = "0.19"
 }
 
 object BuildPlugins {
@@ -58,6 +59,7 @@ object BuildPlugins {
 
 object Libraries {
     val ddmlib = "com.android.tools.ddms:ddmlib:${Versions.ddmlib}"
+    val androidCommon = "com.android.tools:common:${Versions.ddmlib}"
     val dexTestParser = "com.linkedin.dextestparser:parser:${Versions.dexTestParser}"
     val kotlinStdLib = "org.jetbrains.kotlin:kotlin-stdlib-jdk8:${Versions.kotlin}"
     val kotlinStdLibCommon = "org.jetbrains.kotlin:kotlin-stdlib-common:${Versions.kotlin}"
@@ -106,6 +108,7 @@ object TestLibraries {
     val jupiterEngine = "org.junit.jupiter:junit-jupiter-engine:${Versions.jupiterEngine}"
     val koin = "org.koin:koin-test:${Versions.koin}"
     val jsonAssert = "org.skyscreamer:jsonassert:${Versions.jsonAssert}"
+    val assertk = "com.willowtreeapps.assertk:assertk:${Versions.assertk}"
 
     val testContainers = "org.testcontainers:testcontainers:${Versions.testContainers}"
     val testContainersInflux = "org.testcontainers:influxdb:${Versions.testContainers}"
