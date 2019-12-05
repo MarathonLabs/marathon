@@ -2,7 +2,6 @@ package com.malinskiy.marathon.test
 
 import com.malinskiy.marathon.cache.test.key.ComponentCacheKeyProvider
 import com.malinskiy.marathon.device.DeviceFeature
-import com.malinskiy.marathon.execution.ComponentInfoExtractor
 import com.malinskiy.marathon.execution.TestParser
 import com.malinskiy.marathon.vendor.VendorConfiguration
 import org.koin.core.module.Module
@@ -11,8 +10,8 @@ import org.koin.dsl.module
 class TestVendorConfiguration(
     var testParser: TestParser,
     var deviceProvider: StubDeviceProvider,
-    var componentInfoExtractor: ComponentInfoExtractor,
-    var componentCacheKeyProvider: ComponentCacheKeyProvider
+    var componentInfoExtractor: StubComponentInfoExtractor,
+    var componentCacheKeyProvider: StubComponentCacheKeyProvider
 ) : VendorConfiguration {
     override fun testParser() = testParser
     override fun componentInfoExtractor() = componentInfoExtractor

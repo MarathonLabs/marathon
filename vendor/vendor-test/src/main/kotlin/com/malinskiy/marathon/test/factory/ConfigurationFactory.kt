@@ -1,6 +1,7 @@
 package com.malinskiy.marathon.test.factory
 
 import com.malinskiy.marathon.device.DeviceProvider
+import com.malinskiy.marathon.execution.CacheConfiguration
 import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.execution.strategy.FlakinessStrategy
 import com.malinskiy.marathon.execution.strategy.ShardingStrategy
@@ -36,7 +37,7 @@ class ConfigurationFactory {
     var uncompletedTestRetryQuota: Int? = null
     var filteringConfiguration = null
     var flakinessStrategy: FlakinessStrategy? = null
-    var cache = null
+    var cache: CacheConfiguration? = null
     var ignoreFailures = null
     var includeSerialRegexes: List<Regex>? = null
     var isCodeCoverageEnabled = null
