@@ -41,6 +41,8 @@ class TestCacheLoader(
                 val timeMillis = measureTimeMillis {
                     val cacheKey = cacheKeyFactory.getCacheKey(test.poolId, test.test)
 
+                    logger.debug { "Cache key for ${test.test.toSimpleSafeTestName()}: ${cacheKey.key} ($cacheKey)" }
+
                     result = cache.load(cacheKey, test.test)?.let {
                         Hit(test.poolId, it)
                     } ?: Miss(test.poolId, TestShard(listOf(test.test)))
