@@ -7,6 +7,7 @@ import com.malinskiy.marathon.android.DEFAULT_APPLICATION_PM_CLEAR
 import com.malinskiy.marathon.android.DEFAULT_AUTO_GRANT_PERMISSION
 import com.malinskiy.marathon.android.DEFAULT_INSTALL_OPTIONS
 import com.malinskiy.marathon.android.defaultInitTimeoutMillis
+import com.malinskiy.marathon.android.serial.SerialStrategy
 import com.malinskiy.marathon.di.marathonStartKoin
 import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.extensions.extractApplication
@@ -106,6 +107,7 @@ open class MarathonRunTask : DefaultTask(), VerificationTask {
         val adbInitTimeout = extension.adbInitTimeout ?: defaultInitTimeoutMillis
         val installOptions = extension.installOptions ?: DEFAULT_INSTALL_OPTIONS
         val preferableRecorderType = extension.preferableRecorderType
+        val serialStrategy = extension.serialStrategy ?: SerialStrategy.AUTOMATIC
 
         return AndroidConfiguration(
             androidSdk = sdk,
@@ -118,7 +120,8 @@ open class MarathonRunTask : DefaultTask(), VerificationTask {
             testApplicationPmClear = testApplicationPmClear,
             adbInitTimeoutMillis = adbInitTimeout,
             installOptions = installOptions,
-            preferableRecorderType = preferableRecorderType
+            preferableRecorderType = preferableRecorderType,
+            serialStrategy = serialStrategy
         )
     }
 
