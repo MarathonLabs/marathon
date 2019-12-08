@@ -6,6 +6,7 @@ import com.malinskiy.marathon.android.configuration.SerialStrategy
 import com.malinskiy.marathon.android.exception.InvalidSerialConfiguration
 import com.malinskiy.marathon.android.exception.TransferException
 import com.malinskiy.marathon.android.executor.listeners.AllureArtifactsTestRunListener
+import com.malinskiy.marathon.android.executor.listeners.CodeCoverageListener
 import com.malinskiy.marathon.android.executor.listeners.CompositeTestRunListener
 import com.malinskiy.marathon.android.executor.listeners.DebugTestRunListener
 import com.malinskiy.marathon.android.executor.listeners.LogCatListener
@@ -226,6 +227,10 @@ abstract class BaseAndroidDevice(
         val recorderListener = selectRecorderType(features, recordConfiguration)?.let { feature ->
             prepareRecorderListener(feature, fileManager, devicePoolId, screenRecordingPolicy, attachmentProviders)
         } ?: NoOpTestRunListener()
+        val coverageListener = when (configuration.isCodeCoverageEnabled) {
+            true -> CodeCoverageListener(this, devicePoolId, fileManager, testBatch)
+            false -> NoOpTestRunListener()
+        }
         val allureListener = when (this@BaseAndroidDevice.configuration.allureConfiguration.enabled) {
             false -> NoOpTestRunListener()
             true -> AllureArtifactsTestRunListener(this, this@BaseAndroidDevice.configuration.allureConfiguration, fileManager)
@@ -236,6 +241,7 @@ abstract class BaseAndroidDevice(
 
         return CompositeTestRunListener(
             listOf(
+                coverageListener,
                 recorderListener,
                 logCatListener,
                 TestRunResultsListener(testBatch, this, deferred, timer, attachmentProviders),

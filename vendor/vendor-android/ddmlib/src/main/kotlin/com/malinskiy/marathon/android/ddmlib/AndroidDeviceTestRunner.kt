@@ -33,7 +33,7 @@ class AndroidDeviceTestRunner(private val device: DdmlibAndroidDevice) {
         val ignoredTests = rawTestBatch.tests.filter { test ->
             test.metaProperties.any { it.name == JUNIT_IGNORE_META_PROPERTY_NAME }
         }
-        val testBatch = TestBatch(rawTestBatch.tests - ignoredTests)
+        val testBatch = TestBatch(rawTestBatch.tests - ignoredTests, rawTestBatch.id)
 
         val androidConfiguration = configuration.vendorConfiguration as AndroidConfiguration
         val info = ApkParser().parseInstrumentationInfo(androidConfiguration.testApplicationOutput)
@@ -116,6 +116,11 @@ class AndroidDeviceTestRunner(private val device: DdmlibAndroidDevice) {
 
         androidConfiguration.instrumentationArgs.forEach { key, value ->
             runner.addInstrumentationArg(key, value)
+        }
+        if (configuration.isCodeCoverageEnabled) {
+            val dest = "${device.externalStorageMount}/coverage-${testBatch.id}.ec"
+            runner.addInstrumentationArg("coverage", "true")
+            runner.addInstrumentationArg("coverageFile", dest)
         }
 
         return runner
