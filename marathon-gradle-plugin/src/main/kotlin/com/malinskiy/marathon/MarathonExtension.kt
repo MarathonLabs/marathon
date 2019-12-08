@@ -1,5 +1,6 @@
 package com.malinskiy.marathon
 
+import com.malinskiy.marathon.android.serial.SerialStrategy
 import com.malinskiy.marathon.device.DeviceFeature
 import groovy.lang.Closure
 import org.gradle.api.Project
@@ -37,6 +38,7 @@ open class MarathonExtension(project: Project) {
     var testApplicationPmClear: Boolean? = null
     var adbInitTimeout: Int? = null
     var installOptions: String? = null
+    var serialStrategy: SerialStrategy? = null
 
     var preferableRecorderType: DeviceFeature? = null
 
