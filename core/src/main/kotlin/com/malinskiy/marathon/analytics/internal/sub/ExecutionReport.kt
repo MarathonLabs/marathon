@@ -36,6 +36,7 @@ data class ExecutionReport(
             it.status == TestStatus.IGNORED
                     || it.status == TestStatus.ASSUMPTION_FAILURE
         }
+        val fromCache = tests.count { it.isFromCache }
         val failed = tests.count {
             it.status != TestStatus.PASSED
                     && it.status != TestStatus.IGNORED
@@ -59,6 +60,7 @@ data class ExecutionReport(
             tests = tests,
             passed = passed,
             ignored = ignored,
+            fromCache = fromCache,
             failed = failed,
             flaky = 0,
             durationMillis = duration,

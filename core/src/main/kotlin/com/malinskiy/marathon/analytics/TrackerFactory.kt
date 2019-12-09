@@ -7,6 +7,7 @@ import com.malinskiy.marathon.analytics.internal.pub.Track
 import com.malinskiy.marathon.analytics.internal.sub.DelegatingTrackerInternal
 import com.malinskiy.marathon.analytics.internal.sub.ExecutionReportGenerator
 import com.malinskiy.marathon.analytics.internal.sub.TrackerInternal
+import com.malinskiy.marathon.cache.test.CacheTestResultsTracker
 import com.malinskiy.marathon.execution.AnalyticsConfiguration.InfluxDbConfiguration
 import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.io.AttachmentManager
@@ -32,6 +33,7 @@ internal class TrackerFactory(
     private val configuration: Configuration,
     private val fileManager: FileManager,
     private val attachmentManager: AttachmentManager,
+    private val cacheTestResultsTracker: CacheTestResultsTracker,
     private val gson: Gson,
     private val timer: Timer,
     private val track: Track
@@ -51,6 +53,7 @@ internal class TrackerFactory(
         val delegatingTrackerInternal = DelegatingTrackerInternal(defaultTrackers)
         val mappingTracker = MappingTracker(delegatingTrackerInternal)
         track + mappingTracker
+        track + cacheTestResultsTracker
         configuration.customAnalyticsTracker?.let { track + it }
 
         return delegatingTrackerInternal

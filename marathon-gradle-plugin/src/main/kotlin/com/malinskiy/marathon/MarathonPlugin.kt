@@ -26,7 +26,7 @@ private val log = MarathonLogging.logger {}
 class MarathonPlugin : Plugin<Project> {
 
     override fun apply(project: Project) {
-        log.info { "Applying marathon plugin" }
+        log.debug { "Applying marathon plugin" }
 
         val properties = project.rootProject.marathonProperties
         val androidSdkLocation = project.androidSdkLocation
@@ -44,7 +44,11 @@ class MarathonPlugin : Plugin<Project> {
             val libraryPlugin = project.plugins.findPlugin(LibraryPlugin::class.java)
 
             if (appPlugin == null && libraryPlugin == null) {
-                throw IllegalStateException("Android plugin is not found")
+                if (project != rootProject) {
+                    throw IllegalStateException("Android plugin is not found")
+                } else {
+                    return@afterEvaluate
+                }
             }
 
             val marathonTask: Task = project.task(TASK_PREFIX, closureOf<Task> {
@@ -61,7 +65,6 @@ class MarathonPlugin : Plugin<Project> {
             val testedExtension = appExtension ?: libraryExtension
 
             testedExtension!!.testVariants.all {
-                log.info { "Applying marathon for $this" }
                 val testTaskForVariant = registerTask(this, project, properties, androidSdkLocation)
                 marathonTask.dependsOn(testTaskForVariant)
             }
@@ -75,8 +78,6 @@ class MarathonPlugin : Plugin<Project> {
                 project.rootProject.extensions.create(EXTENSION_NAME, MarathonExtension::class.java, project.rootProject)
 
                 gradle.projectsEvaluated {
-                    println("Projects evaluated")
-
                     val configuration = createCommonConfiguration(project.rootProject, EXTENSION_NAME, androidSdkLocation)
                     MarathonWorker.initialize(configuration)
                 }
@@ -118,7 +119,6 @@ class MarathonPlugin : Plugin<Project> {
 
             variant.testedVariant.outputs.all {
                 val testedOutput = this
-                log.info { "Processing output $testedOutput" }
 
                 checkTestedVariants(testedOutput)
 

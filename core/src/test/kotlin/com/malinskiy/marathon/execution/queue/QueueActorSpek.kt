@@ -265,7 +265,8 @@ private val DEFAULT_CONFIGURATION = Configuration(
     vendorConfiguration = TestVendorConfiguration(
         testParser = mock(),
         deviceProvider = mock(),
-        componentInfoExtractor = mock()
+        componentInfoExtractor = mock(),
+        componentCacheKeyProvider = mock()
     ),
     analyticsTracking = false
 )

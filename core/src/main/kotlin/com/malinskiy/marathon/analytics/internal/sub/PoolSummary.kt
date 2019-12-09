@@ -9,6 +9,7 @@ data class PoolSummary(
     val tests: List<TestResult>,
     val passed: Int,
     val ignored: Int,
+    val fromCache: Int,
     val failed: Int,
     val flaky: Int,
     val durationMillis: Long,

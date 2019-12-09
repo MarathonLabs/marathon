@@ -57,7 +57,7 @@ class TestResultEntryWriter(private val testResult: TestResult) : CacheEntryWrit
     private suspend fun ByteWriteChannel.writeEnumCollection(collection: Collection<Enum<*>>) {
         writeInt(collection.size)
         collection.forEach {
-            it.ordinal
+            writeInt(it.ordinal)
         }
     }
 

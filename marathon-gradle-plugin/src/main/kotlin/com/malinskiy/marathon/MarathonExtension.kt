@@ -51,6 +51,10 @@ open class MarathonExtension(project: Project) {
     var instrumentationArgs: MutableMap<String, String> = mutableMapOf()
 
     //Kotlin way
+    fun cache(block: CachePluginConfiguration.() -> Unit) {
+        cache = CachePluginConfiguration().also(block)
+    }
+
     fun analytics(block: AnalyticsConfig.() -> Unit) {
         analyticsConfiguration = AnalyticsConfig().also(block)
     }
@@ -88,6 +92,12 @@ open class MarathonExtension(project: Project) {
     }
 
     //Groovy way
+    fun cache(closure: Closure<*>) {
+        cache = CachePluginConfiguration()
+        closure.delegate = cache
+        closure.call()
+    }
+
     fun analytics(closure: Closure<*>) {
         analyticsConfiguration = AnalyticsConfig()
         closure.delegate = analyticsConfiguration

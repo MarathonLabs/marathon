@@ -41,24 +41,25 @@ class ProgressReportingListener(
         val lastCompletedTestEndTime = received.maxBy { it.endTime }?.endTime ?: timer.currentTimeMillis()
         return map {
             TestResult(
-                it,
-                device.toDeviceInfo(),
-                TestStatus.FAILURE,
-                lastCompletedTestEndTime,
-                lastCompletedTestEndTime,
-                testLogListener.getLastLog()
+                test = it,
+                device = device.toDeviceInfo(),
+                status = TestStatus.FAILURE,
+                startTime = lastCompletedTestEndTime,
+                endTime = lastCompletedTestEndTime,
+                isFromCache = false,
+                stacktrace = testLogListener.getLastLog()
             )
         }
     }
 
     override fun testFailed(test: Test, startTime: Long, endTime: Long) {
         progressReporter.testFailed(poolId, device.toDeviceInfo(), test)
-        failure.add(TestResult(test, device.toDeviceInfo(), TestStatus.FAILURE, startTime, endTime, testLogListener.getLastLog()))
+        failure.add(TestResult(test, device.toDeviceInfo(), TestStatus.FAILURE, startTime, endTime, false, testLogListener.getLastLog()))
     }
 
     override fun testPassed(test: Test, startTime: Long, endTime: Long) {
         progressReporter.testPassed(poolId, device.toDeviceInfo(), test)
-        success.add(TestResult(test, device.toDeviceInfo(), TestStatus.PASSED, startTime, endTime, testLogListener.getLastLog()))
+        success.add(TestResult(test, device.toDeviceInfo(), TestStatus.PASSED, startTime, endTime, false, testLogListener.getLastLog()))
     }
 
     override fun testStarted(test: Test) {

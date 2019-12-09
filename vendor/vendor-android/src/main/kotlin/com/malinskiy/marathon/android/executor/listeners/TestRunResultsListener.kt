@@ -98,12 +98,13 @@ class TestRunResultsListener(
 
         return map {
             TestResult(
-                it,
-                device.toDeviceInfo(),
-                TestStatus.INCOMPLETE,
-                lastCompletedTestEndTime,
-                timer.currentTimeMillis(),
-                testRunResult.runFailureMessage
+                test = it,
+                device = device.toDeviceInfo(),
+                status = TestStatus.INCOMPLETE,
+                startTime = lastCompletedTestEndTime,
+                endTime = timer.currentTimeMillis(),
+                isFromCache = false,
+                stacktrace = testRunResult.runFailureMessage
             )
         }
     }

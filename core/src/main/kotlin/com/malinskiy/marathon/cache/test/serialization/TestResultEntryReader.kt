@@ -28,16 +28,17 @@ class TestResultEntryReader(
     val testResult: TestResult
         get() = _testResult
 
+    @Volatile
     private lateinit var _testResult: TestResult
 
     override suspend fun readFrom(input: ByteReadChannel) {
-
         _testResult = TestResult(
             test = test,
             device = input.readDeviceInfo(),
             status = TestStatus.values()[input.readInt()],
             startTime = input.readLong(),
             endTime = input.readLong(),
+            isFromCache = true,
             stacktrace = input.readString(),
             attachments = input.readAttachments()
         )

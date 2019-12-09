@@ -19,6 +19,7 @@ import com.malinskiy.marathon.test.toTestName
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.SendChannel
+import kotlinx.coroutines.delay
 import java.util.*
 import kotlin.coroutines.CoroutineContext
 
@@ -48,12 +49,15 @@ class QueueActor(
     private val testResultReporter = TestResultReporter(poolId, analytics, configuration, track)
     private var flakyTests: List<Test> = emptyList()
 
+    private var stopRequested: Boolean = false
+
     override suspend fun receive(msg: QueueMessage) {
         when (msg) {
             is QueueMessage.AddShard -> {
                 testResultReporter.addShard(msg.shard)
-                queue.addAll(msg.shard.tests + msg.shard.flakyTests)
-                progressReporter.totalTests(poolId, queue.size)
+                val testsToAdd = msg.shard.tests + msg.shard.flakyTests
+                queue.addAll(testsToAdd)
+                progressReporter.addTests(poolId, testsToAdd.size)
                 flakyTests = flakyTests + msg.shard.flakyTests
             }
             is QueueMessage.RequestBatch -> {
@@ -61,6 +65,9 @@ class QueueActor(
             }
             is QueueMessage.IsEmpty -> {
                 msg.deferred.complete(queue.isEmpty() && activeBatches.isEmpty())
+            }
+            is QueueMessage.Stop -> {
+                stopRequested = true
             }
             is QueueMessage.Terminate -> {
                 onTerminate()
@@ -183,12 +190,18 @@ class QueueActor(
             return
         }
         if (queueIsEmpty && activeBatches.isEmpty()) {
-            pool.send(DevicePoolMessage.FromQueue.Terminated)
-            onTerminate()
+            if (stopRequested) {
+                logger.debug { "queue is empty and stop requested, terminating ${device.serialNumber}" }
+                pool.send(FromQueue.Terminated)
+                onTerminate()
+            } else {
+                logger.debug { "queue is empty and stop is not requested yet, responding with no batches available for ${device.serialNumber}" }
+                pool.send(FromQueue.NoBatchesAvailable)
+            }
         } else {
             logger.debug {
                 "queue is empty but there are active batches present for " +
-                        "${activeBatches.keys.joinToString { it }}"
+                        activeBatches.keys.joinToString { it }
             }
         }
     }
@@ -208,5 +221,6 @@ sealed class QueueMessage {
     data class Completed(val device: DeviceInfo, val results: TestBatchResults) : QueueMessage()
     data class ReturnBatch(val device: DeviceInfo, val batch: TestBatch) : QueueMessage()
 
+    object Stop : QueueMessage()
     object Terminate : QueueMessage()
 }
