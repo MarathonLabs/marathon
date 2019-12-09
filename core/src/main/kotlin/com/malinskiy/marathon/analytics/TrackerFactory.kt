@@ -57,7 +57,7 @@ internal class TrackerFactory(
             log.warn(e) { "Failed to reach InfluxDB at ${config.url}" }
             null
         }
-        return db?.let { InfluxDbTracker(it) }
+        return db?.let { InfluxDbTracker(it, config.dbName, config.retentionPolicyConfiguration.name) }
     }
 
     private fun createExecutionReportGenerator(): ExecutionReportGenerator {

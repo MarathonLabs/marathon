@@ -11,7 +11,11 @@ import org.influxdb.impl.InfluxDBResultMapper
 import java.time.Instant
 
 
-class InfluxDBDataSource(private val influxDb: InfluxDB, private val dbName: String) : RemoteDataSource {
+class InfluxDBDataSource(
+    private val influxDb: InfluxDB,
+    private val dbName: String,
+    private val retentionPolicy: String
+) : RemoteDataSource {
 
     @Measurement(name = "tests")
     class InfluxExecutionTime(
@@ -29,16 +33,16 @@ class InfluxDBDataSource(private val influxDb: InfluxDB, private val dbName: Str
     private val mapper = InfluxDBResultMapper()
 
     override fun requestAllSuccessRates(limit: Instant): List<SuccessRate> {
-        val results = influxDb.query(
-            Query(
-                """
-            SELECT MEAN("success")
-            FROM "tests"
-            WHERE time >= '$limit'
-            GROUP BY "testname"
-        """, dbName
-            )
+        val query = Query(
+            """
+                SELECT MEAN("success")
+                FROM "$retentionPolicy"."tests"
+                WHERE time >= '$limit'
+                GROUP BY "testname"
+            """.trimIndent(), dbName
         )
+        val results = influxDb.query(query)
+
         return mapper.toPOJO(results, InfluxSuccessRate::class.java).filter {
             it.testName != null && it.mean != null
         }.map {
@@ -53,11 +57,11 @@ class InfluxDBDataSource(private val influxDb: InfluxDB, private val dbName: Str
         val results = influxDb.query(
             Query(
                 """
-            SELECT PERCENTILE("duration",$percentile)
-            FROM "tests"
-            WHERE time >= '$limit'
-            GROUP BY "testname"
-        """, dbName
+                    SELECT PERCENTILE("duration",$percentile)
+                    FROM "$retentionPolicy"."tests"
+                    WHERE time >= '$limit'
+                    GROUP BY "testname"
+                """.trimIndent(), dbName
             )
         )
         return mapper.toPOJO(results, InfluxExecutionTime::class.java).filter {
