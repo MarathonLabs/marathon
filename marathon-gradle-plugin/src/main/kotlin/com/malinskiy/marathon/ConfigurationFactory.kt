@@ -7,6 +7,7 @@ import com.malinskiy.marathon.android.AndroidConfiguration
 import com.malinskiy.marathon.android.DEFAULT_APPLICATION_PM_CLEAR
 import com.malinskiy.marathon.android.DEFAULT_AUTO_GRANT_PERMISSION
 import com.malinskiy.marathon.android.DEFAULT_INSTALL_OPTIONS
+import com.malinskiy.marathon.android.DEFAULT_SERIAL_STRATEGY
 import com.malinskiy.marathon.android.defaultInitTimeoutMillis
 import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.extensions.extractApplication
@@ -127,6 +128,7 @@ private fun createAndroidConfiguration(
     val adbInitTimeout = extension.adbInitTimeout ?: defaultInitTimeoutMillis
     val installOptions = extension.installOptions ?: DEFAULT_INSTALL_OPTIONS
     val preferableRecorderType = extension.preferableRecorderType
+    val serialStrategy = extension.serialStrategy ?: DEFAULT_SERIAL_STRATEGY
 
     return AndroidConfiguration(
         sdkDirectory,
@@ -138,6 +140,7 @@ private fun createAndroidConfiguration(
         testApplicationPmClear,
         adbInitTimeout,
         installOptions,
-        preferableRecorderType
+        preferableRecorderType,
+        serialStrategy
     )
 }
