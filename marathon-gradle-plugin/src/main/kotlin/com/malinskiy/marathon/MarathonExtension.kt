@@ -1,7 +1,6 @@
 package com.malinskiy.marathon
 
 import com.malinskiy.marathon.analytics.internal.pub.Tracker
-import com.malinskiy.marathon.android.serial.SerialStrategy
 import com.malinskiy.marathon.device.DeviceFeature
 import groovy.lang.Closure
 import org.gradle.api.Project
@@ -43,7 +42,7 @@ open class MarathonExtension(project: Project) {
     var installOptions: String? = null
 
     var preferableRecorderType: DeviceFeature? = null
-    var serialStrategy: SerialStrategy? = null
+    var serialStrategy: SerialStrategyConfiguration? = null
 
     var analyticsTracking: Boolean = false
 
