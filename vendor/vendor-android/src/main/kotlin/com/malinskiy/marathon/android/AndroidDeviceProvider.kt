@@ -41,11 +41,15 @@ class AndroidDeviceProvider(
 
     private val channel: Channel<DeviceProvider.DeviceEvent> = unboundedChannel()
     private val devices: ConcurrentMap<String, AndroidDevice> = ConcurrentHashMap()
+
+    private lateinit var listener: AndroidDebugBridge.IDeviceChangeListener
+
     private val bootWaitContext = newFixedThreadPoolContext(4, "AndroidDeviceProvider-BootWait")
     override val coroutineContext: CoroutineContext
         get() = bootWaitContext
 
     override val deviceInitializationTimeoutMillis: Long = 180_000
+
     override suspend fun initialize(vendorConfiguration: VendorConfiguration) {
         check(vendorConfiguration is AndroidConfiguration) { "Invalid configuration $vendorConfiguration passed" }
         DdmPreferences.setTimeOut(DEFAULT_DDM_LIB_TIMEOUT)
@@ -53,7 +57,7 @@ class AndroidDeviceProvider(
 
         val absolutePath = Paths.get(vendorConfiguration.androidSdk.absolutePath, "platform-tools", "adb").toFile().absolutePath
 
-        val listener = object : AndroidDebugBridge.IDeviceChangeListener {
+        listener = object : AndroidDebugBridge.IDeviceChangeListener {
             override fun deviceChanged(device: IDevice?, changeMask: Int) {
                 device?.let {
                     launch(context = bootWaitContext) {
@@ -195,6 +199,9 @@ class AndroidDeviceProvider(
     private fun AndroidDebugBridge.hasDevices(): Boolean = devices.isNotEmpty()
 
     override suspend fun terminate() {
+        if (::listener.isInitialized) {
+            AndroidDebugBridge.removeDeviceChangeListener(listener)
+        }
         bootWaitContext.close()
         channel.close()
     }
