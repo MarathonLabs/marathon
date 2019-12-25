@@ -2,6 +2,7 @@ package com.malinskiy.marathon.exceptions
 
 import com.bugsnag.Bugsnag
 import com.malinskiy.marathon.BuildConfig
+import com.malinskiy.marathon.config.AppType
 import java.util.*
 
 class BugsnagExceptionsReporter : ExceptionsReporter {
@@ -21,9 +22,4 @@ class BugsnagExceptionsReporter : ExceptionsReporter {
             setAppVersion(BuildConfig.VERSION)
         }
     }
-}
-
-enum class AppType(val value: String) {
-    CLI("cli"),
-    GRADLE_PLUGIN("gradle-plugin")
 }

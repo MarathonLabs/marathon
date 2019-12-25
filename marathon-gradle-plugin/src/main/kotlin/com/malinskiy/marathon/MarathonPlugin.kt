@@ -6,7 +6,7 @@ import com.android.build.gradle.LibraryExtension
 import com.android.build.gradle.LibraryPlugin
 import com.android.build.gradle.api.BaseVariantOutput
 import com.android.build.gradle.api.TestVariant
-import com.malinskiy.marathon.exceptions.AppType
+import com.malinskiy.marathon.config.AppType
 import com.malinskiy.marathon.exceptions.BugsnagExceptionsReporter
 import com.malinskiy.marathon.extensions.executeGradleCompat
 import com.malinskiy.marathon.log.MarathonLogging

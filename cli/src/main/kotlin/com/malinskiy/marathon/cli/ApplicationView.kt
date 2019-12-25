@@ -13,7 +13,7 @@ import com.malinskiy.marathon.cli.config.ConfigFactory
 import com.malinskiy.marathon.cli.config.DeserializeModule
 import com.malinskiy.marathon.cli.config.time.InstantTimeProviderImpl
 import com.malinskiy.marathon.di.marathonStartKoin
-import com.malinskiy.marathon.exceptions.AppType
+import com.malinskiy.marathon.config.AppType
 import com.malinskiy.marathon.exceptions.BugsnagExceptionsReporter
 import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.usageanalytics.TrackActionType
