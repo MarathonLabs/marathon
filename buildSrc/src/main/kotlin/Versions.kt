@@ -10,6 +10,7 @@ object Versions {
     val slf4jAPI = "1.0.0"
     val logbackClassic = "1.2.3"
     val axmlParser = "1.0"
+    val bugsnag = "3.6.1"
 
     val junitGradle = "1.0.0"
     val androidGradleVersion = "3.3.0"
@@ -87,6 +88,7 @@ object Libraries {
     val allure = "io.qameta.allure:allure-java-commons:${Versions.allure}"
     val allureEnvironment = "com.github.automatedowl:allure-environment-writer:${Versions.allureEnvironment}"
     val koin = "org.koin:koin-core:${Versions.koin}"
+    val bugsnag = "com.bugsnag:bugsnag:${Versions.bugsnag}"
 }
 
 object TestLibraries {
