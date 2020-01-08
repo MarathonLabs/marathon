@@ -34,7 +34,7 @@ export default class HomePage extends Component {
                                     </div>
                                     <div className="card-info">
                                         <div className="text-sub-title-light">Duration</div>
-                                        <a href="timeline/index.html" className="card-info__content" style="display: inline-block">{convertTime(pool.duration_millis)}</a>
+                                        <a href="timeline/index.html" className="card-info__content" style={{display: 'inline-block'}}>{convertTime(pool.duration_millis)}</a>
                                     </div>
                                     <div className="card-info">
                                         <div className="text-sub-title-light">Devices</div>
