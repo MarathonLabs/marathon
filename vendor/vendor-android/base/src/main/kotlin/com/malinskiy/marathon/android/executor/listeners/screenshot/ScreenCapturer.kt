@@ -31,7 +31,7 @@ class ScreenCapturer(
     suspend fun start() = coroutineScope {
         val outputStream = FileImageOutputStream(fileManager.createFile(FileType.SCREENSHOT, poolId, device.toDeviceInfo(), test))
         val writer = GifSequenceWriter(outputStream, TYPE_INT_ARGB, DELAY, true)
-        var targetOrientation = PORTRAIT
+        var targetOrientation = UNDEFINED
         while (isActive) {
             val capturingTimeMillis = measureTimeMillis {
                 getScreenshot(targetOrientation)?.let {
