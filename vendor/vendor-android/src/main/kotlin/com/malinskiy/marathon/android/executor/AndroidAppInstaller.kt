@@ -31,6 +31,7 @@ class AndroidAppInstaller(
 
     private val logger = MarathonLogging.logger("AndroidAppInstaller")
     private val androidConfiguration = configuration.vendorConfiguration as AndroidConfiguration
+    private val installedApps: MutableMap<String, MutableMap<String, String>> = hashMapOf()
 
     suspend fun ensureInstalled(device: AndroidDevice, componentInfo: AndroidComponentInfo) {
         // TODO: we need to skip the installation if we detected that the app is already installed
@@ -52,7 +53,8 @@ class AndroidAppInstaller(
         withRetry(attempts = MAX_RETIRES, delayTime = 1000) {
             try {
                 val checkStarted = Instant.now()
-                val isApkInstalled = isApkInstalled(ddmsDevice, appPackage, appApk)
+                val fileHash = fileHasher.getHash(appApk)
+                val isApkInstalled = isApkInstalled(device, appPackage, fileHash)
                 track.installationCheck(device.serialNumber, checkStarted, Instant.now())
 
                 if (isApkInstalled) {
@@ -63,6 +65,9 @@ class AndroidAppInstaller(
                     val installMessage = ddmsDevice.safeInstallPackage(appApk.absolutePath, true, optionalParams(ddmsDevice))
                     installMessage?.let { logger.debug { it } }
                     track.installation(device.serialNumber, installationStarted, Instant.now())
+                    installedApps
+                        .getOrPut(device.serialNumber) { hashMapOf() }
+                        .put(appPackage, fileHash)
                 }
             } catch (e: InstallException) {
                 logger.error(e) { "Error while installing $appPackage, ${appApk.absolutePath} on ${device.serialNumber}" }
@@ -71,9 +76,12 @@ class AndroidAppInstaller(
         }
     }
 
-    private suspend fun isApkInstalled(ddmsDevice: IDevice, appPackage: String, appApk: File): Boolean {
-        val hashOnDevice = getHashOnDevice(ddmsDevice, appPackage) ?: return false
-        val fileHash = fileHasher.getHash(appApk)
+    private suspend fun isApkInstalled(device: AndroidDevice, appPackage: String, fileHash: String): Boolean {
+        if (installedApps[device.serialNumber]?.get(appPackage) == fileHash) {
+            return true
+        }
+
+        val hashOnDevice = getHashOnDevice(device.ddmsDevice, appPackage) ?: return false
         return hashOnDevice == fileHash
     }
 
