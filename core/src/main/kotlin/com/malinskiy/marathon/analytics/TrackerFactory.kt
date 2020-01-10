@@ -26,6 +26,7 @@ import com.malinskiy.marathon.report.stdout.StdoutReporter
 import com.malinskiy.marathon.report.test.TestJsonReporter
 import com.malinskiy.marathon.report.timeline.TimelineReporter
 import com.malinskiy.marathon.report.timeline.TimelineSummaryProvider
+import com.malinskiy.marathon.report.trace.TraceReporter
 import com.malinskiy.marathon.time.Timer
 import java.io.File
 
@@ -76,6 +77,7 @@ internal class TrackerFactory(
                 JUnitReporter(JUnitWriter(fileManager, FileType.TEST)),
                 FinalJUnitReporter(JUnitWriter(fileManager, FileType.TEST_FINAL)),
                 TimelineReporter(TimelineSummaryProvider(), gson, configuration.outputDir),
+                TraceReporter(configuration.outputDir),
                 RawJsonReporter(fileManager, gson),
                 TestJsonReporter(fileManager, gson),
                 AllureReporter(configuration, File(configuration.outputDir, "allure-results")),

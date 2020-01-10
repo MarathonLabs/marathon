@@ -2,6 +2,7 @@ package com.malinskiy.marathon.execution.device
 
 import com.malinskiy.marathon.actor.Actor
 import com.malinskiy.marathon.actor.StateMachine
+import com.malinskiy.marathon.analytics.internal.pub.Tracker
 import com.malinskiy.marathon.device.Device
 import com.malinskiy.marathon.device.DevicePoolId
 import com.malinskiy.marathon.exceptions.DeviceLostException
@@ -20,6 +21,7 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.channels.SendChannel
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import java.time.Instant
 import kotlin.coroutines.CoroutineContext
 import kotlin.properties.Delegates
 
@@ -29,6 +31,7 @@ class DeviceActor(
     private val configuration: Configuration,
     val device: Device,
     private val progressReporter: ProgressReporter,
+    private val tracker: Tracker,
     parent: Job,
     context: CoroutineContext
 ) :
@@ -187,6 +190,7 @@ class DeviceActor(
     private fun executeBatch(batch: TestBatch, result: CompletableDeferred<TestBatchResults>) {
         logger.debug { "executeBatch ${device.serialNumber}" }
         job = async {
+            val start = Instant.now()
             try {
                 device.execute(configuration, devicePoolId, batch, result, progressReporter)
             } catch (e: DeviceLostException) {
@@ -194,6 +198,9 @@ class DeviceActor(
                 state.transition(DeviceEvent.Terminate)
             } catch (e: TestBatchExecutionException) {
                 returnBatch(batch)
+            } finally {
+                val finish = Instant.now()
+                tracker.executingBatch(device.serialNumber, start, finish)
             }
         }
     }

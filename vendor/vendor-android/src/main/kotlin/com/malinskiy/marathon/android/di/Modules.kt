@@ -15,7 +15,7 @@ import org.koin.dsl.module
 
 val androidModule = module {
     single<DeviceProvider?> { AndroidDeviceProvider(get(), get(), get(), get()) }
-    single<AndroidAppInstaller?> { AndroidAppInstaller(get(), get()) }
+    single<AndroidAppInstaller?> { AndroidAppInstaller(get(), get(), get()) }
     single<TestParser?> { AndroidTestParser() }
     single<ComponentInfoExtractor?> { AndroidComponentInfoExtractor() }
     single<ComponentCacheKeyProvider?> { AndroidComponentCacheKeyProvider(CachedFileHasher(ApkFileHasher())) }

@@ -4,6 +4,7 @@ import com.malinskiy.marathon.device.Device
 import com.malinskiy.marathon.device.DeviceInfo
 import com.malinskiy.marathon.device.DevicePoolId
 import com.malinskiy.marathon.execution.TestResult
+import com.malinskiy.marathon.test.Test
 import java.time.Instant
 import java.util.concurrent.atomic.AtomicReference
 
@@ -24,6 +25,26 @@ class Track : Tracker {
 
     override fun devicePreparing(serialNumber: String, startTime: Instant, finishTime: Instant) {
         delegates.get().forEach { it.devicePreparing(serialNumber, startTime, finishTime) }
+    }
+
+    override fun installationCheck(serialNumber: String, startTime: Instant, finishTime: Instant) {
+        delegates.get().forEach { it.installationCheck(serialNumber, startTime, finishTime) }
+    }
+
+    override fun installation(serialNumber: String, startTime: Instant, finishTime: Instant) {
+        delegates.get().forEach { it.installation(serialNumber, startTime, finishTime) }
+    }
+
+    override fun executingBatch(serialNumber: String, startTime: Instant, finishTime: Instant) {
+        delegates.get().forEach { it.executingBatch(serialNumber, startTime, finishTime) }
+    }
+
+    override fun cacheStore(startTime: Instant, finishTime: Instant, test: Test) {
+        delegates.get().forEach { it.cacheStore(startTime, finishTime, test) }
+    }
+
+    override fun cacheLoad(startTime: Instant, finishTime: Instant, test: Test) {
+        delegates.get().forEach { it.cacheLoad(startTime, finishTime, test) }
     }
 
     override fun deviceConnected(poolId: DevicePoolId, device: DeviceInfo) {

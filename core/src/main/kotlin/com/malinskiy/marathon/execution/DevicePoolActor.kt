@@ -25,7 +25,7 @@ class DevicePoolActor(
     private val configuration: Configuration,
     analytics: Analytics,
     private val progressReporter: ProgressReporter,
-    track: Track,
+    private val track: Track,
     parent: Job,
     context: CoroutineContext
 ) :
@@ -152,7 +152,7 @@ class DevicePoolActor(
         }
 
         logger.debug { "add device ${device.serialNumber}" }
-        val actor = DeviceActor(poolId, this, configuration, device, progressReporter, poolJob, coroutineContext)
+        val actor = DeviceActor(poolId, this, configuration, device, progressReporter, track, poolJob, coroutineContext)
         devices[device.serialNumber] = actor
         actor.safeSend(DeviceEvent.Initialize)
     }

@@ -109,7 +109,12 @@ class ExecutionReportSpek : Spek(
                     createTestEvent(device, "test1", TestStatus.INCOMPLETE),
                     createTestEvent(device, "test2", TestStatus.PASSED),
                     createTestEvent(device, "test3", TestStatus.FAILURE)
-                )
+                ),
+                installCheckEvent = emptyList(),
+                installEvent = emptyList(),
+                executeBatchEvent = emptyList(),
+                cacheStoreEvent = emptyList(),
+                cacheLoadEvent = emptyList()
             )
 
             on("execution report summary") {
@@ -150,7 +155,12 @@ class ExecutionReportSpek : Spek(
                     createTestEvent(device, "test3", TestStatus.FAILURE, false),
                     createTestEvent(device, "test3", TestStatus.FAILURE, false),
                     createTestEvent(device, "test3", TestStatus.FAILURE, true)
-                )
+                ),
+                installCheckEvent = emptyList(),
+                installEvent = emptyList(),
+                executeBatchEvent = emptyList(),
+                cacheStoreEvent = emptyList(),
+                cacheLoadEvent = emptyList()
             )
 
             on("execution report summary") {

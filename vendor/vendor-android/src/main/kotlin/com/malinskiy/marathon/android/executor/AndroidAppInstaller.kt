@@ -2,6 +2,7 @@ package com.malinskiy.marathon.android.executor
 
 import com.android.ddmlib.IDevice
 import com.android.ddmlib.InstallException
+import com.malinskiy.marathon.analytics.internal.pub.Track
 import com.malinskiy.marathon.android.AndroidComponentInfo
 import com.malinskiy.marathon.android.AndroidConfiguration
 import com.malinskiy.marathon.android.AndroidDevice
@@ -12,11 +13,12 @@ import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.execution.withRetry
 import com.malinskiy.marathon.io.FileHasher
 import com.malinskiy.marathon.log.MarathonLogging
-import org.koin.core.time.measureDuration
 import java.io.File
+import java.time.Instant
 
 class AndroidAppInstaller(
     private val fileHasher: FileHasher,
+    private val track: Track,
     configuration: Configuration
 ) {
 
@@ -49,12 +51,18 @@ class AndroidAppInstaller(
 
         withRetry(attempts = MAX_RETIRES, delayTime = 1000) {
             try {
-                if (isApkInstalled(ddmsDevice, appPackage, appApk)) {
+                val checkStarted = Instant.now()
+                val isApkInstalled = isApkInstalled(ddmsDevice, appPackage, appApk)
+                track.installationCheck(device.serialNumber, checkStarted, Instant.now())
+
+                if (isApkInstalled) {
                     logger.info("Skipping installation of $appPackage on ${device.serialNumber} - APK is already installed")
                 } else {
                     logger.info("Installing $appPackage, ${appApk.absolutePath} to ${device.serialNumber}")
+                    val installationStarted = Instant.now()
                     val installMessage = ddmsDevice.safeInstallPackage(appApk.absolutePath, true, optionalParams(ddmsDevice))
                     installMessage?.let { logger.debug { it } }
+                    track.installation(device.serialNumber, installationStarted, Instant.now())
                 }
             } catch (e: InstallException) {
                 logger.error(e) { "Error while installing $appPackage, ${appApk.absolutePath} on ${device.serialNumber}" }
