@@ -149,7 +149,7 @@ class AndroidDevice(
     ) {
 
         val androidComponentInfo = testBatch.componentInfo as AndroidComponentInfo
-        ensureInstalled(androidComponentInfo)
+        async { ensureInstalled(androidComponentInfo) }.await()
 
         val deferredResult = async {
             val listeners = createListeners(configuration, devicePoolId, testBatch, deferred, progressReporter)
