@@ -83,5 +83,55 @@ class AndroidDeviceTestRunnerSpek : Spek(
                 verifyNoMoreInteractions(listener)
 
             }
+            it("should send runEnded if only ignored tests are executed") {
+                val ddmsDevice = mock<IDevice>()
+                whenever(ddmsDevice.serialNumber).doReturn("testSerial")
+                whenever(ddmsDevice.version).doReturn(AndroidVersion(26))
+                val device = DdmlibAndroidDevice(ddmsDevice, Track(), SystemTimer(Clock.systemDefaultZone()), SerialStrategy.AUTOMATIC)
+                val androidDeviceTestRunner = AndroidDeviceTestRunner(device)
+                val apkFile = File(javaClass.classLoader.getResource("android_test_1.apk").file)
+                val output = File("")
+                val configuration = Configuration(
+                    name = "",
+                    outputDir = output,
+                    analyticsConfiguration = null,
+                    poolingStrategy = null,
+                    shardingStrategy = null,
+                    sortingStrategy = null,
+                    batchingStrategy = null,
+                    flakinessStrategy = null,
+                    retryStrategy = null,
+                    filteringConfiguration = null,
+                    ignoreFailures = null,
+                    isCodeCoverageEnabled = null,
+                    fallbackToScreenshots = null,
+                    strictMode = null,
+                    uncompletedTestRetryQuota = null,
+                    testClassRegexes = null,
+                    includeSerialRegexes = null,
+                    excludeSerialRegexes = null,
+                    testBatchTimeoutMillis = null,
+                    testOutputTimeoutMillis = null,
+                    debug = null,
+                    vendorConfiguration = AndroidConfiguration(
+                        File(""),
+                        applicationOutput = File(""),
+                        testApplicationOutput = apkFile,
+                        implementationModules = listOf(ddmlibModule)
+                    ),
+                    analyticsTracking = false
+                )
+                val ignoredTest =
+                    Test("ignored", "ignored", "ignored", listOf(MetaProperty("org.junit.Ignore")))
+                val identifier = ignoredTest.toTestIdentifier()
+                val batch = TestBatch(listOf(ignoredTest))
+                val listener = mock<ITestRunListener>()
+                androidDeviceTestRunner.execute(configuration, batch, listener)
+                verify(listener).testStarted(eq(identifier))
+                verify(listener).testIgnored(eq(identifier))
+                verify(listener).testEnded(eq(identifier), eq(emptyMap()))
+                verify(listener).testRunEnded(eq(0), eq(emptyMap()))
+                verifyNoMoreInteractions(listener)
+            }
         }
     })
