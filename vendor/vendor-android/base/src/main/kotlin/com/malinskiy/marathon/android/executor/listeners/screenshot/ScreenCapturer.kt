@@ -31,9 +31,16 @@ class ScreenCapturer(
     suspend fun start() = coroutineScope {
         val outputStream = FileImageOutputStream(fileManager.createFile(FileType.SCREENSHOT, poolId, device.toDeviceInfo(), test))
         val writer = GifSequenceWriter(outputStream, TYPE_INT_ARGB, DELAY, true)
+        var targetOrientation = UNDEFINED
         while (isActive) {
             val capturingTimeMillis = measureTimeMillis {
-                getScreenshot()?.let { writer.writeToSequence(it) }
+                getScreenshot(targetOrientation)?.let {
+                    if (targetOrientation == UNDEFINED) {
+                        // remember the target orientation
+                        targetOrientation = it.getOrientation()
+                    }
+                    writer.writeToSequence(it)
+                }
             }
             val sleepTimeMillis = when {
                 (DELAY - capturingTimeMillis) < 0 -> 0
@@ -45,10 +52,24 @@ class ScreenCapturer(
         outputStream.close()
     }
 
-    private fun getScreenshot(): RenderedImage? {
+    private fun getScreenshot(targetOrientation: Int): RenderedImage? {
         return try {
-            val screenshot = device.getScreenshot(TIMEOUT_MS, TimeUnit.MILLISECONDS)
-            Scalr.resize(screenshot, Scalr.Method.SPEED, Scalr.Mode.AUTOMATIC, 1280, 720)
+            val screenshot = device.getScreenshot(TIMEOUT_MS, TimeUnit.MILLISECONDS).let {
+                // in case the orientation of the image is different than the target, rotate by 90 degrees
+                if (it.getOrientation() != targetOrientation) {
+                    Scalr.rotate(it, Scalr.Rotation.CW_90).also { org -> org.flush() }
+                } else {
+                    it
+                }
+            }
+
+            // the first time the orientation did not settle, use the actual image orientation
+            val resolvedOrientation = if (targetOrientation == UNDEFINED) screenshot.getOrientation() else targetOrientation
+            if (resolvedOrientation == PORTRAIT) {
+                Scalr.resize(screenshot, Scalr.Method.SPEED, Scalr.Mode.AUTOMATIC, TARGET_WIDTH, TARGET_HEIGHT)
+            } else {
+                Scalr.resize(screenshot, Scalr.Method.SPEED, Scalr.Mode.AUTOMATIC, TARGET_HEIGHT, TARGET_WIDTH)
+            }
         } catch (e: TimeoutException) {
             logger.error(e) { "Timeout. Exiting" }
             null
@@ -60,9 +81,20 @@ class ScreenCapturer(
         }
     }
 
+    /** retrieves the orientation of the RenderImage */
+    private fun RenderedImage.getOrientation(): Int {
+        return if (width > height) LANDSCAPE else PORTRAIT
+    }
+
     companion object {
         const val DELAY = 500
         const val TIMEOUT_MS = 300L
         val logger = MarathonLogging.logger(ScreenCapturer::class.java.simpleName)
+
+        private const val TARGET_WIDTH = 720
+        private const val TARGET_HEIGHT = 1280
+        private const val UNDEFINED = 0
+        private const val PORTRAIT = 1
+        private const val LANDSCAPE = 2
     }
 }
