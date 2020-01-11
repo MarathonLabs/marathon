@@ -81,7 +81,9 @@ class DdmlibAndroidDevice(
     private val logcatListeners = AtomicReference<MutableList<LineListener>>(mutableListOf())
     private val listener: (MutableList<LogCatMessage>) -> Unit = {
         it.forEach { msg ->
-            logcatListeners.get().forEach { listener ->
+            //We need to copy the current state of listeners since they might change in another thread in LogCatListener
+            val listeners = logcatListeners.get().toList()
+            listeners.forEach { listener ->
                 listener.onLine("${msg.timestamp} ${msg.pid}-${msg.tid}/${msg.appName} ${msg.logLevel.priorityLetter}/${msg.tag}: ${msg.message}")
             }
         }
