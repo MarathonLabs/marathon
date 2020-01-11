@@ -183,7 +183,7 @@ class QueueActor(
         if (queueIsEmpty && activeBatches.isEmpty()) {
             pool.send(DevicePoolMessage.FromQueue.Terminated)
             onTerminate()
-        } else {
+        } else if (queueIsEmpty) {
             logger.debug {
                 "queue is empty but there are active batches present for " +
                         "${activeBatches.keys.joinToString { it }}"
