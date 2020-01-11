@@ -44,6 +44,8 @@ class AndroidDeviceTestRunner(private val device: DdmlibAndroidDevice) {
             if (testBatch.tests.isNotEmpty()) {
                 clearData(androidConfiguration, info)
                 runner.run(listener)
+            } else {
+                listener.testRunEnded(0, emptyMap())
             }
         } catch (e: ShellCommandUnresponsiveException) {
             logger.warn(ERROR_STUCK)
