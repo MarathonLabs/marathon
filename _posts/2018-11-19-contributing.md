@@ -73,5 +73,5 @@ We're available for any questions or proposals on [Slack][6]. Feel free to join!
 [3]: https://desktop.github.com/
 [4]: https://github.com/Malinskiy/marathon/issues
 [5]: https://github.com/Malinskiy/marathon/projects/1
-[6]: https://join.slack.com/t/marathon-test-runner/shared_invite/enQtNTYxMTg4NjQxNjM5LTMzNTVlYmNkNTAwMjI3NzJhMTMzZDVlMWZmNjI5NjAyMzg4YTAwNDAwMDBhYjhkOTg0MGY5OGQ4MjQ5NmEzYWY
+[6]: https://bit.ly/2LLghaW
 [7]: {{ site.baseurl }}{% post_url 2018-11-19-samples %}
