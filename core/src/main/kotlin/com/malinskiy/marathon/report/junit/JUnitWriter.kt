@@ -1,71 +1,74 @@
 package com.malinskiy.marathon.report.junit
 
+import com.malinskiy.marathon.analytics.internal.sub.ExecutionReport
 import com.malinskiy.marathon.device.DeviceInfo
 import com.malinskiy.marathon.device.DevicePoolId
-import com.malinskiy.marathon.execution.TestResult
-import com.malinskiy.marathon.execution.TestStatus
 import com.malinskiy.marathon.io.FileManager
 import com.malinskiy.marathon.io.FileType
 import java.io.FileOutputStream
-import java.text.SimpleDateFormat
-import java.util.*
 import javax.xml.stream.XMLOutputFactory
 import javax.xml.stream.XMLStreamWriter
 
+private const val JUNIT_REPORT = "Marathon_Junit_Report"
+
 class JUnitWriter(private val fileManager: FileManager) {
-    fun testFinished(devicePoolId: DevicePoolId, device: DeviceInfo, testResult: TestResult) {
-        val file = fileManager.createFile(FileType.TEST, devicePoolId, device, testResult.test)
-        file.createNewFile()
 
-        val writer = XMLOutputFactory.newFactory().createXMLStreamWriter(FileOutputStream(file), "UTF-8")
+    private val xmlWriterMap = hashMapOf<DevicePool, XMLStreamWriter>()
 
-        generateXml(writer, testResult)
-        writer.flush()
-        writer.close()
+    fun prepareXMLReport(executionReport: ExecutionReport) {
+        makeFile(executionReport)
+        prepareReport(executionReport)
+        finalize()
     }
 
-    @Suppress("ComplexMethod")
-    private fun generateXml(writer: XMLStreamWriter, testResult: TestResult) {
-        @Suppress("MagicNumber")
-        fun Long.toJUnitSeconds(): String = (this / 1000.0).toString()
+    private fun makeFile(executionReport: ExecutionReport) {
+        executionReport.testEvents.devicePools().forEach {
+            val file = fileManager.createFile(FileType.TEST, it.devicePool, it.deviceInfo, JUNIT_REPORT)
+            file.createNewFile()
+            val writer = XMLOutputFactory.newFactory().createXMLStreamWriter(FileOutputStream(file), "UTF-8")
+            xmlWriterMap[it] = writer
+        }
+    }
 
-        val test = testResult.test
+    private fun prepareReport(executionReport: ExecutionReport) {
+        val reportGenerator = JunitReportGenerator(executionReport.testEvents)
+        reportGenerator.makeSuiteData()
+        val junitReports = reportGenerator.junitReports
+        junitReports.keys.forEach {
+            generateXml(xmlWriterMap[it]!!, junitReports[it]!!)
+        }
+    }
 
-        val failures = if (testResult.status == TestStatus.FAILURE) 1 else 0
-        val ignored = if (testResult.status == TestStatus.IGNORED || testResult.status == TestStatus.ASSUMPTION_FAILURE) 1 else 0
+    private fun finalize() {
+        xmlWriterMap.values.forEach {
+            it.flush()
+            it.close()
+        }
+    }
 
-        val formattedTimestamp = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.US).apply {
-            timeZone = TimeZone.getTimeZone("UTC")
-        }.format(Date(testResult.endTime))
+    private fun generateXml(writer: XMLStreamWriter, junitReport: JUnitReport) {
 
         writer.document {
             element("testsuite") {
-                attribute("name", "common")
-                attribute("tests", "1")
-                attribute("failures", "$failures")
-                attribute("errors", "0")
-                attribute("skipped", "$ignored")
-                attribute("time", testResult.durationMillis().toJUnitSeconds())
-                attribute("timestamp", formattedTimestamp)
+                attribute("name", junitReport.testSuiteData.name)
+                attribute("tests", junitReport.testSuiteData.tests.toString())
+                attribute("failures", junitReport.testSuiteData.failures.toString())
+                attribute("errors", junitReport.testSuiteData.errors.toString())
+                attribute("skipped", junitReport.testSuiteData.skipped.toString())
+                attribute("time", junitReport.testSuiteData.time)
+                attribute("timestamp", junitReport.testSuiteData.timeStamp)
                 element("properties") {}
-                element("testcase") {
-                    attribute("classname", "${test.pkg}.${test.clazz}")
-                    attribute("name", test.method)
-                    attribute("time", testResult.durationMillis().toJUnitSeconds())
-                    when (testResult.status) {
-                        TestStatus.IGNORED, TestStatus.ASSUMPTION_FAILURE -> {
-                            element("skipped") {
-                                testResult.stacktrace?.let {
-                                    writeCData(it)
-                                }
-                            }
+
+                junitReport.testCases.forEach {
+                    element("testcase") {
+                        attribute("classname", it.classname)
+                        attribute("name", it.name)
+                        attribute("time", it.time)
+                        if (it.skipped?.isNotEmpty()!!) {
+                            element("skipped", it.skipped)
                         }
-                        TestStatus.INCOMPLETE, TestStatus.FAILURE -> {
-                            element("failure") {
-                                writeCData(testResult.stacktrace ?: "")
-                            }
-                        }
-                        else -> {
+                        if (it.failure?.isNotEmpty()!!) {
+                            element("failure", it.failure)
                         }
                     }
                 }
@@ -73,3 +76,8 @@ class JUnitWriter(private val fileManager: FileManager) {
         }
     }
 }
+
+data class DevicePool(
+    val devicePool: DevicePoolId,
+    val deviceInfo: DeviceInfo
+)
