@@ -98,7 +98,6 @@ class DdmlibAndroidDevice(
     override fun removeLogcatListener(listener: LineListener) {
         synchronized(logcatListeners) {
             logcatListeners.remove(listener)
-
         }
     }
 

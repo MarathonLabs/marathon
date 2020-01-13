@@ -38,16 +38,14 @@ class ScreenRecorderTestRunListener(
 
     private var hasFailed: Boolean = false
     private var recorder: Thread? = null
-    private var outputListener: LineListener? = null
+    private var outputListener: LineListener = NullOutputListener()
 
     private val awaitMillis = MS_IN_SECOND
 
     override fun testStarted(test: TestIdentifier) {
         hasFailed = false
 
-        outputListener = NullOutputListener()
-
-        val screenRecorder = ScreenRecorder(device, outputListener!!, device.fileManager.remoteVideoForTest(test.toTest()))
+        val screenRecorder = ScreenRecorder(device, outputListener, device.fileManager.remoteVideoForTest(test.toTest()))
         recorder = kotlin.concurrent.thread {
             screenRecorder.run()
         }
