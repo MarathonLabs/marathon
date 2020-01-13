@@ -78,23 +78,28 @@ class DdmlibAndroidDevice(
         receiver.run()
     }
 
-    private val logcatListeners = AtomicReference<MutableList<LineListener>>(mutableListOf())
-    private val listener: (MutableList<LogCatMessage>) -> Unit = {
+    private val logcatListeners = mutableListOf<LineListener>()
+    private val listener: (List<LogCatMessage>) -> Unit = {
         it.forEach { msg ->
-            //We need to copy the current state of listeners since they might change in another thread in LogCatListener
-            val listeners = logcatListeners.get().toList()
-            listeners.forEach { listener ->
-                listener.onLine("${msg.timestamp} ${msg.pid}-${msg.tid}/${msg.appName} ${msg.logLevel.priorityLetter}/${msg.tag}: ${msg.message}")
+            synchronized(logcatListeners) {
+                logcatListeners.forEach { listener ->
+                    listener.onLine("${msg.timestamp} ${msg.pid}-${msg.tid}/${msg.appName} ${msg.logLevel.priorityLetter}/${msg.tag}: ${msg.message}")
+                }
             }
         }
     }
 
     override fun addLogcatListener(listener: LineListener) {
-        logcatListeners.getAndUpdate { it.apply { add(listener) } }
+        synchronized(logcatListeners) {
+            logcatListeners.add(listener)
+        }
     }
 
     override fun removeLogcatListener(listener: LineListener) {
-        logcatListeners.getAndUpdate { it.apply { remove(listener) } }
+        synchronized(logcatListeners) {
+            logcatListeners.remove(listener)
+
+        }
     }
 
     override fun pullFile(remoteFilePath: String, localFilePath: String) {
