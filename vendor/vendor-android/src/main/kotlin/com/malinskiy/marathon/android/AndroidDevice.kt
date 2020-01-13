@@ -147,7 +147,6 @@ class AndroidDevice(
         deferred: CompletableDeferred<TestBatchResults>,
         progressReporter: ProgressReporter
     ) {
-
         val androidComponentInfo = testBatch.componentInfo as AndroidComponentInfo
         async { ensureInstalled(androidComponentInfo) }.await()
 

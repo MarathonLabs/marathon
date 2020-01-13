@@ -24,7 +24,9 @@ import com.malinskiy.marathon.usageanalytics.TrackActionType
 import com.malinskiy.marathon.usageanalytics.UsageAnalytics
 import com.malinskiy.marathon.usageanalytics.tracker.Event
 import com.malinskiy.marathon.vendor.VendorConfiguration
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 import org.koin.core.context.stopKoin
 import java.util.*
 import kotlin.coroutines.coroutineContext
@@ -144,7 +146,9 @@ class Marathon(
     }
 
     override suspend fun scheduleTests(componentInfo: ComponentInfo) {
-        val parsedTests = testParser.extract(componentInfo)
+        val parsedTests = withContext(Dispatchers.IO) {
+            testParser.extract(componentInfo)
+        }
         val tests = applyTestFilters(parsedTests)
         val shard = prepareTestShard(tests, analytics)
 
