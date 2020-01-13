@@ -38,29 +38,33 @@ class StateMachine<STATE : Any, EVENT : Any, SIDE_EFFECT : Any> private construc
     private val stateRef = AtomicReference<STATE>(graph.initialState)
 
     val state: STATE
-        get() = stateRef.get()
+        get() {
+            synchronized(this) {
+                return stateRef.get()
+            }
+        }
 
     fun transition(event: EVENT): Transition<STATE, EVENT, SIDE_EFFECT> {
-        val transition = synchronized(stateRef) {
+        synchronized(this) {
             val fromState = stateRef.get()
             val transition = fromState.getTransition(event)
             if (transition is Transition.Valid) {
                 stateRef.set(transition.toState)
             }
-            transition
-        }
-        if (transition is Transition.Valid) {
-            with(transition) {
-                with(fromState) {
-                    notifyOnExit(event)
-                }
-                with(toState) {
-                    notifyOnEnter(event)
+
+            if (transition is Transition.Valid) {
+                with(transition) {
+                    with(fromState) {
+                        notifyOnExit(event)
+                    }
+                    with(toState) {
+                        notifyOnEnter(event)
+                    }
                 }
             }
+            transition.notifyOnTransition()
+            return transition
         }
-        transition.notifyOnTransition()
-        return transition
     }
 
     fun with(init: GraphBuilder<STATE, EVENT, SIDE_EFFECT>.() -> Unit): StateMachine<STATE, EVENT, SIDE_EFFECT> {
