@@ -8,6 +8,7 @@ import com.android.build.gradle.api.BaseVariantOutput
 import com.android.build.gradle.api.TestVariant
 import com.malinskiy.marathon.config.AppType
 import com.malinskiy.marathon.exceptions.BugsnagExceptionsReporter
+import com.malinskiy.marathon.exceptions.ExceptionsReporter
 import com.malinskiy.marathon.extensions.executeGradleCompat
 import com.malinskiy.marathon.log.MarathonLogging
 import org.gradle.api.Plugin
@@ -23,7 +24,8 @@ class MarathonPlugin : Plugin<Project> {
 
     override fun apply(project: Project) {
         log.info { "Applying marathon plugin" }
-        BugsnagExceptionsReporter().start(AppType.GRADLE_PLUGIN)
+        val exceptionsReporter = BugsnagExceptionsReporter()
+        exceptionsReporter.start(AppType.GRADLE_PLUGIN)
 
         val extension: MarathonExtension = project.extensions.create("marathon", MarathonExtension::class.java, project)
 
@@ -52,14 +54,14 @@ class MarathonPlugin : Plugin<Project> {
 
             testedExtension!!.testVariants.all {
                 log.info { "Applying marathon for $this" }
-                val testTaskForVariant = createTask(this, project, conf, testedExtension.sdkDirectory)
+                val testTaskForVariant = createTask(this, project, conf, testedExtension.sdkDirectory, exceptionsReporter)
                 marathonTask.dependsOn(testTaskForVariant)
             }
         }
     }
 
     companion object {
-        private fun createTask(variant: TestVariant, project: Project, config: MarathonExtension, sdkDirectory: File): MarathonRunTask {
+        private fun createTask(variant: TestVariant, project: Project, config: MarathonExtension, sdkDirectory: File, exceptionsReporter: ExceptionsReporter): MarathonRunTask {
             checkTestVariants(variant)
 
             val marathonTask = project.tasks.create("$TASK_PREFIX${variant.name.capitalize()}", MarathonRunTask::class.java)
@@ -79,7 +81,7 @@ class MarathonPlugin : Plugin<Project> {
                     extensionConfig = config
                     sdk = sdkDirectory
                     outputs.upToDateWhen { false }
-
+                    exceptionsTracker = exceptionsReporter
                     executeGradleCompat(
                         exec = {
                             dependsOn(variant.testedVariant.assembleProvider, variant.assembleProvider)
