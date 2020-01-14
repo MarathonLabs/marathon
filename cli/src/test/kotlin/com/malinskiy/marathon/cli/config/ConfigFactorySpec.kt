@@ -151,6 +151,7 @@ object ConfigFactorySpec : Spek(
                     configuration.testBatchTimeoutMillis shouldEqual 20_000
                     configuration.testOutputTimeoutMillis shouldEqual 30_000
                     configuration.debug shouldEqual true
+                    configuration.screenRecordingPolicy shouldEqual "ON_ANY"
 
                     configuration.vendorConfiguration shouldEqual AndroidConfiguration(
                         File("/local/android"),
@@ -221,6 +222,7 @@ object ConfigFactorySpec : Spek(
                     configuration.testBatchTimeoutMillis shouldEqual 900_000
                     configuration.testOutputTimeoutMillis shouldEqual 60_000
                     configuration.debug shouldEqual true
+                    configuration.screenRecordingPolicy shouldEqual "ON_FAILURE"
                     configuration.vendorConfiguration shouldEqual AndroidConfiguration(
                         File("/local/android"),
                         File("kotlin-buildscript/build/outputs/apk/debug/kotlin-buildscript-debug.apk"),

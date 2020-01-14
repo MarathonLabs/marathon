@@ -37,6 +37,8 @@ data class FileConfiguration(
     var testOutputTimeoutMillis: Long?,
     var debug: Boolean?,
 
+    val screenRecordingPolicy: String?,
+
     var vendorConfiguration: FileVendorConfiguration?,
 
     var analyticsTracking: Boolean?
