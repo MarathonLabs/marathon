@@ -62,6 +62,7 @@ class AndroidDeviceTestRunnerSpek : Spek(
                     testBatchTimeoutMillis = null,
                     testOutputTimeoutMillis = null,
                     debug = null,
+                    screenRecordingPolicy = null,
                     vendorConfiguration = AndroidConfiguration(
                         File(""),
                         applicationOutput = File(""),
@@ -113,6 +114,7 @@ class AndroidDeviceTestRunnerSpek : Spek(
                     testBatchTimeoutMillis = null,
                     testOutputTimeoutMillis = null,
                     debug = null,
+                    screenRecordingPolicy = null,
                     vendorConfiguration = AndroidConfiguration(
                         File(""),
                         applicationOutput = File(""),
