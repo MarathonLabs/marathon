@@ -22,6 +22,7 @@ import com.malinskiy.marathon.device.DeviceFeature
 import com.malinskiy.marathon.device.DevicePoolId
 import com.malinskiy.marathon.device.NetworkState
 import com.malinskiy.marathon.device.OperatingSystem
+import com.malinskiy.marathon.exceptions.DeviceLostException
 import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.execution.TestBatchResults
 import com.malinskiy.marathon.execution.progress.ProgressReporter
@@ -149,7 +150,13 @@ class AndroidDevice(
     ) {
 
         val androidComponentInfo = testBatch.componentInfo as AndroidComponentInfo
-        ensureInstalled(androidComponentInfo)
+
+        try {
+            ensureInstalled(androidComponentInfo)
+        } catch (exception: Throwable) {
+            logger.error { "Terminating device $serialNumber due to installation failures" }
+            throw DeviceLostException(exception)
+        }
 
         val deferredResult = async {
             val listeners = createListeners(configuration, devicePoolId, testBatch, deferred, progressReporter)
