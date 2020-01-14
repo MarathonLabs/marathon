@@ -10,6 +10,7 @@ import com.malinskiy.marathon.device.DevicePoolId
 import com.malinskiy.marathon.device.toDeviceInfo
 import com.malinskiy.marathon.execution.Attachment
 import com.malinskiy.marathon.execution.AttachmentType
+import com.malinskiy.marathon.execution.policy.ScreenRecordingPolicy
 import com.malinskiy.marathon.io.FileManager
 import com.malinskiy.marathon.io.FileType
 import com.malinskiy.marathon.log.MarathonLogging
@@ -23,7 +24,8 @@ const val MS_IN_SECOND: Long = 1_000L
 class ScreenRecorderTestRunListener(
     private val fileManager: FileManager,
     private val pool: DevicePoolId,
-    private val device: AndroidDevice
+    private val device: AndroidDevice,
+    private val screenRecordingPolicy: ScreenRecordingPolicy
 ) : NoOpTestRunListener(), AttachmentProvider {
 
     val attachmentListeners = mutableListOf<AttachmentListener>()
@@ -69,7 +71,7 @@ class ScreenRecorderTestRunListener(
                 recorder?.join(awaitMillis)
             }
             logger.trace { "join ${join}ms" }
-            if (hasFailed) {
+            if (hasFailed || screenRecordingPolicy == ScreenRecordingPolicy.ON_ANY) {
                 val stop = measureTimeMillis {
                     screenRecorderStopper.stopScreenRecord()
                 }

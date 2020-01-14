@@ -42,6 +42,7 @@ import com.malinskiy.marathon.device.NetworkState
 import com.malinskiy.marathon.device.OperatingSystem
 import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.execution.TestBatchResults
+import com.malinskiy.marathon.execution.policy.ScreenRecordingPolicy
 import com.malinskiy.marathon.execution.progress.ProgressReporter
 import com.malinskiy.marathon.io.FileManager
 import com.malinskiy.marathon.log.MarathonLogging
@@ -57,7 +58,6 @@ import java.awt.image.BufferedImage
 import java.io.IOException
 import java.util.*
 import java.util.concurrent.TimeUnit
-import java.util.concurrent.atomic.AtomicReference
 import kotlin.concurrent.thread
 import kotlin.coroutines.CoroutineContext
 
@@ -295,8 +295,9 @@ class DdmlibAndroidDevice(
         val features = this.deviceFeatures
 
         val preferableRecorderType = configuration.vendorConfiguration.preferableRecorderType()
+        val screenRecordingPolicy = configuration.screenRecordingPolicy
         val recorderListener = selectRecorderType(preferableRecorderType, features)?.let { feature ->
-            prepareRecorderListener(feature, fileManager, devicePoolId, attachmentProviders)
+            prepareRecorderListener(feature, fileManager, devicePoolId, screenRecordingPolicy, attachmentProviders)
         } ?: NoOpTestRunListener()
 
         val logCatListener = LogCatListener(this, devicePoolId, LogWriter(fileManager))
@@ -355,17 +356,17 @@ class DdmlibAndroidDevice(
     }
 
     private fun prepareRecorderListener(
-        feature: DeviceFeature, fileManager: FileManager, devicePoolId: DevicePoolId,
+        feature: DeviceFeature, fileManager: FileManager, devicePoolId: DevicePoolId, screenRecordingPolicy: ScreenRecordingPolicy,
         attachmentProviders: MutableList<AttachmentProvider>
     ): NoOpTestRunListener =
         when (feature) {
             DeviceFeature.VIDEO -> {
-                ScreenRecorderTestRunListener(fileManager, devicePoolId, this)
+                ScreenRecorderTestRunListener(fileManager, devicePoolId, this, screenRecordingPolicy)
                     .also { attachmentProviders.add(it) }
             }
 
             DeviceFeature.SCREENSHOT -> {
-                ScreenCapturerTestRunListener(fileManager, devicePoolId, this)
+                ScreenCapturerTestRunListener(fileManager, devicePoolId, this, screenRecordingPolicy)
                     .also { attachmentProviders.add(it) }
             }
         }
