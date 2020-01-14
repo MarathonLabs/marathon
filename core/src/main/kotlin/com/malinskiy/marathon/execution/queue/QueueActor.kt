@@ -57,6 +57,10 @@ class QueueActor(
                 queue.addAll(testsToAdd)
                 progressReporter.addTests(poolId, testsToAdd.size)
                 flakyTests = flakyTests + msg.shard.flakyTests
+
+                if (queue.isNotEmpty()) {
+                    pool.send(FromQueue.Notify)
+                }
             }
             is QueueMessage.RequestBatch -> {
                 onRequestBatch(msg.device)
@@ -193,8 +197,7 @@ class QueueActor(
                 pool.send(FromQueue.Terminated)
                 onTerminate()
             } else {
-                logger.debug { "queue is empty and stop is not requested yet, responding with no batches available for ${device.serialNumber}" }
-                pool.send(FromQueue.NoBatchesAvailable)
+                logger.debug { "queue is empty and stop is not requested yet, no batches available for ${device.serialNumber}" }
             }
         } else {
             logger.debug {
