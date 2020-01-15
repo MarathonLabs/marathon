@@ -146,9 +146,7 @@ class Marathon(
     }
 
     override suspend fun scheduleTests(componentInfo: ComponentInfo) {
-        val parsedTests = withContext(Dispatchers.IO) {
-            testParser.extract(componentInfo)
-        }
+        val parsedTests = testParser.extract(componentInfo)
         val tests = applyTestFilters(parsedTests)
         val shard = prepareTestShard(tests, analytics)
 

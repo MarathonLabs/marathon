@@ -19,7 +19,7 @@ class IOSTestParser : TestParser {
      *  specified in Marathonfile. When not specified, starts in working directory. Result excludes any tests
      *  marked as skipped in `xctestrun` file.
      */
-    override fun extract(componentInfo: ComponentInfo): List<Test> {
+    override suspend fun extract(componentInfo: ComponentInfo): List<Test> {
         val iOsTestJob = componentInfo as? IOSComponentInfo
             ?: throw IllegalStateException("Expected IOS component info")
 

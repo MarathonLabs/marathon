@@ -51,8 +51,8 @@ class ConfigurationFactory {
     var analyticsTracking = false
 
     fun tests(block: () -> List<Test>) {
-        val testParser = vendorConfiguration.testParser()!!
-        When calling testParser.extract(any()) `it returns` (block.invoke())
+        val testParser = vendorConfiguration.testParser()
+        (testParser as Mocks.VendorTestParser).tests = block.invoke()
     }
 
     fun devices(f: suspend (Channel<DeviceProvider.DeviceEvent>) -> Unit) {
