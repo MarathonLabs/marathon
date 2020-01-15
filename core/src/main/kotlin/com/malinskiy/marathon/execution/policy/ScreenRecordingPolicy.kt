@@ -21,7 +21,9 @@ enum class ScreenRecordingPolicy {
         fun fromString(key: String?): ScreenRecordingPolicy? {
             return when (key) {
                 ON_ANY.name -> ON_ANY
-                else -> ON_FAILURE
+                ON_FAILURE.name -> ON_FAILURE
+                null -> null // in null case return nothing
+                else -> throw Exception("Wrong screen recording policy. Use one of ${values()}")
             }
         }
     }

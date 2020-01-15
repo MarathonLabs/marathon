@@ -71,7 +71,7 @@ class ScreenRecorderTestRunListener(
                 recorder?.join(awaitMillis)
             }
             logger.trace { "join ${join}ms" }
-            if (hasFailed || screenRecordingPolicy == ScreenRecordingPolicy.ON_ANY) {
+            if (screenRecordingPolicy == ScreenRecordingPolicy.ON_ANY || hasFailed) {
                 val stop = measureTimeMillis {
                     screenRecorderStopper.stopScreenRecord()
                 }
