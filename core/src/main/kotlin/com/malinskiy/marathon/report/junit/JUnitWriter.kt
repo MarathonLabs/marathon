@@ -5,6 +5,7 @@ import com.malinskiy.marathon.device.DeviceInfo
 import com.malinskiy.marathon.device.DevicePoolId
 import com.malinskiy.marathon.io.FileManager
 import com.malinskiy.marathon.io.FileType
+import org.testng.util.Strings
 import java.io.FileOutputStream
 import javax.xml.stream.XMLOutputFactory
 import javax.xml.stream.XMLStreamWriter
@@ -35,7 +36,10 @@ class JUnitWriter(private val fileManager: FileManager) {
         reportGenerator.makeSuiteData()
         val junitReports = reportGenerator.junitReports
         junitReports.keys.forEach {
-            generateXml(xmlWriterMap[it]!!, junitReports[it]!!)
+            val xmlWriter = xmlWriterMap[it]
+            val junitReport = junitReports[it]
+            if (xmlWriter != null && junitReport != null)
+                generateXml(xmlWriter, junitReport)
         }
     }
 
@@ -64,12 +68,8 @@ class JUnitWriter(private val fileManager: FileManager) {
                         attribute("classname", it.classname)
                         attribute("name", it.name)
                         attribute("time", it.time)
-                        if (it.skipped?.isNotEmpty()!!) {
-                            element("skipped", it.skipped)
-                        }
-                        if (it.failure?.isNotEmpty()!!) {
-                            element("failure", it.failure)
-                        }
+                        if (Strings.isNotNullAndNotEmpty(it.skipped)) element("skipped", it.skipped)
+                        if (Strings.isNotNullAndNotEmpty(it.failure)) element("failure", it.failure)
                     }
                 }
             }
