@@ -70,6 +70,11 @@ class QueueActor(
             }
             is QueueMessage.Stop -> {
                 stopRequested = true
+
+                if (queue.isEmpty() && activeBatches.isEmpty()) {
+                    logger.debug { "Stop requested, queue is empty and no active batches present, terminating" }
+                    terminate()
+                }
             }
             is QueueMessage.Terminate -> {
                 onTerminate()
@@ -194,8 +199,7 @@ class QueueActor(
         if (queueIsEmpty && activeBatches.isEmpty()) {
             if (stopRequested) {
                 logger.debug { "queue is empty and stop requested, terminating ${device.serialNumber}" }
-                pool.send(FromQueue.Terminated)
-                onTerminate()
+                terminate()
             } else {
                 logger.debug { "queue is empty and stop is not requested yet, no batches available for ${device.serialNumber}" }
             }
@@ -205,6 +209,11 @@ class QueueActor(
                         activeBatches.keys.joinToString { it }
             }
         }
+    }
+
+    private suspend fun terminate() {
+        pool.send(FromQueue.Terminated)
+        onTerminate()
     }
 
     private suspend fun sendBatch(device: DeviceInfo) {
