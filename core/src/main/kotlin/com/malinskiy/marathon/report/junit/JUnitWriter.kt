@@ -68,8 +68,8 @@ class JUnitWriter(private val fileManager: FileManager) {
                         attribute("classname", it.classname)
                         attribute("name", it.name)
                         attribute("time", it.time)
-                        if (Strings.isNotNullAndNotEmpty(it.skipped)) element("skipped", it.skipped)
-                        if (Strings.isNotNullAndNotEmpty(it.failure)) element("failure", it.failure)
+                        if (Strings.isNotNullAndNotEmpty(it.skipped)) element("skipped") { writeCData(it.skipped) }
+                        if (Strings.isNotNullAndNotEmpty(it.failure)) element("failure") { writeCData(it.failure) }
                     }
                 }
             }
