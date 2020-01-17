@@ -98,7 +98,12 @@ class TimelineSummaryProvider {
                 deviceConnectedEvents = deviceConnectedEvents[key] ?: emptyList(),
                 devicePreparingEvents = devicePreparingEvent[key] ?: emptyList(),
                 deviceProviderPreparingEvent = deviceProviderPreparingEvents[key] ?: emptyList(),
-                testEvents = testEvents[key] ?: emptyList()
+                testEvents = testEvents[key] ?: emptyList(),
+                installCheckEvent = emptyList(),
+                installEvent = emptyList(),
+                executeBatchEvent = emptyList(),
+                cacheLoadEvent = emptyList(),
+                cacheStoreEvent = emptyList()
             )
         }.toMap()
 

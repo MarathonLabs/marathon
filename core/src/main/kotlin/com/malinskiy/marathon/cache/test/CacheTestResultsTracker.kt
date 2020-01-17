@@ -4,6 +4,7 @@ import com.malinskiy.marathon.analytics.internal.pub.Tracker
 import com.malinskiy.marathon.device.DeviceInfo
 import com.malinskiy.marathon.device.DevicePoolId
 import com.malinskiy.marathon.execution.TestResult
+import com.malinskiy.marathon.test.Test
 import java.time.Instant
 
 class CacheTestResultsTracker(private val testCacheSaver: TestCacheSaver) : Tracker {
@@ -23,6 +24,26 @@ class CacheTestResultsTracker(private val testCacheSaver: TestCacheSaver) : Trac
     }
 
     override fun devicePreparing(serialNumber: String, startTime: Instant, finishTime: Instant) {
+        // no-op
+    }
+
+    override fun installationCheck(serialNumber: String, startTime: Instant, finishTime: Instant) {
+        // no-op
+    }
+
+    override fun installation(serialNumber: String, startTime: Instant, finishTime: Instant) {
+        // no-op
+    }
+
+    override fun executingBatch(serialNumber: String, startTime: Instant, finishTime: Instant) {
+        // no-op
+    }
+
+    override fun cacheStore(startTime: Instant, finishTime: Instant, test: Test) {
+        // no-op
+    }
+
+    override fun cacheLoad(startTime: Instant, finishTime: Instant, test: Test) {
         // no-op
     }
 

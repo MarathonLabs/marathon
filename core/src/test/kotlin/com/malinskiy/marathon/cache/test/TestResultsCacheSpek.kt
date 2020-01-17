@@ -13,6 +13,7 @@ import com.malinskiy.marathon.io.FileType
 import com.malinskiy.marathon.test.Test
 import com.malinskiy.marathon.test.TestComponentInfo
 import kotlinx.coroutines.runBlocking
+import org.amshove.kluent.mock
 import org.amshove.kluent.shouldEqual
 import org.amshove.kluent.shouldNotEqual
 import org.jetbrains.spek.api.Spek
@@ -29,7 +30,7 @@ class TestResultsCacheSpek : Spek(
 
         val cache by memoized {
             val attachmentManager = AttachmentManager(Files.createTempDirectory("test_output").toFile())
-            TestResultsCache(cacheService, attachmentManager)
+            TestResultsCache(cacheService, attachmentManager, mock())
         }
 
         describe("TestResultsCache") {

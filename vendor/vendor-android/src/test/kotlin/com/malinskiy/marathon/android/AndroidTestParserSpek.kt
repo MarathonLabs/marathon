@@ -3,6 +3,7 @@ package com.malinskiy.marathon.android
 import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.test.MetaProperty
 import com.malinskiy.marathon.test.Test
+import kotlinx.coroutines.runBlocking
 import org.amshove.kluent.shouldEqual
 import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.describe
@@ -51,7 +52,7 @@ class AndroidTestParserSpek : Spek(
                 val componentInfo = AndroidComponentInfoExtractor().extract(configuration)
 
                 it("should return proper list of test methods") {
-                    val extractedTests = parser.extract(componentInfo)
+                    val extractedTests = runBlocking { parser.extract(componentInfo) }
                     extractedTests shouldEqual listOf(
                         Test(
                             "com.example", "MainActivityTest", "testText",

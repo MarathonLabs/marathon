@@ -218,7 +218,7 @@ private fun createTestResult(test: Test, status: TestStatus) = TestResult(
 private fun createQueueActor(
     configuration: Configuration,
     tests: List<Test>,
-    poolChannel: SendChannel<FromQueue>,
+    poolChannel: Channel<FromQueue>,
     analytics: Analytics,
     track: Track,
     job: Job
@@ -235,6 +235,7 @@ private fun createQueueActor(
     .apply {
         runBlocking {
             send(QueueMessage.AddShard(TestShard(tests, emptyList())))
+            poolChannel.receive()
         }
     }
 

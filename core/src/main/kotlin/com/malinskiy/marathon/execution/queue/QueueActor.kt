@@ -6,7 +6,6 @@ import com.malinskiy.marathon.analytics.internal.pub.Track
 import com.malinskiy.marathon.device.DeviceInfo
 import com.malinskiy.marathon.device.DevicePoolId
 import com.malinskiy.marathon.execution.Configuration
-import com.malinskiy.marathon.execution.DevicePoolMessage
 import com.malinskiy.marathon.execution.DevicePoolMessage.FromQueue
 import com.malinskiy.marathon.execution.TestBatchResults
 import com.malinskiy.marathon.execution.TestResult
@@ -19,7 +18,6 @@ import com.malinskiy.marathon.test.toTestName
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.SendChannel
-import kotlinx.coroutines.delay
 import java.util.*
 import kotlin.coroutines.CoroutineContext
 
@@ -59,6 +57,10 @@ class QueueActor(
                 queue.addAll(testsToAdd)
                 progressReporter.addTests(poolId, testsToAdd.size)
                 flakyTests = flakyTests + msg.shard.flakyTests
+
+                if (queue.isNotEmpty()) {
+                    pool.send(FromQueue.Notify)
+                }
             }
             is QueueMessage.RequestBatch -> {
                 onRequestBatch(msg.device)
@@ -68,6 +70,11 @@ class QueueActor(
             }
             is QueueMessage.Stop -> {
                 stopRequested = true
+
+                if (queue.isEmpty() && activeBatches.isEmpty()) {
+                    logger.debug { "Stop requested, queue is empty and no active batches present, terminating" }
+                    terminate()
+                }
             }
             is QueueMessage.Terminate -> {
                 onTerminate()
@@ -192,11 +199,9 @@ class QueueActor(
         if (queueIsEmpty && activeBatches.isEmpty()) {
             if (stopRequested) {
                 logger.debug { "queue is empty and stop requested, terminating ${device.serialNumber}" }
-                pool.send(FromQueue.Terminated)
-                onTerminate()
+                terminate()
             } else {
-                logger.debug { "queue is empty and stop is not requested yet, responding with no batches available for ${device.serialNumber}" }
-                pool.send(FromQueue.NoBatchesAvailable)
+                logger.debug { "queue is empty and stop is not requested yet, no batches available for ${device.serialNumber}" }
             }
         } else {
             logger.debug {
@@ -204,6 +209,11 @@ class QueueActor(
                         activeBatches.keys.joinToString { it }
             }
         }
+    }
+
+    private suspend fun terminate() {
+        pool.send(FromQueue.Terminated)
+        onTerminate()
     }
 
     private suspend fun sendBatch(device: DeviceInfo) {

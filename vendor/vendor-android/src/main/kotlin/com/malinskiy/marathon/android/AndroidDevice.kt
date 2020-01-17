@@ -148,11 +148,10 @@ class AndroidDevice(
         deferred: CompletableDeferred<TestBatchResults>,
         progressReporter: ProgressReporter
     ) {
-
         val androidComponentInfo = testBatch.componentInfo as AndroidComponentInfo
 
         try {
-            ensureInstalled(androidComponentInfo)
+            async { ensureInstalled(androidComponentInfo) }.await()
         } catch (exception: Throwable) {
             logger.error { "Terminating device $serialNumber due to installation failures" }
             throw DeviceLostException(exception)

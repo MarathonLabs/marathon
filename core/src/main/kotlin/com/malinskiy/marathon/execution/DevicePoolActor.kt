@@ -17,7 +17,6 @@ import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.test.TestBatch
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.SendChannel
-import kotlinx.coroutines.delay
 import kotlin.coroutines.CoroutineContext
 
 class DevicePoolActor(
@@ -25,7 +24,7 @@ class DevicePoolActor(
     private val configuration: Configuration,
     analytics: Analytics,
     private val progressReporter: ProgressReporter,
-    track: Track,
+    private val track: Track,
     parent: Job,
     context: CoroutineContext
 ) :
@@ -44,7 +43,6 @@ class DevicePoolActor(
             is DevicePoolMessage.FromDevice.ReturnTestBatch -> deviceReturnedTestBatch(msg.device, msg.batch)
             is DevicePoolMessage.FromQueue.Notify -> notifyDevices()
             is DevicePoolMessage.FromQueue.Terminated -> onQueueTerminated()
-            is DevicePoolMessage.FromQueue.NoBatchesAvailable -> onNoBatchesAvailable()
             is DevicePoolMessage.FromQueue.ExecuteBatch -> executeBatch(msg.device, msg.batch)
         }
     }
@@ -69,11 +67,6 @@ class DevicePoolActor(
         devices.values.forEach {
             it.safeSend(DeviceEvent.WakeUp)
         }
-    }
-
-    private suspend fun onNoBatchesAvailable() {
-        delay(EMPTY_QUEUE_CHECK_PERIOD)
-        notifyDevices()
     }
 
     private suspend fun onQueueTerminated() {
@@ -152,16 +145,12 @@ class DevicePoolActor(
         }
 
         logger.debug { "add device ${device.serialNumber}" }
-        val actor = DeviceActor(poolId, this, configuration, device, progressReporter, poolJob, coroutineContext)
+        val actor = DeviceActor(poolId, this, configuration, device, progressReporter, track, poolJob, coroutineContext)
         devices[device.serialNumber] = actor
         actor.safeSend(DeviceEvent.Initialize)
     }
 
     private suspend fun addTests(shard: TestShard) {
         queue.send(QueueMessage.AddShard(shard))
-    }
-
-    private companion object {
-        private const val EMPTY_QUEUE_CHECK_PERIOD = 1000L
     }
 }

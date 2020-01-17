@@ -2,6 +2,7 @@ package com.malinskiy.marathon.ios
 
 import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.test.Test
+import kotlinx.coroutines.runBlocking
 import org.amshove.kluent.shouldContainSame
 import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.describe
@@ -61,7 +62,7 @@ object IOSTestParserSpek : Spek(
                 val iosComponentInfo = IOSComponentInfoExtractor().extract(configuration)
 
                 it("should return accurate list of tests") {
-                    val extractedTests = parser.extract(iosComponentInfo)
+                    val extractedTests = runBlocking { parser.extract(iosComponentInfo) }
 
                     extractedTests shouldContainSame listOf(
                         Test("sample-appUITests", "StoryboardTests", "testButton", emptyList(), iosComponentInfo),

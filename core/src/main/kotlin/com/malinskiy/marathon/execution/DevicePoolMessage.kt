@@ -22,6 +22,5 @@ sealed class DevicePoolMessage {
         object Notify : FromQueue()
         object Terminated : FromQueue()
         data class ExecuteBatch(val device: DeviceInfo, val batch: TestBatch) : FromQueue()
-        object NoBatchesAvailable : FromQueue()
     }
 }

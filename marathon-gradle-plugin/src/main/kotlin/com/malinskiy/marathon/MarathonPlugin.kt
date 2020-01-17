@@ -8,7 +8,6 @@ import com.android.build.gradle.api.BaseVariantOutput
 import com.android.build.gradle.api.TestVariant
 import com.malinskiy.marathon.android.androidSdkLocation
 import com.malinskiy.marathon.extensions.executeGradleCompat
-import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.properties.MarathonProperties
 import com.malinskiy.marathon.properties.marathonProperties
 import com.malinskiy.marathon.worker.MarathonWorker
@@ -21,13 +20,9 @@ import org.gradle.api.tasks.TaskProvider
 import org.gradle.kotlin.dsl.closureOf
 import java.io.File
 
-private val log = MarathonLogging.logger {}
-
 class MarathonPlugin : Plugin<Project> {
 
     override fun apply(project: Project) {
-        log.debug { "Applying marathon plugin" }
-
         val properties = project.rootProject.marathonProperties
         val androidSdkLocation = project.androidSdkLocation
 
