@@ -16,9 +16,8 @@ class StrictRunProcessor(private val configuration: StrictRunFilterConfiguration
         }
 
         return TestShard(
-            tests = shard.tests,
-            flakyTests = shard.flakyTests,
-            strictRunTests = strictRuns
+            tests = shard.tests + strictRuns,
+            flakyTests = shard.flakyTests
         )
     }
 }

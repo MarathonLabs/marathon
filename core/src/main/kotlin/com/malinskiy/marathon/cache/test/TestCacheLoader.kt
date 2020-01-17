@@ -7,6 +7,7 @@ import com.malinskiy.marathon.cache.test.key.TestCacheKeyFactory
 import com.malinskiy.marathon.device.DevicePoolId
 import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.execution.TestShard
+import com.malinskiy.marathon.execution.matches
 import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.test.Test
 import com.malinskiy.marathon.test.toSimpleSafeTestName
@@ -63,8 +64,17 @@ class TestCacheLoader(
 
     suspend fun addTests(poolId: DevicePoolId, tests: TestShard) {
         if (configuration.cache.isEnabled) {
+            val strictModeTests: MutableList<Test> = arrayListOf()
             tests.tests.forEach {
-                testsToCheck.send(TestToCheck(poolId, it))
+                if (configuration.strictRunFilterConfiguration.filter.matches(it)) {
+                    strictModeTests.add(it)
+                } else {
+                    testsToCheck.send(TestToCheck(poolId, it, isStrictRun = false))
+                }
+            }
+
+            if (strictModeTests.isNotEmpty()) {
+                _results.send(Miss(poolId, TestShard(strictModeTests)))
             }
         } else {
             _results.send(Miss(poolId, tests))
@@ -77,5 +87,5 @@ class TestCacheLoader(
         _results.close()
     }
 
-    private class TestToCheck(val poolId: DevicePoolId, val test: Test)
+    private class TestToCheck(val poolId: DevicePoolId, val test: Test, val isStrictRun: Boolean)
 }
