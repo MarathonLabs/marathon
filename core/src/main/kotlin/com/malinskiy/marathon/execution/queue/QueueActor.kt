@@ -46,6 +46,7 @@ class QueueActor(
 
     private val testResultReporter = TestResultReporter(poolId, analytics, configuration, track)
     private var flakyTests: List<Test> = emptyList()
+    private var strictRunTests: List<Test> = emptyList()
 
     private var stopRequested: Boolean = false
 
@@ -53,10 +54,11 @@ class QueueActor(
         when (msg) {
             is QueueMessage.AddShard -> {
                 testResultReporter.addShard(msg.shard)
-                val testsToAdd = msg.shard.tests + msg.shard.flakyTests
+                val testsToAdd = msg.shard.tests + msg.shard.flakyTests + msg.shard.strictRunTests
                 queue.addAll(testsToAdd)
                 progressReporter.addTests(poolId, testsToAdd.size)
                 flakyTests = flakyTests + msg.shard.flakyTests
+                strictRunTests = strictRunTests + msg.shard.strictRunTests
 
                 if (queue.isNotEmpty()) {
                     pool.send(FromQueue.Notify)

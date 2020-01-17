@@ -32,6 +32,7 @@ data class Configuration constructor(
     val flakinessStrategy: FlakinessStrategy,
     val retryStrategy: RetryStrategy,
     val filteringConfiguration: FilteringConfiguration,
+    val strictRunFilterConfiguration: StrictRunFilterConfiguration,
 
     val cache: CacheConfiguration,
     val ignoreFailures: Boolean,
@@ -66,6 +67,7 @@ data class Configuration constructor(
         flakinessStrategy: FlakinessStrategy?,
         retryStrategy: RetryStrategy?,
         filteringConfiguration: FilteringConfiguration?,
+        strictRunFilterConfiguration: StrictRunFilterConfiguration?,
 
         cache: CacheConfiguration?,
         ignoreFailures: Boolean?,
@@ -99,6 +101,7 @@ data class Configuration constructor(
                 flakinessStrategy = flakinessStrategy ?: IgnoreFlakinessStrategy(),
                 retryStrategy = retryStrategy ?: NoRetryStrategy(),
                 filteringConfiguration = filteringConfiguration ?: FilteringConfiguration(emptyList(), emptyList()),
+                strictRunFilterConfiguration = strictRunFilterConfiguration ?: StrictRunFilterConfiguration(emptyList()),
                 cache = cache ?: CacheConfiguration(),
                 ignoreFailures = ignoreFailures ?: false,
                 isCodeCoverageEnabled = isCodeCoverageEnabled ?: false,
@@ -127,6 +130,7 @@ data class Configuration constructor(
             "flakiness" to flakinessStrategy.toString(),
             "retry" to retryStrategy.toString(),
             "filtering" to filteringConfiguration.toString(),
+            "strictRunFilter" to strictRunFilterConfiguration.toString(),
             "cache" to cache.toString(),
             "ignoreFailures" to ignoreFailures.toString(),
             "isCodeCoverageEnabled" to isCodeCoverageEnabled.toString(),

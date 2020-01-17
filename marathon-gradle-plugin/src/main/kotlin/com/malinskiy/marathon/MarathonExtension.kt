@@ -2,6 +2,7 @@ package com.malinskiy.marathon
 
 import com.malinskiy.marathon.analytics.internal.pub.Tracker
 import com.malinskiy.marathon.device.DeviceFeature
+import com.malinskiy.marathon.execution.StrictRunFilterConfiguration
 import groovy.lang.Closure
 import org.gradle.api.Project
 
@@ -18,6 +19,7 @@ open class MarathonExtension(project: Project) {
     var flakinessStrategy: FlakinessStrategyConfiguration? = null
     var retryStrategy: RetryStrategyConfiguration? = null
     var filteringConfiguration: FilteringPluginConfiguration? = null
+    var strictRunFilterConfiguration: StrictRunFilterPluginConfiguration? = null
 
     var baseOutputDir: String? = null
 
