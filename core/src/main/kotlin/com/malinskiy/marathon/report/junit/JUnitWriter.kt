@@ -5,16 +5,19 @@ import com.malinskiy.marathon.device.DeviceInfo
 import com.malinskiy.marathon.device.DevicePoolId
 import com.malinskiy.marathon.io.FileManager
 import com.malinskiy.marathon.io.FileType
+import com.malinskiy.marathon.report.junit.model.JUnitReport
+import com.malinskiy.marathon.report.junit.model.Pool
 import org.testng.util.Strings
 import java.io.FileOutputStream
 import javax.xml.stream.XMLOutputFactory
 import javax.xml.stream.XMLStreamWriter
 
-private const val JUNIT_REPORT = "Marathon_Junit_Report"
 
 class JUnitWriter(private val fileManager: FileManager) {
 
-    private val xmlWriterMap = hashMapOf<DevicePool, XMLStreamWriter>()
+    private  val reportName = "marathon_junit_report"
+
+    private val xmlWriterMap = hashMapOf<Pool, XMLStreamWriter>()
 
     fun prepareXMLReport(executionReport: ExecutionReport) {
         makeFile(executionReport)
@@ -23,8 +26,9 @@ class JUnitWriter(private val fileManager: FileManager) {
     }
 
     private fun makeFile(executionReport: ExecutionReport) {
-        executionReport.testEvents.devicePools().forEach {
-            val file = fileManager.createFile(FileType.TEST, it.devicePool, it.deviceInfo, JUNIT_REPORT)
+        executionReport.testEvents.map { Pool(it.poolId, it.device) }.distinct()
+            .forEach {
+            val file = fileManager.createFile(FileType.TEST, it.devicePoolId, it.deviceInfo, reportName)
             file.createNewFile()
             val writer = XMLOutputFactory.newFactory().createXMLStreamWriter(FileOutputStream(file), "UTF-8")
             xmlWriterMap[it] = writer
@@ -76,8 +80,3 @@ class JUnitWriter(private val fileManager: FileManager) {
         }
     }
 }
-
-data class DevicePool(
-    val devicePool: DevicePoolId,
-    val deviceInfo: DeviceInfo
-)

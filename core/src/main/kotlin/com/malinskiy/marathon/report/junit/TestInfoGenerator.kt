@@ -3,6 +3,10 @@ package com.malinskiy.marathon.report.junit
 import com.malinskiy.marathon.analytics.internal.sub.TestEvent
 import com.malinskiy.marathon.execution.TestResult
 import com.malinskiy.marathon.execution.TestStatus
+import com.malinskiy.marathon.report.junit.model.JUnitReport
+import com.malinskiy.marathon.report.junit.model.Pool
+import com.malinskiy.marathon.report.junit.model.TestCaseData
+import com.malinskiy.marathon.report.junit.model.TestSuiteData
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -15,12 +19,13 @@ internal class JunitReportGenerator(private val testEvents: List<TestEvent>) {
     @Suppress("MagicNumber")
     private fun Long.toJUnitSeconds(): String = (this / 1000.0).toString()
 
-    var junitReports = hashMapOf<DevicePool, JUnitReport>()
+    var junitReports = hashMapOf<Pool, JUnitReport>()
 
     fun makeSuiteData() {
-        val segregatedData = hashMapOf<DevicePool, List<TestEvent>>()
-        testEvents.devicePools().forEach { deviceData ->
-            segregatedData[deviceData] = testEvents.filter { it.device == deviceData.deviceInfo && it.poolId == deviceData.devicePool }
+        val segregatedData = hashMapOf<Pool, List<TestEvent>>()
+        testEvents.map { Pool(it.poolId, it.device) }.distinct()
+            .forEach { deviceData ->
+            segregatedData[deviceData] = testEvents.filter { it.device == deviceData.deviceInfo && it.poolId == deviceData.devicePoolId }
         }
         segregatedData.keys.forEach { deviceData ->
             val testEvents = segregatedData[deviceData]
@@ -57,28 +62,3 @@ internal class JunitReportGenerator(private val testEvents: List<TestEvent>) {
 
     private fun isFailure(testResult: TestResult) = testResult.status == TestStatus.FAILURE
 }
-
-data class JUnitReport(
-    val testSuiteData: TestSuiteData,
-    val testCases: List<TestCaseData>
-)
-
-data class TestSuiteData(
-    val name: String,
-    val tests: Int,
-    val failures: Int,
-    val errors: Int,
-    val skipped: Int,
-    val time: String,
-    val timeStamp: String
-)
-
-data class TestCaseData(
-    val classname: String,
-    val name: String,
-    val time: String,
-    val skipped: String,
-    val failure: String
-)
-
-fun List<TestEvent>.devicePools() = this.map { DevicePool(it.poolId, it.device) }.distinct()
