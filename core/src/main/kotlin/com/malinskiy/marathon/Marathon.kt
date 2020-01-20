@@ -185,7 +185,7 @@ class Marathon(
         analytics.close()
         deviceProvider.terminate()
         attachmentManager.terminate()
-        track.close()
+        tracker.close()
     }
 
     private fun applyTestFilters(parsedTests: List<Test>): List<Test> {

@@ -54,10 +54,6 @@ class Track : Tracker {
         delegates.get().forEach { it.test(poolId, device, testResult, final) }
     }
 
-    override fun close() {
-        delegates.get().forEach { it.close() }
-    }
-
     suspend fun trackDevicePreparing(device: Device, block: suspend () -> Unit) {
         val start = Instant.now()
         block.invoke()

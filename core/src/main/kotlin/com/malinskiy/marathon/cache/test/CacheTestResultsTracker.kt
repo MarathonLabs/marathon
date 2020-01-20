@@ -46,8 +46,4 @@ class CacheTestResultsTracker(private val testCacheSaver: TestCacheSaver) : Trac
     override fun cacheLoad(startTime: Instant, finishTime: Instant, test: Test) {
         // no-op
     }
-
-    override fun close() {
-        // no-op
-    }
 }

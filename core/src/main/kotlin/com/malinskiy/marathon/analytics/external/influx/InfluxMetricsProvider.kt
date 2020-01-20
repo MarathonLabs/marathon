@@ -99,7 +99,7 @@ class InfluxMetricsProvider(private val remoteDataStore: RemoteDataSource) : Met
         fun createWithFallback(configuration: AnalyticsConfiguration.InfluxDbConfiguration, fallback: MetricsProvider): MetricsProvider {
             return try {
                 val db = InfluxDbProvider(configuration).createDb()
-                val dataSource = InfluxDBDataSource(db, configuration.dbName)
+                val dataSource = InfluxDBDataSource(db, configuration.dbName, configuration.retentionPolicyConfiguration.name)
                 InfluxMetricsProvider(dataSource)
             } catch (e: Exception) {
                 fallback

@@ -41,9 +41,9 @@ open class MarathonExtension(project: Project) {
     var testApplicationPmClear: Boolean? = null
     var adbInitTimeout: Int? = null
     var installOptions: String? = null
+    var serialStrategy: SerialStrategyConfiguration? = null
 
     var preferableRecorderType: DeviceFeature? = null
-    var serialStrategy: SerialStrategyConfiguration? = null
 
     var analyticsTracking: Boolean = false
 

@@ -98,7 +98,7 @@ class MarathonPlugin : Plugin<Project> {
             marathonTask.configure {
                 group = JavaBasePlugin.VERIFICATION_GROUP
                 description = "Runs instrumentation tests on all the connected devices for '${variant.name}' " +
-                        "variation and generates a report with screenshots"
+                    "variation and generates a report with screenshots"
                 outputs.upToDateWhen { false }
 
                 executeGradleCompat(
@@ -164,8 +164,8 @@ class MarathonPlugin : Plugin<Project> {
             if (baseVariantOutput.outputs.size > 1) {
                 throw UnsupportedOperationException(
                     "The Marathon plugin does not support abi splits for app APKs, " +
-                            "but supports testing via a universal APK. "
-                            + "Add the flag \"universalApk true\" in the android.splits.abi configuration."
+                        "but supports testing via a universal APK. "
+                        + "Add the flag \"universalApk true\" in the android.splits.abi configuration."
                 )
             }
 

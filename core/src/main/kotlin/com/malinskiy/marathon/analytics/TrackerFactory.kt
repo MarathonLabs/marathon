@@ -53,6 +53,7 @@ internal class TrackerFactory(
 
         val delegatingTrackerInternal = DelegatingTrackerInternal(defaultTrackers)
         val mappingTracker = MappingTracker(delegatingTrackerInternal)
+
         track + mappingTracker
         track + cacheTestResultsTracker
         configuration.customAnalyticsTracker?.let { track + it }
@@ -67,7 +68,7 @@ internal class TrackerFactory(
             log.warn(e) { "Failed to reach InfluxDB at ${config.url}" }
             null
         }
-        return db?.let { InfluxDbTracker(it) }
+        return db?.let { InfluxDbTracker(it, config.dbName, config.retentionPolicyConfiguration.name) }
     }
 
     private fun createExecutionReportGenerator(): ExecutionReportGenerator {

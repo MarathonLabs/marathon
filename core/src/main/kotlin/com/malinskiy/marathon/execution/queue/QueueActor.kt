@@ -47,7 +47,6 @@ class QueueActor(
 
     private val testResultReporter = TestResultReporter(poolId, analytics, configuration, track)
     private var flakyTests: List<Test> = emptyList()
-    private var strictRunTests: List<Test> = emptyList()
 
     private var stopRequested: Boolean = false
 
@@ -59,7 +58,6 @@ class QueueActor(
                 queue.addAll(testsToAdd)
                 progressReporter.addTests(poolId, testsToAdd.size)
                 flakyTests = flakyTests + msg.shard.flakyTests
-                strictRunTests = strictRunTests
 
                 if (queue.isNotEmpty()) {
                     pool.send(FromQueue.Notify)

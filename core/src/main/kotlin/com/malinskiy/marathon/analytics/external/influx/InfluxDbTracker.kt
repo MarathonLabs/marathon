@@ -8,7 +8,10 @@ import org.influxdb.InfluxDB
 import org.influxdb.dto.Point
 import java.util.concurrent.TimeUnit
 
-internal class InfluxDbTracker(private val influxDb: InfluxDB) : TrackerInternalAdapter() {
+internal class InfluxDbTracker(private val influxDb: InfluxDB,
+                               private val dbName: String,
+                               private val rpName: String) : TrackerInternalAdapter() {
+
     override fun trackTest(event: TestEvent) {
         //Report only success and failure
         if (event.testResult.status in arrayOf(TestStatus.FAILURE, TestStatus.PASSED)) {
@@ -16,7 +19,7 @@ internal class InfluxDbTracker(private val influxDb: InfluxDB) : TrackerInternal
             val testResult = event.testResult
             val device = event.device
 
-            influxDb.write(
+            influxDb.write(dbName, rpName,
                 Point.measurement("tests")
                     .time(System.currentTimeMillis(), TimeUnit.MILLISECONDS)
                     .tag("testname", testResult.test.toSafeTestName())

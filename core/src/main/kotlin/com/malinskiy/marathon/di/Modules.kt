@@ -25,7 +25,6 @@ import com.malinskiy.marathon.io.FileManager
 import com.malinskiy.marathon.io.Md5FileHasher
 import com.malinskiy.marathon.time.SystemTimer
 import com.malinskiy.marathon.time.Timer
-import kotlinx.coroutines.Dispatchers
 import org.koin.core.KoinApplication
 import org.koin.core.context.startKoin
 import org.koin.core.definition.DefinitionFactory

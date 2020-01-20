@@ -13,6 +13,8 @@ import com.malinskiy.marathon.cli.config.ConfigFactory
 import com.malinskiy.marathon.cli.config.DeserializeModule
 import com.malinskiy.marathon.cli.config.time.InstantTimeProviderImpl
 import com.malinskiy.marathon.di.marathonStartKoin
+import com.malinskiy.marathon.config.AppType
+import com.malinskiy.marathon.exceptions.BugsnagExceptionsReporter
 import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.usageanalytics.TrackActionType
 import com.malinskiy.marathon.usageanalytics.UsageAnalytics
@@ -28,6 +30,8 @@ fun main(args: Array<String>): Unit = mainBody(
 ) {
     ArgParser(args).parseInto(::MarathonCliConfiguration).run {
         logger.info { "Starting marathon" }
+        val bugsnagExceptionsReporter = BugsnagExceptionsReporter()
+        bugsnagExceptionsReporter.start(AppType.CLI)
 
         val mapper = ObjectMapper(YAMLFactory().disable(YAMLGenerator.Feature.USE_NATIVE_TYPE_ID))
         mapper.registerModule(DeserializeModule(InstantTimeProviderImpl()))
@@ -45,6 +49,7 @@ fun main(args: Array<String>): Unit = mainBody(
         UsageAnalytics.enable = this.analyticsTracking
         UsageAnalytics.USAGE_TRACKER.trackEvent(Event(TrackActionType.RunType, "cli"))
         val success = marathon.run()
+        bugsnagExceptionsReporter.end()
         if (!success) {
             throw SystemExitException("Build failed", 1)
         }

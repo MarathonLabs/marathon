@@ -16,6 +16,7 @@ object FileAndroidConfigurationSpek : Spek(
                 FileAndroidConfiguration(
                     null,
                     null,
+                    null,
                     File.createTempFile("foo", "bar"),
                     null,
                     null,

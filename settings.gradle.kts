@@ -15,7 +15,9 @@ pluginManagement {
 
 rootProject.name = "marathon"
 include("core")
-include("vendor:vendor-android")
+include("vendor:vendor-android:base")
+include("vendor:vendor-android:ddmlib")
+include("vendor:vendor-android:adam")
 include("vendor:vendor-ios")
 include("vendor:vendor-test")
 include("marathon-gradle-plugin")
@@ -23,3 +25,4 @@ include("report:html-report")
 include("report:execution-timeline")
 include("cli")
 include(":analytics:usage")
+//include("vendor:adam")

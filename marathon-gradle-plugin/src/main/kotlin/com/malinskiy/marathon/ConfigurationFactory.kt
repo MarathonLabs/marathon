@@ -7,12 +7,12 @@ import com.malinskiy.marathon.android.AndroidConfiguration
 import com.malinskiy.marathon.android.DEFAULT_APPLICATION_PM_CLEAR
 import com.malinskiy.marathon.android.DEFAULT_AUTO_GRANT_PERMISSION
 import com.malinskiy.marathon.android.DEFAULT_INSTALL_OPTIONS
-import com.malinskiy.marathon.android.DEFAULT_SERIAL_STRATEGY
 import com.malinskiy.marathon.android.defaultInitTimeoutMillis
 import com.malinskiy.marathon.android.serial.SerialStrategy
 import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.extensions.extractApplication
 import com.malinskiy.marathon.extensions.extractTestApplication
+import ddmlibModule
 import org.gradle.api.Project
 import java.io.File
 
@@ -140,12 +140,13 @@ private fun createAndroidConfiguration(
                 SerialStrategyConfiguration.DDMS -> SerialStrategy.DDMS
             }
         }
-        ?: DEFAULT_SERIAL_STRATEGY
+        ?: SerialStrategy.AUTOMATIC
 
     return AndroidConfiguration(
         sdkDirectory,
         applicationApk,
         instrumentationApk,
+        listOf(ddmlibModule),
         autoGrantPermission,
         instrumentationArgs,
         applicationPmClear,
