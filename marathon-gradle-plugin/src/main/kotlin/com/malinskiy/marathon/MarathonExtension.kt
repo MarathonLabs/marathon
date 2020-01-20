@@ -18,6 +18,7 @@ open class MarathonExtension(project: Project) {
     var flakinessStrategy: FlakinessStrategyConfiguration? = null
     var retryStrategy: RetryStrategyConfiguration? = null
     var filteringConfiguration: FilteringPluginConfiguration? = null
+    var strictRunFilterConfiguration: StrictRunFilterPluginConfiguration? = null
 
     var baseOutputDir: String? = null
 
@@ -87,6 +88,10 @@ open class MarathonExtension(project: Project) {
         filteringConfiguration = FilteringPluginConfiguration().also(block)
     }
 
+    fun strictRunFilter(block: StrictRunFilterPluginConfiguration.() -> Unit) {
+        strictRunFilterConfiguration = StrictRunFilterPluginConfiguration().also(block)
+    }
+
     fun instrumentationArgs(block: MutableMap<String, String>.() -> Unit) {
         instrumentationArgs = mutableMapOf<String, String>().also(block)
     }
@@ -143,6 +148,12 @@ open class MarathonExtension(project: Project) {
     fun filteringConfiguration(closure: Closure<*>) {
         filteringConfiguration = FilteringPluginConfiguration()
         closure.delegate = filteringConfiguration
+        closure.call()
+    }
+
+    fun strictRunFilter(closure: Closure<*>) {
+        strictRunFilterConfiguration = StrictRunFilterPluginConfiguration()
+        closure.delegate = strictRunFilterConfiguration
         closure.call()
     }
 

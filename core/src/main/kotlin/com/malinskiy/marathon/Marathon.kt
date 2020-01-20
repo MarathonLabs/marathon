@@ -13,6 +13,7 @@ import com.malinskiy.marathon.execution.ComponentInfo
 import com.malinskiy.marathon.execution.ComponentInfoExtractor
 import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.execution.Scheduler
+import com.malinskiy.marathon.execution.StrictRunProcessor
 import com.malinskiy.marathon.execution.TestParser
 import com.malinskiy.marathon.execution.TestShard
 import com.malinskiy.marathon.execution.progress.ProgressReporter
@@ -24,9 +25,7 @@ import com.malinskiy.marathon.usageanalytics.TrackActionType
 import com.malinskiy.marathon.usageanalytics.UsageAnalytics
 import com.malinskiy.marathon.usageanalytics.tracker.Event
 import com.malinskiy.marathon.vendor.VendorConfiguration
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.withContext
 import org.koin.core.context.stopKoin
 import java.util.*
 import kotlin.coroutines.coroutineContext
@@ -46,6 +45,7 @@ class Marathon(
 ) : MarathonRunner {
 
     private val configurationValidator = LogicalConfigurationValidator()
+    private val strictRunProcessor = StrictRunProcessor(configuration.strictRunFilterConfiguration)
 
     private lateinit var deviceProvider: DeviceProvider
     private lateinit var testParser: TestParser
@@ -199,9 +199,10 @@ class Marathon(
 
     private fun prepareTestShard(tests: List<Test>, analytics: Analytics): TestShard {
         val shardingStrategy = configuration.shardingStrategy
-        val flakinessShard = configuration.flakinessStrategy
+        val flakinessStrategy = configuration.flakinessStrategy
         val shard = shardingStrategy.createShard(tests)
-        return flakinessShard.process(shard, analytics)
+        val flakinessShard = flakinessStrategy.process(shard, analytics)
+        return strictRunProcessor.processShard(flakinessShard)
     }
 
     private fun trackAnalytics(configuration: Configuration) {

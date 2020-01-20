@@ -192,6 +192,7 @@ private fun createConfiguration(codeCoverageEnabled: Boolean = false) = Configur
     flakinessStrategy = null,
     retryStrategy = null,
     filteringConfiguration = null,
+    strictRunFilterConfiguration = null,
     cache = null,
     ignoreFailures = null,
     isCodeCoverageEnabled = codeCoverageEnabled,

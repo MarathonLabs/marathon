@@ -36,6 +36,7 @@ class ConfigurationFactory {
     var strictMode = null
     var uncompletedTestRetryQuota: Int? = null
     var filteringConfiguration = null
+    var strictRunFilterConfiguration = null
     var flakinessStrategy: FlakinessStrategy? = null
     var cache: CacheConfiguration? = null
     var ignoreFailures = null
@@ -73,6 +74,7 @@ class ConfigurationFactory {
             flakinessStrategy,
             retryStrategy,
             filteringConfiguration,
+            strictRunFilterConfiguration,
             cache,
             ignoreFailures,
             isCodeCoverageEnabled,

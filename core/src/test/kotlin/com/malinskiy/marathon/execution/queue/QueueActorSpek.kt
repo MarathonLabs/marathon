@@ -251,6 +251,7 @@ private val DEFAULT_CONFIGURATION = Configuration(
     flakinessStrategy = null,
     retryStrategy = null,
     filteringConfiguration = null,
+    strictRunFilterConfiguration = null,
     cache = null,
     ignoreFailures = null,
     isCodeCoverageEnabled = null,

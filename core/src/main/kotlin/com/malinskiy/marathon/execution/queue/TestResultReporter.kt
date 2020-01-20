@@ -8,6 +8,7 @@ import com.malinskiy.marathon.device.DevicePoolId
 import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.execution.TestResult
 import com.malinskiy.marathon.execution.TestShard
+import com.malinskiy.marathon.execution.matches
 import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.test.Test
 import com.malinskiy.marathon.test.toTestName
@@ -27,14 +28,16 @@ class TestResultReporter(
         initialState(TestState.Added(initialCount))
         state<TestState.Added> {
             on<TestEvent.Passed> {
-                if (!configuration.strictMode || count <= 1) {
+                val test = it.testResult.test
+                if (!test.isStrictRun() || count <= 1) {
                     transitionTo(TestState.Passed(it.device, it.testResult), TestAction.SaveReport(it.device, it.testResult))
                 } else {
                     transitionTo(TestState.Executed(it.device, it.testResult, count - 1))
                 }
             }
             on<TestEvent.Failed> {
-                if (configuration.strictMode || count <= 1) {
+                val test = it.testResult.test
+                if (test.isStrictRun() || count <= 1) {
                     transitionTo(TestState.Failed(it.device, it.testResult), TestAction.SaveReport(it.device, it.testResult))
                 } else {
                     transitionTo(TestState.Executed(it.device, it.testResult, count - 1))
@@ -49,7 +52,8 @@ class TestResultReporter(
         }
         state<TestState.Executed> {
             on<TestEvent.Failed> {
-                if (configuration.strictMode || count <= 1) {
+                val test = it.testResult.test
+                if (test.isStrictRun() || count <= 1) {
                     transitionTo(TestState.Failed(it.device, it.testResult), TestAction.SaveReport(it.device, it.testResult))
                 } else {
                     transitionTo(TestState.Executed(it.device, it.testResult, count - 1))
@@ -59,7 +63,8 @@ class TestResultReporter(
                 transitionTo(this.copy(count = this.count - it.diff))
             }
             on<TestEvent.Passed> {
-                if (!configuration.strictMode || count <= 1) {
+                val test = it.testResult.test
+                if (!test.isStrictRun() || count <= 1) {
                     transitionTo(TestState.Passed(it.device, it.testResult), TestAction.SaveReport(it.device, it.testResult))
                 } else {
                     transitionTo(TestState.Executed(it.device, it.testResult, count - 1))
@@ -83,6 +88,9 @@ class TestResultReporter(
             trackTestTransition(poolId, it)
         }
     }
+
+    private fun Test.isStrictRun(): Boolean =
+        configuration.strictMode || configuration.strictRunFilterConfiguration.filter.matches(this)
 
     fun addShard(shard: TestShard) {
         val allTests = shard.tests + shard.flakyTests

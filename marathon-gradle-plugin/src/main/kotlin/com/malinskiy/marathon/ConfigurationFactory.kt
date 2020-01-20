@@ -92,6 +92,7 @@ private fun createConfiguration(
     extensionConfig.flakinessStrategy?.toStrategy(),
     extensionConfig.retryStrategy?.toStrategy(),
     extensionConfig.filteringConfiguration?.toFilteringConfiguration(),
+    extensionConfig.strictRunFilterConfiguration?.toStrictRunFilterConfiguration(),
     extensionConfig.cache?.toCacheConfiguration(),
     extensionConfig.ignoreFailures,
     extensionConfig.isCodeCoverageEnabled,
