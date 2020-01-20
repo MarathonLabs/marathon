@@ -1,8 +1,6 @@
 package com.malinskiy.marathon.report.junit
 
 import com.malinskiy.marathon.analytics.internal.sub.ExecutionReport
-import com.malinskiy.marathon.device.DeviceInfo
-import com.malinskiy.marathon.device.DevicePoolId
 import com.malinskiy.marathon.io.FileManager
 import com.malinskiy.marathon.io.FileType
 import com.malinskiy.marathon.report.junit.model.JUnitReport
