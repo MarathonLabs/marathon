@@ -5,7 +5,7 @@ import com.malinskiy.marathon.test.Test
 class StrictRunProcessor(private val configuration: StrictRunFilterConfiguration) {
 
     fun processShard(shard: TestShard): TestShard {
-        var testsForStrictRun = shard.tests.toList()
+        var testsForStrictRun = if (configuration.filter.isEmpty()) emptyList() else shard.tests.toList()
         configuration.filter.forEach { testsForStrictRun = it.filter(testsForStrictRun) }
 
         val strictRuns = arrayListOf<Test>()
