@@ -2,6 +2,7 @@ package com.malinskiy.marathon.cli.args
 
 import com.malinskiy.marathon.execution.AnalyticsConfiguration
 import com.malinskiy.marathon.execution.FilteringConfiguration
+import com.malinskiy.marathon.execution.policy.ScreenRecordingPolicy
 import com.malinskiy.marathon.execution.strategy.BatchingStrategy
 import com.malinskiy.marathon.execution.strategy.FlakinessStrategy
 import com.malinskiy.marathon.execution.strategy.PoolingStrategy
@@ -37,7 +38,7 @@ data class FileConfiguration(
     var testOutputTimeoutMillis: Long?,
     var debug: Boolean?,
 
-    val screenRecordingPolicy: String?,
+    val screenRecordingPolicy: ScreenRecordingPolicy?,
 
     var vendorConfiguration: FileVendorConfiguration?,
 

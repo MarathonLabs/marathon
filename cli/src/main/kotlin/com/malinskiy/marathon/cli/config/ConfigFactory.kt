@@ -8,7 +8,6 @@ import com.malinskiy.marathon.cli.args.FileIOSConfiguration
 import com.malinskiy.marathon.cli.args.environment.EnvironmentReader
 import com.malinskiy.marathon.exceptions.ConfigurationException
 import com.malinskiy.marathon.execution.Configuration
-import com.malinskiy.marathon.execution.policy.ScreenRecordingPolicy
 import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.vendor.VendorConfiguration
 import org.apache.commons.text.StringSubstitutor
@@ -64,7 +63,7 @@ class ConfigFactory(private val mapper: ObjectMapper) {
             testBatchTimeoutMillis = config.testBatchTimeoutMillis,
             testOutputTimeoutMillis = config.testOutputTimeoutMillis,
             debug = config.debug,
-            screenRecordingPolicy = ScreenRecordingPolicy.fromString(config.screenRecordingPolicy),
+            screenRecordingPolicy = config.screenRecordingPolicy,
             vendorConfiguration = vendorConfiguration as VendorConfiguration,
             analyticsTracking = config.analyticsTracking
         )
