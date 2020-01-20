@@ -10,6 +10,7 @@ import com.malinskiy.marathon.execution.DevicePoolMessage.FromQueue
 import com.malinskiy.marathon.execution.TestBatchResults
 import com.malinskiy.marathon.execution.TestResult
 import com.malinskiy.marathon.execution.TestShard
+import com.malinskiy.marathon.execution.matches
 import com.malinskiy.marathon.execution.progress.ProgressReporter
 import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.test.Test
@@ -170,7 +171,12 @@ class QueueActor(
         device: DeviceInfo
     ) {
         logger.debug { "handle failed tests ${device.serialNumber}" }
-        val retryList = retry.process(poolId, failed, flakyTests)
+        val retryList = retry
+            .process(poolId, failed, flakyTests)
+            .filter {
+                // strict run tests should not be re-run
+                !configuration.strictRunFilterConfiguration.filter.matches(it.test)
+            }
 
         progressReporter.addTests(poolId, retryList.size)
         queue.addAll(retryList.map { it.test })

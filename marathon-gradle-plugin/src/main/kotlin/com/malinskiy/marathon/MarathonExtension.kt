@@ -2,7 +2,6 @@ package com.malinskiy.marathon
 
 import com.malinskiy.marathon.analytics.internal.pub.Tracker
 import com.malinskiy.marathon.device.DeviceFeature
-import com.malinskiy.marathon.execution.StrictRunFilterConfiguration
 import groovy.lang.Closure
 import org.gradle.api.Project
 
@@ -89,6 +88,10 @@ open class MarathonExtension(project: Project) {
         filteringConfiguration = FilteringPluginConfiguration().also(block)
     }
 
+    fun strictRunFilter(block: StrictRunFilterPluginConfiguration.() -> Unit) {
+        strictRunFilterConfiguration = StrictRunFilterPluginConfiguration().also(block)
+    }
+
     fun instrumentationArgs(block: MutableMap<String, String>.() -> Unit) {
         instrumentationArgs = mutableMapOf<String, String>().also(block)
     }
@@ -145,6 +148,12 @@ open class MarathonExtension(project: Project) {
     fun filteringConfiguration(closure: Closure<*>) {
         filteringConfiguration = FilteringPluginConfiguration()
         closure.delegate = filteringConfiguration
+        closure.call()
+    }
+
+    fun strictRunFilter(closure: Closure<*>) {
+        strictRunFilterConfiguration = StrictRunFilterPluginConfiguration()
+        closure.delegate = strictRunFilterConfiguration
         closure.call()
     }
 
