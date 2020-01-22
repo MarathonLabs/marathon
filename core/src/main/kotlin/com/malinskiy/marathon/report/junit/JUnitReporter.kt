@@ -5,6 +5,6 @@ import com.malinskiy.marathon.report.Reporter
 
 internal class JUnitReporter(private val jUnitWriter: JUnitWriter) : Reporter {
     override fun generate(executionReport: ExecutionReport) {
-        jUnitWriter.prepareXMLReport(executionReport)
+        jUnitWriter.prepareXMLReport(executionReport.testEvents.filter { it.final })
     }
 }

@@ -1,6 +1,7 @@
 package com.malinskiy.marathon.report.junit
 
 import com.malinskiy.marathon.analytics.internal.sub.ExecutionReport
+import com.malinskiy.marathon.analytics.internal.sub.TestEvent
 import com.malinskiy.marathon.io.FileManager
 import com.malinskiy.marathon.io.FileType
 import com.malinskiy.marathon.report.junit.model.JUnitReport
@@ -17,14 +18,14 @@ class JUnitWriter(private val fileManager: FileManager) {
 
     private val xmlWriterMap = hashMapOf<Pool, XMLStreamWriter>()
 
-    fun prepareXMLReport(executionReport: ExecutionReport) {
-        makeFile(executionReport)
-        prepareReport(executionReport)
+    fun prepareXMLReport(testEvents: List<TestEvent>) {
+        makeFile(testEvents)
+        prepareReport(testEvents)
         finalize()
     }
 
-    private fun makeFile(executionReport: ExecutionReport) {
-        executionReport.testEvents.map { Pool(it.poolId, it.device) }.distinct()
+    private fun makeFile(testEvents: List<TestEvent>) {
+        testEvents.map { Pool(it.poolId, it.device) }.distinct()
             .forEach {
             val file = fileManager.createFile(FileType.TEST, it.devicePoolId, it.deviceInfo, reportName)
             file.createNewFile()
@@ -33,8 +34,8 @@ class JUnitWriter(private val fileManager: FileManager) {
         }
     }
 
-    private fun prepareReport(executionReport: ExecutionReport) {
-        val reportGenerator = JunitReportGenerator(executionReport.testEvents)
+    private fun prepareReport(testEvents: List<TestEvent>) {
+        val reportGenerator = JunitReportGenerator(testEvents)
         reportGenerator.makeSuiteData()
         val junitReports = reportGenerator.junitReports
         junitReports.keys.forEach {
@@ -70,8 +71,16 @@ class JUnitWriter(private val fileManager: FileManager) {
                         attribute("classname", it.classname)
                         attribute("name", it.name)
                         attribute("time", it.time)
-                        if (Strings.isNotNullAndNotEmpty(it.skipped)) element("skipped") { writeCData(it.skipped) }
-                        if (Strings.isNotNullAndNotEmpty(it.failure)) element("failure") { writeCData(it.failure) }
+                        if(it.skipped.isError) element("skipped") {
+                            if(it.skipped.stackTrace!=null){
+                                writeCData(it.skipped.stackTrace)
+                            }
+                        }
+                        if(it.failure.isError) element("failure") {
+                            if (it.failure.stackTrace != null) {
+                                writeCData(it.failure.stackTrace)
+                            }
+                        }
                     }
                 }
             }

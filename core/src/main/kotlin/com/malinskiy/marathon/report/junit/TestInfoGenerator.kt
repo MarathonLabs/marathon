@@ -5,6 +5,7 @@ import com.malinskiy.marathon.execution.TestResult
 import com.malinskiy.marathon.execution.TestStatus
 import com.malinskiy.marathon.report.junit.model.JUnitReport
 import com.malinskiy.marathon.report.junit.model.Pool
+import com.malinskiy.marathon.report.junit.model.StackTraceElement
 import com.malinskiy.marathon.report.junit.model.TestCaseData
 import com.malinskiy.marathon.report.junit.model.TestSuiteData
 import java.text.SimpleDateFormat
@@ -52,13 +53,14 @@ internal class JunitReportGenerator(private val testEvents: List<TestEvent>) {
                 classname = it.testResult.test.pkg + "." + it.testResult.test.clazz,
                 name = it.testResult.test.method,
                 time = it.testResult.durationMillis().toJUnitSeconds(),
-                skipped = if (isSkipped(it.testResult)) Objects.toString(it.testResult.stacktrace, "") else "",
-                failure = if (isFailure(it.testResult)) Objects.toString(it.testResult.stacktrace, "") else ""
+                skipped = if (isSkipped(it.testResult)) StackTraceElement(true, it.testResult.stacktrace) else StackTraceElement(false, null),
+                failure = if (isFailure(it.testResult)) StackTraceElement(true, it.testResult.stacktrace) else StackTraceElement(false, null)
             )
         }
 
     private fun isSkipped(testResult: TestResult) =
         testResult.status == TestStatus.IGNORED || testResult.status == TestStatus.ASSUMPTION_FAILURE
 
-    private fun isFailure(testResult: TestResult) = testResult.status == TestStatus.FAILURE
+    private fun isFailure(testResult: TestResult) =
+        testResult.status == TestStatus.FAILURE || testResult.status == TestStatus.INCOMPLETE
 }
