@@ -2,6 +2,7 @@ package com.malinskiy.marathon.test.factory
 
 import com.malinskiy.marathon.device.DeviceProvider
 import com.malinskiy.marathon.execution.Configuration
+import com.malinskiy.marathon.execution.policy.ScreenRecordingPolicy
 import com.malinskiy.marathon.execution.strategy.FlakinessStrategy
 import com.malinskiy.marathon.execution.strategy.ShardingStrategy
 import com.malinskiy.marathon.test.Mocks
@@ -39,6 +40,7 @@ class ConfigurationFactory {
     var testBatchTimeoutMillis = null
     var testOutputTimeoutMillis = null
     var analyticsTracking = false
+    var screenRecordingPolicy: ScreenRecordingPolicy? = null
 
     fun tests(block: () -> List<Test>) {
         val testParser = vendorConfiguration.testParser()!!
@@ -73,6 +75,7 @@ class ConfigurationFactory {
             testBatchTimeoutMillis,
             testOutputTimeoutMillis,
             debug,
+            screenRecordingPolicy,
             vendorConfiguration,
             analyticsTracking
         )

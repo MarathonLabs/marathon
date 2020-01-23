@@ -1,5 +1,6 @@
 package com.malinskiy.marathon.execution
 
+import com.malinskiy.marathon.execution.policy.ScreenRecordingPolicy
 import com.malinskiy.marathon.execution.strategy.BatchingStrategy
 import com.malinskiy.marathon.execution.strategy.FlakinessStrategy
 import com.malinskiy.marathon.execution.strategy.PoolingStrategy
@@ -45,6 +46,8 @@ data class Configuration constructor(
     val testOutputTimeoutMillis: Long,
     val debug: Boolean,
 
+    val screenRecordingPolicy: ScreenRecordingPolicy,
+
     val vendorConfiguration: VendorConfiguration,
 
     val analyticsTracking: Boolean
@@ -77,6 +80,8 @@ data class Configuration constructor(
         testOutputTimeoutMillis: Long?,
         debug: Boolean?,
 
+        screenRecordingPolicy: ScreenRecordingPolicy?,
+
         vendorConfiguration: VendorConfiguration,
 
         analyticsTracking: Boolean?
@@ -104,6 +109,7 @@ data class Configuration constructor(
                 testBatchTimeoutMillis = testBatchTimeoutMillis ?: DEFAULT_EXECUTION_TIMEOUT_MILLIS,
                 testOutputTimeoutMillis = testOutputTimeoutMillis ?: DEFAULT_OUTPUT_TIMEOUT_MILLIS,
                 debug = debug ?: true,
+                screenRecordingPolicy = screenRecordingPolicy ?: ScreenRecordingPolicy.ON_FAILURE,
                 vendorConfiguration = vendorConfiguration,
                 analyticsTracking = analyticsTracking ?: false
             )
@@ -130,6 +136,7 @@ data class Configuration constructor(
             "testBatchTimeoutMillis" to testBatchTimeoutMillis.toString(),
             "testOutputTimeoutMillis" to testOutputTimeoutMillis.toString(),
             "debug" to debug.toString(),
+            "screenRecordingPolicy" to screenRecordingPolicy.toString(),
             "vendorConfiguration" to vendorConfiguration.toString()
         )
 }

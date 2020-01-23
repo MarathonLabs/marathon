@@ -2,6 +2,7 @@ package com.malinskiy.marathon
 
 import com.malinskiy.marathon.android.serial.SerialStrategy
 import com.malinskiy.marathon.device.DeviceFeature
+import com.malinskiy.marathon.execution.policy.ScreenRecordingPolicy
 import groovy.lang.Closure
 import org.gradle.api.Project
 
@@ -33,6 +34,8 @@ open class MarathonExtension(project: Project) {
     var testBatchTimeoutMillis: Long? = null
     var testOutputTimeoutMillis: Long? = null
     var debug: Boolean? = null
+
+    val screenRecordingPolicy: ScreenRecordingPolicy? = null
 
     var applicationPmClear: Boolean? = null
     var testApplicationPmClear: Boolean? = null

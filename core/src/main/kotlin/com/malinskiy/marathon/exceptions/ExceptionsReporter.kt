@@ -4,4 +4,5 @@ import com.malinskiy.marathon.config.AppType
 
 interface ExceptionsReporter {
     fun start(appType: AppType)
+    fun end()
 }

@@ -9,6 +9,7 @@ import com.malinskiy.marathon.android.DEFAULT_INSTALL_OPTIONS
 import com.malinskiy.marathon.android.defaultInitTimeoutMillis
 import com.malinskiy.marathon.android.serial.SerialStrategy
 import com.malinskiy.marathon.di.marathonStartKoin
+import com.malinskiy.marathon.exceptions.ExceptionsReporter
 import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.extensions.extractApplication
 import com.malinskiy.marathon.extensions.extractTestApplication
@@ -33,6 +34,7 @@ open class MarathonRunTask : DefaultTask(), VerificationTask {
     lateinit var extensionConfig: MarathonExtension
     lateinit var sdk: File
     lateinit var cnf: Configuration
+    lateinit var exceptionsTracker: ExceptionsReporter
     var ignoreFailure: Boolean = false
 
     @OutputDirectory
@@ -71,6 +73,7 @@ open class MarathonRunTask : DefaultTask(), VerificationTask {
             extensionConfig.testBatchTimeoutMillis,
             extensionConfig.testOutputTimeoutMillis,
             extensionConfig.debug,
+            extensionConfig.screenRecordingPolicy,
             vendorConfiguration,
             extensionConfig.analyticsTracking
         )
@@ -88,7 +91,7 @@ open class MarathonRunTask : DefaultTask(), VerificationTask {
         val marathon: Marathon = application.koin.get()
 
         val success = marathon.run()
-
+        exceptionsTracker.end()
         val shouldReportFailure = !cnf.ignoreFailures
         if (!success && shouldReportFailure) {
             throw GradleException("Tests failed! See ${cnf.outputDir}/html/index.html")

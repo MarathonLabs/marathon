@@ -43,6 +43,7 @@ object IOSTestParserSpek : Spek(
                     testBatchTimeoutMillis = null,
                     testOutputTimeoutMillis = null,
                     debug = null,
+                    screenRecordingPolicy = null,
                     vendorConfiguration = IOSConfiguration(
                         derivedDataDir = derivedDataDir,
                         xctestrunPath = xctestrunPath,

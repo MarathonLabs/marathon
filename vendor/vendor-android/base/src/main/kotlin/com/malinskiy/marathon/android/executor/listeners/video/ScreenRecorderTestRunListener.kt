@@ -4,12 +4,13 @@ import com.malinskiy.marathon.android.AndroidDevice
 import com.malinskiy.marathon.android.exception.TransferException
 import com.malinskiy.marathon.android.executor.listeners.NoOpTestRunListener
 import com.malinskiy.marathon.android.executor.listeners.line.LineListener
-import com.malinskiy.marathon.android.executor.listeners.line.OutputLineListener
+import com.malinskiy.marathon.android.executor.listeners.line.NullOutputListener
 import com.malinskiy.marathon.android.model.TestIdentifier
 import com.malinskiy.marathon.device.DevicePoolId
 import com.malinskiy.marathon.device.toDeviceInfo
 import com.malinskiy.marathon.execution.Attachment
 import com.malinskiy.marathon.execution.AttachmentType
+import com.malinskiy.marathon.execution.policy.ScreenRecordingPolicy
 import com.malinskiy.marathon.io.FileManager
 import com.malinskiy.marathon.io.FileType
 import com.malinskiy.marathon.log.MarathonLogging
@@ -23,7 +24,8 @@ const val MS_IN_SECOND: Long = 1_000L
 class ScreenRecorderTestRunListener(
     private val fileManager: FileManager,
     private val pool: DevicePoolId,
-    private val device: AndroidDevice
+    private val device: AndroidDevice,
+    private val screenRecordingPolicy: ScreenRecordingPolicy
 ) : NoOpTestRunListener(), AttachmentProvider {
 
     val attachmentListeners = mutableListOf<AttachmentListener>()
@@ -38,16 +40,14 @@ class ScreenRecorderTestRunListener(
 
     private var hasFailed: Boolean = false
     private var recorder: Thread? = null
-    private var receiver: LineListener? = null
+    private var outputListener: LineListener = NullOutputListener()
 
     private val awaitMillis = MS_IN_SECOND
 
     override fun testStarted(test: TestIdentifier) {
         hasFailed = false
 
-        receiver = OutputLineListener()
-
-        val screenRecorder = ScreenRecorder(device, receiver!!, device.fileManager.remoteVideoForTest(test.toTest()))
+        val screenRecorder = ScreenRecorder(device, outputListener, device.fileManager.remoteVideoForTest(test.toTest()))
         recorder = kotlin.concurrent.thread {
             screenRecorder.run()
         }
@@ -71,7 +71,7 @@ class ScreenRecorderTestRunListener(
                 recorder?.join(awaitMillis)
             }
             logger.trace { "join ${join}ms" }
-            if (hasFailed) {
+            if (screenRecordingPolicy == ScreenRecordingPolicy.ON_ANY || hasFailed) {
                 val stop = measureTimeMillis {
                     screenRecorderStopper.stopScreenRecord()
                 }

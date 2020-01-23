@@ -19,6 +19,7 @@ import com.malinskiy.marathon.execution.FullyQualifiedClassnameFilter
 import com.malinskiy.marathon.execution.SimpleClassnameFilter
 import com.malinskiy.marathon.execution.TestMethodFilter
 import com.malinskiy.marathon.execution.TestPackageFilter
+import com.malinskiy.marathon.execution.policy.ScreenRecordingPolicy
 import com.malinskiy.marathon.execution.strategy.impl.batching.FixedSizeBatchingStrategy
 import com.malinskiy.marathon.execution.strategy.impl.batching.IsolateBatchingStrategy
 import com.malinskiy.marathon.execution.strategy.impl.flakiness.IgnoreFlakinessStrategy
@@ -151,6 +152,7 @@ object ConfigFactorySpec : Spek(
                     configuration.testBatchTimeoutMillis shouldEqual 20_000
                     configuration.testOutputTimeoutMillis shouldEqual 30_000
                     configuration.debug shouldEqual true
+                    configuration.screenRecordingPolicy shouldEqual ScreenRecordingPolicy.ON_ANY
 
                     configuration.vendorConfiguration shouldEqual AndroidConfiguration(
                         File("/local/android"),
@@ -221,6 +223,7 @@ object ConfigFactorySpec : Spek(
                     configuration.testBatchTimeoutMillis shouldEqual 900_000
                     configuration.testOutputTimeoutMillis shouldEqual 60_000
                     configuration.debug shouldEqual true
+                    configuration.screenRecordingPolicy shouldEqual ScreenRecordingPolicy.ON_FAILURE
                     configuration.vendorConfiguration shouldEqual AndroidConfiguration(
                         File("/local/android"),
                         File("kotlin-buildscript/build/outputs/apk/debug/kotlin-buildscript-debug.apk"),

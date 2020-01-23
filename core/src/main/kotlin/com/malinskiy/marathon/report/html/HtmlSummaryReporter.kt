@@ -154,6 +154,33 @@ class HtmlSummaryReporter(
         modelName = model
     )
 
+    private fun TestResult.receiveScreenshotPath(poolId: String): String {
+        val screenshotRelativePath = "/screenshot/$poolId/${device.serialNumber}/${test.pkg}.${test.clazz}#${test.method}.gif"
+        val screenshotFullPath = File(rootOutput, screenshotRelativePath)
+        return when (device.deviceFeatures.contains(DeviceFeature.SCREENSHOT) && screenshotFullPath.exists()) {
+            true -> "../../../..${screenshotRelativePath.replace("#", "%23")}"
+            false -> ""
+        }
+    }
+
+    private fun TestResult.receiveVideoPath(poolId: String): String {
+        val videoRelativePath = "/video/$poolId/${device.serialNumber}/${test.pkg}.${test.clazz}#${test.method}.mp4"
+        val videoFullPath = File(rootOutput, videoRelativePath)
+        return when (device.deviceFeatures.contains(DeviceFeature.VIDEO) && videoFullPath.exists()) {
+            true -> "../../../..${videoRelativePath.replace("#", "%23")}"
+            false -> ""
+        }
+    }
+
+    private fun TestResult.receiveLogPath(poolId: String): String {
+        val logRelativePath = "/logs/$poolId/${device.serialNumber}/${test.pkg}.${test.clazz}#${test.method}.log"
+        val logFullPath = File(rootOutput, logRelativePath)
+        return when (device.deviceFeatures.contains(DeviceFeature.VIDEO) && logFullPath.exists()) {
+            true -> "../../../..${logRelativePath.replace("#", "%23")}"
+            false -> ""
+        }
+    }
+
     fun TestResult.toHtmlFullTest(poolId: String) = HtmlFullTest(
         poolId = poolId,
         id = "${test.pkg}.${test.clazz}.${test.method}",
@@ -166,15 +193,9 @@ class HtmlSummaryReporter(
         diagnosticVideo = device.deviceFeatures.contains(DeviceFeature.VIDEO),
         diagnosticScreenshots = device.deviceFeatures.contains(DeviceFeature.SCREENSHOT),
         stacktrace = stacktrace,
-        screenshot = when (device.deviceFeatures.contains(DeviceFeature.SCREENSHOT)) {
-            true -> "../../../../screenshot/$poolId/${device.serialNumber}/${test.pkg}.${test.clazz}%23${test.method}.gif"
-            false -> ""
-        },
-        video = when (device.deviceFeatures.contains(DeviceFeature.VIDEO)) {
-            true -> "../../../../video/$poolId/${device.serialNumber}/${test.pkg}.${test.clazz}%23${test.method}.mp4"
-            false -> ""
-        },
-        logFile = "../../../../logs/$poolId/${device.serialNumber}/${test.pkg}.${test.clazz}%23${test.method}.log"
+        screenshot = receiveScreenshotPath(poolId),
+        video = receiveVideoPath(poolId),
+        logFile = receiveLogPath(poolId)
     )
 
     fun TestStatus.toHtmlStatus() = when (this) {

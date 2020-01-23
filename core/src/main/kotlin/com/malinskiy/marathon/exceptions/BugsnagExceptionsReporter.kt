@@ -22,4 +22,8 @@ class BugsnagExceptionsReporter : ExceptionsReporter {
             setAppVersion(BuildConfig.VERSION)
         }
     }
+
+    override fun end() {
+        bugsnag?.close()
+    }
 }

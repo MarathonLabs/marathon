@@ -90,6 +90,7 @@ object DerivedDataManagerSpek : Spek(
                     testBatchTimeoutMillis = null,
                     testOutputTimeoutMillis = null,
                     debug = false,
+                    screenRecordingPolicy = null,
                     vendorConfiguration = IOSConfiguration(
                         derivedDataDir = derivedDataDir,
                         xctestrunPath = xctestrunPath,
