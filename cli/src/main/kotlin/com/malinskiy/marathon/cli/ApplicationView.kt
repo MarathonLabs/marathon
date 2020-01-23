@@ -12,8 +12,8 @@ import com.malinskiy.marathon.cli.args.environment.SystemEnvironmentReader
 import com.malinskiy.marathon.cli.config.ConfigFactory
 import com.malinskiy.marathon.cli.config.DeserializeModule
 import com.malinskiy.marathon.cli.config.time.InstantTimeProviderImpl
-import com.malinskiy.marathon.di.marathonStartKoin
 import com.malinskiy.marathon.config.AppType
+import com.malinskiy.marathon.di.marathonStartKoin
 import com.malinskiy.marathon.exceptions.BugsnagExceptionsReporter
 import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.usageanalytics.TrackActionType
@@ -50,7 +50,9 @@ fun main(args: Array<String>): Unit = mainBody(
         UsageAnalytics.USAGE_TRACKER.trackEvent(Event(TrackActionType.RunType, "cli"))
         val success = marathon.run()
         bugsnagExceptionsReporter.end()
-        if (!success) {
+
+        val shouldReportFailure = !configuration.ignoreFailures
+        if (!success && shouldReportFailure) {
             throw SystemExitException("Build failed", 1)
         }
         success
