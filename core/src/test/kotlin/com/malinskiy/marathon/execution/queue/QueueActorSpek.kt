@@ -254,6 +254,7 @@ private val DEFAULT_CONFIGURATION = Configuration(
     testBatchTimeoutMillis = null,
     testOutputTimeoutMillis = null,
     debug = null,
+    screenRecordingPolicy = null,
     vendorConfiguration = TestVendorConfiguration(
         testParser = mock(),
         deviceProvider = mock()

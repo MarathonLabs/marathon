@@ -63,6 +63,7 @@ strictMode: true
 testBatchTimeoutMillis: 20000
 testOutputTimeoutMillis: 30000
 debug: true
+screenRecordingPolicy: "ON_ANY"
 vendorConfiguration:
   type: "Android"
   androidSdk: "/local/android"

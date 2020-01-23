@@ -63,6 +63,7 @@ class ConfigFactory(private val mapper: ObjectMapper) {
             testBatchTimeoutMillis = config.testBatchTimeoutMillis,
             testOutputTimeoutMillis = config.testOutputTimeoutMillis,
             debug = config.debug,
+            screenRecordingPolicy = config.screenRecordingPolicy,
             vendorConfiguration = vendorConfiguration as VendorConfiguration,
             analyticsTracking = config.analyticsTracking
         )

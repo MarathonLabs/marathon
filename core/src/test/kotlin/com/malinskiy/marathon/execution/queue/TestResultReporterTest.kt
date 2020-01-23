@@ -52,6 +52,7 @@ object TestResultReporterSpec : Spek(
             testBatchTimeoutMillis = null,
             testOutputTimeoutMillis = null,
             debug = false,
+            screenRecordingPolicy = null,
             vendorConfiguration = TestVendorConfiguration(Mocks.TestParser.DEFAULT, StubDeviceProvider()),
             analyticsTracking = false
         )

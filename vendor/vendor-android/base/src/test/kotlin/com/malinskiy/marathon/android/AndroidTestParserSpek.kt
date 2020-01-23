@@ -39,6 +39,7 @@ class AndroidTestParserSpek : Spek(
                     testBatchTimeoutMillis = null,
                     testOutputTimeoutMillis = null,
                     debug = null,
+                    screenRecordingPolicy = null,
                     vendorConfiguration = AndroidConfiguration(
                         File(""),
                         applicationOutput = File(""),

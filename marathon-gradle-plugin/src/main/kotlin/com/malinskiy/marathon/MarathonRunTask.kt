@@ -73,6 +73,7 @@ open class MarathonRunTask : DefaultTask(), VerificationTask {
             extensionConfig.testBatchTimeoutMillis,
             extensionConfig.testOutputTimeoutMillis,
             extensionConfig.debug,
+            extensionConfig.screenRecordingPolicy,
             vendorConfiguration,
             extensionConfig.analyticsTracking
         )
