@@ -17,7 +17,7 @@ android {
         versionCode = 1
         versionName = "1.0"
 
-        testInstrumentationRunner = "android.support.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunner = "io.qameta.allure.espresso.AllureAndroidRunner"
     }
 
     buildTypes {
@@ -38,7 +38,12 @@ dependencies {
     implementation(Libraries.appCompat)
     implementation(Libraries.constraintLayout)
     implementation(Libraries.kotlinStdLib)
-    implementation(TestLibraries.espressoRunner)
-    implementation(TestLibraries.espressoCore)
+
+    androidTestImplementation(TestLibraries.espressoRunner)
+    androidTestImplementation(TestLibraries.espressoRules)
+    androidTestImplementation(TestLibraries.espressoCore)
     androidTestImplementation(TestLibraries.kakao)
+    androidTestImplementation(TestLibraries.allureAndroidCommon)
+    androidTestImplementation(TestLibraries.allureAndroidModel)
+    androidTestImplementation(TestLibraries.allureAndroidEspresso)
 }

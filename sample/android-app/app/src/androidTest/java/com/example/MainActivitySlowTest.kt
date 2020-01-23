@@ -1,7 +1,6 @@
 package com.example
 
-import android.support.test.rule.ActivityTestRule
-import android.support.test.runner.AndroidJUnit4
+import androidx.test.rule.ActivityTestRule
 import io.qameta.allure.Epic
 import io.qameta.allure.Feature
 import io.qameta.allure.Owner
@@ -10,14 +9,12 @@ import io.qameta.allure.SeverityLevel
 import io.qameta.allure.Story
 import org.junit.Rule
 import org.junit.Test
-import org.junit.runner.RunWith
 
 @Epic("Marathon")
 @Feature("Slow")
 @Owner("user1")
 @Severity(SeverityLevel.BLOCKER)
 @Story("Slow")
-@RunWith(AndroidJUnit4::class)
 class MainActivitySlowTest {
 
     @Rule

@@ -1,14 +1,12 @@
 package com.example
 
-import android.support.test.rule.ActivityTestRule
-import android.support.test.runner.AndroidJUnit4
+import androidx.test.rule.ActivityTestRule
+import io.qameta.allure.android.step
 import org.junit.Assert.fail
 import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
-import org.junit.runner.RunWith
 
-@RunWith(AndroidJUnit4::class)
 @Ignore
 class ClassIgnoredTest {
 
@@ -20,6 +18,6 @@ class ClassIgnoredTest {
 
     @Test
     fun testAlwaysIgnored() {
-        fail("Should've been ignored because of @Ignore on a class")
+            fail("Should've been ignored because of @Ignore on a class")
     }
 }

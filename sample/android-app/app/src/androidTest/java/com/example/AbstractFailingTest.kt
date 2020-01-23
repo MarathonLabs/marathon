@@ -1,14 +1,11 @@
 package com.example
 
-import android.support.test.rule.ActivityTestRule
-import android.support.test.runner.AndroidJUnit4
+import androidx.test.rule.ActivityTestRule
+import io.qameta.allure.android.step
+import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
-import org.junit.runner.RunWith
-import org.junit.Assert.assertTrue
-import java.util.Random
 
-@RunWith(AndroidJUnit4::class)
 class AbstractFailingTest {
 
     @Rule
@@ -19,6 +16,6 @@ class AbstractFailingTest {
 
     @Test
     fun testAlwaysFailing() {
-        assertTrue(false)
+            assertTrue(false)
     }
 }
