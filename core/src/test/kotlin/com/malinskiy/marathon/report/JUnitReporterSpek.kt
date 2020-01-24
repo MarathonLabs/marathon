@@ -78,6 +78,7 @@ class JUnitReporterSpek : Spek(
                 testBatchTimeoutMillis = null,
                 testOutputTimeoutMillis = null,
                 debug = null,
+                screenRecordingPolicy = null,
                 vendorConfiguration = object : VendorConfiguration {
                     override fun testParser(): TestParser? = null
                     override fun deviceProvider(): DeviceProvider? = null
