@@ -1,10 +1,12 @@
 package com.malinskiy.marathon.cli.args
 
 import com.fasterxml.jackson.annotation.JsonProperty
-import com.malinskiy.marathon.android.AndroidConfiguration
-import com.malinskiy.marathon.android.DEFAULT_INSTALL_OPTIONS
-import com.malinskiy.marathon.android.defaultInitTimeoutMillis
-import com.malinskiy.marathon.android.serial.SerialStrategy
+import com.malinskiy.marathon.android.configuration.AllureConfiguration
+import com.malinskiy.marathon.android.configuration.AndroidConfiguration
+import com.malinskiy.marathon.android.configuration.DEFAULT_ALLURE_CONFIGURATION
+import com.malinskiy.marathon.android.configuration.DEFAULT_INSTALL_OPTIONS
+import com.malinskiy.marathon.android.configuration.SerialStrategy
+import com.malinskiy.marathon.android.configuration.defaultInitTimeoutMillis
 import com.malinskiy.marathon.device.DeviceFeature
 import com.malinskiy.marathon.exceptions.ConfigurationException
 import ddmlibModule
@@ -22,7 +24,8 @@ data class FileAndroidConfiguration(
     @JsonProperty("adbInitTimeoutMillis") val adbInitTimeoutMillis: Int?,
     @JsonProperty("installOptions") val installOptions: String?,
     @JsonProperty("preferableRecorderType") val preferableRecorderType: DeviceFeature?,
-    @JsonProperty("serialStrategy") val serialStrategy: SerialStrategy = SerialStrategy.AUTOMATIC
+    @JsonProperty("serialStrategy") val serialStrategy: SerialStrategy = SerialStrategy.AUTOMATIC,
+    @JsonProperty("allureConfiguration") val allureConfiguration: AllureConfiguration?
 ) : FileVendorConfiguration {
 
     fun toAndroidConfiguration(environmentAndroidSdk: File?): AndroidConfiguration {
@@ -40,11 +43,15 @@ data class FileAndroidConfiguration(
                     instrumentationArgs = instrumentationArgs ?: emptyMap(),
                     applicationPmClear = applicationPmClear ?: false,
                     testApplicationPmClear = testApplicationPmClear ?: false,
-                    adbInitTimeoutMillis = adbInitTimeoutMillis ?: defaultInitTimeoutMillis,
-                    installOptions = installOptions ?: DEFAULT_INSTALL_OPTIONS,
+                    adbInitTimeoutMillis = adbInitTimeoutMillis
+                        ?: defaultInitTimeoutMillis,
+                    installOptions = installOptions
+                        ?: DEFAULT_INSTALL_OPTIONS,
                     preferableRecorderType = preferableRecorderType,
                     serialStrategy = serialStrategy,
-                    implementationModules = listOf(ddmlibModule)
+                    implementationModules = listOf(ddmlibModule),
+                    allureConfiguration = allureConfiguration
+                        ?: DEFAULT_ALLURE_CONFIGURATION
                 )
             }
         }

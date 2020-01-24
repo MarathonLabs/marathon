@@ -1,7 +1,6 @@
-package com.malinskiy.marathon.android
+package com.malinskiy.marathon.android.configuration
 
 import com.malinskiy.marathon.android.di.androidModule
-import com.malinskiy.marathon.android.serial.SerialStrategy
 import com.malinskiy.marathon.device.DeviceFeature
 import com.malinskiy.marathon.device.DeviceProvider
 import com.malinskiy.marathon.execution.TestParser
@@ -31,7 +30,8 @@ data class AndroidConfiguration(
     val adbInitTimeoutMillis: Int = defaultInitTimeoutMillis,
     val installOptions: String = DEFAULT_INSTALL_OPTIONS,
     val preferableRecorderType: DeviceFeature? = null,
-    val serialStrategy: SerialStrategy = SerialStrategy.AUTOMATIC
+    val serialStrategy: SerialStrategy = SerialStrategy.AUTOMATIC,
+    val allureConfiguration: AllureConfiguration = DEFAULT_ALLURE_CONFIGURATION
 ) : VendorConfiguration, KoinComponent {
 
     private val koinModules = listOf(androidModule) + implementationModules
@@ -40,7 +40,8 @@ data class AndroidConfiguration(
 
     override fun deviceProvider(): DeviceProvider? = get()
 
-    override fun logConfigurator(): MarathonLogConfigurator = AndroidLogConfigurator()
+    override fun logConfigurator(): MarathonLogConfigurator =
+        AndroidLogConfigurator()
 
     override fun preferableRecorderType(): DeviceFeature? = preferableRecorderType
 

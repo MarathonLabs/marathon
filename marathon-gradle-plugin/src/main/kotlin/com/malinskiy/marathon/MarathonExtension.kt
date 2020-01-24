@@ -1,6 +1,6 @@
 package com.malinskiy.marathon
 
-import com.malinskiy.marathon.android.serial.SerialStrategy
+import com.malinskiy.marathon.android.configuration.SerialStrategy
 import com.malinskiy.marathon.device.DeviceFeature
 import com.malinskiy.marathon.execution.policy.ScreenRecordingPolicy
 import groovy.lang.Closure

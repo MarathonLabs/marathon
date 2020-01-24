@@ -6,7 +6,7 @@ import com.android.ddmlib.IDevice
 import com.android.ddmlib.TimeoutException
 import com.malinskiy.marathon.actor.unboundedChannel
 import com.malinskiy.marathon.analytics.internal.pub.Track
-import com.malinskiy.marathon.android.AndroidConfiguration
+import com.malinskiy.marathon.android.configuration.AndroidConfiguration
 import com.malinskiy.marathon.device.DeviceProvider
 import com.malinskiy.marathon.device.DeviceProvider.DeviceEvent.DeviceConnected
 import com.malinskiy.marathon.device.DeviceProvider.DeviceEvent.DeviceDisconnected

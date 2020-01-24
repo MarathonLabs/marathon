@@ -1,6 +1,6 @@
 package com.malinskiy.marathon.cli.args
 
-import com.malinskiy.marathon.android.serial.SerialStrategy
+import com.malinskiy.marathon.android.configuration.SerialStrategy
 import com.malinskiy.marathon.exceptions.ConfigurationException
 import org.amshove.kluent.shouldEqual
 import org.amshove.kluent.shouldThrow

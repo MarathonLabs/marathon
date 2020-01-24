@@ -6,9 +6,9 @@ import com.android.ddmlib.TimeoutException
 import com.android.ddmlib.testrunner.ITestRunListener
 import com.android.ddmlib.testrunner.RemoteAndroidTestRunner
 import com.android.ddmlib.testrunner.TestIdentifier
-import com.malinskiy.marathon.android.AndroidConfiguration
 import com.malinskiy.marathon.android.ApkParser
 import com.malinskiy.marathon.android.InstrumentationInfo
+import com.malinskiy.marathon.android.configuration.AndroidConfiguration
 import com.malinskiy.marathon.exceptions.DeviceLostException
 import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.log.MarathonLogging
@@ -88,6 +88,10 @@ class AndroidDeviceTestRunner(private val device: DdmlibAndroidDevice) {
             device.ddmsDevice.safeClearPackage(info.instrumentationPackage)?.also {
                 logger.debug { "Package ${info.applicationPackage} cleared: $it" }
             }
+        }
+        if (androidConfiguration.allureConfiguration.allureAndroidSupport) {
+            device.fileManager.removeRemotePath(androidConfiguration.allureConfiguration.resultsDirectory, recursive = true)
+            device.fileManager.createRemoteDirectory(androidConfiguration.allureConfiguration.resultsDirectory)
         }
     }
 

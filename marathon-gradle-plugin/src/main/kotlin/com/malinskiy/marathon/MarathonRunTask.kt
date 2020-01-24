@@ -2,12 +2,12 @@ package com.malinskiy.marathon
 
 import com.android.build.gradle.api.BaseVariant
 import com.android.build.gradle.api.TestVariant
-import com.malinskiy.marathon.android.AndroidConfiguration
-import com.malinskiy.marathon.android.DEFAULT_APPLICATION_PM_CLEAR
-import com.malinskiy.marathon.android.DEFAULT_AUTO_GRANT_PERMISSION
-import com.malinskiy.marathon.android.DEFAULT_INSTALL_OPTIONS
-import com.malinskiy.marathon.android.defaultInitTimeoutMillis
-import com.malinskiy.marathon.android.serial.SerialStrategy
+import com.malinskiy.marathon.android.configuration.AndroidConfiguration
+import com.malinskiy.marathon.android.configuration.DEFAULT_APPLICATION_PM_CLEAR
+import com.malinskiy.marathon.android.configuration.DEFAULT_AUTO_GRANT_PERMISSION
+import com.malinskiy.marathon.android.configuration.DEFAULT_INSTALL_OPTIONS
+import com.malinskiy.marathon.android.configuration.SerialStrategy
+import com.malinskiy.marathon.android.configuration.defaultInitTimeoutMillis
 import com.malinskiy.marathon.di.marathonStartKoin
 import com.malinskiy.marathon.exceptions.ExceptionsReporter
 import com.malinskiy.marathon.execution.Configuration

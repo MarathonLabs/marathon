@@ -5,11 +5,13 @@ retryStrategy:
   totalAllowedRetryQuota: 100
   retryPerTestQuota: 2
 vendorConfiguration:
-  type: "Android"
-  applicationApk: "app/build/outputs/apk/debug/app-debug.apk"
-  testApplicationApk: "app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk"
-  autoGrantPermission: true
-  instrumentationArgs:
-    debug: "false"
-  applicationPmClear: true
-  testApplicationPmClear: true
+    type: "Android"
+    applicationApk: "app/build/outputs/apk/debug/app-debug.apk"
+    testApplicationApk: "app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk"
+    autoGrantPermission: true
+    instrumentationArgs:
+        debug: "false"
+    applicationPmClear: true
+    testApplicationPmClear: true
+    allureConfiguration:
+        allureAndroidSupport: true

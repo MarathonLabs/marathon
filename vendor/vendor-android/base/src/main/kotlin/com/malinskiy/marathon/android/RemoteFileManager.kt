@@ -5,16 +5,16 @@ import com.malinskiy.marathon.test.Test
 class RemoteFileManager(private val device: AndroidDevice) {
     private val outputDir by lazy { device.getExternalStorageMount() }
 
-    fun removeRemotePath(remotePath: String) {
-        device.executeCommand("rm $remotePath", "Could not delete remote file(s): $remotePath")
+    fun removeRemotePath(remotePath: String, recursive: Boolean = false) {
+        device.executeCommand("rm ${if (recursive) "-r" else ""} $remotePath", "Could not delete remote file(s): $remotePath")
     }
 
     fun pullFile(remoteFilePath: String, localFilePath: String) {
         device.pullFile(remoteFilePath, localFilePath)
     }
 
-    fun createRemoteDirectory() {
-        device.executeCommand("mkdir $outputDir", "Could not create remote directory: $outputDir")
+    fun createRemoteDirectory(remoteDir: String = outputDir) {
+        device.executeCommand("mkdir $remoteDir", "Could not create remote directory: $remoteDir")
     }
 
     fun removeRemoteDirectory() {

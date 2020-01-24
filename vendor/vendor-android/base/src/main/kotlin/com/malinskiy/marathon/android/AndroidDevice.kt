@@ -17,6 +17,7 @@ interface AndroidDevice : Device {
 
     fun executeCommand(command: String, errorMessage: String)
     fun pullFile(remoteFilePath: String, localFilePath: String)
+    fun pullFolder(remoteFolderPath: String, localFolderPath: String)
     fun safeUninstallPackage(appPackage: String): String?
     fun safeInstallPackage(absolutePath: String, reinstall: Boolean, optionalParams: String): String?
     fun safeExecuteShellCommand(command: String): String

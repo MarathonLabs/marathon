@@ -19,10 +19,14 @@ import com.malinskiy.marathon.analytics.internal.pub.Track
 import com.malinskiy.marathon.android.AndroidAppInstaller
 import com.malinskiy.marathon.android.AndroidDevice
 import com.malinskiy.marathon.android.RemoteFileManager
+import com.malinskiy.marathon.android.configuration.AndroidConfiguration
+import com.malinskiy.marathon.android.configuration.SerialStrategy
 import com.malinskiy.marathon.android.ddmlib.shell.receiver.CollectingShellOutputReceiver
+import com.malinskiy.marathon.android.ddmlib.sync.NoOpSyncProgressMonitor
 import com.malinskiy.marathon.android.exception.CommandRejectedException
 import com.malinskiy.marathon.android.exception.InvalidSerialConfiguration
 import com.malinskiy.marathon.android.exception.TransferException
+import com.malinskiy.marathon.android.executor.listeners.AllureArtifactsTestRunListener
 import com.malinskiy.marathon.android.executor.listeners.AndroidTestRunListener
 import com.malinskiy.marathon.android.executor.listeners.CompositeTestRunListener
 import com.malinskiy.marathon.android.executor.listeners.DebugTestRunListener
@@ -34,7 +38,6 @@ import com.malinskiy.marathon.android.executor.listeners.line.LineListener
 import com.malinskiy.marathon.android.executor.listeners.screenshot.ScreenCapturerTestRunListener
 import com.malinskiy.marathon.android.executor.listeners.video.ScreenRecorderOptions
 import com.malinskiy.marathon.android.executor.listeners.video.ScreenRecorderTestRunListener
-import com.malinskiy.marathon.android.serial.SerialStrategy
 import com.malinskiy.marathon.device.Device
 import com.malinskiy.marathon.device.DeviceFeature
 import com.malinskiy.marathon.device.DevicePoolId
@@ -105,6 +108,32 @@ class DdmlibAndroidDevice(
         try {
             ddmsDevice.pullFile(remoteFilePath, localFilePath)
         } catch (e: SyncException) {
+            throw TransferException(e)
+        }
+    }
+
+    override fun pullFolder(remoteFolderPath: String, localFolderPath: String) {
+        val parts = remoteFolderPath.split('/').filter { it.isNotBlank() }
+
+        try {
+            val listingService = ddmsDevice.fileListingService
+            var root = listingService.root
+            var children = listingService.getChildrenSync(root)
+
+            for (part in parts) {
+                root = children.find { it.pathSegments.last() == part }
+                    ?: throw TransferException("Remote folder $remoteFolderPath doesn't exist on $serialNumber")
+
+                children = listingService.getChildrenSync(root)
+            }
+
+            with(ddmsDevice.syncService) {
+                pull(children, localFolderPath, NoOpSyncProgressMonitor())
+                close()
+            }
+
+        } catch (e: Exception) {
+            logger.warn { "Can't pull the folder $remoteFolderPath from device $serialNumber" }
             throw TransferException(e)
         }
     }
@@ -192,7 +221,7 @@ class DdmlibAndroidDevice(
     override val deviceFeatures: Collection<DeviceFeature>
         get() {
             val videoSupport = ddmsDevice.supportsFeature(IDevice.Feature.SCREEN_RECORD) &&
-                    manufacturer != "Genymotion"
+                manufacturer != "Genymotion"
             val screenshotSupport = ddmsDevice.version.isGreaterOrEqualThan(AndroidVersion.VersionCodes.JELLY_BEAN)
 
             val features = mutableListOf<DeviceFeature>()
@@ -293,12 +322,17 @@ class DdmlibAndroidDevice(
         val attachmentProviders = mutableListOf<AttachmentProvider>()
 
         val features = this.deviceFeatures
+        val androidConfiguration = configuration.vendorConfiguration as AndroidConfiguration
 
         val preferableRecorderType = configuration.vendorConfiguration.preferableRecorderType()
         val screenRecordingPolicy = configuration.screenRecordingPolicy
         val recorderListener = selectRecorderType(preferableRecorderType, features)?.let { feature ->
             prepareRecorderListener(feature, fileManager, devicePoolId, screenRecordingPolicy, attachmentProviders)
         } ?: NoOpTestRunListener()
+        val allureListener = when (androidConfiguration.allureConfiguration.allureAndroidSupport) {
+            false -> NoOpTestRunListener()
+            true -> AllureArtifactsTestRunListener(this, androidConfiguration.allureConfiguration, fileManager)
+        }
 
         val logCatListener = LogCatListener(this, devicePoolId, LogWriter(fileManager))
             .also { attachmentProviders.add(it) }
@@ -309,7 +343,8 @@ class DdmlibAndroidDevice(
                 logCatListener,
                 TestRunResultsListener(testBatch, this, deferred, timer, attachmentProviders),
                 DebugTestRunListener(this),
-                ProgressTestRunListener(this, devicePoolId, progressReporter)
+                ProgressTestRunListener(this, devicePoolId, progressReporter),
+                allureListener
             )
         )
     }
