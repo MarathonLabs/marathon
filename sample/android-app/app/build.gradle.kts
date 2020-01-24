@@ -17,6 +17,10 @@ android {
         versionCode = 1
         versionName = "1.0"
 
+        /**
+         * It's fine to use the regular test runner, but this sample will also demo the integration with allure-android project
+         * https://github.com/allure-framework/allure-android
+         */
         testInstrumentationRunner = "io.qameta.allure.espresso.AllureAndroidRunner"
     }
 

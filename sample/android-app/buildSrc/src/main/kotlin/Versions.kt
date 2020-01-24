@@ -10,6 +10,7 @@ object Versions {
     val appCompat = "1.1.0"
     val constraintLayout = "1.1.3"
     val allure = "2.0.0"
+    val coroutines = "1.3.3"
 
 }
 
@@ -22,6 +23,7 @@ object Libraries {
     val kotlinStdLib = "org.jetbrains.kotlin:kotlin-stdlib-jdk8:${Versions.kotlin}"
     val appCompat = "androidx.appcompat:appcompat:${Versions.appCompat}"
     val constraintLayout = "androidx.constraintlayout:constraintlayout:${Versions.constraintLayout}"
+    val kotlinCoroutines = "org.jetbrains.kotlinx:kotlinx-coroutines-core:${Versions.coroutines}"
 }
 
 object TestLibraries {
