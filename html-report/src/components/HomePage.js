@@ -45,6 +45,12 @@ export default class HomePage extends Component {
                         )
                     }
                 )}
+
+                <div className="title-common">Timeline</div>
+
+                <div className="suite-item card">
+                    <iframe src="timeline/index.html" style={{ width: "100%", height: "137" }}></iframe>
+                </div>
             </div>
         );
     }
