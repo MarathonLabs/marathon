@@ -45,7 +45,7 @@ internal class TrackerFactory(
 
         val delegatingTrackerInternal = DelegatingTrackerInternal(defaultTrackers)
         val mappingTracker = MappingTracker(delegatingTrackerInternal)
-        track + mappingTracker
+        track.add(mappingTracker)
 
         return delegatingTrackerInternal
     }

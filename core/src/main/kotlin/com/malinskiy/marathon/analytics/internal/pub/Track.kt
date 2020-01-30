@@ -5,33 +5,30 @@ import com.malinskiy.marathon.device.DeviceInfo
 import com.malinskiy.marathon.device.DevicePoolId
 import com.malinskiy.marathon.execution.TestResult
 import java.time.Instant
-import java.util.concurrent.atomic.AtomicReference
+import java.util.concurrent.CopyOnWriteArrayList
 
 class Track : Tracker {
-    private val delegates: AtomicReference<MutableList<Tracker>> = AtomicReference(mutableListOf())
+    private val delegates: CopyOnWriteArrayList<Tracker> = CopyOnWriteArrayList()
 
-    operator fun plus(tracker: Tracker): Track {
-        delegates.getAndUpdate { list ->
-            list.add(tracker)
-            list
-        }
+    fun add(tracker: Tracker): Track {
+        delegates.add(tracker)
         return this
     }
 
     override fun deviceProviderInit(serialNumber: String, startTime: Instant, finishTime: Instant) {
-        delegates.get().forEach { it.deviceProviderInit(serialNumber, startTime, finishTime) }
+        delegates.forEach { it.deviceProviderInit(serialNumber, startTime, finishTime) }
     }
 
     override fun devicePreparing(serialNumber: String, startTime: Instant, finishTime: Instant) {
-        delegates.get().forEach { it.devicePreparing(serialNumber, startTime, finishTime) }
+        delegates.forEach { it.devicePreparing(serialNumber, startTime, finishTime) }
     }
 
     override fun deviceConnected(poolId: DevicePoolId, device: DeviceInfo) {
-        delegates.get().forEach { it.deviceConnected(poolId, device) }
+        delegates.forEach { it.deviceConnected(poolId, device) }
     }
 
     override fun test(poolId: DevicePoolId, device: DeviceInfo, testResult: TestResult, final: Boolean) {
-        delegates.get().forEach { it.test(poolId, device, testResult, final) }
+        delegates.forEach { it.test(poolId, device, testResult, final) }
     }
 
     suspend fun trackDevicePreparing(device: Device, block: suspend () -> Unit) {

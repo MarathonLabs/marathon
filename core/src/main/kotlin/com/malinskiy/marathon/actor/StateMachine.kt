@@ -29,38 +29,41 @@ package com.malinskiy.marathon.actor
 
 
 import java.util.*
-import java.util.concurrent.atomic.AtomicReference
 
 class StateMachine<STATE : Any, EVENT : Any, SIDE_EFFECT : Any> private constructor(
     private val graph: Graph<STATE, EVENT, SIDE_EFFECT>
 ) {
 
-    private val stateRef = AtomicReference<STATE>(graph.initialState)
+    private var stateRef: STATE = graph.initialState
 
     val state: STATE
-        get() = stateRef.get()
+        get() {
+            synchronized(this) {
+                return stateRef
+            }
+        }
 
     fun transition(event: EVENT): Transition<STATE, EVENT, SIDE_EFFECT> {
-        val transition = synchronized(stateRef) {
-            val fromState = stateRef.get()
+        synchronized(this) {
+            val fromState = stateRef
             val transition = fromState.getTransition(event)
             if (transition is Transition.Valid) {
-                stateRef.set(transition.toState)
+                stateRef = transition.toState
             }
-            transition
-        }
-        if (transition is Transition.Valid) {
-            with(transition) {
-                with(fromState) {
-                    notifyOnExit(event)
-                }
-                with(toState) {
-                    notifyOnEnter(event)
+
+            if (transition is Transition.Valid) {
+                with(transition) {
+                    with(fromState) {
+                        notifyOnExit(event)
+                    }
+                    with(toState) {
+                        notifyOnEnter(event)
+                    }
                 }
             }
+            transition.notifyOnTransition()
+            return transition
         }
-        transition.notifyOnTransition()
-        return transition
     }
 
     fun with(init: GraphBuilder<STATE, EVENT, SIDE_EFFECT>.() -> Unit): StateMachine<STATE, EVENT, SIDE_EFFECT> {
