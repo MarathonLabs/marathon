@@ -14,8 +14,8 @@ object FixedQuotaRetryStrategySpek : Spek({
         group("no retry test matchers") {
             it("with sufficient quota") {
                 val poolId = DevicePoolId("DevicePoolId-1")
-                val tests = TestGenerator().create(9)
-                val testResults = TestResultsGenerator().create(tests)
+                val tests = generateTests(9)
+                val testResults = generateTestResults(tests)
                 val noRetryTestMatchers = listOf(tests[0].toTestMatcher())
                 val strategy = FixedQuotaRetryStrategy(totalAllowedRetryQuota = 1, noRetryTestMatchers = noRetryTestMatchers)
                 strategy.process(poolId, testResults, TestShard(tests)).size shouldBe 1
