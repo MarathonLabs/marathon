@@ -118,13 +118,13 @@ class AndroidDeviceTestRunner(private val device: AndroidDevice) {
             configuration.testOutputTimeoutMillis,
             (testBatch.maxExpectedTestDurationMs * MAX_TEST_DURATION_LEEWAY).toLong()
         )
-        val maxTimeOutToResponse = configuration.testOutputTimeoutMillis * testBatch.tests.size
 
-        logger.debug { "Batch estimations: testTimeout = ${testTimeout / 1000} sec; batchTimeout = ${batchTimeout / 1000} sec; maxTimeOutToResponse = ${maxTimeOutToResponse / 1000} sec" }
+        logger.debug { "Configure test runner: testTimeout = ${testTimeout / 1000} sec; batchTimeout = ${batchTimeout / 1000} sec" }
 
         val runner = RemoteAndroidTestRunner(info.instrumentationPackage, info.testRunnerClass, device.ddmsDevice)
         runner.setRunName("TestRunName")
-        runner.setMaxTimeToOutputResponse(maxTimeOutToResponse, TimeUnit.MILLISECONDS)
+        runner.setMaxTimeToOutputResponse(testTimeout, TimeUnit.MILLISECONDS)
+        runner.setMaxTimeout(batchTimeout, TimeUnit.MILLISECONDS)
         runner.setClassNames(tests)
 
         androidConfiguration.instrumentationArgs.forEach { (key, value) ->
