@@ -1,16 +1,13 @@
 package com.malinskiy.marathon.report.junit
 
-import com.malinskiy.marathon.analytics.internal.sub.ExecutionReport
 import com.malinskiy.marathon.analytics.internal.sub.TestEvent
 import com.malinskiy.marathon.io.FileManager
 import com.malinskiy.marathon.io.FileType
 import com.malinskiy.marathon.report.junit.model.JUnitReport
 import com.malinskiy.marathon.report.junit.model.Pool
-import org.testng.util.Strings
 import java.io.FileOutputStream
 import javax.xml.stream.XMLOutputFactory
 import javax.xml.stream.XMLStreamWriter
-
 
 class JUnitWriter(private val fileManager: FileManager) {
 
