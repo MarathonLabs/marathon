@@ -6,22 +6,26 @@ import com.malinskiy.marathon.test.Test
 import com.malinskiy.marathon.test.TestBatch
 import java.time.Instant
 import java.util.*
+import kotlin.math.max
 
-class FixedSizeBatchingStrategy(private val size: Int,
-                                private val durationMillis: Long? = null,
-                                private val percentile: Double? = null,
-                                private val timeLimit: Instant? = null,
-                                private val lastMileLength: Int = 0) : BatchingStrategy {
+class FixedSizeBatchingStrategy(
+    private val size: Int,
+    private val durationMillis: Long? = null,
+    private val percentile: Double? = null,
+    private val timeLimit: Instant? = null,
+    private val lastMileLength: Int = 0
+) : BatchingStrategy {
 
     override fun process(queue: Queue<Test>, analytics: Analytics): TestBatch {
-        if(queue.size < lastMileLength && queue.isNotEmpty()) {
+        if (queue.size < lastMileLength && queue.isNotEmpty()) {
             //We optimize last mile by disabling batching completely.
             // This allows us to parallelize the test runs at the end instead of running batches in series
             return TestBatch(listOf(queue.poll()))
         }
 
         var counter = 0
-        var expectedBatchDuration = 0.0
+        var maxExpectedTestDuration = 0L
+        var expectedBatchDuration = 0L
         val duplicates = mutableListOf<Test>()
         val result = mutableSetOf<Test>()
         while (counter < size && queue.isNotEmpty()) {
@@ -33,19 +37,26 @@ class FixedSizeBatchingStrategy(private val size: Int,
                 result.add(item)
             }
 
-            if(durationMillis != null && percentile != null && timeLimit != null) {
+            if (durationMillis != null && percentile != null && timeLimit != null) {
                 //Check for expected batch duration. If we hit the duration limit - break
                 //Important part is to add at least one test so that if one test is longer than a batch
                 //We still have at least one test
-                val expectedTestDuration = analytics.metricsProvider.executionTime(item, percentile, timeLimit)
+                val expectedTestDuration = analytics.metricsProvider.executionTime(item, percentile, timeLimit).toLong()
+                maxExpectedTestDuration = max(maxExpectedTestDuration, expectedTestDuration)
                 expectedBatchDuration += expectedTestDuration
-                if(expectedBatchDuration >= durationMillis) break
+                if (expectedBatchDuration >= durationMillis) break
             }
         }
+
         if (duplicates.isNotEmpty()) {
             queue.addAll(duplicates)
         }
-        return TestBatch(result.toList())
+
+        return TestBatch(
+            tests = result.toList(),
+            maxExpectedTestDurationMs = maxExpectedTestDuration,
+            expectedBatchDurationMs = expectedBatchDuration
+        )
     }
 
     override fun equals(other: Any?): Boolean {
@@ -66,6 +77,4 @@ class FixedSizeBatchingStrategy(private val size: Int,
     override fun toString(): String {
         return "FixedSizeBatchingStrategy(size=$size, durationMillis=$durationMillis, percentile=$percentile, timeLimit=$timeLimit, lastMileLength=$lastMileLength)"
     }
-
-
 }

@@ -10,46 +10,40 @@ import com.malinskiy.marathon.android.AndroidConfiguration
 import com.malinskiy.marathon.android.AndroidDevice
 import com.malinskiy.marathon.android.ApkParser
 import com.malinskiy.marathon.android.InstrumentationInfo
-import com.malinskiy.marathon.android.executor.listeners.CompositeTestRunListener
-import com.malinskiy.marathon.android.executor.listeners.DebugTestRunListener
-import com.malinskiy.marathon.android.executor.listeners.LogCatListener
-import com.malinskiy.marathon.android.executor.listeners.NoOpTestRunListener
-import com.malinskiy.marathon.android.executor.listeners.ProgressTestRunListener
-import com.malinskiy.marathon.android.executor.listeners.TestRunResultsListener
-import com.malinskiy.marathon.android.executor.listeners.screenshot.ScreenCapturerTestRunListener
-import com.malinskiy.marathon.android.executor.listeners.video.ScreenRecorderTestRunListener
 import com.malinskiy.marathon.android.safeClearPackage
-import com.malinskiy.marathon.device.DeviceFeature
-import com.malinskiy.marathon.device.DevicePoolId
 import com.malinskiy.marathon.exceptions.DeviceLostException
 import com.malinskiy.marathon.exceptions.TestBatchExecutionException
 import com.malinskiy.marathon.execution.Configuration
-import com.malinskiy.marathon.execution.TestBatchResults
-import com.malinskiy.marathon.execution.progress.ProgressReporter
-import com.malinskiy.marathon.io.FileManager
 import com.malinskiy.marathon.log.MarathonLogging
-import com.malinskiy.marathon.report.attachment.AttachmentProvider
-import com.malinskiy.marathon.report.logs.LogWriter
 import com.malinskiy.marathon.test.MetaProperty
 import com.malinskiy.marathon.test.Test
 import com.malinskiy.marathon.test.TestBatch
 import com.malinskiy.marathon.test.toTestName
-import kotlinx.coroutines.CompletableDeferred
 import java.io.IOException
 import java.util.concurrent.TimeUnit
-
-val JUNIT_IGNORE_META_PROPERY = MetaProperty("org.junit.Ignore")
+import kotlin.math.max
+import kotlin.math.min
 
 class AndroidDeviceTestRunner(private val device: AndroidDevice) {
 
+    companion object {
+        private val JUNIT_IGNORE_META_PROPERTY = MetaProperty("org.junit.Ignore")
+        private const val MAX_TEST_DURATION_LEEWAY = 1.2 // +20% to expected test duration
+        private const val BATCH_DURATION_LEEWAY = 1.1 // +10% to expected batch duration
+    }
+
     private val logger = MarathonLogging.logger("AndroidDeviceTestRunner")
 
-    fun execute(configuration: Configuration,
-                rawTestBatch: TestBatch,
-                listener: ITestRunListener) {
+    fun execute(
+        configuration: Configuration,
+        rawTestBatch: TestBatch,
+        listener: ITestRunListener
+    ) {
+        val ignoredTests = rawTestBatch.tests.filter { it.metaProperties.contains(JUNIT_IGNORE_META_PROPERTY) }
 
-        val ignoredTests = rawTestBatch.tests.filter { it.metaProperties.contains(JUNIT_IGNORE_META_PROPERY) }
-        val testBatch = TestBatch(rawTestBatch.tests - ignoredTests)
+        // We can keep the same maxTestDuration and expectedBatchDuration without filtering out ignored tests
+        // as it is statistically insignificant.
+        val testBatch = rawTestBatch.copy(tests = rawTestBatch.tests - ignoredTests)
 
         val androidConfiguration = configuration.vendorConfiguration as AndroidConfiguration
         val info = ApkParser().parseInstrumentationInfo(androidConfiguration.testApplicationOutput)
@@ -103,27 +97,38 @@ class AndroidDeviceTestRunner(private val device: AndroidDevice) {
         }
     }
 
-    private fun prepareTestRunner(configuration: Configuration,
-                                  androidConfiguration: AndroidConfiguration,
-                                  info: InstrumentationInfo,
-                                  testBatch: TestBatch): RemoteAndroidTestRunner {
-
-        val runner = RemoteAndroidTestRunner(info.instrumentationPackage, info.testRunnerClass, device.ddmsDevice)
-
+    private fun prepareTestRunner(
+        configuration: Configuration,
+        androidConfiguration: AndroidConfiguration,
+        info: InstrumentationInfo,
+        testBatch: TestBatch
+    ): RemoteAndroidTestRunner {
         val tests = testBatch.tests.map {
             "${it.pkg}.${it.clazz}#${it.method}"
         }.toTypedArray()
 
-        logger.debug { "tests = ${tests.toList()}" }
+        logger.debug { "device = [${device.serialNumber}]; tests = [${tests.toList()}]" }
 
+        // Single test timeout shouldn't be less then 'testOutputTimeoutMillis' and shouldn't be more than 'testBatchTimeoutMillis'
+        val testTimeout = min(
+            configuration.testBatchTimeoutMillis,
+            max(configuration.testOutputTimeoutMillis, (testBatch.maxExpectedTestDurationMs * MAX_TEST_DURATION_LEEWAY).toLong())
+        )
+
+        // Batch duration timeout can't be less then 'testBatchTimeoutMillis'. There are also additional 10% for unexpected cases.
+        val batchTimeout = max(configuration.testBatchTimeoutMillis, (testBatch.expectedBatchDurationMs * BATCH_DURATION_LEEWAY).toLong())
+
+        logger.debug { "Configure test runner: testTimeout = ${testTimeout / 1000} sec; batchTimeout = ${batchTimeout / 1000} sec" }
+
+        val runner = RemoteAndroidTestRunner(info.instrumentationPackage, info.testRunnerClass, device.ddmsDevice)
         runner.setRunName("TestRunName")
-        runner.setMaxTimeToOutputResponse(configuration.testOutputTimeoutMillis * testBatch.tests.size, TimeUnit.MILLISECONDS)
+        runner.setMaxTimeToOutputResponse(testTimeout, TimeUnit.MILLISECONDS)
+        runner.setMaxTimeout(batchTimeout, TimeUnit.MILLISECONDS)
         runner.setClassNames(tests)
 
-        androidConfiguration.instrumentationArgs.forEach { key, value ->
+        androidConfiguration.instrumentationArgs.forEach { (key, value) ->
             runner.addInstrumentationArg(key, value)
         }
-
         return runner
     }
 }
