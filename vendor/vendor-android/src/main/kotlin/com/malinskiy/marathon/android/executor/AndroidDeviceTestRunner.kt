@@ -22,6 +22,7 @@ import com.malinskiy.marathon.test.toTestName
 import java.io.IOException
 import java.util.concurrent.TimeUnit
 import kotlin.math.max
+import kotlin.math.min
 
 class AndroidDeviceTestRunner(private val device: AndroidDevice) {
 
@@ -108,16 +109,14 @@ class AndroidDeviceTestRunner(private val device: AndroidDevice) {
 
         logger.debug { "device = [${device.serialNumber}]; tests = [${tests.toList()}]" }
 
-        val batchTimeoutFromConfig = if (testBatch.tests.size > 1) {
-            configuration.testBatchTimeoutMillis
-        } else {
-            configuration.testOutputTimeoutMillis
-        }
-        val batchTimeout = max(batchTimeoutFromConfig, (testBatch.expectedBatchDurationMs * BATCH_DURATION_LEEWAY).toLong())
-        val testTimeout = max(
-            configuration.testOutputTimeoutMillis,
-            (testBatch.maxExpectedTestDurationMs * MAX_TEST_DURATION_LEEWAY).toLong()
+        // Single test timeout shouldn't be less then 'testOutputTimeoutMillis' and shouldn't be more than 'testBatchTimeoutMillis'
+        val testTimeout = min(
+            configuration.testBatchTimeoutMillis,
+            max(configuration.testOutputTimeoutMillis, (testBatch.maxExpectedTestDurationMs * MAX_TEST_DURATION_LEEWAY).toLong())
         )
+
+        // Batch duration timeout can't be less then 'testBatchTimeoutMillis'. There are also additional 10% for unexpected cases.
+        val batchTimeout = max(configuration.testBatchTimeoutMillis, (testBatch.expectedBatchDurationMs * BATCH_DURATION_LEEWAY).toLong())
 
         logger.debug { "Configure test runner: testTimeout = ${testTimeout / 1000} sec; batchTimeout = ${batchTimeout / 1000} sec" }
 
