@@ -17,8 +17,8 @@ object FixedQuotaRetryStrategySpek : Spek({
                 val tests = generateTests(9)
                 val testResults = generateTestResults(tests)
                 val noRetryTestMatchers = listOf(tests[0].toTestMatcher())
-                val strategy = FixedQuotaRetryStrategy(totalAllowedRetryQuota = 1, noRetryTestMatchers = noRetryTestMatchers)
-                strategy.process(poolId, testResults, TestShard(tests)).size shouldBe 1
+                val strategy = FixedQuotaRetryStrategy(totalAllowedRetryQuota = 10, noRetryTestMatchers = noRetryTestMatchers)
+                strategy.process(poolId, testResults, TestShard(tests)).size shouldBe 8
             }
         }
         group("total quota tests") {
