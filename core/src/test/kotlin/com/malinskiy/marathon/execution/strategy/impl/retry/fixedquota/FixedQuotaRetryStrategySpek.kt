@@ -3,6 +3,7 @@ package com.malinskiy.marathon.execution.strategy.impl.retry.fixedquota
 import com.malinskiy.marathon.generateTests
 import com.malinskiy.marathon.device.DevicePoolId
 import com.malinskiy.marathon.execution.TestShard
+import com.malinskiy.marathon.generateTest
 import com.malinskiy.marathon.generateTestResults
 import org.amshove.kluent.shouldBe
 import org.jetbrains.spek.api.Spek
@@ -12,12 +13,22 @@ import org.jetbrains.spek.api.dsl.it
 object FixedQuotaRetryStrategySpek : Spek({
     describe("fixed quota retry strategy tests") {
         group("no retry test matchers") {
+            val poolId = DevicePoolId("DevicePoolId-1")
             it("with sufficient quota") {
-                val poolId = DevicePoolId("DevicePoolId-1")
                 val tests = generateTests(9)
                 val testResults = generateTestResults(tests)
                 val noRetryTestMatchers = listOf(tests[0].toTestMatcher())
-                val strategy = FixedQuotaRetryStrategy(totalAllowedRetryQuota = 1, noRetryTestMatchers = noRetryTestMatchers)
+                val strategy = FixedQuotaRetryStrategy(totalAllowedRetryQuota = 10, noRetryTestMatchers = noRetryTestMatchers)
+                strategy.process(poolId, testResults, TestShard(tests)).size shouldBe 8
+            }
+
+            it("tests with same names") {
+                val noRetryTest = generateTest(pkg = "com.test", clazz = "SomeExtraTest", method = "helloWorld")
+                val toRetryTest = noRetryTest.copy(clazz = "SomeTest")
+                val noRetryMatcher = TestNameRegexTestMatcher(pkg = null, clazz = "^SomeExtraTest$", method = "^helloWorld$")
+                val tests = listOf(noRetryTest, toRetryTest)
+                val testResults = generateTestResults(tests)
+                val strategy = FixedQuotaRetryStrategy(totalAllowedRetryQuota = 10, noRetryTestMatchers = listOf(noRetryMatcher))
                 strategy.process(poolId, testResults, TestShard(tests)).size shouldBe 1
             }
         }

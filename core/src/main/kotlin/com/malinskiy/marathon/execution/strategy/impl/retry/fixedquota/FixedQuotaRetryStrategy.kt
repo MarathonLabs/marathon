@@ -6,12 +6,13 @@ import com.malinskiy.marathon.execution.TestResult
 import com.malinskiy.marathon.execution.TestShard
 import com.malinskiy.marathon.execution.strategy.RetryStrategy
 import com.malinskiy.marathon.log.MarathonLogging
-import com.malinskiy.marathon.test.Test
-import java.util.*
+import com.malinskiy.marathon.test.toSafeTestName
 
-class FixedQuotaRetryStrategy(@JsonProperty("totalAllowedRetryQuota") totalAllowedRetryQuota: Int = 200,
-                              @JsonProperty("retryPerTestQuota") retryPerTestQuota: Int = 3,
-                              @JsonProperty("noRetryTestMatchers") private val noRetryTestMatchers: List<TestMatcher> = emptyList()) : RetryStrategy {
+class FixedQuotaRetryStrategy(
+    @JsonProperty("totalAllowedRetryQuota") totalAllowedRetryQuota: Int = 200,
+    @JsonProperty("retryPerTestQuota") retryPerTestQuota: Int = 3,
+    @JsonProperty("noRetryTestMatchers") private val noRetryTestMatchers: List<TestMatcher> = emptyList()
+) : RetryStrategy {
     private val retryWatchdog = RetryWatchdog(totalAllowedRetryQuota, retryPerTestQuota)
     private val poolTestCaseFailureAccumulator = PoolTestFailureAccumulator()
 
@@ -19,14 +20,18 @@ class FixedQuotaRetryStrategy(@JsonProperty("totalAllowedRetryQuota") totalAllow
 
     override fun process(devicePoolId: DevicePoolId, tests: Collection<TestResult>, testShard: TestShard): List<TestResult> {
         return tests.filter { testResult ->
-            if (noRetryTestMatchers.any { it.matches(testResult.test) }) {
-                logger.debug("Not retrying test ${testResult.test}")
-                false
-            } else {
-                poolTestCaseFailureAccumulator.record(devicePoolId, testResult.test)
-                val flakinessResultCount = testShard.flakyTests.count { it == testResult.test }
-                retryWatchdog.requestRetry(poolTestCaseFailureAccumulator.getCount(devicePoolId, testResult.test) + flakinessResultCount)
+            for (matcher in noRetryTestMatchers) {
+                if (matcher.matches(testResult.test)) {
+                    logger.debug("Not retrying test: ${testResult.test.toSafeTestName()}; matcher=$matcher")
+                    return@filter false
+                }
             }
+
+            // Test is not in noRetries filters, time to check retry quotas
+            poolTestCaseFailureAccumulator.record(devicePoolId, testResult.test)
+            val failuresCount = poolTestCaseFailureAccumulator.getCount(devicePoolId, testResult.test)
+            val flakinessResultCount = testShard.flakyTests.count { it == testResult.test }
+            return@filter retryWatchdog.requestRetry(failuresCount + flakinessResultCount)
         }
     }
 
