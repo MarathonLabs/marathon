@@ -29,8 +29,9 @@ class FixedQuotaRetryStrategy(
 
             // Test is not in noRetries filters, time to check retry quotas
             poolTestCaseFailureAccumulator.record(devicePoolId, testResult.test)
+            val failuresCount = poolTestCaseFailureAccumulator.getCount(devicePoolId, testResult.test)
             val flakinessResultCount = testShard.flakyTests.count { it == testResult.test }
-            retryWatchdog.requestRetry(poolTestCaseFailureAccumulator.getCount(devicePoolId, testResult.test) + flakinessResultCount)
+            return@filter retryWatchdog.requestRetry(failuresCount + flakinessResultCount)
         }
     }
 
