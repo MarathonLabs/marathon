@@ -14,7 +14,6 @@ import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.execution.TestParser
 import com.malinskiy.marathon.execution.TestResult
 import com.malinskiy.marathon.execution.TestStatus
-import com.malinskiy.marathon.io.FileManager
 import com.malinskiy.marathon.log.MarathonLogConfigurator
 import com.malinskiy.marathon.report.junit.JUnitReporter
 import com.malinskiy.marathon.report.junit.JUnitWriter
@@ -116,7 +115,7 @@ class JUnitReporterSpek : Spek(
             val configuration = getConfiguration()
             println(configuration.outputDir)
             on("Marathon JUnit Report") {
-                val jUnitWriter = JUnitWriter(FileManager(configuration.outputDir))
+                val jUnitWriter = JUnitWriter(configuration.outputDir)
                 val junitReport = JUnitReporter(jUnitWriter)
                 junitReport.generate(report)
                 it("should generate correct report") {
@@ -142,7 +141,7 @@ class JUnitReporterSpek : Spek(
             val configuration = getConfiguration()
             println(configuration.outputDir)
             on("Marathon JUnit Report") {
-                val jUnitWriter = JUnitWriter(FileManager(configuration.outputDir))
+                val jUnitWriter = JUnitWriter(configuration.outputDir)
                 val junitReport = JUnitReporter(jUnitWriter)
                 junitReport.generate(report)
                 it("should generate correct report") {
@@ -173,7 +172,7 @@ class JUnitReporterSpek : Spek(
             val configuration = getConfiguration()
             println(configuration.outputDir)
             on("Marathon JUnit Report") {
-                val jUnitWriter = JUnitWriter(FileManager(configuration.outputDir))
+                val jUnitWriter = JUnitWriter(configuration.outputDir)
                 val junitReport = JUnitReporter(jUnitWriter)
                 junitReport.generate(report)
                 it("should generate correct report") {
@@ -202,7 +201,7 @@ class JUnitReporterSpek : Spek(
             val configuration = getConfiguration()
             println(configuration.outputDir)
             on("Marathon JUnit Report") {
-                val jUnitWriter = JUnitWriter(FileManager(configuration.outputDir))
+                val jUnitWriter = JUnitWriter(configuration.outputDir)
                 val junitReport = JUnitReporter(jUnitWriter)
                 junitReport.generate(report)
                 it("should generate correct report") {
@@ -231,7 +230,7 @@ class JUnitReporterSpek : Spek(
             val configuration = getConfiguration()
             println(configuration.outputDir)
             on("Marathon JUnit Report") {
-                val jUnitWriter = JUnitWriter(FileManager(configuration.outputDir))
+                val jUnitWriter = JUnitWriter(configuration.outputDir)
                 val junitReport = JUnitReporter(jUnitWriter)
                 junitReport.generate(report)
                 it("should generate correct report") {

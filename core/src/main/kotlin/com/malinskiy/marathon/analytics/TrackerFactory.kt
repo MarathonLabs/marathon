@@ -64,7 +64,7 @@ internal class TrackerFactory(
         return ExecutionReportGenerator(
             listOf(
                 DeviceInfoJsonReporter(fileManager, gson),
-                JUnitReporter(JUnitWriter(fileManager)),
+                JUnitReporter(JUnitWriter(configuration.outputDir)),
                 TimelineReporter(TimelineSummaryProvider(), gson, configuration.outputDir),
                 RawJsonReporter(fileManager, gson),
                 TestJsonReporter(fileManager, gson),

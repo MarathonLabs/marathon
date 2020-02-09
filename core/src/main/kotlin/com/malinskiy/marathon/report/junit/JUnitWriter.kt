@@ -1,15 +1,16 @@
 package com.malinskiy.marathon.report.junit
 
 import com.malinskiy.marathon.analytics.internal.sub.TestEvent
-import com.malinskiy.marathon.io.FileManager
 import com.malinskiy.marathon.io.FileType
+import java.nio.file.Paths.get
 import com.malinskiy.marathon.report.junit.model.JUnitReport
 import com.malinskiy.marathon.report.junit.model.Pool
+import java.io.File
 import java.io.FileOutputStream
 import javax.xml.stream.XMLOutputFactory
 import javax.xml.stream.XMLStreamWriter
 
-class JUnitWriter(private val fileManager: FileManager) {
+class JUnitWriter(private val outputDirectory: File) {
 
     private  val reportName = "marathon_junit_report"
 
@@ -24,10 +25,17 @@ class JUnitWriter(private val fileManager: FileManager) {
     private fun makeFile(testEvents: List<TestEvent>) {
         testEvents.map { Pool(it.poolId, it.device) }.distinct()
             .forEach {
-            val file = fileManager.createFile(FileType.TEST, it.devicePoolId, it.deviceInfo, reportName)
-            file.createNewFile()
-            val writer = XMLOutputFactory.newFactory().createXMLStreamWriter(FileOutputStream(file), "UTF-8")
-            xmlWriterMap[it] = writer
+                val reportDirectory = get(
+                    outputDirectory.absolutePath,
+                    FileType.TEST.dir,
+                    it.devicePoolId.name,
+                    it.deviceInfo.serialNumber)
+                    .toFile()
+                reportDirectory.mkdirs()
+                val file = File(reportDirectory.absolutePath,reportName+"."+FileType.TEST.suffix)
+                file.createNewFile()
+                val writer = XMLOutputFactory.newFactory().createXMLStreamWriter(FileOutputStream(file), "UTF-8")
+                xmlWriterMap[it] = writer
         }
     }
 
