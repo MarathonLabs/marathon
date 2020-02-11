@@ -2,8 +2,13 @@ package com.malinskiy.marathon.execution.progress
 
 import com.malinskiy.marathon.device.DevicePoolId
 import com.malinskiy.marathon.device.toDeviceInfo
+import com.malinskiy.marathon.execution.Configuration
+import com.malinskiy.marathon.test.Mocks
 import com.malinskiy.marathon.test.StubDevice
+import com.malinskiy.marathon.test.StubDeviceProvider
 import com.malinskiy.marathon.test.Test
+import com.malinskiy.marathon.test.TestVendorConfiguration
+import java.io.File
 import org.amshove.kluent.shouldEqualTo
 import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.describe
@@ -22,6 +27,32 @@ class ProgressReporterSpek : Spek(
                 val test2 = Test("com.example", "SimpleTest", "method2", emptyList())
                 val test3 = Test("com.example", "SimpleTest", "method3", emptyList())
 
+                reporter.init(Configuration(
+                    name = "",
+                    outputDir = File(""),
+                    analyticsConfiguration = null,
+                    poolingStrategy = null,
+                    shardingStrategy = null,
+                    sortingStrategy = null,
+                    batchingStrategy = null,
+                    flakinessStrategy = null,
+                    retryStrategy = null,
+                    filteringConfiguration = null,
+                    ignoreFailures = null,
+                    isCodeCoverageEnabled = null,
+                    fallbackToScreenshots = null,
+                    strictMode = null,
+                    uncompletedTestRetryQuota = null,
+                    testClassRegexes = null,
+                    includeSerialRegexes = null,
+                    excludeSerialRegexes = null,
+                    testBatchTimeoutMillis = null,
+                    testOutputTimeoutMillis = null,
+                    debug = false,
+                    screenRecordingPolicy = null,
+                    vendorConfiguration = TestVendorConfiguration(Mocks.TestParser.DEFAULT, StubDeviceProvider()),
+                    analyticsTracking = false
+                ))
                 reporter.totalTests(poolId, 3)
                 reporter.progress().shouldEqualTo(.0f)
 
