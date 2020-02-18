@@ -50,7 +50,6 @@ class QueueActor(
 
     init {
         queue.addAll(testShard.tests + testShard.flakyTests)
-        progressReporter.init(configuration)
         progressReporter.totalTests(poolId, queue.size)
     }
 
