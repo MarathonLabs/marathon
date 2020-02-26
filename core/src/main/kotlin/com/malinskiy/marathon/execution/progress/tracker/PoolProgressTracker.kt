@@ -26,7 +26,7 @@ class PoolProgressTracker(private val configuration: Configuration) {
             on<ProgressEvent.Failed> {
                 if (configuration.strictMode) {
                     transitionTo(ProgressTestState.Failed)
-                } else{
+                } else {
                     dontTransition()
                 }
             }
