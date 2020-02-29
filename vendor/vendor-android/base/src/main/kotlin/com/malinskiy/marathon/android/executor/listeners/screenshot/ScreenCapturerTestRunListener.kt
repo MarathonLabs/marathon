@@ -17,7 +17,9 @@ import com.malinskiy.marathon.test.toSimpleSafeTestName
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.newFixedThreadPoolContext
+import java.io.File
 import kotlin.coroutines.CoroutineContext
 
 class ScreenCapturerTestRunListener(
@@ -28,6 +30,7 @@ class ScreenCapturerTestRunListener(
 ) : NoOpTestRunListener(), CoroutineScope, AttachmentProvider {
 
     private val attachmentListeners = mutableListOf<AttachmentListener>()
+    private val screenshots = HashMap<TestIdentifier, File>()
 
     override fun registerListener(listener: AttachmentListener) {
         attachmentListeners.add(listener)
@@ -45,11 +48,14 @@ class ScreenCapturerTestRunListener(
         super.testStarted(test)
         hasFailed = false
 
+        val screenshotFile = fileManager.createFile(FileType.SCREENSHOT, pool, device.toDeviceInfo(), test.toTest())
+        screenshots[test] = screenshotFile
+
         val toTest = test.toTest()
         logger.debug { "Starting recording for ${toTest.toSimpleSafeTestName()}" }
 
         screenCapturerJob = async {
-            ScreenCapturer(device, pool, fileManager, toTest).start()
+            ScreenCapturer(device, screenshotFile).start()
         }
     }
 
@@ -64,16 +70,18 @@ class ScreenCapturerTestRunListener(
         screenCapturerJob?.cancel()
         threadPoolDispatcher.close()
 
+        val screenshot = screenshots.remove(test) ?: run {
+            logger.warn { "Failed to found gif for ${test.toTest()}" }
+            return
+        }
+
         if (!hasFailed && screenRecordingPolicy == ScreenRecordingPolicy.ON_FAILURE) {
             screenCapturerJob?.invokeOnCompletion {
-                async {
-                    fileManager.createFile(FileType.SCREENSHOT, pool, device.toDeviceInfo(), toTest).delete()
-                }
+                launch { screenshot.delete() }
             }
         } else {
             attachmentListeners.forEach {
-                val file = fileManager.createFile(FileType.SCREENSHOT, pool, device.toDeviceInfo(), toTest)
-                val attachment = Attachment(file, AttachmentType.SCREENSHOT)
+                val attachment = Attachment(screenshot, AttachmentType.SCREENSHOT)
                 it.onAttachment(toTest, attachment)
             }
         }
