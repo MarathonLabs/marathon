@@ -6,6 +6,7 @@ import com.malinskiy.marathon.analytics.internal.sub.PoolSummary
 import com.malinskiy.marathon.analytics.internal.sub.Summary
 import com.malinskiy.marathon.device.DeviceFeature
 import com.malinskiy.marathon.device.DeviceInfo
+import com.malinskiy.marathon.execution.AttachmentType
 import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.execution.TestResult
 import com.malinskiy.marathon.execution.TestStatus
@@ -154,31 +155,22 @@ class HtmlSummaryReporter(
         modelName = model
     )
 
-    private fun TestResult.receiveScreenshotPath(poolId: String): String {
-        val screenshotRelativePath = "/screenshot/$poolId/${device.serialNumber}/${test.pkg}.${test.clazz}#${test.method}.gif"
-        val screenshotFullPath = File(rootOutput, screenshotRelativePath)
-        return when (device.deviceFeatures.contains(DeviceFeature.SCREENSHOT) && screenshotFullPath.exists()) {
-            true -> "../../../..${screenshotRelativePath.replace("#", "%23")}"
-            false -> ""
-        }
+    private fun TestResult.receiveScreenshotPath(): String {
+        val screenshotFile = attachments.find { it.type == AttachmentType.SCREENSHOT }?.file ?: return ""
+        val screenshotRelativePath = screenshotFile.relativePathTo(rootOutput)
+        return "../../../../" + screenshotRelativePath.replace("#", "%23")
     }
 
-    private fun TestResult.receiveVideoPath(poolId: String): String {
-        val videoRelativePath = "/video/$poolId/${device.serialNumber}/${test.pkg}.${test.clazz}#${test.method}.mp4"
-        val videoFullPath = File(rootOutput, videoRelativePath)
-        return when (device.deviceFeatures.contains(DeviceFeature.VIDEO) && videoFullPath.exists()) {
-            true -> "../../../..${videoRelativePath.replace("#", "%23")}"
-            false -> ""
-        }
+    private fun TestResult.receiveVideoPath(): String {
+        val videoFile = attachments.find { it.type == AttachmentType.VIDEO }?.file ?: return ""
+        val videoRelativePath = videoFile.relativePathTo(rootOutput)
+        return "../../../../" + videoRelativePath.replace("#", "%23")
     }
 
-    private fun TestResult.receiveLogPath(poolId: String): String {
-        val logRelativePath = "/logs/$poolId/${device.serialNumber}/${test.pkg}.${test.clazz}#${test.method}.log"
-        val logFullPath = File(rootOutput, logRelativePath)
-        return when (device.deviceFeatures.contains(DeviceFeature.VIDEO) && logFullPath.exists()) {
-            true -> "../../../..${logRelativePath.replace("#", "%23")}"
-            false -> ""
-        }
+    private fun TestResult.receiveLogPath(): String {
+        val logFile = attachments.find { it.type == AttachmentType.LOG }?.file ?: return ""
+        val logRelativePath = logFile.relativePathTo(rootOutput)
+        return "../../../../" + logRelativePath.replace("#", "%23")
     }
 
     fun TestResult.toHtmlFullTest(poolId: String) = HtmlFullTest(
@@ -193,9 +185,9 @@ class HtmlSummaryReporter(
         diagnosticVideo = device.deviceFeatures.contains(DeviceFeature.VIDEO),
         diagnosticScreenshots = device.deviceFeatures.contains(DeviceFeature.SCREENSHOT),
         stacktrace = stacktrace,
-        screenshot = receiveScreenshotPath(poolId),
-        video = receiveVideoPath(poolId),
-        logFile = receiveLogPath(poolId)
+        screenshot = receiveScreenshotPath(),
+        video = receiveVideoPath(),
+        logFile = receiveLogPath()
     )
 
     fun TestStatus.toHtmlStatus() = when (this) {
@@ -262,8 +254,6 @@ class HtmlSummaryReporter(
         testId = fullTest.id,
         displayName = fullTest.name,
         deviceId = fullTest.deviceId,
-        logPath = "../../../../../logs/$poolId/${fullTest.deviceId}/${fullTest.packageName}.${fullTest.className}%23${fullTest.name}.log"
+        logPath = "../" + fullTest.logFile
     )
-
-
 }
