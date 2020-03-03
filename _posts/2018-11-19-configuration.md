@@ -104,7 +104,7 @@ Each of these options is covered in detail in the [options][1] section. If you'r
 
 Here is an example of gradle config using kotlin:
 
-```kotlin
+```
 marathon {
     name = "sample-app tests"
     baseOutputDir = "./marathon"
