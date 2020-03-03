@@ -101,8 +101,8 @@ vendorConfiguration:
 Each of these options is covered in detail in the [options][1] section. If you're unsure how to properly format your options in Marathonfile take a look at the samples or take a look at the deserialisation logic in the *cli* module of the project. Each option might have a default deserialiser from yaml or a custom one. Usually the custom deserialiser expects the type option to understand which type of strategy we need to instantiate.
 
 ### Gradle
-
-Here is an example of gradle config using kotlin:
+Configuration for gradle plugin is done via gradle only. It doesn't support the CLI's marathonfile.
+Here is an example of gradle config using Kotlin DSL:
 
 ```
 marathon {
