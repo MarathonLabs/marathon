@@ -47,6 +47,7 @@ object Versions {
     val dokka = "0.9.17"
     val koin = "2.0.1"
     val jsonAssert = "1.5.0"
+    val xmlUnit ="2.6.3"
     val assertk = "0.19"
 }
 
@@ -108,6 +109,7 @@ object TestLibraries {
     val jupiterEngine = "org.junit.jupiter:junit-jupiter-engine:${Versions.jupiterEngine}"
     val koin = "org.koin:koin-test:${Versions.koin}"
     val jsonAssert = "org.skyscreamer:jsonassert:${Versions.jsonAssert}"
+    val xmlUnit = "org.xmlunit:xmlunit-matchers:${Versions.xmlUnit}"
     val assertk = "com.willowtreeapps.assertk:assertk:${Versions.assertk}"
 
     val testContainers = "org.testcontainers:testcontainers:${Versions.testContainers}"

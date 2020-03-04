@@ -1,71 +1,90 @@
 package com.malinskiy.marathon.report.junit
 
-import com.malinskiy.marathon.device.DeviceInfo
-import com.malinskiy.marathon.device.DevicePoolId
-import com.malinskiy.marathon.execution.TestResult
-import com.malinskiy.marathon.execution.TestStatus
-import com.malinskiy.marathon.io.FileManager
+import com.malinskiy.marathon.analytics.internal.sub.TestEvent
 import com.malinskiy.marathon.io.FileType
+import java.nio.file.Paths.get
+import com.malinskiy.marathon.report.junit.model.JUnitReport
+import com.malinskiy.marathon.report.junit.model.Pool
+import java.io.File
 import java.io.FileOutputStream
-import java.text.SimpleDateFormat
-import java.util.*
 import javax.xml.stream.XMLOutputFactory
 import javax.xml.stream.XMLStreamWriter
 
-class JUnitWriter(private val fileManager: FileManager) {
-    fun testFinished(devicePoolId: DevicePoolId, device: DeviceInfo, testResult: TestResult) {
-        val file = fileManager.createFile(FileType.TEST, devicePoolId, device, testResult.test)
-        file.createNewFile()
+class JUnitWriter(private val outputDirectory: File) {
 
-        val writer = XMLOutputFactory.newFactory().createXMLStreamWriter(FileOutputStream(file), "UTF-8")
+    private  val reportName = "marathon_junit_report"
 
-        generateXml(writer, testResult)
-        writer.flush()
-        writer.close()
+    private val xmlWriterMap = hashMapOf<Pool, XMLStreamWriter>()
+
+    fun prepareXMLReport(testEvents: List<TestEvent>) {
+        makeFile(testEvents)
+        prepareReport(testEvents)
+        finalize()
     }
 
-    @Suppress("ComplexMethod")
-    private fun generateXml(writer: XMLStreamWriter, testResult: TestResult) {
-        @Suppress("MagicNumber")
-        fun Long.toJUnitSeconds(): String = (this / 1000.0).toString()
+    private fun makeFile(testEvents: List<TestEvent>) {
+        testEvents.map { Pool(it.poolId, it.device) }.distinct()
+            .forEach {
+                val reportDirectory = get(
+                    outputDirectory.absolutePath,
+                    FileType.TEST.dir,
+                    it.devicePoolId.name,
+                    it.deviceInfo.serialNumber)
+                    .toFile()
+                reportDirectory.mkdirs()
+                val file = File(reportDirectory.absolutePath,reportName+"."+FileType.TEST.suffix)
+                file.createNewFile()
+                val writer = XMLOutputFactory.newFactory().createXMLStreamWriter(FileOutputStream(file), "UTF-8")
+                xmlWriterMap[it] = writer
+        }
+    }
 
-        val test = testResult.test
+    private fun prepareReport(testEvents: List<TestEvent>) {
+        val reportGenerator = JunitReportGenerator(testEvents)
+        reportGenerator.makeSuiteData()
+        val junitReports = reportGenerator.junitReports
+        junitReports.keys.forEach {
+            val xmlWriter = xmlWriterMap[it]
+            val junitReport = junitReports[it]
+            if (xmlWriter != null && junitReport != null)
+                generateXml(xmlWriter, junitReport)
+        }
+    }
 
-        val failures = if (testResult.status == TestStatus.FAILURE) 1 else 0
-        val ignored = if (testResult.status == TestStatus.IGNORED || testResult.status == TestStatus.ASSUMPTION_FAILURE) 1 else 0
+    private fun finalize() {
+        xmlWriterMap.values.forEach {
+            it.flush()
+            it.close()
+        }
+    }
 
-        val formattedTimestamp = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.US).apply {
-            timeZone = TimeZone.getTimeZone("UTC")
-        }.format(Date(testResult.endTime))
+    private fun generateXml(writer: XMLStreamWriter, junitReport: JUnitReport) {
 
         writer.document {
             element("testsuite") {
-                attribute("name", "common")
-                attribute("tests", "1")
-                attribute("failures", "$failures")
-                attribute("errors", "0")
-                attribute("skipped", "$ignored")
-                attribute("time", testResult.durationMillis().toJUnitSeconds())
-                attribute("timestamp", formattedTimestamp)
+                attribute("name", junitReport.testSuiteData.name)
+                attribute("tests", junitReport.testSuiteData.tests.toString())
+                attribute("failures", junitReport.testSuiteData.failures.toString())
+                attribute("errors", junitReport.testSuiteData.errors.toString())
+                attribute("skipped", junitReport.testSuiteData.skipped.toString())
+                attribute("time", junitReport.testSuiteData.time)
+                attribute("timestamp", junitReport.testSuiteData.timeStamp)
                 element("properties") {}
-                element("testcase") {
-                    attribute("classname", "${test.pkg}.${test.clazz}")
-                    attribute("name", test.method)
-                    attribute("time", testResult.durationMillis().toJUnitSeconds())
-                    when (testResult.status) {
-                        TestStatus.IGNORED, TestStatus.ASSUMPTION_FAILURE -> {
-                            element("skipped") {
-                                testResult.stacktrace?.let {
-                                    writeCData(it)
-                                }
+
+                junitReport.testCases.forEach {
+                    element("testcase") {
+                        attribute("classname", it.classname)
+                        attribute("name", it.name)
+                        attribute("time", it.time)
+                        if(it.skipped.isError) element("skipped") {
+                            if(it.skipped.stackTrace!=null){
+                                writeCData(it.skipped.stackTrace)
                             }
                         }
-                        TestStatus.INCOMPLETE, TestStatus.FAILURE -> {
-                            element("failure") {
-                                writeCData(testResult.stacktrace ?: "")
+                        if(it.failure.isError) element("failure") {
+                            if (it.failure.stackTrace != null) {
+                                writeCData(it.failure.stackTrace)
                             }
-                        }
-                        else -> {
                         }
                     }
                 }
