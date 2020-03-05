@@ -2,17 +2,46 @@ package com.malinskiy.marathon.execution.progress
 
 import com.malinskiy.marathon.device.DevicePoolId
 import com.malinskiy.marathon.device.toDeviceInfo
+import com.malinskiy.marathon.execution.Configuration
+import com.malinskiy.marathon.test.Mocks
 import com.malinskiy.marathon.test.StubDevice
+import com.malinskiy.marathon.test.StubDeviceProvider
 import com.malinskiy.marathon.test.Test
+import com.malinskiy.marathon.test.TestVendorConfiguration
 import org.amshove.kluent.shouldEqualTo
 import org.jetbrains.spek.api.Spek
 import org.jetbrains.spek.api.dsl.describe
 import org.jetbrains.spek.api.dsl.it
+import java.io.File
 
 class ProgressReporterSpek : Spek(
     {
         describe("ProgressReporter") {
-            val reporter = ProgressReporter()
+            val reporter = ProgressReporter(Configuration(
+                name = "",
+                outputDir = File(""),
+                analyticsConfiguration = null,
+                poolingStrategy = null,
+                shardingStrategy = null,
+                sortingStrategy = null,
+                batchingStrategy = null,
+                flakinessStrategy = null,
+                retryStrategy = null,
+                filteringConfiguration = null,
+                ignoreFailures = null,
+                isCodeCoverageEnabled = null,
+                fallbackToScreenshots = null,
+                strictMode = null,
+                uncompletedTestRetryQuota = null,
+                testClassRegexes = null,
+                includeSerialRegexes = null,
+                excludeSerialRegexes = null,
+                testBatchTimeoutMillis = null,
+                testOutputTimeoutMillis = null,
+                debug = false,
+                vendorConfiguration = TestVendorConfiguration(Mocks.TestParser.DEFAULT, StubDeviceProvider()),
+                analyticsTracking = false
+            ))
             val deviceInfo = StubDevice().toDeviceInfo()
 
             it("should report proper progress for one pool") {
