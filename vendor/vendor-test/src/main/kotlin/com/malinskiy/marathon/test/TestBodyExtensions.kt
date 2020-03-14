@@ -8,3 +8,8 @@ fun TestBody.setupMarathon(f: MarathonFactory.() -> Unit): Marathon {
     val marathonFactory = MarathonFactory()
     return marathonFactory.apply(f).build()
 }
+
+fun setupMarathon(f: MarathonFactory.() -> Unit): Marathon {
+    val marathonFactory = MarathonFactory()
+    return marathonFactory.apply(f).build()
+}
