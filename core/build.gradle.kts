@@ -56,6 +56,7 @@ dependencies {
     api(Libraries.koin)
     api(Libraries.bugsnag)
     testImplementation(project(":vendor:vendor-test"))
+    testImplementation(TestLibraries.junit5)
     testImplementation(TestLibraries.kluent)
     testImplementation(TestLibraries.spekAPI)
     testImplementation(TestLibraries.testContainers)

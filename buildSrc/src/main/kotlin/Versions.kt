@@ -16,6 +16,7 @@ object Versions {
     val androidGradleVersion = "3.3.0"
 
     val spek = "1.1.5"
+    val junit5 = "5.6.0"
     val kluent = "1.40"
 
     val kakao = "1.4.0"
@@ -93,6 +94,7 @@ object Libraries {
 }
 
 object TestLibraries {
+    val junit5 = "org.junit.jupiter:junit-jupiter:${Versions.junit5}"
     val spekAPI = "org.jetbrains.spek:spek-api:${Versions.spek}"
     val spekJUnitPlatformEngine = "org.jetbrains.spek:spek-junit-platform-engine:${Versions.spek}"
     val kluent = "org.amshove.kluent:kluent:${Versions.kluent}"
