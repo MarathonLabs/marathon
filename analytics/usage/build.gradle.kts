@@ -4,7 +4,6 @@ plugins {
     `java-library`
     id("org.jetbrains.kotlin.jvm")
     id("org.jetbrains.dokka")
-    id("org.junit.platform.gradle.plugin")
 }
 
 Deployment.initialize(project)
@@ -19,6 +18,4 @@ dependencies {
     implementation(Libraries.kotlinStdLib)
     testCompile(TestLibraries.kluent)
     testCompile(TestLibraries.mockitoKotlin)
-    testCompile(TestLibraries.spekAPI)
-    testRuntime(TestLibraries.spekJUnitPlatformEngine)
 }
