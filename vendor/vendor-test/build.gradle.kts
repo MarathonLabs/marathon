@@ -13,7 +13,6 @@ dependencies {
     implementation(Libraries.kotlinReflect)
     implementation(TestLibraries.jsonAssert)
     implementation(TestLibraries.xmlUnit)
-    implementation(TestLibraries.spekAPI)
     implementation(TestLibraries.kluent)
     implementation(TestLibraries.mockitoKotlin)
     implementation(project(":core"))
