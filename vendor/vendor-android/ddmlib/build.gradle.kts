@@ -1,7 +1,4 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-import org.junit.platform.gradle.plugin.EnginesExtension
-import org.junit.platform.gradle.plugin.FiltersExtension
-import org.junit.platform.gradle.plugin.JUnitPlatformExtension
 
 plugins {
     `java-library`
@@ -26,9 +23,9 @@ dependencies {
     testImplementation(project(":vendor:vendor-test"))
     testImplementation(TestLibraries.kluent)
     testImplementation(TestLibraries.mockitoKotlin)
-    testImplementation(TestLibraries.spekAPI)
-    testRuntime(TestLibraries.spekJUnitPlatformEngine)
     testImplementation(TestLibraries.koin)
+    testImplementation(TestLibraries.junit5)
+    testRuntime(TestLibraries.jupiterEngine)
 }
 
 Deployment.initialize(project)
@@ -38,25 +35,14 @@ tasks.withType<KotlinCompile> {
     kotlinOptions.apiVersion = "1.3"
 }
 
+tasks.withType<Test>().all {
+    tasks.getByName("check").dependsOn(this)
+    useJUnitPlatform()
+}
+
 junitPlatform {
-    filters {
-        engines {
-            include("spek")
-        }
-    }
+    enableStandardTestTask = true
 }
 
-// extension for configuration
-fun JUnitPlatformExtension.filters(setup: FiltersExtension.() -> Unit) {
-    when (this) {
-        is ExtensionAware -> extensions.getByType(FiltersExtension::class.java).setup()
-        else -> throw IllegalArgumentException("${this::class} must be an instance of ExtensionAware")
-    }
-}
-
-fun FiltersExtension.engines(setup: EnginesExtension.() -> Unit) {
-    when (this) {
-        is ExtensionAware -> extensions.getByType(EnginesExtension::class.java).setup()
-        else -> throw IllegalArgumentException("${this::class} must be an instance of ExtensionAware")
-    }
-}
+tasks.getByName("junitPlatformTest").outputs.upToDateWhen { false }
+tasks.getByName("test").outputs.upToDateWhen { false }
