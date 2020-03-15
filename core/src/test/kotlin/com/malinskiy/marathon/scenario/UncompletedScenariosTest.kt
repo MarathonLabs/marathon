@@ -8,6 +8,7 @@ import com.malinskiy.marathon.test.setupMarathon
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.test.TestCoroutineContext
 import org.amshove.kluent.shouldBe
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.AfterEach
@@ -27,7 +28,7 @@ class UncompletedScenariosTest {
     @Test
     fun `one device that never completes tests with 100 uncompleted tests executed should return`() {
         var output: File? = null
-        val context = TestCoroutineScope("testing context")
+        val context = TestCoroutineContext("testing context")
 
         val marathon = setupMarathon {
             val test1 = MarathonTest("test", "SimpleTest", "test1", emptySet())
@@ -68,7 +69,7 @@ class UncompletedScenariosTest {
     @Test
     fun `one device that never completes tests with 100 uncompleted tests while throwing exception should return`() {
         var output: File? = null
-        val context = TestCoroutineScope("testing context")
+        val context = TestCoroutineContext("testing context")
 
         val marathon = setupMarathon {
             val test1 = MarathonTest("test", "SimpleTest", "test1", emptySet())

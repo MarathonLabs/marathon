@@ -8,6 +8,7 @@ import com.malinskiy.marathon.test.setupMarathon
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.test.TestCoroutineContext
 import org.amshove.kluent.shouldBe
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
@@ -26,7 +27,7 @@ class DisconnectingScenariosTest {
     @Test
     fun `two healthy devices on execution of two tests while one device disconnects should pass`() {
         var output: File? = null
-        val context = TestCoroutineScope("testing context")
+        val context = TestCoroutineContext("testing context")
 
         val marathon = setupMarathon {
             val test1 = MarathonTest("test", "SimpleTest", "test1", emptySet())

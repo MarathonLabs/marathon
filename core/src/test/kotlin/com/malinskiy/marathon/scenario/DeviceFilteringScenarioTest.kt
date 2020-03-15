@@ -8,6 +8,7 @@ import com.malinskiy.marathon.test.setupMarathon
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.test.TestCoroutineContext
 import org.amshove.kluent.shouldBe
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
@@ -25,7 +26,7 @@ class DeviceFilteringScenarioTest {
 
     fun `one blacklisted device and empty whitelist executing two tests should pass on one device`() {
         var output: File? = null
-        val context = TestCoroutineScope("testing context")
+        val context = TestCoroutineContext("testing context")
 
         val marathon = setupMarathon {
             val test1 = MarathonTest("test", "SimpleTest", "test1", emptySet())
@@ -73,7 +74,7 @@ class DeviceFilteringScenarioTest {
     @Test
     fun `one whitelisted device and empty blacklist executing two tests should pass on one device`() {
         var output: File? = null
-        val context = TestCoroutineScope("testing context")
+        val context = TestCoroutineContext("testing context")
 
         val marathon = setupMarathon {
             val test1 = MarathonTest("test", "SimpleTest", "test1", emptySet())
@@ -120,7 +121,7 @@ class DeviceFilteringScenarioTest {
     @Test
     fun `one blacklisted device and one whitelisted executing two tests should pass on one device`() {
         var output: File? = null
-        val context = TestCoroutineScope("testing context")
+        val context = TestCoroutineContext("testing context")
 
         val marathon = setupMarathon {
             val test1 = MarathonTest("test", "SimpleTest", "test1", emptySet())

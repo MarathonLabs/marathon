@@ -8,6 +8,7 @@ import com.malinskiy.marathon.test.setupMarathon
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.test.TestCoroutineContext
 import org.amshove.kluent.shouldBe
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
@@ -25,7 +26,7 @@ class SuccessScenariosTest {
     @Test
     fun `one healthy device execution of one test should pass`() {
         var output: File? = null
-        val context = TestCoroutineScope("testing context")
+        val context = TestCoroutineContext("testing context")
 
         val marathon = setupMarathon {
             val test = MarathonTest("test", "SimpleTest", "test", emptySet())
