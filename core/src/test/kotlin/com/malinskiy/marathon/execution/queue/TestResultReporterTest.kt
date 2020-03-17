@@ -16,158 +16,144 @@ import com.nhaarman.mockitokotlin2.inOrder
 import com.nhaarman.mockitokotlin2.reset
 import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
 import org.amshove.kluent.mock
-import org.jetbrains.spek.api.Spek
-import org.jetbrains.spek.api.dsl.given
-import org.jetbrains.spek.api.dsl.it
-import org.jetbrains.spek.api.dsl.on
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
 import java.io.File
 
-object TestResultReporterSpec : Spek(
-    {
-        val track: Track = mock()
+class TestResultReporterTest {
+    private val track: Track = mock()
+    private val analytics = mock(Analytics::class)
 
-        beforeEachTest {
-            reset(track)
+    @BeforeEach
+    fun `setup mocks`() {
+        reset(track, analytics)
+    }
+
+    private val defaultConfig = Configuration(
+        name = "",
+        outputDir = File(""),
+        analyticsConfiguration = null,
+        poolingStrategy = null,
+        shardingStrategy = null,
+        sortingStrategy = null,
+        batchingStrategy = null,
+        flakinessStrategy = null,
+        retryStrategy = null,
+        filteringConfiguration = null,
+        ignoreFailures = null,
+        isCodeCoverageEnabled = null,
+        fallbackToScreenshots = null,
+        strictMode = null,
+        uncompletedTestRetryQuota = null,
+        testClassRegexes = null,
+        includeSerialRegexes = null,
+        excludeSerialRegexes = null,
+        testBatchTimeoutMillis = null,
+        testOutputTimeoutMillis = null,
+        debug = false,
+        screenRecordingPolicy = null,
+        vendorConfiguration = TestVendorConfiguration(Mocks.TestParser.DEFAULT, StubDeviceProvider()),
+        analyticsTracking = false
+    )
+    private val strictConfig = defaultConfig.copy(strictMode = true)
+    val test = generateTest()
+    private val poolId = DevicePoolId("test")
+
+    private fun filterDefault() = TestResultReporter(
+        poolId,
+        analytics,
+        TestShard(listOf(test, test, test)),
+        defaultConfig,
+        track
+    )
+
+    private fun filterStrict() = TestResultReporter(
+        poolId,
+        analytics,
+        TestShard(listOf(test, test, test)),
+        strictConfig,
+        track
+    )
+
+    private val deviceInfo = createDeviceInfo()
+
+    @Test
+    fun `default config, success - failure - failure, should report success`() {
+        val filter = filterDefault()
+
+        val r1 = TestResult(test, deviceInfo, TestStatus.PASSED, 0, 1)
+        val r2 = TestResult(test, deviceInfo, TestStatus.FAILURE, 2, 3)
+        val r3 = TestResult(test, deviceInfo, TestStatus.FAILURE, 4, 5)
+
+        filter.testFinished(deviceInfo, r1)
+        filter.testFailed(deviceInfo, r2)
+        filter.testFailed(deviceInfo, r3)
+
+        inOrder(track) {
+            verify(track).test(poolId, deviceInfo, r1, true)
+            verify(track).test(poolId, deviceInfo, r2, false)
+            verify(track).test(poolId, deviceInfo, r3, false)
+            verifyNoMoreInteractions(track)
         }
+    }
 
-        val defaultConfig = Configuration(
-            name = "",
-            outputDir = File(""),
-            analyticsConfiguration = null,
-            poolingStrategy = null,
-            shardingStrategy = null,
-            sortingStrategy = null,
-            batchingStrategy = null,
-            flakinessStrategy = null,
-            retryStrategy = null,
-            filteringConfiguration = null,
-            ignoreFailures = null,
-            isCodeCoverageEnabled = null,
-            fallbackToScreenshots = null,
-            strictMode = null,
-            uncompletedTestRetryQuota = null,
-            testClassRegexes = null,
-            includeSerialRegexes = null,
-            excludeSerialRegexes = null,
-            testBatchTimeoutMillis = null,
-            testOutputTimeoutMillis = null,
-            debug = false,
-            screenRecordingPolicy = null,
-            vendorConfiguration = TestVendorConfiguration(Mocks.TestParser.DEFAULT, StubDeviceProvider()),
-            analyticsTracking = false
-        )
-        val strictConfig = defaultConfig.copy(strictMode = true)
-        val analytics = mock(Analytics::class)
-        val test = generateTest()
-        val poolId = DevicePoolId("test")
+    @Test
+    fun `default config, failure - failure - success, should report success`() {
+        val filter = filterDefault()
 
-        fun filterDefault() = TestResultReporter(
-            poolId,
-            analytics,
-            TestShard(listOf(test, test, test)),
-            defaultConfig,
-            track
-        )
+        val r1 = TestResult(test, deviceInfo, TestStatus.FAILURE, 0, 1)
+        val r2 = TestResult(test, deviceInfo, TestStatus.FAILURE, 2, 3)
+        val r3 = TestResult(test, deviceInfo, TestStatus.PASSED, 4, 5)
 
-        fun filterStrict() = TestResultReporter(
-            poolId,
-            analytics,
-            TestShard(listOf(test, test, test)),
-            strictConfig,
-            track
-        )
+        filter.testFailed(deviceInfo, r1)
+        filter.testFailed(deviceInfo, r2)
+        filter.testFinished(deviceInfo, r3)
 
-        val deviceInfo = createDeviceInfo()
-
-        afterEachTest {
-            reset(analytics)
+        inOrder(track) {
+            verify(track).test(poolId, deviceInfo, r1, false)
+            verify(track).test(poolId, deviceInfo, r2, false)
+            verify(track).test(poolId, deviceInfo, r3, true)
+            verifyNoMoreInteractions(track)
         }
+    }
 
-        given("a reporter with a default config") {
-            on("success - failure - failure") {
-                it("should report success") {
-                    val filter = filterDefault()
+    @Test
+    fun `strict config, success - failure - failure, should report failure`() {
+        val filter = filterStrict()
 
-                    val r1 = TestResult(test, deviceInfo, TestStatus.PASSED, 0, 1)
-                    val r2 = TestResult(test, deviceInfo, TestStatus.FAILURE, 2, 3)
-                    val r3 = TestResult(test, deviceInfo, TestStatus.FAILURE, 4, 5)
+        val r1 = TestResult(test, deviceInfo, TestStatus.PASSED, 0, 1)
+        val r2 = TestResult(test, deviceInfo, TestStatus.FAILURE, 2, 3)
+        val r3 = TestResult(test, deviceInfo, TestStatus.FAILURE, 4, 5)
 
-                    filter.testFinished(deviceInfo, r1)
-                    filter.testFailed(deviceInfo, r2)
-                    filter.testFailed(deviceInfo, r3)
+        filter.testFinished(deviceInfo, r1)
+        filter.testFailed(deviceInfo, r2)
+        filter.testFailed(deviceInfo, r3)
 
-                    inOrder(track) {
-                        verify(track).test(poolId, deviceInfo, r1, true)
-                        verify(track).test(poolId, deviceInfo, r2, false)
-                        verify(track).test(poolId, deviceInfo, r3, false)
-                        verifyNoMoreInteractions(track)
-                    }
-                }
-            }
-
-            on("failure - failure - success") {
-                it("should report success") {
-                    val filter = filterDefault()
-
-                    val r1 = TestResult(test, deviceInfo, TestStatus.FAILURE, 0, 1)
-                    val r2 = TestResult(test, deviceInfo, TestStatus.FAILURE, 2, 3)
-                    val r3 = TestResult(test, deviceInfo, TestStatus.PASSED, 4, 5)
-
-                    filter.testFailed(deviceInfo, r1)
-                    filter.testFailed(deviceInfo, r2)
-                    filter.testFinished(deviceInfo, r3)
-
-                    inOrder(track) {
-                        verify(track).test(poolId, deviceInfo, r1, false)
-                        verify(track).test(poolId, deviceInfo, r2, false)
-                        verify(track).test(poolId, deviceInfo, r3, true)
-                        verifyNoMoreInteractions(track)
-                    }
-                }
-            }
+        inOrder(track) {
+            verify(track).test(poolId, deviceInfo, r1, false)
+            verify(track).test(poolId, deviceInfo, r2, true)
+            verify(track).test(poolId, deviceInfo, r3, false)
+            verifyNoMoreInteractions(track)
         }
+    }
 
-        given("a reporter with a strict config") {
-            on("success - failure - failure") {
-                it("should report failure") {
-                    val filter = filterStrict()
+    @Test
+    fun `strict config, failure - success - success, should report failure`() {
+        val filter = filterStrict()
 
-                    val r1 = TestResult(test, deviceInfo, TestStatus.PASSED, 0, 1)
-                    val r2 = TestResult(test, deviceInfo, TestStatus.FAILURE, 2, 3)
-                    val r3 = TestResult(test, deviceInfo, TestStatus.FAILURE, 4, 5)
+        val r1 = TestResult(test, deviceInfo, TestStatus.FAILURE, 0, 1)
+        val r2 = TestResult(test, deviceInfo, TestStatus.PASSED, 2, 3)
+        val r3 = TestResult(test, deviceInfo, TestStatus.PASSED, 4, 5)
 
-                    filter.testFinished(deviceInfo, r1)
-                    filter.testFailed(deviceInfo, r2)
-                    filter.testFailed(deviceInfo, r3)
+        filter.testFailed(deviceInfo, r1)
+        filter.testFinished(deviceInfo, r2)
+        filter.testFinished(deviceInfo, r3)
 
-                    inOrder(track) {
-                        verify(track).test(poolId, deviceInfo, r1, false)
-                        verify(track).test(poolId, deviceInfo, r2, true)
-                        verify(track).test(poolId, deviceInfo, r3, false)
-                        verifyNoMoreInteractions(track)
-                    }
-                }
-            }
-
-            on("failure - success - success") {
-                it("should report failure") {
-                    val filter = filterStrict()
-
-                    val r1 = TestResult(test, deviceInfo, TestStatus.FAILURE, 0, 1)
-                    val r2 = TestResult(test, deviceInfo, TestStatus.PASSED, 2, 3)
-                    val r3 = TestResult(test, deviceInfo, TestStatus.PASSED, 4, 5)
-
-                    filter.testFailed(deviceInfo, r1)
-                    filter.testFinished(deviceInfo, r2)
-                    filter.testFinished(deviceInfo, r3)
-
-                    inOrder(track) {
-                        verify(track).test(poolId, deviceInfo, r1, true)
-                        verify(track).test(poolId, deviceInfo, r2, false)
-                        verify(track).test(poolId, deviceInfo, r3, false)
-                        verifyNoMoreInteractions(track)
-                    }
-                }
-            }
+        inOrder(track) {
+            verify(track).test(poolId, deviceInfo, r1, true)
+            verify(track).test(poolId, deviceInfo, r2, false)
+            verify(track).test(poolId, deviceInfo, r3, false)
+            verifyNoMoreInteractions(track)
         }
-    })
+    }
+}

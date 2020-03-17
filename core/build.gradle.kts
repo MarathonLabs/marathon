@@ -1,8 +1,5 @@
 import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-import org.junit.platform.gradle.plugin.EnginesExtension
-import org.junit.platform.gradle.plugin.FiltersExtension
-import org.junit.platform.gradle.plugin.JUnitPlatformExtension
 
 plugins {
     idea
@@ -56,13 +53,12 @@ dependencies {
     api(Libraries.koin)
     api(Libraries.bugsnag)
     testImplementation(project(":vendor:vendor-test"))
+    testImplementation(TestLibraries.junit5)
     testImplementation(TestLibraries.kluent)
-    testImplementation(TestLibraries.spekAPI)
     testImplementation(TestLibraries.testContainers)
     testImplementation(TestLibraries.testContainersInflux)
     testImplementation(TestLibraries.mockitoKotlin)
     testImplementation(TestLibraries.koin)
-    testRuntime(TestLibraries.spekJUnitPlatformEngine)
     testRuntime(TestLibraries.jupiterEngine)
 }
 
@@ -89,33 +85,16 @@ tasks.withType<Test>().all {
     useJUnitPlatform()
 }
 
+junitPlatform {
+    enableStandardTestTask = true
+}
+
+tasks.getByName("junitPlatformTest").outputs.upToDateWhen { false }
+tasks.getByName("test").outputs.upToDateWhen { false }
+
 Deployment.initialize(project)
 
 tasks.withType<KotlinCompile> {
     kotlinOptions.jvmTarget = "1.8"
     kotlinOptions.apiVersion = "1.3"
-}
-
-junitPlatform {
-    filters {
-        engines {
-            include("spek")
-        }
-    }
-    enableStandardTestTask = true
-}
-
-// extension for configuration
-fun JUnitPlatformExtension.filters(setup: FiltersExtension.() -> Unit) {
-    when (this) {
-        is ExtensionAware -> extensions.getByType(FiltersExtension::class.java).setup()
-        else -> throw IllegalArgumentException("${this::class} must be an instance of ExtensionAware")
-    }
-}
-
-fun FiltersExtension.engines(setup: EnginesExtension.() -> Unit) {
-    when (this) {
-        is ExtensionAware -> extensions.getByType(EnginesExtension::class.java).setup()
-        else -> throw IllegalArgumentException("${this::class} must be an instance of ExtensionAware")
-    }
 }
