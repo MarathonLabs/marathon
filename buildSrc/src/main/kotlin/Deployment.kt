@@ -74,10 +74,6 @@ object Deployment {
             }
             repositories {
                 maven {
-                    name = "Local"
-                    setUrl("${project.rootDir}/build/repository")
-                }
-                maven {
                     name = "OSSHR"
                     credentials {
                         username = Deployment.user

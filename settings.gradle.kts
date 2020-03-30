@@ -1,8 +1,8 @@
 pluginManagement {
     repositories {
-        maven { url = uri("$rootDir/build/repository") }
         gradlePluginPortal()
         google()
+        mavenLocal()
     }
     resolutionStrategy {
         eachPlugin {
