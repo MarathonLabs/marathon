@@ -56,7 +56,9 @@ export default class ColorizedLogsComponent extends Component {
                             <th>Time</th>
                             <th className="message">Message</th>
                         </tr>
-                        {!!this.state.logs && this.state.logs.split("\n").map((line) => {
+                        {!!this.state.logs && this.state.logs.split("\n")
+                            .filter(v=>v!='')
+                            .map((line) => {
                             const arr = line.split(" ");
                             const time = arr[0] + " " + arr[1];
                             const process = arr[2].split("-")[0];
