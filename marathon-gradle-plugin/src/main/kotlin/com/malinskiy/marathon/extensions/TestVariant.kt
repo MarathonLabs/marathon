@@ -24,7 +24,7 @@ private fun extractTestApplicationBefore3_3(variant: TestVariant): File {
     return File(
         when (output) {
             is ApkVariantOutput -> {
-                File(variant.packageApplication.outputDirectory.path, output.outputFileName).path
+                File(variant.packageApplication.outputDirectory.asFile.get(), output.outputFileName).path
             }
             is LibraryVariantOutput -> {
                 output.outputFile.path
@@ -53,7 +53,7 @@ private fun extractTestApplication3_3_plus(output: TestVariant): File {
     return when (testPackageAndroidArtifact) {
         is PackageAndroidArtifact -> {
             assert(testPackageAndroidArtifact.apkNames.size == 1)
-            File(testPackageAndroidArtifact.outputDirectory, testPackageAndroidArtifact.apkNames.first())
+            File(testPackageAndroidArtifact.outputDirectory.asFile.get(), testPackageAndroidArtifact.apkNames.first())
         }
         is Zip -> {
             testPackageAndroidArtifact.destFile
