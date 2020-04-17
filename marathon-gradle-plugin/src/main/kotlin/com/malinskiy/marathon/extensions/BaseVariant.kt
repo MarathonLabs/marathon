@@ -12,7 +12,7 @@ fun BaseVariant.extractApplication(): File? =
         exec = {
             extractApplication3_3_plus(this)
         },
-        fallback = {
+        fallbacks = listOf {
             extractApplicationBefore3_3(this)
         }
     )

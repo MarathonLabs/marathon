@@ -9,14 +9,39 @@ import org.apache.tools.ant.taskdefs.Zip
 import org.gradle.api.GradleException
 import java.io.File
 
-fun TestVariant.extractTestApplication() = com.malinskiy.marathon.extensions.executeGradleCompat(
+fun TestVariant.extractTestApplication() = executeGradleCompat(
     exec = {
-        extractTestApplication3_3_plus(this)
+        extractTestApplication3_6_plus(this)
     },
-    fallback = {
-        extractTestApplicationBefore3_3(this)
-    }
+    fallbacks = listOf(
+        {
+            extractTestApplication3_3_to_3_5(this)
+        },
+        {
+            extractTestApplicationBefore3_3(this)
+        }
+    )
 )
+
+fun extractTestApplication3_6_plus(variant: TestVariant): File {
+    val output = variant.outputs.first()
+
+    return File(
+        when (output) {
+            is ApkVariantOutput -> {
+                val packageTask =
+                    variant.packageApplicationProvider.orNull ?: throw IllegalArgumentException("Can't find package application provider")
+                File(packageTask.outputDirectory.asFile.get(), output.outputFileName).path
+            }
+            is LibraryVariantOutput -> {
+                output.outputFile.path
+            }
+            else -> {
+                throw RuntimeException("Can't find instrumentationApk")
+            }
+        }
+    )
+}
 
 private fun extractTestApplicationBefore3_3(variant: TestVariant): File {
     val output = variant.outputs.first()
@@ -24,6 +49,7 @@ private fun extractTestApplicationBefore3_3(variant: TestVariant): File {
     return File(
         when (output) {
             is ApkVariantOutput -> {
+                variant.packageApplicationProvider
                 File(variant.packageApplication.outputDirectory.asFile.get(), output.outputFileName).path
             }
             is LibraryVariantOutput -> {
@@ -36,7 +62,7 @@ private fun extractTestApplicationBefore3_3(variant: TestVariant): File {
     )
 }
 
-private fun extractTestApplication3_3_plus(output: TestVariant): File {
+private fun extractTestApplication3_3_to_3_5(output: TestVariant): File {
     val testPackageAndroidArtifact = when (output) {
         is TestVariant -> {
             output.packageApplicationProvider
