@@ -13,3 +13,4 @@ vendorConfiguration:
     debug: "false"
   applicationPmClear: true
   testApplicationPmClear: true
+  vendor: ADAM

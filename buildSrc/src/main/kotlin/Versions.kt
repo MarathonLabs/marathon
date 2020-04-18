@@ -5,9 +5,9 @@ object Versions {
     val coroutines = "1.3.1"
 
     val ddmlib = "26.3.0"
-    val adam = "0.2.0"
+    val adam = "0.0.2"
     val dexTestParser = "2.1.1"
-    val kotlinLogging = "1.4.9"
+    val kotlinLogging = "1.7.6"
     val slf4jAPI = "1.0.0"
     val logbackClassic = "1.2.3"
     val axmlParser = "1.0"
@@ -61,7 +61,7 @@ object BuildPlugins {
 
 object Libraries {
     val ddmlib = "com.android.tools.ddms:ddmlib:${Versions.ddmlib}"
-    val adam = "com.android.tools.ddms:ddmlib:${Versions.adam}"
+    val adam = "com.malinskiy:adam:${Versions.adam}"
     val androidCommon = "com.android.tools:common:${Versions.ddmlib}"
     val dexTestParser = "com.linkedin.dextestparser:parser:${Versions.dexTestParser}"
     val kotlinStdLib = "org.jetbrains.kotlin:kotlin-stdlib-jdk8:${Versions.kotlin}"

@@ -205,7 +205,7 @@ class DdmlibAndroidDevice(
     override val apiLevel: Int
         get() = ddmsDevice.version.apiLevel
 
-    override fun safeInstallPackage(absolutePath: String, reinstall: Boolean, optionalParams: String): String? {
+    override suspend fun safeInstallPackage(absolutePath: String, reinstall: Boolean, optionalParams: String): String? {
         return try {
             ddmsDevice.safeInstallPackage(absolutePath, reinstall, optionalParams)
         } catch (e: InstallException) {
