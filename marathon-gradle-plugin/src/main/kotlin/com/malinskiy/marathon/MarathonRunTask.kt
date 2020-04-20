@@ -23,6 +23,7 @@ import org.gradle.api.GradleException
 import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.VerificationTask
+import org.koin.core.context.stopKoin
 import java.io.File
 
 private val log = MarathonLogging.logger {}
@@ -86,15 +87,18 @@ open class MarathonRunTask : DefaultTask(), VerificationTask {
 
         UsageAnalytics.enable = cnf.analyticsTracking
         UsageAnalytics.USAGE_TRACKER.trackEvent(Event(TrackActionType.RunType, "gradle"))
+        try {
+            val application = marathonStartKoin(cnf)
+            val marathon: Marathon = application.koin.get()
 
-        val application = marathonStartKoin(cnf)
-        val marathon: Marathon = application.koin.get()
-
-        val success = marathon.run()
-        exceptionsTracker.end()
-        val shouldReportFailure = !cnf.ignoreFailures
-        if (!success && shouldReportFailure) {
-            throw GradleException("Tests failed! See ${cnf.outputDir}/html/index.html")
+            val success = marathon.run()
+            exceptionsTracker.end()
+            val shouldReportFailure = !cnf.ignoreFailures
+            if (!success && shouldReportFailure) {
+                throw GradleException("Tests failed! See ${cnf.outputDir}/html/index.html")
+            }
+        } finally {
+            stopKoin()
         }
     }
 
