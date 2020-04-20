@@ -4,6 +4,7 @@ import com.android.ddmlib.AndroidDebugBridge
 import com.android.ddmlib.DdmPreferences
 import com.android.ddmlib.IDevice
 import com.android.ddmlib.TimeoutException
+import com.malinskiy.marathon.actor.safeSend
 import com.malinskiy.marathon.actor.unboundedChannel
 import com.malinskiy.marathon.analytics.internal.pub.Track
 import com.malinskiy.marathon.android.AndroidConfiguration
@@ -130,13 +131,13 @@ class DdmlibDeviceProvider(
 
             private fun notifyConnected(device: DdmlibAndroidDevice) {
                 launch {
-                    channel.send(DeviceConnected(device))
+                    channel.safeSend(DeviceConnected(device))
                 }
             }
 
             private fun notifyDisconnected(device: DdmlibAndroidDevice) {
                 launch {
-                    channel.send(DeviceDisconnected(device))
+                    channel.safeSend(DeviceDisconnected(device))
                 }
             }
         }
