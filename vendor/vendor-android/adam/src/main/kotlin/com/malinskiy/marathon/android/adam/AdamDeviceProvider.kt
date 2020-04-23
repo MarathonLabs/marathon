@@ -2,6 +2,7 @@ package com.malinskiy.marathon.android.adam
 
 import com.malinskiy.adam.AndroidDebugBridgeServer
 import com.malinskiy.adam.AndroidDebugBridgeServerFactory
+import com.malinskiy.adam.interactor.StartAdbInteractor
 import com.malinskiy.adam.request.async.AsyncDeviceMonitorRequest
 import com.malinskiy.adam.request.devices.ListDevicesRequest
 import com.malinskiy.marathon.actor.unboundedChannel
@@ -18,6 +19,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.newFixedThreadPoolContext
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeoutOrNull
+import java.util.concurrent.ConcurrentHashMap
 import kotlin.coroutines.CoroutineContext
 
 private const val DEFAULT_WAIT_FOR_DEVICES_TIMEOUT = 30000L
@@ -27,12 +29,17 @@ class AdamDeviceProvider(
     private val track: Track,
     private val timer: Timer
 ) : DeviceProvider, CoroutineScope {
+    private val devices: MutableMap<String, AdamAndroidDevice> = ConcurrentHashMap()
     private val logger = MarathonLogging.logger("AdamDeviceProvider")
 
     private val channel: Channel<DeviceProvider.DeviceEvent> = unboundedChannel()
     private val bootWaitContext = newFixedThreadPoolContext(4, "AdamDeviceProvider")
     override val coroutineContext: CoroutineContext
         get() = bootWaitContext
+
+    private val adbCommunicationContext: CoroutineContext by lazy {
+        newFixedThreadPoolContext(4, "AdbIOThreadPool")
+    }
 
     override val deviceInitializationTimeoutMillis: Long = 180_000
 
@@ -44,7 +51,10 @@ class AdamDeviceProvider(
             throw IllegalStateException("Invalid configuration $vendorConfiguration passed")
         }
 
-        server = AndroidDebugBridgeServerFactory().build()
+        StartAdbInteractor().execute(androidHome = vendorConfiguration.androidSdk)
+        server = AndroidDebugBridgeServerFactory().apply {
+            coroutineContext = adbCommunicationContext
+        }.build()
 
         withTimeoutOrNull(DEFAULT_WAIT_FOR_DEVICES_TIMEOUT) {
             while (server.execute(ListDevicesRequest()).isEmpty()) {
@@ -64,12 +74,14 @@ class AdamDeviceProvider(
                             TrackingUpdate.CONNECTED -> {
                                 val device =
                                     AdamAndroidDevice(server, deviceStateTracker, serial, track, timer, vendorConfiguration.serialStrategy)
+                                device.setup()
                                 channel.send(DeviceProvider.DeviceEvent.DeviceConnected(device))
+                                devices[serial] = device
                             }
                             TrackingUpdate.DISCONNECTED -> {
-                                val device =
-                                    AdamAndroidDevice(server, deviceStateTracker, serial, track, timer, vendorConfiguration.serialStrategy)
-                                channel.send(DeviceProvider.DeviceEvent.DeviceDisconnected(device))
+                                devices[serial]?.let { device ->
+                                    channel.send(DeviceProvider.DeviceEvent.DeviceDisconnected(device))
+                                }
                             }
                             TrackingUpdate.NOTHING_TO_DO -> Unit
                         }

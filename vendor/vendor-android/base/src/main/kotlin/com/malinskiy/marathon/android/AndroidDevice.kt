@@ -10,19 +10,36 @@ import java.util.concurrent.TimeUnit
 interface AndroidDevice : Device {
     val apiLevel: Int
     val version: AndroidVersion
-
     val fileManager: RemoteFileManager
+    val externalStorageMount: String
 
-    fun getExternalStorageMount(): String
+    /**
+     * Called only once per device's lifetime
+     */
+    suspend fun setup()
 
-    fun executeCommand(command: String, errorMessage: String)
-    fun pullFile(remoteFilePath: String, localFilePath: String)
-    fun safeUninstallPackage(appPackage: String): String?
+    suspend fun getProperty(name: String, cached: Boolean = true): String?
+
+    /**
+     * @return null if command did not complete successfully, otherwise cmd output
+     */
+    suspend fun executeShellCommand(command: String, errorMessage: String = ""): String?
+
+    /**
+     * @return null if command did not complete successfully, otherwise cmd output
+     */
+    suspend fun safeExecuteShellCommand(command: String, errorMessage: String = ""): String?
+
+    suspend fun pullFile(remoteFilePath: String, localFilePath: String)
+    suspend fun pushFile(localFilePath: String, remoteFilePath: String)
+
     suspend fun safeInstallPackage(absolutePath: String, reinstall: Boolean, optionalParams: String): String?
-    fun safeExecuteShellCommand(command: String): String
-    fun getScreenshot(timeout: Long, units: TimeUnit): BufferedImage
+    suspend fun safeUninstallPackage(appPackage: String, keepData: Boolean = false): String?
+    suspend fun safeClearPackage(packageName: String): String?
+
+    suspend fun getScreenshot(timeout: Long, units: TimeUnit): BufferedImage
+    suspend fun safeStartScreenRecorder(remoteFilePath: String, options: ScreenRecorderOptions)
 
     fun addLogcatListener(listener: LineListener)
     fun removeLogcatListener(listener: LineListener)
-    fun safeStartScreenRecorder(remoteFilePath: String, listener: LineListener, options: ScreenRecorderOptions)
 }

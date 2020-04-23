@@ -55,7 +55,7 @@ class AndroidDeviceTestRunner(private val device: AdamAndroidDevice) {
                 clearData(androidConfiguration, info)
                 withTimeoutOrNull(configuration.testOutputTimeoutMillis * testBatch.tests.size) {
                     val transformer = InstrumentationResponseTransformer()
-                    val channel = device.server.execute(runnerRequest, scope = device, serial = device.adbSerial)
+                    val channel = device.executeTestRequest(runnerRequest)
 
                     var logPart: String? = null
                     do {
@@ -110,7 +110,7 @@ class AndroidDeviceTestRunner(private val device: AdamAndroidDevice) {
         }
     }
 
-    private fun clearData(androidConfiguration: AndroidConfiguration, info: InstrumentationInfo) {
+    private suspend fun clearData(androidConfiguration: AndroidConfiguration, info: InstrumentationInfo) {
         if (androidConfiguration.applicationPmClear) {
             device.safeClearPackage(info.applicationPackage)?.also {
                 logger.debug { "Package ${info.applicationPackage} cleared: $it" }
@@ -137,6 +137,7 @@ class AndroidDeviceTestRunner(private val device: AdamAndroidDevice) {
         return TestRunnerRequest(
             testPackage = info.instrumentationPackage,
             runnerClass = info.testRunnerClass,
+            noWindowAnimations = true,
             instrumentOptions = InstrumentOptions(
                 clazz = tests,
                 overrides = androidConfiguration.instrumentationArgs

@@ -1,18 +1,16 @@
 package com.malinskiy.marathon.android.executor.listeners.video
 
 import com.malinskiy.marathon.android.AndroidDevice
-import com.malinskiy.marathon.android.executor.listeners.line.LineListener
 import com.malinskiy.marathon.log.MarathonLogging
 import java.util.concurrent.TimeUnit.SECONDS
 import kotlin.system.measureTimeMillis
 
 internal class ScreenRecorder(
     private val device: AndroidDevice,
-    private val receiver: LineListener,
     private val remoteFilePath: String
-) : Runnable {
+) {
 
-    override fun run() {
+    suspend fun run() {
         try {
             startRecordingTestVideo()
         } catch (e: Exception) {
@@ -20,11 +18,10 @@ internal class ScreenRecorder(
         }
     }
 
-    private fun startRecordingTestVideo() {
+    private suspend fun startRecordingTestVideo() {
         val millis = measureTimeMillis {
             device.safeStartScreenRecorder(
                 remoteFilePath = remoteFilePath,
-                listener = receiver,
                 options = options
             )
         }

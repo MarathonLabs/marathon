@@ -52,7 +52,7 @@ class ScreenCapturer(
         outputStream.close()
     }
 
-    private fun getScreenshot(targetOrientation: Int): RenderedImage? {
+    private suspend fun getScreenshot(targetOrientation: Int): RenderedImage? {
         return try {
             val screenshot = device.getScreenshot(TIMEOUT_MS, TimeUnit.MILLISECONDS).let {
                 // in case the orientation of the image is different than the target, rotate by 90 degrees

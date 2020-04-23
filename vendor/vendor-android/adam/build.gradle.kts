@@ -15,7 +15,7 @@ dependencies {
     implementation(project(":core"))
     implementation(project(":vendor:vendor-android:base"))
     implementation(Libraries.logbackClassic)
-    implementation(Libraries.adam)
+    api(Libraries.adam)
     testImplementation(project(":vendor:vendor-test"))
     testImplementation(TestLibraries.kluent)
     testImplementation(TestLibraries.mockitoKotlin)

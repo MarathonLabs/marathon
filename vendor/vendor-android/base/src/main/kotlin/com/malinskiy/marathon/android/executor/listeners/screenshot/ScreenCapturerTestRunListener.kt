@@ -17,14 +17,14 @@ import com.malinskiy.marathon.test.toSimpleSafeTestName
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
-import kotlinx.coroutines.newFixedThreadPoolContext
 import kotlin.coroutines.CoroutineContext
 
 class ScreenCapturerTestRunListener(
     private val fileManager: FileManager,
     private val pool: DevicePoolId,
     private val device: AndroidDevice,
-    private val screenRecordingPolicy: ScreenRecordingPolicy
+    private val screenRecordingPolicy: ScreenRecordingPolicy,
+    private val coroutineScope: CoroutineScope
 ) : NoOpTestRunListener(), CoroutineScope, AttachmentProvider {
 
     private val attachmentListeners = mutableListOf<AttachmentListener>()
@@ -37,9 +37,8 @@ class ScreenCapturerTestRunListener(
 
     private var screenCapturerJob: Job? = null
     private val logger = MarathonLogging.logger(ScreenCapturerTestRunListener::class.java.simpleName)
-    private val threadPoolDispatcher = newFixedThreadPoolContext(1, "ScreenCapturer - ${device.serialNumber}")
     override val coroutineContext: CoroutineContext
-        get() = threadPoolDispatcher
+        get() = coroutineScope.coroutineContext
 
     override fun testStarted(test: TestIdentifier) {
         super.testStarted(test)
@@ -62,7 +61,6 @@ class ScreenCapturerTestRunListener(
         val toTest = test.toTest()
         logger.debug { "Finished recording for ${toTest.toSimpleSafeTestName()}" }
         screenCapturerJob?.cancel()
-        threadPoolDispatcher.close()
 
         if (!hasFailed && screenRecordingPolicy == ScreenRecordingPolicy.ON_FAILURE) {
             screenCapturerJob?.invokeOnCompletion {

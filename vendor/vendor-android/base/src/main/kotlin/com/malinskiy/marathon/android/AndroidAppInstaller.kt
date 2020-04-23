@@ -1,6 +1,7 @@
 package com.malinskiy.marathon.android
 
 import com.malinskiy.marathon.android.exception.InstallException
+import com.malinskiy.marathon.exceptions.DeviceSetupException
 import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.execution.withRetry
 import com.malinskiy.marathon.log.MarathonLogging
@@ -46,8 +47,9 @@ class AndroidAppInstaller(configuration: Configuration) {
         }
     }
 
-    private fun installed(device: AndroidDevice, appPackage: String): Boolean {
-        val lines = device.safeExecuteShellCommand("pm list packages").lines()
+    private suspend fun installed(device: AndroidDevice, appPackage: String): Boolean {
+        val lines = device.safeExecuteShellCommand("pm list packages")?.lines()
+            ?: throw DeviceSetupException("Unable to verify that package $appPackage is installed")
         return lines.any { it == "package:$appPackage" }
     }
 
