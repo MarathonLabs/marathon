@@ -1,5 +1,6 @@
 package com.malinskiy.marathon.cli.args
 
+import com.malinskiy.marathon.android.VendorType
 import com.malinskiy.marathon.android.serial.SerialStrategy
 import com.malinskiy.marathon.exceptions.ConfigurationException
 import org.amshove.kluent.shouldEqual
@@ -9,7 +10,7 @@ import java.io.File
 
 class FileAndroidConfigurationTest {
     private val configuration = FileAndroidConfiguration(
-        null,
+        VendorType.DDMLIB,
         null,
         null,
         File.createTempFile("foo", "bar"),

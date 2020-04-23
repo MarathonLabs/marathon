@@ -23,6 +23,7 @@ import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.test.Test
 import com.malinskiy.marathon.test.TestBatch
 import com.malinskiy.marathon.test.toTestName
+import kotlinx.coroutines.channels.receiveOrNull
 import kotlinx.coroutines.withTimeoutOrNull
 import java.io.IOException
 import java.util.concurrent.TimeoutException
@@ -83,7 +84,7 @@ class AndroidDeviceTestRunner(private val device: AdamAndroidDevice) {
                                 }
                             }
                         }
-                        logPart = channel.receiveOrNull
+                        logPart = channel.receiveOrNull()
                     } while (logPart != null)
                 } ?: throw TimeoutException()
             } else {
