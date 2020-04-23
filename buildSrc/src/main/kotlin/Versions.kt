@@ -50,11 +50,6 @@ object Versions {
     val jsonAssert = "1.5.0"
     val xmlUnit = "2.6.3"
     val assertk = "0.19"
-
-    val annotations = "16.0.2"
-    val kxml = "2.3.0"
-    val ktor = "1.2.3"
-    val logging = "1.7.6"
 }
 
 object BuildPlugins {
@@ -97,12 +92,6 @@ object Libraries {
     val allureEnvironment = "com.github.automatedowl:allure-environment-writer:${Versions.allureEnvironment}"
     val koin = "org.koin:koin-core:${Versions.koin}"
     val bugsnag = "com.bugsnag:bugsnag:${Versions.bugsnag}"
-
-    val annotations = "org.jetbrains:annotations:${Versions.annotations}"
-    val coroutines = "org.jetbrains.kotlinx:kotlinx-coroutines-core:${Versions.coroutines}"
-    val kxml = "net.sf.kxml:kxml2:${Versions.kxml}"
-    val ktorNetwork = "io.ktor:ktor-network:${Versions.ktor}"
-    val logging = "io.github.microutils:kotlin-logging:${Versions.logging}"
 }
 
 object TestLibraries {
