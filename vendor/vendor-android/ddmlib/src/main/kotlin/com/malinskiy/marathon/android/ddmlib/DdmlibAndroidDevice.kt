@@ -132,11 +132,13 @@ class DdmlibAndroidDevice(
         remoteFilePath: String,
         options: ScreenRecorderOptions
     ) {
+        val outputReceiver = CollectingOutputReceiver()
         ddmsDevice.safeStartScreenRecorder(
             remoteFilePath,
             options,
-            CollectingOutputReceiver()
+            outputReceiver
         )
+        logger.debug { "screenrecord output:\n ${outputReceiver.output}" }
     }
 
     private fun bufferedImageFrom(rawImage: RawImage): BufferedImage {
@@ -154,7 +156,7 @@ class DdmlibAndroidDevice(
     }
 
     private val dispatcher by lazy {
-        newFixedThreadPoolContext(1, "AndroidDevice - execution - ${ddmsDevice.serialNumber}")
+        newFixedThreadPoolContext(2, "AndroidDevice - execution - ${ddmsDevice.serialNumber}")
     }
 
     override val coroutineContext: CoroutineContext = dispatcher

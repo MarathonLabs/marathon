@@ -77,7 +77,13 @@ abstract class BaseAndroidDevice(
         model = getProperty("ro.product.model") ?: "Unknown"
         manufacturer = getProperty("ro.product.manufacturer") ?: "Unknown"
 
-        externalStorageMount = safeExecuteShellCommand("echo \$EXTERNAL_STORAGE")
+        externalStorageMount = safeExecuteShellCommand("echo \$EXTERNAL_STORAGE")?.trim {
+            when (it) {
+                '\n' -> true
+                '\r' -> true
+                else -> false
+            }
+        }
             ?: throw DeviceSetupException("Unable to configure device $serialNumber: externalStorageMount")
 
         deviceFeatures = detectFeatures()
