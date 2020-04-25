@@ -47,7 +47,7 @@ class TestRunResultsListener(
 
     private val logger = MarathonLogging.logger("TestRunResultsListener")
 
-    override fun handleTestRunResults(runResult: TestRunResultsAccumulator) {
+    override suspend fun handleTestRunResults(runResult: TestRunResultsAccumulator) {
         val results = mergeParameterisedResults(runResult.testResults)
         val tests = testBatch.tests.associateBy { it.identifier() }
 

@@ -3,21 +3,21 @@ package com.malinskiy.marathon.android.executor.listeners
 import com.malinskiy.marathon.android.model.TestIdentifier
 
 interface AndroidTestRunListener {
-    fun testRunStarted(runName: String, testCount: Int) {}
+    suspend fun testRunStarted(runName: String, testCount: Int) {}
 
-    fun testStarted(test: TestIdentifier) {}
+    suspend fun testStarted(test: TestIdentifier) {}
 
-    fun testFailed(test: TestIdentifier, trace: String) {}
+    suspend fun testFailed(test: TestIdentifier, trace: String) {}
 
-    fun testAssumptionFailure(test: TestIdentifier, trace: String) {}
+    suspend fun testAssumptionFailure(test: TestIdentifier, trace: String) {}
 
-    fun testIgnored(test: TestIdentifier) {}
+    suspend fun testIgnored(test: TestIdentifier) {}
 
-    fun testEnded(test: TestIdentifier, testMetrics: Map<String, String>) {}
+    suspend fun testEnded(test: TestIdentifier, testMetrics: Map<String, String>) {}
 
-    fun testRunFailed(errorMessage: String) {}
+    suspend fun testRunFailed(errorMessage: String) {}
 
-    fun testRunStopped(elapsedTime: Long) {}
+    suspend fun testRunStopped(elapsedTime: Long) {}
 
-    fun testRunEnded(elapsedTime: Long, runMetrics: Map<String, String>) {}
+    suspend fun testRunEnded(elapsedTime: Long, runMetrics: Map<String, String>) {}
 }

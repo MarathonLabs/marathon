@@ -78,7 +78,7 @@ class AdamAndroidDevice(
     }
 
     private val dispatcher by lazy {
-        newFixedThreadPoolContext(2, "AndroidDevice - execution - $adbSerial")
+        newFixedThreadPoolContext(1, "AndroidDevice - execution - $adbSerial")
     }
     private val imageAdapter = ImageAdapter()
 

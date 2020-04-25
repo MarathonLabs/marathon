@@ -40,7 +40,7 @@ class ScreenCapturerTestRunListener(
     override val coroutineContext: CoroutineContext
         get() = coroutineScope.coroutineContext
 
-    override fun testStarted(test: TestIdentifier) {
+    override suspend fun testStarted(test: TestIdentifier) {
         super.testStarted(test)
         hasFailed = false
 
@@ -52,11 +52,11 @@ class ScreenCapturerTestRunListener(
         }
     }
 
-    override fun testFailed(test: TestIdentifier, trace: String) {
+    override suspend fun testFailed(test: TestIdentifier, trace: String) {
         hasFailed = true
     }
 
-    override fun testEnded(test: TestIdentifier, testMetrics: Map<String, String>) {
+    override suspend fun testEnded(test: TestIdentifier, testMetrics: Map<String, String>) {
         super.testEnded(test, testMetrics)
         val toTest = test.toTest()
         logger.debug { "Finished recording for ${toTest.toSimpleSafeTestName()}" }

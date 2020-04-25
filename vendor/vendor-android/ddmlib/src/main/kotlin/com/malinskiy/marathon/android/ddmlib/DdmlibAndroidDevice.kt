@@ -32,6 +32,7 @@ import com.malinskiy.marathon.time.Timer
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.async
 import kotlinx.coroutines.newFixedThreadPoolContext
+import kotlinx.coroutines.runBlocking
 import java.awt.image.BufferedImage
 import java.io.IOException
 import java.util.concurrent.TimeUnit
@@ -238,39 +239,57 @@ class DdmlibAndroidDevice(
 private fun AndroidTestRunListener.toDdmlibTestListener(): ITestRunListener {
     return object : ITestRunListener {
         override fun testRunStarted(runName: String?, testCount: Int) {
-            this@toDdmlibTestListener.testRunStarted(runName ?: "", testCount)
+            runBlocking {
+                this@toDdmlibTestListener.testRunStarted(runName ?: "", testCount)
+            }
         }
 
         override fun testStarted(test: TestIdentifier) {
-            this@toDdmlibTestListener.testStarted(test.toMarathonTestIdentifier())
+            runBlocking {
+                this@toDdmlibTestListener.testStarted(test.toMarathonTestIdentifier())
+            }
         }
 
         override fun testAssumptionFailure(test: TestIdentifier, trace: String?) {
-            this@toDdmlibTestListener.testAssumptionFailure(test.toMarathonTestIdentifier(), trace ?: "")
+            runBlocking {
+                this@toDdmlibTestListener.testAssumptionFailure(test.toMarathonTestIdentifier(), trace ?: "")
+            }
         }
 
         override fun testRunStopped(elapsedTime: Long) {
-            this@toDdmlibTestListener.testRunStopped(elapsedTime)
+            runBlocking {
+                this@toDdmlibTestListener.testRunStopped(elapsedTime)
+            }
         }
 
         override fun testFailed(test: TestIdentifier, trace: String?) {
-            this@toDdmlibTestListener.testFailed(test.toMarathonTestIdentifier(), trace ?: "")
+            runBlocking {
+                this@toDdmlibTestListener.testFailed(test.toMarathonTestIdentifier(), trace ?: "")
+            }
         }
 
         override fun testEnded(test: TestIdentifier, testMetrics: MutableMap<String, String>?) {
-            this@toDdmlibTestListener.testEnded(test.toMarathonTestIdentifier(), testMetrics ?: emptyMap())
+            runBlocking {
+                this@toDdmlibTestListener.testEnded(test.toMarathonTestIdentifier(), testMetrics ?: emptyMap())
+            }
         }
 
         override fun testIgnored(test: TestIdentifier) {
-            this@toDdmlibTestListener.testIgnored(test.toMarathonTestIdentifier())
+            runBlocking {
+                this@toDdmlibTestListener.testIgnored(test.toMarathonTestIdentifier())
+            }
         }
 
         override fun testRunFailed(errorMessage: String?) {
-            this@toDdmlibTestListener.testRunFailed(errorMessage ?: "")
+            runBlocking {
+                this@toDdmlibTestListener.testRunFailed(errorMessage ?: "")
+            }
         }
 
         override fun testRunEnded(elapsedTime: Long, runMetrics: MutableMap<String, String>?) {
-            this@toDdmlibTestListener.testRunEnded(elapsedTime, runMetrics ?: emptyMap())
+            runBlocking {
+                this@toDdmlibTestListener.testRunEnded(elapsedTime, runMetrics ?: emptyMap())
+            }
         }
 
     }

@@ -102,7 +102,7 @@ class AndroidDeviceTestRunner(private val device: AdamAndroidDevice) {
         }
     }
 
-    private fun notifyIgnoredTest(ignoredTests: List<Test>, listeners: AndroidTestRunListener) {
+    private suspend fun notifyIgnoredTest(ignoredTests: List<Test>, listeners: AndroidTestRunListener) {
         ignoredTests.forEach {
             val identifier = TestIdentifier("${it.pkg}.${it.clazz}", it.method)
             listeners.testStarted(identifier)

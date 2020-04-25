@@ -5,9 +5,11 @@ import com.malinskiy.adam.AndroidDebugBridgeServerFactory
 import com.malinskiy.adam.interactor.StartAdbInteractor
 import com.malinskiy.adam.request.async.AsyncDeviceMonitorRequest
 import com.malinskiy.adam.request.devices.ListDevicesRequest
+import com.malinskiy.adam.request.sync.GetAdbServerVersionRequest
 import com.malinskiy.marathon.actor.unboundedChannel
 import com.malinskiy.marathon.analytics.internal.pub.Track
 import com.malinskiy.marathon.android.AndroidConfiguration
+import com.malinskiy.marathon.android.exception.AdbStartException
 import com.malinskiy.marathon.device.DeviceProvider
 import com.malinskiy.marathon.exceptions.NoDevicesException
 import com.malinskiy.marathon.log.MarathonLogging
@@ -19,6 +21,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.newFixedThreadPoolContext
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeoutOrNull
+import java.net.ConnectException
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.coroutines.CoroutineContext
 
@@ -51,10 +54,19 @@ class AdamDeviceProvider(
             throw IllegalStateException("Invalid configuration $vendorConfiguration passed")
         }
 
-        StartAdbInteractor().execute(androidHome = vendorConfiguration.androidSdk)
         server = AndroidDebugBridgeServerFactory().apply {
             coroutineContext = adbCommunicationContext
         }.build()
+
+        try {
+            printAdbServerVersion()
+        } catch (e: ConnectException) {
+            val success = StartAdbInteractor().execute(androidHome = vendorConfiguration.androidSdk)
+            if (!success) {
+                throw AdbStartException()
+            }
+            printAdbServerVersion()
+        }
 
         withTimeoutOrNull(DEFAULT_WAIT_FOR_DEVICES_TIMEOUT) {
             while (server.execute(ListDevicesRequest()).isEmpty()) {
@@ -90,6 +102,11 @@ class AdamDeviceProvider(
                 }
             }
         }
+    }
+
+    private suspend fun printAdbServerVersion() {
+        val adbVersion = server.execute(GetAdbServerVersionRequest())
+        logger.debug { "Android Debug Bridge version $adbVersion" }
     }
 
     override suspend fun terminate() {

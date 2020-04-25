@@ -20,7 +20,6 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.async
 import kotlinx.coroutines.cancelAndJoin
-import kotlinx.coroutines.runBlocking
 import kotlin.coroutines.CoroutineContext
 import kotlin.system.measureTimeMillis
 
@@ -48,7 +47,7 @@ class ScreenRecorderTestRunListener(
     private var hasFailed: Boolean = false
     private var supervisorJob: Job? = null
 
-    override fun testStarted(test: TestIdentifier) {
+    override suspend fun testStarted(test: TestIdentifier) {
         hasFailed = false
 
         val screenRecorder = ScreenRecorder(device, device.fileManager.remoteVideoForTest(test.toTest()))
@@ -58,20 +57,16 @@ class ScreenRecorderTestRunListener(
         }
     }
 
-    override fun testFailed(test: TestIdentifier, trace: String) {
+    override suspend fun testFailed(test: TestIdentifier, trace: String) {
         hasFailed = true
     }
 
-    override fun testAssumptionFailure(test: TestIdentifier, trace: String) {
-        runBlocking(coroutineScope.coroutineContext) {
-            pullVideo(test.toTest())
-        }
+    override suspend fun testAssumptionFailure(test: TestIdentifier, trace: String) {
+        pullVideo(test.toTest())
     }
 
-    override fun testEnded(test: TestIdentifier, testMetrics: Map<String, String>) {
-        runBlocking(coroutineScope.coroutineContext) {
-            pullVideo(test.toTest())
-        }
+    override suspend fun testEnded(test: TestIdentifier, testMetrics: Map<String, String>) {
+        pullVideo(test.toTest())
     }
 
     private suspend fun pullVideo(test: Test) {

@@ -28,11 +28,11 @@ class LogCatListener(
         stringBuffer.appendln(line)
     }
 
-    override fun testRunStarted(runName: String, testCount: Int) {
+    override suspend fun testRunStarted(runName: String, testCount: Int) {
         device.addLogcatListener(this)
     }
 
-    override fun testEnded(test: TestIdentifier, testMetrics: Map<String, String>) {
+    override suspend fun testEnded(test: TestIdentifier, testMetrics: Map<String, String>) {
         device.removeLogcatListener(this)
 
         val file = logWriter.saveLogs(test.toTest(), devicePoolId, device.toDeviceInfo(), listOf(stringBuffer.toString()))
@@ -40,7 +40,7 @@ class LogCatListener(
         attachmentListeners.forEach { it.onAttachment(test.toTest(), Attachment(file, AttachmentType.LOG)) }
     }
 
-    override fun testRunEnded(elapsedTime: Long, runMetrics: Map<String, String>) {
+    override suspend fun testRunEnded(elapsedTime: Long, runMetrics: Map<String, String>) {
         device.removeLogcatListener(this)
     }
 }
