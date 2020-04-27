@@ -64,8 +64,9 @@ class AdamAndroidDevice(
             val parser = LogCatMessageParser()
 
             while (!logcatChannel.isClosedForReceive) {
-                val logPart = logcatChannel.receive()
+                val logPart = logcatChannel.receiveOrNull() ?: continue
                 val messages = parser.processLogLines(logPart.lines(), this@AdamAndroidDevice)
+                //TODO: replace with Mutex.lock after the removal of ddmlib
                 synchronized(logcatListeners) {
                     messages.forEach { msg ->
                         logcatListeners.forEach { listener ->

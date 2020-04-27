@@ -1,6 +1,5 @@
 package com.malinskiy.marathon.android.adam.log
 
-import java.time.Instant
 import java.util.*
 
 /**
@@ -12,8 +11,7 @@ class LogCatHeader {
     val tid: Int
     val appName: String
     val tag: String
-    val timestampInstant: Instant?
-    private val mTimestamp: LogCatTimestamp?
+    val timestamp: String
 
     constructor(
         logLevel: Log.LogLevel,
@@ -21,45 +19,15 @@ class LogCatHeader {
         tid: Int,
         appName: String,
         tag: String,
-        timestampInstant: Instant
+        timestamp: String
     ) {
         this.logLevel = logLevel
         this.pid = pid
         this.tid = tid
         this.appName = appName
         this.tag = tag
-        this.timestampInstant = timestampInstant
-        mTimestamp = null
+        this.timestamp = timestamp
     }
-
-    /**
-     * Construct an immutable log message object.
-     *
-     */
-    @Deprecated("Use {@link #LogCatHeader(LogLevel, int, int, String, String, Instant)}")
-    constructor(
-        logLevel: Log.LogLevel,
-        pid: Int,
-        tid: Int,
-        appName: String,
-        tag: String,
-        timestamp: LogCatTimestamp
-    ) {
-        this.logLevel = logLevel
-        this.pid = pid
-        this.tid = tid
-        this.appName = appName
-        this.tag = tag
-        timestampInstant = null
-        mTimestamp = timestamp
-    }
-
-    @get:Deprecated(
-        """Construct a LogCatHeader instance with {@link #LogCatHeader(LogLevel, int, int,
-     *     String, String, Instant)} and use {@link #getTimestampInstant()}"""
-    )
-    val timestamp: LogCatTimestamp?
-        get() = mTimestamp
 
     override fun equals(`object`: Any?): Boolean {
         if (`object` !is LogCatHeader) {
@@ -70,8 +38,7 @@ class LogCatHeader {
             tid == `object`.tid &&
             appName == `object`.appName &&
             tag == `object`.tag &&
-            timestampInstant == `object`.timestampInstant &&
-            mTimestamp == `object`.mTimestamp)
+            timestamp == `object`.timestamp)
     }
 
     override fun hashCode(): Int {
@@ -81,25 +48,20 @@ class LogCatHeader {
         hashCode = 31 * hashCode + tid
         hashCode = 31 * hashCode + appName.hashCode()
         hashCode = 31 * hashCode + tag.hashCode()
-        hashCode = 31 * hashCode + Objects.hashCode(timestampInstant)
-        hashCode = 31 * hashCode + Objects.hashCode(mTimestamp)
+        hashCode = 31 * hashCode + Objects.hashCode(timestamp)
         return hashCode
     }
 
     override fun toString(): String {
-        val builder = StringBuilder()
-        if (timestampInstant == null) {
-            builder.append(mTimestamp)
-        } else {
-            LogCatLongEpochMessageParser.EPOCH_TIME_FORMATTER.formatTo(timestampInstant, builder)
-        }
-        builder.append(": ")
-            .append(this.logLevel.priorityLetter)
-            .append('/')
-            .append(tag)
-            .append('(')
-            .append(pid)
-            .append(')')
-        return builder.toString()
+        return StringBuilder().apply {
+            append(timestamp)
+                .append(": ")
+                .append(logLevel.priorityLetter)
+                .append('/')
+                .append(tag)
+                .append('(')
+                .append(pid)
+                .append(')')
+        }.toString()
     }
 }

@@ -3,6 +3,7 @@ package com.malinskiy.marathon.android.adam.log
 import com.malinskiy.marathon.android.AndroidDevice
 import java.util.regex.Pattern
 
+
 /**
  * Class to parse raw output of { @code adb logcat -v long } to { @link LogCatMessage } objects.
  */
@@ -22,7 +23,7 @@ open class LogCatMessageParser {
         if (!matcher.matches()) {
             return null
         }
-        val dateTime: LogCatTimestamp = LogCatTimestamp.fromString(matcher.group(1))
+        val dateTime = matcher.group(1)
         val processId = parseProcessId(matcher.group(2))
         val threadId = parseThreadId(matcher.group(3))
         val priority: Log.LogLevel = parsePriority(matcher.group(4))

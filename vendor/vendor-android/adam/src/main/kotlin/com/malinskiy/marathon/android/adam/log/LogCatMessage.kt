@@ -22,8 +22,8 @@ data class LogCatMessage(private val header: LogCatHeader, val message: String) 
     val tag: String
         get() = header.tag
 
-    val timestamp: LogCatTimestamp
-        get() = header.timestamp!!
+    val timestamp: String
+        get() = header.timestamp
 
     override fun toString() = "$header: $message"
 
