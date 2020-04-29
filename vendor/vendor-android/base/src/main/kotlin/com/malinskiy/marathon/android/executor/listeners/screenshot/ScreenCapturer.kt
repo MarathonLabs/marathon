@@ -31,7 +31,7 @@ class ScreenCapturer(
     suspend fun start() = coroutineScope {
         val outputStream = FileImageOutputStream(fileManager.createFile(FileType.SCREENSHOT, poolId, device.toDeviceInfo(), test))
         val writer = GifSequenceWriter(outputStream, TYPE_INT_ARGB, DELAY, true)
-        var targetOrientation = UNDEFINED
+        var targetOrientation = detectCurrentDeviceOrientation()
         while (isActive) {
             val capturingTimeMillis = measureTimeMillis {
                 getScreenshot(targetOrientation)?.let {
@@ -50,6 +50,14 @@ class ScreenCapturer(
         }
         writer.close()
         outputStream.close()
+    }
+
+    private fun detectCurrentDeviceOrientation(): Int {
+        /**
+         * `dumpsys input` is too slow for our purposes: by the time we get the response with SurfaceOrientation the test might already have
+         * finished
+         */
+        return UNDEFINED
     }
 
     private suspend fun getScreenshot(targetOrientation: Int): RenderedImage? {
