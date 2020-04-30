@@ -25,9 +25,3 @@ include("report:html-report")
 include("report:execution-timeline")
 include("cli")
 include(":analytics:usage")
-
-sourceControl {
-    gitRepository(uri("https://github.com/Malinskiy/adam.git")) {
-        producesModule("com.malinskiy:adam")
-    }
-}

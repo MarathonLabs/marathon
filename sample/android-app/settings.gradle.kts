@@ -19,9 +19,3 @@ pluginManagement {
 rootProject.name = "android-app"
 rootProject.buildFileName = "build.gradle.kts"
 include("app")
-
-sourceControl {
-    gitRepository(uri("https://github.com/Malinskiy/adam.git")) {
-        producesModule("com.malinskiy:adam")
-    }
-}
