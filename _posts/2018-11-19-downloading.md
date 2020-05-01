@@ -46,6 +46,20 @@ plugins {
 }
 ```
 
+You also need to add the following to your settings.gradle(.kts):
+
+```
+pluginManagement {
+    resolutionStrategy {
+        eachPlugin {
+            if (requested.id.id == "marathon") {
+                useModule("com.malinskiy.marathon:marathon-gradle-plugin:${requested.version}")
+            }
+        }
+    }
+}
+```
+
 All the relevant test tasks should start with **marathon** prefix such as *marathonDebugAndroidTest*.
 
 [1]: https://github.com/Malinskiy/marathon/releases
