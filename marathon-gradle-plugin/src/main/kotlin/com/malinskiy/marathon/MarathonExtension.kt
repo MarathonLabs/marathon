@@ -35,7 +35,7 @@ open class MarathonExtension(project: Project) {
     var testOutputTimeoutMillis: Long? = null
     var debug: Boolean? = null
 
-    val screenRecordingPolicy: ScreenRecordingPolicy? = null
+    var screenRecordingPolicy: ScreenRecordingPolicy? = null
 
     var applicationPmClear: Boolean? = null
     var testApplicationPmClear: Boolean? = null
