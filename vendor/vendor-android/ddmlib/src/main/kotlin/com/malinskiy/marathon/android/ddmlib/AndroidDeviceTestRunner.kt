@@ -110,8 +110,12 @@ class AndroidDeviceTestRunner(private val device: DdmlibAndroidDevice) {
         runner.setMaxTimeToOutputResponse(configuration.testOutputTimeoutMillis * testBatch.tests.size, TimeUnit.MILLISECONDS)
         runner.setClassNames(tests)
 
-        androidConfiguration.instrumentationArgs.forEach { key, value ->
+        androidConfiguration.instrumentationArgs.forEach { (key, value) ->
             runner.addInstrumentationArg(key, value)
+        }
+
+        if (androidConfiguration.noWindowAnimations) {
+            runner.runOptions += "--no_window_animation"
         }
 
         return runner

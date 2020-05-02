@@ -21,7 +21,8 @@ class FileAndroidConfigurationTest {
         null,
         null,
         null,
-        SerialStrategy.AUTOMATIC
+        SerialStrategy.AUTOMATIC,
+        null
     )
 
     private val env: File = File.createTempFile("foo", "bar")
@@ -87,5 +88,15 @@ class FileAndroidConfigurationTest {
     @Test
     fun `if android sdk is not null install options should be equal if provided`() {
         configuration.copy(installOptions = "-d").toAndroidConfiguration(env).installOptions shouldEqual "-d"
+    }
+
+    @Test
+    fun `default noWindowAnimation value should be true`() {
+        configuration.toAndroidConfiguration(env).noWindowAnimations shouldEqual true
+    }
+
+    @Test
+    fun `noWindowAnimation override value be propagated`() {
+        configuration.copy(noWindowAnimations = false).toAndroidConfiguration(env).noWindowAnimations shouldEqual false
     }
 }

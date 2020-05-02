@@ -24,7 +24,8 @@ data class FileAndroidConfiguration(
     @JsonProperty("adbInitTimeoutMillis") val adbInitTimeoutMillis: Int?,
     @JsonProperty("installOptions") val installOptions: String?,
     @JsonProperty("preferableRecorderType") val preferableRecorderType: DeviceFeature?,
-    @JsonProperty("serialStrategy") val serialStrategy: SerialStrategy = SerialStrategy.AUTOMATIC
+    @JsonProperty("serialStrategy") val serialStrategy: SerialStrategy = SerialStrategy.AUTOMATIC,
+    @JsonProperty("noWindowAnimations") val noWindowAnimations: Boolean?
 ) : FileVendorConfiguration {
 
     fun toAndroidConfiguration(environmentAndroidSdk: File?): AndroidConfiguration {
@@ -49,7 +50,8 @@ data class FileAndroidConfiguration(
             installOptions = installOptions ?: DEFAULT_INSTALL_OPTIONS,
             preferableRecorderType = preferableRecorderType,
             serialStrategy = serialStrategy,
-            implementationModules = implementationModules
+            implementationModules = implementationModules,
+            noWindowAnimations = noWindowAnimations ?: true
         )
     }
 }

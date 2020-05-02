@@ -45,6 +45,7 @@ open class MarathonExtension(project: Project) {
     var adbInitTimeout: Int? = null
     var installOptions: String? = null
     var serialStrategy: SerialStrategy? = null
+    var noWindowAnimations: Boolean? = null
 
     var preferableRecorderType: DeviceFeature? = null
 

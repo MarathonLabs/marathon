@@ -6,6 +6,7 @@ import com.malinskiy.marathon.android.AndroidConfiguration
 import com.malinskiy.marathon.android.DEFAULT_APPLICATION_PM_CLEAR
 import com.malinskiy.marathon.android.DEFAULT_AUTO_GRANT_PERMISSION
 import com.malinskiy.marathon.android.DEFAULT_INSTALL_OPTIONS
+import com.malinskiy.marathon.android.DEFAULT_NO_WINDOW_ANIMATIONS
 import com.malinskiy.marathon.android.VendorType
 import com.malinskiy.marathon.android.adam.di.adamModule
 import com.malinskiy.marathon.android.defaultInitTimeoutMillis
@@ -113,6 +114,7 @@ open class MarathonRunTask : DefaultTask(), VerificationTask {
         val installOptions = extension.installOptions ?: DEFAULT_INSTALL_OPTIONS
         val preferableRecorderType = extension.preferableRecorderType
         val serialStrategy = extension.serialStrategy ?: SerialStrategy.AUTOMATIC
+        val noWindowAnimations = extension.noWindowAnimations ?: DEFAULT_NO_WINDOW_ANIMATIONS
 
         val implementationModules = when (extension.vendor ?: VendorType.DDMLIB) {
             VendorType.DDMLIB -> listOf(ddmlibModule)
@@ -131,7 +133,8 @@ open class MarathonRunTask : DefaultTask(), VerificationTask {
             adbInitTimeoutMillis = adbInitTimeout,
             installOptions = installOptions,
             preferableRecorderType = preferableRecorderType,
-            serialStrategy = serialStrategy
+            serialStrategy = serialStrategy,
+            noWindowAnimations = noWindowAnimations
         )
     }
 

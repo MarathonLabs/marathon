@@ -138,7 +138,7 @@ class AndroidDeviceTestRunner(private val device: AdamAndroidDevice) {
         return TestRunnerRequest(
             testPackage = info.instrumentationPackage,
             runnerClass = info.testRunnerClass,
-            noWindowAnimations = true,
+            noWindowAnimations = androidConfiguration.noWindowAnimations,
             instrumentOptions = InstrumentOptions(
                 clazz = tests,
                 overrides = androidConfiguration.instrumentationArgs
