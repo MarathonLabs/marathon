@@ -40,6 +40,9 @@ class AndroidAppInstaller(configuration: Configuration) {
                 logger.info("Installing $appPackage, ${appApk.absolutePath} to ${device.serialNumber}")
                 val installMessage = device.safeInstallPackage(appApk.absolutePath, true, optionalParams(device))
                 installMessage?.let { logger.debug { it } }
+                if (installMessage == null || !installMessage.startsWith("Success")) {
+                    throw InstallException(installMessage ?: "")
+                }
             } catch (e: InstallException) {
                 logger.error(e) { "Error while installing $appPackage, ${appApk.absolutePath} on ${device.serialNumber}" }
                 throw RuntimeException("Error while installing $appPackage on ${device.serialNumber}", e)

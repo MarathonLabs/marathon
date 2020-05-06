@@ -60,7 +60,11 @@ fun IDevice.safeInstallPackage(packageFilePath: String, reinstall: Boolean, vara
         *extraArgs
     )
 
-    return receiver.errorMessage
+    return if (receiver.isSuccessfullyCompleted) {
+        receiver.successMessage
+    } else {
+        receiver.errorMessage
+    }
 }
 
 fun IDevice.safeExecuteShellCommand(command: String, receiver: IShellOutputReceiver) {
