@@ -171,21 +171,19 @@ abstract class BaseAndroidDevice(
     private suspend fun waitForBoot(): Boolean {
         var booted = false
 
-        track.trackProviderDevicePreparing(this) {
-            for (i in 1..30) {
-                if (getProperty("sys.boot_completed", false) != null) {
-                    logger.debug { "Device $serialNumber booted!" }
-                    booted = true
-                    break
-                } else {
-                    delay(1000)
-                    logger.debug { "Device $serialNumber is still booting..." }
-                }
+        for (i in 1..30) {
+            if (getProperty("sys.boot_completed", false) != null) {
+                logger.debug { "Device $serialNumber booted!" }
+                booted = true
+                break
+            } else {
+                delay(1000)
+                logger.debug { "Device $serialNumber is still booting..." }
+            }
 
-                if (Thread.interrupted() || !isActive) {
-                    booted = true
-                    break
-                }
+            if (Thread.interrupted() || !isActive) {
+                booted = true
+                break
             }
         }
 

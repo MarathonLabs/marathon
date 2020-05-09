@@ -101,7 +101,9 @@ class DdmlibDeviceProvider(
             }
 
             private suspend fun verifyBooted(device: DdmlibAndroidDevice) {
-                device.setup()
+                track.trackProviderDevicePreparing(device) {
+                    device.setup()
+                }
             }
 
             private fun notifyConnected(device: DdmlibAndroidDevice) {

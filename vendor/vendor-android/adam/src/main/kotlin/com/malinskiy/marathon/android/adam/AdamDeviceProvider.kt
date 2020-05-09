@@ -89,7 +89,9 @@ class AdamDeviceProvider(
                             TrackingUpdate.CONNECTED -> {
                                 val device =
                                     AdamAndroidDevice(server, deviceStateTracker, serial, track, timer, vendorConfiguration.serialStrategy)
-                                device.setup()
+                                track.trackProviderDevicePreparing(device) {
+                                    device.setup()
+                                }
                                 channel.send(DeviceProvider.DeviceEvent.DeviceConnected(device))
                                 devices[serial] = device
                             }
