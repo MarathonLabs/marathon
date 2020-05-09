@@ -1,5 +1,7 @@
 package com.malinskiy.marathon.android.adam
 
+import com.google.common.hash.Hashing
+import com.google.common.io.Files
 import com.malinskiy.adam.AndroidDebugBridgeServer
 import com.malinskiy.adam.exception.PullFailedException
 import com.malinskiy.adam.request.async.ChanneledLogcatRequest
@@ -126,7 +128,8 @@ class AdamAndroidDevice(
         }
     }
 
-    override suspend fun pushFile(localFilePath: String, remoteFilePath: String) {
+    @Suppress("DEPRECATION")
+    override suspend fun pushFile(localFilePath: String, remoteFilePath: String, verify: Boolean) {
         val file = File(localFilePath)
         val channel = server.execute(PushFileRequest(file, remoteFilePath), serial = adbSerial, scope = this)
         var progress = 0.0
@@ -135,6 +138,11 @@ class AdamAndroidDevice(
         }
         if (progress != 1.0) {
             throw TransferException("Couldn't push file $localFilePath to device $serialNumber:$remoteFilePath")
+        }
+
+        if (verify) {
+            val expectedMd5 = Files.asByteSource(File(localFilePath)).hash(Hashing.md5()).toString()
+            waitForRemoteFileSync(expectedMd5, remoteFilePath)
         }
     }
 
@@ -146,7 +154,7 @@ class AdamAndroidDevice(
         val file = File(absolutePath)
         val remotePath = "/data/local/tmp/${file.name}"
 
-        pushFile(absolutePath, remotePath)
+        pushFile(absolutePath, remotePath, verify = true)
 
         val result = server.execute(
             InstallRemotePackageRequest(
@@ -233,12 +241,15 @@ class AdamAndroidDevice(
     }
 
     override suspend fun prepare(configuration: Configuration) {
-        track.trackDevicePreparing(this) {
-            AndroidAppInstaller(configuration).prepareInstallation(this@AdamAndroidDevice)
-            fileManager.removeRemoteDirectory()
-            fileManager.createRemoteDirectory()
-            clearLogcat()
+        val preparationJob = async(coroutineContext) {
+            track.trackDevicePreparing(this@AdamAndroidDevice) {
+                AndroidAppInstaller(configuration).prepareInstallation(this@AdamAndroidDevice)
+                fileManager.removeRemoteDirectory()
+                fileManager.createRemoteDirectory()
+                clearLogcat()
+            }
         }
+        preparationJob.await()
     }
 
     override fun dispose() {

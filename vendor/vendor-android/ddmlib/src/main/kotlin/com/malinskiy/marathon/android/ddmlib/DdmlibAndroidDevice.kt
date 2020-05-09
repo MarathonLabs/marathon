@@ -97,7 +97,7 @@ class DdmlibAndroidDevice(
         }
     }
 
-    override suspend fun pushFile(localFilePath: String, remoteFilePath: String) {
+    override suspend fun pushFile(localFilePath: String, remoteFilePath: String, verify: Boolean) {
         try {
             ddmsDevice.pushFile(localFilePath, remoteFilePath)
         } catch (e: SyncException) {

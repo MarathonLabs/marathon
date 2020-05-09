@@ -33,6 +33,7 @@ import kotlinx.coroutines.isActive
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeoutOrNull
 import java.util.*
+import kotlin.system.measureTimeMillis
 
 abstract class BaseAndroidDevice(
     protected val adbSerial: String,
@@ -65,6 +66,7 @@ abstract class BaseAndroidDevice(
         }
 
     override val fileManager = RemoteFileManager(this)
+    protected lateinit var md5cmd: String
 
     override suspend fun setup() {
         waitForBoot()
@@ -91,6 +93,7 @@ abstract class BaseAndroidDevice(
 
         deviceFeatures = detectFeatures()
         realSerialNumber = detectRealSerialNumber()
+        md5cmd = detectMd5Binary()
     }
 
     /**
@@ -141,6 +144,23 @@ abstract class BaseAndroidDevice(
         safeExecuteShellCommand("pm clear $packageName", "Could not clear package $packageName on device: $serialNumber")
 
     protected suspend fun clearLogcat() = safeExecuteShellCommand("logcat -c", "Could not clear logcat on device: $serialNumber")
+
+    protected suspend fun waitForRemoteFileSync(
+        md5: String,
+        remotePath: String
+    ) {
+        if (md5.isNotEmpty() && md5cmd.isNotEmpty()) {
+            val syncTimeMillis = measureTimeMillis {
+                do {
+                    val remoteMd5 = safeExecuteShellCommand("$md5cmd $remotePath") ?: ""
+                    delay(10)
+                } while (!remoteMd5.contains(md5))
+            }
+            logger.debug { "$remotePath synced in ${syncTimeMillis}ms" }
+        } else {
+            logger.warn { "no md5 was calculated for $remotePath. unable to sync" }
+        }
+    }
 
     private suspend fun hasBinary(path: String): Boolean {
         val output = safeExecuteShellCommand("ls $path")
@@ -225,6 +245,13 @@ abstract class BaseAndroidDevice(
         features.contains(DeviceFeature.VIDEO) -> DeviceFeature.VIDEO
         features.contains(DeviceFeature.SCREENSHOT) -> DeviceFeature.SCREENSHOT
         else -> null
+    }
+
+    private suspend fun detectMd5Binary(): String {
+        for (path in listOf("/system/bin/md5", "/system/bin/md5sum")) {
+            if (hasBinary(path)) return path.split("/").last()
+        }
+        return ""
     }
 
     override fun toString(): String {

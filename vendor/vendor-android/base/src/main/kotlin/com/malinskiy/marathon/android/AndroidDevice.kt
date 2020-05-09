@@ -31,7 +31,7 @@ interface AndroidDevice : Device {
     suspend fun safeExecuteShellCommand(command: String, errorMessage: String = ""): String?
 
     suspend fun pullFile(remoteFilePath: String, localFilePath: String)
-    suspend fun pushFile(localFilePath: String, remoteFilePath: String)
+    suspend fun pushFile(localFilePath: String, remoteFilePath: String, verify: Boolean)
 
     suspend fun safeInstallPackage(absolutePath: String, reinstall: Boolean, optionalParams: String): String?
     suspend fun safeUninstallPackage(appPackage: String, keepData: Boolean = false): String?
