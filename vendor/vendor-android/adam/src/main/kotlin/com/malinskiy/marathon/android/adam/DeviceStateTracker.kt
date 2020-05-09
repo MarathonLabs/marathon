@@ -1,19 +1,37 @@
 package com.malinskiy.marathon.android.adam
 
+import com.malinskiy.adam.request.devices.Device
 import com.malinskiy.adam.request.devices.DeviceState
 import java.util.concurrent.ConcurrentHashMap
 
 class DeviceStateTracker {
     private val devices: ConcurrentHashMap<String, DeviceState> = ConcurrentHashMap()
 
-    fun update(serial: String, newState: DeviceState): TrackingUpdate {
-        val previousState = devices[serial]
+    fun update(updatedDevices: List<Device>): List<Pair<String, TrackingUpdate>> {
+        val updates = mutableListOf<Pair<String, TrackingUpdate>>()
 
-        return if (previousState == null) {
-            processNewDevice(newState, serial)
-        } else {
-            processDeviceUpdate(serial, previousState, newState)
+        val devicesNotReportedAnymore = devices.keys - updatedDevices.map { it.serial }
+        devicesNotReportedAnymore.forEach { serial ->
+            when (devices[serial]) {
+                DeviceState.DEVICE -> {
+                    updates.add(Pair(serial, TrackingUpdate.DISCONNECTED))
+                    devices.remove(serial)
+                }
+            }
         }
+
+        updatedDevices.forEach { device ->
+            val previousState = this.devices[device.serial]
+            val newState = device.state
+
+            if (previousState == null) {
+                updates.add(Pair(device.serial, processNewDevice(newState, device.serial)))
+            } else {
+                updates.add(Pair(device.serial, processDeviceUpdate(device.serial, previousState, newState)))
+            }
+        }
+
+        return updates
     }
 
     private fun processDeviceUpdate(serial: String, previousState: DeviceState, newState: DeviceState): TrackingUpdate {

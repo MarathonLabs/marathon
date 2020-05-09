@@ -4,6 +4,7 @@ import com.malinskiy.adam.AndroidDebugBridgeServer
 import com.malinskiy.adam.AndroidDebugBridgeServerFactory
 import com.malinskiy.adam.interactor.StartAdbInteractor
 import com.malinskiy.adam.request.async.AsyncDeviceMonitorRequest
+import com.malinskiy.adam.request.devices.Device
 import com.malinskiy.adam.request.devices.ListDevicesRequest
 import com.malinskiy.adam.request.sync.GetAdbServerVersionRequest
 import com.malinskiy.marathon.actor.unboundedChannel
@@ -17,6 +18,7 @@ import com.malinskiy.marathon.time.Timer
 import com.malinskiy.marathon.vendor.VendorConfiguration
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.channels.ReceiveChannel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.newFixedThreadPoolContext
 import kotlinx.coroutines.runBlocking
@@ -47,6 +49,7 @@ class AdamDeviceProvider(
     override val deviceInitializationTimeoutMillis: Long = 180_000
 
     private lateinit var server: AndroidDebugBridgeServer
+    private lateinit var deviceEventsChannel: ReceiveChannel<List<Device>>
     private val deviceStateTracker = DeviceStateTracker()
 
     override suspend fun initialize(vendorConfiguration: VendorConfiguration) {
@@ -74,15 +77,15 @@ class AdamDeviceProvider(
             }
         } ?: throw NoDevicesException("No devices found")
 
-        val deviceEventsChannel = server.execute(AsyncDeviceMonitorRequest(), this)
+        deviceEventsChannel = server.execute(AsyncDeviceMonitorRequest(), this)
         bootWaitContext.executor.execute {
             runBlocking {
                 while (!deviceEventsChannel.isClosedForReceive) {
-                    deviceEventsChannel.receive().forEach {
-                        val serial = it.serial
-                        val newState = it.state
-
-                        when (deviceStateTracker.update(serial, newState)) {
+                    val currentDeviceList = deviceEventsChannel.receive()
+                    deviceStateTracker.update(currentDeviceList).forEach { update ->
+                        val serial = update.first
+                        val state = update.second
+                        when (state) {
                             TrackingUpdate.CONNECTED -> {
                                 val device =
                                     AdamAndroidDevice(server, deviceStateTracker, serial, track, timer, vendorConfiguration.serialStrategy)
@@ -93,11 +96,12 @@ class AdamDeviceProvider(
                             TrackingUpdate.DISCONNECTED -> {
                                 devices[serial]?.let { device ->
                                     channel.send(DeviceProvider.DeviceEvent.DeviceDisconnected(device))
+                                    device.dispose()
                                 }
                             }
                             TrackingUpdate.NOTHING_TO_DO -> Unit
                         }
-                        logger.debug { "Device ${it.serial} changed state to ${it.state}" }
+                        logger.debug { "Device $serial changed state to $state" }
                     }
                 }
             }
@@ -112,6 +116,7 @@ class AdamDeviceProvider(
     override suspend fun terminate() {
         bootWaitContext.close()
         channel.close()
+        deviceEventsChannel.cancel()
     }
 
     override fun subscribe() = channel
