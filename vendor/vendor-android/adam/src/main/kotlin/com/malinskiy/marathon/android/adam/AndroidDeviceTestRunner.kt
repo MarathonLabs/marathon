@@ -23,8 +23,9 @@ import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.test.Test
 import com.malinskiy.marathon.test.TestBatch
 import com.malinskiy.marathon.test.toTestName
+import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.channels.receiveOrNull
-import kotlinx.coroutines.withTimeoutOrNull
+import kotlinx.coroutines.withTimeout
 import java.io.IOException
 import java.util.concurrent.TimeoutException
 
@@ -54,7 +55,7 @@ class AndroidDeviceTestRunner(private val device: AdamAndroidDevice) {
             notifyIgnoredTest(ignoredTests, listener)
             if (testBatch.tests.isNotEmpty()) {
                 clearData(androidConfiguration, info)
-                withTimeoutOrNull(configuration.testOutputTimeoutMillis * testBatch.tests.size) {
+                withTimeout(configuration.testBatchTimeoutMillis) {
                     val transformer = InstrumentationResponseTransformer()
                     val channel = device.executeTestRequest(runnerRequest)
 
@@ -84,12 +85,17 @@ class AndroidDeviceTestRunner(private val device: AdamAndroidDevice) {
                                 }
                             }
                         }
-                        logPart = channel.receiveOrNull()
+                        withTimeout(configuration.testOutputTimeoutMillis) {
+                            logPart = channel.receiveOrNull()
+                        }
                     } while (logPart != null)
-                } ?: throw TimeoutException()
+                }
             } else {
                 listener.testRunEnded(0, emptyMap())
             }
+        } catch (e: TimeoutCancellationException) {
+            logger.warn(ERROR_STUCK)
+            listener.testRunFailed(ERROR_STUCK)
         } catch (e: TimeoutException) {
             logger.warn(ERROR_STUCK)
             listener.testRunFailed(ERROR_STUCK)
