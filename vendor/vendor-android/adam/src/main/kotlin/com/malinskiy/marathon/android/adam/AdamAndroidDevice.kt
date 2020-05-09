@@ -148,13 +148,16 @@ class AdamAndroidDevice(
 
         pushFile(absolutePath, remotePath)
 
-        return server.execute(
+        val result = server.execute(
             InstallRemotePackageRequest(
                 remotePath,
                 reinstall = reinstall,
                 extraArgs = optionalParams.split(" ").toList() + " "
             ), serial = adbSerial
         )
+
+        safeExecuteShellCommand("rm $remotePath")
+        return result
     }
 
     override suspend fun getScreenshot(timeout: Long, units: TimeUnit): BufferedImage {
