@@ -31,6 +31,7 @@ import com.malinskiy.marathon.execution.TestBatchResults
 import com.malinskiy.marathon.execution.progress.ProgressReporter
 import com.malinskiy.marathon.test.TestBatch
 import com.malinskiy.marathon.time.Timer
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.async
 import kotlinx.coroutines.channels.ReceiveChannel
@@ -185,6 +186,8 @@ class AdamAndroidDevice(
                 val output = server.execute(ShellCommandRequest(screenRecorderCommand), serial = adbSerial)
                 logger.debug { "screenrecord output:\n $output" }
             }
+        } catch (e: CancellationException) {
+            //Ignore
         } catch (e: Exception) {
             logger.error("Unable to start screenrecord", e)
         }

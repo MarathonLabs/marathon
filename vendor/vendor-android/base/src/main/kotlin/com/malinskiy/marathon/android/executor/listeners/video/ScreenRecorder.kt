@@ -2,6 +2,7 @@ package com.malinskiy.marathon.android.executor.listeners.video
 
 import com.malinskiy.marathon.android.AndroidDevice
 import com.malinskiy.marathon.log.MarathonLogging
+import kotlinx.coroutines.CancellationException
 import java.util.concurrent.TimeUnit.SECONDS
 import kotlin.system.measureTimeMillis
 
@@ -13,6 +14,8 @@ internal class ScreenRecorder(
     suspend fun run() {
         try {
             startRecordingTestVideo()
+        } catch (e: CancellationException) {
+            //Ignore
         } catch (e: Exception) {
             logger.error("Something went wrong while screen recording", e)
         }
@@ -25,7 +28,7 @@ internal class ScreenRecorder(
                 options = options
             )
         }
-        logger.trace { "Recording finished in ${millis}ms $remoteFilePath" }
+        logger.debug { "Recording finished in ${millis}ms $remoteFilePath" }
     }
 
     companion object {

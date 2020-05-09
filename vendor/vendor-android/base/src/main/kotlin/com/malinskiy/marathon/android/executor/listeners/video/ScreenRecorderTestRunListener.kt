@@ -51,8 +51,9 @@ class ScreenRecorderTestRunListener(
         hasFailed = false
 
         val screenRecorder = ScreenRecorder(device, device.fileManager.remoteVideoForTest(test.toTest()))
-        val supervisorJob = SupervisorJob()
-        async(supervisorJob) {
+        val supervisor = SupervisorJob()
+        supervisorJob = supervisor
+        async(supervisor) {
             screenRecorder.run()
         }
     }

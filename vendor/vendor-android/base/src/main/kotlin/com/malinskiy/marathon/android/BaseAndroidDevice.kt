@@ -31,6 +31,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withTimeoutOrNull
 import java.util.*
 
 abstract class BaseAndroidDevice(
@@ -52,8 +53,10 @@ abstract class BaseAndroidDevice(
     var realSerialNumber: String = "Unknown"
     val booted: Boolean
         get() = runBlocking {
-            val bootedProperty: String? = getProperty("sys.boot_completed", true)
-            return@runBlocking bootedProperty != null
+            return@runBlocking withTimeoutOrNull(ADB_SHORT_TIMEOUT_MILLIS) {
+                val bootedProperty: String? = getProperty("sys.boot_completed", true)
+                bootedProperty != null
+            } ?: false
         }
     override val serialNumber: String
         get() = when {

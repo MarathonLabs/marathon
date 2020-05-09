@@ -13,6 +13,7 @@ import com.android.ddmlib.logcat.LogCatReceiverTask
 import com.android.ddmlib.testrunner.ITestRunListener
 import com.android.ddmlib.testrunner.TestIdentifier
 import com.malinskiy.marathon.analytics.internal.pub.Track
+import com.malinskiy.marathon.android.ADB_SCREEN_RECORD_TIMEOUT_MILLIS
 import com.malinskiy.marathon.android.AndroidAppInstaller
 import com.malinskiy.marathon.android.BaseAndroidDevice
 import com.malinskiy.marathon.android.ddmlib.shell.receiver.CollectingShellOutputReceiver
@@ -29,15 +30,21 @@ import com.malinskiy.marathon.execution.TestBatchResults
 import com.malinskiy.marathon.execution.progress.ProgressReporter
 import com.malinskiy.marathon.test.TestBatch
 import com.malinskiy.marathon.time.Timer
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.async
 import kotlinx.coroutines.newFixedThreadPoolContext
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlinx.coroutines.withTimeout
 import java.awt.image.BufferedImage
 import java.io.IOException
+import java.util.concurrent.ExecutorService
+import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 import kotlin.concurrent.thread
 import kotlin.coroutines.CoroutineContext
+import kotlin.coroutines.resumeWithException
 
 class DdmlibAndroidDevice(
     val ddmsDevice: IDevice,
@@ -134,11 +141,13 @@ class DdmlibAndroidDevice(
         options: ScreenRecorderOptions
     ) {
         val outputReceiver = CollectingOutputReceiver()
-        ddmsDevice.safeStartScreenRecorder(
-            remoteFilePath,
-            options,
-            outputReceiver
-        )
+        withTimeoutOrInterrupt(ADB_SCREEN_RECORD_TIMEOUT_MILLIS) {
+            ddmsDevice.safeStartScreenRecorder(
+                remoteFilePath,
+                options,
+                outputReceiver
+            )
+        }
         logger.debug { "screenrecord output:\n ${outputReceiver.output}" }
     }
 
@@ -233,6 +242,32 @@ class DdmlibAndroidDevice(
         val receiver = CollectingShellOutputReceiver()
         ddmsDevice.safeExecuteShellCommand(command, receiver)
         return receiver.output()
+    }
+
+    /**
+     * The only way to interrupt the current screen recording is to interrupt the thread
+     * This is undesirable with coroutines and requires another thread to execute the process.
+     * We can then interrupt it from the coroutine
+     */
+    private val externalThreadPool: ExecutorService = Executors.newCachedThreadPool()
+    private suspend fun <T> withTimeoutOrInterrupt(timeMillis: Long, block: () -> T) {
+        withTimeout(timeMillis) {
+            suspendCancellableCoroutine<Unit> { cont ->
+                val future = externalThreadPool.submit {
+                    try {
+                        block()
+                        cont.resumeWith(Result.success(Unit))
+                    } catch (e: InterruptedException) {
+                        cont.resumeWithException(CancellationException())
+                    } catch (e: Throwable) {
+                        cont.resumeWithException(e)
+                    }
+                }
+                cont.invokeOnCancellation {
+                    future.cancel(true)
+                }
+            }
+        }
     }
 }
 
