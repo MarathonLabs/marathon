@@ -74,7 +74,7 @@ class ConfigFactory(private val mapper: ObjectMapper) {
         try {
             return mapper.readValue(configWithEnvironmentVariablesReplaced, FileConfiguration::class.java)
         } catch (e: MismatchedInputException) {
-            logger.error { "Invalid config file ${configFile.absolutePath}. Error parsing ${e.targetType.canonicalName}" }
+            logger.error { "Invalid config file ${configFile.absolutePath}. Error parsing ${e.targetType?.canonicalName}" }
             throw ConfigurationException(e)
         }
     }
