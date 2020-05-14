@@ -1,7 +1,7 @@
 package com.malinskiy.marathon.android.adam
 
-import com.malinskiy.adam.AndroidDebugBridgeServer
-import com.malinskiy.adam.AndroidDebugBridgeServerFactory
+import com.malinskiy.adam.AndroidDebugBridgeClient
+import com.malinskiy.adam.AndroidDebugBridgeClientFactory
 import com.malinskiy.adam.interactor.StartAdbInteractor
 import com.malinskiy.adam.request.async.AsyncDeviceMonitorRequest
 import com.malinskiy.adam.request.devices.Device
@@ -48,7 +48,7 @@ class AdamDeviceProvider(
 
     override val deviceInitializationTimeoutMillis: Long = 180_000
 
-    private lateinit var server: AndroidDebugBridgeServer
+    private lateinit var client: AndroidDebugBridgeClient
     private lateinit var deviceEventsChannel: ReceiveChannel<List<Device>>
     private val deviceStateTracker = DeviceStateTracker()
 
@@ -57,7 +57,7 @@ class AdamDeviceProvider(
             throw IllegalStateException("Invalid configuration $vendorConfiguration passed")
         }
 
-        server = AndroidDebugBridgeServerFactory().apply {
+        client = AndroidDebugBridgeClientFactory().apply {
             coroutineContext = adbCommunicationContext
         }.build()
 
@@ -72,12 +72,12 @@ class AdamDeviceProvider(
         }
 
         withTimeoutOrNull(DEFAULT_WAIT_FOR_DEVICES_TIMEOUT) {
-            while (server.execute(ListDevicesRequest()).isEmpty()) {
+            while (client.execute(ListDevicesRequest()).isEmpty()) {
                 delay(DEFAULT_WAIT_FOR_DEVICES_SLEEP_TIME)
             }
         } ?: throw NoDevicesException("No devices found")
 
-        deviceEventsChannel = server.execute(AsyncDeviceMonitorRequest(), this)
+        deviceEventsChannel = client.execute(AsyncDeviceMonitorRequest(), this)
         bootWaitContext.executor.execute {
             runBlocking {
                 while (!deviceEventsChannel.isClosedForReceive) {
@@ -88,7 +88,7 @@ class AdamDeviceProvider(
                         when (state) {
                             TrackingUpdate.CONNECTED -> {
                                 val device =
-                                    AdamAndroidDevice(server, deviceStateTracker, serial, track, timer, vendorConfiguration.serialStrategy)
+                                    AdamAndroidDevice(client, deviceStateTracker, serial, track, timer, vendorConfiguration.serialStrategy)
                                 track.trackProviderDevicePreparing(device) {
                                     device.setup()
                                 }
@@ -111,7 +111,7 @@ class AdamDeviceProvider(
     }
 
     private suspend fun printAdbServerVersion() {
-        val adbVersion = server.execute(GetAdbServerVersionRequest())
+        val adbVersion = client.execute(GetAdbServerVersionRequest())
         logger.debug { "Android Debug Bridge version $adbVersion" }
     }
 

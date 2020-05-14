@@ -2,7 +2,7 @@ package com.malinskiy.marathon.android.adam
 
 import com.google.common.hash.Hashing
 import com.google.common.io.Files
-import com.malinskiy.adam.AndroidDebugBridgeServer
+import com.malinskiy.adam.AndroidDebugBridgeClient
 import com.malinskiy.adam.exception.PullFailedException
 import com.malinskiy.adam.request.async.ChanneledLogcatRequest
 import com.malinskiy.adam.request.async.LogcatReadMode
@@ -46,7 +46,7 @@ import java.util.concurrent.TimeUnit
 import kotlin.coroutines.CoroutineContext
 
 class AdamAndroidDevice(
-    private val server: AndroidDebugBridgeServer,
+    private val client: AndroidDebugBridgeClient,
     private val deviceStateTracker: DeviceStateTracker,
     adbSerial: String,
     track: Track,
@@ -58,7 +58,7 @@ class AdamAndroidDevice(
         super.setup()
 
         fetchProps()
-        logcatChannel = server.execute(
+        logcatChannel = client.execute(
             ChanneledLogcatRequest(
                 modes = listOf(LogcatReadMode.long)
             ), serial = adbSerial, scope = this
@@ -94,7 +94,7 @@ class AdamAndroidDevice(
 
     override suspend fun executeShellCommand(command: String, errorMessage: String): String? {
         return try {
-            return server.execute(ShellCommandRequest(command), serial = adbSerial)
+            return client.execute(ShellCommandRequest(command), serial = adbSerial)
         } catch (e: Exception) {
             logger.error(errorMessage, e)
             null
@@ -104,7 +104,7 @@ class AdamAndroidDevice(
     override suspend fun safeExecuteShellCommand(command: String, errorMessage: String): String? {
         return try {
             return withTimeoutOrNull(ADB_SHORT_TIMEOUT_MILLIS) {
-                return@withTimeoutOrNull server.execute(ShellCommandRequest(command), serial = adbSerial)
+                return@withTimeoutOrNull client.execute(ShellCommandRequest(command), serial = adbSerial)
             }
         } catch (e: Exception) {
             logger.error(errorMessage, e)
@@ -115,7 +115,7 @@ class AdamAndroidDevice(
     override suspend fun pullFile(remoteFilePath: String, localFilePath: String) {
         var progress: Double = 0.0
         try {
-            val channel = server.execute(request = PullFileRequest(remoteFilePath, File(localFilePath)), serial = adbSerial, scope = this)
+            val channel = client.execute(request = PullFileRequest(remoteFilePath, File(localFilePath)), serial = adbSerial, scope = this)
             while (!channel.isClosedForReceive) {
                 progress = channel.receiveOrNull() ?: break
             }
@@ -131,7 +131,7 @@ class AdamAndroidDevice(
     @Suppress("DEPRECATION")
     override suspend fun pushFile(localFilePath: String, remoteFilePath: String, verify: Boolean) {
         val file = File(localFilePath)
-        val channel = server.execute(PushFileRequest(file, remoteFilePath), serial = adbSerial, scope = this)
+        val channel = client.execute(PushFileRequest(file, remoteFilePath), serial = adbSerial, scope = this)
         var progress = 0.0
         while (!channel.isClosedForReceive && progress < 1.0) {
             progress = channel.receiveOrNull() ?: break
@@ -147,7 +147,7 @@ class AdamAndroidDevice(
     }
 
     override suspend fun safeUninstallPackage(appPackage: String, keepData: Boolean): String? {
-        return server.execute(UninstallRemotePackageRequest(appPackage, keepData = keepData), serial = adbSerial)
+        return client.execute(UninstallRemotePackageRequest(appPackage, keepData = keepData), serial = adbSerial)
     }
 
     override suspend fun safeInstallPackage(absolutePath: String, reinstall: Boolean, optionalParams: String): String? {
@@ -156,7 +156,7 @@ class AdamAndroidDevice(
 
         pushFile(absolutePath, remotePath, verify = true)
 
-        val result = server.execute(
+        val result = client.execute(
             InstallRemotePackageRequest(
                 remotePath,
                 reinstall = reinstall,
@@ -169,7 +169,7 @@ class AdamAndroidDevice(
     }
 
     override suspend fun getScreenshot(timeout: Long, units: TimeUnit): BufferedImage {
-        val rawImage = server.execute(ScreenCaptureRequest(), serial = adbSerial)
+        val rawImage = client.execute(ScreenCaptureRequest(), serial = adbSerial)
         return imageAdapter.convert(rawImage)
     }
 
@@ -194,7 +194,7 @@ class AdamAndroidDevice(
         val screenRecorderCommand = options.toScreenRecorderCommand(remoteFilePath)
         try {
             withTimeoutOrNull(ADB_SCREEN_RECORD_TIMEOUT_MILLIS) {
-                val output = server.execute(ShellCommandRequest(screenRecorderCommand), serial = adbSerial)
+                val output = client.execute(ShellCommandRequest(screenRecorderCommand), serial = adbSerial)
                 logger.debug { "screenrecord output:\n $output" }
             }
         } catch (e: CancellationException) {
@@ -213,7 +213,7 @@ class AdamAndroidDevice(
     }
 
     private suspend fun fetchProps() {
-        val map = server.execute(GetPropRequest(), serial = adbSerial)
+        val map = client.execute(GetPropRequest(), serial = adbSerial)
         props = map
     }
 
@@ -257,6 +257,6 @@ class AdamAndroidDevice(
     }
 
     fun executeTestRequest(runnerRequest: TestRunnerRequest): ReceiveChannel<String> {
-        return server.execute(runnerRequest, scope = this, serial = adbSerial)
+        return client.execute(runnerRequest, scope = this, serial = adbSerial)
     }
 }
