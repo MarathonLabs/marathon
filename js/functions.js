@@ -1,6 +1,15 @@
 (function($) {
     "use strict";
 
+    var docsearchInputId = '#docsearch';
+
+    docsearch({
+     apiKey: '9f5b66e31245290bb996f4f0dd6f1472',
+     indexName: 'malinskiy_marathon',
+     inputSelector: docsearchInputId,
+     debug: false // Set debug to true if you want to inspect the dropdown
+    });
+
     $(document).ready(function() {
 
         // To focus the searchbar on load. Autofocus won't work since, in the end,
@@ -14,6 +23,7 @@
         setTimeout(function() {
           window.scroll(window.scrollX, actualPosition);
         }, 0);
+        document.querySelector(docsearchInputId).focus();
 
         // Following functions are related to the sidebar nav
         // Show and hide the sidebar
