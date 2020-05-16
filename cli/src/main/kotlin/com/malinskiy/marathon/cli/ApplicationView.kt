@@ -22,6 +22,7 @@ import com.malinskiy.marathon.usageanalytics.tracker.Event
 import com.xenomachina.argparser.ArgParser
 import com.xenomachina.argparser.SystemExitException
 import com.xenomachina.argparser.mainBody
+import org.koin.core.context.stopKoin
 
 private val logger = MarathonLogging.logger {}
 
@@ -42,19 +43,21 @@ fun main(args: Array<String>): Unit = mainBody(
             marathonfile = marathonfile,
             environmentReader = SystemEnvironmentReader()
         )
+        try {
+            val application = marathonStartKoin(configuration)
+            val marathon: Marathon = application.koin.get()
 
-        val application = marathonStartKoin(configuration)
-        val marathon: Marathon = application.koin.get()
+            UsageAnalytics.enable = this.analyticsTracking
+            UsageAnalytics.USAGE_TRACKER.trackEvent(Event(TrackActionType.RunType, "cli"))
+            val success = marathon.run()
+            bugsnagExceptionsReporter.end()
 
-        UsageAnalytics.enable = this.analyticsTracking
-        UsageAnalytics.USAGE_TRACKER.trackEvent(Event(TrackActionType.RunType, "cli"))
-        val success = marathon.run()
-        bugsnagExceptionsReporter.end()
-
-        val shouldReportFailure = !configuration.ignoreFailures
-        if (!success && shouldReportFailure) {
-            throw SystemExitException("Build failed", 1)
+            val shouldReportFailure = !configuration.ignoreFailures
+            if (!success && shouldReportFailure) {
+                throw SystemExitException("Build failed", 1)
+            }
+        } finally {
+            stopKoin()
         }
-        success
     }
 }

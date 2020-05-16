@@ -30,6 +30,7 @@ buildConfig {
     appName = project.name
     version = Versions.marathon
     buildConfigField("String", "BUGSNAG_TOKEN", System.getenv("BUGSNAG_TOKEN"))
+    buildConfigField("String", "RELEASE_MODE", Deployment.releaseMode)
 }
 
 dependencies {
