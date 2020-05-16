@@ -7,39 +7,39 @@ class CompositeTestRunListener(private val listeners: List<AndroidTestRunListene
         listeners.forEach(f)
     }
 
-    override fun testRunStarted(runName: String, testCount: Int) {
+    override suspend fun testRunStarted(runName: String, testCount: Int) {
         execute { it.testRunStarted(runName, testCount) }
     }
 
-    override fun testStarted(test: TestIdentifier) {
+    override suspend fun testStarted(test: TestIdentifier) {
         execute { it.testStarted(test) }
     }
 
-    override fun testAssumptionFailure(test: TestIdentifier, trace: String) {
+    override suspend fun testAssumptionFailure(test: TestIdentifier, trace: String) {
         execute { it.testAssumptionFailure(test, trace) }
     }
 
-    override fun testRunStopped(elapsedTime: Long) {
+    override suspend fun testRunStopped(elapsedTime: Long) {
         execute { it.testRunStopped(elapsedTime) }
     }
 
-    override fun testFailed(test: TestIdentifier, trace: String) {
+    override suspend fun testFailed(test: TestIdentifier, trace: String) {
         execute { it.testFailed(test, trace) }
     }
 
-    override fun testEnded(test: TestIdentifier, testMetrics: Map<String, String>) {
+    override suspend fun testEnded(test: TestIdentifier, testMetrics: Map<String, String>) {
         execute { it.testEnded(test, testMetrics) }
     }
 
-    override fun testIgnored(test: TestIdentifier) {
+    override suspend fun testIgnored(test: TestIdentifier) {
         execute { it.testIgnored(test) }
     }
 
-    override fun testRunFailed(errorMessage: String) {
+    override suspend fun testRunFailed(errorMessage: String) {
         execute { it.testRunFailed(errorMessage) }
     }
 
-    override fun testRunEnded(elapsedTime: Long, runMetrics: Map<String, String>) {
+    override suspend fun testRunEnded(elapsedTime: Long, runMetrics: Map<String, String>) {
         execute { it.testRunEnded(elapsedTime, runMetrics) }
     }
 }

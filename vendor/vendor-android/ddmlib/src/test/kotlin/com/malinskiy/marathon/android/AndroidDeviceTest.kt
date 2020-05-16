@@ -23,19 +23,18 @@ class AndroidDeviceTest {
     @BeforeEach
     fun `setup mock`() {
         reset(iDevice)
-        whenever(iDevice.serialNumber).thenReturn("serial")
     }
 
     @Test
     fun `model return Unknown if ddmDevice property ro_product_model`() {
         whenever(iDevice.getProperty("ro.product.model")).thenReturn(null)
-        DdmlibAndroidDevice(iDevice, track, timer, SerialStrategy.AUTOMATIC).model shouldBe "Unknown"
+        DdmlibAndroidDevice(iDevice, "serial", track, timer, SerialStrategy.AUTOMATIC).model shouldBe "Unknown"
     }
 
     @Test
     fun `manufacturer return Unknown if ddmlib property`() {
         whenever(iDevice.getProperty("ro.product.manufacturer")).thenReturn(null)
-        DdmlibAndroidDevice(iDevice, track, timer, SerialStrategy.AUTOMATIC).manufacturer shouldBe "Unknown"
+        DdmlibAndroidDevice(iDevice, "serial", track, timer, SerialStrategy.AUTOMATIC).manufacturer shouldBe "Unknown"
     }
 
     @Test
@@ -45,6 +44,7 @@ class AndroidDeviceTest {
         whenever(iDevice.getProperty("ro.build.version.sdk")).thenReturn("INVALID_VERSION")
         DdmlibAndroidDevice(
             iDevice,
+            "serial",
             track,
             timer,
             SerialStrategy.AUTOMATIC

@@ -14,6 +14,7 @@ import com.malinskiy.marathon.execution.progress.ProgressReporter
 import com.malinskiy.marathon.execution.withRetry
 import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.test.TestBatch
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
@@ -159,7 +160,6 @@ class DeviceActor(
             } else {
                 logger.error(it) { "Error ${it.message}" }
                 state.transition(DeviceEvent.Terminate)
-                terminate()
             }
         }
     }
@@ -172,6 +172,8 @@ class DeviceActor(
                     if (isActive) {
                         try {
                             device.prepare(configuration)
+                        } catch (e: CancellationException) {
+                            throw e
                         } catch (e: Exception) {
                             logger.debug { "device ${device.serialNumber} initialization failed. Retrying" }
                             throw e
@@ -189,6 +191,8 @@ class DeviceActor(
         job = async {
             try {
                 device.execute(configuration, devicePoolId, batch, result, progressReporter)
+            } catch (e: CancellationException) {
+                state.transition(DeviceEvent.Terminate)
             } catch (e: DeviceLostException) {
                 logger.error(e) { "Critical error during execution" }
                 state.transition(DeviceEvent.Terminate)

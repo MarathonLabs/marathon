@@ -1,5 +1,6 @@
 package com.malinskiy.marathon
 
+import com.malinskiy.marathon.android.VendorType
 import com.malinskiy.marathon.android.serial.SerialStrategy
 import com.malinskiy.marathon.device.DeviceFeature
 import com.malinskiy.marathon.execution.policy.ScreenRecordingPolicy
@@ -8,6 +9,8 @@ import org.gradle.api.Project
 
 open class MarathonExtension(project: Project) {
     var name: String = "Marathon"
+
+    var vendor: VendorType? = null
 
     var analyticsConfiguration: AnalyticsConfig? = null
 

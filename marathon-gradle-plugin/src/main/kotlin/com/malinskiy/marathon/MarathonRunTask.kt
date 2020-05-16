@@ -6,6 +6,8 @@ import com.malinskiy.marathon.android.AndroidConfiguration
 import com.malinskiy.marathon.android.DEFAULT_APPLICATION_PM_CLEAR
 import com.malinskiy.marathon.android.DEFAULT_AUTO_GRANT_PERMISSION
 import com.malinskiy.marathon.android.DEFAULT_INSTALL_OPTIONS
+import com.malinskiy.marathon.android.VendorType
+import com.malinskiy.marathon.android.adam.di.adamModule
 import com.malinskiy.marathon.android.defaultInitTimeoutMillis
 import com.malinskiy.marathon.android.serial.SerialStrategy
 import com.malinskiy.marathon.di.marathonStartKoin
@@ -116,11 +118,16 @@ open class MarathonRunTask : DefaultTask(), VerificationTask {
         val preferableRecorderType = extension.preferableRecorderType
         val serialStrategy = extension.serialStrategy ?: SerialStrategy.AUTOMATIC
 
+        val implementationModules = when (extension.vendor ?: VendorType.DDMLIB) {
+            VendorType.DDMLIB -> listOf(ddmlibModule)
+            VendorType.ADAM -> listOf(adamModule)
+        }
+
         return AndroidConfiguration(
             androidSdk = sdk,
             applicationOutput = applicationApk,
             testApplicationOutput = instrumentationApk,
-            implementationModules = listOf(ddmlibModule),
+            implementationModules = implementationModules,
             autoGrantPermission = autoGrantPermission,
             instrumentationArgs = instrumentationArgs,
             applicationPmClear = applicationPmClear,
