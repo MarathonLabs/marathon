@@ -6,6 +6,6 @@ import com.malinskiy.marathon.test.Test
 
 class IOSTestParser : TestParser {
     override fun extract(configuration: Configuration): List<Test> {
-        TODO("Not yet implemented")
+        return emptyList()
     }
 }

@@ -22,7 +22,6 @@ class IOSDevice : Device {
     override val abi: String = ""
 
     override suspend fun prepare(configuration: Configuration) {
-        TODO("Not yet implemented")
     }
 
     override suspend fun execute(
@@ -32,10 +31,8 @@ class IOSDevice : Device {
         deferred: CompletableDeferred<TestBatchResults>,
         progressReporter: ProgressReporter
     ) {
-        TODO("Not yet implemented")
     }
 
     override fun dispose() {
-        TODO("Not yet implemented")
     }
 }

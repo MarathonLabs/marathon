@@ -9,6 +9,8 @@ syntax = "proto3";
 
 package idb;
 
+option java_multiple_files = true;
+
 // The idb companion service definition.
 service CompanionService {
     rpc accessibility_info (AccessibilityInfoRequest) returns (AccessibilityInfoResponse) {}

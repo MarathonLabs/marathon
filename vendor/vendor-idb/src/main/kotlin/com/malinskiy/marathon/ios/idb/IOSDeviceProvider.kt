@@ -1,22 +1,25 @@
 package com.malinskiy.marathon.ios.idb
 
+import com.malinskiy.marathon.actor.unboundedChannel
 import com.malinskiy.marathon.device.DeviceProvider
 import com.malinskiy.marathon.vendor.VendorConfiguration
+import io.grpc.CallOptions
+import io.grpc.ManagedChannel
+import io.grpc.ManagedChannelBuilder
 import kotlinx.coroutines.channels.Channel
 
 class IOSDeviceProvider : DeviceProvider {
-    override val deviceInitializationTimeoutMillis: Long
-        get() = TODO("Not yet implemented")
+    override val deviceInitializationTimeoutMillis: Long = 0L
 
     override suspend fun initialize(vendorConfiguration: VendorConfiguration) {
-        TODO("Not yet implemented")
+        val channel = ManagedChannelBuilder.forAddress("localhost", 12345).build()
+        val stub = idb.CompanionServiceGrpcKt.CompanionServiceCoroutineStub(channel)
     }
 
     override suspend fun terminate() {
-        TODO("Not yet implemented")
     }
 
     override fun subscribe(): Channel<DeviceProvider.DeviceEvent> {
-        TODO("Not yet implemented")
+        return unboundedChannel()
     }
 }
