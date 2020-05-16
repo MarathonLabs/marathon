@@ -1,7 +1,7 @@
 package com.malinskiy.marathon.cli.config
 
+import com.fasterxml.jackson.core.JsonProcessingException
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.databind.exc.MismatchedInputException
 import com.malinskiy.marathon.cli.args.FileAndroidConfiguration
 import com.malinskiy.marathon.cli.args.FileConfiguration
 import com.malinskiy.marathon.cli.args.FileIOSConfiguration
@@ -73,8 +73,8 @@ class ConfigFactory(private val mapper: ObjectMapper) {
         val configWithEnvironmentVariablesReplaced = environmentVariableSubstitutor.replace(configFile.readText())
         try {
             return mapper.readValue(configWithEnvironmentVariablesReplaced, FileConfiguration::class.java)
-        } catch (e: MismatchedInputException) {
-            logger.error { "Invalid config file ${configFile.absolutePath}. Error parsing ${e.targetType.canonicalName}" }
+        } catch (e: JsonProcessingException) {
+            logger.error(e) { "Error parsing config file ${configFile.absolutePath}" }
             throw ConfigurationException(e)
         }
     }
