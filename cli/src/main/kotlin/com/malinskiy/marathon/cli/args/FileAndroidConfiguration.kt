@@ -3,11 +3,11 @@ package com.malinskiy.marathon.cli.args
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.malinskiy.marathon.android.AndroidConfiguration
 import com.malinskiy.marathon.android.DEFAULT_INSTALL_OPTIONS
+import com.malinskiy.marathon.android.ScreenRecordConfiguration
 import com.malinskiy.marathon.android.VendorType
 import com.malinskiy.marathon.android.adam.di.adamModule
 import com.malinskiy.marathon.android.defaultInitTimeoutMillis
 import com.malinskiy.marathon.android.serial.SerialStrategy
-import com.malinskiy.marathon.device.DeviceFeature
 import com.malinskiy.marathon.exceptions.ConfigurationException
 import ddmlibModule
 import java.io.File
@@ -23,8 +23,8 @@ data class FileAndroidConfiguration(
     @JsonProperty("testApplicationPmClear") val testApplicationPmClear: Boolean?,
     @JsonProperty("adbInitTimeoutMillis") val adbInitTimeoutMillis: Int?,
     @JsonProperty("installOptions") val installOptions: String?,
-    @JsonProperty("preferableRecorderType") val preferableRecorderType: DeviceFeature?,
-    @JsonProperty("serialStrategy") val serialStrategy: SerialStrategy = SerialStrategy.AUTOMATIC
+    @JsonProperty("serialStrategy") val serialStrategy: SerialStrategy = SerialStrategy.AUTOMATIC,
+    @JsonProperty("screenRecordConfiguration") val screenRecordConfiguration: ScreenRecordConfiguration = ScreenRecordConfiguration()
 ) : FileVendorConfiguration {
 
     fun toAndroidConfiguration(environmentAndroidSdk: File?): AndroidConfiguration {
@@ -47,8 +47,8 @@ data class FileAndroidConfiguration(
             testApplicationPmClear = testApplicationPmClear ?: false,
             adbInitTimeoutMillis = adbInitTimeoutMillis ?: defaultInitTimeoutMillis,
             installOptions = installOptions ?: DEFAULT_INSTALL_OPTIONS,
-            preferableRecorderType = preferableRecorderType,
             serialStrategy = serialStrategy,
+            screenRecordConfiguration = screenRecordConfiguration,
             implementationModules = implementationModules
         )
     }

@@ -1,6 +1,7 @@
 package com.malinskiy.marathon.android.executor.listeners.video
 
 import com.malinskiy.marathon.android.AndroidDevice
+import com.malinskiy.marathon.android.VideoConfiguration
 import com.malinskiy.marathon.android.exception.TransferException
 import com.malinskiy.marathon.android.executor.listeners.NoOpTestRunListener
 import com.malinskiy.marathon.android.model.TestIdentifier
@@ -27,6 +28,7 @@ class ScreenRecorderTestRunListener(
     private val fileManager: FileManager,
     private val pool: DevicePoolId,
     private val device: AndroidDevice,
+    private val videoConfiguration: VideoConfiguration,
     private val screenRecordingPolicy: ScreenRecordingPolicy,
     private val coroutineScope: CoroutineScope
 ) : NoOpTestRunListener(), AttachmentProvider, CoroutineScope {
@@ -50,7 +52,7 @@ class ScreenRecorderTestRunListener(
     override suspend fun testStarted(test: TestIdentifier) {
         hasFailed = false
 
-        val screenRecorder = ScreenRecorder(device, device.fileManager.remoteVideoForTest(test.toTest()))
+        val screenRecorder = ScreenRecorder(device, videoConfiguration, device.fileManager.remoteVideoForTest(test.toTest()))
         val supervisor = SupervisorJob()
         supervisorJob = supervisor
         async(supervisor) {

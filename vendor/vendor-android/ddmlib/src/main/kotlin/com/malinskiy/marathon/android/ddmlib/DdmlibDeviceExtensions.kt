@@ -12,6 +12,7 @@ import com.android.ddmlib.testrunner.TestIdentifier
 import com.malinskiy.marathon.android.ADB_INSTALL_TIMEOUT_MINUTES
 import com.malinskiy.marathon.android.ADB_SCREEN_RECORD_TIMEOUT_MINUTES
 import com.malinskiy.marathon.android.ADB_SHORT_TIMEOUT_SECONDS
+import com.malinskiy.marathon.android.VideoConfiguration
 import com.malinskiy.marathon.test.Test
 import java.io.IOException
 import java.util.concurrent.TimeUnit
@@ -73,7 +74,7 @@ fun IDevice.safeExecuteShellCommand(command: String, receiver: IShellOutputRecei
 
 fun IDevice.safeStartScreenRecorder(
     remoteFilePath: String,
-    options: com.malinskiy.marathon.android.executor.listeners.video.ScreenRecorderOptions,
+    options: VideoConfiguration,
     receiver: IShellOutputReceiver
 ) {
     val screenRecorderCommand = options.toScreenRecorderCommand(remoteFilePath)

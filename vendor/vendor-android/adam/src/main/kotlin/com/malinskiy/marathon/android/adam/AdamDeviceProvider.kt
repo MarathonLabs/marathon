@@ -88,7 +88,15 @@ class AdamDeviceProvider(
                         when (state) {
                             TrackingUpdate.CONNECTED -> {
                                 val device =
-                                    AdamAndroidDevice(client, deviceStateTracker, serial, track, timer, vendorConfiguration.serialStrategy)
+                                    AdamAndroidDevice(
+                                        client,
+                                        deviceStateTracker,
+                                        serial,
+                                        vendorConfiguration,
+                                        track,
+                                        timer,
+                                        vendorConfiguration.serialStrategy
+                                    )
                                 track.trackProviderDevicePreparing(device) {
                                     device.setup()
                                 }

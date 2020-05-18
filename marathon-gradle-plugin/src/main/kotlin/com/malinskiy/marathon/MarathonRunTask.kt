@@ -6,6 +6,7 @@ import com.malinskiy.marathon.android.AndroidConfiguration
 import com.malinskiy.marathon.android.DEFAULT_APPLICATION_PM_CLEAR
 import com.malinskiy.marathon.android.DEFAULT_AUTO_GRANT_PERMISSION
 import com.malinskiy.marathon.android.DEFAULT_INSTALL_OPTIONS
+import com.malinskiy.marathon.android.ScreenRecordConfiguration
 import com.malinskiy.marathon.android.VendorType
 import com.malinskiy.marathon.android.adam.di.adamModule
 import com.malinskiy.marathon.android.defaultInitTimeoutMillis
@@ -115,7 +116,7 @@ open class MarathonRunTask : DefaultTask(), VerificationTask {
         val testApplicationPmClear = extension.testApplicationPmClear ?: DEFAULT_APPLICATION_PM_CLEAR
         val adbInitTimeout = extension.adbInitTimeout ?: defaultInitTimeoutMillis
         val installOptions = extension.installOptions ?: DEFAULT_INSTALL_OPTIONS
-        val preferableRecorderType = extension.preferableRecorderType
+        val screenRecordConfiguration = extension.screenRecordConfiguration ?: ScreenRecordConfiguration()
         val serialStrategy = extension.serialStrategy ?: SerialStrategy.AUTOMATIC
 
         val implementationModules = when (extension.vendor ?: VendorType.DDMLIB) {
@@ -134,7 +135,7 @@ open class MarathonRunTask : DefaultTask(), VerificationTask {
             testApplicationPmClear = testApplicationPmClear,
             adbInitTimeoutMillis = adbInitTimeout,
             installOptions = installOptions,
-            preferableRecorderType = preferableRecorderType,
+            screenRecordConfiguration = screenRecordConfiguration,
             serialStrategy = serialStrategy
         )
     }

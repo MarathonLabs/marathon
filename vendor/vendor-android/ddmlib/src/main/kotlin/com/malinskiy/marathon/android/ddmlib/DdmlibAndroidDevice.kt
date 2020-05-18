@@ -15,13 +15,14 @@ import com.android.ddmlib.testrunner.TestIdentifier
 import com.malinskiy.marathon.analytics.internal.pub.Track
 import com.malinskiy.marathon.android.ADB_SCREEN_RECORD_TIMEOUT_MILLIS
 import com.malinskiy.marathon.android.AndroidAppInstaller
+import com.malinskiy.marathon.android.AndroidConfiguration
 import com.malinskiy.marathon.android.BaseAndroidDevice
+import com.malinskiy.marathon.android.VideoConfiguration
 import com.malinskiy.marathon.android.ddmlib.shell.receiver.CollectingShellOutputReceiver
 import com.malinskiy.marathon.android.exception.CommandRejectedException
 import com.malinskiy.marathon.android.exception.TransferException
 import com.malinskiy.marathon.android.executor.listeners.AndroidTestRunListener
 import com.malinskiy.marathon.android.executor.listeners.line.LineListener
-import com.malinskiy.marathon.android.executor.listeners.video.ScreenRecorderOptions
 import com.malinskiy.marathon.android.serial.SerialStrategy
 import com.malinskiy.marathon.device.DevicePoolId
 import com.malinskiy.marathon.device.NetworkState
@@ -49,10 +50,11 @@ import kotlin.coroutines.resumeWithException
 class DdmlibAndroidDevice(
     val ddmsDevice: IDevice,
     adbSerial: String,
+    configuration: AndroidConfiguration,
     track: Track,
     timer: Timer,
     serialStrategy: SerialStrategy
-) : BaseAndroidDevice(adbSerial, serialStrategy, track, timer) {
+) : BaseAndroidDevice(adbSerial, serialStrategy, configuration, track, timer) {
 
     override suspend fun setup() {
         super.setup()
@@ -138,7 +140,7 @@ class DdmlibAndroidDevice(
 
     override suspend fun safeStartScreenRecorder(
         remoteFilePath: String,
-        options: ScreenRecorderOptions
+        options: VideoConfiguration
     ) {
         val outputReceiver = CollectingOutputReceiver()
         withTimeoutOrInterrupt(ADB_SCREEN_RECORD_TIMEOUT_MILLIS) {

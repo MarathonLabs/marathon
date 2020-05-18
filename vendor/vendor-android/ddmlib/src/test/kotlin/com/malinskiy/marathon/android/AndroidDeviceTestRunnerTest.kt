@@ -29,10 +29,18 @@ class AndroidDeviceTestRunnerTest {
     @Test
     fun `should handle ignored tests before execution`() {
         val ddmsDevice = mock<IDevice>()
+        val androidConfiguration = mock<AndroidConfiguration>()
         whenever(ddmsDevice.serialNumber).doReturn("testSerial")
         whenever(ddmsDevice.version).doReturn(AndroidVersion(26))
         val device =
-            DdmlibAndroidDevice(ddmsDevice, "testSerial", Track(), SystemTimer(Clock.systemDefaultZone()), SerialStrategy.AUTOMATIC)
+            DdmlibAndroidDevice(
+                ddmsDevice,
+                "testSerial",
+                androidConfiguration,
+                Track(),
+                SystemTimer(Clock.systemDefaultZone()),
+                SerialStrategy.AUTOMATIC
+            )
         val androidDeviceTestRunner = AndroidDeviceTestRunner(device)
         val apkFile = File(javaClass.classLoader.getResource("android_test_1.apk").file)
         val output = File("")
@@ -84,10 +92,18 @@ class AndroidDeviceTestRunnerTest {
     @Test
     fun `should send runEnded if only ignored tests are executed`() {
         val ddmsDevice = mock<IDevice>()
+        val androidConfiguration = mock<AndroidConfiguration>()
         whenever(ddmsDevice.serialNumber).doReturn("testSerial")
         whenever(ddmsDevice.version).doReturn(AndroidVersion(26))
         val device =
-            DdmlibAndroidDevice(ddmsDevice, "testSerial", Track(), SystemTimer(Clock.systemDefaultZone()), SerialStrategy.AUTOMATIC)
+            DdmlibAndroidDevice(
+                ddmsDevice,
+                "testSerial",
+                androidConfiguration,
+                Track(),
+                SystemTimer(Clock.systemDefaultZone()),
+                SerialStrategy.AUTOMATIC
+            )
         val androidDeviceTestRunner = AndroidDeviceTestRunner(device)
         val apkFile = File(javaClass.classLoader.getResource("android_test_1.apk").file)
         val output = File("")

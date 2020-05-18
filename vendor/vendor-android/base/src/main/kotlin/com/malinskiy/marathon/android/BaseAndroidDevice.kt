@@ -38,6 +38,7 @@ import kotlin.system.measureTimeMillis
 abstract class BaseAndroidDevice(
     protected val adbSerial: String,
     protected val serialStrategy: SerialStrategy,
+    protected val configuration: AndroidConfiguration,
     protected val track: Track,
     protected val timer: Timer
 ) : AndroidDevice, CoroutineScope {
@@ -202,9 +203,9 @@ abstract class BaseAndroidDevice(
 
         val features = this.deviceFeatures
 
-        val preferableRecorderType = configuration.vendorConfiguration.preferableRecorderType()
+        val recordConfiguration = this@BaseAndroidDevice.configuration.screenRecordConfiguration
         val screenRecordingPolicy = configuration.screenRecordingPolicy
-        val recorderListener = selectRecorderType(preferableRecorderType, features)?.let { feature ->
+        val recorderListener = selectRecorderType(features, recordConfiguration)?.let { feature ->
             prepareRecorderListener(feature, fileManager, devicePoolId, screenRecordingPolicy, attachmentProviders)
         } ?: NoOpTestRunListener()
 
@@ -228,21 +229,52 @@ abstract class BaseAndroidDevice(
     ): NoOpTestRunListener =
         when (feature) {
             DeviceFeature.VIDEO -> {
-                ScreenRecorderTestRunListener(fileManager, devicePoolId, this, screenRecordingPolicy, this)
+                ScreenRecorderTestRunListener(
+                    fileManager,
+                    devicePoolId,
+                    this,
+                    configuration.screenRecordConfiguration.videoConfiguration,
+                    screenRecordingPolicy,
+                    this
+                )
                     .also { attachmentProviders.add(it) }
             }
 
             DeviceFeature.SCREENSHOT -> {
-                ScreenCapturerTestRunListener(fileManager, devicePoolId, this, screenRecordingPolicy, this)
+                ScreenCapturerTestRunListener(
+                    fileManager,
+                    devicePoolId,
+                    this,
+                    screenRecordingPolicy,
+                    configuration.screenRecordConfiguration.screenshotConfiguration,
+                    this
+                )
                     .also { attachmentProviders.add(it) }
             }
         }
 
-    private fun selectRecorderType(preferred: DeviceFeature?, features: Collection<DeviceFeature>) = when {
-        features.contains(preferred) -> preferred
-        features.contains(DeviceFeature.VIDEO) -> DeviceFeature.VIDEO
-        features.contains(DeviceFeature.SCREENSHOT) -> DeviceFeature.SCREENSHOT
-        else -> null
+    private fun selectRecorderType(supportedFeatures: Collection<DeviceFeature>, configuration: ScreenRecordConfiguration): DeviceFeature? {
+        val preferred = configuration.preferableRecorderType
+        val screenshotEnabled = recorderEnabled(DeviceFeature.SCREENSHOT, configuration)
+        val videoEnabled = recorderEnabled(DeviceFeature.VIDEO, configuration)
+
+        if (preferred != null && supportedFeatures.contains(preferred) && recorderEnabled(preferred, configuration)) {
+            return preferred
+        }
+
+        return when {
+            supportedFeatures.contains(DeviceFeature.SCREENSHOT) && screenshotEnabled -> DeviceFeature.SCREENSHOT
+            supportedFeatures.contains(DeviceFeature.VIDEO) && videoEnabled -> DeviceFeature.SCREENSHOT
+            else -> null
+        }
+    }
+
+    private fun recorderEnabled(
+        type: DeviceFeature,
+        configuration: ScreenRecordConfiguration
+    ) = when (type) {
+        DeviceFeature.VIDEO -> configuration.videoConfiguration.enabled
+        DeviceFeature.SCREENSHOT -> configuration.screenshotConfiguration.enabled
     }
 
     private suspend fun detectMd5Binary(): String {

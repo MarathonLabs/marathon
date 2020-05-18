@@ -56,7 +56,14 @@ class DdmlibDeviceProvider(
                 device?.let {
                     launch(context = bootWaitContext) {
                         val maybeNewAndroidDevice =
-                            DdmlibAndroidDevice(it, device.serialNumber, track, timer, vendorConfiguration.serialStrategy)
+                            DdmlibAndroidDevice(
+                                it,
+                                device.serialNumber,
+                                vendorConfiguration,
+                                track,
+                                timer,
+                                vendorConfiguration.serialStrategy
+                            )
                         val healthy = maybeNewAndroidDevice.healthy
 
                         logger.debug { "Device ${device.serialNumber} changed state. Healthy = $healthy" }
@@ -76,7 +83,14 @@ class DdmlibDeviceProvider(
                 device?.let {
                     launch {
                         val maybeNewAndroidDevice =
-                            DdmlibAndroidDevice(it, device.serialNumber, track, timer, vendorConfiguration.serialStrategy)
+                            DdmlibAndroidDevice(
+                                it,
+                                device.serialNumber,
+                                vendorConfiguration,
+                                track,
+                                timer,
+                                vendorConfiguration.serialStrategy
+                            )
                         val healthy = maybeNewAndroidDevice.healthy
                         logger.debug("Device ${device.serialNumber} connected. Healthy = $healthy")
 

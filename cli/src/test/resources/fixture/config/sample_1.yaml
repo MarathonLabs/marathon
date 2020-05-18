@@ -75,4 +75,16 @@ vendorConfiguration:
   instrumentationArgs:
     debug: "false"
   installOptions: "-d"
-  preferableRecorderType: "screenshot"
+  screenRecordConfiguration:
+    preferableRecorderType: "screenshot"
+    videoConfiguration:
+      enabled: false
+      width: 1080
+      height: 1920
+      bitrateMbps: 2
+      timeLimit: 300
+    screenshotConfiguration:
+      enabled: false
+      width: 1080
+      height: 1920
+      delayMs: 200

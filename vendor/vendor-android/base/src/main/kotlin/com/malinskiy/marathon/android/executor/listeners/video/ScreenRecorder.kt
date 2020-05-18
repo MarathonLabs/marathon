@@ -1,13 +1,14 @@
 package com.malinskiy.marathon.android.executor.listeners.video
 
 import com.malinskiy.marathon.android.AndroidDevice
+import com.malinskiy.marathon.android.VideoConfiguration
 import com.malinskiy.marathon.log.MarathonLogging
 import kotlinx.coroutines.CancellationException
-import java.util.concurrent.TimeUnit.SECONDS
 import kotlin.system.measureTimeMillis
 
 internal class ScreenRecorder(
     private val device: AndroidDevice,
+    private val videoConfiguration: VideoConfiguration,
     private val remoteFilePath: String
 ) {
 
@@ -25,7 +26,7 @@ internal class ScreenRecorder(
         val millis = measureTimeMillis {
             device.safeStartScreenRecorder(
                 remoteFilePath = remoteFilePath,
-                options = options
+                options = videoConfiguration
             )
         }
         logger.debug { "Recording finished in ${millis}ms $remoteFilePath" }
@@ -33,15 +34,5 @@ internal class ScreenRecorder(
 
     companion object {
         private val logger = MarathonLogging.logger("ScreenRecorder")
-        private const val DURATION = 180
-        private const val BITRATE_MB_PER_SECOND = 1
-        private val options = ScreenRecorderOptions(
-            0,
-            0,
-            BITRATE_MB_PER_SECOND,
-            timeLimit = DURATION.toLong(),
-            timeLimitUnits = SECONDS,
-            showTouches = false
-        )
     }
 }
