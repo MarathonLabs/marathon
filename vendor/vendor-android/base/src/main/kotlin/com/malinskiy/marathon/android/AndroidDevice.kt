@@ -2,7 +2,6 @@ package com.malinskiy.marathon.android
 
 import com.android.sdklib.AndroidVersion
 import com.malinskiy.marathon.android.executor.listeners.line.LineListener
-import com.malinskiy.marathon.android.executor.listeners.video.ScreenRecorderOptions
 import com.malinskiy.marathon.device.Device
 import java.awt.image.BufferedImage
 import java.util.concurrent.TimeUnit
@@ -38,7 +37,7 @@ interface AndroidDevice : Device {
     suspend fun safeClearPackage(packageName: String): String?
 
     suspend fun getScreenshot(timeout: Long, units: TimeUnit): BufferedImage
-    suspend fun safeStartScreenRecorder(remoteFilePath: String, options: ScreenRecorderOptions)
+    suspend fun safeStartScreenRecorder(remoteFilePath: String, options: VideoConfiguration)
 
     fun addLogcatListener(listener: LineListener)
     fun removeLogcatListener(listener: LineListener)

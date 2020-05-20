@@ -210,7 +210,6 @@ fun getConfiguration() =
             override fun testParser(): TestParser? = null
             override fun deviceProvider(): DeviceProvider? = null
             override fun logConfigurator(): MarathonLogConfigurator? = null
-            override fun preferableRecorderType(): DeviceFeature? = null
         },
         analyticsTracking = false
     )

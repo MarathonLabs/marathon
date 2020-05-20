@@ -17,6 +17,7 @@ import java.time.Clock
 
 class AndroidDeviceTest {
     private val iDevice = mock<IDevice>()
+    private val configuration = mock<AndroidConfiguration>()
     private val track = Track()
     private val timer = SystemTimer(Clock.systemDefaultZone())
 
@@ -28,13 +29,13 @@ class AndroidDeviceTest {
     @Test
     fun `model return Unknown if ddmDevice property ro_product_model`() {
         whenever(iDevice.getProperty("ro.product.model")).thenReturn(null)
-        DdmlibAndroidDevice(iDevice, "serial", track, timer, SerialStrategy.AUTOMATIC).model shouldBe "Unknown"
+        DdmlibAndroidDevice(iDevice, "serial", configuration, track, timer, SerialStrategy.AUTOMATIC).model shouldBe "Unknown"
     }
 
     @Test
     fun `manufacturer return Unknown if ddmlib property`() {
         whenever(iDevice.getProperty("ro.product.manufacturer")).thenReturn(null)
-        DdmlibAndroidDevice(iDevice, "serial", track, timer, SerialStrategy.AUTOMATIC).manufacturer shouldBe "Unknown"
+        DdmlibAndroidDevice(iDevice, "serial", configuration, track, timer, SerialStrategy.AUTOMATIC).manufacturer shouldBe "Unknown"
     }
 
     @Test
@@ -45,6 +46,7 @@ class AndroidDeviceTest {
         DdmlibAndroidDevice(
             iDevice,
             "serial",
+            configuration,
             track,
             timer,
             SerialStrategy.AUTOMATIC

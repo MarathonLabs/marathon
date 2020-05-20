@@ -6,6 +6,9 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLGenerator
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.KotlinModule
 import com.malinskiy.marathon.android.AndroidConfiguration
+import com.malinskiy.marathon.android.ScreenRecordConfiguration
+import com.malinskiy.marathon.android.ScreenshotConfiguration
+import com.malinskiy.marathon.android.VideoConfiguration
 import com.malinskiy.marathon.android.serial.SerialStrategy
 import com.malinskiy.marathon.cli.args.EnvironmentConfiguration
 import com.malinskiy.marathon.cli.args.environment.EnvironmentReader
@@ -163,8 +166,12 @@ class ConfigFactoryTest {
             true,
             30_000,
             "-d",
-            DeviceFeature.SCREENSHOT,
-            SerialStrategy.AUTOMATIC
+            SerialStrategy.AUTOMATIC,
+            ScreenRecordConfiguration(
+                preferableRecorderType = DeviceFeature.SCREENSHOT,
+                videoConfiguration = VideoConfiguration(false, 1080, 1920, 2, 300),
+                screenshotConfiguration = ScreenshotConfiguration(false, 1080, 1920, 200)
+            )
         )
     }
 
@@ -229,7 +236,6 @@ class ConfigFactoryTest {
             false,
             30_000,
             "",
-            null,
             SerialStrategy.AUTOMATIC
         )
     }
@@ -289,7 +295,6 @@ class ConfigFactoryTest {
             false,
             30_000,
             "",
-            null,
             SerialStrategy.HOSTNAME
         )
     }

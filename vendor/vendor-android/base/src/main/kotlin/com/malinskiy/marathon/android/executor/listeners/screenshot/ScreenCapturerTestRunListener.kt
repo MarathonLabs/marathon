@@ -1,6 +1,7 @@
 package com.malinskiy.marathon.android.executor.listeners.screenshot
 
 import com.malinskiy.marathon.android.AndroidDevice
+import com.malinskiy.marathon.android.ScreenshotConfiguration
 import com.malinskiy.marathon.android.executor.listeners.NoOpTestRunListener
 import com.malinskiy.marathon.android.model.TestIdentifier
 import com.malinskiy.marathon.device.DevicePoolId
@@ -24,6 +25,7 @@ class ScreenCapturerTestRunListener(
     private val pool: DevicePoolId,
     private val device: AndroidDevice,
     private val screenRecordingPolicy: ScreenRecordingPolicy,
+    private val screenshotConfiguration: ScreenshotConfiguration,
     private val coroutineScope: CoroutineScope
 ) : NoOpTestRunListener(), CoroutineScope, AttachmentProvider {
 
@@ -48,7 +50,7 @@ class ScreenCapturerTestRunListener(
         logger.debug { "Starting recording for ${toTest.toSimpleSafeTestName()}" }
 
         screenCapturerJob = async {
-            ScreenCapturer(device, pool, fileManager, toTest).start()
+            ScreenCapturer(device, pool, fileManager, toTest, screenshotConfiguration).start()
         }
     }
 

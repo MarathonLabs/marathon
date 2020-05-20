@@ -20,7 +20,6 @@ class FileAndroidConfigurationTest {
         null,
         null,
         null,
-        null,
         SerialStrategy.AUTOMATIC
     )
 
