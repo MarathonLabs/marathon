@@ -12,7 +12,6 @@ plugins {
 
 
 repositories {
-    mavenLocal()
     maven("https://plugins.gradle.org/m2/")
 }
 
@@ -54,7 +53,7 @@ dependencies {
 }
 
 protobuf {
-    generatedFilesBaseDir = "src/"
+    generatedFilesBaseDir = "$projectDir/src"
     protoc { artifact = "com.google.protobuf:protoc:3.11.1" }
     plugins {
         id("grpc") { artifact = "io.grpc:protoc-gen-grpc-java:1.15.1" }
