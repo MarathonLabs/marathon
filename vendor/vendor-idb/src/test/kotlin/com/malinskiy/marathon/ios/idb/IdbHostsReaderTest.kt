@@ -1,6 +1,8 @@
 package com.malinskiy.marathon.ios.idb
 
 import com.google.gson.Gson
+import com.malinskiy.marathon.ios.idb.configuration.IdbHost
+import com.malinskiy.marathon.ios.idb.configuration.IdbHostsReader
 import org.amshove.kluent.shouldEqual
 import org.junit.jupiter.api.Test
 

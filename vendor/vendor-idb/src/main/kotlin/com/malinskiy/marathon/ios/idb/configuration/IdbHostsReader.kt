@@ -1,4 +1,4 @@
-package com.malinskiy.marathon.ios.idb
+package com.malinskiy.marathon.ios.idb.configuration
 
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken

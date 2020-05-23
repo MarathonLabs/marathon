@@ -9,11 +9,13 @@ import com.fasterxml.jackson.databind.node.ObjectNode
 import com.fasterxml.jackson.module.kotlin.treeToValue
 import com.malinskiy.marathon.cli.args.FileAndroidConfiguration
 import com.malinskiy.marathon.cli.args.FileIOSConfiguration
+import com.malinskiy.marathon.cli.args.FileIdbConfiguration
 import com.malinskiy.marathon.cli.args.FileVendorConfiguration
 import com.malinskiy.marathon.exceptions.ConfigurationException
 
 const val TYPE_ANDROID = "Android"
 const val TYPE_IOS = "iOS"
+const val TYPE_IOS_IDB = "idb"
 
 class FileVendorConfigurationDeserializer : StdDeserializer<FileVendorConfiguration>(FileVendorConfiguration::class.java) {
     override fun deserialize(p: JsonParser?, ctxt: DeserializationContext?): FileVendorConfiguration {
@@ -29,6 +31,10 @@ class FileVendorConfigurationDeserializer : StdDeserializer<FileVendorConfigurat
             TYPE_ANDROID -> {
                 (node as ObjectNode).remove("type")
                 codec.treeToValue<FileAndroidConfiguration>(node)
+            }
+            TYPE_IOS_IDB -> {
+                (node as ObjectNode).remove("type")
+                codec.treeToValue<FileIdbConfiguration>(node)
             }
             else -> throw ConfigurationException(
                 "Unrecognized vendor type $type. " +

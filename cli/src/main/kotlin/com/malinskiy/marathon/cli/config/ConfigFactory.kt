@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.malinskiy.marathon.cli.args.FileAndroidConfiguration
 import com.malinskiy.marathon.cli.args.FileConfiguration
 import com.malinskiy.marathon.cli.args.FileIOSConfiguration
+import com.malinskiy.marathon.cli.args.FileIdbConfiguration
 import com.malinskiy.marathon.cli.args.environment.EnvironmentReader
 import com.malinskiy.marathon.exceptions.ConfigurationException
 import com.malinskiy.marathon.execution.Configuration
@@ -36,6 +37,9 @@ class ConfigFactory(private val mapper: ObjectMapper) {
             )
             is FileAndroidConfiguration -> {
                 fileVendorConfiguration.toAndroidConfiguration(environmentReader.read().androidSdk)
+            }
+            is FileIdbConfiguration -> {
+                fileVendorConfiguration.toIdbConfiguration(marathonfile.canonicalFile.parentFile)
             }
             else -> throw ConfigurationException("No vendor config present in ${marathonfile.absolutePath}")
         }

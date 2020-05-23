@@ -50,6 +50,7 @@ dependencies {
     implementation("io.grpc:grpc-stub:1.28.1")
     compileOnly("javax.annotation:javax.annotation-api:1.2")
     implementation("com.google.guava:guava:28.2-jre")
+    implementation("com.soywiz.korlibs.korio:korio:1.11.3")
 }
 
 protobuf {

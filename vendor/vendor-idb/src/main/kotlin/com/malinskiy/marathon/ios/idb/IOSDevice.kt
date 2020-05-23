@@ -8,10 +8,14 @@ import com.malinskiy.marathon.device.OperatingSystem
 import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.execution.TestBatchResults
 import com.malinskiy.marathon.execution.progress.ProgressReporter
+import com.malinskiy.marathon.ios.idb.configuration.IdbConfiguration
+import com.malinskiy.marathon.ios.idb.grpc.IdbClient
 import com.malinskiy.marathon.test.TestBatch
-import idb.CompanionServiceGrpcKt
 import idb.TargetDescription
+import idb.XctestRunResponse
 import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.InternalCoroutinesApi
+import kotlinx.coroutines.flow.FlowCollector
 
 class IOSDevice(private val idb: IdbClient, targetDescription: TargetDescription) : Device {
     override val operatingSystem: OperatingSystem = OperatingSystem(targetDescription.osVersion)
@@ -25,10 +29,11 @@ class IOSDevice(private val idb: IdbClient, targetDescription: TargetDescription
 
     override suspend fun prepare(configuration: Configuration) {
         val iosConfiguration = configuration.vendorConfiguration as IdbConfiguration
-//        idb.install(configuration.app)
-//        idb.install(configuration.runner)
-//        idb.installXCTest(configuration)
+        idb.install(iosConfiguration.app)
+        idb.install(iosConfiguration.runner)
+        idb.installXCTest(iosConfiguration.xcTestRunPath)
     }
+
 
     override suspend fun execute(
         configuration: Configuration,
@@ -38,7 +43,12 @@ class IOSDevice(private val idb: IdbClient, targetDescription: TargetDescription
         progressReporter: ProgressReporter
     ) {
         val iosConfiguration = configuration.vendorConfiguration as IdbConfiguration
+        val result = idb.runTests(testBatch.tests)
+        result.collect(object : FlowCollector<XctestRunResponse>{
+            override suspend fun emit(value: XctestRunResponse) {
 
+            }
+        });
     }
 
     override fun dispose() {

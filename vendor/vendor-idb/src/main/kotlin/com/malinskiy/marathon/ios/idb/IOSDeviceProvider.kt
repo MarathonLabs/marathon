@@ -3,8 +3,10 @@ package com.malinskiy.marathon.ios.idb
 import com.google.gson.Gson
 import com.malinskiy.marathon.actor.unboundedChannel
 import com.malinskiy.marathon.device.DeviceProvider
+import com.malinskiy.marathon.ios.idb.configuration.IdbConfiguration
+import com.malinskiy.marathon.ios.idb.configuration.IdbHostsReader
+import com.malinskiy.marathon.ios.idb.grpc.IdbClient
 import com.malinskiy.marathon.vendor.VendorConfiguration
-import idb.TargetDescriptionRequest
 import io.grpc.ManagedChannelBuilder
 import kotlinx.coroutines.channels.Channel
 

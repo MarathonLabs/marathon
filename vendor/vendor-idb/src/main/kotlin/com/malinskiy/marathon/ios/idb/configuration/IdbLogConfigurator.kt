@@ -1,4 +1,4 @@
-package com.malinskiy.marathon.ios.idb
+package com.malinskiy.marathon.ios.idb.configuration
 
 import com.malinskiy.marathon.log.MarathonLogConfigurator
 import com.malinskiy.marathon.vendor.VendorConfiguration
