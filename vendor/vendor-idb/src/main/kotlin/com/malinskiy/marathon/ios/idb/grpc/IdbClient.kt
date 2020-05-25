@@ -27,8 +27,7 @@ class IdbClient(
 ) {
     val logger = MarathonLogging.logger("IdbClient")
 
-
-    suspend fun install(file: File, destination: InstallRequest.Destination = InstallRequest.Destination.APP) {
+    private suspend fun install(file: File, destination: InstallRequest.Destination) {
         logger.info { "Install: $file" }
         val result = stub.install(flow<InstallRequest> {
             logger.info("install start")
@@ -39,7 +38,7 @@ class IdbClient(
             emit(initRequest)
             logger.info("initial request sent")
 
-            val bytesFlow = FileChunkGenerator().generateChunks(file).map {
+            val bytesFlow = FileChunkGenerator().generateChunks(destination, file).map {
                 ByteString.copyFrom(it)
             }.map {
                 Payload.newBuilder().setData(it).build()
@@ -51,6 +50,10 @@ class IdbClient(
         result.onEach {
             logger.info { "Installed: ${it.progress}" }
         }.collect()
+    }
+
+    suspend fun installApp(file: File) {
+        install(file, InstallRequest.Destination.APP)
     }
 
     suspend fun installXCTest(file: File) {

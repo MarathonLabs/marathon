@@ -2,6 +2,7 @@ package com.malinskiy.marathon.ios.idb.grpc
 
 import com.soywiz.korio.stream.readBytesUpTo
 import com.soywiz.korio.stream.toAsync
+import idb.InstallRequest
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import java.io.File
@@ -22,21 +23,43 @@ class FileChunkGenerator {
         }
     }
 
-    private fun generateTarCommand(input: File, output: Path): ProcessBuilder {
+    private fun generateTarCommand(input: List<File>, output: Path): ProcessBuilder {
+        val paths = input.map { it.path }.toTypedArray()
         return ProcessBuilder().apply {
-            command("tar", "-cf", output.toString(), input.path.toString())
+            command("tar", "-cf", output.toString(), *paths)
         }
     }
 
     private fun generateTar(input: File): Path {
-        val name = input.nameWithoutExtension
-        val output = Files.createTempFile(name, "tar")
+        return generateTar(listOf(input))
+    }
+
+    private fun generateTar(input: List<File>): Path {
+        val output = Files.createTempFile("output", "tar")
         val builder = generateTarCommand(input, output)
         builder.start().waitFor()
         return output
     }
 
-    fun generateChunks(file: File): Flow<ByteArray> {
+    fun generateChunks(destination: InstallRequest.Destination, file: File): Flow<ByteArray> {
+        return when (destination) {
+            InstallRequest.Destination.APP -> {
+                handleApp(file)
+            }
+            InstallRequest.Destination.XCTEST -> {
+                handleXcTest(file)
+            }
+            else -> throw IllegalArgumentException("Destination: ${destination.name} is not supported")
+        }
+    }
+
+    private fun handleXcTest(file: File): Flow<ByteArray> {
+        val files = XcTest().parse(file)
+        val tar = generateTar(files)
+        return split(tar.toFile())
+    }
+
+    private fun handleApp(file: File): Flow<ByteArray> {
         return when (file.extension) {
             "ipa" -> {
                 split(file)
@@ -45,9 +68,7 @@ class FileChunkGenerator {
                 val tar = generateTar(file)
                 split(tar.toFile())
             }
-            else -> {
-                throw IllegalArgumentException()
-            }
+            else -> throw IllegalArgumentException()
         }
     }
 }

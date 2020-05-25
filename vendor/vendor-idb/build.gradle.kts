@@ -42,7 +42,7 @@ dependencies {
     testRuntime(TestLibraries.jupiterEngine)
 
 
-    implementation("io.grpc:grpc-kotlin-stub:0.1.3")
+    implementation("io.grpc:grpc-kotlin-stub:0.1.2")
     implementation("com.google.protobuf:protobuf-java:3.11.1")
     implementation("com.google.protobuf:protobuf-java-util:3.11.1")
     implementation("io.grpc:grpc-netty-shaded:1.28.1")
@@ -51,6 +51,7 @@ dependencies {
     compileOnly("javax.annotation:javax.annotation-api:1.2")
     implementation("com.google.guava:guava:28.2-jre")
     implementation("com.soywiz.korlibs.korio:korio:1.11.3")
+    implementation(Libraries.ddPlist)
 }
 
 protobuf {
@@ -58,7 +59,7 @@ protobuf {
     protoc { artifact = "com.google.protobuf:protoc:3.11.1" }
     plugins {
         id("grpc") { artifact = "io.grpc:protoc-gen-grpc-java:1.15.1" }
-        id("grpckt") { artifact = "io.grpc:protoc-gen-grpc-kotlin:0.1.3" }
+        id("grpckt") { artifact = "io.grpc:protoc-gen-grpc-kotlin:0.1.2" }
     }
     generateProtoTasks {
         ofSourceSet("main").forEach {

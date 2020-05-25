@@ -32,9 +32,9 @@ class IOSDevice(private val idb: IdbClient, targetDescription: TargetDescription
     override suspend fun prepare(configuration: Configuration) {
         logger.info("Prepare started")
         val iosConfiguration = configuration.vendorConfiguration as IdbConfiguration
-        idb.install(iosConfiguration.app)
-        idb.install(iosConfiguration.runner)
-//        idb.installXCTest(iosConfiguration.xcTestRunPath)
+        idb.installApp(iosConfiguration.app)
+        idb.installApp(iosConfiguration.runner)
+        idb.installXCTest(iosConfiguration.xcTestRunPath)
         logger.info("Prepare finished")
     }
 
