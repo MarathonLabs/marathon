@@ -9,14 +9,9 @@ batchingStrategy:
   type: "fixed-size"
   size: 5
 debug: true
-filteringConfiguration:
-  whitelist:
-    - type: "simple-class-name"
-      regex: "StoryboardTests"
 vendorConfiguration:
-  type: "iOS"
+  type: "idb"
   derivedDataDir: "derived-data"
-  sourceRoot: "sample-appUITests"
-  knownHostsPath: ${HOME}/.ssh/known_hosts
-  remoteUsername: ${USER}
-  remotePrivateKey: ${HOME}/.ssh/marathon
+  app: "derived-data/build/Products/Debug-iphonesimulator/sample-app.app"
+  runner: "derived-data/build/Products/Debug-iphonesimulator/sample-appUITests-Runner.app"
+  idbHosts: "hosts.json"

@@ -10,6 +10,7 @@ import com.malinskiy.marathon.execution.TestBatchResults
 import com.malinskiy.marathon.execution.progress.ProgressReporter
 import com.malinskiy.marathon.ios.idb.configuration.IdbConfiguration
 import com.malinskiy.marathon.ios.idb.grpc.IdbClient
+import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.test.TestBatch
 import idb.TargetDescription
 import idb.XctestRunResponse
@@ -18,6 +19,7 @@ import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.flow.FlowCollector
 
 class IOSDevice(private val idb: IdbClient, targetDescription: TargetDescription) : Device {
+    private val logger = MarathonLogging.logger("IOSDevice-${targetDescription.name}")
     override val operatingSystem: OperatingSystem = OperatingSystem(targetDescription.osVersion)
     override val serialNumber: String = targetDescription.udid
     override val model: String = targetDescription.name
@@ -28,10 +30,12 @@ class IOSDevice(private val idb: IdbClient, targetDescription: TargetDescription
     override val abi: String = targetDescription.architecture
 
     override suspend fun prepare(configuration: Configuration) {
+        logger.info("Prepare started")
         val iosConfiguration = configuration.vendorConfiguration as IdbConfiguration
         idb.install(iosConfiguration.app)
         idb.install(iosConfiguration.runner)
-        idb.installXCTest(iosConfiguration.xcTestRunPath)
+//        idb.installXCTest(iosConfiguration.xcTestRunPath)
+        logger.info("Prepare finished")
     }
 
 
@@ -42,13 +46,15 @@ class IOSDevice(private val idb: IdbClient, targetDescription: TargetDescription
         deferred: CompletableDeferred<TestBatchResults>,
         progressReporter: ProgressReporter
     ) {
+        logger.info("Execute started")
         val iosConfiguration = configuration.vendorConfiguration as IdbConfiguration
         val result = idb.runTests(testBatch.tests)
-        result.collect(object : FlowCollector<XctestRunResponse>{
+        result.collect(object : FlowCollector<XctestRunResponse> {
             override suspend fun emit(value: XctestRunResponse) {
 
             }
         });
+        logger.info("Execute finished")
     }
 
     override fun dispose() {

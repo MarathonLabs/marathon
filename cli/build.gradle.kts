@@ -9,6 +9,10 @@ plugins {
     id("de.fuerstenau.buildconfig") version "1.1.8"
 }
 
+repositories {
+    mavenLocal()
+}
+
 val enableJDB = false
 val debugCoroutines = true
 val jvmOptions = listOf(

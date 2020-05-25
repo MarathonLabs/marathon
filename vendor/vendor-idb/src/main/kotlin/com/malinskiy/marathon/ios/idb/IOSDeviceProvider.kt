@@ -6,12 +6,14 @@ import com.malinskiy.marathon.device.DeviceProvider
 import com.malinskiy.marathon.ios.idb.configuration.IdbConfiguration
 import com.malinskiy.marathon.ios.idb.configuration.IdbHostsReader
 import com.malinskiy.marathon.ios.idb.grpc.IdbClient
+import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.vendor.VendorConfiguration
 import io.grpc.ManagedChannelBuilder
 import kotlinx.coroutines.channels.Channel
 
 class IOSDeviceProvider : DeviceProvider {
-    override val deviceInitializationTimeoutMillis: Long = 0L
+    private val logger = MarathonLogging.logger("IOSDeviceProvider")
+    override val deviceInitializationTimeoutMillis: Long = 1000L
 
     private val channel: Channel<DeviceProvider.DeviceEvent> = unboundedChannel()
 
@@ -24,10 +26,11 @@ class IOSDeviceProvider : DeviceProvider {
         val configPath = vendorConfiguration.idbHosts
         val hosts = reader.readConfig(configPath)
         hosts.forEach {
-            val grpcChannel = ManagedChannelBuilder.forAddress(it.host, it.port).build()
+            val grpcChannel = ManagedChannelBuilder.forAddress(it.host, it.port).usePlaintext().build()
             val stub = idb.CompanionServiceGrpcKt.CompanionServiceCoroutineStub(grpcChannel)
             val client = IdbClient(grpcChannel, stub)
             val description = client.describe()
+            logger.info { "Device connected: ${description.name}" }
             channel.send(DeviceProvider.DeviceEvent.DeviceConnected(IOSDevice(client, description)))
         }
     }
