@@ -27,6 +27,6 @@ class XcTest {
         if(type == TestType.XCTest){
             return listOf(bundle)
         }
-        return XcTestRunParser().extractArtifacts(bundle).map { File(it) }
+        return XcTestRunParser().extractArtifacts(bundle).map { File(it) } + bundle
     }
 }

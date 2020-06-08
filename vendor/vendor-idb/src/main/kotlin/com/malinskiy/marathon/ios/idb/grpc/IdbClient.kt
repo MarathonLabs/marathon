@@ -25,19 +25,14 @@ class IdbClient(
     private val channel: ManagedChannel,
     private val stub: CompanionServiceGrpcKt.CompanionServiceCoroutineStub
 ) {
-    val logger = MarathonLogging.logger("IdbClient")
+    private val logger = MarathonLogging.logger("IdbClient")
 
     private suspend fun install(file: File, destination: InstallRequest.Destination) {
-        logger.info { "Install: $file" }
         val result = stub.install(flow<InstallRequest> {
-            logger.info("install start")
             val initRequest = InstallRequest.newBuilder()
                 .setDestination(destination)
                 .build()
-            logger.info("prepare initial request")
             emit(initRequest)
-            logger.info("initial request sent")
-
             val bytesFlow = FileChunkGenerator().generateChunks(destination, file).map {
                 ByteString.copyFrom(it)
             }.map {

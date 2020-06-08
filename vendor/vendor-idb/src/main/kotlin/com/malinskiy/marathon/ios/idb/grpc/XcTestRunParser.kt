@@ -1,7 +1,7 @@
 package com.malinskiy.marathon.ios.idb.grpc
 
-import com.dd.plist.NSArray
 import com.dd.plist.NSDictionary
+import com.dd.plist.NSString
 import com.dd.plist.PropertyListParser
 import java.io.File
 
@@ -9,16 +9,13 @@ import java.io.File
 class XcTestRunParser {
     fun extractArtifacts(file: File): List<String> {
         val root = PropertyListParser.parse(file) as NSDictionary
+        val result = mutableListOf<String>()
         for (key in root.allKeys()) {
             val appDict = root.objectForKey(key) as NSDictionary
-            if (!appDict.containsKey("DependentProductPaths")) continue
-            val dependentArray = appDict.objectForKey("DependentProductPaths") as NSArray
-            return dependentArray.array.map {
-                it.toJavaObject() as String
-            }.map {
-                it.replace("__TESTROOT__", file.parent)
-            }
+            if (!appDict.containsKey("TestHostPath")) continue
+            val path = appDict.objectForKey("TestHostPath") as NSString
+            result.add(path.content.replace("__TESTROOT__", file.parent))
         }
-        throw RuntimeException("Cannot find DependentProductPaths")
+        return result.toList()
     }
 }
