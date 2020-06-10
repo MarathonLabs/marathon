@@ -30,7 +30,7 @@ class AndroidDeviceTestRunner(private val device: AndroidDevice) {
     companion object {
         private val JUNIT_IGNORE_META_PROPERTY = MetaProperty("org.junit.Ignore")
         private const val MAX_TEST_DURATION_LEEWAY = 1.2 // +20% to expected test duration
-        private const val BATCH_DURATION_LEEWAY = 1.1 // +10% to expected batch duration
+        private const val BATCH_DURATION_LEEWAY = 1.3 // +30% to expected batch duration
     }
 
     private val logger = MarathonLogging.logger("AndroidDeviceTestRunner")
@@ -116,7 +116,7 @@ class AndroidDeviceTestRunner(private val device: AndroidDevice) {
             max(configuration.testOutputTimeoutMillis, (testBatch.maxExpectedTestDurationMs * MAX_TEST_DURATION_LEEWAY).toLong())
         )
 
-        // Batch duration timeout can't be less then 'testBatchTimeoutMillis'. There are also additional 10% for unexpected cases.
+        // Batch duration timeout can't be less then 'testBatchTimeoutMillis'. There are also additional 30% for unexpected cases.
         val batchTimeout = max(configuration.testBatchTimeoutMillis, (testBatch.expectedBatchDurationMs * BATCH_DURATION_LEEWAY).toLong())
 
         logger.debug { "Configure test runner: testTimeout = ${testTimeout / 1000} sec; batchTimeout = ${batchTimeout / 1000} sec" }
