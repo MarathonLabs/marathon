@@ -4,6 +4,7 @@ import com.malinskiy.marathon.actor.Actor
 import com.malinskiy.marathon.actor.StateMachine
 import com.malinskiy.marathon.device.Device
 import com.malinskiy.marathon.device.DevicePoolId
+import com.malinskiy.marathon.exceptions.TestBatchTimeoutException
 import com.malinskiy.marathon.exceptions.DeviceLostException
 import com.malinskiy.marathon.exceptions.TestBatchExecutionException
 import com.malinskiy.marathon.execution.Configuration
@@ -15,22 +16,31 @@ import com.malinskiy.marathon.execution.withRetry
 import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.test.TestBatch
 import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
+import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.channels.SendChannel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlin.coroutines.CoroutineContext
 import kotlin.properties.Delegates
 
-class DeviceActor(private val devicePoolId: DevicePoolId,
-                  private val pool: SendChannel<DevicePoolMessage>,
-                  private val configuration: Configuration,
-                  val device: Device,
-                  private val progressReporter: ProgressReporter,
-                  parent: Job,
-                  context: CoroutineContext) :
-        Actor<DeviceEvent>(parent = parent, context = context) {
+class DeviceActor(
+    private val devicePoolId: DevicePoolId,
+    private val pool: SendChannel<DevicePoolMessage>,
+    private val configuration: Configuration,
+    val device: Device,
+    private val progressReporter: ProgressReporter,
+    parent: Job,
+    context: CoroutineContext
+) :
+    Actor<DeviceEvent>(parent = parent, context = context) {
+
+    companion object {
+        private const val AWAIT_BATCH_RESULTS_TIMEOUT_MS = 500L
+    }
 
     private val state = StateMachine.create<DeviceState, DeviceEvent, DeviceAction> {
         initialState(DeviceState.Connected)
@@ -70,7 +80,7 @@ class DeviceActor(private val devicePoolId: DevicePoolId,
         }
         state<DeviceState.Running> {
             on<DeviceEvent.Terminate> {
-                transitionTo(DeviceState.Terminated, DeviceAction.Terminate(testBatch))
+                transitionTo(DeviceState.Terminated, DeviceAction.Terminate(this.result))
             }
             on<DeviceEvent.Complete> {
                 transitionTo(DeviceState.Ready, DeviceAction.NotifyIsReady(this.result))
@@ -83,6 +93,9 @@ class DeviceActor(private val devicePoolId: DevicePoolId,
             on<DeviceEvent.Complete> {
                 dontTransition()
             }
+            on<DeviceEvent.Terminate> {
+                dontTransition()
+            }
         }
         onTransition {
             val validTransition = it as? StateMachine.Transition.Valid
@@ -92,28 +105,21 @@ class DeviceActor(private val devicePoolId: DevicePoolId,
                 }
                 return@onTransition
             }
-            val sideEffect = validTransition.sideEffect
-            when (sideEffect) {
+            when (val sideEffect = validTransition.sideEffect) {
                 DeviceAction.Initialize -> {
                     initialize()
                 }
                 is DeviceAction.NotifyIsReady -> {
-                    sideEffect.result?.let {
-                        sendResults(it)
+                    sendResults(sideEffect.result).invokeOnCompletion {
+                        notifyIsReady()
                     }
-                    notifyIsReady()
                 }
                 is DeviceAction.ExecuteBatch -> {
                     executeBatch(sideEffect.batch, sideEffect.result)
                 }
                 is DeviceAction.Terminate -> {
-                    val batch = sideEffect.batch
-                    if (batch == null) {
+                    sendResults(sideEffect.result).invokeOnCompletion {
                         terminate()
-                    } else {
-                        returnBatch(batch).invokeOnCompletion {
-                            terminate()
-                        }
                     }
                 }
             }
@@ -137,17 +143,24 @@ class DeviceActor(private val devicePoolId: DevicePoolId,
         }
     }
 
-    private fun sendResults(result: CompletableDeferred<TestBatchResults>) {
-        launch {
-            val testResults = result.await()
+    private fun sendResults(results: CompletableDeferred<TestBatchResults>?): Job = launch {
+        if (results == null) return@launch
+
+        val innerJob = launch(Dispatchers.Default) {
+            logger.debug("Awaiting batch results to DevicePool: ${device.serialNumber}")
+            val testResults = results.await()
             pool.send(DevicePoolMessage.FromDevice.CompletedTestBatch(device, testResults))
+            logger.debug("Sent batch results to DevicePool: ${device.serialNumber}")
+        }
+        delay(AWAIT_BATCH_RESULTS_TIMEOUT_MS)
+        if (innerJob.isActive) {
+            logger.debug("Cancel awaiting batch results to DevicePool: ${device.serialNumber}")
+            innerJob.cancelAndJoin()
         }
     }
 
-    private fun notifyIsReady() {
-        launch {
-            pool.send(IsReady(device))
-        }
+    private fun notifyIsReady() = launch {
+        pool.send(IsReady(device))
     }
 
     private var job by Delegates.observable<Job?>(null) { _, _, newValue ->
@@ -155,7 +168,7 @@ class DeviceActor(private val devicePoolId: DevicePoolId,
             if (it == null) {
                 state.transition(DeviceEvent.Complete)
             } else {
-                logger.error(it) { "Error ${it.message}" }
+                logger.error(it) { "Error: '${it.message}'" }
                 state.transition(DeviceEvent.Terminate)
                 terminate()
             }
@@ -187,17 +200,24 @@ class DeviceActor(private val devicePoolId: DevicePoolId,
         job = async {
             try {
                 device.execute(configuration, devicePoolId, batch, result, progressReporter)
-            } catch (e: DeviceLostException) {
-                logger.error(e) { "Critical error during execution" }
+            } catch (exc: TestBatchTimeoutException) {
+                logger.warn { "Critical error during batch execution: batch timed out. ${exc.cause.toString()}" }
                 state.transition(DeviceEvent.Terminate)
-            } catch (e: TestBatchExecutionException) {
+            } catch (exc: DeviceLostException) {
+                logger.error(exc) { "Critical error during batch execution: device is lost" }
                 returnBatch(batch)
+                state.transition(DeviceEvent.Terminate)
+            } catch (exc: TestBatchExecutionException) {
+                logger.error(exc) { "Critical error during batch execution: ${exc.cause.toString()}" }
+                returnBatch(batch)
+                state.transition(DeviceEvent.Terminate)
             }
         }
     }
 
     private fun returnBatch(batch: TestBatch): Job {
         return launch {
+            logger.debug { "Return test batch - ${batch.tests.size} tests from ${device.serialNumber}" }
             pool.send(DevicePoolMessage.FromDevice.ReturnTestBatch(device, batch))
         }
     }
