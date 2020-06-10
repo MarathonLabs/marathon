@@ -1,6 +1,8 @@
 package com.malinskiy.marathon.android.executor.listeners
 
+import com.android.ddmlib.TimeoutException
 import com.android.ddmlib.testrunner.TestIdentifier
+import com.malinskiy.marathon.android.exception.deviceLostRegex
 import com.malinskiy.marathon.android.toMarathonStatus
 import com.malinskiy.marathon.android.toTest
 import com.malinskiy.marathon.device.Device
@@ -18,14 +20,16 @@ import com.malinskiy.marathon.test.toTestName
 import com.malinskiy.marathon.time.Timer
 import kotlinx.coroutines.CompletableDeferred
 import com.android.ddmlib.testrunner.TestResult as DdmLibTestResult
+import com.android.ddmlib.testrunner.TestResult.TestStatus as DdmLibTestStatus
 import com.android.ddmlib.testrunner.TestRunResult as DdmLibTestRunResult
 
-class TestRunResultsListener(private val testBatch: TestBatch,
-                             private val device: Device,
-                             private val deferred: CompletableDeferred<TestBatchResults>,
-                             private val timer: Timer,
-                             attachmentProviders: List<AttachmentProvider>)
-    : AbstractTestRunResultListener(), AttachmentListener {
+class TestRunResultsListener(
+    private val testBatch: TestBatch,
+    private val device: Device,
+    private val deferred: CompletableDeferred<TestBatchResults>,
+    private val timer: Timer,
+    attachmentProviders: List<AttachmentProvider>
+) : AbstractTestRunResultListener(), AttachmentListener {
 
     private val attachments: MutableMap<Test, MutableList<Attachment>> = mutableMapOf()
 
@@ -50,56 +54,85 @@ class TestRunResultsListener(private val testBatch: TestBatch,
         val results = mergeParameterisedResults(runResult.testResults)
         val tests = testBatch.tests.associateBy { it.identifier() }
 
-        val testResults = results.map {
-            it.toTestResult(device)
-        }
+        val passed = mutableListOf<TestResult>()
+        val failed = mutableListOf<TestResult>()
+        val infraFailures = mutableListOf<TestResult>()
+        val incomplete = mutableListOf<TestResult>()
 
-        val nonNullTestResults = testResults.filter {
-            it.test.method != "null"
-        }
+        results.forEach { entry ->
+            val result = entry.toTestResult(device)
+            if (result.test.method == "null") return@forEach
 
-        val finished = nonNullTestResults.filter {
-            results[it.test.identifier()]?.isSuccessful() ?: false
-        }
+            when (entry.value.status) {
+                DdmLibTestStatus.PASSED, DdmLibTestStatus.ASSUMPTION_FAILURE, DdmLibTestStatus.IGNORED -> passed.add(result)
 
-        val failed = nonNullTestResults.filterNot {
-            results[it.test.identifier()]?.isSuccessful() ?: false
-        }
+                DdmLibTestStatus.FAILURE -> {
+                    val isTimedOut = result.stacktrace?.contains(TimeoutException::class.java.canonicalName) ?: false
+                    val isDeviceLost = result.stacktrace?.contains(deviceLostRegex) ?: false
 
-        val uncompleted = tests
-                .filterNot { expectedTest ->
-                    results.containsKey(expectedTest.key)
+                    if (isTimedOut || isDeviceLost) {
+                        logger.warn { "infraFailure = ${result.test.toTestName()}, ${device.serialNumber}" }
+                        infraFailures.add(result)
+                    } else {
+                        failed.add(result)
+                    }
                 }
-                .values
-                .createUncompletedTestResults(runResult, device)
 
-        if (uncompleted.isNotEmpty()) {
-            uncompleted.forEach {
-                logger.warn { "uncompleted = ${it.test.toTestName()}, ${device.serialNumber}" }
+                DdmLibTestStatus.INCOMPLETE, null -> {
+                    logger.warn { "uncompleted = ${result.test.toTestName()}, ${device.serialNumber}" }
+                    incomplete.add(result)
+                }
             }
         }
 
-        deferred.complete(TestBatchResults(device, finished, failed, uncompleted))
+        val noStatus = tests
+            .filterNot { expectedTest ->
+                results.containsKey(expectedTest.key)
+            }
+            .values
+            .createUncompletedTestResults(runResult, device)
+
+        noStatus.forEach {
+            logger.warn { "noStatus = ${it.test.toTestName()}, ${device.serialNumber}" }
+        }
+
+        logger.debug(
+            "Batch test results: " +
+                    "passed=${passed.size}; " +
+                    "failed=${failed.size}; " +
+                    "infraFailures=${infraFailures.size}; " +
+                    "uncompleted=${incomplete.size}; " +
+                    "noStatus=${noStatus.size}"
+        )
+
+        deferred.complete(
+            TestBatchResults(
+                device, passed, failed,
+                uncompleted = infraFailures + incomplete + noStatus
+            )
+        )
     }
 
-    private fun Collection<Test>.createUncompletedTestResults(testRunResult: com.android.ddmlib.testrunner.TestRunResult,
-                                                              device: Device): Collection<TestResult> {
+    private fun Collection<Test>.createUncompletedTestResults(
+        testRunResult: com.android.ddmlib.testrunner.TestRunResult,
+        device: Device
+    ): Collection<TestResult> {
 
         val lastCompletedTestEndTime = testRunResult
-                .testResults
-                .values
-                .maxBy { it.endTime }
-                ?.endTime
-                ?: timer.currentTimeMillis()
+            .testResults
+            .values
+            .maxBy { it.endTime }
+            ?.endTime
+            ?: timer.currentTimeMillis()
 
         return map {
             TestResult(
-                    it,
-                    device.toDeviceInfo(),
-                    TestStatus.FAILURE,
-                    lastCompletedTestEndTime,
-                    lastCompletedTestEndTime,
-                    testRunResult.runFailureMessage
+                it,
+                device.toDeviceInfo(),
+                TestStatus.INCOMPLETE,
+                lastCompletedTestEndTime,
+                lastCompletedTestEndTime,
+                testRunResult.runFailureMessage
             )
         }
     }
@@ -127,33 +160,25 @@ class TestRunResultsListener(private val testBatch: TestBatch,
         val testInstanceFromBatch = testBatch.tests.find { "${it.pkg}.${it.clazz}" == key.className && it.method == key.testName }
         val test = key.toTest()
         val attachments = attachments[test] ?: emptyList<Attachment>()
-        return TestResult(test = testInstanceFromBatch ?: test,
-                device = device.toDeviceInfo(),
-                status = value.status.toMarathonStatus(),
-                startTime = value.startTime,
-                endTime = value.endTime,
-                stacktrace = value.stackTrace,
-                attachments = attachments)
+        return TestResult(
+            test = testInstanceFromBatch ?: test,
+            device = device.toDeviceInfo(),
+            status = value.status.toMarathonStatus(),
+            startTime = value.startTime,
+            endTime = value.endTime,
+            stacktrace = value.stackTrace,
+            attachments = attachments
+        )
     }
 
-
-    private fun Test.identifier(): TestIdentifier {
-        return TestIdentifier("$pkg.$clazz", method)
-    }
-
-    private fun DdmLibTestResult.isSuccessful() =
-            status == DdmLibTestResult.TestStatus.PASSED ||
-                    status == DdmLibTestResult.TestStatus.IGNORED ||
-                    status == DdmLibTestResult.TestStatus.ASSUMPTION_FAILURE
-
+    private fun Test.identifier() = TestIdentifier("$pkg.$clazz", method)
 }
 
-private operator fun com.android.ddmlib.testrunner.TestResult.TestStatus.plus(value: com.android.ddmlib.testrunner.TestResult.TestStatus): com.android.ddmlib.testrunner.TestResult.TestStatus? {
-    return when (this) {
-        com.android.ddmlib.testrunner.TestResult.TestStatus.FAILURE -> com.android.ddmlib.testrunner.TestResult.TestStatus.FAILURE
-        com.android.ddmlib.testrunner.TestResult.TestStatus.PASSED -> value
-        com.android.ddmlib.testrunner.TestResult.TestStatus.INCOMPLETE -> com.android.ddmlib.testrunner.TestResult.TestStatus.INCOMPLETE
-        com.android.ddmlib.testrunner.TestResult.TestStatus.ASSUMPTION_FAILURE -> com.android.ddmlib.testrunner.TestResult.TestStatus.ASSUMPTION_FAILURE
-        com.android.ddmlib.testrunner.TestResult.TestStatus.IGNORED -> com.android.ddmlib.testrunner.TestResult.TestStatus.IGNORED
+private operator fun DdmLibTestStatus.plus(value: DdmLibTestStatus) =
+    when (this) {
+        DdmLibTestStatus.FAILURE -> DdmLibTestStatus.FAILURE
+        DdmLibTestStatus.PASSED -> value
+        DdmLibTestStatus.INCOMPLETE -> DdmLibTestStatus.INCOMPLETE
+        DdmLibTestStatus.ASSUMPTION_FAILURE -> DdmLibTestStatus.ASSUMPTION_FAILURE
+        DdmLibTestStatus.IGNORED -> DdmLibTestStatus.IGNORED
     }
-}

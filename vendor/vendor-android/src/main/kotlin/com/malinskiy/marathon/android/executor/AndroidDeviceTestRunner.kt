@@ -10,6 +10,7 @@ import com.malinskiy.marathon.android.AndroidConfiguration
 import com.malinskiy.marathon.android.AndroidDevice
 import com.malinskiy.marathon.android.ApkParser
 import com.malinskiy.marathon.android.InstrumentationInfo
+import com.malinskiy.marathon.android.exception.isDeviceLost
 import com.malinskiy.marathon.android.safeClearPackage
 import com.malinskiy.marathon.exceptions.DeviceLostException
 import com.malinskiy.marathon.exceptions.TestBatchExecutionException
@@ -62,7 +63,7 @@ class AndroidDeviceTestRunner(private val device: AndroidDevice) {
             throw TestBatchExecutionException(e)
         } catch (e: AdbCommandRejectedException) {
             logger.error(e) { "adb error while running tests ${testBatch.tests.map { it.toTestName() }}" }
-            if (e.isDeviceOffline) {
+            if (e.isDeviceLost()) {
                 throw DeviceLostException(e)
             } else {
                 throw TestBatchExecutionException(e)
