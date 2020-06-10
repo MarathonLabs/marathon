@@ -4,9 +4,9 @@ import com.malinskiy.marathon.actor.Actor
 import com.malinskiy.marathon.actor.StateMachine
 import com.malinskiy.marathon.device.Device
 import com.malinskiy.marathon.device.DevicePoolId
-import com.malinskiy.marathon.exceptions.TestBatchTimeoutException
 import com.malinskiy.marathon.exceptions.DeviceLostException
 import com.malinskiy.marathon.exceptions.TestBatchExecutionException
+import com.malinskiy.marathon.exceptions.TestBatchTimeoutException
 import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.execution.DevicePoolMessage
 import com.malinskiy.marathon.execution.DevicePoolMessage.FromDevice.IsReady
@@ -80,10 +80,10 @@ class DeviceActor(
         }
         state<DeviceState.Running> {
             on<DeviceEvent.Terminate> {
-                transitionTo(DeviceState.Terminated, DeviceAction.Terminate(this.result))
+                transitionTo(DeviceState.Terminated, DeviceAction.Terminate(testBatch, this.result))
             }
             on<DeviceEvent.Complete> {
-                transitionTo(DeviceState.Ready, DeviceAction.NotifyIsReady(this.result))
+                transitionTo(DeviceState.Ready, DeviceAction.NotifyIsReady(testBatch))
             }
             on<DeviceEvent.WakeUp> {
                 dontTransition()
@@ -110,7 +110,7 @@ class DeviceActor(
                     initialize()
                 }
                 is DeviceAction.NotifyIsReady -> {
-                    sendResults(sideEffect.result).invokeOnCompletion {
+                    sendResults(sideEffect.batch, sideEffect.result).invokeOnCompletion {
                         notifyIsReady()
                     }
                 }
@@ -118,7 +118,7 @@ class DeviceActor(
                     executeBatch(sideEffect.batch, sideEffect.result)
                 }
                 is DeviceAction.Terminate -> {
-                    sendResults(sideEffect.result).invokeOnCompletion {
+                    sendResults(sideEffect.batch, sideEffect.result).invokeOnCompletion {
                         terminate()
                     }
                 }
@@ -143,8 +143,11 @@ class DeviceActor(
         }
     }
 
-    private fun sendResults(results: CompletableDeferred<TestBatchResults>?): Job = launch {
-        if (results == null) return@launch
+    private fun sendResults(testBatch: TestBatch?, results: CompletableDeferred<TestBatchResults>?): Job = launch {
+        if (results == null) {
+            returnBatch(testBatch)
+            return@launch
+        }
 
         val innerJob = launch(Dispatchers.Default) {
             logger.debug("Awaiting batch results to DevicePool: ${device.serialNumber}")
@@ -156,6 +159,14 @@ class DeviceActor(
         if (innerJob.isActive) {
             logger.debug("Cancel awaiting batch results to DevicePool: ${device.serialNumber}")
             innerJob.cancelAndJoin()
+            returnBatch(testBatch)
+        }
+    }
+
+    private suspend fun returnBatch(batch: TestBatch?) {
+        if (batch != null) {
+            logger.debug { "Return test batch - ${batch.tests.size} tests from ${device.serialNumber}" }
+            pool.send(DevicePoolMessage.FromDevice.ReturnTestBatch(device, batch))
         }
     }
 
@@ -205,20 +216,11 @@ class DeviceActor(
                 state.transition(DeviceEvent.Terminate)
             } catch (exc: DeviceLostException) {
                 logger.error(exc) { "Critical error during batch execution: device is lost" }
-                returnBatch(batch)
                 state.transition(DeviceEvent.Terminate)
             } catch (exc: TestBatchExecutionException) {
                 logger.error(exc) { "Critical error during batch execution: ${exc.cause.toString()}" }
-                returnBatch(batch)
                 state.transition(DeviceEvent.Terminate)
             }
-        }
-    }
-
-    private fun returnBatch(batch: TestBatch): Job {
-        return launch {
-            logger.debug { "Return test batch - ${batch.tests.size} tests from ${device.serialNumber}" }
-            pool.send(DevicePoolMessage.FromDevice.ReturnTestBatch(device, batch))
         }
     }
 
