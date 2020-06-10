@@ -83,7 +83,7 @@ class DeviceActor(
                 transitionTo(DeviceState.Terminated, DeviceAction.Terminate(testBatch, this.result))
             }
             on<DeviceEvent.Complete> {
-                transitionTo(DeviceState.Ready, DeviceAction.NotifyIsReady(testBatch))
+                transitionTo(DeviceState.Ready, DeviceAction.NotifyIsReady(testBatch, this.result))
             }
             on<DeviceEvent.WakeUp> {
                 dontTransition()
