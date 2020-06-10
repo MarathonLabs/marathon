@@ -10,6 +10,7 @@ import com.malinskiy.marathon.device.toDeviceInfo
 import com.malinskiy.marathon.execution.Attachment
 import com.malinskiy.marathon.execution.TestBatchResults
 import com.malinskiy.marathon.execution.TestResult
+import com.malinskiy.marathon.execution.TestStatus
 import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.report.attachment.AttachmentListener
 import com.malinskiy.marathon.report.attachment.AttachmentProvider
@@ -128,7 +129,7 @@ class TestRunResultsListener(
             TestResult(
                 it,
                 device.toDeviceInfo(),
-                com.malinskiy.marathon.execution.TestStatus.FAILURE,
+                TestStatus.INCOMPLETE,
                 lastCompletedTestEndTime,
                 lastCompletedTestEndTime,
                 testRunResult.runFailureMessage
