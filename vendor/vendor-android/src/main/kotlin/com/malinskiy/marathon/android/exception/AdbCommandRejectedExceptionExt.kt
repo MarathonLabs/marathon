@@ -2,7 +2,7 @@ package com.malinskiy.marathon.android.exception
 
 import com.android.ddmlib.AdbCommandRejectedException
 
-val deviceLostRegex = Regex("device \\'.+\\' not found")
+val deviceLostRegex = "device \\'.+\\' not found".toRegex()
 
 fun AdbCommandRejectedException.isDeviceLost(): Boolean {
     if (isDeviceOffline) return true
