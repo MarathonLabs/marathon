@@ -149,7 +149,7 @@ class DeviceActor(
             return@launch
         }
 
-        val innerJob = launch(Dispatchers.Default) {
+        val innerJob = launch {
             logger.debug("Awaiting batch results to DevicePool: ${device.serialNumber}")
             val testResults = results.await()
             pool.send(DevicePoolMessage.FromDevice.CompletedTestBatch(device, testResults))
