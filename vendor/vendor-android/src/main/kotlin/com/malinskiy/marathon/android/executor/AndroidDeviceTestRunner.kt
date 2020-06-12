@@ -14,6 +14,7 @@ import com.malinskiy.marathon.android.exception.isDeviceLost
 import com.malinskiy.marathon.android.safeClearPackage
 import com.malinskiy.marathon.exceptions.DeviceLostException
 import com.malinskiy.marathon.exceptions.TestBatchExecutionException
+import com.malinskiy.marathon.exceptions.TestBatchTimeoutException
 import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.test.MetaProperty
@@ -55,24 +56,22 @@ class AndroidDeviceTestRunner(private val device: AndroidDevice) {
             clearData(androidConfiguration, info)
             notifyIgnoredTest(ignoredTests, listener)
             runner.run(listener)
-        } catch (e: ShellCommandUnresponsiveException) {
-            logger.warn("Test got stuck. You can increase the timeout in settings if it's too strict")
-            throw TestBatchExecutionException(e)
-        } catch (e: TimeoutException) {
-            logger.warn("Test got stuck. You can increase the timeout in settings if it's too strict")
-            throw TestBatchExecutionException(e)
-        } catch (e: AdbCommandRejectedException) {
-            logger.error(e) { "adb error while running tests ${testBatch.tests.map { it.toTestName() }}" }
-            if (e.isDeviceLost()) {
-                throw DeviceLostException(e)
+        } catch (exc: ShellCommandUnresponsiveException) {
+            logger.warn("Test got stuck. You can increase the timeout in settings if it's too strict: ${exc.message}")
+            throw TestBatchTimeoutException(exc)
+        } catch (exc: TimeoutException) {
+            logger.warn("Test got stuck. You can increase the timeout in settings if it's too strict: ${exc.message}")
+            throw TestBatchTimeoutException(exc)
+        } catch (exc: AdbCommandRejectedException) {
+            logger.error(exc) { "adb error while running tests ${testBatch.tests.map { it.toTestName() }}" }
+            if (exc.isDeviceLost()) {
+                throw DeviceLostException(exc)
             } else {
-                throw TestBatchExecutionException(e)
+                throw TestBatchExecutionException(exc)
             }
-        } catch (e: IOException) {
-            logger.error(e) { "Error while running tests ${testBatch.tests.map { it.toTestName() }}" }
-            throw TestBatchExecutionException(e)
-        } finally {
-
+        } catch (exc: IOException) {
+            logger.error(exc) { "Error while running tests ${testBatch.tests.map { it.toTestName() }}" }
+            throw DeviceLostException(exc)
         }
     }
 
