@@ -16,14 +16,12 @@ import com.malinskiy.marathon.execution.withRetry
 import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.test.TestBatch
 import kotlinx.coroutines.CompletableDeferred
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
-import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.channels.SendChannel
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withTimeout
 import kotlin.coroutines.CoroutineContext
 import kotlin.properties.Delegates
 
@@ -149,16 +147,15 @@ class DeviceActor(
             return@launch
         }
 
-        val innerJob = launch {
-            logger.debug("Awaiting batch results to DevicePool: ${device.serialNumber}")
-            val testResults = results.await()
-            pool.send(DevicePoolMessage.FromDevice.CompletedTestBatch(device, testResults))
-            logger.debug("Sent batch results to DevicePool: ${device.serialNumber}")
-        }
-        delay(AWAIT_BATCH_RESULTS_TIMEOUT_MS)
-        if (innerJob.isActive) {
+        try {
+            withTimeout(AWAIT_BATCH_RESULTS_TIMEOUT_MS) {
+                logger.debug("Awaiting batch results to DevicePool: ${device.serialNumber}")
+                val testResults = results.await()
+                pool.send(DevicePoolMessage.FromDevice.CompletedTestBatch(device, testResults))
+                logger.debug("Sent batch results to DevicePool: ${device.serialNumber}")
+            }
+        } catch (exc: Throwable) {
             logger.debug("Cancel awaiting batch results to DevicePool: ${device.serialNumber}")
-            innerJob.cancelAndJoin()
             returnBatch(testBatch)
         }
     }
