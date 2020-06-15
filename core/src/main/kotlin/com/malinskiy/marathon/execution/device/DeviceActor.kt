@@ -210,13 +210,11 @@ class DeviceActor(
                 device.execute(configuration, devicePoolId, batch, result, progressReporter)
             } catch (exc: TestBatchTimeoutException) {
                 logger.warn { "Timeout error during batch execution: ${exc.cause.toString()}" }
-                state.transition(DeviceEvent.Complete)
             } catch (exc: DeviceLostException) {
                 logger.error(exc) { "Critical error during batch execution: device is lost" }
                 state.transition(DeviceEvent.Terminate)
             } catch (exc: TestBatchExecutionException) {
                 logger.error(exc) { "Unknown error during batch execution: ${exc.cause.toString()}" }
-                state.transition(DeviceEvent.Complete)
             }
         }
     }
