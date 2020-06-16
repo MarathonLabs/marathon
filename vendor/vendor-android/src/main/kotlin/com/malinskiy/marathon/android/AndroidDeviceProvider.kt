@@ -51,7 +51,7 @@ class AndroidDeviceProvider : DeviceProvider, CoroutineScope {
             override fun deviceChanged(device: IDevice?, changeMask: Int) {
                 device?.let {
                     launch(context = bootWaitContext) {
-                        val maybeNewAndroidDevice = AndroidDevice(it)
+                        val maybeNewAndroidDevice = AndroidDevice(it, vendorConfiguration.serialStrategy)
                         val healthy = maybeNewAndroidDevice.healthy
 
                         logger.debug { "Device ${device.serialNumber} changed state. Healthy = $healthy" }
@@ -70,7 +70,7 @@ class AndroidDeviceProvider : DeviceProvider, CoroutineScope {
             override fun deviceConnected(device: IDevice?) {
                 device?.let {
                     launch {
-                        val maybeNewAndroidDevice = AndroidDevice(it)
+                        val maybeNewAndroidDevice = AndroidDevice(it, vendorConfiguration.serialStrategy)
                         val healthy = maybeNewAndroidDevice.healthy
                         logger.debug { "Device ${maybeNewAndroidDevice.serialNumber} connected. Healthy = $healthy" }
 
@@ -167,7 +167,7 @@ class AndroidDeviceProvider : DeviceProvider, CoroutineScope {
     private fun matchDdmsToDevice(device: IDevice): AndroidDevice? {
         val observedDevices = devices.values
         return observedDevices.findLast {
-            device == it.ddmsDevice ||
+            device === it.ddmsDevice ||
                     device.serialNumber == it.ddmsDevice.serialNumber
         }
     }
