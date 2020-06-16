@@ -101,6 +101,8 @@ class DevicePoolActor(private val poolId: DevicePoolId,
     private suspend fun executeBatch(device: DeviceInfo, batch: TestBatch) {
         devices[device.serialNumber]?.run {
             safeSend(DeviceEvent.Execute(batch))
+        } ?: run {
+            queue.send(QueueMessage.ReturnBatch(device, batch))
         }
     }
 
