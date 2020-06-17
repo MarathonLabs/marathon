@@ -85,6 +85,7 @@ class QueueActor(private val configuration: Configuration,
         }
         if (uncompleted.isNotEmpty()) {
             uncompleted.forEach {
+                testResultReporter.retryTest(device, it)
                 uncompletedTestsRetryCount[it.test] = (uncompletedTestsRetryCount[it.test] ?: 0) + 1
             }
             returnTests(uncompleted.map { it.test })

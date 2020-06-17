@@ -13,7 +13,6 @@ import com.malinskiy.marathon.execution.progress.ProgressReporter
 import com.malinskiy.marathon.execution.queue.QueueActor
 import com.malinskiy.marathon.execution.queue.QueueMessage
 import com.malinskiy.marathon.log.MarathonLogging
-import com.malinskiy.marathon.test.Test
 import com.malinskiy.marathon.test.TestBatch
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.SendChannel
@@ -65,11 +64,11 @@ class DevicePoolActor(private val poolId: DevicePoolId,
     }
 
     private suspend fun deviceReturnedTestBatch(device: Device, batch: TestBatch) {
-        queue.send(QueueMessage.ReturnBatch(device.toDeviceInfo(), batch))
+        queue.safeSend(QueueMessage.ReturnBatch(device.toDeviceInfo(), batch))
     }
 
     private suspend fun deviceCompleted(device: Device, results: TestBatchResults) {
-        queue.send(QueueMessage.Completed(device.toDeviceInfo(), results))
+        queue.safeSend(QueueMessage.Completed(device.toDeviceInfo(), results))
     }
 
     private suspend fun deviceReady(msg: DevicePoolMessage.FromDevice.IsReady) {
@@ -101,6 +100,8 @@ class DevicePoolActor(private val poolId: DevicePoolId,
     private suspend fun executeBatch(device: DeviceInfo, batch: TestBatch) {
         devices[device.serialNumber]?.run {
             safeSend(DeviceEvent.Execute(batch))
+        } ?: run {
+            queue.safeSend(QueueMessage.ReturnBatch(device, batch))
         }
     }
 
