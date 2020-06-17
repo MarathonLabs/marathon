@@ -64,11 +64,11 @@ class DevicePoolActor(private val poolId: DevicePoolId,
     }
 
     private suspend fun deviceReturnedTestBatch(device: Device, batch: TestBatch) {
-        queue.send(QueueMessage.ReturnBatch(device.toDeviceInfo(), batch))
+        queue.safeSend(QueueMessage.ReturnBatch(device.toDeviceInfo(), batch))
     }
 
     private suspend fun deviceCompleted(device: Device, results: TestBatchResults) {
-        queue.send(QueueMessage.Completed(device.toDeviceInfo(), results))
+        queue.safeSend(QueueMessage.Completed(device.toDeviceInfo(), results))
     }
 
     private suspend fun deviceReady(msg: DevicePoolMessage.FromDevice.IsReady) {
@@ -101,7 +101,7 @@ class DevicePoolActor(private val poolId: DevicePoolId,
         devices[device.serialNumber]?.run {
             safeSend(DeviceEvent.Execute(batch))
         } ?: run {
-            queue.send(QueueMessage.ReturnBatch(device, batch))
+            queue.safeSend(QueueMessage.ReturnBatch(device, batch))
         }
     }
 
