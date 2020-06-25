@@ -32,25 +32,26 @@ fun main(args: Array<String>): Unit = mainBody(
     ArgParser(args).parseInto(::MarathonCliConfiguration).run {
         logger.info { "Starting marathon" }
         val bugsnagExceptionsReporter = BugsnagExceptionsReporter()
-        bugsnagExceptionsReporter.start(AppType.CLI)
-
-        val mapper = ObjectMapper(YAMLFactory().disable(YAMLGenerator.Feature.USE_NATIVE_TYPE_ID))
-        mapper.registerModule(DeserializeModule(InstantTimeProviderImpl()))
-            .registerModule(KotlinModule())
-            .registerModule(JavaTimeModule())
-
-        val configuration = ConfigFactory(mapper).create(
-            marathonfile = marathonfile,
-            environmentReader = SystemEnvironmentReader()
-        )
         try {
+            if(bugsnapReporting){
+                logger.info { "Init BugSnap" }
+                bugsnagExceptionsReporter.start(AppType.CLI)
+            }
+            val mapper = ObjectMapper(YAMLFactory().disable(YAMLGenerator.Feature.USE_NATIVE_TYPE_ID))
+            mapper.registerModule(DeserializeModule(InstantTimeProviderImpl()))
+                .registerModule(KotlinModule())
+                .registerModule(JavaTimeModule())
+            val configuration = ConfigFactory(mapper).create(
+                marathonfile = marathonfile,
+                environmentReader = SystemEnvironmentReader()
+            )
+
             val application = marathonStartKoin(configuration)
             val marathon: Marathon = application.koin.get()
 
             UsageAnalytics.enable = this.analyticsTracking
             UsageAnalytics.USAGE_TRACKER.trackEvent(Event(TrackActionType.RunType, "cli"))
             val success = marathon.run()
-            bugsnagExceptionsReporter.end()
 
             val shouldReportFailure = !configuration.ignoreFailures
             if (!success && shouldReportFailure) {
@@ -58,6 +59,7 @@ fun main(args: Array<String>): Unit = mainBody(
             }
         } finally {
             stopKoin()
+            bugsnagExceptionsReporter.end()
         }
     }
 }
