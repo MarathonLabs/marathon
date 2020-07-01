@@ -13,6 +13,7 @@ import com.malinskiy.marathon.android.AndroidConfiguration
 import com.malinskiy.marathon.android.exception.AdbStartException
 import com.malinskiy.marathon.device.DeviceProvider
 import com.malinskiy.marathon.exceptions.NoDevicesException
+import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.time.Timer
 import com.malinskiy.marathon.vendor.VendorConfiguration
@@ -27,10 +28,10 @@ import java.net.ConnectException
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.coroutines.CoroutineContext
 
-private const val DEFAULT_WAIT_FOR_DEVICES_TIMEOUT = 30000L
 private const val DEFAULT_WAIT_FOR_DEVICES_SLEEP_TIME = 500L
 
 class AdamDeviceProvider(
+    configuration: Configuration,
     private val track: Track,
     private val timer: Timer
 ) : DeviceProvider, CoroutineScope {
@@ -46,7 +47,7 @@ class AdamDeviceProvider(
         newFixedThreadPoolContext(4, "AdbIOThreadPool")
     }
 
-    override val deviceInitializationTimeoutMillis: Long = 180_000
+    override val deviceInitializationTimeoutMillis: Long = configuration.deviceInitializationTimeoutMillis
 
     private lateinit var client: AndroidDebugBridgeClient
     private lateinit var deviceEventsChannel: ReceiveChannel<List<Device>>
@@ -71,7 +72,7 @@ class AdamDeviceProvider(
             printAdbServerVersion()
         }
 
-        withTimeoutOrNull(DEFAULT_WAIT_FOR_DEVICES_TIMEOUT) {
+        withTimeoutOrNull(vendorConfiguration.waitForDevicesTimeoutMillis) {
             while (client.execute(ListDevicesRequest()).isEmpty()) {
                 delay(DEFAULT_WAIT_FOR_DEVICES_SLEEP_TIME)
             }

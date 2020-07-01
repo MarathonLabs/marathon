@@ -7,6 +7,6 @@ import com.malinskiy.marathon.ios.IOSTestParser
 import org.koin.dsl.module
 
 val iosModule = module {
-    single<DeviceProvider?> { IOSDeviceProvider(get(), get()) }
+    single<DeviceProvider?> { IOSDeviceProvider(get(), get(), get()) }
     single<TestParser?> { IOSTestParser() }
 }

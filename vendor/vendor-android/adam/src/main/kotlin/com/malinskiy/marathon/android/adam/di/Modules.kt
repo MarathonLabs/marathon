@@ -5,5 +5,5 @@ import com.malinskiy.marathon.device.DeviceProvider
 import org.koin.dsl.module
 
 val adamModule = module {
-    single<DeviceProvider?> { AdamDeviceProvider(get(), get()) }
+    single<DeviceProvider?> { AdamDeviceProvider(get(), get(), get()) }
 }

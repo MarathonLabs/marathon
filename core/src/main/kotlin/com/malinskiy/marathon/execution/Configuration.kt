@@ -18,6 +18,7 @@ import java.io.File
 
 private const val DEFAULT_EXECUTION_TIMEOUT_MILLIS: Long = 900_000
 private const val DEFAULT_OUTPUT_TIMEOUT_MILLIS: Long = 60_000
+private const val DEFAULT_DEVICE_INITIALIZATION_TIMEOUT_MILLIS = 180_000L
 
 data class Configuration constructor(
     val name: String,
@@ -50,7 +51,8 @@ data class Configuration constructor(
 
     val vendorConfiguration: VendorConfiguration,
 
-    val analyticsTracking: Boolean
+    val analyticsTracking: Boolean,
+    val deviceInitializationTimeoutMillis: Long
 ) {
 
     constructor(
@@ -84,7 +86,8 @@ data class Configuration constructor(
 
         vendorConfiguration: VendorConfiguration,
 
-        analyticsTracking: Boolean?
+        analyticsTracking: Boolean?,
+        deviceInitializationTimeoutMillis: Long?
     ) :
 
             this(
@@ -111,7 +114,8 @@ data class Configuration constructor(
                 debug = debug ?: true,
                 screenRecordingPolicy = screenRecordingPolicy ?: ScreenRecordingPolicy.ON_FAILURE,
                 vendorConfiguration = vendorConfiguration,
-                analyticsTracking = analyticsTracking ?: false
+                analyticsTracking = analyticsTracking ?: false,
+                deviceInitializationTimeoutMillis = deviceInitializationTimeoutMillis ?: DEFAULT_DEVICE_INITIALIZATION_TIMEOUT_MILLIS
             )
 
     fun toMap() =
@@ -137,6 +141,7 @@ data class Configuration constructor(
             "testOutputTimeoutMillis" to testOutputTimeoutMillis.toString(),
             "debug" to debug.toString(),
             "screenRecordingPolicy" to screenRecordingPolicy.toString(),
-            "vendorConfiguration" to vendorConfiguration.toString()
+            "vendorConfiguration" to vendorConfiguration.toString(),
+            "deviceInitializationTimeoutMillis" to deviceInitializationTimeoutMillis.toString()
         )
 }

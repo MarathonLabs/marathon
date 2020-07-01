@@ -65,7 +65,8 @@ class ConfigFactory(private val mapper: ObjectMapper) {
             debug = config.debug,
             screenRecordingPolicy = config.screenRecordingPolicy,
             vendorConfiguration = vendorConfiguration as VendorConfiguration,
-            analyticsTracking = config.analyticsTracking
+            analyticsTracking = config.analyticsTracking,
+            deviceInitializationTimeoutMillis = config.deviceInitializationTimeoutMillis
         )
     }
 

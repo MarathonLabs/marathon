@@ -8,6 +8,7 @@ import com.google.gson.GsonBuilder
 import com.malinskiy.marathon.actor.unboundedChannel
 import com.malinskiy.marathon.analytics.internal.pub.Track
 import com.malinskiy.marathon.device.DeviceProvider
+import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.ios.device.LocalListSimulatorProvider
 import com.malinskiy.marathon.ios.device.SimulatorProvider
 import com.malinskiy.marathon.ios.simctl.model.SimctlDeviceList
@@ -22,6 +23,7 @@ import kotlinx.coroutines.withContext
 import kotlin.coroutines.CoroutineContext
 
 class IOSDeviceProvider(
+    configuration: Configuration,
     private val track: Track,
     private val timer: Timer
 ) : DeviceProvider, CoroutineScope {
@@ -34,7 +36,8 @@ class IOSDeviceProvider(
 
     private var simulatorProvider: SimulatorProvider? = null
 
-    override val deviceInitializationTimeoutMillis: Long = 300_000
+    override val deviceInitializationTimeoutMillis: Long = configuration.deviceInitializationTimeoutMillis
+
     override suspend fun initialize(vendorConfiguration: VendorConfiguration) {
         if (vendorConfiguration !is IOSConfiguration) {
             throw IllegalStateException("Invalid configuration $vendorConfiguration")
