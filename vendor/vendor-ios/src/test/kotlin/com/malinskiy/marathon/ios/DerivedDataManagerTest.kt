@@ -69,7 +69,8 @@ class DerivedDataManagerTest {
             debugSsh = false,
             alwaysEraseSimulators = true
         ),
-        analyticsTracking = false
+        analyticsTracking = false,
+        deviceInitializationTimeoutMillis = null
     )
 
     @BeforeEach

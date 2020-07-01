@@ -284,5 +284,6 @@ private val DEFAULT_CONFIGURATION = Configuration(
         testParser = mock(),
         deviceProvider = mock()
     ),
-    analyticsTracking = false
+    analyticsTracking = false,
+    deviceInitializationTimeoutMillis = null
 )

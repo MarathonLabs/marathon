@@ -53,7 +53,8 @@ class TestResultReporterTest {
         debug = false,
         screenRecordingPolicy = null,
         vendorConfiguration = TestVendorConfiguration(Mocks.TestParser.DEFAULT, StubDeviceProvider()),
-        analyticsTracking = false
+        analyticsTracking = false,
+        deviceInitializationTimeoutMillis = null
     )
     private val strictConfig = defaultConfig.copy(strictMode = true)
     val test = generateTest()

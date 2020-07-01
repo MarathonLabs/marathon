@@ -73,7 +73,8 @@ class AndroidDeviceTestRunnerTest {
                 testApplicationOutput = apkFile,
                 implementationModules = listOf(ddmlibModule)
             ),
-            analyticsTracking = false
+            analyticsTracking = false,
+            deviceInitializationTimeoutMillis = null
         )
         val ignoredTest =
             MarathonTest("ignored", "ignored", "ignored", listOf(MetaProperty("org.junit.Ignore")))
@@ -136,7 +137,8 @@ class AndroidDeviceTestRunnerTest {
                 testApplicationOutput = apkFile,
                 implementationModules = listOf(ddmlibModule)
             ),
-            analyticsTracking = false
+            analyticsTracking = false,
+            deviceInitializationTimeoutMillis = null
         )
         val ignoredTest =
             MarathonTest("ignored", "ignored", "ignored", listOf(MetaProperty("org.junit.Ignore")))

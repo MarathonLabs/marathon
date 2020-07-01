@@ -38,7 +38,8 @@ class ProgressReporterTest {
             debug = false,
             screenRecordingPolicy = null,
             vendorConfiguration = TestVendorConfiguration(Mocks.TestParser.DEFAULT, StubDeviceProvider()),
-            analyticsTracking = false
+            analyticsTracking = false,
+            deviceInitializationTimeoutMillis = null
         )
     )
     private val deviceInfo = StubDevice().toDeviceInfo()

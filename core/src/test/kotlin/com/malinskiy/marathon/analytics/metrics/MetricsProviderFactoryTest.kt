@@ -44,7 +44,8 @@ class MetricsProviderFactoryTest {
                 override fun deviceProvider(): DeviceProvider? = null
                 override fun logConfigurator(): MarathonLogConfigurator? = null
             },
-            analyticsTracking = false
+            analyticsTracking = false,
+            deviceInitializationTimeoutMillis = null
         )
         val factory = MetricsProviderFactory(configuration)
         val metricsProvider = factory.create()
@@ -88,7 +89,8 @@ class MetricsProviderFactoryTest {
                 override fun deviceProvider(): DeviceProvider? = null
                 override fun logConfigurator(): MarathonLogConfigurator? = null
             },
-            analyticsTracking = false
+            analyticsTracking = false,
+            deviceInitializationTimeoutMillis = null
         )
         val factory = MetricsProviderFactory(configuration)
         val metricsProvider = factory.create()
