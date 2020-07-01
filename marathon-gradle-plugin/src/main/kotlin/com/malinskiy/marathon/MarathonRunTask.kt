@@ -6,6 +6,7 @@ import com.malinskiy.marathon.android.AndroidConfiguration
 import com.malinskiy.marathon.android.DEFAULT_APPLICATION_PM_CLEAR
 import com.malinskiy.marathon.android.DEFAULT_AUTO_GRANT_PERMISSION
 import com.malinskiy.marathon.android.DEFAULT_INSTALL_OPTIONS
+import com.malinskiy.marathon.android.DEFAULT_WAIT_FOR_DEVICES_TIMEOUT
 import com.malinskiy.marathon.android.ScreenRecordConfiguration
 import com.malinskiy.marathon.android.VendorType
 import com.malinskiy.marathon.android.adam.di.adamModule
@@ -79,7 +80,8 @@ open class MarathonRunTask : DefaultTask(), VerificationTask {
             extensionConfig.debug,
             extensionConfig.screenRecordingPolicy,
             vendorConfiguration,
-            extensionConfig.analyticsTracking
+            extensionConfig.analyticsTracking,
+            extensionConfig.deviceInitializationTimeoutMillis
         )
 
         val androidConfiguration = cnf.vendorConfiguration as? AndroidConfiguration
@@ -118,6 +120,7 @@ open class MarathonRunTask : DefaultTask(), VerificationTask {
         val installOptions = extension.installOptions ?: DEFAULT_INSTALL_OPTIONS
         val screenRecordConfiguration = extension.screenRecordConfiguration ?: ScreenRecordConfiguration()
         val serialStrategy = extension.serialStrategy ?: SerialStrategy.AUTOMATIC
+        val waitForDevicesTimeoutMillis = extension.waitForDevicesTimeoutMillis ?: DEFAULT_WAIT_FOR_DEVICES_TIMEOUT
 
         val implementationModules = when (extension.vendor ?: VendorType.DDMLIB) {
             VendorType.DDMLIB -> listOf(ddmlibModule)
@@ -136,7 +139,8 @@ open class MarathonRunTask : DefaultTask(), VerificationTask {
             adbInitTimeoutMillis = adbInitTimeout,
             installOptions = installOptions,
             screenRecordConfiguration = screenRecordConfiguration,
-            serialStrategy = serialStrategy
+            serialStrategy = serialStrategy,
+            waitForDevicesTimeoutMillis = waitForDevicesTimeoutMillis
         )
     }
 
