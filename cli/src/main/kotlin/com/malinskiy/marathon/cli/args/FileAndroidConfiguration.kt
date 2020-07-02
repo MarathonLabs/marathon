@@ -3,6 +3,7 @@ package com.malinskiy.marathon.cli.args
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.malinskiy.marathon.android.AndroidConfiguration
 import com.malinskiy.marathon.android.DEFAULT_INSTALL_OPTIONS
+import com.malinskiy.marathon.android.DEFAULT_WAIT_FOR_DEVICES_TIMEOUT
 import com.malinskiy.marathon.android.ScreenRecordConfiguration
 import com.malinskiy.marathon.android.VendorType
 import com.malinskiy.marathon.android.adam.di.adamModule
@@ -24,7 +25,8 @@ data class FileAndroidConfiguration(
     @JsonProperty("adbInitTimeoutMillis") val adbInitTimeoutMillis: Int?,
     @JsonProperty("installOptions") val installOptions: String?,
     @JsonProperty("serialStrategy") val serialStrategy: SerialStrategy = SerialStrategy.AUTOMATIC,
-    @JsonProperty("screenRecordConfiguration") val screenRecordConfiguration: ScreenRecordConfiguration = ScreenRecordConfiguration()
+    @JsonProperty("screenRecordConfiguration") val screenRecordConfiguration: ScreenRecordConfiguration = ScreenRecordConfiguration(),
+    @JsonProperty("waitForDevicesTimeoutMillis") val waitForDevicesTimeoutMillis: Long?
 ) : FileVendorConfiguration {
 
     fun toAndroidConfiguration(environmentAndroidSdk: File?): AndroidConfiguration {
@@ -49,6 +51,7 @@ data class FileAndroidConfiguration(
             installOptions = installOptions ?: DEFAULT_INSTALL_OPTIONS,
             serialStrategy = serialStrategy,
             screenRecordConfiguration = screenRecordConfiguration,
+            waitForDevicesTimeoutMillis = waitForDevicesTimeoutMillis ?: DEFAULT_WAIT_FOR_DEVICES_TIMEOUT,
             implementationModules = implementationModules
         )
     }

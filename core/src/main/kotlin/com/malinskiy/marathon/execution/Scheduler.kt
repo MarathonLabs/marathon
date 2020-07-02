@@ -109,7 +109,7 @@ class Scheduler(
         }
         pools[poolId]?.send(AddDevice(device)) ?: logger.debug {
             "not sending the AddDevice event " +
-                    "to device pool for ${device.serialNumber}"
+                "to device pool for ${device.serialNumber}"
         }
         track.deviceConnected(poolId, device.toDeviceInfo())
     }

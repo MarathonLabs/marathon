@@ -48,7 +48,8 @@ class IOSTestParserTest {
             debugSsh = false,
             alwaysEraseSimulators = true
         ),
-        analyticsTracking = false
+        analyticsTracking = false,
+        deviceInitializationTimeoutMillis = null
     )
 
     @Test

@@ -1,5 +1,6 @@
 package com.malinskiy.marathon.cli.args
 
+import com.malinskiy.marathon.android.ScreenRecordConfiguration
 import com.malinskiy.marathon.android.VendorType
 import com.malinskiy.marathon.android.serial.SerialStrategy
 import com.malinskiy.marathon.exceptions.ConfigurationException
@@ -20,7 +21,9 @@ class FileAndroidConfigurationTest {
         null,
         null,
         null,
-        SerialStrategy.AUTOMATIC
+        SerialStrategy.AUTOMATIC,
+        ScreenRecordConfiguration(),
+        15000L
     )
 
     private val env: File = File.createTempFile("foo", "bar")

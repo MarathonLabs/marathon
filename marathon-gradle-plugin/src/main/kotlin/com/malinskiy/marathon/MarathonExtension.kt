@@ -50,6 +50,9 @@ open class MarathonExtension(project: Project) {
 
     var analyticsTracking: Boolean = false
 
+    var deviceInitializationTimeoutMillis: Long? = null
+    var waitForDevicesTimeoutMillis : Long? = null
+
     //Android specific for now
     var autoGrantPermission: Boolean? = null
     var instrumentationArgs: MutableMap<String, String> = mutableMapOf()

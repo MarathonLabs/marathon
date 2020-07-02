@@ -42,5 +42,6 @@ data class FileConfiguration(
 
     var vendorConfiguration: FileVendorConfiguration?,
 
-    var analyticsTracking: Boolean?
+    var analyticsTracking: Boolean?,
+    var deviceInitializationTimeoutMillis: Long?
 )

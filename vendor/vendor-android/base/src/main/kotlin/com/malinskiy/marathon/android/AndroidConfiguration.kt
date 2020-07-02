@@ -17,6 +17,7 @@ const val DEFAULT_AUTO_GRANT_PERMISSION = false
 const val DEFAULT_APPLICATION_PM_CLEAR = false
 const val DEFAULT_TEST_APPLICATION_PM_CLEAR = false
 const val DEFAULT_INSTALL_OPTIONS = ""
+const val DEFAULT_WAIT_FOR_DEVICES_TIMEOUT = 30000L
 
 data class AndroidConfiguration(
     val androidSdk: File,
@@ -30,8 +31,8 @@ data class AndroidConfiguration(
     val adbInitTimeoutMillis: Int = defaultInitTimeoutMillis,
     val installOptions: String = DEFAULT_INSTALL_OPTIONS,
     val serialStrategy: SerialStrategy = SerialStrategy.AUTOMATIC,
-    val screenRecordConfiguration: ScreenRecordConfiguration = ScreenRecordConfiguration()
-
+    val screenRecordConfiguration: ScreenRecordConfiguration = ScreenRecordConfiguration(),
+    val waitForDevicesTimeoutMillis: Long = DEFAULT_WAIT_FOR_DEVICES_TIMEOUT
 ) : VendorConfiguration, KoinComponent {
 
     private val koinModules = listOf(androidModule) + implementationModules

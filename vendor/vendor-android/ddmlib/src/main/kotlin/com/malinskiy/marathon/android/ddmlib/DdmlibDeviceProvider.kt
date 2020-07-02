@@ -12,6 +12,7 @@ import com.malinskiy.marathon.device.DeviceProvider
 import com.malinskiy.marathon.device.DeviceProvider.DeviceEvent.DeviceConnected
 import com.malinskiy.marathon.device.DeviceProvider.DeviceEvent.DeviceDisconnected
 import com.malinskiy.marathon.exceptions.NoDevicesException
+import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.time.Timer
 import com.malinskiy.marathon.vendor.VendorConfiguration
@@ -28,6 +29,7 @@ private const val DEFAULT_DDM_LIB_TIMEOUT = 30000
 private const val DEFAULT_DDM_LIB_SLEEP_TIME = 500
 
 class DdmlibDeviceProvider(
+    configuration: Configuration,
     private val track: Track,
     private val timer: Timer
 ) : DeviceProvider, CoroutineScope {
@@ -41,7 +43,8 @@ class DdmlibDeviceProvider(
     override val coroutineContext: CoroutineContext
         get() = bootWaitContext
 
-    override val deviceInitializationTimeoutMillis: Long = 180_000
+    override val deviceInitializationTimeoutMillis: Long = configuration.deviceInitializationTimeoutMillis
+
     override suspend fun initialize(vendorConfiguration: VendorConfiguration) {
         if (vendorConfiguration !is AndroidConfiguration) {
             throw IllegalStateException("Invalid configuration $vendorConfiguration passed")
@@ -136,7 +139,7 @@ class DdmlibDeviceProvider(
         AndroidDebugBridge.addDeviceChangeListener(listener)
         adb = AndroidDebugBridge.createBridge(absolutePath, false)
 
-        var getDevicesCountdown = DEFAULT_DDM_LIB_TIMEOUT
+        var getDevicesCountdown = vendorConfiguration.waitForDevicesTimeoutMillis
         val sleepTime = DEFAULT_DDM_LIB_SLEEP_TIME
         while (!adb.hasInitialDeviceList() || !adb.hasDevices() && getDevicesCountdown >= 0) {
             try {
@@ -166,7 +169,7 @@ class DdmlibDeviceProvider(
         val observedDevices = devices.values
         return observedDevices.findLast {
             device == it.ddmsDevice ||
-                    device.serialNumber == it.ddmsDevice.serialNumber
+                device.serialNumber == it.ddmsDevice.serialNumber
         }
     }
 

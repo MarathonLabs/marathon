@@ -15,3 +15,5 @@ vendorConfiguration:
   applicationPmClear: true
   testApplicationPmClear: true
   vendor: ADAM
+  waitForDevicesTimeoutMillis: 60000
+deviceInitializationTimeoutMillis: 180000

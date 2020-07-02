@@ -64,6 +64,7 @@ testBatchTimeoutMillis: 20000
 testOutputTimeoutMillis: 30000
 debug: true
 screenRecordingPolicy: "ON_ANY"
+deviceInitializationTimeoutMillis: 300000
 vendorConfiguration:
   type: "Android"
   androidSdk: "/local/android"
@@ -88,3 +89,4 @@ vendorConfiguration:
       width: 1080
       height: 1920
       delayMs: 200
+  waitForDevicesTimeoutMillis: 15000

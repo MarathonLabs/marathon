@@ -52,7 +52,8 @@ class ExecutionReportTest {
             override fun deviceProvider(): DeviceProvider? = null
             override fun logConfigurator(): MarathonLogConfigurator? = null
         },
-        analyticsTracking = false
+        analyticsTracking = false,
+        deviceInitializationTimeoutMillis = null
     )
 
     private val reportWithoutRetries: ExecutionReport by lazy {

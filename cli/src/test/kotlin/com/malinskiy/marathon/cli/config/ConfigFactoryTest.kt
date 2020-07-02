@@ -155,6 +155,7 @@ class ConfigFactoryTest {
         configuration.debug shouldEqual true
         configuration.screenRecordingPolicy shouldEqual ScreenRecordingPolicy.ON_ANY
 
+        configuration.deviceInitializationTimeoutMillis shouldEqual 300_000
         configuration.vendorConfiguration shouldEqual AndroidConfiguration(
             File("/local/android"),
             File("kotlin-buildscript/build/outputs/apk/debug/kotlin-buildscript-debug.apk"),
@@ -171,7 +172,8 @@ class ConfigFactoryTest {
                 preferableRecorderType = DeviceFeature.SCREENSHOT,
                 videoConfiguration = VideoConfiguration(false, 1080, 1920, 2, 300),
                 screenshotConfiguration = ScreenshotConfiguration(false, 1080, 1920, 200)
-            )
+            ),
+            15000L
         )
     }
 
