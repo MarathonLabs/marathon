@@ -25,11 +25,15 @@ class MarathonPlugin : Plugin<Project> {
     override fun apply(project: Project) {
         log.info { "Applying marathon plugin" }
         val exceptionsReporter = BugsnagExceptionsReporter()
-        exceptionsReporter.start(AppType.GRADLE_PLUGIN)
 
         val extension: MarathonExtension = project.extensions.create("marathon", MarathonExtension::class.java, project)
 
         project.afterEvaluate {
+            if(extension.bugsnag != false){
+                log.info { "Init BugSnag" }
+                exceptionsReporter.start(AppType.GRADLE_PLUGIN)
+            }
+
             val appPlugin = project.plugins.findPlugin(AppPlugin::class.java)
             val libraryPlugin = project.plugins.findPlugin(LibraryPlugin::class.java)
 
