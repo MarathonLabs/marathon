@@ -109,9 +109,9 @@ abstract class BaseAndroidDevice(
         val result = when (serialStrategy) {
             SerialStrategy.AUTOMATIC -> {
                 marathonSerialProp.takeIf { it.isNotEmpty() }
+                    ?: serialNumber.takeIf { it.isNotEmpty() }
                     ?: serialProp.takeIf { it.isNotEmpty() }
                     ?: hostName.takeIf { it.isNotEmpty() }
-                    ?: serialNumber.takeIf { it.isNotEmpty() }
                     ?: UUID.randomUUID().toString()
             }
             SerialStrategy.MARATHON_PROPERTY -> marathonSerialProp
