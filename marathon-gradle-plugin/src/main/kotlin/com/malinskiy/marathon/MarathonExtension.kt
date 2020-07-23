@@ -11,6 +11,7 @@ open class MarathonExtension(project: Project) {
     var name: String = "Marathon"
 
     var vendor: VendorType? = null
+    var bugsnag: Boolean? = null
 
     var analyticsConfiguration: AnalyticsConfig? = null
 

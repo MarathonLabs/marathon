@@ -33,8 +33,8 @@ fun main(args: Array<String>): Unit = mainBody(
         logger.info { "Starting marathon" }
         val bugsnagExceptionsReporter = BugsnagExceptionsReporter()
         try {
-            if(bugsnapReporting){
-                logger.info { "Init BugSnap" }
+            if(bugsnagReporting){
+                logger.info { "Init BugSnag" }
                 bugsnagExceptionsReporter.start(AppType.CLI)
             }
             val mapper = ObjectMapper(YAMLFactory().disable(YAMLGenerator.Feature.USE_NATIVE_TYPE_ID))
