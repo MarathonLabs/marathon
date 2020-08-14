@@ -176,6 +176,7 @@ class DeviceActor(
                             throw e
                         } catch (e: Exception) {
                             logger.debug { "device ${device.serialNumber} initialization failed. Retrying" }
+                            logger.debug { e.message }
                             throw e
                         }
                     }
