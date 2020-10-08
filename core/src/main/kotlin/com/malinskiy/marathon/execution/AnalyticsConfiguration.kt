@@ -21,4 +21,9 @@ sealed class AnalyticsConfiguration {
             }
         }
     }
+    data class GraphiteConfiguration(
+        val host: String,
+        val port: Int,
+        val prefix: String?
+    ) : AnalyticsConfiguration()
 }

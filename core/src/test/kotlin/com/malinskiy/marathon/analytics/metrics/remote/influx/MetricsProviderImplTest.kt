@@ -1,6 +1,6 @@
 package com.malinskiy.marathon.analytics.metrics.remote.influx
 
-import com.malinskiy.marathon.analytics.external.influx.InfluxMetricsProvider
+import com.malinskiy.marathon.analytics.external.MetricsProviderImpl
 import com.malinskiy.marathon.analytics.metrics.remote.ExecutionTime
 import com.malinskiy.marathon.analytics.metrics.remote.RemoteDataSource
 import com.malinskiy.marathon.analytics.metrics.remote.SuccessRate
@@ -15,11 +15,11 @@ import org.amshove.kluent.shouldEqualTo
 import org.junit.jupiter.api.Test
 import java.time.Instant
 
-class InfluxMetricsProviderTest {
+class MetricsProviderImplTest {
     @Test
     fun testExecutionTimeFromCache() {
         val dataStore = mock<RemoteDataSource>()
-        val provider = InfluxMetricsProvider(dataStore)
+        val provider = MetricsProviderImpl(dataStore)
         val test = generateTest()
         val requestPercentile = 90.0
         val resultTime = 100.5
@@ -41,7 +41,7 @@ class InfluxMetricsProviderTest {
     @Test
     fun testExecutionTimeFromMissingCache() {
         val dataStore = mock<RemoteDataSource>()
-        val provider = InfluxMetricsProvider(dataStore)
+        val provider = MetricsProviderImpl(dataStore)
         val test = generateTest()
         val firstPercent = 80.0
         val firstTime = 900.0
@@ -75,7 +75,7 @@ class InfluxMetricsProviderTest {
     @Test
     fun testSuccessRateFromCache() {
         val dataStore = mock<RemoteDataSource>()
-        val provider = InfluxMetricsProvider(dataStore)
+        val provider = MetricsProviderImpl(dataStore)
         val test = generateTest()
         val mean = 90.0
         val limit = Instant.now()
@@ -90,7 +90,7 @@ class InfluxMetricsProviderTest {
     @Test
     fun testSuccessRateWithMissingCache() {
         val dataStore = mock<RemoteDataSource>()
-        val provider = InfluxMetricsProvider(dataStore)
+        val provider = MetricsProviderImpl(dataStore)
         val test = generateTest()
         val firstMean = 90.0
         val firstLimit = Instant.now().minusSeconds(60)

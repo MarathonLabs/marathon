@@ -1,7 +1,7 @@
 package com.malinskiy.marathon.analytics.metrics.remote.influx
 
 import com.malinskiy.marathon.analytics.external.influx.InfluxDbProvider
-import com.malinskiy.marathon.analytics.external.influx.InfluxMetricsProvider
+import com.malinskiy.marathon.analytics.external.MetricsProviderImpl
 import com.malinskiy.marathon.execution.AnalyticsConfiguration
 import com.malinskiy.marathon.generateTest
 import org.amshove.kluent.shouldEqualTo
@@ -54,7 +54,7 @@ class InfluxDbProviderIntegrationTest {
         thirdDbInstance = provider.createDb()
 
         val metricsProvider =
-            InfluxMetricsProvider(InfluxDBDataSource(thirdDbInstance!!, database, rpName))
+            MetricsProviderImpl(InfluxDBDataSource(thirdDbInstance!!, database, rpName))
 
         val result = metricsProvider.executionTime(
             test,

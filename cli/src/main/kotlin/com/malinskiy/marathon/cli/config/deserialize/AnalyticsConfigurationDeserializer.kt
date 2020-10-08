@@ -19,6 +19,13 @@ class AnalyticsConfigurationDeserializer : StdDeserializer<AnalyticsConfiguratio
             if (influxDbConfiguration != null) return influxDbConfiguration
         }
 
+        val graphiteNode = node?.get("graphite")
+        graphiteNode?.let {
+            val graphiteConfiguration =
+                ctxt?.readValue(graphiteNode.traverse(p.codec), AnalyticsConfiguration.GraphiteConfiguration::class.java)
+            if (graphiteConfiguration != null) return graphiteConfiguration
+        }
+
         return AnalyticsConfiguration.DisabledAnalytics
     }
 }
