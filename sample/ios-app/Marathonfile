@@ -10,7 +10,7 @@ batchingStrategy:
   size: 5
 debug: true
 filteringConfiguration:
-  whitelist:
+  allowlist:
     - type: "simple-class-name"
       regex: "StoryboardTests"
 vendorConfiguration:

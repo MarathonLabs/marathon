@@ -125,7 +125,7 @@ class ConfigFactoryTest {
         configuration.retryStrategy shouldEqual FixedQuotaRetryStrategy(100, 2)
         SimpleClassnameFilter(".*".toRegex()) shouldEqual SimpleClassnameFilter(".*".toRegex())
 
-        configuration.filteringConfiguration.whitelist shouldContainAll listOf(
+        configuration.filteringConfiguration.allowlist shouldContainAll listOf(
             SimpleClassnameFilter(".*".toRegex()),
             FullyQualifiedClassnameFilter(".*".toRegex()),
             TestMethodFilter(".*".toRegex()),
@@ -137,7 +137,7 @@ class ConfigFactoryTest {
             )
         )
 
-        configuration.filteringConfiguration.blacklist shouldContainAll listOf(
+        configuration.filteringConfiguration.blocklist shouldContainAll listOf(
             TestPackageFilter(".*".toRegex()),
             AnnotationFilter(".*".toRegex())
         )
@@ -213,8 +213,8 @@ class ConfigFactoryTest {
         configuration.retryStrategy shouldEqual NoRetryStrategy()
         SimpleClassnameFilter(".*".toRegex()) shouldEqual SimpleClassnameFilter(".*".toRegex())
 
-        configuration.filteringConfiguration.whitelist.shouldBeEmpty()
-        configuration.filteringConfiguration.blacklist.shouldBeEmpty()
+        configuration.filteringConfiguration.allowlist.shouldBeEmpty()
+        configuration.filteringConfiguration.blocklist.shouldBeEmpty()
 
         configuration.testClassRegexes.map { it.toString() } shouldContainAll listOf("^((?!Abstract).)*Test[s]*$")
 
@@ -310,25 +310,25 @@ class ConfigFactoryTest {
     }
 
     @Test
-    fun `on configuration with whitelist but no blacklist should initialize an empty blacklist`() {
+    fun `on configuration with allowlist but no blocklist should initialize an empty blocklist`() {
         val file = File(ConfigFactoryTest::class.java.getResource("/fixture/config/sample_8.yaml").file)
         val configuration = parser.create(file, mockEnvironmentReader())
 
-        configuration.filteringConfiguration.whitelist shouldEqual listOf(
+        configuration.filteringConfiguration.allowlist shouldEqual listOf(
             SimpleClassnameFilter(".*".toRegex())
         )
 
-        configuration.filteringConfiguration.blacklist shouldBe emptyList()
+        configuration.filteringConfiguration.blocklist shouldBe emptyList()
     }
 
     @Test
-    fun `on configuration with blacklist but no whitelist should initialize an empty whitelist`() {
+    fun `on configuration with blocklist but no allowlist should initialize an empty allowlist`() {
         val file = File(ConfigFactoryTest::class.java.getResource("/fixture/config/sample_9.yaml").file)
         val configuration = parser.create(file, mockEnvironmentReader())
 
-        configuration.filteringConfiguration.whitelist shouldBe emptyList()
+        configuration.filteringConfiguration.allowlist shouldBe emptyList()
 
-        configuration.filteringConfiguration.blacklist shouldEqual listOf(
+        configuration.filteringConfiguration.blocklist shouldEqual listOf(
             SimpleClassnameFilter(".*".toRegex())
         )
     }
