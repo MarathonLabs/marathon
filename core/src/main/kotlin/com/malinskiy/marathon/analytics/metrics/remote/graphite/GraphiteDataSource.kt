@@ -1,9 +1,9 @@
 package com.malinskiy.marathon.analytics.metrics.remote.graphite
 
-import com.malinskiy.marathon.analytics.external.graphite.withPrefix
 import com.malinskiy.marathon.analytics.metrics.remote.ExecutionTime
 import com.malinskiy.marathon.analytics.metrics.remote.RemoteDataSource
 import com.malinskiy.marathon.analytics.metrics.remote.SuccessRate
+import com.malinskiy.marathon.extension.withPrefix
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import java.net.URLEncoder

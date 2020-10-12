@@ -1,6 +1,7 @@
 package com.malinskiy.marathon.analytics.external.graphite
 
 import com.malinskiy.marathon.execution.AnalyticsConfiguration.GraphiteConfiguration
+import com.malinskiy.marathon.extension.withPrefix
 import java.io.IOException
 import java.io.PrintWriter
 import java.net.Socket
