@@ -4,14 +4,16 @@ import com.malinskiy.marathon.analytics.external.graphite.withPrefix
 import com.malinskiy.marathon.analytics.metrics.remote.ExecutionTime
 import com.malinskiy.marathon.analytics.metrics.remote.RemoteDataSource
 import com.malinskiy.marathon.analytics.metrics.remote.SuccessRate
-import java.net.HttpURLConnection
-import java.net.URL
+import okhttp3.OkHttpClient
+import okhttp3.Request
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
 import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
-import java.util.*
+import java.util.concurrent.TimeUnit
+
+private const val TIMEOUT_SEC = 60L
 
 class GraphiteDataSource(
     private val host: String,
@@ -19,6 +21,11 @@ class GraphiteDataSource(
 ) : RemoteDataSource {
 
     private val fromFormatter = DateTimeFormatter.ofPattern("HH:mm_yyyyMMdd").withZone(ZoneId.systemDefault())
+    private val okHttpClient = OkHttpClient.Builder()
+        .connectTimeout(TIMEOUT_SEC, TimeUnit.SECONDS)
+        .readTimeout(TIMEOUT_SEC, TimeUnit.SECONDS)
+        .writeTimeout(TIMEOUT_SEC, TimeUnit.SECONDS)
+        .build()
 
     override fun requestAllSuccessRates(limit: Instant): List<SuccessRate> {
         val path = "tests.*.*.*.*.success".withPrefix(prefix)
@@ -59,14 +66,16 @@ class GraphiteDataSource(
     private fun query(target: String, from: Instant): List<String> {
         val encodedTarget = URLEncoder.encode(target, StandardCharsets.UTF_8.name())
         val formattedFrom = fromFormatter.format(from)
-        val url = URL("http://${host}/render?target=$encodedTarget&format=raw&from=$formattedFrom")
-        val connection = url.openConnection() as HttpURLConnection
-        val scanner = Scanner(connection.inputStream, StandardCharsets.UTF_8.name())
-        val lines = mutableListOf<String>()
-        while (scanner.hasNextLine()) {
-            lines.add(scanner.nextLine())
-        }
-        return lines
+        val request = Request.Builder()
+            .url("http://${host}/render?target=$encodedTarget&format=raw&from=$formattedFrom")
+            .build()
+        return okHttpClient.newCall(request)
+            .execute()
+            .body()
+            ?.string()
+            ?.split('\n')
+            ?.filter { it.isNotEmpty() }
+            .orEmpty()
     }
 
     override fun close() {
