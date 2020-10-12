@@ -2,6 +2,7 @@ package com.malinskiy.marathon.analytics.external
 
 import com.malinskiy.marathon.analytics.external.influx.InfluxDbProvider
 import com.malinskiy.marathon.analytics.metrics.remote.graphite.GraphiteDataSource
+import com.malinskiy.marathon.analytics.metrics.remote.graphite.QueryableGraphiteClient
 import com.malinskiy.marathon.analytics.metrics.remote.influx.InfluxDBDataSource
 import com.malinskiy.marathon.execution.AnalyticsConfiguration.GraphiteConfiguration
 import com.malinskiy.marathon.execution.AnalyticsConfiguration.InfluxDbConfiguration
@@ -29,6 +30,6 @@ internal class MetricsProviderFactory(configuration: Configuration) {
     }
 
     private fun createGraphiteMetricsProvider(configuration: GraphiteConfiguration): MetricsProvider {
-        return MetricsProviderImpl(GraphiteDataSource(configuration.host, configuration.prefix))
+        return MetricsProviderImpl(GraphiteDataSource(QueryableGraphiteClient(configuration.host), configuration.prefix))
     }
 }
