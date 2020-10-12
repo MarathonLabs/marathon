@@ -1,6 +1,5 @@
 package com.malinskiy.marathon.analytics.external.graphite
 
-import com.malinskiy.marathon.execution.AnalyticsConfiguration.GraphiteConfiguration
 import com.malinskiy.marathon.extension.withPrefix
 import java.io.IOException
 import java.io.PrintWriter
@@ -20,7 +19,7 @@ interface GraphiteClient {
 }
 
 interface DataSender {
-    fun sendData(host: String = "", port: Int = 0, callback: (PrintWriter) -> Unit = {})
+    fun sendData(host: String, port: Int, callback: (PrintWriter) -> Unit)
 }
 
 class SocketSender : DataSender {
@@ -32,7 +31,9 @@ class SocketSender : DataSender {
 }
 
 class BasicGraphiteClient(
-    private val configuration: GraphiteConfiguration,
+    private val host: String,
+    private val port: Int,
+    private val prefix: String?,
     private val dataSender: DataSender = SocketSender()
 ): GraphiteClient {
     override fun send(graphiteMetric: GraphiteMetric) {
@@ -56,16 +57,16 @@ class BasicGraphiteClient(
 
     private fun sender(callback: (PrintWriter) -> Unit) {
         try {
-            dataSender.sendData(configuration.host, configuration.port, callback)
+            dataSender.sendData(host, port, callback)
         } catch (e: UnknownHostException) {
-            throw GraphiteException("Unknown host: ${configuration.host}")
+            throw GraphiteException("Unknown host: ${host}")
         } catch (e: IOException) {
             throw GraphiteException("Error while writing data to graphite: ${e.message}")
         }
     }
 
     private fun convertToSting(metric: GraphiteMetric) =
-        "${metric.metricName.withPrefix(configuration.prefix)} ${metric.metricValue} ${metric.timestamp / 1000}\n"
+        "${metric.metricName.withPrefix(prefix)} ${metric.metricValue} ${metric.timestamp / 1000}\n"
 }
 
 class GraphiteException(message: String) : Exception(message)

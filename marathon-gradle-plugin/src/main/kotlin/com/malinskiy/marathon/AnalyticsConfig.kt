@@ -68,7 +68,7 @@ fun AnalyticsConfig.toAnalyticsConfiguration(): AnalyticsConfiguration {
         )
         graphite != null -> GraphiteConfiguration(
             host = graphite.host,
-            port = graphite.port?.toIntOrNull() ?: 2003,
+            port = graphite.port?.toIntOrNull(),
             prefix = graphite.prefix
         )
         else -> DisabledAnalytics

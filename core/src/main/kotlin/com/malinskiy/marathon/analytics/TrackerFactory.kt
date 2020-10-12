@@ -68,7 +68,7 @@ internal class TrackerFactory(
     }
 
     private fun createGraphiteTracker(config: GraphiteConfiguration): GraphiteTracker {
-        return GraphiteTracker(BasicGraphiteClient(config))
+        return GraphiteTracker(BasicGraphiteClient(config.host, config.port ?: 2003, config.prefix))
     }
 
     private fun createExecutionReportGenerator(): ExecutionReportGenerator {

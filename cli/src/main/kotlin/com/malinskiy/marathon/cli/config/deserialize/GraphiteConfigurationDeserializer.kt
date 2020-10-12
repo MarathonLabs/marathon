@@ -24,6 +24,6 @@ class GraphiteConfigurationDeserializer
         if (portString != null && port == null) throw ConfigurationException("GraphiteConfigurationDeserializer: port should be a number, e.g. 2003")
         if (prefix?.isEmpty() == true) throw ConfigurationException("GraphiteConfigurationDeserializer: prefix cannot be empty")
 
-        return AnalyticsConfiguration.GraphiteConfiguration(host, port ?: 2003, prefix)
+        return AnalyticsConfiguration.GraphiteConfiguration(host, port, prefix)
     }
 }
