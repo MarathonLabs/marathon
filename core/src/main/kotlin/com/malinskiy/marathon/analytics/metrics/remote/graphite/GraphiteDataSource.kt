@@ -69,13 +69,12 @@ class GraphiteDataSource(
         val request = Request.Builder()
             .url("http://${host}/render?target=$encodedTarget&format=raw&from=$formattedFrom")
             .build()
-        return okHttpClient.newCall(request)
-            .execute()
-            .body()
-            ?.string()
+        return okHttpClient.newCall(request).execute().use { response ->
+            response.body()?.string()
             ?.split('\n')
             ?.filter { it.isNotEmpty() }
             .orEmpty()
+        }
     }
 
     override fun close() {
