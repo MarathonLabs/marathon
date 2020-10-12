@@ -41,10 +41,13 @@ internal class TrackerFactory(
         val defaultTrackers = mutableListOf<TrackerInternal>(createExecutionReportGenerator())
 
         val analyticsConfiguration = configuration.analyticsConfiguration
-        if (analyticsConfiguration is InfluxDbConfiguration) {
-            createInfluxDbTracker(analyticsConfiguration)?.let { defaultTrackers.add(it) }
-        } else if (analyticsConfiguration is GraphiteConfiguration) {
-            createGraphiteTracker(analyticsConfiguration)?.let { defaultTrackers.add(it) }
+        val analyticsTracker = when (analyticsConfiguration) {
+            is InfluxDbConfiguration -> createInfluxDbTracker(analyticsConfiguration)
+            is GraphiteConfiguration -> createGraphiteTracker(analyticsConfiguration)
+            else -> null
+        }
+        if (analyticsTracker != null) {
+            defaultTrackers.add(analyticsTracker)
         }
 
         val delegatingTrackerInternal = DelegatingTrackerInternal(defaultTrackers)
@@ -64,7 +67,7 @@ internal class TrackerFactory(
         return db?.let { InfluxDbTracker(it, config.dbName, config.retentionPolicyConfiguration.name) }
     }
 
-    private fun createGraphiteTracker(config: GraphiteConfiguration): GraphiteTracker? {
+    private fun createGraphiteTracker(config: GraphiteConfiguration): GraphiteTracker {
         return GraphiteTracker(BasicGraphiteClient(config))
     }
 
