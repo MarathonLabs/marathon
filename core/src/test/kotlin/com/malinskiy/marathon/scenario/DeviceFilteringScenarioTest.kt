@@ -24,7 +24,7 @@ class DeviceFilteringScenarioTest {
         stopKoin()
     }
 
-    fun `one blacklisted device and empty whitelist executing two tests should pass on one device`() {
+    fun `one blocklisted device and empty allowlist executing two tests should pass on one device`() {
         var output: File? = null
         val context = TestCoroutineContext("testing context")
 
@@ -72,7 +72,7 @@ class DeviceFilteringScenarioTest {
 
 
     @Test
-    fun `one whitelisted device and empty blacklist executing two tests should pass on one device`() {
+    fun `one allowlisted device and empty blocklist executing two tests should pass on one device`() {
         var output: File? = null
         val context = TestCoroutineContext("testing context")
 
@@ -119,7 +119,7 @@ class DeviceFilteringScenarioTest {
     }
 
     @Test
-    fun `one blacklisted device and one whitelisted executing two tests should pass on one device`() {
+    fun `one blocklisted device and one allowlisted executing two tests should pass on one device`() {
         var output: File? = null
         val context = TestCoroutineContext("testing context")
 
