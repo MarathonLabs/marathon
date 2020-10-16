@@ -51,7 +51,7 @@ retryStrategy:
   totalAllowedRetryQuota: 100
   retryPerTestQuota: 2
 filteringConfiguration:
-  whitelist:
+  allowlist:
   - type: "simple-class-name"
     regex: ".*"
   - type: "fully-qualified-class-name"
@@ -65,7 +65,7 @@ filteringConfiguration:
     - type: "method"
       regex: ".*"
     op: "UNION"
-  blacklist:
+  blocklist:
   - type: "package"
     regex: ".*"
   - type: "annotation"
@@ -149,10 +149,10 @@ marathon {
         }
     }
     filteringConfiguration {
-        whitelist {
+        allowlist {
             add(SimpleClassnameFilter(".*".toRegex()))
         }
-        blacklist {
+        blocklist {
             add(SimpleClassnameFilter("$^".toRegex()))
         }
     }
