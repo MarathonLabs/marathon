@@ -12,7 +12,7 @@ class GraphiteDataSource(
 ) : RemoteDataSource {
 
     override fun requestAllSuccessRates(limit: Instant): List<SuccessRate> {
-        val path = "tests.*.*.*.*.success".withPrefix(prefix)
+        val path = "tests.*.*.*.*.*.success".withPrefix(prefix)
         val testNameNodeNum = 1.adjustNodeNum(prefix)
         val lines = graphite.query(
             """
@@ -34,7 +34,7 @@ class GraphiteDataSource(
     }
 
     override fun requestAllExecutionTimes(percentile: Double, limit: Instant): List<ExecutionTime> {
-        val path = "tests.*.*.*.*.duration".withPrefix(prefix)
+        val path = "tests.*.*.*.*.*.duration".withPrefix(prefix)
         val testNameNodeNum = 1.adjustNodeNum(prefix)
         val lines = graphite.query(
             "aliasByNode(summarize(nPercentile($path, $percentile), '10years', 'average', true), $testNameNodeNum)",
