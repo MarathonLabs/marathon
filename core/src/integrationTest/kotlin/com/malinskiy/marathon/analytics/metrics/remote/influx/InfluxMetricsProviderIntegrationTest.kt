@@ -1,7 +1,7 @@
 package com.malinskiy.marathon.analytics.metrics.remote.influx
 
-import com.malinskiy.marathon.analytics.external.influx.InfluxDbProvider
 import com.malinskiy.marathon.analytics.external.MetricsProviderImpl
+import com.malinskiy.marathon.analytics.external.influx.InfluxDbProvider
 import com.malinskiy.marathon.device.DeviceStub
 import com.malinskiy.marathon.device.toDeviceInfo
 import com.malinskiy.marathon.execution.AnalyticsConfiguration
@@ -76,15 +76,15 @@ class InfluxMetricsProviderIntegrationTest {
     }
 
     @Test
-    fun `verify execution time 50 percentile for last two days`() {
-        val result = provider.executionTime(test, 50.0, Instant.now().minus(2, ChronoUnit.DAYS))
-        result shouldEqualTo 5000.0
+    fun `verify execution time 50 percentile for last two hours`() {
+        val result = provider.executionTime(test, 50.0, Instant.now().minus(2, ChronoUnit.HOURS))
+        result shouldBeInRange 5000.0..6000.0
     }
 
     @Test
-    fun `verify execution time 90 percentile for last two days`() {
-        val result = provider.executionTime(test, 90.0, Instant.now().minus(2, ChronoUnit.DAYS))
-        result shouldEqualTo 9000.0
+    fun `verify execution time 90 percentile for last two hours`() {
+        val result = provider.executionTime(test, 90.0, Instant.now().minus(2, ChronoUnit.HOURS))
+        result shouldBeInRange 9000.0..10000.0
     }
 
     @Test
@@ -114,14 +114,14 @@ class InfluxMetricsProviderIntegrationTest {
     }
 
     @Test
-    fun `verify test success rate should return 0_833 for last 70 minutes`() {
-        val result = provider.successRate(test, Instant.now().minus(70, ChronoUnit.MINUTES))
-        result.shouldBeInRange(0.833, 0.834)
+    fun `verify test success rate should return 0_833 for last 65 minutes`() {
+        val result = provider.successRate(test, Instant.now().minus(65, ChronoUnit.MINUTES))
+        result shouldBeInRange 0.833..0.834
     }
 
     @Test
-    fun `verify test success rate should return 0_5 for last 2 days`() {
-        val result = provider.successRate(test, Instant.now().minus(2, ChronoUnit.DAYS))
+    fun `verify test success rate should return 0_5 for last 2 hours`() {
+        val result = provider.successRate(test, Instant.now().minus(2, ChronoUnit.HOURS))
         result shouldEqualTo 0.5
     }
 }

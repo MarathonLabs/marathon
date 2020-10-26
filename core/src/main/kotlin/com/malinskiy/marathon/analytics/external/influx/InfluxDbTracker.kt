@@ -21,7 +21,7 @@ internal class InfluxDbTracker(private val influxDb: InfluxDB,
 
             influxDb.write(dbName, rpName,
                 Point.measurement("tests")
-                    .time(System.currentTimeMillis(), TimeUnit.MILLISECONDS)
+                    .time(event.instant.toEpochMilli(), TimeUnit.MILLISECONDS)
                     .tag("testname", testResult.test.toSafeTestName())
                     .tag("package", testResult.test.pkg)
                     .tag("class", testResult.test.clazz)

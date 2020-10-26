@@ -17,7 +17,7 @@ class GraphiteTracker(
             val device = event.device
 
             val baseMetricName = getBaseMetricName(testResult.test, device)
-            val timestamp = System.currentTimeMillis()
+            val timestamp = event.instant.toEpochMilli()
 
             graphite.send(
                 listOf(
