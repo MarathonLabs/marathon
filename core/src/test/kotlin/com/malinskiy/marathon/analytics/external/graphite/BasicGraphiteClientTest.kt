@@ -1,3 +1,10 @@
+/*
+ * This file is a copy of:
+ * https://github.com/mihkels/graphite-client-kotlin/blob/master/graphite-client/src/test/kotlin/com/mihkels/graphite/client/BasicGraphiteClientTest.kt
+ * with some minor modifications.
+ * It can be removed when graphite-kotlin-client gets published to Maven Central.
+ */
+
 package com.malinskiy.marathon.analytics.external.graphite
 
 import com.nhaarman.mockitokotlin2.any

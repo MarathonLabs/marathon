@@ -1,3 +1,10 @@
+/*
+ * This file is a copy of:
+ * https://github.com/mihkels/graphite-client-kotlin/blob/master/graphite-client/src/main/kotlin/com/mihkels/graphite/client/BasicGraphiteClient.kt
+ * with some minor modifications.
+ * It can be removed when graphite-kotlin-client gets published to Maven Central.
+ */
+
 package com.malinskiy.marathon.analytics.external.graphite
 
 import com.malinskiy.marathon.extension.withPrefix
@@ -35,7 +42,7 @@ class BasicGraphiteClient(
     private val port: Int,
     private val prefix: String?,
     private val dataSender: DataSender = SocketSender()
-): GraphiteClient {
+) : GraphiteClient {
     override fun send(graphiteMetric: GraphiteMetric) {
         sender { writer ->
             val message = convertToSting(graphiteMetric)
@@ -45,12 +52,13 @@ class BasicGraphiteClient(
 
     override fun send(graphiteMetrics: Collection<GraphiteMetric>) {
         if (graphiteMetrics.isNotEmpty()) {
-            sender { writer -> graphiteMetrics
-                .map {
-                    val modified = convertToSting(it)
-                    modified
-                }
-                .forEach { writer.print(it) }
+            sender { writer ->
+                graphiteMetrics
+                    .map {
+                        val modified = convertToSting(it)
+                        modified
+                    }
+                    .forEach { writer.print(it) }
             }
         }
     }
