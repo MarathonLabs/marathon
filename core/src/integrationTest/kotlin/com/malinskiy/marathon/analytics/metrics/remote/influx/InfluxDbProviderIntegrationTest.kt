@@ -1,7 +1,9 @@
 package com.malinskiy.marathon.analytics.metrics.remote.influx
 
-import com.malinskiy.marathon.analytics.external.influx.InfluxDbProvider
 import com.malinskiy.marathon.analytics.external.MetricsProviderImpl
+import com.malinskiy.marathon.analytics.external.influx.InfluxDbProvider
+import com.malinskiy.marathon.analytics.external.influx.InfluxDbTracker
+import com.malinskiy.marathon.analytics.metrics.remote.getTestEvents
 import com.malinskiy.marathon.execution.AnalyticsConfiguration
 import com.malinskiy.marathon.generateTest
 import org.amshove.kluent.shouldEqualTo
@@ -16,7 +18,7 @@ class InfluxDbProviderIntegrationTest {
     private val database = "marathonTest"
     private val rpName = "rpMarathon"
 
-    val container = KInfluxDBContainer().withAuthEnabled(false)
+    private val container: KInfluxDBContainer = KInfluxDBContainer().withAuthEnabled(false)
 
     var thirdDbInstance: InfluxDB? = null
 
@@ -48,7 +50,8 @@ class InfluxDbProviderIntegrationTest {
 
 
         val secondDbInstance = provider.createDb()
-        prepareData(secondDbInstance, test, database, rpName)
+        val tracker = InfluxDbTracker(secondDbInstance, database, rpName)
+        getTestEvents().forEach { tracker.track(it) }
         secondDbInstance.close()
 
         thirdDbInstance = provider.createDb()
