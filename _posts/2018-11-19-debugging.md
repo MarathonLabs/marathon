@@ -43,7 +43,7 @@ This report helps identify potential misbehaviours visually helping infrastructu
 One of the best use cases for this report is the grouping of problems which helps to identify if your tests have a specific issue that is relevant for a large number of tests. Another useful feature is the ability to see all the retries visually and with video/screencapture (if available). Allure also provides the ability to see flaky tests by storing history of the runs.
 
 ### Dashboards
-Currently marathon is able to leverage the power of InfluxDB to store and fetch the metrics about the test runs. There is a [sample dashboard][3] that you can use in [grafana][2] to [visualise][4] this information in order to better understand what's going on.
+Marathon is able to leverage the power of InfluxDB and Graphite to store and fetch the metrics about the test runs. There are sample dashboards for [InfluxDB][3] and [Graphite][4] that you can use in [grafana][2] to [visualise][5] this information in order to better understand what's going on.
 
 ### Common use cases
 #### Investigating specific device problems
@@ -69,5 +69,6 @@ Retries can be checked either by allure report. Test pass probability on the oth
 
 [1]: https://github.com/allure-framework/allure2/
 [2]: https://grafana.com/
-[3]: https://github.com/Malinskiy/marathon/blob/develop/assets/grafana-dashboard.json
-[4]: https://snapshot.raintank.io/dashboard/snapshot/j5rbxzFhfMDG6eKIcB9sLcH16IICyzvW?orgId=2
+[3]: https://github.com/Malinskiy/marathon/blob/develop/assets/influxdb-grafana-dashboard.json
+[4]: https://github.com/Malinskiy/marathon/blob/develop/assets/graphite-grafana-dashboard.json
+[5]: https://snapshot.raintank.io/dashboard/snapshot/j5rbxzFhfMDG6eKIcB9sLcH16IICyzvW?orgId=2

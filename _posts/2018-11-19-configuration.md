@@ -26,6 +26,10 @@ analyticsConfiguration:
       shardDuration: "1h"
       replicationFactor: 5
       isDefault: false
+  graphite:
+    host: "graphite.mycompany.com"
+    port: 2003,
+    prefix: "stats.android.marathon"
 poolingStrategy:
 - type: "omni"
 - type: "device-model"
