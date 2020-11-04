@@ -8,6 +8,7 @@ import com.malinskiy.marathon.cli.config.deserialize.ExecutionTimeSortingStrateg
 import com.malinskiy.marathon.cli.config.deserialize.FileVendorConfigurationDeserializer
 import com.malinskiy.marathon.cli.config.deserialize.FixedSizeBatchingStrategyDeserializer
 import com.malinskiy.marathon.cli.config.deserialize.FlakinessStrategyDeserializer
+import com.malinskiy.marathon.cli.config.deserialize.GraphiteConfigurationDeserializer
 import com.malinskiy.marathon.cli.config.deserialize.InfluxDbConfigurationDeserializer
 import com.malinskiy.marathon.cli.config.deserialize.PoolingStrategyDeserializer
 import com.malinskiy.marathon.cli.config.deserialize.ProbabilityBasedFlakinessStrategyDeserializer
@@ -35,6 +36,7 @@ class DeserializeModule(instantTimeProvider: InstantTimeProvider) : SimpleModule
     init {
         addDeserializer(AnalyticsConfiguration::class.java, AnalyticsConfigurationDeserializer())
         addDeserializer(AnalyticsConfiguration.InfluxDbConfiguration::class.java, InfluxDbConfigurationDeserializer())
+        addDeserializer(AnalyticsConfiguration.GraphiteConfiguration::class.java, GraphiteConfigurationDeserializer())
         addDeserializer(
             AnalyticsConfiguration.InfluxDbConfiguration.RetentionPolicyConfiguration::class.java,
             RetentionPolicyConfigurationDeserializer()

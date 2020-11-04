@@ -1,9 +1,6 @@
-package com.malinskiy.marathon.analytics.external.influx
+package com.malinskiy.marathon.analytics.external
 
-import com.malinskiy.marathon.analytics.external.MetricsProvider
 import com.malinskiy.marathon.analytics.metrics.remote.RemoteDataSource
-import com.malinskiy.marathon.analytics.metrics.remote.influx.InfluxDBDataSource
-import com.malinskiy.marathon.execution.AnalyticsConfiguration
 import com.malinskiy.marathon.execution.withRetry
 import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.test.Test
@@ -22,9 +19,9 @@ private class MeasurementValues(private val values: Map<String, Double>) {
 private const val RETRY_DELAY: Long = 50L
 
 
-class InfluxMetricsProvider(private val remoteDataStore: RemoteDataSource) : MetricsProvider {
+class MetricsProviderImpl(private val remoteDataStore: RemoteDataSource) : MetricsProvider {
 
-    private val logger = MarathonLogging.logger(InfluxMetricsProvider::class.java.simpleName)
+    private val logger = MarathonLogging.logger(MetricsProviderImpl::class.java.simpleName)
 
     private val successRateMeasurements = mutableMapOf<MeasurementKey, MeasurementValues>()
     private val executionTimeMeasurements = mutableMapOf<MeasurementKey, MeasurementValues>()
@@ -93,18 +90,6 @@ class InfluxMetricsProvider(private val remoteDataStore: RemoteDataSource) : Met
 
     override fun close() {
         remoteDataStore.close()
-    }
-
-    companion object {
-        fun createWithFallback(configuration: AnalyticsConfiguration.InfluxDbConfiguration, fallback: MetricsProvider): MetricsProvider {
-            return try {
-                val db = InfluxDbProvider(configuration).createDb()
-                val dataSource = InfluxDBDataSource(db, configuration.dbName, configuration.retentionPolicyConfiguration.name)
-                InfluxMetricsProvider(dataSource)
-            } catch (e: Exception) {
-                fallback
-            }
-        }
     }
 }
 
