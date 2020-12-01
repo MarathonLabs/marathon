@@ -2,7 +2,9 @@ package com.malinskiy.marathon.android
 
 import com.android.sdklib.AndroidVersion
 import com.malinskiy.marathon.analytics.internal.pub.Track
+import com.malinskiy.marathon.android.configuration.SerialStrategy
 import com.malinskiy.marathon.android.exception.InvalidSerialConfiguration
+import com.malinskiy.marathon.android.executor.listeners.AllureArtifactsTestRunListener
 import com.malinskiy.marathon.android.executor.listeners.CompositeTestRunListener
 import com.malinskiy.marathon.android.executor.listeners.DebugTestRunListener
 import com.malinskiy.marathon.android.executor.listeners.LogCatListener
@@ -11,7 +13,6 @@ import com.malinskiy.marathon.android.executor.listeners.ProgressTestRunListener
 import com.malinskiy.marathon.android.executor.listeners.TestRunResultsListener
 import com.malinskiy.marathon.android.executor.listeners.screenshot.ScreenCapturerTestRunListener
 import com.malinskiy.marathon.android.executor.listeners.video.ScreenRecorderTestRunListener
-import com.malinskiy.marathon.android.serial.SerialStrategy
 import com.malinskiy.marathon.device.DeviceFeature
 import com.malinskiy.marathon.device.DevicePoolId
 import com.malinskiy.marathon.device.OperatingSystem
@@ -208,6 +209,10 @@ abstract class BaseAndroidDevice(
         val recorderListener = selectRecorderType(features, recordConfiguration)?.let { feature ->
             prepareRecorderListener(feature, fileManager, devicePoolId, screenRecordingPolicy, attachmentProviders)
         } ?: NoOpTestRunListener()
+        val allureListener = when (this@BaseAndroidDevice.configuration.allureConfiguration.allureAndroidSupport) {
+            false -> NoOpTestRunListener()
+            true -> AllureArtifactsTestRunListener(this, this@BaseAndroidDevice.configuration.allureConfiguration, fileManager)
+        }
 
         val logCatListener = LogCatListener(this, devicePoolId, LogWriter(fileManager))
             .also { attachmentProviders.add(it) }
@@ -218,7 +223,8 @@ abstract class BaseAndroidDevice(
                 logCatListener,
                 TestRunResultsListener(testBatch, this, deferred, timer, attachmentProviders),
                 DebugTestRunListener(this),
-                ProgressTestRunListener(this, devicePoolId, progressReporter)
+                ProgressTestRunListener(this, devicePoolId, progressReporter),
+                allureListener
             )
         )
     }

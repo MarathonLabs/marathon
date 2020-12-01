@@ -10,18 +10,14 @@ android {
     compileSdkVersion(29)
 
     defaultConfig {
-        minSdkVersion(16)
+        minSdkVersion(18)
         targetSdkVersion(29)
 
         applicationId = "com.example"
         versionCode = 1
         versionName = "1.0"
 
-        /**
-         * It's fine to use the regular test runner, but this sample will also demo the integration with allure-android project
-         * https://github.com/allure-framework/allure-android
-         */
-        testInstrumentationRunner = "io.qameta.allure.espresso.AllureAndroidRunner"
+        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
     buildTypes {
@@ -43,11 +39,13 @@ dependencies {
     implementation(Libraries.constraintLayout)
     implementation(Libraries.kotlinStdLib)
 
-    androidTestImplementation(TestLibraries.espressoRunner)
-    androidTestImplementation(TestLibraries.espressoRules)
+    androidTestImplementation(TestLibraries.testRunner)
+    androidTestImplementation(TestLibraries.testRules)
+    androidTestImplementation(TestLibraries.extJunit)
     androidTestImplementation(TestLibraries.espressoCore)
     androidTestImplementation(TestLibraries.kakao)
-    androidTestImplementation(TestLibraries.allureAndroidCommon)
-    androidTestImplementation(TestLibraries.allureAndroidModel)
-    androidTestImplementation(TestLibraries.allureAndroidEspresso)
+    androidTestImplementation(TestLibraries.allureKotlinCommon)
+    androidTestImplementation(TestLibraries.allureKotlinModel)
+    androidTestImplementation(TestLibraries.allureKotlinJunit4)
+    androidTestImplementation(TestLibraries.allureKotlinAndroid)
 }

@@ -18,13 +18,13 @@ import com.malinskiy.marathon.android.AndroidAppInstaller
 import com.malinskiy.marathon.android.AndroidConfiguration
 import com.malinskiy.marathon.android.BaseAndroidDevice
 import com.malinskiy.marathon.android.VideoConfiguration
+import com.malinskiy.marathon.android.configuration.SerialStrategy
 import com.malinskiy.marathon.android.ddmlib.shell.receiver.CollectingShellOutputReceiver
+import com.malinskiy.marathon.android.ddmlib.sync.NoOpSyncProgressMonitor
 import com.malinskiy.marathon.android.exception.CommandRejectedException
 import com.malinskiy.marathon.android.exception.TransferException
-import com.malinskiy.marathon.android.executor.listeners.AllureArtifactsTestRunListener
 import com.malinskiy.marathon.android.executor.listeners.AndroidTestRunListener
 import com.malinskiy.marathon.android.executor.listeners.line.LineListener
-import com.malinskiy.marathon.android.serial.SerialStrategy
 import com.malinskiy.marathon.device.DevicePoolId
 import com.malinskiy.marathon.device.NetworkState
 import com.malinskiy.marathon.execution.Configuration
@@ -100,7 +100,15 @@ class DdmlibAndroidDevice(
         }
     }
 
-    override fun pullFolder(remoteFolderPath: String, localFolderPath: String) {
+    override suspend fun pushFile(localFilePath: String, remoteFilePath: String, verify: Boolean) {
+        try {
+            ddmsDevice.pushFile(localFilePath, remoteFilePath)
+        } catch (e: SyncException) {
+            throw TransferException(e)
+        }
+    }
+
+    override suspend fun pullFolder(remoteFolderPath: String, localFolderPath: String) {
         val parts = remoteFolderPath.split('/').filter { it.isNotBlank() }
 
         try {
@@ -122,14 +130,6 @@ class DdmlibAndroidDevice(
 
         } catch (e: Exception) {
             logger.warn { "Can't pull the folder $remoteFolderPath from device $serialNumber" }
-            throw TransferException(e)
-        }
-    }
-
-    override suspend fun pushFile(localFilePath: String, remoteFilePath: String, verify: Boolean) {
-        try {
-            ddmsDevice.pushFile(localFilePath, remoteFilePath)
-        } catch (e: SyncException) {
             throw TransferException(e)
         }
     }
@@ -235,44 +235,6 @@ class DdmlibAndroidDevice(
                 .execute(configuration, testBatch, listener)
         }
         deferredResult.await()
-    }
-
-    private fun createListeners(
-        configuration: Configuration,
-        devicePoolId: DevicePoolId,
-        testBatch: TestBatch,
-        deferred: CompletableDeferred<TestBatchResults>,
-        progressReporter: ProgressReporter
-    ): CompositeTestRunListener {
-        val fileManager = FileManager(configuration.outputDir)
-        val attachmentProviders = mutableListOf<AttachmentProvider>()
-
-        val features = this.deviceFeatures
-        val androidConfiguration = configuration.vendorConfiguration as AndroidConfiguration
-
-        val preferableRecorderType = configuration.vendorConfiguration.preferableRecorderType()
-        val screenRecordingPolicy = configuration.screenRecordingPolicy
-        val recorderListener = selectRecorderType(preferableRecorderType, features)?.let { feature ->
-            prepareRecorderListener(feature, fileManager, devicePoolId, screenRecordingPolicy, attachmentProviders)
-        } ?: NoOpTestRunListener()
-        val allureListener = when (androidConfiguration.allureConfiguration.allureAndroidSupport) {
-            false -> NoOpTestRunListener()
-            true -> AllureArtifactsTestRunListener(this, androidConfiguration.allureConfiguration, fileManager)
-        }
-
-        val logCatListener = LogCatListener(this, devicePoolId, LogWriter(fileManager))
-            .also { attachmentProviders.add(it) }
-
-        return CompositeTestRunListener(
-            listOf(
-                recorderListener,
-                logCatListener,
-                TestRunResultsListener(testBatch, this, deferred, timer, attachmentProviders),
-                DebugTestRunListener(this),
-                ProgressTestRunListener(this, devicePoolId, progressReporter),
-                allureListener
-            )
-        )
     }
 
     override suspend fun prepare(configuration: Configuration) {

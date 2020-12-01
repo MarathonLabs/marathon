@@ -1,7 +1,10 @@
 package com.malinskiy.marathon.android
 
+import com.malinskiy.marathon.android.configuration.AllureConfiguration
+import com.malinskiy.marathon.android.configuration.AndroidLogConfigurator
+import com.malinskiy.marathon.android.configuration.DEFAULT_ALLURE_CONFIGURATION
+import com.malinskiy.marathon.android.configuration.SerialStrategy
 import com.malinskiy.marathon.android.di.androidModule
-import com.malinskiy.marathon.android.serial.SerialStrategy
 import com.malinskiy.marathon.device.DeviceProvider
 import com.malinskiy.marathon.execution.TestParser
 import com.malinskiy.marathon.log.MarathonLogConfigurator

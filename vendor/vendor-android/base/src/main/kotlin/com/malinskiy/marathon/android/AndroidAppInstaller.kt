@@ -1,6 +1,5 @@
 package com.malinskiy.marathon.android
 
-import com.malinskiy.marathon.android.configuration.AndroidConfiguration
 import com.malinskiy.marathon.android.exception.InstallException
 import com.malinskiy.marathon.exceptions.DeviceSetupException
 import com.malinskiy.marathon.execution.Configuration

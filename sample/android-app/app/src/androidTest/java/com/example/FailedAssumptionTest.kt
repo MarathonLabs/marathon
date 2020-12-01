@@ -1,17 +1,13 @@
 package com.example
 
-import io.qameta.allure.Epic
-import io.qameta.allure.Feature
-import io.qameta.allure.Owner
-import io.qameta.allure.Severity
-import io.qameta.allure.SeverityLevel
-import io.qameta.allure.Story
-import io.qameta.allure.android.step
+import io.qameta.allure.android.runners.AllureAndroidJUnit4
+import io.qameta.allure.kotlin.*
 import org.junit.Assume.assumeTrue
 import org.junit.Ignore
 import org.junit.Test
+import org.junit.runner.RunWith
 
-
+@RunWith(AllureAndroidJUnit4::class)
 @Epic("Marathon")
 @Feature("Assumptions")
 @Owner("user1")

@@ -7,8 +7,11 @@ import com.malinskiy.adam.exception.PullFailedException
 import com.malinskiy.adam.request.async.ChanneledLogcatRequest
 import com.malinskiy.adam.request.async.LogcatReadMode
 import com.malinskiy.adam.request.devices.DeviceState
+import com.malinskiy.adam.request.sync.AndroidFile
+import com.malinskiy.adam.request.sync.AndroidFileType
 import com.malinskiy.adam.request.sync.GetPropRequest
 import com.malinskiy.adam.request.sync.InstallRemotePackageRequest
+import com.malinskiy.adam.request.sync.ListFilesRequest
 import com.malinskiy.adam.request.sync.PullFileRequest
 import com.malinskiy.adam.request.sync.PushFileRequest
 import com.malinskiy.adam.request.sync.ScreenCaptureRequest
@@ -24,9 +27,9 @@ import com.malinskiy.marathon.android.BaseAndroidDevice
 import com.malinskiy.marathon.android.VideoConfiguration
 import com.malinskiy.marathon.android.adam.log.LogCatMessageParser
 import com.malinskiy.marathon.android.adam.screenshot.ImageAdapter
+import com.malinskiy.marathon.android.configuration.SerialStrategy
 import com.malinskiy.marathon.android.exception.TransferException
 import com.malinskiy.marathon.android.executor.listeners.line.LineListener
-import com.malinskiy.marathon.android.serial.SerialStrategy
 import com.malinskiy.marathon.device.DevicePoolId
 import com.malinskiy.marathon.device.NetworkState
 import com.malinskiy.marathon.execution.Configuration
@@ -145,6 +148,52 @@ class AdamAndroidDevice(
         if (verify) {
             val expectedMd5 = Files.asByteSource(File(localFilePath)).hash(Hashing.md5()).toString()
             waitForRemoteFileSync(expectedMd5, remoteFilePath)
+        }
+    }
+
+    override suspend fun pullFolder(remoteFolderPath: String, localFolderPath: String) {
+        if (!File(localFolderPath).isDirectory) {
+            throw TransferException("Destination $localFolderPath is not a directory")
+        }
+
+        /**
+         * Iterate instead of recursion
+         */
+        val filesToPull = mutableListOf<AndroidFile>()
+        var directoriesToTraverse = listOf(remoteFolderPath)
+
+        while (directoriesToTraverse.isNotEmpty()) {
+            //We have to use a second collection because we're iterating over directoriesToTraverse later
+            val currentDepthDirs = mutableListOf<String>()
+            for (dir in directoriesToTraverse) {
+                val currentDepthFiles = client.execute(ListFilesRequest(dir), adbSerial)
+
+                filesToPull.addAll(currentDepthFiles.filter { it.type == AndroidFileType.REGULAR_FILE })
+                currentDepthDirs.addAll(
+                    currentDepthFiles.filter { it.type == AndroidFileType.DIRECTORY }
+                        .map { it.directory + '/' + it.name }
+                )
+            }
+            directoriesToTraverse = currentDepthDirs
+        }
+
+        filesToPull.forEach { file ->
+            val relativePathSegments = file.directory.substringAfter(remoteFolderPath).split('\\')
+            val absoluteLocalDirectory = StringBuilder().apply {
+                append(localFolderPath)
+                append(File.separator)
+                relativePathSegments.forEach { segment ->
+                    append(segment)
+                    append(File.separator)
+                }
+            }.toString()
+
+            val localFileDirectory = File(absoluteLocalDirectory).apply {
+                mkdirs()
+            }
+            val localFile = File(localFileDirectory, file.name)
+
+            pullFile("${file.directory}${File.separator}${file.name}", localFile.absolutePath)
         }
     }
 

@@ -6,9 +6,9 @@ import com.android.ddmlib.TimeoutException
 import com.android.ddmlib.testrunner.ITestRunListener
 import com.android.ddmlib.testrunner.RemoteAndroidTestRunner
 import com.android.ddmlib.testrunner.TestIdentifier
+import com.malinskiy.marathon.android.AndroidConfiguration
 import com.malinskiy.marathon.android.ApkParser
 import com.malinskiy.marathon.android.InstrumentationInfo
-import com.malinskiy.marathon.android.configuration.AndroidConfiguration
 import com.malinskiy.marathon.exceptions.DeviceLostException
 import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.log.MarathonLogging
@@ -24,7 +24,7 @@ const val ERROR_STUCK = "Test got stuck. You can increase the timeout in setting
 class AndroidDeviceTestRunner(private val device: DdmlibAndroidDevice) {
     private val logger = MarathonLogging.logger("AndroidDeviceTestRunner")
 
-    fun execute(
+    suspend fun execute(
         configuration: Configuration,
         rawTestBatch: TestBatch,
         listener: ITestRunListener
@@ -78,7 +78,7 @@ class AndroidDeviceTestRunner(private val device: DdmlibAndroidDevice) {
         }
     }
 
-    private fun clearData(androidConfiguration: AndroidConfiguration, info: InstrumentationInfo) {
+    private suspend fun clearData(androidConfiguration: AndroidConfiguration, info: InstrumentationInfo) {
         if (androidConfiguration.applicationPmClear) {
             device.ddmsDevice.safeClearPackage(info.applicationPackage)?.also {
                 logger.debug { "Package ${info.applicationPackage} cleared: $it" }

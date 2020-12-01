@@ -11,16 +11,7 @@ import com.malinskiy.marathon.report.Reporter
 import com.malinskiy.marathon.test.Test
 import com.malinskiy.marathon.test.toSimpleSafeTestName
 import io.qameta.allure.AllureLifecycle
-import io.qameta.allure.Description
-import io.qameta.allure.Epic
-import io.qameta.allure.Feature
 import io.qameta.allure.FileSystemResultsWriter
-import io.qameta.allure.Issue
-import io.qameta.allure.Owner
-import io.qameta.allure.Severity
-import io.qameta.allure.SeverityLevel
-import io.qameta.allure.Story
-import io.qameta.allure.TmsLink
 import io.qameta.allure.model.Attachment
 import io.qameta.allure.model.Label
 import io.qameta.allure.model.Status
@@ -28,6 +19,24 @@ import io.qameta.allure.model.StatusDetails
 import io.qameta.allure.util.ResultsUtils
 import java.io.File
 import java.util.*
+import io.qameta.allure.Description as JavaDescription
+import io.qameta.allure.Epic as JavaEpic
+import io.qameta.allure.Feature as JavaFeature
+import io.qameta.allure.Issue as JavaIssue
+import io.qameta.allure.Owner as JavaOwner
+import io.qameta.allure.Severity as JavaSeverity
+import io.qameta.allure.SeverityLevel as JavaSeverityLevel
+import io.qameta.allure.Story as JavaStory
+import io.qameta.allure.TmsLink as JavaTmsLink
+import io.qameta.allure.kotlin.Description as KotlinDescription
+import io.qameta.allure.kotlin.Epic as KotlinEpic
+import io.qameta.allure.kotlin.Feature as KotlinFeature
+import io.qameta.allure.kotlin.Issue as KotlinIssue
+import io.qameta.allure.kotlin.Owner as KotlinOwner
+import io.qameta.allure.kotlin.Severity as KotlinSeverity
+import io.qameta.allure.kotlin.SeverityLevel as KotlinSeverityLevel
+import io.qameta.allure.kotlin.Story as KotlinStory
+import io.qameta.allure.kotlin.TmsLink as KotlinTmsLink
 
 class AllureReporter(val configuration: Configuration, private val outputDirectory: File) : Reporter {
 
@@ -98,12 +107,16 @@ class AllureReporter(val configuration: Configuration, private val outputDirecto
         }
 
 
-        test.findValue<String>(Description::class.java.canonicalName)?.let { allureTestResult.setDescription(it) }
-        test.findValue<String>(Issue::class.java.canonicalName)?.let { allureTestResult.links.add(it.toLink()) }
-        test.findValue<String>(TmsLink::class.java.canonicalName)?.let { allureTestResult.links.add(it.toLink()) }
+        test.findValue<String>(JavaDescription::class.java.canonicalName)?.let { allureTestResult.setDescription(it) }
+        test.findValue<String>(JavaIssue::class.java.canonicalName)?.let { allureTestResult.links.add(it.toLink()) }
+        test.findValue<String>(JavaTmsLink::class.java.canonicalName)?.let { allureTestResult.links.add(it.toLink()) }
+
+        test.findValue<String>(KotlinDescription::class.java.canonicalName)?.let { allureTestResult.setDescription(it) }
+        test.findValue<String>(KotlinIssue::class.java.canonicalName)?.let { allureTestResult.links.add(it.toLink()) }
+        test.findValue<String>(KotlinTmsLink::class.java.canonicalName)?.let { allureTestResult.links.add(it.toLink()) }
+
 
         allureTestResult.labels.addAll(test.getOptionalLabels())
-
 
         return allureTestResult
     }
@@ -114,11 +127,20 @@ class AllureReporter(val configuration: Configuration, private val outputDirecto
     private fun Test.getOptionalLabels(): Collection<Label> {
         val list = mutableListOf<Label>()
 
-        findValue<String>(Epic::class.java.canonicalName)?.let { list.add(ResultsUtils.createEpicLabel(it)) }
-        findValue<String>(Feature::class.java.canonicalName)?.let { list.add(ResultsUtils.createFeatureLabel(it)) }
-        findValue<String>(Story::class.java.canonicalName)?.let { list.add(ResultsUtils.createStoryLabel(it)) }
-        findValue<SeverityLevel>(Severity::class.java.canonicalName)?.let { list.add(ResultsUtils.createSeverityLabel(it)) }
-        findValue<String>(Owner::class.java.canonicalName)?.let { list.add(ResultsUtils.createOwnerLabel(it)) }
+        findValue<String>(JavaEpic::class.java.canonicalName)?.let { list.add(ResultsUtils.createEpicLabel(it)) }
+        findValue<String>(JavaFeature::class.java.canonicalName)?.let { list.add(ResultsUtils.createFeatureLabel(it)) }
+        findValue<String>(JavaStory::class.java.canonicalName)?.let { list.add(ResultsUtils.createStoryLabel(it)) }
+        findValue<JavaSeverityLevel>(JavaSeverity::class.java.canonicalName)?.let { list.add(ResultsUtils.createSeverityLabel(it)) }
+        findValue<String>(JavaOwner::class.java.canonicalName)?.let { list.add(ResultsUtils.createOwnerLabel(it)) }
+
+        findValue<String>(KotlinEpic::class.java.canonicalName)?.let { list.add(ResultsUtils.createEpicLabel(it)) }
+        findValue<String>(KotlinFeature::class.java.canonicalName)?.let { list.add(ResultsUtils.createFeatureLabel(it)) }
+        findValue<String>(KotlinStory::class.java.canonicalName)?.let { list.add(ResultsUtils.createStoryLabel(it)) }
+        findValue<KotlinSeverityLevel>(KotlinSeverity::class.java.canonicalName)?.let {
+            //Assuming that Java and Kotlin models are compatible
+            list.add(ResultsUtils.createSeverityLabel(it.value))
+        }
+        findValue<String>(KotlinOwner::class.java.canonicalName)?.let { list.add(ResultsUtils.createOwnerLabel(it)) }
 
         return list
     }

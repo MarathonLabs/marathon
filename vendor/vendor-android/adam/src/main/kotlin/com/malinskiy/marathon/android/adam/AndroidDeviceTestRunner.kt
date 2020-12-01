@@ -35,7 +35,7 @@ const val ERROR_STUCK = "Test got stuck. You can increase the timeout in setting
 class AndroidDeviceTestRunner(private val device: AdamAndroidDevice) {
     private val logger = MarathonLogging.logger("AndroidDeviceTestRunner")
 
-    @UseExperimental(ExperimentalStdlibApi::class)
+    @OptIn(ExperimentalStdlibApi::class)
     suspend fun execute(
         configuration: Configuration,
         rawTestBatch: TestBatch,
@@ -127,6 +127,10 @@ class AndroidDeviceTestRunner(private val device: AdamAndroidDevice) {
             device.safeClearPackage(info.instrumentationPackage)?.also {
                 logger.debug { "Package ${info.instrumentationPackage} cleared: $it" }
             }
+        }
+        if (androidConfiguration.allureConfiguration.allureAndroidSupport) {
+            device.fileManager.removeRemotePath(androidConfiguration.allureConfiguration.resultsDirectory, recursive = true)
+            device.fileManager.createRemoteDirectory(androidConfiguration.allureConfiguration.resultsDirectory)
         }
     }
 

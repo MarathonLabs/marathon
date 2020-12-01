@@ -1,24 +1,18 @@
 package com.example
 
-import androidx.test.rule.ActivityTestRule
-import io.qameta.allure.Epic
-import io.qameta.allure.Feature
-import io.qameta.allure.Owner
-import io.qameta.allure.Severity
-import io.qameta.allure.SeverityLevel
-import io.qameta.allure.Story
-import io.qameta.allure.android.softly
-import io.qameta.allure.android.step
-import io.qameta.allure.espresso.FailshotRule
-import io.qameta.allure.espresso.LogcatClearRule
-import io.qameta.allure.espresso.LogcatDumpRule
-import io.qameta.allure.espresso.WindowHierarchyRule
-import io.qameta.allure.espresso.deviceScreenshot
-import org.hamcrest.core.IsEqual
+import androidx.test.ext.junit.rules.ActivityScenarioRule
+import io.qameta.allure.android.allureScreenshot
+import io.qameta.allure.android.rules.LogcatRule
+import io.qameta.allure.android.rules.ScreenshotRule
+import io.qameta.allure.android.rules.WindowHierarchyRule
+import io.qameta.allure.android.runners.AllureAndroidJUnit4
+import io.qameta.allure.kotlin.*
+import io.qameta.allure.kotlin.Allure.step
 import org.junit.Rule
 import org.junit.Test
-import org.junit.rules.RuleChain
+import org.junit.runner.RunWith
 
+@RunWith(AllureAndroidJUnit4::class)
 @Epic("General")
 @Feature("Text on main screen")
 @Story("Slow")
@@ -26,20 +20,16 @@ import org.junit.rules.RuleChain
 @Severity(SeverityLevel.CRITICAL)
 class MainActivityAllureTest {
 
-    @Rule
-    @JvmField
-    val rule = ActivityTestRule(MainActivity::class.java)
+    @get:Rule
+    val rule = ActivityScenarioRule(MainActivity::class.java)
 
-    @Rule
-    @JvmField
-    val failshot = FailshotRule()
+    @get:Rule
+    val screenshotRule = ScreenshotRule(mode = ScreenshotRule.Mode.FAILURE, screenshotName = "ss_end")
 
-    @Rule
-    @JvmField
-    val ruleChain = RuleChain.outerRule(LogcatClearRule()).around(LogcatDumpRule())
+    @get:Rule
+    val logcatRule = LogcatRule()
 
-    @Rule
-    @JvmField
+    @get:Rule
     val windowHierarchyRule = WindowHierarchyRule()
 
     val screen = MainScreen()
@@ -48,10 +38,6 @@ class MainActivityAllureTest {
     fun testText() {
         step("first step") {
             Thread.sleep(500)
-
-            softly {
-                checkThat("softAssert", true, IsEqual(false))
-            }
         }
 
         screen {
@@ -59,7 +45,7 @@ class MainActivityAllureTest {
                 step("second step") {
                     hasText("Test")
 
-                    deviceScreenshot("MainActivityAllureTest")
+                    allureScreenshot("MainActivityAllureTest")
                 }
             }
         }

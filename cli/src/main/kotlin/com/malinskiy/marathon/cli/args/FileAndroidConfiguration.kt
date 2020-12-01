@@ -1,15 +1,16 @@
 package com.malinskiy.marathon.cli.args
 
 import com.fasterxml.jackson.annotation.JsonProperty
-import com.malinskiy.marathon.android.configuration.AllureConfiguration
 import com.malinskiy.marathon.android.AndroidConfiguration
 import com.malinskiy.marathon.android.DEFAULT_INSTALL_OPTIONS
 import com.malinskiy.marathon.android.DEFAULT_WAIT_FOR_DEVICES_TIMEOUT
 import com.malinskiy.marathon.android.ScreenRecordConfiguration
 import com.malinskiy.marathon.android.VendorType
 import com.malinskiy.marathon.android.adam.di.adamModule
+import com.malinskiy.marathon.android.configuration.AllureConfiguration
+import com.malinskiy.marathon.android.configuration.DEFAULT_ALLURE_CONFIGURATION
+import com.malinskiy.marathon.android.configuration.SerialStrategy
 import com.malinskiy.marathon.android.defaultInitTimeoutMillis
-import com.malinskiy.marathon.android.serial.SerialStrategy
 import com.malinskiy.marathon.exceptions.ConfigurationException
 import ddmlibModule
 import java.io.File
@@ -27,7 +28,7 @@ data class FileAndroidConfiguration(
     @JsonProperty("installOptions") val installOptions: String?,
     @JsonProperty("serialStrategy") val serialStrategy: SerialStrategy = SerialStrategy.AUTOMATIC,
     @JsonProperty("screenRecordConfiguration") val screenRecordConfiguration: ScreenRecordConfiguration = ScreenRecordConfiguration(),
-    @JsonProperty("waitForDevicesTimeoutMillis") val waitForDevicesTimeoutMillis: Long?
+    @JsonProperty("waitForDevicesTimeoutMillis") val waitForDevicesTimeoutMillis: Long?,
     @JsonProperty("allureConfiguration") val allureConfiguration: AllureConfiguration?
 ) : FileVendorConfiguration {
 
