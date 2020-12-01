@@ -59,7 +59,9 @@ fun main(args: Array<String>): Unit = mainBody(
             }
         } finally {
             stopKoin()
-            bugsnagExceptionsReporter.end()
+            if(bugsnagReporting){
+                bugsnagExceptionsReporter.end()
+            }
         }
     }
 }
