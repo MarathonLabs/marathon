@@ -16,6 +16,7 @@ import com.malinskiy.marathon.execution.queue.QueueMessage
 import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.test.TestBatch
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.channels.SendChannel
 import kotlin.coroutines.CoroutineContext
 
@@ -47,7 +48,10 @@ class DevicePoolActor(
         }
     }
 
-    private val poolJob = Job(parent)
+    /**
+     * Any problem with a device should not propagate a cancellation upstream
+     */
+    private val poolJob = SupervisorJob(parent)
 
     private val queue: QueueActor = QueueActor(
         configuration,

@@ -10,6 +10,8 @@ abstract class TrackerInternalAdapter : TrackerInternal {
         }
     }
 
+    override fun close() = Unit
+
     protected open fun trackTest(event: TestEvent) = Unit
 
     protected open fun trackDeviceProviderPreparing(event: DeviceProviderPreparingEvent) = Unit

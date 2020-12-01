@@ -8,39 +8,39 @@ class DebugTestRunListener(private val device: AndroidDevice) : AndroidTestRunLi
 
     private val logger = MarathonLogging.logger("DebugTestRunListener")
 
-    override fun testRunStarted(runName: String, testCount: Int) {
+    override suspend fun testRunStarted(runName: String, testCount: Int) {
         logger.info { "testRunStarted ${device.serialNumber}" }
     }
 
-    override fun testStarted(test: TestIdentifier) {
+    override suspend fun testStarted(test: TestIdentifier) {
         logger.info { "testStarted ${device.serialNumber} test = $test" }
     }
 
-    override fun testAssumptionFailure(test: TestIdentifier, trace: String) {
+    override suspend fun testAssumptionFailure(test: TestIdentifier, trace: String) {
         logger.info { "testAssumptionFailure ${device.serialNumber} test = $test trace = $trace" }
     }
 
-    override fun testRunStopped(elapsedTime: Long) {
+    override suspend fun testRunStopped(elapsedTime: Long) {
         logger.info { "testRunStopped ${device.serialNumber} elapsedTime = $elapsedTime" }
     }
 
-    override fun testFailed(test: TestIdentifier, trace: String) {
+    override suspend fun testFailed(test: TestIdentifier, trace: String) {
         logger.info { "testFailed ${device.serialNumber} test = $test trace = $trace" }
     }
 
-    override fun testEnded(test: TestIdentifier, testMetrics: Map<String, String>) {
+    override suspend fun testEnded(test: TestIdentifier, testMetrics: Map<String, String>) {
         logger.info { "testEnded ${device.serialNumber} test = $test" }
     }
 
-    override fun testIgnored(test: TestIdentifier) {
+    override suspend fun testIgnored(test: TestIdentifier) {
         logger.info { "testIgnored ${device.serialNumber} test = $test" }
     }
 
-    override fun testRunFailed(errorMessage: String) {
+    override suspend fun testRunFailed(errorMessage: String) {
         logger.info { "testRunFailed ${device.serialNumber} errorMessage = $errorMessage" }
     }
 
-    override fun testRunEnded(elapsedTime: Long, runMetrics: Map<String, String>) {
+    override suspend fun testRunEnded(elapsedTime: Long, runMetrics: Map<String, String>) {
         logger.info { "testRunEnded elapsedTime $elapsedTime" }
     }
 }

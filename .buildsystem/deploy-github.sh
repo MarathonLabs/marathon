@@ -17,7 +17,7 @@ if [ -z "$GPG_PASSPHRASE" ]; then
 fi
 
 TARGETS=""
-for i in ":core" ":vendor:vendor-android:base" ":vendor:vendor-android:ddmlib" ":marathon-gradle-plugin" ":report:execution-timeline" ":report:html-report" ":analytics:usage"; do
+for i in ":core" ":vendor:vendor-android:base" ":vendor:vendor-android:ddmlib" ":vendor:vendor-android:adam" ":marathon-gradle-plugin" ":report:execution-timeline" ":report:html-report" ":analytics:usage"; do
   TARGETS="$TARGETS $i:publishDefaultPublicationToGitHubRepository"
 done
 

@@ -2,6 +2,7 @@ package com.malinskiy.marathon.execution.progress
 
 import com.malinskiy.marathon.device.DeviceInfo
 import com.malinskiy.marathon.device.DevicePoolId
+import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.execution.progress.tracker.PoolProgressTracker
 import com.malinskiy.marathon.test.Test
 import com.malinskiy.marathon.test.toTestName
@@ -10,11 +11,11 @@ import kotlin.math.roundToInt
 
 const val HUNDRED_PERCENT_IN_FLOAT: Float = 100.0f
 
-class ProgressReporter {
+class ProgressReporter(private val configuration: Configuration) {
     private val reporters = ConcurrentHashMap<DevicePoolId, PoolProgressTracker>()
 
     private inline fun <T> execute(poolId: DevicePoolId, f: (PoolProgressTracker) -> T): T {
-        val reporter = reporters[poolId] ?: PoolProgressTracker()
+        val reporter = reporters[poolId] ?: PoolProgressTracker(configuration)
         val result = f(reporter)
         reporters[poolId] = reporter
         return result

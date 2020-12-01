@@ -2,6 +2,7 @@ package com.malinskiy.marathon.android
 
 import com.malinskiy.marathon.android.configuration.AndroidConfiguration
 import com.malinskiy.marathon.android.exception.InstallException
+import com.malinskiy.marathon.exceptions.DeviceSetupException
 import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.execution.withRetry
 import com.malinskiy.marathon.log.MarathonLogging
@@ -40,6 +41,9 @@ class AndroidAppInstaller(configuration: Configuration) {
                 logger.info("Installing $appPackage, ${appApk.absolutePath} to ${device.serialNumber}")
                 val installMessage = device.safeInstallPackage(appApk.absolutePath, true, optionalParams(device))
                 installMessage?.let { logger.debug { it } }
+                if (installMessage == null || !installMessage.startsWith("Success")) {
+                    throw InstallException(installMessage ?: "")
+                }
             } catch (e: InstallException) {
                 logger.error(e) { "Error while installing $appPackage, ${appApk.absolutePath} on ${device.serialNumber}" }
                 throw RuntimeException("Error while installing $appPackage on ${device.serialNumber}", e)
@@ -47,8 +51,9 @@ class AndroidAppInstaller(configuration: Configuration) {
         }
     }
 
-    private fun installed(device: AndroidDevice, appPackage: String): Boolean {
-        val lines = device.safeExecuteShellCommand("pm list packages").lines()
+    private suspend fun installed(device: AndroidDevice, appPackage: String): Boolean {
+        val lines = device.safeExecuteShellCommand("pm list packages")?.lines()
+            ?: throw DeviceSetupException("Unable to verify that package $appPackage is installed")
         return lines.any { it == "package:$appPackage" }
     }
 

@@ -15,21 +15,21 @@ class ProgressTestRunListener(
     private val failed = mutableMapOf<TestIdentifier, Boolean>()
     private val ignored = mutableMapOf<TestIdentifier, Boolean>()
 
-    override fun testStarted(test: TestIdentifier) {
+    override suspend fun testStarted(test: TestIdentifier) {
         failed[test] = false
         ignored[test] = false
         progressTracker.testStarted(poolId, device.toDeviceInfo(), test.toTest())
     }
 
-    override fun testFailed(test: TestIdentifier, trace: String) {
+    override suspend fun testFailed(test: TestIdentifier, trace: String) {
         failed[test] = true
     }
 
-    override fun testAssumptionFailure(test: TestIdentifier, trace: String) {
+    override suspend fun testAssumptionFailure(test: TestIdentifier, trace: String) {
         testIgnored(test)
     }
 
-    override fun testEnded(test: TestIdentifier, testMetrics: Map<String, String>) {
+    override suspend fun testEnded(test: TestIdentifier, testMetrics: Map<String, String>) {
         if (failed[test] == true) {
             progressTracker.testFailed(poolId, device.toDeviceInfo(), test.toTest())
         } else if (ignored[test] == false) {
@@ -37,7 +37,7 @@ class ProgressTestRunListener(
         }
     }
 
-    override fun testIgnored(test: TestIdentifier) {
+    override suspend fun testIgnored(test: TestIdentifier) {
         ignored[test] = true
         progressTracker.testIgnored(poolId, device.toDeviceInfo(), test.toTest())
     }

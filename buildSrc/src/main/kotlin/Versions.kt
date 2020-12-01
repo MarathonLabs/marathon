@@ -1,21 +1,22 @@
 object Versions {
-    val marathon = System.getenv("DEPLOY_VERSION_OVERRIDE") ?: "0.5.2"
+    val marathon = System.getenv("DEPLOY_VERSION_OVERRIDE") ?: "0.6.0"
 
-    val kotlin = "1.3.61"
-    val coroutines = "1.3.3"
+    val kotlin = "1.4.10"
+    val coroutines = "1.3.9"
 
-    val ddmlib = "26.3.0"
+    val ddmlib = "27.0.0"
+    val adam = "0.0.8"
     val dexTestParser = "2.1.1"
-    val kotlinLogging = "1.4.9"
+    val kotlinLogging = "1.7.6"
     val slf4jAPI = "1.0.0"
     val logbackClassic = "1.2.3"
     val axmlParser = "1.0"
     val bugsnag = "3.6.1"
 
     val junitGradle = "1.0.0"
-    val androidGradleVersion = "3.3.0"
+    val androidGradleVersion = "4.0.0"
 
-    val spek = "1.1.5"
+    val junit5 = "5.6.0"
     val kluent = "1.40"
 
     val kakao = "1.4.0"
@@ -36,7 +37,7 @@ object Versions {
     val guava = "26.0-jre"
     val rsync4j = "3.1.2-12"
     val sshj = "0.26.0"
-    val testContainers = "1.9.1"
+    val testContainers = "1.15.0-rc2"
     val jupiterEngine = "5.1.0"
     val jansi = "1.17.1"
     val scalr = "4.2"
@@ -47,6 +48,7 @@ object Versions {
     val dokka = "0.9.17"
     val koin = "2.0.1"
     val jsonAssert = "1.5.0"
+    val xmlUnit = "2.6.3"
     val assertk = "0.19"
 }
 
@@ -59,6 +61,7 @@ object BuildPlugins {
 
 object Libraries {
     val ddmlib = "com.android.tools.ddms:ddmlib:${Versions.ddmlib}"
+    val adam = "com.malinskiy:adam:${Versions.adam}"
     val androidCommon = "com.android.tools:common:${Versions.ddmlib}"
     val dexTestParser = "com.linkedin.dextestparser:parser:${Versions.dexTestParser}"
     val kotlinStdLib = "org.jetbrains.kotlin:kotlin-stdlib-jdk8:${Versions.kotlin}"
@@ -92,8 +95,7 @@ object Libraries {
 }
 
 object TestLibraries {
-    val spekAPI = "org.jetbrains.spek:spek-api:${Versions.spek}"
-    val spekJUnitPlatformEngine = "org.jetbrains.spek:spek-junit-platform-engine:${Versions.spek}"
+    val junit5 = "org.junit.jupiter:junit-jupiter:${Versions.junit5}"
     val kluent = "org.amshove.kluent:kluent:${Versions.kluent}"
     val kakao = "com.agoda.kakao:kakao:${Versions.kakao}"
 
@@ -108,6 +110,7 @@ object TestLibraries {
     val jupiterEngine = "org.junit.jupiter:junit-jupiter-engine:${Versions.jupiterEngine}"
     val koin = "org.koin:koin-test:${Versions.koin}"
     val jsonAssert = "org.skyscreamer:jsonassert:${Versions.jsonAssert}"
+    val xmlUnit = "org.xmlunit:xmlunit-matchers:${Versions.xmlUnit}"
     val assertk = "com.willowtreeapps.assertk:assertk:${Versions.assertk}"
 
     val testContainers = "org.testcontainers:testcontainers:${Versions.testContainers}"

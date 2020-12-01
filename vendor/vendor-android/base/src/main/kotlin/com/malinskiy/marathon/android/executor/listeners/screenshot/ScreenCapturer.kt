@@ -1,6 +1,7 @@
 package com.malinskiy.marathon.android.executor.listeners.screenshot
 
 import com.malinskiy.marathon.android.AndroidDevice
+import com.malinskiy.marathon.android.ScreenshotConfiguration
 import com.malinskiy.marathon.android.exception.CommandRejectedException
 import com.malinskiy.marathon.device.DevicePoolId
 import com.malinskiy.marathon.device.toDeviceInfo
@@ -25,13 +26,14 @@ class ScreenCapturer(
     val device: AndroidDevice,
     private val poolId: DevicePoolId,
     private val fileManager: FileManager,
-    val test: Test
+    val test: Test,
+    private val configuration: ScreenshotConfiguration
 ) {
 
     suspend fun start() = coroutineScope {
         val outputStream = FileImageOutputStream(fileManager.createFile(FileType.SCREENSHOT, poolId, device.toDeviceInfo(), test))
-        val writer = GifSequenceWriter(outputStream, TYPE_INT_ARGB, DELAY, true)
-        var targetOrientation = UNDEFINED
+        val writer = GifSequenceWriter(outputStream, TYPE_INT_ARGB, configuration.delayMs, true)
+        var targetOrientation = detectCurrentDeviceOrientation()
         while (isActive) {
             val capturingTimeMillis = measureTimeMillis {
                 getScreenshot(targetOrientation)?.let {
@@ -43,8 +45,8 @@ class ScreenCapturer(
                 }
             }
             val sleepTimeMillis = when {
-                (DELAY - capturingTimeMillis) < 0 -> 0
-                else -> DELAY - capturingTimeMillis
+                (configuration.delayMs - capturingTimeMillis) < 0 -> 0
+                else -> configuration.delayMs - capturingTimeMillis
             }
             delay(sleepTimeMillis)
         }
@@ -52,7 +54,15 @@ class ScreenCapturer(
         outputStream.close()
     }
 
-    private fun getScreenshot(targetOrientation: Int): RenderedImage? {
+    private fun detectCurrentDeviceOrientation(): Int {
+        /**
+         * `dumpsys input` is too slow for our purposes: by the time we get the response with SurfaceOrientation the test might already have
+         * finished
+         */
+        return UNDEFINED
+    }
+
+    private suspend fun getScreenshot(targetOrientation: Int): RenderedImage? {
         return try {
             val screenshot = device.getScreenshot(TIMEOUT_MS, TimeUnit.MILLISECONDS).let {
                 // in case the orientation of the image is different than the target, rotate by 90 degrees
@@ -66,9 +76,9 @@ class ScreenCapturer(
             // the first time the orientation did not settle, use the actual image orientation
             val resolvedOrientation = if (targetOrientation == UNDEFINED) screenshot.getOrientation() else targetOrientation
             if (resolvedOrientation == PORTRAIT) {
-                Scalr.resize(screenshot, Scalr.Method.SPEED, Scalr.Mode.AUTOMATIC, TARGET_WIDTH, TARGET_HEIGHT)
+                Scalr.resize(screenshot, Scalr.Method.SPEED, Scalr.Mode.AUTOMATIC, configuration.width, configuration.height)
             } else {
-                Scalr.resize(screenshot, Scalr.Method.SPEED, Scalr.Mode.AUTOMATIC, TARGET_HEIGHT, TARGET_WIDTH)
+                Scalr.resize(screenshot, Scalr.Method.SPEED, Scalr.Mode.AUTOMATIC, configuration.height, configuration.width)
             }
         } catch (e: TimeoutException) {
             logger.error(e) { "Timeout. Exiting" }
@@ -87,12 +97,8 @@ class ScreenCapturer(
     }
 
     companion object {
-        const val DELAY = 500
-        const val TIMEOUT_MS = 300L
+        private const val TIMEOUT_MS = 300L
         val logger = MarathonLogging.logger(ScreenCapturer::class.java.simpleName)
-
-        private const val TARGET_WIDTH = 720
-        private const val TARGET_HEIGHT = 1280
         private const val UNDEFINED = 0
         private const val PORTRAIT = 1
         private const val LANDSCAPE = 2

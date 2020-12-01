@@ -109,21 +109,21 @@ class Scheduler(
         }
         pools[poolId]?.send(AddDevice(device)) ?: logger.debug {
             "not sending the AddDevice event " +
-                    "to device pool for ${device.serialNumber}"
+                "to device pool for ${device.serialNumber}"
         }
         track.deviceConnected(poolId, device.toDeviceInfo())
     }
 
     private fun filteredByConfiguration(device: Device): Boolean {
-        val whiteListAccepted = when {
+        val allowListAccepted = when {
             configuration.includeSerialRegexes.isEmpty() -> true
             else -> configuration.includeSerialRegexes.any { it.matches(device.serialNumber) }
         }
-        val blacklistAccepted = when {
+        val blockListAccepted = when {
             configuration.excludeSerialRegexes.isEmpty() -> true
             else -> configuration.excludeSerialRegexes.none { it.matches(device.serialNumber) }
         }
 
-        return !(whiteListAccepted && blacklistAccepted)
+        return !(allowListAccepted && blockListAccepted)
     }
 }

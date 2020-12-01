@@ -6,23 +6,30 @@ import com.android.ddmlib.IShellOutputReceiver
 import com.android.ddmlib.InstallException
 import com.android.ddmlib.InstallReceiver
 import com.android.ddmlib.MultiLineReceiver
-import com.android.ddmlib.ScreenRecorderOptions
 import com.android.ddmlib.ShellCommandUnresponsiveException
 import com.android.ddmlib.TimeoutException
 import com.android.ddmlib.testrunner.TestIdentifier
+import com.malinskiy.marathon.android.ADB_INSTALL_TIMEOUT_MINUTES
+import com.malinskiy.marathon.android.ADB_SCREEN_RECORD_TIMEOUT_MINUTES
+import com.malinskiy.marathon.android.ADB_SHORT_TIMEOUT_SECONDS
+import com.malinskiy.marathon.android.VideoConfiguration
 import com.malinskiy.marathon.test.Test
 import java.io.IOException
 import java.util.concurrent.TimeUnit
 
-const val ADB_INSTALL_TIMEOUT_MINUTES = 4L
-const val ADB_SHORT_TIMEOUT_SECONDS = 20L
-const val ADB_SCREEN_RECORD_TIMEOUT = 10L
 
-fun IDevice.safeUninstallPackage(packageName: String): String? {
+fun IDevice.safeUninstallPackage(packageName: String, keepData: Boolean): String? {
     try {
         val receiver = InstallReceiver()
+        val cmd = if (keepData) {
+            "pm uninstall -k $packageName"
+        } else {
+            "pm uninstall $packageName"
+        }
+
+
         executeShellCommand(
-            "pm uninstall $packageName",
+            cmd,
             receiver,
             ADB_INSTALL_TIMEOUT_MINUTES,
             ADB_INSTALL_TIMEOUT_MINUTES,
@@ -54,16 +61,30 @@ fun IDevice.safeInstallPackage(packageFilePath: String, reinstall: Boolean, vara
         *extraArgs
     )
 
-    return receiver.errorMessage
+    return if (receiver.isSuccessfullyCompleted) {
+        receiver.successMessage
+    } else {
+        receiver.errorMessage
+    }
 }
 
 fun IDevice.safeExecuteShellCommand(command: String, receiver: IShellOutputReceiver) {
     executeShellCommand(command, receiver, ADB_SHORT_TIMEOUT_SECONDS, ADB_SHORT_TIMEOUT_SECONDS, TimeUnit.SECONDS)
 }
 
-fun IDevice.safeStartScreenRecorder(remoteFilePath: String, options: ScreenRecorderOptions, receiver: IShellOutputReceiver) {
-    val screenRecorderCommand = getScreenRecorderCommand(remoteFilePath, options)
-    executeShellCommand(screenRecorderCommand, receiver, ADB_SCREEN_RECORD_TIMEOUT, ADB_SCREEN_RECORD_TIMEOUT, TimeUnit.MINUTES)
+fun IDevice.safeStartScreenRecorder(
+    remoteFilePath: String,
+    options: VideoConfiguration,
+    receiver: IShellOutputReceiver
+) {
+    val screenRecorderCommand = options.toScreenRecorderCommand(remoteFilePath)
+    executeShellCommand(
+        screenRecorderCommand,
+        receiver,
+        ADB_SCREEN_RECORD_TIMEOUT_MINUTES,
+        ADB_SCREEN_RECORD_TIMEOUT_MINUTES,
+        TimeUnit.MINUTES
+    )
 }
 
 fun IDevice.safeClearPackage(packageName: String): String? {
@@ -87,44 +108,6 @@ fun IDevice.safeClearPackage(packageName: String): String? {
     } finally {
         return result
     }
-}
-
-fun getScreenRecorderCommand(
-    remoteFilePath: String,
-    options: ScreenRecorderOptions
-): String {
-    val sb = StringBuilder()
-
-    sb.append("screenrecord")
-    sb.append(' ')
-
-    if (options.width > 0 && options.height > 0) {
-        sb.append("--size ")
-        sb.append(options.width)
-        sb.append('x')
-        sb.append(options.height)
-        sb.append(' ')
-    }
-
-    if (options.bitrateMbps > 0) {
-        sb.append("--bit-rate ")
-        sb.append(options.bitrateMbps * 1000000)
-        sb.append(' ')
-    }
-
-    if (options.timeLimit > 0) {
-        sb.append("--time-limit ")
-        var seconds = TimeUnit.SECONDS.convert(options.timeLimit, options.timeLimitUnits)
-        if (seconds > 180) {
-            seconds = 180
-        }
-        sb.append(seconds)
-        sb.append(' ')
-    }
-
-    sb.append(remoteFilePath)
-
-    return sb.toString()
 }
 
 class SimpleOutputReceiver : MultiLineReceiver() {

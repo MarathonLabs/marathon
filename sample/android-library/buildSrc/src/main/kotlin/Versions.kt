@@ -1,7 +1,8 @@
 object Versions {
-    val kotlin = "1.3.61"
+    val kotlin = "1.4.10"
+    val coroutines = "1.3.9"
 
-    val androidGradleVersion = "3.3.0"
+    val androidGradleVersion = "4.0.0"
 
     val kakao = "1.2.1"
     val espresso = "3.0.1"
@@ -20,6 +21,7 @@ object BuildPlugins {
 object Libraries {
     val kotlinStdLib = "org.jetbrains.kotlin:kotlin-stdlib-jdk8:${Versions.kotlin}"
     val kotlinReflect = "org.jetbrains.kotlin:kotlin-reflect:${Versions.kotlin}"
+    val kotlinCoroutines = "org.jetbrains.kotlinx:kotlinx-coroutines-core:${Versions.coroutines}"
     val appCompat = "com.android.support:appcompat-v7:${Versions.appCompat}"
     val constraintLayout = "com.android.support.constraint:constraint-layout:${Versions.constraintLayout}"
 }

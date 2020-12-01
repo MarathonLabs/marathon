@@ -2,16 +2,16 @@ plugins {
     id("com.android.application")
     id("kotlin-android")
     id("kotlin-android-extensions")
-    id("marathon") version "0.5.2-SNAPSHOT"
+    id("marathon") version "0.6.0-SNAPSHOT"
 }
 
 android {
-    buildToolsVersion("28.0.3")
-    compileSdkVersion(28)
+    buildToolsVersion("29.0.2")
+    compileSdkVersion(29)
 
     defaultConfig {
         minSdkVersion(16)
-        targetSdkVersion(27)
+        targetSdkVersion(29)
 
         applicationId = "com.example"
         versionCode = 1

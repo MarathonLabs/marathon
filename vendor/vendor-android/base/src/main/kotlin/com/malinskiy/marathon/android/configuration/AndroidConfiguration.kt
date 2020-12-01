@@ -1,7 +1,7 @@
-package com.malinskiy.marathon.android.configuration
+package com.malinskiy.marathon.android
 
 import com.malinskiy.marathon.android.di.androidModule
-import com.malinskiy.marathon.device.DeviceFeature
+import com.malinskiy.marathon.android.serial.SerialStrategy
 import com.malinskiy.marathon.device.DeviceProvider
 import com.malinskiy.marathon.execution.TestParser
 import com.malinskiy.marathon.log.MarathonLogConfigurator
@@ -17,6 +17,7 @@ const val DEFAULT_AUTO_GRANT_PERMISSION = false
 const val DEFAULT_APPLICATION_PM_CLEAR = false
 const val DEFAULT_TEST_APPLICATION_PM_CLEAR = false
 const val DEFAULT_INSTALL_OPTIONS = ""
+const val DEFAULT_WAIT_FOR_DEVICES_TIMEOUT = 30000L
 
 data class AndroidConfiguration(
     val androidSdk: File,
@@ -29,8 +30,9 @@ data class AndroidConfiguration(
     val testApplicationPmClear: Boolean = DEFAULT_TEST_APPLICATION_PM_CLEAR,
     val adbInitTimeoutMillis: Int = defaultInitTimeoutMillis,
     val installOptions: String = DEFAULT_INSTALL_OPTIONS,
-    val preferableRecorderType: DeviceFeature? = null,
     val serialStrategy: SerialStrategy = SerialStrategy.AUTOMATIC,
+    val screenRecordConfiguration: ScreenRecordConfiguration = ScreenRecordConfiguration(),
+    val waitForDevicesTimeoutMillis: Long = DEFAULT_WAIT_FOR_DEVICES_TIMEOUT,
     val allureConfiguration: AllureConfiguration = DEFAULT_ALLURE_CONFIGURATION
 ) : VendorConfiguration, KoinComponent {
 
@@ -40,10 +42,7 @@ data class AndroidConfiguration(
 
     override fun deviceProvider(): DeviceProvider? = get()
 
-    override fun logConfigurator(): MarathonLogConfigurator =
-        AndroidLogConfigurator()
-
-    override fun preferableRecorderType(): DeviceFeature? = preferableRecorderType
+    override fun logConfigurator(): MarathonLogConfigurator = AndroidLogConfigurator()
 
     override fun modules() = koinModules
 }

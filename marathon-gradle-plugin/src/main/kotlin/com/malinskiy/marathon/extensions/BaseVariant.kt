@@ -12,7 +12,7 @@ fun BaseVariant.extractApplication(): File? =
         exec = {
             extractApplication3_3_plus(this)
         },
-        fallback = {
+        fallbacks = listOf {
             extractApplicationBefore3_3(this)
         }
     )
@@ -33,8 +33,8 @@ private fun extractApplication3_3_plus(output: BaseVariant): File? {
     return applicationProvider?.let {
         val apppackageAndroidArtifact = applicationProvider.get()
         assert(apppackageAndroidArtifact.apkNames.size == 1)
-        File(apppackageAndroidArtifact.outputDirectory, apppackageAndroidArtifact.apkNames.first())
-    } ?: null
+        File(apppackageAndroidArtifact.outputDirectory.asFile.get(), apppackageAndroidArtifact.apkNames.first())
+    }
 }
 
 @Suppress("DEPRECATION")
@@ -42,7 +42,7 @@ private fun extractApplicationBefore3_3(output: BaseVariant): File? {
     val variantOutput = output.outputs.first()
     return when (variantOutput) {
         is ApkVariantOutput -> {
-            File(variantOutput.getPackageApplication().outputDirectory.path, variantOutput.outputFileName)
+            File(variantOutput.packageApplication.outputDirectory.asFile.get(), variantOutput.outputFileName)
         }
         is LibraryVariantOutput -> {
             null

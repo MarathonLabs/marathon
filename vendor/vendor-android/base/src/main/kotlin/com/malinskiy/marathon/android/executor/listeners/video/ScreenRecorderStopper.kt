@@ -4,7 +4,7 @@ import com.malinskiy.marathon.android.AndroidDevice
 import com.malinskiy.marathon.log.MarathonLogging
 
 internal class ScreenRecorderStopper(private val device: AndroidDevice) {
-    fun stopScreenRecord() {
+    suspend fun stopScreenRecord() {
         var hasKilledScreenRecord = true
         var tries = 0
         while (hasKilledScreenRecord && tries++ < SCREEN_RECORD_KILL_ATTEMPTS) {
@@ -13,11 +13,11 @@ internal class ScreenRecorderStopper(private val device: AndroidDevice) {
         }
     }
 
-    private fun grepPid(): String {
+    private suspend fun grepPid(): String {
         val output = if (device.version.isGreaterOrEqualThan(26)) {
-            device.safeExecuteShellCommand("ps -A | grep screenrecord")
+            device.safeExecuteShellCommand("ps -A | grep screenrecord") ?: ""
         } else {
-            device.safeExecuteShellCommand("ps | grep screenrecord")
+            device.safeExecuteShellCommand("ps | grep screenrecord") ?: ""
         }
 
         if (output.isBlank()) {
@@ -29,7 +29,7 @@ internal class ScreenRecorderStopper(private val device: AndroidDevice) {
         return pid
     }
 
-    private fun attemptToGracefullyKillScreenRecord(): Boolean {
+    private suspend fun attemptToGracefullyKillScreenRecord(): Boolean {
         try {
             val pid = grepPid()
             if (pid.isNotBlank()) {

@@ -41,6 +41,7 @@ class ConfigurationFactory {
     var testOutputTimeoutMillis = null
     var analyticsTracking = false
     var screenRecordingPolicy: ScreenRecordingPolicy? = null
+    var deviceInitializationTimeoutMillis: Long? = null
 
     fun tests(block: () -> List<Test>) {
         val testParser = vendorConfiguration.testParser()!!
@@ -77,6 +78,7 @@ class ConfigurationFactory {
             debug,
             screenRecordingPolicy,
             vendorConfiguration,
-            analyticsTracking
+            analyticsTracking,
+            deviceInitializationTimeoutMillis
         )
 }

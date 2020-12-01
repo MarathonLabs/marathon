@@ -1,12 +1,15 @@
 package com.malinskiy.marathon.analytics
 
 import com.google.gson.Gson
+import com.malinskiy.marathon.analytics.external.graphite.BasicGraphiteClient
+import com.malinskiy.marathon.analytics.external.graphite.GraphiteTracker
 import com.malinskiy.marathon.analytics.external.influx.InfluxDbProvider
 import com.malinskiy.marathon.analytics.external.influx.InfluxDbTracker
 import com.malinskiy.marathon.analytics.internal.pub.Track
 import com.malinskiy.marathon.analytics.internal.sub.DelegatingTrackerInternal
 import com.malinskiy.marathon.analytics.internal.sub.ExecutionReportGenerator
 import com.malinskiy.marathon.analytics.internal.sub.TrackerInternal
+import com.malinskiy.marathon.execution.AnalyticsConfiguration.GraphiteConfiguration
 import com.malinskiy.marathon.execution.AnalyticsConfiguration.InfluxDbConfiguration
 import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.io.FileManager
@@ -37,15 +40,19 @@ internal class TrackerFactory(
     fun create(): TrackerInternal {
         val defaultTrackers = mutableListOf<TrackerInternal>(createExecutionReportGenerator())
 
-        if (configuration.analyticsConfiguration is InfluxDbConfiguration) {
-            val config = configuration.analyticsConfiguration
-            val influxDbTracker = createInfluxDbTracker(config)
-            influxDbTracker?.let { defaultTrackers.add(it) }
+        val analyticsConfiguration = configuration.analyticsConfiguration
+        val analyticsTracker = when (analyticsConfiguration) {
+            is InfluxDbConfiguration -> createInfluxDbTracker(analyticsConfiguration)
+            is GraphiteConfiguration -> createGraphiteTracker(analyticsConfiguration)
+            else -> null
+        }
+        if (analyticsTracker != null) {
+            defaultTrackers.add(analyticsTracker)
         }
 
         val delegatingTrackerInternal = DelegatingTrackerInternal(defaultTrackers)
         val mappingTracker = MappingTracker(delegatingTrackerInternal)
-        track + mappingTracker
+        track.add(mappingTracker)
 
         return delegatingTrackerInternal
     }
@@ -60,11 +67,15 @@ internal class TrackerFactory(
         return db?.let { InfluxDbTracker(it, config.dbName, config.retentionPolicyConfiguration.name) }
     }
 
+    private fun createGraphiteTracker(config: GraphiteConfiguration): GraphiteTracker {
+        return GraphiteTracker(BasicGraphiteClient(config.host, config.port ?: 2003, config.prefix))
+    }
+
     private fun createExecutionReportGenerator(): ExecutionReportGenerator {
         return ExecutionReportGenerator(
             listOf(
                 DeviceInfoJsonReporter(fileManager, gson),
-                JUnitReporter(JUnitWriter(fileManager)),
+                JUnitReporter(JUnitWriter(configuration.outputDir)),
                 TimelineReporter(TimelineSummaryProvider(), gson, configuration.outputDir),
                 RawJsonReporter(fileManager, gson),
                 TestJsonReporter(fileManager, gson),

@@ -141,8 +141,8 @@ class Marathon(
         var tests = parsedTests.filter { test ->
             configuration.testClassRegexes.all { it.matches(test.clazz) }
         }
-        configuration.filteringConfiguration.whitelist.forEach { tests = it.filter(tests) }
-        configuration.filteringConfiguration.blacklist.forEach { tests = it.filterNot(tests) }
+        configuration.filteringConfiguration.allowlist.forEach { tests = it.filter(tests) }
+        configuration.filteringConfiguration.blocklist.forEach { tests = it.filterNot(tests) }
         return tests
     }
 

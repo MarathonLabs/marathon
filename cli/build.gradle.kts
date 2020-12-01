@@ -1,7 +1,4 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-import org.junit.platform.gradle.plugin.EnginesExtension
-import org.junit.platform.gradle.plugin.FiltersExtension
-import org.junit.platform.gradle.plugin.JUnitPlatformExtension
 
 plugins {
     application
@@ -47,6 +44,7 @@ dependencies {
     implementation(project(":vendor:vendor-ios"))
     implementation(project(":vendor:vendor-android:base"))
     implementation(project(":vendor:vendor-android:ddmlib"))
+    implementation(project(":vendor:vendor-android:adam"))
     implementation(project(":analytics:usage"))
     implementation(Libraries.kotlinStdLib)
     implementation(Libraries.kotlinCoroutines)
@@ -63,8 +61,8 @@ dependencies {
     implementation(Libraries.apacheCommonsText)
     testCompile(TestLibraries.kluent)
     testCompile(TestLibraries.mockitoKotlin)
-    testCompile(TestLibraries.spekAPI)
-    testRuntime(TestLibraries.spekJUnitPlatformEngine)
+    testImplementation(TestLibraries.junit5)
+    testRuntime(TestLibraries.jupiterEngine)
 }
 
 Deployment.initialize(project)
@@ -87,25 +85,14 @@ idea {
     }
 }
 
+tasks.withType<Test>().all {
+    tasks.getByName("check").dependsOn(this)
+    useJUnitPlatform()
+}
+
 junitPlatform {
-    filters {
-        engines {
-            include("spek")
-        }
-    }
+    enableStandardTestTask = true
 }
 
-// extension for configuration
-fun JUnitPlatformExtension.filters(setup: FiltersExtension.() -> Unit) {
-    when (this) {
-        is ExtensionAware -> extensions.getByType(FiltersExtension::class.java).setup()
-        else -> throw IllegalArgumentException("${this::class} must be an instance of ExtensionAware")
-    }
-}
-
-fun FiltersExtension.engines(setup: EnginesExtension.() -> Unit) {
-    when (this) {
-        is ExtensionAware -> extensions.getByType(EnginesExtension::class.java).setup()
-        else -> throw IllegalArgumentException("${this::class} must be an instance of ExtensionAware")
-    }
-}
+tasks.getByName("junitPlatformTest").outputs.upToDateWhen { false }
+tasks.getByName("test").outputs.upToDateWhen { false }

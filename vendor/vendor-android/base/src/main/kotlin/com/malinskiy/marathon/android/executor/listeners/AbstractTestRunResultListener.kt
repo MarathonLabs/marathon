@@ -6,44 +6,44 @@ import com.malinskiy.marathon.android.model.TestRunResultsAccumulator
 abstract class AbstractTestRunResultListener : NoOpTestRunListener() {
     private val runResult = TestRunResultsAccumulator()
 
-    override fun testRunStarted(runName: String, testCount: Int) {
+    override suspend fun testRunStarted(runName: String, testCount: Int) {
         runResult.testRunStarted(runName, testCount)
     }
 
-    override fun testStarted(test: TestIdentifier) {
+    override suspend fun testStarted(test: TestIdentifier) {
         runResult.testStarted(test)
     }
 
-    override fun testFailed(test: TestIdentifier, trace: String) {
+    override suspend fun testFailed(test: TestIdentifier, trace: String) {
         runResult.testFailed(test, trace)
     }
 
-    override fun testAssumptionFailure(test: TestIdentifier, trace: String) {
+    override suspend fun testAssumptionFailure(test: TestIdentifier, trace: String) {
         runResult.testAssumptionFailure(test, trace)
     }
 
-    override fun testIgnored(test: TestIdentifier) {
+    override suspend fun testIgnored(test: TestIdentifier) {
         runResult.testIgnored(test)
     }
 
-    override fun testEnded(test: TestIdentifier, testMetrics: Map<String, String>) {
+    override suspend fun testEnded(test: TestIdentifier, testMetrics: Map<String, String>) {
         runResult.testEnded(test, testMetrics)
     }
 
-    override fun testRunFailed(errorMessage: String) {
+    override suspend fun testRunFailed(errorMessage: String) {
         runResult.testRunFailed(errorMessage)
         handleTestRunResults(runResult)
     }
 
-    override fun testRunStopped(elapsedTime: Long) {
+    override suspend fun testRunStopped(elapsedTime: Long) {
         runResult.testRunStopped(elapsedTime)
         handleTestRunResults(runResult)
     }
 
-    override fun testRunEnded(elapsedTime: Long, runMetrics: Map<String, String>) {
+    override suspend fun testRunEnded(elapsedTime: Long, runMetrics: Map<String, String>) {
         runResult.testRunEnded(elapsedTime, runMetrics)
         handleTestRunResults(runResult)
     }
 
-    abstract fun handleTestRunResults(runResult: TestRunResultsAccumulator)
+    abstract suspend fun handleTestRunResults(runResult: TestRunResultsAccumulator)
 }

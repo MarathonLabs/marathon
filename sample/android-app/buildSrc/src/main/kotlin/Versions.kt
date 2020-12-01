@@ -1,16 +1,17 @@
 object Versions {
-    val kotlin = "1.3.61"
+    val kotlin = "1.4.10"
+    val coroutines = "1.3.9"
 
-    val androidGradleVersion = "3.5.2"
+    val androidGradleVersion = "4.0.0"
 
-    val kakao = "2.2.0"
-    val espresso = "3.2.0"
-    val espressoRunner = "1.2.0"
-    val espressoRules = "1.2.0"
-    val appCompat = "1.1.0"
-    val constraintLayout = "1.1.3"
-    val allure = "2.0.0"
-    val coroutines = "1.3.3"
+    val kakao = "1.2.1"
+    val espresso = "3.0.1"
+    val espressoRules = "1.0.1"
+    val espressoRunner = "1.0.1"
+    val junit = "4.12"
+    val appCompat = "28.0.0"
+    val constraintLayout = "1.0.2"
+    val allure = "2.8.1"
 
 }
 
@@ -21,17 +22,22 @@ object BuildPlugins {
 
 object Libraries {
     val kotlinStdLib = "org.jetbrains.kotlin:kotlin-stdlib-jdk8:${Versions.kotlin}"
-    val appCompat = "androidx.appcompat:appcompat:${Versions.appCompat}"
-    val constraintLayout = "androidx.constraintlayout:constraintlayout:${Versions.constraintLayout}"
+    val kotlinReflect = "org.jetbrains.kotlin:kotlin-reflect:${Versions.kotlin}"
     val kotlinCoroutines = "org.jetbrains.kotlinx:kotlinx-coroutines-core:${Versions.coroutines}"
+    val appCompat = "com.android.support:appcompat-v7:${Versions.appCompat}"
+    val constraintLayout = "com.android.support.constraint:constraint-layout:${Versions.constraintLayout}"
 }
 
 object TestLibraries {
     val kakao = "com.agoda.kakao:kakao:${Versions.kakao}"
 
-    val espressoRunner = "androidx.test:runner:${Versions.espressoRunner}"
-    val espressoRules = "androidx.test:rules:${Versions.espressoRules}"
-    val espressoCore = "androidx.test.espresso:espresso-core:${Versions.espresso}"
+    val espressoRunner = "com.android.support.test:runner:${Versions.espressoRunner}"
+    val espressoRules = "com.android.support.test:rules:${Versions.espressoRules}"
+    val espressoCore = "com.android.support.test.espresso:espresso-core:${Versions.espresso}"
+    val espressoWeb = "com.android.support.test.espresso:espresso-web:${Versions.espresso}"
+    val espressoContrib = "com.android.support.test.espresso:espresso-contrib:${Versions.espresso}"
+    val espressoIntents = "com.android.support.test.espresso:espresso-intents:${Versions.espresso}"
+    val junit = "junit:junit:${Versions.junit}"
     val allureAndroidCommon = "io.qameta.allure:allure-android-commons:${Versions.allure}"
     val allureAndroidModel = "io.qameta.allure:allure-android-model:${Versions.allure}"
     val allureAndroidEspresso = "io.qameta.allure:allure-espresso:${Versions.allure}"

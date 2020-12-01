@@ -1,13 +1,17 @@
 package com.malinskiy.marathon
 
-import com.malinskiy.marathon.android.configuration.SerialStrategy
-import com.malinskiy.marathon.device.DeviceFeature
+import com.malinskiy.marathon.android.ScreenRecordConfiguration
+import com.malinskiy.marathon.android.VendorType
+import com.malinskiy.marathon.android.serial.SerialStrategy
 import com.malinskiy.marathon.execution.policy.ScreenRecordingPolicy
 import groovy.lang.Closure
 import org.gradle.api.Project
 
 open class MarathonExtension(project: Project) {
     var name: String = "Marathon"
+
+    var vendor: VendorType? = null
+    var bugsnag: Boolean? = null
 
     var analyticsConfiguration: AnalyticsConfig? = null
 
@@ -35,7 +39,7 @@ open class MarathonExtension(project: Project) {
     var testOutputTimeoutMillis: Long? = null
     var debug: Boolean? = null
 
-    val screenRecordingPolicy: ScreenRecordingPolicy? = null
+    var screenRecordingPolicy: ScreenRecordingPolicy? = null
 
     var applicationPmClear: Boolean? = null
     var testApplicationPmClear: Boolean? = null
@@ -43,9 +47,12 @@ open class MarathonExtension(project: Project) {
     var installOptions: String? = null
     var serialStrategy: SerialStrategy? = null
 
-    var preferableRecorderType: DeviceFeature? = null
+    var screenRecordConfiguration: ScreenRecordConfiguration? = null
 
     var analyticsTracking: Boolean = false
+
+    var deviceInitializationTimeoutMillis: Long? = null
+    var waitForDevicesTimeoutMillis : Long? = null
 
     //Android specific for now
     var autoGrantPermission: Boolean? = null

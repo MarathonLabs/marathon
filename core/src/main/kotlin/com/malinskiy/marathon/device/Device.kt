@@ -16,6 +16,14 @@ interface Device {
     val healthy: Boolean
     val abi: String
 
+    /**
+     * Called before each batch execution
+     */
+    suspend fun prepare(configuration: Configuration)
+
+    /**
+     * Test batch execution
+     */
     suspend fun execute(
         configuration: Configuration,
         devicePoolId: DevicePoolId,
@@ -24,7 +32,9 @@ interface Device {
         progressReporter: ProgressReporter
     )
 
-    suspend fun prepare(configuration: Configuration)
+    /**
+     * Called after the device has been disconnected
+     */
     fun dispose()
 }
 

@@ -3,29 +3,17 @@ package com.malinskiy.marathon.log
 import mu.KLogger
 import org.slf4j.Marker
 
-class KLoggerDebug(underlyingLogger: KLogger) : KLogger by underlyingLogger {
+class KLoggerDebug(override val underlyingLogger: KLogger) : KLogger by underlyingLogger {
     override fun debug(msg: () -> Any?) {
-        super.warn(msg)
-    }
-
-    override fun debug(t: Throwable, msg: () -> Any?) {
-        super.warn(t, msg)
+        warn(msg)
     }
 
     override fun info(msg: () -> Any?) {
-        super.warn(msg)
-    }
-
-    override fun info(t: Throwable, msg: () -> Any?) {
-        super.warn(t, msg)
+        warn(msg)
     }
 
     override fun trace(msg: () -> Any?) {
-        super.warn(msg)
-    }
-
-    override fun trace(t: Throwable, msg: () -> Any?) {
-        super.warn(t, msg)
+        warn(msg)
     }
 
     override fun debug(format: String, vararg arguments: Any) {

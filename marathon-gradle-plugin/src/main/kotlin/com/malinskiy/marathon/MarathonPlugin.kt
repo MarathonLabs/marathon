@@ -25,11 +25,15 @@ class MarathonPlugin : Plugin<Project> {
     override fun apply(project: Project) {
         log.info { "Applying marathon plugin" }
         val exceptionsReporter = BugsnagExceptionsReporter()
-        exceptionsReporter.start(AppType.GRADLE_PLUGIN)
 
         val extension: MarathonExtension = project.extensions.create("marathon", MarathonExtension::class.java, project)
 
         project.afterEvaluate {
+            if(extension.bugsnag != false){
+                log.info { "Init BugSnag" }
+                exceptionsReporter.start(AppType.GRADLE_PLUGIN)
+            }
+
             val appPlugin = project.plugins.findPlugin(AppPlugin::class.java)
             val libraryPlugin = project.plugins.findPlugin(LibraryPlugin::class.java)
 
@@ -61,7 +65,13 @@ class MarathonPlugin : Plugin<Project> {
     }
 
     companion object {
-        private fun createTask(variant: TestVariant, project: Project, config: MarathonExtension, sdkDirectory: File, exceptionsReporter: ExceptionsReporter): MarathonRunTask {
+        private fun createTask(
+            variant: TestVariant,
+            project: Project,
+            config: MarathonExtension,
+            sdkDirectory: File,
+            exceptionsReporter: ExceptionsReporter
+        ): MarathonRunTask {
             checkTestVariants(variant)
 
             val marathonTask = project.tasks.create("$TASK_PREFIX${variant.name.capitalize()}", MarathonRunTask::class.java)
@@ -74,7 +84,7 @@ class MarathonPlugin : Plugin<Project> {
                 marathonTask.configure(closureOf<MarathonRunTask> {
                     group = JavaBasePlugin.VERIFICATION_GROUP
                     description = "Runs instrumentation tests on all the connected devices for '${variant.name}' " +
-                            "variation and generates a report with screenshots"
+                        "variation and generates a report with screenshots"
                     flavorName = variant.name
                     applicationVariant = variant.testedVariant
                     testVariant = variant
@@ -86,7 +96,7 @@ class MarathonPlugin : Plugin<Project> {
                         exec = {
                             dependsOn(variant.testedVariant.assembleProvider, variant.assembleProvider)
                         },
-                        fallback = {
+                        fallbacks = listOf {
                             @Suppress("DEPRECATION")
                             dependsOn(variant.testedVariant.assemble, variant.assemble)
                         }
@@ -114,8 +124,8 @@ class MarathonPlugin : Plugin<Project> {
             if (baseVariantOutput.outputs.size > 1) {
                 throw UnsupportedOperationException(
                     "The Marathon plugin does not support abi splits for app APKs, " +
-                            "but supports testing via a universal APK. "
-                            + "Add the flag \"universalApk true\" in the android.splits.abi configuration."
+                        "but supports testing via a universal APK. "
+                        + "Add the flag \"universalApk true\" in the android.splits.abi configuration."
                 )
             }
 
