@@ -33,7 +33,7 @@ fun main(args: Array<String>): Unit = mainBody(
         logger.info { "Starting marathon" }
         val bugsnagExceptionsReporter = BugsnagExceptionsReporter()
         try {
-            if(bugsnagReporting){
+            if (bugsnagReporting) {
                 logger.info { "Init BugSnag" }
                 bugsnagExceptionsReporter.start(AppType.CLI)
             }
@@ -59,7 +59,7 @@ fun main(args: Array<String>): Unit = mainBody(
             }
         } finally {
             stopKoin()
-            if(bugsnagReporting){
+            if (bugsnagReporting) {
                 bugsnagExceptionsReporter.end()
             }
         }
