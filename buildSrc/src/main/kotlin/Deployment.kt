@@ -70,6 +70,8 @@ object Deployment {
                     from(project.components["java"])
                     artifact(sourcesJar)
                     artifact(javadocJar)
+
+                    project.tasks.findByName("distZip")?.let { distZip -> artifact(distZip) }
                 }
             }
             repositories {
