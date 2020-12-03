@@ -154,7 +154,7 @@ class DdmlibAndroidDevice(
         }
     }
 
-    override suspend fun getScreenshot(timeout: Long, units: TimeUnit): BufferedImage {
+    override suspend fun getScreenshot(timeout: Long, units: TimeUnit): BufferedImage? {
         return try {
             val rawImage = ddmsDevice.getScreenshot(timeout, units)
             bufferedImageFrom(rawImage)
@@ -200,7 +200,7 @@ class DdmlibAndroidDevice(
 
     override val coroutineContext: CoroutineContext = dispatcher
 
-    override suspend fun safeInstallPackage(absolutePath: String, reinstall: Boolean, optionalParams: String): String? {
+    override suspend fun installPackage(absolutePath: String, reinstall: Boolean, optionalParams: String): String? {
         return try {
             ddmsDevice.safeInstallPackage(absolutePath, reinstall, optionalParams)
         } catch (e: InstallException) {

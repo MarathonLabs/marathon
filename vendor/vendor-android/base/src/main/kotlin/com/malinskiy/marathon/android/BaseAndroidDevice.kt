@@ -4,6 +4,7 @@ import com.android.sdklib.AndroidVersion
 import com.malinskiy.marathon.analytics.internal.pub.Track
 import com.malinskiy.marathon.android.configuration.SerialStrategy
 import com.malinskiy.marathon.android.exception.InvalidSerialConfiguration
+import com.malinskiy.marathon.android.exception.TransferException
 import com.malinskiy.marathon.android.executor.listeners.AllureArtifactsTestRunListener
 import com.malinskiy.marathon.android.executor.listeners.CompositeTestRunListener
 import com.malinskiy.marathon.android.executor.listeners.DebugTestRunListener
@@ -96,6 +97,22 @@ abstract class BaseAndroidDevice(
         deviceFeatures = detectFeatures()
         realSerialNumber = detectRealSerialNumber()
         md5cmd = detectMd5Binary()
+    }
+
+    override suspend fun safePullFile(remoteFilePath: String, localFilePath: String) {
+        try {
+            pullFile(remoteFilePath, localFilePath)
+        } catch (e: TransferException) {
+            logger.warn { "Pulling $remoteFilePath failed. Ignoring" }
+        }
+    }
+
+    override suspend fun safePullFolder(remoteFolderPath: String, localFolderPath: String) {
+        try {
+            pullFolder(remoteFolderPath, localFolderPath)
+        } catch (e: TransferException) {
+            logger.warn { "Pulling $remoteFolderPath failed. Ignoring" }
+        }
     }
 
     /**

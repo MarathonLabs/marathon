@@ -18,11 +18,25 @@ interface Device {
 
     /**
      * Called before each batch execution
+     *
+     * Should throw an instance of DeviceSetupException
+     *
+     * @see com.malinskiy.marathon.exceptions.DeviceSetupException
+     *
      */
     suspend fun prepare(configuration: Configuration)
 
     /**
      * Test batch execution
+     *
+     * This can and should throw an instance of
+     * - DeviceLostException in case of unrecoverable errors that will never allow the device to execute tests
+     * - TestBatchExecutionException in case the device might still be able to execute tests later
+     *
+     * If any other exception is thrown - it is assumed to be recoverable and will retry using this device again
+     *
+     * @see com.malinskiy.marathon.exceptions.DeviceLostException
+     * @see com.malinskiy.marathon.exceptions.TestBatchExecutionException
      */
     suspend fun execute(
         configuration: Configuration,

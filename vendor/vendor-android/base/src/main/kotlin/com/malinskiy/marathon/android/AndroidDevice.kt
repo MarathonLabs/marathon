@@ -29,16 +29,38 @@ interface AndroidDevice : Device {
      */
     suspend fun safeExecuteShellCommand(command: String, errorMessage: String = ""): String?
 
+    /**
+     * @throws com.malinskiy.marathon.android.exception.TransferException
+     */
     suspend fun pullFile(remoteFilePath: String, localFilePath: String)
+
+    /**
+     * Soft exception handling version of pullFile
+     */
+    suspend fun safePullFile(remoteFilePath: String, localFilePath: String)
+
+    /**
+     * @throws com.malinskiy.marathon.android.exception.TransferException
+     */
     suspend fun pushFile(localFilePath: String, remoteFilePath: String, verify: Boolean)
 
+    /**
+     * @throws com.malinskiy.marathon.android.exception.TransferException
+     */
     suspend fun pullFolder(remoteFolderPath: String, localFolderPath: String)
+    suspend fun safePullFolder(remoteFolderPath: String, localFolderPath: String)
 
-    suspend fun safeInstallPackage(absolutePath: String, reinstall: Boolean, optionalParams: String): String?
+    /**
+     * @throws com.malinskiy.marathon.android.exception.InstallException in case of failure to push the apk
+     */
+    suspend fun installPackage(absolutePath: String, reinstall: Boolean, optionalParams: String): String?
     suspend fun safeUninstallPackage(appPackage: String, keepData: Boolean = false): String?
     suspend fun safeClearPackage(packageName: String): String?
 
-    suspend fun getScreenshot(timeout: Long, units: TimeUnit): BufferedImage
+    /**
+     * @return screenshot or null if there was a failure
+     */
+    suspend fun getScreenshot(timeout: Long, units: TimeUnit): BufferedImage?
     suspend fun safeStartScreenRecorder(remoteFilePath: String, options: VideoConfiguration)
 
     fun addLogcatListener(listener: LineListener)

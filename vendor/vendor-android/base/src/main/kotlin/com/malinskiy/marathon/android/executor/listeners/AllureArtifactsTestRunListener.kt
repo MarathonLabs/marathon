@@ -12,6 +12,6 @@ class AllureArtifactsTestRunListener(
 ) : NoOpTestRunListener() {
     override suspend fun testRunEnded(elapsedTime: Long, runMetrics: Map<String, String>) {
         super.testRunEnded(elapsedTime, runMetrics)
-        device.pullFolder(configuration.resultsDirectory, fileManager.createFolder(FolderType.ALLURE_DEVICE_RESULTS).absolutePath)
+        device.safePullFolder(configuration.resultsDirectory, fileManager.createFolder(FolderType.ALLURE_DEVICE_RESULTS).absolutePath)
     }
 }

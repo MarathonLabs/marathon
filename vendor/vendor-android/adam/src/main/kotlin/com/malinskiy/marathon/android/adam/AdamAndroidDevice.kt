@@ -4,6 +4,10 @@ import com.google.common.hash.Hashing
 import com.google.common.io.Files
 import com.malinskiy.adam.AndroidDebugBridgeClient
 import com.malinskiy.adam.exception.PullFailedException
+import com.malinskiy.adam.exception.PushFailedException
+import com.malinskiy.adam.exception.RequestRejectedException
+import com.malinskiy.adam.exception.UnsupportedImageProtocolException
+import com.malinskiy.adam.exception.UnsupportedSyncProtocolException
 import com.malinskiy.adam.request.async.ChanneledLogcatRequest
 import com.malinskiy.adam.request.async.LogcatReadMode
 import com.malinskiy.adam.request.devices.DeviceState
@@ -28,10 +32,12 @@ import com.malinskiy.marathon.android.VideoConfiguration
 import com.malinskiy.marathon.android.adam.log.LogCatMessageParser
 import com.malinskiy.marathon.android.adam.screenshot.ImageAdapter
 import com.malinskiy.marathon.android.configuration.SerialStrategy
+import com.malinskiy.marathon.android.exception.InstallException
 import com.malinskiy.marathon.android.exception.TransferException
 import com.malinskiy.marathon.android.executor.listeners.line.LineListener
 import com.malinskiy.marathon.device.DevicePoolId
 import com.malinskiy.marathon.device.NetworkState
+import com.malinskiy.marathon.exceptions.DeviceLostException
 import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.execution.TestBatchResults
 import com.malinskiy.marathon.execution.progress.ProgressReporter
@@ -126,6 +132,8 @@ class AdamAndroidDevice(
             }
         } catch (e: PullFailedException) {
             throw TransferException("Couldn't pull file $remoteFilePath from device $serialNumber")
+        } catch (e: UnsupportedSyncProtocolException) {
+            throw TransferException("Device $serialNumber does not support sync: file transfer")
         }
 
         if (progress != 1.0) {
@@ -136,11 +144,18 @@ class AdamAndroidDevice(
     @Suppress("DEPRECATION")
     override suspend fun pushFile(localFilePath: String, remoteFilePath: String, verify: Boolean) {
         val file = File(localFilePath)
-        val channel = client.execute(PushFileRequest(file, remoteFilePath), serial = adbSerial, scope = this)
-        var progress = 0.0
-        while (!channel.isClosedForReceive && progress < 1.0) {
-            progress = channel.receiveOrNull() ?: break
+        var progress: Double = 0.0
+
+        try {
+            val channel = client.execute(PushFileRequest(file, remoteFilePath), serial = adbSerial, scope = this)
+            progress = 0.0
+            while (!channel.isClosedForReceive && progress < 1.0) {
+                progress = channel.receiveOrNull() ?: break
+            }
+        } catch (e: PushFailedException) {
+            throw TransferException(e)
         }
+
         if (progress != 1.0) {
             throw TransferException("Couldn't push file $localFilePath to device $serialNumber:$remoteFilePath")
         }
@@ -166,7 +181,7 @@ class AdamAndroidDevice(
             //We have to use a second collection because we're iterating over directoriesToTraverse later
             val currentDepthDirs = mutableListOf<String>()
             for (dir in directoriesToTraverse) {
-                val currentDepthFiles = client.execute(ListFilesRequest(dir), adbSerial)
+                val currentDepthFiles = client.execute(request = ListFilesRequest(dir), serial = adbSerial)
 
                 filesToPull.addAll(currentDepthFiles.filter { it.type == AndroidFileType.REGULAR_FILE })
                 currentDepthDirs.addAll(
@@ -201,11 +216,15 @@ class AdamAndroidDevice(
         return client.execute(UninstallRemotePackageRequest(appPackage, keepData = keepData), serial = adbSerial)
     }
 
-    override suspend fun safeInstallPackage(absolutePath: String, reinstall: Boolean, optionalParams: String): String? {
+    override suspend fun installPackage(absolutePath: String, reinstall: Boolean, optionalParams: String): String? {
         val file = File(absolutePath)
         val remotePath = "/data/local/tmp/${file.name}"
 
-        pushFile(absolutePath, remotePath, verify = true)
+        try {
+            pushFile(absolutePath, remotePath, verify = true)
+        } catch (e: TransferException) {
+            throw InstallException(e)
+        }
 
         val result = client.execute(
             InstallRemotePackageRequest(
@@ -219,9 +238,14 @@ class AdamAndroidDevice(
         return result
     }
 
-    override suspend fun getScreenshot(timeout: Long, units: TimeUnit): BufferedImage {
-        val rawImage = client.execute(ScreenCaptureRequest(), serial = adbSerial)
-        return imageAdapter.convert(rawImage)
+    override suspend fun getScreenshot(timeout: Long, units: TimeUnit): BufferedImage? {
+        return try {
+            val rawImage = client.execute(ScreenCaptureRequest(), serial = adbSerial)
+            return imageAdapter.convert(rawImage)
+        } catch (e: UnsupportedImageProtocolException) {
+            logger.warn(e) { "Unable to retrieve screenshot from device $adbSerial" }
+            null
+        }
     }
 
     private val logcatListeners = mutableListOf<LineListener>()
@@ -283,12 +307,16 @@ class AdamAndroidDevice(
         deferred: CompletableDeferred<TestBatchResults>,
         progressReporter: ProgressReporter
     ) {
-        val deferredResult = async(context = coroutineContext) {
-            val listener = createExecutionListeners(configuration, devicePoolId, testBatch, deferred, progressReporter)
-            AndroidDeviceTestRunner(this@AdamAndroidDevice).execute(configuration, testBatch, listener)
-        }
+        try {
+            val deferredResult = async(context = coroutineContext) {
+                val listener = createExecutionListeners(configuration, devicePoolId, testBatch, deferred, progressReporter)
+                AndroidDeviceTestRunner(this@AdamAndroidDevice).execute(configuration, testBatch, listener)
+            }
 
-        deferredResult.await()
+            deferredResult.await()
+        } catch (e: RequestRejectedException) {
+            throw DeviceLostException(e)
+        }
     }
 
     override suspend fun prepare(configuration: Configuration) {
