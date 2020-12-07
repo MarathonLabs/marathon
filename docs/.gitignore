@@ -1,0 +1,12 @@
+.gradle
+_site
+.idea
+.DS_Store
+build
+cli
+core
+gradle
+gradlew*
+report
+sample
+vendor
