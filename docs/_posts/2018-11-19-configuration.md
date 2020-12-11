@@ -1197,15 +1197,16 @@ screenRecordingPolicy: "ON_ANY"
 {% endtab %}
 {% tab screen-recording-policy Gradle %}
 ```kotlin
-import com.malinskiy.marathon.execution.policy.ScreenRecordingPolicy
 marathon {
-    screenRecordingPolicy = ScreenRecordingPolicy.ON_ANY
+    screenRecordingPolicy = com.malinskiy.marathon.execution.policy.ScreenRecordingPolicy.ON_ANY
 }
 ```
 {% endtab %}
 {% tab screen-recording-policy Gradle Kotlin %}
 ```kotlin
-//TODO:
+marathon {
+    screenRecordingPolicy = com.malinskiy.marathon.execution.policy.ScreenRecordingPolicy.ON_ANY
+}
 ```
 {% endtab %}
 {% endtabs %}
