@@ -3,7 +3,7 @@ layout: docs
 title: "Special thanks"
 category: doc
 date: 2019-09-17 16:55:00
-order: 7
+order: 8
 ---
 
 ## Special thanks
