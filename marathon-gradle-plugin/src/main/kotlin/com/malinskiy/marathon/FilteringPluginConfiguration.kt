@@ -5,6 +5,7 @@ import com.malinskiy.marathon.execution.FilteringConfiguration
 import com.malinskiy.marathon.execution.FullyQualifiedClassnameFilter
 import com.malinskiy.marathon.execution.SimpleClassnameFilter
 import com.malinskiy.marathon.execution.TestFilter
+import com.malinskiy.marathon.execution.TestMethodFilter
 import com.malinskiy.marathon.execution.TestPackageFilter
 import groovy.lang.Closure
 
@@ -41,6 +42,7 @@ open class Wrapper {
     open var simpleClassNameFilter: ArrayList<String>? = null
     open var fullyQualifiedClassnameFilter: ArrayList<String>? = null
     open var testPackageFilter: ArrayList<String>? = null
+    open var testMethodFilter: ArrayList<String>? = null
     open var annotationFilter: ArrayList<String>? = null
 }
 
@@ -53,6 +55,9 @@ fun Wrapper.toList(): List<TestFilter> {
         mutableList.addAll(it)
     }
     this.testPackageFilter?.map { TestPackageFilter(it.toRegex()) }?.let {
+        mutableList.addAll(it)
+    }
+    this.testMethodFilter?.map { TestMethodFilter(it.toRegex()) }?.let {
         mutableList.addAll(it)
     }
     this.simpleClassNameFilter?.map { SimpleClassnameFilter(it.toRegex()) }?.let {
