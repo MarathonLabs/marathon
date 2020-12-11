@@ -6,7 +6,7 @@ date: 2018-11-19 16:55:00
 order: 5
 ---
 
-### CLI
+# CLI
 
 Executing the CLI version of marathon requires you to provide all the options through the *Marathonfile*. 
 By default, it will be searched in the working directory by the name **Marathonfile**, but if you need a custom file path you can specify
@@ -27,7 +27,7 @@ optional arguments:
   --android-sdk ANDROID_SDK      Android sdk location
 ```
 
-### Gradle plugin
+# Gradle plugin
 
 Executing your tests via gradle is done via calling appropriate gradle task, for example *marathonDebugAndroidTest*. These tasks will be
  created for all testing flavors including multi-dimension setup.

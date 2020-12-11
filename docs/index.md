@@ -3,7 +3,7 @@ layout: docs
 title: "Cross-platform test runner for Android and iOS"
 ---
 
-### About Marathon
+# About Marathon
 
 Marathon is a fast and platform-independent test runner focused on performance and stability. Marathon offers easy to use platform implementations for Android and iOS as well as an API for use with custom hardware farms.
 
@@ -11,7 +11,7 @@ Marathon implements multiple key concepts related to test execution such as test
 
 Marathon's primary focus is on full control over the balance between stability of test execution and the overall test run performance.
 
-### Performance
+# Performance
 Marathon takes into account two key aspects of test execution:
 * The duration of the test
 * The probability of the test passing
@@ -22,24 +22,24 @@ Marathon takes a number of steps to ensure that each test run is as balanced as 
 * The sorting strategy forces long tests to be executed first so that if an unexpected retry attempt occurs it doesn't affect the test run significantly (e.g. at the end of execution)
 * If all else fail we revert back to post-factum retries but we try to limit it's impact on the run with retry quotas
 
-### TL;DR
+# TL;DR
 
-#### Installation
+## Installation
 
-##### Via brew
+### Via brew
 ```bash
 $ brew tap malinskiy/tap
 $ brew install malinskiy/tap/marathon
 ```
 
-##### Or manually download the binary
+### Or manually download the binary
 ```bash
 curl https://github.com/Malinskiy/marathon/releases/download/X.X.X/marathon-X.X.X.zip -o marathon-X.X.X.zip
 unzip -d $DESTINATION marathon-X.X.X.zip
 export PATH=$PATH:$DESTINATION/marathon-X.X.X/bin
 ```
 
-#### Configuration
+## Configuration
 
 Create a basic **Marathonfile** in the root of your project with the following content (example for Android)
 ```yaml
@@ -80,7 +80,7 @@ Please make sure before executing the test run that you can ssh into all the `ho
 $ ssh 10.0.0.2
 ```   
 
-#### Execution
+## Execution
 
 Start the test runner in the root of your project
 ```bash
@@ -90,14 +90,14 @@ XXX [main] INFO com.malinskiy.marathon.cli.config.ConfigFactory - Checking Marat
 ...
 ```
 
-### Getting Started
+# Getting Started
 Start by visiting the [Download and Setup][1] page to learn how to integrate Marathon into your project. 
 
 Then take a look at [Configuration][2] page to learn the basics of configuration. 
 
 For more help and examples continue through the rest of the Documentation section, or take a look at one of our [sample apps][3].
 
-### Requirements
+# Requirements
 Marathon requires Java Runtime Environment 8 or higher.
 
 [1]: {{ site.baseurl }}{% post_url 2018-11-19-downloading %}
