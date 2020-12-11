@@ -123,9 +123,9 @@ Here you will find a list of currently supported configuration parameters and ex
 * TOC
 {:toc}
 
-### General parameters
+# General parameters
 
-#### Test run configuration name
+## Test run configuration name
 This string specifies the name of this test run configuration. It is used mainly in the generated test reports.
 
 {% tabs name %}
@@ -150,7 +150,7 @@ marathon {
 {% endtab %}
 {% endtabs %}
 
-#### Output directory
+## Output directory
 Directory path to use as the root folder for all the runner output (logs, reports, etc). 
 
 For gradle, the output path will automatically be set to a `marathon` folder in your reports folder unless it's overridden.
@@ -177,13 +177,13 @@ marathon {
 {% endtab %}
 {% endtabs %}
 
-### Analytics configuration
+# Analytics configuration
 Configuration of analytics backend to be used for storing and retrieving test metrics. This plays a major part in optimising performance and mitigating flakiness.
 
-#### Disabled analytics
+## Disabled analytics
 By default no analytics backend is expected which means that each test will be treated as a completely new test.
 
-#### [InfluxDB][1]
+## [InfluxDB][1]
 Assuming you've done the setup for InfluxDB you need to provide:
 - url
 - username
@@ -240,7 +240,7 @@ marathon {
 {% endtab %}
 {% endtabs %}
 
-#### [Graphite][2]
+## [Graphite][2]
 Graphite can be used as an alternative to InfluxDB. It uses the following parameters:
 - host
 - port (optional) - the default is 2003
@@ -284,12 +284,12 @@ marathon {
 {% endtab %}
 {% endtabs %}
 
-### Execution flow
+# Execution flow
 
-#### Pooling strategy
+## Pooling strategy
 Pooling strategy affects how devices are grouped together.
 
-##### Omni a.k.a. one huge pool
+### Omni a.k.a. one huge pool
 All connected devices are merged into one group. **This is the default mode**.
 
 {% tabs pooling-omni %}
@@ -317,7 +317,7 @@ marathon {
 {% endtab %}
 {% endtabs %}
 
-##### By abi
+### By abi
 Devices are grouped by their ABI, e.g. *x86* and *mips*.
 
 {% tabs pooling-abi %}
@@ -347,7 +347,7 @@ marathon {
 {% endtab %}
 {% endtabs %}
 
-##### By manufacturer
+### By manufacturer
 Devices are grouped by manufacturer, e.g. *Samsung* and *Yota*.
 
 {% tabs pooling-manufacturer %}
@@ -377,7 +377,7 @@ marathon {
 {% endtab %}
 {% endtabs %}
 
-##### By device model
+### By device model
 Devices are grouped by model name, e.g. *LG-D855* and *SM-N950F*.
 
 {% tabs pooling-model %}
@@ -407,7 +407,7 @@ marathon {
 {% endtab %}
 {% endtabs %}
 
-##### By OS version
+### By OS version
 Devices are grouped by OS version, e.g. *24* and *25*.
 
 {% tabs pooling-os %}
@@ -437,10 +437,10 @@ marathon {
 {% endtab %}
 {% endtabs %}
 
-#### Sharding strategy
+## Sharding strategy
 Sharding is a mechanism that allows the marathon to affect the tests scheduled for execution inside each pool.
 
-##### Parallel sharding
+### Parallel sharding
 Executes each test in parallel on all the available devices in pool. This is the default behaviour.
 
 {% tabs sharding-parallel %}
@@ -468,7 +468,7 @@ marathon {
 {% endtab %}
 {% endtabs %}
 
-##### Count sharding
+### Count sharding
 Executes each test **count** times inside each pool. For example you want to test the flakiness of a specific test hence you need to execute
  this test a lot of times. Instead of running the build X times just use this sharding strategy and the test will be executed X times.
 
@@ -504,12 +504,12 @@ marathon {
 {% endtab %}
 {% endtabs %}
 
-#### Sorting strategy
+## Sorting strategy
 In order to optimise the performance of test execution tests need to be sorted. 
 This requires analytics backend enabled since we need historical data in order to anticipate tests behaviour like duration and 
 success/failure rate.
 
-##### No sorting
+### No sorting
 No sorting of tests is done at all. This is the default behaviour.
 
 {% tabs sorting-no %}
@@ -535,7 +535,7 @@ marathon {
 {% endtab %}
 {% endtabs %}
 
-##### Success rate sorting
+### Success rate sorting
 For each test analytics storage is providing the success rate for a time window specified by time **timeLimit** parameter. 
 All the tests are then sorted by the success rate in an increasing order, that is failing tests go first and successful tests go last.
 If you want to reverse the order set the `ascending` to `true`.
@@ -575,7 +575,7 @@ marathon {
 {% endtab %}
 {% endtabs %}
 
-##### Execution time sorting
+### Execution time sorting
 For each test analytics storage is providing the X percentile duration for a time window specified by time **timeLimit** parameter. 
 Apart from absolute date/time it  can be also be an ISO 8601 formatted duration.
 
@@ -619,14 +619,14 @@ marathon {
 {% endtab %}
 {% endtabs %}
 
-#### Batching strategy
+## Batching strategy
 Batching mechanism allows you to trade off stability for performance. 
 A group of tests executed using one single run is called a batch. 
 Most of the times this means that between tests in the same batch you're sharing the device state so there is no clean-up. 
 On the other hand you gain some performance improvements 
 since the execution command usually is quite slow (up to 10 seconds for some platforms).
 
-##### Isolate batching
+### Isolate batching
 No batching is done at all, each test is executed using separate command execution, that is performance is sacrificed in favor of stability. 
 This is the default mode.
 
@@ -653,7 +653,7 @@ marathon {
 {% endtab %}
 {% endtabs %}
 
-##### Fixed size batching
+### Fixed size batching
 Each batch is created based on the **size** parameter which is required. 
 When a new batch of tests is needed the queue is dequeued for at most **size** tests.
 
@@ -715,11 +715,11 @@ marathon {
 {% endtab %}
 {% endtabs %}
 
-#### Flakiness strategy
+## Flakiness strategy
 This is the main anticipation logic for marathon. Using the analytics backend we can understand the success rate and hence queue preventive
  retries to mitigate the flakiness of the tests and environment.
 
-##### Ignore flakiness
+### Ignore flakiness
 Nothing is done with this mode. This is the default behaviour.
 
 {% tabs flakiness-ignore %}
@@ -745,7 +745,7 @@ marathon {
 {% endtab %}
 {% endtabs %}
 
-##### Probability based flakiness strategy
+### Probability based flakiness strategy
 The main idea is that flakiness strategy anticipates the flakiness of the test based on the probability of test passing and tries to
  maximise the probability of passing when executed multiple times. For example the probability of test A passing is 0.5 and configuration
  has probability of 0.8 requested, then the flakiness strategy multiplies the test A to be executed 3 times (0.5 x 0.5 x 0.5 = 0.125 is
@@ -794,11 +794,11 @@ marathon {
 {% endtab %}
 {% endtabs %}
 
-#### Retry strategy
+## Retry strategy
 This is the logic that kicks in if our preventive logic failed to anticipate such high number of retries. This works after the tests were
  actually executed.
 
-##### No retries
+### No retries
 As the name implies, no retries are done. This is the default mode.
 
 {% tabs retry-no %}
@@ -824,7 +824,7 @@ marathon {
 {% endtab %}
 {% endtabs %}
 
-##### Fixed quota retry strategy
+### Fixed quota retry strategy
 Parameter **totalAllowedRetryQuota** specifies how many retries at all (for all the tests is total) are allowed. **retryPerTestQuota**
  controls how many retries can be done for each test individually.
 
@@ -863,9 +863,9 @@ marathon {
 {% endtab %}
 {% endtabs %}
 
-### Additional parameters
+# Additional parameters
 
-#### Test filtering configuration
+## Test filtering configuration
 Filtering of tests is important since usually we as developers have the same codebase for all the different types of tests we want to
  execute. In order to indicate to marathon which tests you want to execute you can use the allowlist and blocklist parameters. First
  allowlist is applied, then the blocklist. Each accepts a *TestFilter* based on the *class name*, *fully qualified class name*, *package*, 
@@ -948,7 +948,7 @@ marathon {
 {% endtab %}
 {% endtabs %}
 
-#### Test class regular expression
+## Test class regular expression
 By default, test classes are found using the ```"^((?!Abstract).)*Test[s]*$"``` regex. You can override this if you need to.
 
 {% tabs test-class-regex %}
@@ -978,7 +978,7 @@ marathon {
 {% endtab %}
 {% endtabs %}
 
-#### Ignore failures
+## Ignore failures
 By default, the build fails if some tests failed. If you want to the build to succeed even if some tests failed use *true*.
 
 {% tabs ignore-failures %}
@@ -1003,7 +1003,7 @@ marathon {
 {% endtab %}
 {% endtabs %}
 
-#### Test output timeout
+## Test output timeout
 This parameter specifies the behaviour for the underlying test executor to timeout if there is no output.
  By default, this is set to 60 seconds.
 
@@ -1029,7 +1029,7 @@ marathon {
 {% endtab %}
 {% endtabs %}
 
-#### Test batch timeout
+## Test batch timeout
 This parameter specifies the behaviour for the underlying test executor to timeout if the batch execution exceeded some duration.
  By default, this is set to 15 minutes.
 
@@ -1055,7 +1055,7 @@ marathon {
 {% endtab %}
 {% endtabs %}
 
-#### Device provider init timeout
+## Device provider init timeout
 When the test run starts device provider is expected to provide some devices. This should not take more than 3 minutes by default. If your
  setup requires this to be changed please override as following: 
 
@@ -1081,7 +1081,7 @@ marathon {
 {% endtab %}
 {% endtabs %}
 
-#### Analytics tracking
+## Analytics tracking
 To better understand the use-cases that marathon is used for we're asking you to provide us with anonymised information about your usage.
  By default, this is disabled. Use **true** to enable.
 
@@ -1107,7 +1107,7 @@ marathon {
 {% endtab %}
 {% endtabs %}
 
-#### Uncompleted test retry quota
+## Uncompleted test retry quota
 By default, tests that don't have any status reported after execution (for example a device disconnected during the execution) retry
  indefinitely. You can limit the number of total execution for such cases using this option.
 
@@ -1133,7 +1133,7 @@ marathon {
 {% endtab %}
 {% endtabs %}
 
-#### Strict mode
+## Strict mode
 By default, if one of the test retries succeeds then the test is considered successfully executed. If you require success status only when
  all retries were executed successfully you can enable the strict mode. This may be useful to verify that flakiness of tests was fixed for
  example.
@@ -1160,7 +1160,7 @@ marathon {
 {% endtab %}
 {% endtabs %}
 
-#### Debug mode
+## Debug mode
 Enabled very verbose logging to stdout of all the marathon components. Very useful for debugging.
 
 {% tabs debug-mode %}
@@ -1185,9 +1185,10 @@ marathon {
 {% endtab %}
 {% endtabs %}
 
-#### Screen recording policy
-By default, marathon will only collect screen record for tests that failed (**ON_FAILURE** option). If you want to pull screen recording for
- tests regardless of their status use **ON_ANY** option.
+## Screen recording policy
+By default, screen recording will only be pulled for tests that failed (**ON_FAILURE** option). This is to save space and also to reduce the
+ test duration time since we're not pulling additional files. If you need to save screen recording regardless of the test pass/failure 
+ please use the **ON_ANY** option:
 
 {% tabs screen-recording-policy %}
 {% tab screen-recording-policy Marathonfile %}
@@ -1211,7 +1212,7 @@ marathon {
 {% endtab %}
 {% endtabs %}
 
-### Vendor configuration
+# Vendor configuration
 See relevant vendor module page, e.g. [Android][3] or [iOS][4]
 
 [1]: https://www.influxdata.com/
