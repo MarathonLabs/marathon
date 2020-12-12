@@ -15,7 +15,7 @@ jobs:
         with:
           java-version: 1.8
       - name: deploy-cli-snapshot-to-github
-        run: ./gradlew :cli:publishDefaultPublicationToGitHubRepository -PreleaseMode=SNAPSHOT
+        run: ./gradlew :cli:publishDistZipPublicationToGitHubRepository -PreleaseMode=SNAPSHOT
         env:
           GITHUB_MAVEN_USERNAME: ${{ secrets.GH_MAVEN_USERNAME }}
           GITHUB_MAVEN_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
