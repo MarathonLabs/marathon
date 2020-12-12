@@ -1,9 +1,0 @@
-<component name="libraryTable">
-  <library name="Gradle: android-app.buildSrc.buildSrc">
-    <CLASSES>
-      <root url="jar://$PROJECT_DIR$/buildSrc/build/libs/buildSrc.jar!/" />
-    </CLASSES>
-    <JAVADOC />
-    <SOURCES />
-  </library>
-</component>
