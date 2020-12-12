@@ -924,28 +924,6 @@ p code, ul code {
   .CodeMirror .CodeMirror-line {
     line-height: 1.5; }
 
-.hljs {
-  display: block;
-  overflow-x: auto;
-  color: #383a42;
-  background: #fafafa;
-  padding: 12px 0 12px 16px;
-  font-family: "monoidregular", monospace;
-  font-size: 0.8rem;
-  box-shadow: rgba(25, 62, 136, 0.1) 0 0 20px; }
-
-.hljs-doctag,
-.hljs-keyword,
-.hljs-formula {
-  color: #4172DD; }
-
-.hljs-built_in,
-.hljs-class .hljs-title {
-  color: #F28B2D; }
-
-.language-kotlin {
-  display: none; }
-
 .features {
   padding: 96px 0 64px;
   background: rgba(75, 116, 229, 0.1); }
@@ -991,28 +969,6 @@ p code, ul code {
       text-decoration: none; }
       .features .feature-item:hover img {
         transform: scale(1.2, 1.2); }
-
-.tab {
-  border-bottom: 1px solid rgba(25, 62, 136, 0.1);
-  background: #fff;
-  text-align: center; }
-  .tab .tab-item {
-    display: inline-block;
-    padding: 16px 0;
-    margin-right: 40px;
-    text-transform: uppercase;
-    font-size: 0.875rem; }
-    .tab .tab-item:last-child {
-      margin-right: 0; }
-    .tab .tab-item.active {
-      padding-bottom: 14px;
-      border-bottom: 2px solid #4B74E5; }
-      .tab .tab-item.active a {
-        color: #4B74E5; }
-    .tab .tab-item a {
-      color: #526795; }
-      .tab .tab-item a:hover {
-        text-decoration: none; }
 
 .blog {
   padding: 32px 0;
@@ -1386,3 +1342,6 @@ p code, ul code {
       width: 100%;
       height: 100%;
       display: block; }
+
+.hljs {
+  padding: 1em }

@@ -36,7 +36,7 @@ baseurl: '/marathon'
 permalink: none
 
 # Syntax highlighting
-highlighter: rouge
+highlighter: none
 
 # Since these are pages, it doesn't really matter
 future: true
@@ -48,3 +48,5 @@ exclude: ['bin', 'README.md', 'samples', 'testutil', 'third_party', 'library', '
 markdown: kramdown
 kramdown:
   input: GFM
+  syntax_highlighter_opts:
+    disable: true
