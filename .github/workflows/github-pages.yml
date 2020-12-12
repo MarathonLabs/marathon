@@ -14,5 +14,6 @@ jobs:
         env:
           JEKYLL_PAT: ${{ secrets.JEKYLL_PAT }}
         with:
-          jekyll_src: 'docs'
-          target_branch: 'gh-pages'
+          jekyll_src: docs
+          target_branch: gh-pages
+          gem_src: docs
