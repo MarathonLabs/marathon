@@ -1217,6 +1217,6 @@ See relevant vendor module page, e.g. [Android][3] or [iOS][4]
 
 [1]: https://www.influxdata.com/
 [2]: https://graphiteapp.org/
-[3]: {{ site.baseurl }}{% post_url 2018-11-19-android %}
-[4]: {{ site.baseurl }}{% post_url 2018-11-19-ios %}
+[3]: {% post_url 2018-11-19-android %}
+[4]: {% post_url 2018-11-19-ios %}
 [5]: https://github.com/Malinskiy/marathon/blob/develop/cli/src/main/kotlin/com/malinskiy/marathon/cli/config/ConfigFactory.kt

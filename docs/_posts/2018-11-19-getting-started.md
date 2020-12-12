@@ -17,9 +17,9 @@ configure the test runner:
 * [Execute your test run][4]
 * Check the [reports][7]
 
-[1]: {{ site.baseurl }}{% post_url 2018-11-19-downloading %}
-[2]: {{ site.baseurl }}{% post_url 2018-11-19-configuration %}
-[4]: {{ site.baseurl }}{% post_url 2018-11-19-executing %}
-[5]: {{ site.baseurl }}{% post_url 2018-11-19-android %}
-[6]: {{ site.baseurl }}{% post_url 2018-11-19-ios %}
-[7]: {{ site.baseurl }}{% post_url 2020-12-11-reports %}
+[1]: {% post_url 2018-11-19-downloading %}
+[2]: {% post_url 2018-11-19-configuration %}
+[4]: {% post_url 2018-11-19-executing %}
+[5]: {% post_url 2018-11-19-android %}
+[6]: {% post_url 2018-11-19-ios %}
+[7]: {% post_url 2020-12-11-reports %}
