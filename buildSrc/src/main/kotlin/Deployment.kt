@@ -26,7 +26,7 @@ object Deployment {
         ?: "https://oss.sonatype.org/content/repositories/snapshots/"
     val releaseDeployUrl = System.getenv("SONATYPE_RELEASES_URL")
         ?: "https://oss.sonatype.org/service/local/staging/deploy/maven2/"
-    val githubDeployUrl = "https://maven.pkg.github.com/Malinskiy"
+    val githubDeployUrl = "https://maven.pkg.github.com/Malinskiy/marathon"
 
     fun initialize(project: Project) {
         val releaseMode: String? by project
