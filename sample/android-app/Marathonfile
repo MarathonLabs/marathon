@@ -16,5 +16,5 @@ vendorConfiguration:
   vendor: ADAM
   waitForDevicesTimeoutMillis: 60000
   allureConfiguration:
-    allureAndroidSupport: true
+    enabled: true
 deviceInitializationTimeoutMillis: 180000
