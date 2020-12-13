@@ -16,13 +16,13 @@ import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.test.TestBatch
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.CompletionHandler
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
 import kotlinx.coroutines.channels.SendChannel
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlin.coroutines.CoroutineContext
-import kotlin.properties.Delegates
 
 class DeviceActor(
     private val devicePoolId: DevicePoolId,
@@ -114,7 +114,7 @@ class DeviceActor(
                     if (batch == null) {
                         terminate()
                     } else {
-                        returnBatch(batch).invokeOnCompletion {
+                        returnBatchAnd(batch) {
                             terminate()
                         }
                     }
@@ -153,16 +153,7 @@ class DeviceActor(
         }
     }
 
-    private var job by Delegates.observable<Job?>(null) { _, _, newValue ->
-        newValue?.invokeOnCompletion {
-            if (it == null) {
-                state.transition(DeviceEvent.Complete)
-            } else {
-                logger.error(it) { "Error ${it.message}" }
-                state.transition(DeviceEvent.Terminate)
-            }
-        }
-    }
+    private var job: Job? = null
 
     private fun initialize() {
         logger.debug { "initialize ${device.serialNumber}" }
@@ -181,7 +172,9 @@ class DeviceActor(
                         }
                     }
                 }
+                state.transition(DeviceEvent.Complete)
             } catch (e: Exception) {
+                logger.error(e) { "Error ${e.message}" }
                 state.transition(DeviceEvent.Terminate)
             }
         }
@@ -192,20 +185,30 @@ class DeviceActor(
         job = async {
             try {
                 device.execute(configuration, devicePoolId, batch, result, progressReporter)
+                state.transition(DeviceEvent.Complete)
             } catch (e: CancellationException) {
+                logger.warn(e) { "Device execution has been cancelled" }
                 state.transition(DeviceEvent.Terminate)
             } catch (e: DeviceLostException) {
                 logger.error(e) { "Critical error during execution" }
                 state.transition(DeviceEvent.Terminate)
             } catch (e: TestBatchExecutionException) {
-                returnBatch(batch)
+                logger.warn(e) { "Test batch failed execution" }
+                pool.send(DevicePoolMessage.FromDevice.ReturnTestBatch(device, batch))
+                state.transition(DeviceEvent.Complete)
+            } catch (e: Throwable) {
+                logger.error(e) { "Unknown vendor exception caught. Considering this a recoverable error" }
+                pool.send(DevicePoolMessage.FromDevice.ReturnTestBatch(device, batch))
+                state.transition(DeviceEvent.Complete)
             }
         }
     }
 
-    private fun returnBatch(batch: TestBatch): Job {
+    private fun returnBatchAnd(batch: TestBatch, completionHandler: CompletionHandler = {}): Job {
         return launch {
             pool.send(DevicePoolMessage.FromDevice.ReturnTestBatch(device, batch))
+        }.apply {
+            invokeOnCompletion(completionHandler)
         }
     }
 

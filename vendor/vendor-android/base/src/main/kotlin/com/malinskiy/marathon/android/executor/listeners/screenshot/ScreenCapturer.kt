@@ -64,14 +64,14 @@ class ScreenCapturer(
 
     private suspend fun getScreenshot(targetOrientation: Int): RenderedImage? {
         return try {
-            val screenshot = device.getScreenshot(TIMEOUT_MS, TimeUnit.MILLISECONDS).let {
+            val screenshot = device.getScreenshot(TIMEOUT_MS, TimeUnit.MILLISECONDS)?.let {
                 // in case the orientation of the image is different than the target, rotate by 90 degrees
                 if (it.getOrientation() != targetOrientation) {
                     Scalr.rotate(it, Scalr.Rotation.CW_90).also { org -> org.flush() }
                 } else {
                     it
                 }
-            }
+            } ?: return null
 
             // the first time the orientation did not settle, use the actual image orientation
             val resolvedOrientation = if (targetOrientation == UNDEFINED) screenshot.getOrientation() else targetOrientation

@@ -17,6 +17,9 @@ class AndroidAppInstaller(configuration: Configuration) {
     private val logger = MarathonLogging.logger("AndroidAppInstaller")
     private val androidConfiguration = configuration.vendorConfiguration as AndroidConfiguration
 
+    /**
+     * @throws DeviceSetupException if unable to prepare the device
+     */
     suspend fun prepareInstallation(device: AndroidDevice) {
         val applicationInfo = ApkParser().parseInstrumentationInfo(androidConfiguration.testApplicationOutput)
         logger.debug { "Installing application output to ${device.serialNumber}" }
@@ -28,7 +31,9 @@ class AndroidAppInstaller(configuration: Configuration) {
         logger.debug { "Prepare installation finished for ${device.serialNumber}" }
     }
 
-    @Suppress("TooGenericExceptionThrown")
+    /**
+     * @throws DeviceSetupException if unable to reinstall (even with retries)
+     */
     private suspend fun reinstall(device: AndroidDevice, appPackage: String, appApk: File) {
         withRetry(attempts = MAX_RETIRES, delayTime = 1000) {
             try {
@@ -38,18 +43,21 @@ class AndroidAppInstaller(configuration: Configuration) {
                     uninstallMessage?.let { logger.debug { it } }
                 }
                 logger.info("Installing $appPackage, ${appApk.absolutePath} to ${device.serialNumber}")
-                val installMessage = device.safeInstallPackage(appApk.absolutePath, true, optionalParams(device))
+                val installMessage = device.installPackage(appApk.absolutePath, true, optionalParams(device))
                 installMessage?.let { logger.debug { it } }
                 if (installMessage == null || !installMessage.startsWith("Success")) {
                     throw InstallException(installMessage ?: "")
                 }
             } catch (e: InstallException) {
                 logger.error(e) { "Error while installing $appPackage, ${appApk.absolutePath} on ${device.serialNumber}" }
-                throw RuntimeException("Error while installing $appPackage on ${device.serialNumber}", e)
+                throw DeviceSetupException("Error while installing $appPackage on ${device.serialNumber}", e)
             }
         }
     }
 
+    /**
+     * @throws DeviceSetupException if unable to verify
+     */
     private suspend fun installed(device: AndroidDevice, appPackage: String): Boolean {
         val lines = device.safeExecuteShellCommand("pm list packages")?.lines()
             ?: throw DeviceSetupException("Unable to verify that package $appPackage is installed")

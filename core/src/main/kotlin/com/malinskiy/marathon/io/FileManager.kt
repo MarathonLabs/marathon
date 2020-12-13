@@ -23,6 +23,8 @@ class FileManager(private val output: File) {
         return createFile(directory, filename)
     }
 
+    fun createFolder(folderType: FolderType): File = createDirectories(get(output.absolutePath, folderType.dir)).toFile()
+
     fun createTestResultFile(filename: String): File {
         val resultsFolder = get(output.absolutePath, FileType.TEST_RESULT.dir).toFile()
         resultsFolder.mkdirs()

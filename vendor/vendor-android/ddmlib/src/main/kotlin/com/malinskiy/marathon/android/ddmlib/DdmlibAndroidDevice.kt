@@ -18,12 +18,13 @@ import com.malinskiy.marathon.android.AndroidAppInstaller
 import com.malinskiy.marathon.android.AndroidConfiguration
 import com.malinskiy.marathon.android.BaseAndroidDevice
 import com.malinskiy.marathon.android.VideoConfiguration
+import com.malinskiy.marathon.android.configuration.SerialStrategy
 import com.malinskiy.marathon.android.ddmlib.shell.receiver.CollectingShellOutputReceiver
+import com.malinskiy.marathon.android.ddmlib.sync.NoOpSyncProgressMonitor
 import com.malinskiy.marathon.android.exception.CommandRejectedException
 import com.malinskiy.marathon.android.exception.TransferException
 import com.malinskiy.marathon.android.executor.listeners.AndroidTestRunListener
 import com.malinskiy.marathon.android.executor.listeners.line.LineListener
-import com.malinskiy.marathon.android.serial.SerialStrategy
 import com.malinskiy.marathon.device.DevicePoolId
 import com.malinskiy.marathon.device.NetworkState
 import com.malinskiy.marathon.execution.Configuration
@@ -107,6 +108,32 @@ class DdmlibAndroidDevice(
         }
     }
 
+    override suspend fun pullFolder(remoteFolderPath: String, localFolderPath: String) {
+        val parts = remoteFolderPath.split('/').filter { it.isNotBlank() }
+
+        try {
+            val listingService = ddmsDevice.fileListingService
+            var root = listingService.root
+            var children = listingService.getChildrenSync(root)
+
+            for (part in parts) {
+                root = children.find { it.pathSegments.last() == part }
+                    ?: throw TransferException("Remote folder $remoteFolderPath doesn't exist on $serialNumber")
+
+                children = listingService.getChildrenSync(root)
+            }
+
+            with(ddmsDevice.syncService) {
+                pull(children, localFolderPath, NoOpSyncProgressMonitor())
+                close()
+            }
+
+        } catch (e: Exception) {
+            logger.warn { "Can't pull the folder $remoteFolderPath from device $serialNumber" }
+            throw TransferException(e)
+        }
+    }
+
     override suspend fun executeShellCommand(command: String, errorMessage: String): String? {
         try {
             val outputReceiver = SimpleOutputReceiver()
@@ -127,7 +154,7 @@ class DdmlibAndroidDevice(
         }
     }
 
-    override suspend fun getScreenshot(timeout: Long, units: TimeUnit): BufferedImage {
+    override suspend fun getScreenshot(timeout: Long, units: TimeUnit): BufferedImage? {
         return try {
             val rawImage = ddmsDevice.getScreenshot(timeout, units)
             bufferedImageFrom(rawImage)
@@ -173,7 +200,7 @@ class DdmlibAndroidDevice(
 
     override val coroutineContext: CoroutineContext = dispatcher
 
-    override suspend fun safeInstallPackage(absolutePath: String, reinstall: Boolean, optionalParams: String): String? {
+    override suspend fun installPackage(absolutePath: String, reinstall: Boolean, optionalParams: String): String? {
         return try {
             ddmsDevice.safeInstallPackage(absolutePath, reinstall, optionalParams)
         } catch (e: InstallException) {

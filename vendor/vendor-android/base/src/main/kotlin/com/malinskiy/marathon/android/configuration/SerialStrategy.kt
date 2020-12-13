@@ -1,4 +1,4 @@
-package com.malinskiy.marathon.android.serial
+package com.malinskiy.marathon.android.configuration
 
 import com.fasterxml.jackson.annotation.JsonCreator
 

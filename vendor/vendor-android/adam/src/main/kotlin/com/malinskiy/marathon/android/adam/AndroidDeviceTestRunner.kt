@@ -4,6 +4,7 @@ import com.malinskiy.adam.Const
 import com.malinskiy.adam.request.testrunner.InstrumentOptions
 import com.malinskiy.adam.request.testrunner.TestAssumptionFailed
 import com.malinskiy.adam.request.testrunner.TestEnded
+import com.malinskiy.adam.request.testrunner.TestEvent
 import com.malinskiy.adam.request.testrunner.TestFailed
 import com.malinskiy.adam.request.testrunner.TestIgnored
 import com.malinskiy.adam.request.testrunner.TestRunEnded
@@ -35,7 +36,7 @@ const val ERROR_STUCK = "Test got stuck. You can increase the timeout in setting
 class AndroidDeviceTestRunner(private val device: AdamAndroidDevice) {
     private val logger = MarathonLogging.logger("AndroidDeviceTestRunner")
 
-    @UseExperimental(ExperimentalStdlibApi::class)
+    @OptIn(ExperimentalStdlibApi::class)
     suspend fun execute(
         configuration: Configuration,
         rawTestBatch: TestBatch,
@@ -66,22 +67,7 @@ class AndroidDeviceTestRunner(private val device: AdamAndroidDevice) {
                                 val bytes = (line + '\n').toByteArray(Const.DEFAULT_TRANSPORT_ENCODING)
                                 transformer.process(bytes, 0, bytes.size)
                                 transformer.transform()?.let { events ->
-                                    for (event in events) {
-                                        when (event) {
-                                            is TestRunStartedEvent -> listener.testRunStarted("AdamTestRun", event.testCount)
-                                            is TestStarted -> listener.testStarted(event.id.toMarathonTestIdentifier())
-                                            is TestFailed -> listener.testFailed(event.id.toMarathonTestIdentifier(), event.stackTrace)
-                                            is TestAssumptionFailed -> listener.testAssumptionFailure(
-                                                event.id.toMarathonTestIdentifier(),
-                                                event.stackTrace
-                                            )
-                                            is TestIgnored -> listener.testIgnored(event.id.toMarathonTestIdentifier())
-                                            is TestEnded -> listener.testEnded(event.id.toMarathonTestIdentifier(), event.metrics)
-                                            is TestRunFailed -> listener.testRunFailed(event.error)
-                                            is TestRunStopped -> listener.testRunStopped(event.elapsedTimeMillis)
-                                            is TestRunEnded -> listener.testRunEnded(event.elapsedTimeMillis, event.metrics)
-                                        }
-                                    }
+                                    processEvents(events, listener)
                                 }
                             }
                         }
@@ -89,6 +75,10 @@ class AndroidDeviceTestRunner(private val device: AdamAndroidDevice) {
                             logPart = channel.receiveOrNull()
                         }
                     } while (logPart != null)
+
+                    transformer.close()?.let { events ->
+                        processEvents(events, listener)
+                    }
                 }
             } else {
                 listener.testRunEnded(0, emptyMap())
@@ -105,6 +95,28 @@ class AndroidDeviceTestRunner(private val device: AdamAndroidDevice) {
             listener.testRunFailed(errorMessage)
         } finally {
 
+        }
+    }
+
+    private suspend fun processEvents(
+        events: List<TestEvent>,
+        listener: AndroidTestRunListener
+    ) {
+        for (event in events) {
+            when (event) {
+                is TestRunStartedEvent -> listener.testRunStarted("AdamTestRun", event.testCount)
+                is TestStarted -> listener.testStarted(event.id.toMarathonTestIdentifier())
+                is TestFailed -> listener.testFailed(event.id.toMarathonTestIdentifier(), event.stackTrace)
+                is TestAssumptionFailed -> listener.testAssumptionFailure(
+                    event.id.toMarathonTestIdentifier(),
+                    event.stackTrace
+                )
+                is TestIgnored -> listener.testIgnored(event.id.toMarathonTestIdentifier())
+                is TestEnded -> listener.testEnded(event.id.toMarathonTestIdentifier(), event.metrics)
+                is TestRunFailed -> listener.testRunFailed(event.error)
+                is TestRunStopped -> listener.testRunStopped(event.elapsedTimeMillis)
+                is TestRunEnded -> listener.testRunEnded(event.elapsedTimeMillis, event.metrics)
+            }
         }
     }
 
@@ -127,6 +139,10 @@ class AndroidDeviceTestRunner(private val device: AdamAndroidDevice) {
             device.safeClearPackage(info.instrumentationPackage)?.also {
                 logger.debug { "Package ${info.instrumentationPackage} cleared: $it" }
             }
+        }
+        if (androidConfiguration.allureConfiguration.enabled) {
+            device.fileManager.removeRemotePath(androidConfiguration.allureConfiguration.resultsDirectory, recursive = true)
+            device.fileManager.createRemoteDirectory(androidConfiguration.allureConfiguration.resultsDirectory)
         }
     }
 

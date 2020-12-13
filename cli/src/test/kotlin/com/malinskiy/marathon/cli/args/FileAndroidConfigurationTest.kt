@@ -2,7 +2,8 @@ package com.malinskiy.marathon.cli.args
 
 import com.malinskiy.marathon.android.ScreenRecordConfiguration
 import com.malinskiy.marathon.android.VendorType
-import com.malinskiy.marathon.android.serial.SerialStrategy
+import com.malinskiy.marathon.android.configuration.AllureConfiguration
+import com.malinskiy.marathon.android.configuration.SerialStrategy
 import com.malinskiy.marathon.exceptions.ConfigurationException
 import org.amshove.kluent.shouldEqual
 import org.amshove.kluent.shouldThrow
@@ -23,7 +24,8 @@ class FileAndroidConfigurationTest {
         null,
         SerialStrategy.AUTOMATIC,
         ScreenRecordConfiguration(),
-        15000L
+        15000L,
+        AllureConfiguration()
     )
 
     private val env: File = File.createTempFile("foo", "bar")

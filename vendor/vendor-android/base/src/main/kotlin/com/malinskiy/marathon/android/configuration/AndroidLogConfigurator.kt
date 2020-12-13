@@ -1,4 +1,4 @@
-package com.malinskiy.marathon.android
+package com.malinskiy.marathon.android.configuration
 
 import ch.qos.logback.classic.Logger
 import ch.qos.logback.classic.LoggerContext

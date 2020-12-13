@@ -2,7 +2,8 @@ package com.malinskiy.marathon
 
 import com.malinskiy.marathon.android.ScreenRecordConfiguration
 import com.malinskiy.marathon.android.VendorType
-import com.malinskiy.marathon.android.serial.SerialStrategy
+import com.malinskiy.marathon.android.configuration.AllureConfiguration
+import com.malinskiy.marathon.android.configuration.SerialStrategy
 import com.malinskiy.marathon.execution.policy.ScreenRecordingPolicy
 import groovy.lang.Closure
 import org.gradle.api.Project
@@ -52,7 +53,9 @@ open class MarathonExtension(project: Project) {
     var analyticsTracking: Boolean = false
 
     var deviceInitializationTimeoutMillis: Long? = null
-    var waitForDevicesTimeoutMillis : Long? = null
+    var waitForDevicesTimeoutMillis: Long? = null
+
+    var allureConfiguration: AllureConfiguration? = null
 
     //Android specific for now
     var autoGrantPermission: Boolean? = null
@@ -93,6 +96,10 @@ open class MarathonExtension(project: Project) {
 
     fun instrumentationArgs(block: MutableMap<String, String>.() -> Unit) {
         instrumentationArgs = mutableMapOf<String, String>().also(block)
+    }
+
+    fun allureConfiguration(block: AllureConfiguration.() -> Unit) {
+        allureConfiguration = AllureConfiguration().also(block)
     }
 
     //Groovy way
@@ -147,6 +154,12 @@ open class MarathonExtension(project: Project) {
     fun instrumentationArgs(closure: Closure<*>) {
         instrumentationArgs = mutableMapOf()
         closure.delegate = instrumentationArgs
+        closure.call()
+    }
+
+    fun allureConfiguration(closure: Closure<*>) {
+        allureConfiguration = AllureConfiguration()
+        closure.delegate = allureConfiguration
         closure.call()
     }
 }

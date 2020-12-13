@@ -1,32 +1,30 @@
 package com.example
 
-import android.support.test.rule.ActivityTestRule
-import android.support.test.runner.AndroidJUnit4
-import io.qameta.allure.Epic
-import io.qameta.allure.Feature
-import io.qameta.allure.Owner
-import io.qameta.allure.Severity
-import io.qameta.allure.SeverityLevel
-import io.qameta.allure.Story
+import androidx.test.ext.junit.rules.ActivityScenarioRule
+import io.qameta.allure.android.rules.ScreenshotRule
+import io.qameta.allure.android.runners.AllureAndroidJUnit4
+import io.qameta.allure.kotlin.*
+import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.junit.Assert.assertTrue
-import java.util.Random
+import java.util.*
 
+@RunWith(AllureAndroidJUnit4::class)
 @Epic("Marathon")
 @Feature("Flakiness")
 @Owner("user2")
 @Severity(SeverityLevel.BLOCKER)
 @Story("Flaky")
-@RunWith(AndroidJUnit4::class)
 class MainActivityFlakyTest {
 
-    @Rule
-    @JvmField
-    val rule = ActivityTestRule(MainActivity::class.java)
+    @get:Rule
+    val rule = ActivityScenarioRule(MainActivity::class.java)
 
     val screen = MainScreen()
+
+    @get:Rule
+    val logcatRule = ScreenshotRule(mode = ScreenshotRule.Mode.END, screenshotName = "ss_end")
 
     @Test
     fun testTextFlaky() {

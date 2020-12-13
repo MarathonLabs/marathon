@@ -72,6 +72,9 @@ class ScreenRecorderTestRunListener(
         pullVideo(test.toTest())
     }
 
+    /**
+     * @throws TransferException in case there are any issues pulling the file
+     */
     private suspend fun pullVideo(test: Test) {
         try {
             val join = measureTimeMillis {
@@ -98,7 +101,7 @@ class ScreenRecorderTestRunListener(
         val localVideoFile = fileManager.createFile(FileType.VIDEO, pool, device.toDeviceInfo(), test)
         val remoteFilePath = device.fileManager.remoteVideoForTest(test)
         val millis = measureTimeMillis {
-            device.pullFile(remoteFilePath, localVideoFile.toString())
+            device.safePullFile(remoteFilePath, localVideoFile.toString())
         }
         logger.trace { "Pulling finished in ${millis}ms $remoteFilePath " }
         attachmentListeners.forEach { it.onAttachment(test, Attachment(localVideoFile, AttachmentType.VIDEO)) }

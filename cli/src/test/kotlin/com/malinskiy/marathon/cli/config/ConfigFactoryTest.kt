@@ -9,7 +9,8 @@ import com.malinskiy.marathon.android.AndroidConfiguration
 import com.malinskiy.marathon.android.ScreenRecordConfiguration
 import com.malinskiy.marathon.android.ScreenshotConfiguration
 import com.malinskiy.marathon.android.VideoConfiguration
-import com.malinskiy.marathon.android.serial.SerialStrategy
+import com.malinskiy.marathon.android.configuration.AllureConfiguration
+import com.malinskiy.marathon.android.configuration.SerialStrategy
 import com.malinskiy.marathon.cli.args.EnvironmentConfiguration
 import com.malinskiy.marathon.cli.args.environment.EnvironmentReader
 import com.malinskiy.marathon.cli.config.time.InstantTimeProvider
@@ -173,7 +174,8 @@ class ConfigFactoryTest {
                 videoConfiguration = VideoConfiguration(false, 1080, 1920, 2, 300),
                 screenshotConfiguration = ScreenshotConfiguration(false, 1080, 1920, 200)
             ),
-            15000L
+            15000L,
+            AllureConfiguration()
         )
     }
 

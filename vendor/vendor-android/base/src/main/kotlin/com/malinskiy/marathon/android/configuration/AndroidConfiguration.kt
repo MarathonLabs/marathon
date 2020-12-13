@@ -1,7 +1,10 @@
 package com.malinskiy.marathon.android
 
+import com.malinskiy.marathon.android.configuration.AllureConfiguration
+import com.malinskiy.marathon.android.configuration.AndroidLogConfigurator
+import com.malinskiy.marathon.android.configuration.DEFAULT_ALLURE_CONFIGURATION
+import com.malinskiy.marathon.android.configuration.SerialStrategy
 import com.malinskiy.marathon.android.di.androidModule
-import com.malinskiy.marathon.android.serial.SerialStrategy
 import com.malinskiy.marathon.device.DeviceProvider
 import com.malinskiy.marathon.execution.TestParser
 import com.malinskiy.marathon.log.MarathonLogConfigurator
@@ -32,7 +35,8 @@ data class AndroidConfiguration(
     val installOptions: String = DEFAULT_INSTALL_OPTIONS,
     val serialStrategy: SerialStrategy = SerialStrategy.AUTOMATIC,
     val screenRecordConfiguration: ScreenRecordConfiguration = ScreenRecordConfiguration(),
-    val waitForDevicesTimeoutMillis: Long = DEFAULT_WAIT_FOR_DEVICES_TIMEOUT
+    val waitForDevicesTimeoutMillis: Long = DEFAULT_WAIT_FOR_DEVICES_TIMEOUT,
+    val allureConfiguration: AllureConfiguration = DEFAULT_ALLURE_CONFIGURATION
 ) : VendorConfiguration, KoinComponent {
 
     private val koinModules = listOf(androidModule) + implementationModules
