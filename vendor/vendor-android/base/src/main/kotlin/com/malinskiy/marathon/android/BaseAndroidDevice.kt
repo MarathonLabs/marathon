@@ -226,7 +226,7 @@ abstract class BaseAndroidDevice(
         val recorderListener = selectRecorderType(features, recordConfiguration)?.let { feature ->
             prepareRecorderListener(feature, fileManager, devicePoolId, screenRecordingPolicy, attachmentProviders)
         } ?: NoOpTestRunListener()
-        val allureListener = when (this@BaseAndroidDevice.configuration.allureConfiguration.allureAndroidSupport) {
+        val allureListener = when (this@BaseAndroidDevice.configuration.allureConfiguration.enabled) {
             false -> NoOpTestRunListener()
             true -> AllureArtifactsTestRunListener(this, this@BaseAndroidDevice.configuration.allureConfiguration, fileManager)
         }

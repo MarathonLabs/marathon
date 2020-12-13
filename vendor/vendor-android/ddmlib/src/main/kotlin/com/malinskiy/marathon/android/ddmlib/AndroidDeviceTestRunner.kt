@@ -89,7 +89,7 @@ class AndroidDeviceTestRunner(private val device: DdmlibAndroidDevice) {
                 logger.debug { "Package ${info.applicationPackage} cleared: $it" }
             }
         }
-        if (androidConfiguration.allureConfiguration.allureAndroidSupport) {
+        if (androidConfiguration.allureConfiguration.enabled) {
             device.fileManager.removeRemotePath(androidConfiguration.allureConfiguration.resultsDirectory, recursive = true)
             device.fileManager.createRemoteDirectory(androidConfiguration.allureConfiguration.resultsDirectory)
         }
