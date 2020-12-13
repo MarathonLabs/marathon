@@ -49,6 +49,12 @@ class DdmlibDeviceProvider(
         if (vendorConfiguration !is AndroidConfiguration) {
             throw IllegalStateException("Invalid configuration $vendorConfiguration passed")
         }
+
+        logger.warn {
+            "ddmlib Android vendor will be deprecated in 0.7.0 and is scheduled to be removed in 0.8.0.\n" +
+                "\tMore info: https://malinskiy.github.io/marathon/ven/android.html#vendor-module-selection"
+        }
+
         DdmPreferences.setTimeOut(DEFAULT_DDM_LIB_TIMEOUT)
         AndroidDebugBridge.initIfNeeded(false)
 
