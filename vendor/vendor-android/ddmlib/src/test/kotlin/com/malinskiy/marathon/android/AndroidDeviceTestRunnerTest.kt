@@ -4,10 +4,10 @@ import com.android.ddmlib.IDevice
 import com.android.ddmlib.testrunner.ITestRunListener
 import com.android.sdklib.AndroidVersion
 import com.malinskiy.marathon.analytics.internal.pub.Track
+import com.malinskiy.marathon.android.configuration.SerialStrategy
 import com.malinskiy.marathon.android.ddmlib.AndroidDeviceTestRunner
 import com.malinskiy.marathon.android.ddmlib.DdmlibAndroidDevice
 import com.malinskiy.marathon.android.ddmlib.toTestIdentifier
-import com.malinskiy.marathon.android.serial.SerialStrategy
 import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.test.MetaProperty
 import com.malinskiy.marathon.test.TestBatch
@@ -18,6 +18,7 @@ import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
 import com.nhaarman.mockitokotlin2.whenever
 import ddmlibModule
+import kotlinx.coroutines.runBlocking
 import org.amshove.kluent.mock
 import org.junit.jupiter.api.Test
 import java.io.File
@@ -82,7 +83,9 @@ class AndroidDeviceTestRunnerTest {
         val validTest = MarathonTest("test", "test", "test", emptyList())
         val batch = TestBatch(listOf(ignoredTest, validTest))
         val listener = mock<ITestRunListener>()
-        androidDeviceTestRunner.execute(configuration, batch, listener)
+        runBlocking {
+            androidDeviceTestRunner.execute(configuration, batch, listener)
+        }
         verify(listener).testStarted(eq(identifier))
         verify(listener).testIgnored(eq(identifier))
         verify(listener).testEnded(eq(identifier), eq(hashMapOf()))
@@ -145,7 +148,9 @@ class AndroidDeviceTestRunnerTest {
         val identifier = ignoredTest.toTestIdentifier()
         val batch = TestBatch(listOf(ignoredTest))
         val listener = mock<ITestRunListener>()
-        androidDeviceTestRunner.execute(configuration, batch, listener)
+        runBlocking {
+            androidDeviceTestRunner.execute(configuration, batch, listener)
+        }
         verify(listener).testStarted(eq(identifier))
         verify(listener).testIgnored(eq(identifier))
         verify(listener).testEnded(eq(identifier), eq(emptyMap()))
