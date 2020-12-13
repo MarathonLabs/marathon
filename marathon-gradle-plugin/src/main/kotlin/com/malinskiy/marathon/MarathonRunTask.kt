@@ -10,6 +10,7 @@ import com.malinskiy.marathon.android.DEFAULT_WAIT_FOR_DEVICES_TIMEOUT
 import com.malinskiy.marathon.android.ScreenRecordConfiguration
 import com.malinskiy.marathon.android.VendorType
 import com.malinskiy.marathon.android.adam.di.adamModule
+import com.malinskiy.marathon.android.configuration.DEFAULT_ALLURE_CONFIGURATION
 import com.malinskiy.marathon.android.configuration.SerialStrategy
 import com.malinskiy.marathon.android.defaultInitTimeoutMillis
 import com.malinskiy.marathon.di.marathonStartKoin
@@ -121,6 +122,7 @@ open class MarathonRunTask : DefaultTask(), VerificationTask {
         val screenRecordConfiguration = extension.screenRecordConfiguration ?: ScreenRecordConfiguration()
         val serialStrategy = extension.serialStrategy ?: SerialStrategy.AUTOMATIC
         val waitForDevicesTimeoutMillis = extension.waitForDevicesTimeoutMillis ?: DEFAULT_WAIT_FOR_DEVICES_TIMEOUT
+        val allureConfiguration = extension.allureConfiguration ?: DEFAULT_ALLURE_CONFIGURATION
 
         val implementationModules = when (extension.vendor ?: VendorType.DDMLIB) {
             VendorType.DDMLIB -> listOf(ddmlibModule)
@@ -140,7 +142,8 @@ open class MarathonRunTask : DefaultTask(), VerificationTask {
             installOptions = installOptions,
             screenRecordConfiguration = screenRecordConfiguration,
             serialStrategy = serialStrategy,
-            waitForDevicesTimeoutMillis = waitForDevicesTimeoutMillis
+            waitForDevicesTimeoutMillis = waitForDevicesTimeoutMillis,
+            allureConfiguration = allureConfiguration
         )
     }
 
