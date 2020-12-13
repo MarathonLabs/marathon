@@ -3,7 +3,10 @@ package com.malinskiy.marathon.exceptions
 import com.bugsnag.Bugsnag
 import com.malinskiy.marathon.BuildConfig
 import com.malinskiy.marathon.config.AppType
+import com.malinskiy.marathon.log.MarathonLogging
 import java.util.*
+
+private val log = MarathonLogging.logger {}
 
 class BugsnagExceptionsReporter : ExceptionsReporter {
     private val bugsnag: Bugsnag? by lazy {
@@ -18,6 +21,7 @@ class BugsnagExceptionsReporter : ExceptionsReporter {
 
     override fun start(appType: AppType) {
         bugsnag?.apply {
+            log.info { "Init BugSnag" }
             setAppType(appType.value)
             setAppVersion(BuildConfig.VERSION)
             /**
@@ -40,6 +44,9 @@ class BugsnagExceptionsReporter : ExceptionsReporter {
     }
 
     override fun end() {
-        bugsnag?.close()
+        bugsnag?.apply {
+           log.info { "Finish BugSnag" }
+           close()
+        }
     }
 }
