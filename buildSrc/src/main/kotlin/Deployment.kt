@@ -13,6 +13,9 @@ import org.gradle.kotlin.dsl.the
 import org.gradle.plugins.signing.SigningExtension
 import java.net.URI
 
+const val DEFAULT_PUBLICATION_NAME = "default"
+const val DIST_ZIP_PUBLICATION_NAME = "distZip"
+
 object Deployment {
     val user = System.getenv("SONATYPE_USERNAME")
     val password = System.getenv("SONATYPE_PASSWORD")
@@ -26,7 +29,7 @@ object Deployment {
         ?: "https://oss.sonatype.org/content/repositories/snapshots/"
     val releaseDeployUrl = System.getenv("SONATYPE_RELEASES_URL")
         ?: "https://oss.sonatype.org/service/local/staging/deploy/maven2/"
-    val githubDeployUrl = "https://maven.pkg.github.com/Malinskiy"
+    val githubDeployUrl = "https://maven.pkg.github.com/Malinskiy/marathon"
 
     fun initialize(project: Project) {
         val releaseMode: String? by project
@@ -65,11 +68,18 @@ object Deployment {
 
         project.configure<PublishingExtension> {
             publications {
-                create("default", MavenPublication::class.java) {
+                create(DEFAULT_PUBLICATION_NAME, MavenPublication::class.java) {
                     Deployment.customizePom(project, pom)
                     from(project.components["java"])
                     artifact(sourcesJar)
                     artifact(javadocJar)
+                }
+
+                project.tasks.findByName("distZip")?.let { distZip ->
+                    create(DIST_ZIP_PUBLICATION_NAME, MavenPublication::class.java) {
+                        Deployment.customizePom(project, pom)
+                        artifact(distZip)
+                    }
                 }
             }
             repositories {
@@ -104,7 +114,11 @@ object Deployment {
 
             val publishing = project.the(PublishingExtension::class)
             project.configure<SigningExtension> {
-                sign(publishing.publications.getByName("default"))
+                sign(publishing.publications.getByName(DEFAULT_PUBLICATION_NAME))
+
+                project.tasks.findByName("distZip")?.let {
+                    sign(publishing.publications.getByName(DIST_ZIP_PUBLICATION_NAME))
+                }
             }
 
             project.extra.set("signing.keyId", "1131CBA5")
