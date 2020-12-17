@@ -92,6 +92,9 @@ class AndroidDeviceTestRunner(private val device: DdmlibAndroidDevice) {
         if (androidConfiguration.allureConfiguration.enabled) {
             device.fileManager.removeRemotePath(androidConfiguration.allureConfiguration.resultsDirectory, recursive = true)
             device.fileManager.createRemoteDirectory(androidConfiguration.allureConfiguration.resultsDirectory)
+            if (device.version.isGreaterOrEqualThan(30)) {
+                device.safeExecuteShellCommand("appops set --uid ${info.applicationPackage} MANAGE_EXTERNAL_STORAGE allow")
+            }
         }
     }
 
