@@ -54,6 +54,12 @@ You also need to add the following to your settings.gradle(.kts):
 
 ```kotlin
 pluginManagement {
+    repositories {
+        ...
+        //We depend on the model classes from allure-kotlin.
+        //See https://github.com/gradle/gradle/issues/8811 for the underlying issue        
+        maven("https://dl.bintray.com/qameta/maven")
+    }
     resolutionStrategy {
         eachPlugin {
             if (requested.id.id == "marathon") {

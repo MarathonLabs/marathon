@@ -3,6 +3,7 @@ pluginManagement {
         google()
         maven { url = uri("$rootDir/../../build/repository") }
         gradlePluginPortal()
+        maven("https://dl.bintray.com/qameta/maven")
     }
     resolutionStrategy {
         eachPlugin {
