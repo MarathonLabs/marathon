@@ -144,7 +144,10 @@ class AndroidDeviceTestRunner(private val device: AdamAndroidDevice) {
             device.fileManager.removeRemotePath(androidConfiguration.allureConfiguration.resultsDirectory, recursive = true)
             device.fileManager.createRemoteDirectory(androidConfiguration.allureConfiguration.resultsDirectory)
             if (device.version.isGreaterOrEqualThan(30)) {
-                device.safeExecuteShellCommand("appops set --uid ${info.applicationPackage} MANAGE_EXTERNAL_STORAGE allow")
+                val command = "appops set --uid ${info.applicationPackage} MANAGE_EXTERNAL_STORAGE allow"
+                device.safeExecuteShellCommand(command)?.also {
+                    logger.debug { "Granted MANAGE_EXTERNAL_STORAGE to ${info.applicationPackage}: $it" }
+                }
             }
         }
     }
