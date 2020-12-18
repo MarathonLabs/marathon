@@ -20,6 +20,7 @@ import com.malinskiy.marathon.vendor.VendorConfiguration
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.ReceiveChannel
+import kotlinx.coroutines.channels.receiveOrNull
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.newFixedThreadPoolContext
 import kotlinx.coroutines.runBlocking
@@ -82,7 +83,7 @@ class AdamDeviceProvider(
         bootWaitContext.executor.execute {
             runBlocking {
                 while (!deviceEventsChannel.isClosedForReceive) {
-                    val currentDeviceList = deviceEventsChannel.receive()
+                    val currentDeviceList = deviceEventsChannel.receiveOrNull() ?: return@runBlocking
                     deviceStateTracker.update(currentDeviceList).forEach { update ->
                         val serial = update.first
                         val state = update.second
