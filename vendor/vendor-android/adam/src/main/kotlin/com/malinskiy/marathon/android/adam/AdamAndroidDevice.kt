@@ -148,8 +148,7 @@ class AdamAndroidDevice(
 
         try {
             val channel = client.execute(PushFileRequest(file, remoteFilePath), serial = adbSerial, scope = this)
-            progress = 0.0
-            while (!channel.isClosedForReceive && progress < 1.0) {
+            while (!channel.isClosedForReceive) {
                 progress = channel.receiveOrNull() ?: break
             }
         } catch (e: PushFailedException) {
