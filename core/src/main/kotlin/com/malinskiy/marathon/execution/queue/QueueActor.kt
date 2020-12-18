@@ -175,9 +175,13 @@ class QueueActor(
     private suspend fun onRequestBatch(device: DeviceInfo) {
         logger.debug { "request next batch for device ${device.serialNumber}" }
         val queueIsEmpty = queue.isEmpty()
+
+        //Don't separate the condition and the mutator into separate suspending blocks
         if (queue.isNotEmpty() && !activeBatches.containsKey(device.serialNumber)) {
             logger.debug { "sending next batch for device ${device.serialNumber}" }
-            sendBatch(device)
+            val batch = batching.process(queue, analytics)
+            activeBatches[device.serialNumber] = batch
+            pool.send(FromQueue.ExecuteBatch(device, batch))
             return
         }
         if (queueIsEmpty && activeBatches.isEmpty()) {
@@ -189,12 +193,6 @@ class QueueActor(
                         "${activeBatches.keys.joinToString { it }}"
             }
         }
-    }
-
-    private suspend fun sendBatch(device: DeviceInfo) {
-        val batch = batching.process(queue, analytics)
-        activeBatches[device.serialNumber] = batch
-        pool.send(FromQueue.ExecuteBatch(device, batch))
     }
 }
 
