@@ -25,8 +25,10 @@ import com.malinskiy.marathon.test.Test
 import com.malinskiy.marathon.test.TestBatch
 import com.malinskiy.marathon.test.toTestName
 import kotlinx.coroutines.TimeoutCancellationException
+import kotlinx.coroutines.channels.ReceiveChannel
 import kotlinx.coroutines.channels.receiveOrNull
 import kotlinx.coroutines.withTimeout
+import kotlinx.coroutines.withTimeoutOrNull
 import java.io.IOException
 import java.util.concurrent.TimeoutException
 
@@ -52,13 +54,14 @@ class AndroidDeviceTestRunner(private val device: AdamAndroidDevice) {
         val info = ApkParser().parseInstrumentationInfo(androidConfiguration.testApplicationOutput)
         val runnerRequest = prepareTestRunnerRequest(androidConfiguration, info, testBatch)
 
+        var channel: ReceiveChannel<String>? = null
         try {
             notifyIgnoredTest(ignoredTests, listener)
             if (testBatch.tests.isNotEmpty()) {
                 clearData(androidConfiguration, info)
                 withTimeout(configuration.testBatchTimeoutMillis) {
                     val transformer = InstrumentationResponseTransformer()
-                    val channel = device.executeTestRequest(runnerRequest)
+                    channel = device.executeTestRequest(runnerRequest)
 
                     var logPart: String? = null
                     do {
@@ -71,8 +74,8 @@ class AndroidDeviceTestRunner(private val device: AdamAndroidDevice) {
                                 }
                             }
                         }
-                        withTimeout(configuration.testOutputTimeoutMillis) {
-                            logPart = channel.receiveOrNull()
+                        logPart = withTimeoutOrNull(configuration.testOutputTimeoutMillis) {
+                            channel?.receiveOrNull()
                         }
                     } while (logPart != null)
 
@@ -84,17 +87,17 @@ class AndroidDeviceTestRunner(private val device: AdamAndroidDevice) {
                 listener.testRunEnded(0, emptyMap())
             }
         } catch (e: TimeoutCancellationException) {
-            logger.warn(ERROR_STUCK)
+            logger.warn(e) { ERROR_STUCK }
             listener.testRunFailed(ERROR_STUCK)
         } catch (e: TimeoutException) {
-            logger.warn(ERROR_STUCK)
+            logger.warn(e) { ERROR_STUCK }
             listener.testRunFailed(ERROR_STUCK)
         } catch (e: IOException) {
             val errorMessage = "adb error while running tests ${testBatch.tests.map { it.toTestName() }}"
             logger.error(e) { errorMessage }
             listener.testRunFailed(errorMessage)
         } finally {
-
+            channel?.cancel(null)
         }
     }
 
