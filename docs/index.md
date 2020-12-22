@@ -100,6 +100,6 @@ For more help and examples continue through the rest of the Documentation sectio
 # Requirements
 Marathon requires Java Runtime Environment 8 or higher.
 
-[1]: {{ site.baseurl }}{% post_url 2018-11-19-downloading %}
-[2]: {{ site.baseurl }}{% post_url 2018-11-19-configuration %}
-[3]: {{ site.baseurl }}{% post_url 2018-11-19-samples %}
+[1]: {% post_url 2018-11-19-downloading %}
+[2]: {% post_url 2018-11-19-configuration %}
+[3]: {% post_url 2018-11-19-samples %}
