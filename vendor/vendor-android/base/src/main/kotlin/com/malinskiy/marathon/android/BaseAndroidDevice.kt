@@ -34,8 +34,6 @@ import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
-import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.withTimeoutOrNull
 import java.util.*
 import kotlin.system.measureTimeMillis
 
@@ -58,13 +56,7 @@ abstract class BaseAndroidDevice(
     override var operatingSystem: OperatingSystem = OperatingSystem(version.apiString)
     override var initialRotation: Rotation = Rotation.ROTATION_0
     var realSerialNumber: String = "Unknown"
-    val booted: Boolean
-        get() = runBlocking {
-            return@runBlocking withTimeoutOrNull(ADB_SHORT_TIMEOUT_MILLIS) {
-                val bootedProperty: String? = getProperty("sys.boot_completed", true)
-                bootedProperty != null
-            } ?: false
-        }
+    var booted: Boolean = false
     override val serialNumber: String
         get() = when {
             booted -> realSerialNumber
@@ -75,7 +67,7 @@ abstract class BaseAndroidDevice(
     protected lateinit var md5cmd: String
 
     override suspend fun setup() {
-        waitForBoot()
+        booted = waitForBoot()
         abi = getProperty("ro.product.cpu.abi") ?: abi
 
         val sdk = getProperty("ro.build.version.sdk")
