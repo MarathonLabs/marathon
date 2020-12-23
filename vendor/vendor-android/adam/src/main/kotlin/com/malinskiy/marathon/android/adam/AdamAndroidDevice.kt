@@ -243,7 +243,7 @@ class AdamAndroidDevice(
             throw InstallException(e)
         }
 
-        withTimeoutOrNull(configuration.timeoutConfiguration.install) {
+        val result = withTimeoutOrNull(configuration.timeoutConfiguration.install) {
             client.execute(
                 InstallRemotePackageRequest(
                     remotePath,
