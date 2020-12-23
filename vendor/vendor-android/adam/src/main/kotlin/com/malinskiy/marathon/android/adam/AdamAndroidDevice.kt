@@ -24,8 +24,6 @@ import com.malinskiy.adam.request.sync.UninstallRemotePackageRequest
 import com.malinskiy.adam.request.testrunner.TestRunnerRequest
 import com.malinskiy.adam.screencapture.BufferedImageScreenCaptureAdapter
 import com.malinskiy.marathon.analytics.internal.pub.Track
-import com.malinskiy.marathon.android.ADB_SCREEN_RECORD_TIMEOUT_MILLIS
-import com.malinskiy.marathon.android.ADB_SHORT_TIMEOUT_MILLIS
 import com.malinskiy.marathon.android.AndroidAppInstaller
 import com.malinskiy.marathon.android.AndroidConfiguration
 import com.malinskiy.marathon.android.BaseAndroidDevice
