@@ -24,13 +24,10 @@ import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.test.Test
 import com.malinskiy.marathon.test.TestBatch
 import com.malinskiy.marathon.test.toTestName
-import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.channels.ReceiveChannel
 import kotlinx.coroutines.channels.receiveOrNull
-import kotlinx.coroutines.withTimeout
 import kotlinx.coroutines.withTimeoutOrNull
 import java.io.IOException
-import java.util.concurrent.TimeoutException
 
 const val JUNIT_IGNORE_META_PROPERTY_NAME = "org.junit.Ignore"
 const val ERROR_STUCK = "Test got stuck. You can increase the timeout in settings if it's too strict"
@@ -56,10 +53,10 @@ class AndroidDeviceTestRunner(private val device: AdamAndroidDevice) {
 
         var channel: ReceiveChannel<String>? = null
         try {
-            notifyIgnoredTest(ignoredTests, listener)
-            if (testBatch.tests.isNotEmpty()) {
-                clearData(androidConfiguration, info)
-                withTimeout(configuration.testBatchTimeoutMillis) {
+            withTimeoutOrNull(configuration.testBatchTimeoutMillis) {
+                notifyIgnoredTest(ignoredTests, listener)
+                if (testBatch.tests.isNotEmpty()) {
+                    clearData(androidConfiguration, info)
                     val transformer = InstrumentationResponseTransformer()
                     channel = device.executeTestRequest(runnerRequest)
 
@@ -82,16 +79,11 @@ class AndroidDeviceTestRunner(private val device: AdamAndroidDevice) {
                     transformer.close()?.let { events ->
                         processEvents(events, listener)
                     }
+                } else {
+                    listener.testRunEnded(0, emptyMap())
                 }
-            } else {
-                listener.testRunEnded(0, emptyMap())
-            }
-        } catch (e: TimeoutCancellationException) {
-            logger.warn(e) { ERROR_STUCK }
-            listener.testRunFailed(ERROR_STUCK)
-        } catch (e: TimeoutException) {
-            logger.warn(e) { ERROR_STUCK }
-            listener.testRunFailed(ERROR_STUCK)
+                Unit
+            } ?: listener.testRunFailed(ERROR_STUCK)
         } catch (e: IOException) {
             val errorMessage = "adb error while running tests ${testBatch.tests.map { it.toTestName() }}"
             logger.error(e) { errorMessage }
