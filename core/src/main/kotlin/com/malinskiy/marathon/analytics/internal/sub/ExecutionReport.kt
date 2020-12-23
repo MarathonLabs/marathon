@@ -48,11 +48,15 @@ data class ExecutionReport(
         val rawPassed = rawTests.count { it.status == TestStatus.PASSED }
         val rawIgnored = rawTests.count {
             it.status == TestStatus.IGNORED
-                    || it.status == TestStatus.ASSUMPTION_FAILURE
+                || it.status == TestStatus.ASSUMPTION_FAILURE
         }
         val rawFailed = rawTests.count { it.status == TestStatus.FAILURE }
         val rawIncomplete = rawTests.count { it.status == TestStatus.INCOMPLETE }
-        val rawDuration = rawTests.map { it.durationMillis() }.sum()
+        val rawDuration = rawTests
+            //Incomplete tests mess up the calculations of time since their end time is 0 and duration is, hence, years
+            //We filter here for unavailable time just to be safe
+            .filter { it.startTime != 0L && it.endTime != 0L }
+            .map { it.durationMillis() }.sum()
 
         return PoolSummary(
             poolId = poolId,
