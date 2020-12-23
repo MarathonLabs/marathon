@@ -20,8 +20,8 @@ import com.malinskiy.marathon.vendor.VendorConfiguration
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.ReceiveChannel
-import kotlinx.coroutines.channels.receiveOrNull
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.newFixedThreadPoolContext
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeoutOrNull
@@ -52,6 +52,7 @@ class AdamDeviceProvider(
 
     private lateinit var client: AndroidDebugBridgeClient
     private lateinit var deviceEventsChannel: ReceiveChannel<List<Device>>
+    private val deviceEventsChannelLock = Object()
     private val deviceStateTracker = DeviceStateTracker()
 
     override suspend fun initialize(vendorConfiguration: VendorConfiguration) {
@@ -79,41 +80,47 @@ class AdamDeviceProvider(
             }
         } ?: throw NoDevicesException("No devices found")
 
-        deviceEventsChannel = client.execute(AsyncDeviceMonitorRequest(), this)
         bootWaitContext.executor.execute {
             runBlocking {
-                while (!deviceEventsChannel.isClosedForReceive) {
-                    val currentDeviceList = deviceEventsChannel.receiveOrNull() ?: return@runBlocking
-                    deviceStateTracker.update(currentDeviceList).forEach { update ->
-                        val serial = update.first
-                        val state = update.second
-                        when (state) {
-                            TrackingUpdate.CONNECTED -> {
-                                val device =
-                                    AdamAndroidDevice(
-                                        client,
-                                        deviceStateTracker,
-                                        serial,
-                                        vendorConfiguration,
-                                        track,
-                                        timer,
-                                        vendorConfiguration.serialStrategy
-                                    )
-                                track.trackProviderDevicePreparing(device) {
-                                    device.setup()
+                /**
+                 * This allows us to survive `adb kill-server`
+                 */
+                while (isActive) {
+                    synchronized(deviceEventsChannelLock) {
+                        deviceEventsChannel = client.execute(AsyncDeviceMonitorRequest(), this)
+                    }
+                    for (currentDeviceList in deviceEventsChannel) {
+                        deviceStateTracker.update(currentDeviceList).forEach { update ->
+                            val serial = update.first
+                            val state = update.second
+                            when (state) {
+                                TrackingUpdate.CONNECTED -> {
+                                    val device =
+                                        AdamAndroidDevice(
+                                            client,
+                                            deviceStateTracker,
+                                            serial,
+                                            vendorConfiguration,
+                                            track,
+                                            timer,
+                                            vendorConfiguration.serialStrategy
+                                        )
+                                    track.trackProviderDevicePreparing(device) {
+                                        device.setup()
+                                    }
+                                    channel.send(DeviceProvider.DeviceEvent.DeviceConnected(device))
+                                    devices[serial] = device
                                 }
-                                channel.send(DeviceProvider.DeviceEvent.DeviceConnected(device))
-                                devices[serial] = device
-                            }
-                            TrackingUpdate.DISCONNECTED -> {
-                                devices[serial]?.let { device ->
-                                    channel.send(DeviceProvider.DeviceEvent.DeviceDisconnected(device))
-                                    device.dispose()
+                                TrackingUpdate.DISCONNECTED -> {
+                                    devices[serial]?.let { device ->
+                                        channel.send(DeviceProvider.DeviceEvent.DeviceDisconnected(device))
+                                        device.dispose()
+                                    }
                                 }
+                                TrackingUpdate.NOTHING_TO_DO -> Unit
                             }
-                            TrackingUpdate.NOTHING_TO_DO -> Unit
+                            logger.debug { "Device $serial changed state to $state" }
                         }
-                        logger.debug { "Device $serial changed state to $state" }
                     }
                 }
             }
@@ -128,7 +135,9 @@ class AdamDeviceProvider(
     override suspend fun terminate() {
         bootWaitContext.close()
         channel.close()
-        deviceEventsChannel.cancel()
+        synchronized(deviceEventsChannelLock) {
+            deviceEventsChannel.cancel()
+        }
     }
 
     override fun subscribe() = channel
