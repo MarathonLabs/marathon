@@ -81,4 +81,15 @@ class ScreenCapturerTestRunListener(
             }
         }
     }
+
+    override suspend fun testRunFailed(errorMessage: String) {
+        super.testRunFailed(errorMessage)
+        /**
+         * We might not observe the testEnded event, but the testRunFailed will always be reported
+         */
+        supervisorJob?.let {
+            logger.debug { "Closing dangling screencapturer job" }
+            it.cancel()
+        }
+    }
 }

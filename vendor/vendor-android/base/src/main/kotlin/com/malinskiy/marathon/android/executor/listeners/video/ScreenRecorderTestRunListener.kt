@@ -68,6 +68,18 @@ class ScreenRecorderTestRunListener(
         pullVideo(test.toTest())
     }
 
+    override suspend fun testRunFailed(errorMessage: String) {
+        val join = measureTimeMillis {
+            logger.trace { "cancel" }
+            supervisorJob?.cancelAndJoin()
+        }
+        logger.trace { "join ${join}ms" }
+        val stop = measureTimeMillis {
+            screenRecorderStopper.stopScreenRecord()
+        }
+        logger.trace { "stop ${stop}ms" }
+    }
+
     /**
      * @throws TransferException in case there are any issues pulling the file
      */
