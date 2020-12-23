@@ -76,7 +76,7 @@ class AdamAndroidDevice(
                 modes = listOf(LogcatReadMode.long)
             ), serial = adbSerial, scope = this
         )
-        async(context = coroutineContext) {
+        async {
             val parser = LogCatMessageParser()
 
             while (!logcatChannel.isClosedForReceive) {

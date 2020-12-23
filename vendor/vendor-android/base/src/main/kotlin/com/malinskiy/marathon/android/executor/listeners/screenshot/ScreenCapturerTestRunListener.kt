@@ -28,8 +28,9 @@ class ScreenCapturerTestRunListener(
     private val screenRecordingPolicy: ScreenRecordingPolicy,
     private val screenshotConfiguration: ScreenshotConfiguration,
     private val timeout: Duration,
-    private val coroutineScope: CoroutineScope
-) : NoOpTestRunListener(), CoroutineScope, AttachmentProvider {
+    coroutineScope: CoroutineScope
+) : NoOpTestRunListener(), CoroutineScope by coroutineScope, AttachmentProvider {
+
 
     private val attachmentListeners = mutableListOf<AttachmentListener>()
 
@@ -41,8 +42,6 @@ class ScreenCapturerTestRunListener(
 
     private var screenCapturerJob: Job? = null
     private val logger = MarathonLogging.logger(ScreenCapturerTestRunListener::class.java.simpleName)
-    override val coroutineContext: CoroutineContext
-        get() = coroutineScope.coroutineContext
 
     override suspend fun testStarted(test: TestIdentifier) {
         super.testStarted(test)

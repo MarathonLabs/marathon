@@ -21,7 +21,6 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.async
 import kotlinx.coroutines.cancelAndJoin
-import kotlin.coroutines.CoroutineContext
 import kotlin.system.measureTimeMillis
 
 class ScreenRecorderTestRunListener(
@@ -30,11 +29,8 @@ class ScreenRecorderTestRunListener(
     private val device: AndroidDevice,
     private val videoConfiguration: VideoConfiguration,
     private val screenRecordingPolicy: ScreenRecordingPolicy,
-    private val coroutineScope: CoroutineScope
-) : NoOpTestRunListener(), AttachmentProvider, CoroutineScope {
-
-    override val coroutineContext: CoroutineContext
-        get() = coroutineScope.coroutineContext
+    coroutineScope: CoroutineScope
+) : NoOpTestRunListener(), AttachmentProvider, CoroutineScope by coroutineScope {
 
     val attachmentListeners = mutableListOf<AttachmentListener>()
 
