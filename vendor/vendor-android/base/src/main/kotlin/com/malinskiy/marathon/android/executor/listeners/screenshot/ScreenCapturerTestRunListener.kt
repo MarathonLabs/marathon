@@ -18,8 +18,9 @@ import com.malinskiy.marathon.test.toSimpleSafeTestName
 import java.time.Duration
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.async
-import kotlin.coroutines.CoroutineContext
+import kotlinx.coroutines.cancelAndJoin
 
 class ScreenCapturerTestRunListener(
     private val fileManager: FileManager,
@@ -38,9 +39,9 @@ class ScreenCapturerTestRunListener(
         attachmentListeners.add(listener)
     }
 
+    private var supervisorJob: Job? = null
     private var hasFailed: Boolean = false
-
-    private var screenCapturerJob: Job? = null
+    private val screenCapturer = ScreenCapturer(device, pool, fileManager, screenshotConfiguration, timeout)
     private val logger = MarathonLogging.logger(ScreenCapturerTestRunListener::class.java.simpleName)
 
     override suspend fun testStarted(test: TestIdentifier) {
@@ -50,8 +51,10 @@ class ScreenCapturerTestRunListener(
         val toTest = test.toTest()
         logger.debug { "Starting recording for ${toTest.toSimpleSafeTestName()}" }
 
-        screenCapturerJob = async {
-            ScreenCapturer(device, pool, fileManager, toTest, screenshotConfiguration, timeout).start()
+        val supervisor = SupervisorJob()
+        supervisorJob = supervisor
+        async(supervisor) {
+            screenCapturer.start(toTest)
         }
     }
 
@@ -63,10 +66,9 @@ class ScreenCapturerTestRunListener(
         super.testEnded(test, testMetrics)
         val toTest = test.toTest()
         logger.debug { "Finished recording for ${toTest.toSimpleSafeTestName()}" }
-        screenCapturerJob?.cancel()
-
+        supervisorJob?.cancelAndJoin()
         if (!hasFailed && screenRecordingPolicy == ScreenRecordingPolicy.ON_FAILURE) {
-            screenCapturerJob?.invokeOnCompletion {
+            supervisorJob?.invokeOnCompletion {
                 async {
                     fileManager.createFile(FileType.SCREENSHOT, pool, device.toDeviceInfo(), toTest).delete()
                 }

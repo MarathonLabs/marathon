@@ -22,6 +22,7 @@ import com.malinskiy.adam.request.sync.ScreenCaptureRequest
 import com.malinskiy.adam.request.sync.ShellCommandRequest
 import com.malinskiy.adam.request.sync.UninstallRemotePackageRequest
 import com.malinskiy.adam.request.testrunner.TestRunnerRequest
+import com.malinskiy.adam.screencapture.BufferedImageScreenCaptureAdapter
 import com.malinskiy.marathon.analytics.internal.pub.Track
 import com.malinskiy.marathon.android.ADB_SCREEN_RECORD_TIMEOUT_MILLIS
 import com.malinskiy.marathon.android.ADB_SHORT_TIMEOUT_MILLIS
@@ -30,7 +31,6 @@ import com.malinskiy.marathon.android.AndroidConfiguration
 import com.malinskiy.marathon.android.BaseAndroidDevice
 import com.malinskiy.marathon.android.VideoConfiguration
 import com.malinskiy.marathon.android.adam.log.LogCatMessageParser
-import com.malinskiy.marathon.android.adam.screenshot.ImageAdapter
 import com.malinskiy.marathon.android.configuration.SerialStrategy
 import com.malinskiy.marathon.android.exception.CommandRejectedException
 import com.malinskiy.marathon.android.exception.InstallException
@@ -67,6 +67,11 @@ class AdamAndroidDevice(
     serialStrategy: SerialStrategy
 ) : BaseAndroidDevice(adbSerial, serialStrategy, configuration, track, timer) {
 
+    /**
+     * This adapter is thread-safe but the internal reusable buffer should be considered if we ever need to make screenshots in parallel
+     */
+    private val imageScreenCaptureAdapter = BufferedImageScreenCaptureAdapter()
+
     override suspend fun setup() {
         super.setup()
 
@@ -97,8 +102,6 @@ class AdamAndroidDevice(
     private val dispatcher by lazy {
         newFixedThreadPoolContext(1, "AndroidDevice - execution - $adbSerial")
     }
-    private val imageAdapter = ImageAdapter()
-
     private lateinit var logcatChannel: ReceiveChannel<String>
 
     override val coroutineContext: CoroutineContext = dispatcher
@@ -259,8 +262,7 @@ class AdamAndroidDevice(
     override suspend fun getScreenshot(timeout: Duration): BufferedImage? {
         return try {
             withTimeoutOrNull(timeout) {
-                val rawImage = client.execute(ScreenCaptureRequest(), serial = adbSerial)
-                imageAdapter.convert(rawImage)
+                client.execute(ScreenCaptureRequest(imageScreenCaptureAdapter), serial = adbSerial)
             }
         } catch (e: UnsupportedImageProtocolException) {
             logger.warn(e) { "Unable to retrieve screenshot from device $adbSerial" }

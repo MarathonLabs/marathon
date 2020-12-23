@@ -26,12 +26,11 @@ class ScreenCapturer(
     val device: AndroidDevice,
     private val poolId: DevicePoolId,
     private val fileManager: FileManager,
-    val test: Test,
-    private val configuration: ScreenshotConfiguration
+    private val configuration: ScreenshotConfiguration,
     private val timeout: Duration
 ) {
 
-    suspend fun start() = coroutineScope {
+    suspend fun start(test: Test) = coroutineScope {
         val outputStream = FileImageOutputStream(fileManager.createFile(FileType.SCREENSHOT, poolId, device.toDeviceInfo(), test))
         val writer = GifSequenceWriter(outputStream, TYPE_INT_ARGB, configuration.delayMs, true)
         var targetOrientation = detectCurrentDeviceOrientation()
