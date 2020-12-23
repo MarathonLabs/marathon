@@ -106,7 +106,7 @@ abstract class BaseAndroidDevice(
                 pullFile(remoteFilePath, localFilePath)
             } ?: logger.warn { "Pulling $remoteFilePath timed out. Ignoring" }
         } catch (e: TransferException) {
-            logger.warn { "Pulling $remoteFilePath failed. Ignoring" }
+            logger.warn(e) { "Pulling $remoteFilePath failed. Ignoring" }
         }
     }
 
@@ -114,7 +114,7 @@ abstract class BaseAndroidDevice(
         try {
             pullFolder(remoteFolderPath, localFolderPath)
         } catch (e: TransferException) {
-            logger.warn { "Pulling $remoteFolderPath failed. Ignoring" }
+            logger.warn(e) { "Pulling $remoteFolderPath failed. Ignoring" }
         }
     }
 
