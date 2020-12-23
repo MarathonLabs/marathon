@@ -164,7 +164,7 @@ class AdamAndroidDevice(
         }
 
         if (progress != 1.0) {
-            throw TransferException("Couldn't push file $localFilePath to device $serialNumber:$remoteFilePath")
+            throw TransferException("Couldn't push file $localFilePath to device $serialNumber:$remoteFilePath. Last progress: $progress")
         }
 
         if (verify) {
