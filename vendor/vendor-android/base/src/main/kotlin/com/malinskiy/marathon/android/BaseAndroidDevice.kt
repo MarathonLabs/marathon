@@ -22,6 +22,7 @@ import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.execution.TestBatchResults
 import com.malinskiy.marathon.execution.policy.ScreenRecordingPolicy
 import com.malinskiy.marathon.execution.progress.ProgressReporter
+import com.malinskiy.marathon.extension.withTimeoutOrNull
 import com.malinskiy.marathon.io.FileManager
 import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.report.attachment.AttachmentProvider
@@ -101,7 +102,9 @@ abstract class BaseAndroidDevice(
 
     override suspend fun safePullFile(remoteFilePath: String, localFilePath: String) {
         try {
-            pullFile(remoteFilePath, localFilePath)
+            withTimeoutOrNull(configuration.timeoutConfiguration.pullFile) {
+                pullFile(remoteFilePath, localFilePath)
+            } ?: logger.warn { "Pulling $remoteFilePath timed out. Ignoring" }
         } catch (e: TransferException) {
             logger.warn { "Pulling $remoteFilePath failed. Ignoring" }
         }
