@@ -51,7 +51,7 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.channels.ReceiveChannel
 import kotlinx.coroutines.channels.receiveOrNull
 import kotlinx.coroutines.newFixedThreadPoolContext
-import kotlinx.coroutines.withTimeoutOrNull
+import kotlinx.coroutines.supervisorScope
 import java.awt.image.BufferedImage
 import java.io.File
 import java.time.Duration
@@ -330,12 +330,10 @@ class AdamAndroidDevice(
         progressReporter: ProgressReporter
     ) {
         try {
-            val deferredResult = async(context = coroutineContext) {
+            supervisorScope {
                 val listener = createExecutionListeners(configuration, devicePoolId, testBatch, deferred, progressReporter)
                 AndroidDeviceTestRunner(this@AdamAndroidDevice).execute(configuration, testBatch, listener)
             }
-
-            deferredResult.await()
         } catch (e: RequestRejectedException) {
             throw DeviceLostException(e)
         } catch (e: CommandRejectedException) {
@@ -343,16 +341,13 @@ class AdamAndroidDevice(
         }
     }
 
-    override suspend fun prepare(configuration: Configuration) {
-        val preparationJob = async(coroutineContext) {
-            track.trackDevicePreparing(this@AdamAndroidDevice) {
-                AndroidAppInstaller(configuration).prepareInstallation(this@AdamAndroidDevice)
-                fileManager.removeRemoteDirectory()
-                fileManager.createRemoteDirectory()
-                clearLogcat()
-            }
+    override suspend fun prepare(configuration: Configuration) = supervisorScope {
+        track.trackDevicePreparing(this@AdamAndroidDevice) {
+            AndroidAppInstaller(configuration).prepareInstallation(this@AdamAndroidDevice)
+            fileManager.removeRemoteDirectory()
+            fileManager.createRemoteDirectory()
+            clearLogcat()
         }
-        preparationJob.await()
     }
 
     override fun dispose() {
