@@ -41,6 +41,7 @@ import com.malinskiy.marathon.exceptions.DeviceLostException
 import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.execution.TestBatchResults
 import com.malinskiy.marathon.execution.progress.ProgressReporter
+import com.malinskiy.marathon.extension.withTimeoutOrNull
 import com.malinskiy.marathon.test.TestBatch
 import com.malinskiy.marathon.time.Timer
 import kotlinx.coroutines.CancellationException
@@ -114,8 +115,8 @@ class AdamAndroidDevice(
 
     override suspend fun safeExecuteShellCommand(command: String, errorMessage: String): String? {
         return try {
-            return withTimeoutOrNull(ADB_SHORT_TIMEOUT_MILLIS) {
-                return@withTimeoutOrNull client.execute(ShellCommandRequest(command), serial = adbSerial)
+            withTimeoutOrNull(configuration.timeoutConfiguration.shell) {
+                client.execute(ShellCommandRequest(command), serial = adbSerial)
             }
         } catch (e: Exception) {
             logger.error(errorMessage, e)
@@ -180,13 +181,15 @@ class AdamAndroidDevice(
             //We have to use a second collection because we're iterating over directoriesToTraverse later
             val currentDepthDirs = mutableListOf<String>()
             for (dir in directoriesToTraverse) {
-                val currentDepthFiles = client.execute(request = ListFilesRequest(dir), serial = adbSerial)
+                withTimeoutOrNull(configuration.timeoutConfiguration.listFiles) {
+                    val currentDepthFiles = client.execute(request = ListFilesRequest(dir), serial = adbSerial)
 
-                filesToPull.addAll(currentDepthFiles.filter { it.type == AndroidFileType.REGULAR_FILE })
-                currentDepthDirs.addAll(
-                    currentDepthFiles.filter { it.type == AndroidFileType.DIRECTORY }
-                        .map { it.directory + '/' + it.name }
-                )
+                    filesToPull.addAll(currentDepthFiles.filter { it.type == AndroidFileType.REGULAR_FILE })
+                    currentDepthDirs.addAll(
+                        currentDepthFiles.filter { it.type == AndroidFileType.DIRECTORY }
+                            .map { it.directory + '/' + it.name }
+                    )
+                } ?: logger.warn { "Listing $dir timed out. Ignoring the rest" }
             }
             directoriesToTraverse = currentDepthDirs
         }
@@ -206,13 +209,18 @@ class AdamAndroidDevice(
                 mkdirs()
             }
             val localFile = File(localFileDirectory, file.name)
+            val remoteFilePath = "${file.directory}${File.separator}${file.name}"
 
-            pullFile("${file.directory}${File.separator}${file.name}", localFile.absolutePath)
+            withTimeoutOrNull(configuration.timeoutConfiguration.pullFile) {
+                pullFile(remoteFilePath, localFile.absolutePath)
+            } ?: logger.warn { "Pulling $remoteFilePath timed out. Ignoring" }
         }
     }
 
     override suspend fun safeUninstallPackage(appPackage: String, keepData: Boolean): String? {
-        return client.execute(UninstallRemotePackageRequest(appPackage, keepData = keepData), serial = adbSerial)
+        return withTimeoutOrNull(configuration.timeoutConfiguration.uninstall) {
+            client.execute(UninstallRemotePackageRequest(appPackage, keepData = keepData), serial = adbSerial)
+        }
     }
 
     override suspend fun installPackage(absolutePath: String, reinstall: Boolean, optionalParams: String): String? {
@@ -220,18 +228,22 @@ class AdamAndroidDevice(
         val remotePath = "/data/local/tmp/${file.name}"
 
         try {
-            pushFile(absolutePath, remotePath, verify = true)
+            withTimeoutOrNull(configuration.timeoutConfiguration.pushFile) {
+                pushFile(absolutePath, remotePath, verify = true)
+            } ?: throw InstallException("Timeout transferring $absolutePath")
         } catch (e: TransferException) {
             throw InstallException(e)
         }
 
-        val result = client.execute(
-            InstallRemotePackageRequest(
-                remotePath,
-                reinstall = reinstall,
-                extraArgs = optionalParams.split(" ").toList() + " "
-            ), serial = adbSerial
-        )
+        withTimeoutOrNull(configuration.timeoutConfiguration.install) {
+            client.execute(
+                InstallRemotePackageRequest(
+                    remotePath,
+                    reinstall = reinstall,
+                    extraArgs = optionalParams.split(" ").toList() + " "
+                ), serial = adbSerial
+            )
+        } ?: throw InstallException("Timeout transferring $absolutePath")
 
         safeExecuteShellCommand("rm $remotePath")
         return result
@@ -267,7 +279,7 @@ class AdamAndroidDevice(
     ) {
         val screenRecorderCommand = options.toScreenRecorderCommand(remoteFilePath)
         try {
-            withTimeoutOrNull(ADB_SCREEN_RECORD_TIMEOUT_MILLIS) {
+            withTimeoutOrNull(configuration.timeoutConfiguration.screenrecorder) {
                 val output = client.execute(ShellCommandRequest(screenRecorderCommand), serial = adbSerial)
                 logger.debug { "screenrecord output:\n $output" }
             }
