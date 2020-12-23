@@ -32,6 +32,7 @@ import com.malinskiy.marathon.android.VideoConfiguration
 import com.malinskiy.marathon.android.adam.log.LogCatMessageParser
 import com.malinskiy.marathon.android.adam.screenshot.ImageAdapter
 import com.malinskiy.marathon.android.configuration.SerialStrategy
+import com.malinskiy.marathon.android.exception.CommandRejectedException
 import com.malinskiy.marathon.android.exception.InstallException
 import com.malinskiy.marathon.android.exception.TransferException
 import com.malinskiy.marathon.android.executor.listeners.line.LineListener
@@ -122,6 +123,12 @@ class AdamAndroidDevice(
             logger.error(errorMessage, e)
             null
         }
+    }
+
+    override suspend fun criticalExecuteShellCommand(command: String, errorMessage: String): String {
+        return withTimeoutOrNull(configuration.timeoutConfiguration.shell) {
+            client.execute(ShellCommandRequest(command), serial = adbSerial)
+        } ?: throw CommandRejectedException(errorMessage)
     }
 
     override suspend fun pullFile(remoteFilePath: String, localFilePath: String) {
@@ -326,6 +333,8 @@ class AdamAndroidDevice(
 
             deferredResult.await()
         } catch (e: RequestRejectedException) {
+            throw DeviceLostException(e)
+        } catch (e: CommandRejectedException) {
             throw DeviceLostException(e)
         }
     }

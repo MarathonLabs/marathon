@@ -30,6 +30,11 @@ interface AndroidDevice : Device {
     suspend fun safeExecuteShellCommand(command: String, errorMessage: String = ""): String?
 
     /**
+     * @throws com.malinskiy.marathon.android.exception.CommandRejectedException in case the command fails
+     */
+    suspend fun criticalExecuteShellCommand(command: String, errorMessage: String = ""): String
+
+    /**
      * @throws com.malinskiy.marathon.android.exception.TransferException
      */
     suspend fun pullFile(remoteFilePath: String, localFilePath: String)

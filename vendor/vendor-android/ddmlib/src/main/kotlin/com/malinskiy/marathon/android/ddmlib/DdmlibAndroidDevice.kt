@@ -273,6 +273,16 @@ class DdmlibAndroidDevice(
         return receiver.output()
     }
 
+    override suspend fun criticalExecuteShellCommand(command: String, errorMessage: String): String {
+        val receiver = CollectingShellOutputReceiver()
+        try {
+            ddmsDevice.safeExecuteShellCommand(command, receiver)
+        } catch (e: Exception) {
+            throw CommandRejectedException(errorMessage)
+        }
+        return receiver.output()
+    }
+
     /**
      * The only way to interrupt the current screen recording is to interrupt the thread
      * This is undesirable with coroutines and requires another thread to execute the process.
