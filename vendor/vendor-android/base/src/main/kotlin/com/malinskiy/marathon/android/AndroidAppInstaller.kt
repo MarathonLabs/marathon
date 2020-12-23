@@ -45,7 +45,7 @@ class AndroidAppInstaller(configuration: Configuration) {
                 logger.info("Installing $appPackage, ${appApk.absolutePath} to ${device.serialNumber}")
                 val installMessage = device.installPackage(appApk.absolutePath, true, optionalParams(device))
                 installMessage?.let { logger.debug { it } }
-                if (installMessage == null || !installMessage.startsWith("Success")) {
+                if (installMessage == null || !installMessage.contains("Success")) {
                     throw InstallException(installMessage ?: "")
                 }
             } catch (e: InstallException) {
