@@ -15,6 +15,7 @@ import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.report.attachment.AttachmentListener
 import com.malinskiy.marathon.report.attachment.AttachmentProvider
 import com.malinskiy.marathon.test.toSimpleSafeTestName
+import java.time.Duration
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
@@ -26,6 +27,7 @@ class ScreenCapturerTestRunListener(
     private val device: AndroidDevice,
     private val screenRecordingPolicy: ScreenRecordingPolicy,
     private val screenshotConfiguration: ScreenshotConfiguration,
+    private val timeout: Duration,
     private val coroutineScope: CoroutineScope
 ) : NoOpTestRunListener(), CoroutineScope, AttachmentProvider {
 
@@ -50,7 +52,7 @@ class ScreenCapturerTestRunListener(
         logger.debug { "Starting recording for ${toTest.toSimpleSafeTestName()}" }
 
         screenCapturerJob = async {
-            ScreenCapturer(device, pool, fileManager, toTest, screenshotConfiguration).start()
+            ScreenCapturer(device, pool, fileManager, toTest, screenshotConfiguration, timeout).start()
         }
     }
 

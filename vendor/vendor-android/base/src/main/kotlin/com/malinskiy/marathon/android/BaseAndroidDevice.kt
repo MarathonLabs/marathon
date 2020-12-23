@@ -273,6 +273,7 @@ abstract class BaseAndroidDevice(
                     this,
                     screenRecordingPolicy,
                     configuration.screenRecordConfiguration.screenshotConfiguration,
+                    configuration.timeoutConfiguration.screencapturer,
                     this
                 )
                     .also { attachmentProviders.add(it) }

@@ -16,7 +16,7 @@ import org.imgscalr.Scalr
 import java.awt.image.BufferedImage.TYPE_INT_ARGB
 import java.awt.image.RenderedImage
 import java.io.IOException
-import java.util.concurrent.TimeUnit
+import java.time.Duration
 import java.util.concurrent.TimeoutException
 import javax.imageio.stream.FileImageOutputStream
 import kotlin.system.measureTimeMillis
@@ -28,6 +28,7 @@ class ScreenCapturer(
     private val fileManager: FileManager,
     val test: Test,
     private val configuration: ScreenshotConfiguration
+    private val timeout: Duration
 ) {
 
     suspend fun start() = coroutineScope {
@@ -62,9 +63,9 @@ class ScreenCapturer(
         return UNDEFINED
     }
 
-    private suspend fun getScreenshot(targetOrientation: Int): RenderedImage? {
+    private suspend fun getScreenshot(targetOrientation: Rotation): RenderedImage? {
         return try {
-            val screenshot = device.getScreenshot(TIMEOUT_MS, TimeUnit.MILLISECONDS)?.let {
+            val screenshot = device.getScreenshot(timeout)?.let {
                 // in case the orientation of the image is different than the target, rotate by 90 degrees
                 if (it.getOrientation() != targetOrientation) {
                     Scalr.rotate(it, Scalr.Rotation.CW_90).also { org -> org.flush() }
@@ -97,7 +98,6 @@ class ScreenCapturer(
     }
 
     companion object {
-        private const val TIMEOUT_MS = 300L
         val logger = MarathonLogging.logger(ScreenCapturer::class.java.simpleName)
         private const val UNDEFINED = 0
         private const val PORTRAIT = 1

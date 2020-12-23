@@ -54,7 +54,7 @@ import kotlinx.coroutines.newFixedThreadPoolContext
 import kotlinx.coroutines.withTimeoutOrNull
 import java.awt.image.BufferedImage
 import java.io.File
-import java.util.concurrent.TimeUnit
+import java.time.Duration
 import kotlin.coroutines.CoroutineContext
 
 class AdamAndroidDevice(
@@ -256,10 +256,12 @@ class AdamAndroidDevice(
         return result
     }
 
-    override suspend fun getScreenshot(timeout: Long, units: TimeUnit): BufferedImage? {
+    override suspend fun getScreenshot(timeout: Duration): BufferedImage? {
         return try {
-            val rawImage = client.execute(ScreenCaptureRequest(), serial = adbSerial)
-            return imageAdapter.convert(rawImage)
+            withTimeoutOrNull(timeout) {
+                val rawImage = client.execute(ScreenCaptureRequest(), serial = adbSerial)
+                imageAdapter.convert(rawImage)
+            }
         } catch (e: UnsupportedImageProtocolException) {
             logger.warn(e) { "Unable to retrieve screenshot from device $adbSerial" }
             null
