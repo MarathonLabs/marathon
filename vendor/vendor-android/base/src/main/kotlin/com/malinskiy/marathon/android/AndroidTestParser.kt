@@ -11,9 +11,14 @@ import com.malinskiy.marathon.test.Test
 class AndroidTestParser : TestParser {
     override fun extract(configuration: Configuration): List<Test> {
         val androidConfiguration = configuration.vendorConfiguration as AndroidConfiguration
+        val allowSet = HashSet(androidConfiguration.allowList.split(','))
+        val blockSet = HashSet(androidConfiguration.blockList.split(','))
 
-        val tests = DexParser.findTestMethods(androidConfiguration.testApplicationOutput.absolutePath)
-        return tests.map {
+        val methods = DexParser.findTestMethods(androidConfiguration.testApplicationOutput.absolutePath)
+        val methodsAfterAllowFilter = methods.filter { allowSet.contains(it.testName) }
+        val methodsAfterBlockFilter = methodsAfterAllowFilter.filter { !blockSet.contains(it.testName) }
+
+        val filteredMethods = methodsAfterBlockFilter.map {
             val testName = it.testName
             val annotations = it.annotations.map { it.toMetaProperty() }
             val split = testName.split("#")
@@ -29,6 +34,8 @@ class AndroidTestParser : TestParser {
 
             Test(packageName, className, methodName, annotations)
         }
+
+        return filteredMethods
     }
 }
 

@@ -36,7 +36,9 @@ data class AndroidConfiguration(
     val serialStrategy: SerialStrategy = SerialStrategy.AUTOMATIC,
     val screenRecordConfiguration: ScreenRecordConfiguration = ScreenRecordConfiguration(),
     val waitForDevicesTimeoutMillis: Long = DEFAULT_WAIT_FOR_DEVICES_TIMEOUT,
-    val allureConfiguration: AllureConfiguration = DEFAULT_ALLURE_CONFIGURATION
+    val allureConfiguration: AllureConfiguration = DEFAULT_ALLURE_CONFIGURATION,
+    val allowList: String = "",
+    val blockList: String = ""
 ) : VendorConfiguration, KoinComponent {
 
     private val koinModules = listOf(androidModule) + implementationModules

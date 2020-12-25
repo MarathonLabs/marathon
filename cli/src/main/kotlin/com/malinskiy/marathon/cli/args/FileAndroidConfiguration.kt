@@ -29,7 +29,9 @@ data class FileAndroidConfiguration(
     @JsonProperty("serialStrategy") val serialStrategy: SerialStrategy = SerialStrategy.AUTOMATIC,
     @JsonProperty("screenRecordConfiguration") val screenRecordConfiguration: ScreenRecordConfiguration = ScreenRecordConfiguration(),
     @JsonProperty("waitForDevicesTimeoutMillis") val waitForDevicesTimeoutMillis: Long?,
-    @JsonProperty("allureConfiguration") val allureConfiguration: AllureConfiguration?
+    @JsonProperty("allureConfiguration") val allureConfiguration: AllureConfiguration?,
+    @JsonProperty("allowList") val allowList: String = "",
+    @JsonProperty("blockList") val blockList: String = ""
 ) : FileVendorConfiguration {
 
     fun toAndroidConfiguration(environmentAndroidSdk: File?): AndroidConfiguration {
@@ -56,8 +58,9 @@ data class FileAndroidConfiguration(
             screenRecordConfiguration = screenRecordConfiguration,
             waitForDevicesTimeoutMillis = waitForDevicesTimeoutMillis ?: DEFAULT_WAIT_FOR_DEVICES_TIMEOUT,
             implementationModules = implementationModules,
-            allureConfiguration = allureConfiguration
-                ?: DEFAULT_ALLURE_CONFIGURATION
+            allureConfiguration = allureConfiguration ?: DEFAULT_ALLURE_CONFIGURATION,
+            allowList = allowList,
+            blockList = blockList
         )
     }
 }
