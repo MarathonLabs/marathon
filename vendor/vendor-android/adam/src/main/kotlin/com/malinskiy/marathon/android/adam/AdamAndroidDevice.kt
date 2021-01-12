@@ -8,21 +8,22 @@ import com.malinskiy.adam.exception.PushFailedException
 import com.malinskiy.adam.exception.RequestRejectedException
 import com.malinskiy.adam.exception.UnsupportedImageProtocolException
 import com.malinskiy.adam.exception.UnsupportedSyncProtocolException
-import com.malinskiy.adam.request.async.ChanneledLogcatRequest
-import com.malinskiy.adam.request.async.LogcatReadMode
-import com.malinskiy.adam.request.devices.DeviceState
+import com.malinskiy.adam.request.device.DeviceState
+import com.malinskiy.adam.request.framebuffer.BufferedImageScreenCaptureAdapter
+import com.malinskiy.adam.request.framebuffer.ScreenCaptureRequest
+import com.malinskiy.adam.request.logcat.ChanneledLogcatRequest
+import com.malinskiy.adam.request.logcat.LogcatReadMode
+import com.malinskiy.adam.request.pkg.InstallRemotePackageRequest
+import com.malinskiy.adam.request.pkg.UninstallRemotePackageRequest
+import com.malinskiy.adam.request.prop.GetPropRequest
+import com.malinskiy.adam.request.shell.v1.ShellCommandRequest
 import com.malinskiy.adam.request.sync.AndroidFile
 import com.malinskiy.adam.request.sync.AndroidFileType
-import com.malinskiy.adam.request.sync.GetPropRequest
-import com.malinskiy.adam.request.sync.InstallRemotePackageRequest
 import com.malinskiy.adam.request.sync.ListFilesRequest
-import com.malinskiy.adam.request.sync.PullFileRequest
-import com.malinskiy.adam.request.sync.PushFileRequest
-import com.malinskiy.adam.request.sync.ScreenCaptureRequest
-import com.malinskiy.adam.request.sync.ShellCommandRequest
-import com.malinskiy.adam.request.sync.UninstallRemotePackageRequest
+import com.malinskiy.adam.request.sync.v1.PullFileRequest
+import com.malinskiy.adam.request.sync.v1.PushFileRequest
+import com.malinskiy.adam.request.testrunner.TestEvent
 import com.malinskiy.adam.request.testrunner.TestRunnerRequest
-import com.malinskiy.adam.screencapture.BufferedImageScreenCaptureAdapter
 import com.malinskiy.marathon.analytics.internal.pub.Track
 import com.malinskiy.marathon.android.AndroidAppInstaller
 import com.malinskiy.marathon.android.AndroidConfiguration
@@ -108,7 +109,7 @@ class AdamAndroidDevice(
 
     override suspend fun executeShellCommand(command: String, errorMessage: String): String? {
         return try {
-            return client.execute(ShellCommandRequest(command), serial = adbSerial)
+            return client.execute(ShellCommandRequest(command), serial = adbSerial).output
         } catch (e: Exception) {
             logger.error(errorMessage, e)
             null
@@ -118,7 +119,7 @@ class AdamAndroidDevice(
     override suspend fun safeExecuteShellCommand(command: String, errorMessage: String): String? {
         return try {
             withTimeoutOrNull(configuration.timeoutConfiguration.shell) {
-                client.execute(ShellCommandRequest(command), serial = adbSerial)
+                client.execute(ShellCommandRequest(command), serial = adbSerial).output
             }
         } catch (e: Exception) {
             logger.error(errorMessage, e)
@@ -128,7 +129,7 @@ class AdamAndroidDevice(
 
     override suspend fun criticalExecuteShellCommand(command: String, errorMessage: String): String {
         return withTimeoutOrNull(configuration.timeoutConfiguration.shell) {
-            client.execute(ShellCommandRequest(command), serial = adbSerial)
+            client.execute(ShellCommandRequest(command), serial = adbSerial).output
         } ?: throw CommandRejectedException(errorMessage)
     }
 
@@ -227,7 +228,7 @@ class AdamAndroidDevice(
 
     override suspend fun safeUninstallPackage(appPackage: String, keepData: Boolean): String? {
         return withTimeoutOrNull(configuration.timeoutConfiguration.uninstall) {
-            client.execute(UninstallRemotePackageRequest(appPackage, keepData = keepData), serial = adbSerial)
+            client.execute(UninstallRemotePackageRequest(appPackage, keepData = keepData), serial = adbSerial).output
         }
     }
 
@@ -254,7 +255,7 @@ class AdamAndroidDevice(
         } ?: throw InstallException("Timeout transferring $absolutePath")
 
         safeExecuteShellCommand("rm $remotePath")
-        return result
+        return result.output.trim()
     }
 
     override suspend fun getScreenshot(timeout: Duration): BufferedImage? {
@@ -352,7 +353,7 @@ class AdamAndroidDevice(
         dispatcher.close()
     }
 
-    fun executeTestRequest(runnerRequest: TestRunnerRequest): ReceiveChannel<String> {
+    fun executeTestRequest(runnerRequest: TestRunnerRequest): ReceiveChannel<List<TestEvent>> {
         return client.execute(runnerRequest, scope = this, serial = adbSerial)
     }
 }

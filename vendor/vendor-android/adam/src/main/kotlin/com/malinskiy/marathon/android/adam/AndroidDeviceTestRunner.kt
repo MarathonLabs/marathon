@@ -1,6 +1,5 @@
 package com.malinskiy.marathon.android.adam
 
-import com.malinskiy.adam.Const
 import com.malinskiy.adam.request.testrunner.InstrumentOptions
 import com.malinskiy.adam.request.testrunner.TestAssumptionFailed
 import com.malinskiy.adam.request.testrunner.TestEnded
@@ -13,7 +12,6 @@ import com.malinskiy.adam.request.testrunner.TestRunStartedEvent
 import com.malinskiy.adam.request.testrunner.TestRunStopped
 import com.malinskiy.adam.request.testrunner.TestRunnerRequest
 import com.malinskiy.adam.request.testrunner.TestStarted
-import com.malinskiy.adam.request.transform.InstrumentationResponseTransformer
 import com.malinskiy.marathon.android.AndroidConfiguration
 import com.malinskiy.marathon.android.ApkParser
 import com.malinskiy.marathon.android.InstrumentationInfo
@@ -51,34 +49,23 @@ class AndroidDeviceTestRunner(private val device: AdamAndroidDevice) {
         val info = ApkParser().parseInstrumentationInfo(androidConfiguration.testApplicationOutput)
         val runnerRequest = prepareTestRunnerRequest(androidConfiguration, info, testBatch)
 
-        var channel: ReceiveChannel<String>? = null
+        var channel: ReceiveChannel<List<TestEvent>>? = null
         try {
             withTimeoutOrNull(configuration.testBatchTimeoutMillis) {
                 notifyIgnoredTest(ignoredTests, listener)
                 if (testBatch.tests.isNotEmpty()) {
                     clearData(androidConfiguration, info)
-                    val transformer = InstrumentationResponseTransformer()
                     channel = device.executeTestRequest(runnerRequest)
 
-                    var logPart: String? = null
+                    var events: List<TestEvent>? = null
                     do {
-                        logPart?.let {
-                            for (line in it.lines()) {
-                                val bytes = (line + '\n').toByteArray(Const.DEFAULT_TRANSPORT_ENCODING)
-                                transformer.process(bytes, 0, bytes.size)
-                                transformer.transform()?.let { events ->
-                                    processEvents(events, listener)
-                                }
-                            }
+                        events?.let {
+                            processEvents(it, listener)
                         }
-                        logPart = withTimeoutOrNull(configuration.testOutputTimeoutMillis) {
+                        events = withTimeoutOrNull(configuration.testOutputTimeoutMillis) {
                             channel?.receiveOrNull()
                         }
-                    } while (logPart != null)
-
-                    transformer.close()?.let { events ->
-                        processEvents(events, listener)
-                    }
+                    } while (events != null)
                 } else {
                     listener.testRunEnded(0, emptyMap())
                 }
@@ -126,12 +113,12 @@ class AndroidDeviceTestRunner(private val device: AdamAndroidDevice) {
 
     private suspend fun clearData(androidConfiguration: AndroidConfiguration, info: InstrumentationInfo) {
         if (androidConfiguration.applicationPmClear) {
-            device.safeClearPackage(info.applicationPackage)?.also {
+            device.safeClearPackage(info.applicationPackage)?.trim()?.also {
                 logger.debug { "Package ${info.applicationPackage} cleared: $it" }
             }
         }
         if (androidConfiguration.testApplicationPmClear) {
-            device.safeClearPackage(info.instrumentationPackage)?.also {
+            device.safeClearPackage(info.instrumentationPackage)?.trim()?.also {
                 logger.debug { "Package ${info.instrumentationPackage} cleared: $it" }
             }
         }
@@ -141,7 +128,7 @@ class AndroidDeviceTestRunner(private val device: AdamAndroidDevice) {
             if (device.version.isGreaterOrEqualThan(30)) {
                 val command = "appops set --uid ${info.applicationPackage} MANAGE_EXTERNAL_STORAGE allow"
                 device.criticalExecuteShellCommand(command).also {
-                    logger.debug { "Granted MANAGE_EXTERNAL_STORAGE to ${info.applicationPackage}: $it" }
+                    logger.debug { "Granted MANAGE_EXTERNAL_STORAGE to ${info.applicationPackage}: ${it.trim()}" }
                 }
             }
         }

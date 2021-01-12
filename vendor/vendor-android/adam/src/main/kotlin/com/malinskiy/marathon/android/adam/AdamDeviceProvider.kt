@@ -3,10 +3,10 @@ package com.malinskiy.marathon.android.adam
 import com.malinskiy.adam.AndroidDebugBridgeClient
 import com.malinskiy.adam.AndroidDebugBridgeClientFactory
 import com.malinskiy.adam.interactor.StartAdbInteractor
-import com.malinskiy.adam.request.async.AsyncDeviceMonitorRequest
-import com.malinskiy.adam.request.devices.Device
-import com.malinskiy.adam.request.devices.ListDevicesRequest
-import com.malinskiy.adam.request.sync.GetAdbServerVersionRequest
+import com.malinskiy.adam.request.device.AsyncDeviceMonitorRequest
+import com.malinskiy.adam.request.device.Device
+import com.malinskiy.adam.request.device.ListDevicesRequest
+import com.malinskiy.adam.request.misc.GetAdbServerVersionRequest
 import com.malinskiy.marathon.actor.unboundedChannel
 import com.malinskiy.marathon.analytics.internal.pub.Track
 import com.malinskiy.marathon.android.AndroidConfiguration
