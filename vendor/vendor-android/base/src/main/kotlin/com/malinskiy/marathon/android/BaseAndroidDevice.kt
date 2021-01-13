@@ -2,6 +2,7 @@ package com.malinskiy.marathon.android
 
 import com.android.sdklib.AndroidVersion
 import com.malinskiy.marathon.analytics.internal.pub.Track
+import com.malinskiy.marathon.android.configuration.AndroidConfiguration
 import com.malinskiy.marathon.android.configuration.SerialStrategy
 import com.malinskiy.marathon.android.exception.InvalidSerialConfiguration
 import com.malinskiy.marathon.android.exception.TransferException
@@ -38,7 +39,7 @@ import java.util.*
 import kotlin.system.measureTimeMillis
 
 abstract class BaseAndroidDevice(
-    protected val adbSerial: String,
+    val adbSerial: String,
     protected val serialStrategy: SerialStrategy,
     protected val configuration: AndroidConfiguration,
     protected val track: Track,
@@ -205,6 +206,14 @@ abstract class BaseAndroidDevice(
         }
 
         return booted
+    }
+    
+    protected fun isLocalEmulator() = adbSerial.startsWith("emulator-")
+
+    protected suspend fun AndroidDevice.isEmulator(): Boolean = when {
+        getProperty("ro.kernel.qemu")?.isNotBlank() ?: false -> true
+        getProperty("service.adb.transport") == "goldfish" -> true
+        else -> false
     }
 
     protected fun createExecutionListeners(

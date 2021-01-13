@@ -5,7 +5,7 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
 import com.fasterxml.jackson.dataformat.yaml.YAMLGenerator
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.KotlinModule
-import com.malinskiy.marathon.android.AndroidConfiguration
+import com.malinskiy.marathon.android.configuration.AndroidConfiguration
 import com.malinskiy.marathon.android.ScreenRecordConfiguration
 import com.malinskiy.marathon.android.ScreenshotConfiguration
 import com.malinskiy.marathon.android.VideoConfiguration

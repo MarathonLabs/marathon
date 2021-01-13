@@ -17,4 +17,7 @@ vendorConfiguration:
   waitForDevicesTimeoutMillis: 60000
   allureConfiguration:
     enabled: true
+  emulatorConfiguration:
+    reversePortForwarding:
+      gRPC: true
 deviceInitializationTimeoutMillis: 180000

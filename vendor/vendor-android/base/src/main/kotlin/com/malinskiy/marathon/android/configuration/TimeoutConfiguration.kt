@@ -12,4 +12,5 @@ data class TimeoutConfiguration(
     val install: Duration = shell,
     val screenrecorder: Duration = Duration.ofMinutes(10),
     val screencapturer: Duration = Duration.ofMillis(300),
+    val portForward: Duration = shell
 )

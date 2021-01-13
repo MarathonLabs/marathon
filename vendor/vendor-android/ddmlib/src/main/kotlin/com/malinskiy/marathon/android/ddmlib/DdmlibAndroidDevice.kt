@@ -15,7 +15,7 @@ import com.android.ddmlib.testrunner.TestIdentifier
 import com.malinskiy.marathon.analytics.internal.pub.Track
 import com.malinskiy.marathon.android.ADB_SCREEN_RECORD_TIMEOUT_MILLIS
 import com.malinskiy.marathon.android.AndroidAppInstaller
-import com.malinskiy.marathon.android.AndroidConfiguration
+import com.malinskiy.marathon.android.configuration.AndroidConfiguration
 import com.malinskiy.marathon.android.BaseAndroidDevice
 import com.malinskiy.marathon.android.VideoConfiguration
 import com.malinskiy.marathon.android.configuration.SerialStrategy

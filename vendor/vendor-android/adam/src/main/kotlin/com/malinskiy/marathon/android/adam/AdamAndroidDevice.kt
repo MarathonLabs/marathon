@@ -9,6 +9,8 @@ import com.malinskiy.adam.exception.RequestRejectedException
 import com.malinskiy.adam.exception.UnsupportedImageProtocolException
 import com.malinskiy.adam.exception.UnsupportedSyncProtocolException
 import com.malinskiy.adam.request.device.DeviceState
+import com.malinskiy.adam.request.forwarding.LocalTcpPortSpec
+import com.malinskiy.adam.request.forwarding.RemoteTcpPortSpec
 import com.malinskiy.adam.request.framebuffer.BufferedImageScreenCaptureAdapter
 import com.malinskiy.adam.request.framebuffer.ScreenCaptureRequest
 import com.malinskiy.adam.request.logcat.ChanneledLogcatRequest
@@ -16,6 +18,9 @@ import com.malinskiy.adam.request.logcat.LogcatReadMode
 import com.malinskiy.adam.request.pkg.InstallRemotePackageRequest
 import com.malinskiy.adam.request.pkg.UninstallRemotePackageRequest
 import com.malinskiy.adam.request.prop.GetPropRequest
+import com.malinskiy.adam.request.reverse.RemoveReversePortForwardRequest
+import com.malinskiy.adam.request.reverse.ReversePortForwardRequest
+import com.malinskiy.adam.request.reverse.ReversePortForwardingRule
 import com.malinskiy.adam.request.shell.v1.ShellCommandRequest
 import com.malinskiy.adam.request.sync.AndroidFile
 import com.malinskiy.adam.request.sync.AndroidFileType
@@ -26,10 +31,10 @@ import com.malinskiy.adam.request.testrunner.TestEvent
 import com.malinskiy.adam.request.testrunner.TestRunnerRequest
 import com.malinskiy.marathon.analytics.internal.pub.Track
 import com.malinskiy.marathon.android.AndroidAppInstaller
-import com.malinskiy.marathon.android.AndroidConfiguration
 import com.malinskiy.marathon.android.BaseAndroidDevice
 import com.malinskiy.marathon.android.VideoConfiguration
 import com.malinskiy.marathon.android.adam.log.LogCatMessageParser
+import com.malinskiy.marathon.android.configuration.AndroidConfiguration
 import com.malinskiy.marathon.android.configuration.SerialStrategy
 import com.malinskiy.marathon.android.exception.CommandRejectedException
 import com.malinskiy.marathon.android.exception.InstallException
@@ -41,6 +46,7 @@ import com.malinskiy.marathon.exceptions.DeviceLostException
 import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.execution.TestBatchResults
 import com.malinskiy.marathon.execution.progress.ProgressReporter
+import com.malinskiy.marathon.extension.withTimeout
 import com.malinskiy.marathon.extension.withTimeoutOrNull
 import com.malinskiy.marathon.test.TestBatch
 import com.malinskiy.marathon.time.Timer
@@ -50,6 +56,7 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.channels.ReceiveChannel
 import kotlinx.coroutines.channels.receiveOrNull
 import kotlinx.coroutines.newFixedThreadPoolContext
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.supervisorScope
 import java.awt.image.BufferedImage
 import java.io.File
@@ -70,6 +77,8 @@ class AdamAndroidDevice(
      * This adapter is thread-safe but the internal reusable buffer should be considered if we ever need to make screenshots in parallel
      */
     private val imageScreenCaptureAdapter = BufferedImageScreenCaptureAdapter()
+
+    val portForwardingRules = mutableMapOf<String, ReversePortForwardingRule>()
 
     override suspend fun setup() {
         super.setup()
@@ -96,11 +105,14 @@ class AdamAndroidDevice(
                 }
             }
         }
+
+        setupReversePortForwarding()
     }
 
     private val dispatcher by lazy {
         newFixedThreadPoolContext(1, "AndroidDevice - execution - $adbSerial")
     }
+
     private lateinit var logcatChannel: ReceiveChannel<String>
 
     override val coroutineContext: CoroutineContext = dispatcher
@@ -351,9 +363,59 @@ class AdamAndroidDevice(
 
     override fun dispose() {
         dispatcher.close()
+        runBlocking {
+            portForwardingRules.forEach { (_, rule) ->
+                client.execute(RemoveReversePortForwardRequest(rule.localSpec), adbSerial)
+            }
+        }
     }
 
     fun executeTestRequest(runnerRequest: TestRunnerRequest): ReceiveChannel<List<TestEvent>> {
         return client.execute(runnerRequest, scope = this, serial = adbSerial)
+    }
+
+    private suspend fun setupReversePortForwarding() {
+        val portForwarding = configuration.emulatorConfiguration.reversePortForwarding
+
+        if (isLocalEmulator()) {
+            if (portForwarding.gRPC) {
+                val consolePort = adbSerial.substringAfter("emulator-").trim().toIntOrNull()
+                if (consolePort == null) {
+                    logger.debug { "Unable to parse emulator console port for serial $adbSerial" }
+                    return
+                }
+
+                //Convention is to use (console port + 3000) as the gRPC port
+                val gRPCPort = consolePort + 3000
+                reversePortForward(
+                    "gRPC",
+                    ReversePortForwardingRule(adbSerial, RemoteTcpPortSpec(gRPCPort), LocalTcpPortSpec(gRPCPort))
+                )
+            }
+            if (portForwarding.console) {
+                val consolePort = adbSerial.substringAfter("emulator-").trim().toIntOrNull()
+                if (consolePort == null) {
+                    logger.debug { "Unable to parse emulator console port for serial $adbSerial" }
+                    return
+                }
+                reversePortForward(
+                    "console",
+                    ReversePortForwardingRule(adbSerial, RemoteTcpPortSpec(consolePort), LocalTcpPortSpec(consolePort))
+                )
+            }
+            if (portForwarding.adb) {
+                reversePortForward(
+                    "adb",
+                    ReversePortForwardingRule(adbSerial, RemoteTcpPortSpec(client.port), LocalTcpPortSpec(client.port))
+                )
+            }
+        }
+    }
+
+    private suspend fun reversePortForward(name: String, rule: ReversePortForwardingRule) {
+        withTimeout(configuration.timeoutConfiguration.portForward) {
+            client.execute(ReversePortForwardRequest(rule.localSpec, rule.remoteSpec), adbSerial)
+            portForwardingRules[name] = rule
+        }
     }
 }

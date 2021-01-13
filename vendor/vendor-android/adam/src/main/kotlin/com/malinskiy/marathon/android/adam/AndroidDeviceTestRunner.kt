@@ -1,5 +1,7 @@
 package com.malinskiy.marathon.android.adam
 
+import com.malinskiy.adam.junit4.android.contract.TestRunnerContract
+import com.malinskiy.adam.request.forwarding.RemoteTcpPortSpec
 import com.malinskiy.adam.request.testrunner.InstrumentOptions
 import com.malinskiy.adam.request.testrunner.TestAssumptionFailed
 import com.malinskiy.adam.request.testrunner.TestEnded
@@ -12,7 +14,7 @@ import com.malinskiy.adam.request.testrunner.TestRunStartedEvent
 import com.malinskiy.adam.request.testrunner.TestRunStopped
 import com.malinskiy.adam.request.testrunner.TestRunnerRequest
 import com.malinskiy.adam.request.testrunner.TestStarted
-import com.malinskiy.marathon.android.AndroidConfiguration
+import com.malinskiy.marathon.android.configuration.AndroidConfiguration
 import com.malinskiy.marathon.android.ApkParser
 import com.malinskiy.marathon.android.InstrumentationInfo
 import com.malinskiy.marathon.android.executor.listeners.AndroidTestRunListener
@@ -138,12 +140,12 @@ class AndroidDeviceTestRunner(private val device: AdamAndroidDevice) {
                     device.criticalExecuteShellCommand(command).also {
                         logger.debug { "Allure is enabled. Granted LEGACY_STORAGE to ${info.applicationPackage}: ${it.trim()}" }
                     }
-                }    
+                }
             }
         }
     }
 
-    private fun prepareTestRunnerRequest(
+    private suspend fun prepareTestRunnerRequest(
         androidConfiguration: AndroidConfiguration,
         info: InstrumentationInfo,
         testBatch: TestBatch
@@ -151,6 +153,8 @@ class AndroidDeviceTestRunner(private val device: AdamAndroidDevice) {
         val tests = testBatch.tests.map {
             "${it.pkg}.${it.clazz}#${it.method}"
         }
+
+        val additionalArgs = generatePortForwardingArgs()
 
         logger.debug { "tests = ${tests.toList()}" }
 
@@ -160,9 +164,33 @@ class AndroidDeviceTestRunner(private val device: AdamAndroidDevice) {
             noWindowAnimations = true,
             instrumentOptions = InstrumentOptions(
                 clazz = tests,
-                overrides = androidConfiguration.instrumentationArgs
+                overrides = androidConfiguration.instrumentationArgs + additionalArgs
             )
         )
+    }
+
+    private fun generatePortForwardingArgs(): Map<String, String> {
+        val additionalArgs = mutableMapOf<String, String>()
+        if (device.portForwardingRules.containsKey("adb")) {
+            val port = (device.portForwardingRules["adb"]?.localSpec as? RemoteTcpPortSpec)?.port?.toString()
+            if (port != null) {
+                additionalArgs[TestRunnerContract.adbPortArgumentName] = port
+                additionalArgs[TestRunnerContract.deviceSerialArgumentName] = device.adbSerial
+            }
+        }
+        if (device.portForwardingRules.containsKey("gRPC")) {
+            val port = (device.portForwardingRules["gRPC"]?.localSpec as? RemoteTcpPortSpec)?.port?.toString()
+            if (port != null) {
+                additionalArgs[TestRunnerContract.grpcPortArgumentName] = port
+            }
+        }
+        if (device.portForwardingRules.containsKey("console")) {
+            val port = (device.portForwardingRules["console"]?.localSpec as? RemoteTcpPortSpec)?.port?.toString()
+            if (port != null) {
+                additionalArgs[TestRunnerContract.consolePortArgumentName] = port
+            }
+        }
+        return additionalArgs.toMap()
     }
 }
 

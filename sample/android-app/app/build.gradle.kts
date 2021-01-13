@@ -39,6 +39,7 @@ dependencies {
     implementation(Libraries.constraintLayout)
     implementation(Libraries.kotlinStdLib)
 
+    androidTestImplementation(TestLibraries.adamJunit4)
     androidTestImplementation(TestLibraries.testRunner)
     androidTestImplementation(TestLibraries.testRules)
     androidTestImplementation(TestLibraries.extJunit)
