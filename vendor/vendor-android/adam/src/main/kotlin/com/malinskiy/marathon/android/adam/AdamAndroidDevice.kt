@@ -8,7 +8,9 @@ import com.malinskiy.adam.exception.PushFailedException
 import com.malinskiy.adam.exception.RequestRejectedException
 import com.malinskiy.adam.exception.UnsupportedImageProtocolException
 import com.malinskiy.adam.exception.UnsupportedSyncProtocolException
+import com.malinskiy.adam.request.Feature
 import com.malinskiy.adam.request.device.DeviceState
+import com.malinskiy.adam.request.device.FetchDeviceFeaturesRequest
 import com.malinskiy.adam.request.framebuffer.BufferedImageScreenCaptureAdapter
 import com.malinskiy.adam.request.framebuffer.ScreenCaptureRequest
 import com.malinskiy.adam.request.logcat.ChanneledLogcatRequest
@@ -20,8 +22,8 @@ import com.malinskiy.adam.request.shell.v1.ShellCommandRequest
 import com.malinskiy.adam.request.sync.AndroidFile
 import com.malinskiy.adam.request.sync.AndroidFileType
 import com.malinskiy.adam.request.sync.ListFilesRequest
-import com.malinskiy.adam.request.sync.v1.PullFileRequest
-import com.malinskiy.adam.request.sync.v1.PushFileRequest
+import com.malinskiy.adam.request.sync.compat.CompatPullFileRequest
+import com.malinskiy.adam.request.sync.compat.CompatPushFileRequest
 import com.malinskiy.adam.request.testrunner.TestEvent
 import com.malinskiy.adam.request.testrunner.TestRunnerRequest
 import com.malinskiy.marathon.analytics.internal.pub.Track
@@ -55,6 +57,7 @@ import java.awt.image.BufferedImage
 import java.io.File
 import java.time.Duration
 import kotlin.coroutines.CoroutineContext
+import kotlin.system.measureTimeMillis
 
 class AdamAndroidDevice(
     private val client: AndroidDebugBridgeClient,
@@ -70,6 +73,7 @@ class AdamAndroidDevice(
      * This adapter is thread-safe but the internal reusable buffer should be considered if we ever need to make screenshots in parallel
      */
     private val imageScreenCaptureAdapter = BufferedImageScreenCaptureAdapter()
+    private lateinit var supportedFeatures: List<Feature>
 
     override suspend fun setup() {
         super.setup()
@@ -96,6 +100,7 @@ class AdamAndroidDevice(
                 }
             }
         }
+        supportedFeatures = client.execute(FetchDeviceFeaturesRequest(adbSerial))
     }
 
     private val dispatcher by lazy {
@@ -136,9 +141,16 @@ class AdamAndroidDevice(
     override suspend fun pullFile(remoteFilePath: String, localFilePath: String) {
         var progress: Double = 0.0
         try {
-            val channel = client.execute(request = PullFileRequest(remoteFilePath, File(localFilePath)), serial = adbSerial, scope = this)
-            while (!channel.isClosedForReceive) {
-                progress = channel.receiveOrNull() ?: break
+            val local = File(localFilePath)
+
+            measureFileTransfer(local) {
+                val channel = client.execute(
+                    CompatPullFileRequest(remoteFilePath, local, supportedFeatures, coroutineScope = this),
+                    serial = adbSerial
+                )
+                while (!channel.isClosedForReceive) {
+                    progress = channel.receiveOrNull() ?: break
+                }
             }
         } catch (e: PullFailedException) {
             throw TransferException("Couldn't pull file $remoteFilePath from device $serialNumber")
@@ -157,9 +169,14 @@ class AdamAndroidDevice(
         var progress: Double = 0.0
 
         try {
-            val channel = client.execute(PushFileRequest(file, remoteFilePath), serial = adbSerial, scope = this)
-            while (!channel.isClosedForReceive) {
-                progress = channel.receiveOrNull() ?: break
+            measureFileTransfer(File(localFilePath)) {
+                val channel = client.execute(
+                    CompatPushFileRequest(file, remoteFilePath, supportedFeatures, coroutineScope = this),
+                    serial = adbSerial
+                )
+                while (!channel.isClosedForReceive) {
+                    progress = channel.receiveOrNull() ?: break
+                }
             }
         } catch (e: PushFailedException) {
             throw TransferException(e)
@@ -355,5 +372,24 @@ class AdamAndroidDevice(
 
     fun executeTestRequest(runnerRequest: TestRunnerRequest): ReceiveChannel<List<TestEvent>> {
         return client.execute(runnerRequest, scope = this, serial = adbSerial)
+    }
+
+    private inline fun measureFileTransfer(file: File, block: () -> Unit) {
+        measureTimeMillis {
+            block()
+        }.let { time ->
+            val fileSize = file.length()
+            val timeInSeconds = time.toDouble() / 1000
+            if (timeInSeconds > .0f && fileSize > 0) {
+                val speed = "%.2f".format((fileSize / 1000) / timeInSeconds)
+                logger.debug {
+                    "Transferred ${file.name} to/from $serialNumber. $speed KB/s ($fileSize bytes in ${
+                        "%.4f".format(
+                            timeInSeconds
+                        )
+                    })"
+                }
+            }
+        }
     }
 }
