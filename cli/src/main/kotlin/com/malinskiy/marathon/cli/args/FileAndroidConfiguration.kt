@@ -44,8 +44,8 @@ data class FileAndroidConfiguration(
 
         return AndroidConfiguration(
             androidSdk = finalAndroidSdk,
-            applicationOutput = applicationOutput,
-            testApplicationOutput = testApplicationOutput,
+            applicationApk = applicationOutput,
+            testApplicationApk = testApplicationOutput,
             autoGrantPermission = autoGrantPermission ?: false,
             instrumentationArgs = instrumentationArgs ?: emptyMap(),
             applicationPmClear = applicationPmClear ?: false,

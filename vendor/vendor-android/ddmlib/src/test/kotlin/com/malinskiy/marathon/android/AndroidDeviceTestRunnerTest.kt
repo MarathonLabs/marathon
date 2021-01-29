@@ -70,8 +70,8 @@ class AndroidDeviceTestRunnerTest {
             screenRecordingPolicy = null,
             vendorConfiguration = AndroidConfiguration(
                 File(""),
-                applicationOutput = File(""),
-                testApplicationOutput = apkFile,
+                applicationApk = File(""),
+                testApplicationApk = apkFile,
                 implementationModules = listOf(ddmlibModule)
             ),
             analyticsTracking = false,
@@ -136,8 +136,8 @@ class AndroidDeviceTestRunnerTest {
             screenRecordingPolicy = null,
             vendorConfiguration = AndroidConfiguration(
                 File(""),
-                applicationOutput = File(""),
-                testApplicationOutput = apkFile,
+                applicationApk = File(""),
+                testApplicationApk = apkFile,
                 implementationModules = listOf(ddmlibModule)
             ),
             analyticsTracking = false,

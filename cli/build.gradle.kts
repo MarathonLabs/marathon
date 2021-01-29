@@ -63,6 +63,11 @@ dependencies {
     testCompile(TestLibraries.mockitoKotlin)
     testImplementation(TestLibraries.junit5)
     testRuntime(TestLibraries.jupiterEngine)
+
+
+
+    implementation("com.sksamuel.hoplite:hoplite-core:1.3.13")
+    implementation("com.sksamuel.hoplite:hoplite-yaml:1.3.13")
 }
 
 Deployment.initialize(project)

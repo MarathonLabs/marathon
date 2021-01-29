@@ -1,12 +1,13 @@
 package com.malinskiy.marathon
 
+import com.malinskiy.marathon.execution.strategy.AbiPoolingStrategy
+import com.malinskiy.marathon.execution.strategy.ComboPoolingStrategy
+import com.malinskiy.marathon.execution.strategy.ManufacturerPoolingStrategy
+import com.malinskiy.marathon.execution.strategy.ModelPoolingStrategy
+import com.malinskiy.marathon.execution.strategy.OmniPoolingStrategy
+import com.malinskiy.marathon.execution.strategy.OperatingSystemVersionPoolingStrategy
 import com.malinskiy.marathon.execution.strategy.PoolingStrategy
-import com.malinskiy.marathon.execution.strategy.impl.pooling.OmniPoolingStrategy
-import com.malinskiy.marathon.execution.strategy.impl.pooling.parameterized.AbiPoolingStrategy
-import com.malinskiy.marathon.execution.strategy.impl.pooling.parameterized.ComboPoolingStrategy
-import com.malinskiy.marathon.execution.strategy.impl.pooling.parameterized.ManufacturerPoolingStrategy
-import com.malinskiy.marathon.execution.strategy.impl.pooling.parameterized.ModelPoolingStrategy
-import com.malinskiy.marathon.execution.strategy.impl.pooling.parameterized.OperatingSystemVersionPoolingStrategy
+
 
 class PoolingStrategyConfiguration {
     var operatingSystem: Boolean? = null

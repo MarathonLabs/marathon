@@ -1,8 +1,8 @@
 package com.malinskiy.marathon
 
 import com.malinskiy.marathon.execution.strategy.FlakinessStrategy
-import com.malinskiy.marathon.execution.strategy.impl.flakiness.IgnoreFlakinessStrategy
-import com.malinskiy.marathon.execution.strategy.impl.flakiness.ProbabilityBasedFlakinessStrategy
+import com.malinskiy.marathon.execution.strategy.IgnoreFlakinessStrategy
+import com.malinskiy.marathon.execution.strategy.ProbabilityBasedFlakinessStrategy
 import groovy.lang.Closure
 import java.time.Instant
 import java.time.temporal.ChronoUnit

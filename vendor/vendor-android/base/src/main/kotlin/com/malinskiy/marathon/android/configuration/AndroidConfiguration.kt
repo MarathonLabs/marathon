@@ -24,8 +24,8 @@ const val DEFAULT_WAIT_FOR_DEVICES_TIMEOUT = 30000L
 
 data class AndroidConfiguration(
     val androidSdk: File,
-    val applicationOutput: File?,
-    val testApplicationOutput: File,
+    val applicationApk: File?,
+    val testApplicationApk: File,
     val implementationModules: List<Module>,
     val autoGrantPermission: Boolean = DEFAULT_AUTO_GRANT_PERMISSION,
     val instrumentationArgs: Map<String, String> = emptyMap(),
@@ -39,7 +39,7 @@ data class AndroidConfiguration(
     val allureConfiguration: AllureConfiguration = DEFAULT_ALLURE_CONFIGURATION
 ) : VendorConfiguration, KoinComponent {
 
-    private val koinModules = listOf(androidModule) + implementationModules
+    private val koinModules = listOf(androidModule) + vendorType.implementationModules()
 
     override fun testParser(): TestParser? = get()
 

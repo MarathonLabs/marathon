@@ -36,7 +36,7 @@ class AndroidDeviceTestRunner(private val device: DdmlibAndroidDevice) {
         val testBatch = TestBatch(rawTestBatch.tests - ignoredTests)
 
         val androidConfiguration = configuration.vendorConfiguration as AndroidConfiguration
-        val info = ApkParser().parseInstrumentationInfo(androidConfiguration.testApplicationOutput)
+        val info = ApkParser().parseInstrumentationInfo(androidConfiguration.testApplicationApk)
         val runner = prepareTestRunner(configuration, androidConfiguration, info, testBatch)
 
         try {

@@ -39,8 +39,8 @@ class AndroidDeviceProviderTest {
             screenRecordingPolicy = null,
             vendorConfiguration = AndroidConfiguration(
                 File(""),
-                applicationOutput = File(""),
-                testApplicationOutput = File(""),
+                applicationApk = File(""),
+                testApplicationApk = File(""),
                 implementationModules = listOf(ddmlibModule)
             ),
             analyticsTracking = false,

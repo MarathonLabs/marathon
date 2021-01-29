@@ -1,0 +1,21 @@
+name: "sample-app tests"
+outputDir: "build/reports/marathon"
+retryStrategy:
+  type: "fixed-quota"
+  totalAllowedRetryQuota: 100
+  retryPerTestQuota: 2
+vendorConfiguration:
+  type: "Android"
+  androidSdk: $ANDROID_SDK_HOME
+  applicationApk: "app/build/outputs/apk/debug/app-debug.apk"
+  testApplicationApk: "app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk"
+  autoGrantPermission: true
+  instrumentationArgs:
+    debug: "false"
+  applicationPmClear: true
+  testApplicationPmClear: true
+  vendor: ADAM
+  waitForDevicesTimeoutMillis: 60000
+  allureConfiguration:
+    enabled: true
+deviceInitializationTimeoutMillis: 180000

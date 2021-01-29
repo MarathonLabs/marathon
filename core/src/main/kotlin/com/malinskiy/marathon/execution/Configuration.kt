@@ -3,16 +3,16 @@ package com.malinskiy.marathon.execution
 import com.malinskiy.marathon.execution.policy.ScreenRecordingPolicy
 import com.malinskiy.marathon.execution.strategy.BatchingStrategy
 import com.malinskiy.marathon.execution.strategy.FlakinessStrategy
+import com.malinskiy.marathon.execution.strategy.IgnoreFlakinessStrategy
+import com.malinskiy.marathon.execution.strategy.IsolateBatchingStrategy
+import com.malinskiy.marathon.execution.strategy.NoRetryStrategy
+import com.malinskiy.marathon.execution.strategy.NoSortingStrategy
+import com.malinskiy.marathon.execution.strategy.OmniPoolingStrategy
+import com.malinskiy.marathon.execution.strategy.ParallelShardingStrategy
 import com.malinskiy.marathon.execution.strategy.PoolingStrategy
 import com.malinskiy.marathon.execution.strategy.RetryStrategy
 import com.malinskiy.marathon.execution.strategy.ShardingStrategy
 import com.malinskiy.marathon.execution.strategy.SortingStrategy
-import com.malinskiy.marathon.execution.strategy.impl.batching.IsolateBatchingStrategy
-import com.malinskiy.marathon.execution.strategy.impl.flakiness.IgnoreFlakinessStrategy
-import com.malinskiy.marathon.execution.strategy.impl.pooling.OmniPoolingStrategy
-import com.malinskiy.marathon.execution.strategy.impl.retry.NoRetryStrategy
-import com.malinskiy.marathon.execution.strategy.impl.sharding.ParallelShardingStrategy
-import com.malinskiy.marathon.execution.strategy.impl.sorting.NoSortingStrategy
 import com.malinskiy.marathon.vendor.VendorConfiguration
 import java.io.File
 
@@ -39,9 +39,9 @@ data class Configuration constructor(
     val strictMode: Boolean,
     val uncompletedTestRetryQuota: Int,
 
-    val testClassRegexes: Collection<Regex>,
-    val includeSerialRegexes: Collection<Regex>,
-    val excludeSerialRegexes: Collection<Regex>,
+    val testClassRegexes: List<Regex>,
+    val includeSerialRegexes: List<Regex>,
+    val excludeSerialRegexes: List<Regex>,
 
     val testBatchTimeoutMillis: Long,
     val testOutputTimeoutMillis: Long,
@@ -74,9 +74,9 @@ data class Configuration constructor(
         strictMode: Boolean?,
         uncompletedTestRetryQuota: Int?,
 
-        testClassRegexes: Collection<Regex>?,
-        includeSerialRegexes: Collection<Regex>?,
-        excludeSerialRegexes: Collection<Regex>?,
+        testClassRegexes: List<Regex>?,
+        includeSerialRegexes: List<Regex>?,
+        excludeSerialRegexes: List<Regex>?,
 
         testBatchTimeoutMillis: Long?,
         testOutputTimeoutMillis: Long?,

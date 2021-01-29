@@ -1,9 +1,9 @@
 package com.malinskiy.marathon
 
+import com.malinskiy.marathon.execution.strategy.ExecutionTimeSortingStrategy
+import com.malinskiy.marathon.execution.strategy.NoSortingStrategy
 import com.malinskiy.marathon.execution.strategy.SortingStrategy
-import com.malinskiy.marathon.execution.strategy.impl.sorting.ExecutionTimeSortingStrategy
-import com.malinskiy.marathon.execution.strategy.impl.sorting.NoSortingStrategy
-import com.malinskiy.marathon.execution.strategy.impl.sorting.SuccessRateSortingStrategy
+import com.malinskiy.marathon.execution.strategy.SuccessRateSortingStrategy
 import groovy.lang.Closure
 import java.time.Instant
 import java.time.temporal.ChronoUnit

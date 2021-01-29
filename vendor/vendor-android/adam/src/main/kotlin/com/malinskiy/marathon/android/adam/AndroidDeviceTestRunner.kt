@@ -49,7 +49,7 @@ class AndroidDeviceTestRunner(private val device: AdamAndroidDevice) {
         val testBatch = TestBatch(rawTestBatch.tests - ignoredTests)
 
         val androidConfiguration = configuration.vendorConfiguration as AndroidConfiguration
-        val info = ApkParser().parseInstrumentationInfo(androidConfiguration.testApplicationOutput)
+        val info = ApkParser().parseInstrumentationInfo(androidConfiguration.testApplicationApk)
         val runnerRequest = prepareTestRunnerRequest(androidConfiguration, info, testBatch)
 
         try {

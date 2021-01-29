@@ -1,8 +1,8 @@
 package com.malinskiy.marathon
 
+import com.malinskiy.marathon.execution.strategy.FixedQuotaRetryStrategy
+import com.malinskiy.marathon.execution.strategy.NoRetryStrategy
 import com.malinskiy.marathon.execution.strategy.RetryStrategy
-import com.malinskiy.marathon.execution.strategy.impl.retry.NoRetryStrategy
-import com.malinskiy.marathon.execution.strategy.impl.retry.fixedquota.FixedQuotaRetryStrategy
 import groovy.lang.Closure
 
 open class RetryStrategyConfiguration {

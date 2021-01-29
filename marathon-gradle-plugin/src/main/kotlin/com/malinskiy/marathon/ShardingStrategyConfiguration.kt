@@ -1,8 +1,8 @@
 package com.malinskiy.marathon
 
+import com.malinskiy.marathon.execution.strategy.CountShardingStrategy
+import com.malinskiy.marathon.execution.strategy.ParallelShardingStrategy
 import com.malinskiy.marathon.execution.strategy.ShardingStrategy
-import com.malinskiy.marathon.execution.strategy.impl.sharding.CountShardingStrategy
-import com.malinskiy.marathon.execution.strategy.impl.sharding.ParallelShardingStrategy
 import groovy.lang.Closure
 
 class ShardingStrategyConfiguration {

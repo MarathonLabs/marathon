@@ -1,8 +1,8 @@
 package com.malinskiy.marathon
 
 import com.malinskiy.marathon.execution.strategy.BatchingStrategy
-import com.malinskiy.marathon.execution.strategy.impl.batching.FixedSizeBatchingStrategy
-import com.malinskiy.marathon.execution.strategy.impl.batching.IsolateBatchingStrategy
+import com.malinskiy.marathon.execution.strategy.FixedSizeBatchingStrategy
+import com.malinskiy.marathon.execution.strategy.IsolateBatchingStrategy
 import groovy.lang.Closure
 import java.time.Instant
 

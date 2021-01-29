@@ -35,8 +35,8 @@ class AndroidTestParserTest {
         screenRecordingPolicy = null,
         vendorConfiguration = AndroidConfiguration(
             File(""),
-            applicationOutput = File(""),
-            testApplicationOutput = apkFile,
+            applicationApk = File(""),
+            testApplicationApk = apkFile,
             implementationModules = emptyList()
         ),
         analyticsTracking = false,

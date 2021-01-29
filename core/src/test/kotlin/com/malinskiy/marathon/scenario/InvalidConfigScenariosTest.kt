@@ -4,7 +4,6 @@ import com.malinskiy.marathon.device.DeviceProvider
 import com.malinskiy.marathon.exceptions.ConfigurationException
 import com.malinskiy.marathon.execution.TestStatus
 import com.malinskiy.marathon.execution.strategy.impl.flakiness.ProbabilityBasedFlakinessStrategy
-import com.malinskiy.marathon.execution.strategy.impl.sharding.CountShardingStrategy
 import com.malinskiy.marathon.test.StubDevice
 import com.malinskiy.marathon.test.setupMarathon
 import kotlinx.coroutines.GlobalScope

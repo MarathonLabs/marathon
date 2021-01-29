@@ -12,7 +12,7 @@ class AndroidTestParser : TestParser {
     override fun extract(configuration: Configuration): List<Test> {
         val androidConfiguration = configuration.vendorConfiguration as AndroidConfiguration
 
-        val tests = DexParser.findTestMethods(androidConfiguration.testApplicationOutput.absolutePath)
+        val tests = DexParser.findTestMethods(androidConfiguration.testApplicationApk.absolutePath)
         return tests.map {
             val testName = it.testName
             val annotations = it.annotations.map { it.toMetaProperty() }

@@ -38,7 +38,7 @@ dependencies {
     implementation(project(":report:execution-timeline"))
 
     implementation(Libraries.allure)
-    implementation(Libraries.allureKotlinCommons)
+//    implementation(Libraries.allureKotlinCommons)
     implementation(Libraries.allureEnvironment)
 
     implementation(project(":analytics:usage"))
