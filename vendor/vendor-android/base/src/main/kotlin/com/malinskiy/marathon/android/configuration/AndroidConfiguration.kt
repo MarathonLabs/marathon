@@ -39,7 +39,7 @@ data class AndroidConfiguration(
     val allureConfiguration: AllureConfiguration = DEFAULT_ALLURE_CONFIGURATION
 ) : VendorConfiguration, KoinComponent {
 
-    private val koinModules = listOf(androidModule) + vendorType.implementationModules()
+    private val koinModules = listOf(androidModule) + implementationModules
 
     override fun testParser(): TestParser? = get()
 

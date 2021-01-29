@@ -5,6 +5,12 @@ import com.malinskiy.marathon.execution.FilteringConfiguration
 import com.malinskiy.marathon.execution.policy.ScreenRecordingPolicy
 import com.malinskiy.marathon.execution.strategy.BatchingStrategy
 import com.malinskiy.marathon.execution.strategy.FlakinessStrategy
+import com.malinskiy.marathon.execution.strategy.IgnoreFlakinessStrategy
+import com.malinskiy.marathon.execution.strategy.IsolateBatchingStrategy
+import com.malinskiy.marathon.execution.strategy.NoRetryStrategy
+import com.malinskiy.marathon.execution.strategy.NoSortingStrategy
+import com.malinskiy.marathon.execution.strategy.OmniPoolingStrategy
+import com.malinskiy.marathon.execution.strategy.ParallelShardingStrategy
 import com.malinskiy.marathon.execution.strategy.PoolingStrategy
 import com.malinskiy.marathon.execution.strategy.RetryStrategy
 import com.malinskiy.marathon.execution.strategy.ShardingStrategy
@@ -30,9 +36,9 @@ data class FileConfiguration(
     var strictMode: Boolean?,
     var uncompletedTestRetryQuota: Int?,
 
-    var testClassRegexes: Collection<Regex>?,
-    var includeSerialRegexes: Collection<Regex>?,
-    var excludeSerialRegexes: Collection<Regex>?,
+    var testClassRegexes: List<Regex>?,
+    var includeSerialRegexes: List<Regex>?,
+    var excludeSerialRegexes: List<Regex>?,
 
     var testBatchTimeoutMillis: Long?,
     var testOutputTimeoutMillis: Long?,
@@ -40,7 +46,7 @@ data class FileConfiguration(
 
     val screenRecordingPolicy: ScreenRecordingPolicy?,
 
-    var vendorConfiguration: FileVendorConfiguration?,
+    var vendorConfiguration: FileVendorConfiguration,
 
     var analyticsTracking: Boolean?,
     var deviceInitializationTimeoutMillis: Long?

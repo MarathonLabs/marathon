@@ -1,6 +1,5 @@
 package com.malinskiy.marathon.cli.args
 
-import com.fasterxml.jackson.annotation.JsonProperty
 import com.malinskiy.marathon.exceptions.ConfigurationException
 import com.malinskiy.marathon.ios.IOSConfiguration
 import java.io.File
@@ -16,19 +15,19 @@ object DerivedDataFileListProvider : FileListProvider {
 }
 
 data class FileIOSConfiguration(
-    @JsonProperty("derivedDataDir") val derivedDataDir: File,
-    @JsonProperty("xctestrunPath") val xctestrunPath: File?,
-    @JsonProperty("remoteUsername") val remoteUsername: String,
-    @JsonProperty("remotePrivateKey") val remotePrivateKey: File,
-    @JsonProperty("knownHostsPath") val knownHostsPath: File?,
-    @JsonProperty("remoteRsyncPath") val remoteRsyncPath: String = "/usr/bin/rsync",
-    @JsonProperty("sourceRoot") val sourceRoot: File?,
-    @JsonProperty("alwaysEraseSimulators") val alwaysEraseSimulators: Boolean?,
-    @JsonProperty("debugSsh") val debugSsh: Boolean?,
-    @JsonProperty("hideRunnerOutput") val hideRunnerOutput: Boolean?,
-    @JsonProperty("compactOutput") val compactOutput: Boolean = false,
-    @JsonProperty("keepAliveIntervalMillis") val keepAliveIntervalMillis: Long = 0L,
-    @JsonProperty("devices") val devices: File?,
+    val derivedDataDir: File,
+    val xctestrunPath: File?,
+    val remoteUsername: String,
+    val remotePrivateKey: File,
+    val knownHostsPath: File?,
+    val remoteRsyncPath: String = "/usr/bin/rsync",
+    val sourceRoot: File?,
+    val alwaysEraseSimulators: Boolean?,
+    val debugSsh: Boolean?,
+    val hideRunnerOutput: Boolean?,
+    val compactOutput: Boolean = false,
+    val keepAliveIntervalMillis: Long = 0L,
+    val devices: File?,
     val fileListProvider: FileListProvider = DerivedDataFileListProvider
 ) : FileVendorConfiguration {
 

@@ -53,12 +53,12 @@ class FileAndroidConfigurationTest {
 
     @Test
     fun `if android sdk is not null, test application output should be null if provided`() {
-        configuration.copy(applicationOutput = env).toAndroidConfiguration(env).applicationApk shouldEqual env
+        configuration.copy(applicationApk = env).toAndroidConfiguration(env).applicationApk shouldEqual env
     }
 
     @Test
     fun `if android sdk is not null test application apk should be equal`() {
-        configuration.copy(testApplicationOutput = env).toAndroidConfiguration(env).testApplicationApk shouldEqual env
+        configuration.copy(testApplicationApk = env).toAndroidConfiguration(env).testApplicationApk shouldEqual env
     }
 
     @Test

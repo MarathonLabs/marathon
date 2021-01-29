@@ -9,6 +9,7 @@ import com.malinskiy.marathon.android.DEFAULT_INSTALL_OPTIONS
 import com.malinskiy.marathon.android.DEFAULT_WAIT_FOR_DEVICES_TIMEOUT
 import com.malinskiy.marathon.android.ScreenRecordConfiguration
 import com.malinskiy.marathon.android.VendorType
+import com.malinskiy.marathon.android.adam.di.adamModule
 import com.malinskiy.marathon.android.configuration.DEFAULT_ALLURE_CONFIGURATION
 import com.malinskiy.marathon.android.configuration.SerialStrategy
 import com.malinskiy.marathon.android.defaultInitTimeoutMillis
@@ -21,6 +22,7 @@ import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.usageanalytics.TrackActionType
 import com.malinskiy.marathon.usageanalytics.UsageAnalytics
 import com.malinskiy.marathon.usageanalytics.tracker.Event
+import ddmlibModule
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
 import org.gradle.api.tasks.OutputDirectory
@@ -122,11 +124,16 @@ open class MarathonRunTask : DefaultTask(), VerificationTask {
         val waitForDevicesTimeoutMillis = extension.waitForDevicesTimeoutMillis ?: DEFAULT_WAIT_FOR_DEVICES_TIMEOUT
         val allureConfiguration = extension.allureConfiguration ?: DEFAULT_ALLURE_CONFIGURATION
 
+        val modules = when(extension.vendor ?: VendorType.DDMLIB){
+            VendorType.DDMLIB -> listOf(ddmlibModule)
+            VendorType.ADAM -> listOf(adamModule)
+        }
+
         return AndroidConfiguration(
             androidSdk = sdk,
             applicationApk = applicationApk,
             testApplicationApk = instrumentationApk,
-            vendorType = extension.vendor ?: VendorType.DDMLIB,
+            implementationModules = modules,
             autoGrantPermission = autoGrantPermission,
             instrumentationArgs = instrumentationArgs,
             applicationPmClear = applicationPmClear,

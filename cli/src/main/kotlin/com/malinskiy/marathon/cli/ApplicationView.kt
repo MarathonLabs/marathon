@@ -3,6 +3,9 @@ package com.malinskiy.marathon.cli
 import com.malinskiy.marathon.BuildConfig
 import com.malinskiy.marathon.Marathon
 import com.malinskiy.marathon.android.AndroidConfiguration
+import com.malinskiy.marathon.cli.args.FileAndroidConfiguration
+import com.malinskiy.marathon.cli.args.FileConfiguration
+import com.malinskiy.marathon.cli.args.FileVendorConfiguration
 import com.malinskiy.marathon.cli.args.MarathonCliConfiguration
 import com.malinskiy.marathon.config.AppType
 import com.malinskiy.marathon.di.marathonStartKoin
@@ -40,8 +43,8 @@ import kotlin.reflect.full.defaultType
 private val logger = MarathonLogging.logger {}
 
 
-class VendorDecoder : Decoder<VendorConfiguration> {
-    override fun decode(node: Node, type: KType, context: DecoderContext): ConfigResult<VendorConfiguration> {
+class VendorDecoder : Decoder<FileVendorConfiguration> {
+    override fun decode(node: Node, type: KType, context: DecoderContext): ConfigResult<FileVendorConfiguration> {
         return when (node) {
             is MapNode -> {
                 decodeType(node, type, context)
@@ -50,7 +53,7 @@ class VendorDecoder : Decoder<VendorConfiguration> {
         }
     }
 
-    private fun decodeType(node: MapNode, type: KType, context: DecoderContext): ConfigResult<VendorConfiguration> {
+    private fun decodeType(node: MapNode, type: KType, context: DecoderContext): ConfigResult<FileVendorConfiguration> {
         val typeNode = node["type"]
         return when (typeNode) {
             is StringNode -> {
@@ -60,13 +63,13 @@ class VendorDecoder : Decoder<VendorConfiguration> {
         }
     }
 
-    private fun createByType(vendorType: String, node: MapNode, context: DecoderContext): ConfigResult<VendorConfiguration> {
-        val type = AndroidConfiguration::class.createType()
-        return DataClassDecoder().decode(node, type, context).map { it as VendorConfiguration }
+    private fun createByType(vendorType: String, node: MapNode, context: DecoderContext): ConfigResult<FileVendorConfiguration> {
+        val type = FileAndroidConfiguration::class.createType()
+        return DataClassDecoder().decode(node, type, context).map { it as FileVendorConfiguration }
     }
 
     override fun supports(type: KType): Boolean {
-        return type.classifier == VendorConfiguration::class
+        return type.classifier == FileVendorConfiguration::class
     }
 
 }
@@ -86,8 +89,7 @@ fun main(args: Array<String>): Unit = mainBody(
                 .addDecoder(VendorDecoder())
                 .build()
             val file = File("/home/ivanbalaksha/work/marathon/sample/android-app/Marathonfile.yaml")
-            val configuration = configLoader.loadConfigOrThrow<Configuration>(file)
-
+            val configuration = ConfigFactory(configLoader).create(file);
             val application = marathonStartKoin(configuration)
             val marathon: Marathon = application.koin.get()
 

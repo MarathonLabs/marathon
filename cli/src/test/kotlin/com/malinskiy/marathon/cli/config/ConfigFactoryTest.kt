@@ -11,7 +11,6 @@ import com.malinskiy.marathon.android.ScreenshotConfiguration
 import com.malinskiy.marathon.android.VideoConfiguration
 import com.malinskiy.marathon.android.configuration.AllureConfiguration
 import com.malinskiy.marathon.android.configuration.SerialStrategy
-import com.malinskiy.marathon.cli.args.EnvironmentConfiguration
 import com.malinskiy.marathon.cli.args.environment.EnvironmentReader
 import com.malinskiy.marathon.cli.config.time.InstantTimeProvider
 import com.malinskiy.marathon.device.DeviceFeature
@@ -40,12 +39,7 @@ import com.malinskiy.marathon.execution.strategy.impl.sorting.SuccessRateSorting
 import com.malinskiy.marathon.ios.IOSConfiguration
 import com.nhaarman.mockitokotlin2.whenever
 import ddmlibModule
-import org.amshove.kluent.`it returns`
-import org.amshove.kluent.`should be instance of`
 import org.amshove.kluent.mock
-import org.amshove.kluent.shouldBe
-import org.amshove.kluent.shouldBeEmpty
-import org.amshove.kluent.shouldContainAll
 import org.amshove.kluent.shouldEqual
 import org.amshove.kluent.shouldNotThrow
 import org.amshove.kluent.shouldThrow
