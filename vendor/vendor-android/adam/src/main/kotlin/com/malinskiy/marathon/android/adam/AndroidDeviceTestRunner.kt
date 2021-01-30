@@ -161,7 +161,8 @@ class AndroidDeviceTestRunner(private val device: AdamAndroidDevice) {
             instrumentOptions = InstrumentOptions(
                 clazz = tests,
                 overrides = androidConfiguration.instrumentationArgs
-            )
+            ),
+            socketIdleTimeout = Long.MAX_VALUE
         )
     }
 }
