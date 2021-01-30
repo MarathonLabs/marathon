@@ -27,7 +27,7 @@ class ExecutionReportTest {
     val configuration = Configuration(
         name = "",
         outputDir = File("src/test/resources/output/"),
-        analyticsConfiguration = AnalyticsConfiguration.DisabledAnalytics,
+        analyticsConfiguration = AnalyticsConfiguration.Disabled,
         poolingStrategy = null,
         shardingStrategy = null,
         sortingStrategy = null,

@@ -81,4 +81,4 @@ vendorConfiguration:
     debug: "false"
   installOptions: "-d"
   screenRecordConfiguration:
-    preferableRecorderType: "screenshot"
+    preferableRecorderType: "SCREENSHOT"

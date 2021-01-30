@@ -9,8 +9,8 @@ import com.malinskiy.marathon.analytics.internal.pub.Track
 import com.malinskiy.marathon.analytics.internal.sub.DelegatingTrackerInternal
 import com.malinskiy.marathon.analytics.internal.sub.ExecutionReportGenerator
 import com.malinskiy.marathon.analytics.internal.sub.TrackerInternal
-import com.malinskiy.marathon.execution.AnalyticsConfiguration.GraphiteConfiguration
-import com.malinskiy.marathon.execution.AnalyticsConfiguration.InfluxDbConfiguration
+import com.malinskiy.marathon.execution.AnalyticsConfiguration.Graphite
+import com.malinskiy.marathon.execution.AnalyticsConfiguration.Influx
 import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.io.FileManager
 import com.malinskiy.marathon.log.MarathonLogging
@@ -42,8 +42,8 @@ internal class TrackerFactory(
 
         val analyticsConfiguration = configuration.analyticsConfiguration
         val analyticsTracker = when (analyticsConfiguration) {
-            is InfluxDbConfiguration -> createInfluxDbTracker(analyticsConfiguration)
-            is GraphiteConfiguration -> createGraphiteTracker(analyticsConfiguration)
+            is Influx -> createInfluxDbTracker(analyticsConfiguration)
+            is Graphite -> createGraphiteTracker(analyticsConfiguration)
             else -> null
         }
         if (analyticsTracker != null) {
@@ -57,7 +57,7 @@ internal class TrackerFactory(
         return delegatingTrackerInternal
     }
 
-    private fun createInfluxDbTracker(config: InfluxDbConfiguration): InfluxDbTracker? {
+    private fun createInfluxDbTracker(config: Influx): InfluxDbTracker? {
         val db = try {
             InfluxDbProvider(config).createDb()
         } catch (e: Exception) {
@@ -67,7 +67,7 @@ internal class TrackerFactory(
         return db?.let { InfluxDbTracker(it, config.dbName, config.retentionPolicyConfiguration.name) }
     }
 
-    private fun createGraphiteTracker(config: GraphiteConfiguration): GraphiteTracker {
+    private fun createGraphiteTracker(config: Graphite): GraphiteTracker {
         return GraphiteTracker(BasicGraphiteClient(config.host, config.port ?: 2003, config.prefix))
     }
 

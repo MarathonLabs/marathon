@@ -1,44 +1,44 @@
 package com.malinskiy.marathon.cli.config
 
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
-import com.fasterxml.jackson.dataformat.yaml.YAMLGenerator
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
-import com.fasterxml.jackson.module.kotlin.KotlinModule
 import com.malinskiy.marathon.android.AndroidConfiguration
 import com.malinskiy.marathon.android.ScreenRecordConfiguration
 import com.malinskiy.marathon.android.ScreenshotConfiguration
 import com.malinskiy.marathon.android.VideoConfiguration
 import com.malinskiy.marathon.android.configuration.AllureConfiguration
 import com.malinskiy.marathon.android.configuration.SerialStrategy
-import com.malinskiy.marathon.cli.args.environment.EnvironmentReader
+import com.malinskiy.marathon.cli.ConfigFactory
+import com.malinskiy.marathon.cli.args.VendorDecoder
 import com.malinskiy.marathon.device.DeviceFeature
 import com.malinskiy.marathon.exceptions.ConfigurationException
 import com.malinskiy.marathon.execution.AnalyticsConfiguration
-import com.malinskiy.marathon.execution.AnnotationFilter
-import com.malinskiy.marathon.execution.CompositionFilter
-import com.malinskiy.marathon.execution.FullyQualifiedClassnameFilter
-import com.malinskiy.marathon.execution.SimpleClassnameFilter
-import com.malinskiy.marathon.execution.TestMethodFilter
-import com.malinskiy.marathon.execution.TestPackageFilter
+import com.malinskiy.marathon.execution.TestFilter
 import com.malinskiy.marathon.execution.policy.ScreenRecordingPolicy
-import com.malinskiy.marathon.execution.strategy.impl.batching.FixedSizeBatchingStrategy
-import com.malinskiy.marathon.execution.strategy.impl.flakiness.IgnoreFlakinessStrategy
-import com.malinskiy.marathon.execution.strategy.impl.flakiness.ProbabilityBasedFlakinessStrategy
-import com.malinskiy.marathon.execution.strategy.impl.pooling.OmniPoolingStrategy
-import com.malinskiy.marathon.execution.strategy.impl.pooling.parameterized.AbiPoolingStrategy
-import com.malinskiy.marathon.execution.strategy.impl.pooling.parameterized.ComboPoolingStrategy
-import com.malinskiy.marathon.execution.strategy.impl.pooling.parameterized.ManufacturerPoolingStrategy
-import com.malinskiy.marathon.execution.strategy.impl.pooling.parameterized.ModelPoolingStrategy
-import com.malinskiy.marathon.execution.strategy.impl.pooling.parameterized.OperatingSystemVersionPoolingStrategy
-import com.malinskiy.marathon.execution.strategy.impl.retry.NoRetryStrategy
-import com.malinskiy.marathon.execution.strategy.impl.sharding.ParallelShardingStrategy
-import com.malinskiy.marathon.execution.strategy.impl.sorting.NoSortingStrategy
-import com.malinskiy.marathon.execution.strategy.impl.sorting.SuccessRateSortingStrategy
+import com.malinskiy.marathon.execution.strategy.AbiPoolingStrategy
+import com.malinskiy.marathon.execution.strategy.ComboPoolingStrategy
+import com.malinskiy.marathon.execution.strategy.CountShardingStrategy
+import com.malinskiy.marathon.execution.strategy.ExecutionTimeSortingStrategy
+import com.malinskiy.marathon.execution.strategy.FixedQuotaRetryStrategy
+import com.malinskiy.marathon.execution.strategy.FixedSizeBatchingStrategy
+import com.malinskiy.marathon.execution.strategy.IgnoreFlakinessStrategy
+import com.malinskiy.marathon.execution.strategy.IsolateBatchingStrategy
+import com.malinskiy.marathon.execution.strategy.ManufacturerPoolingStrategy
+import com.malinskiy.marathon.execution.strategy.ModelPoolingStrategy
+import com.malinskiy.marathon.execution.strategy.NoRetryStrategy
+import com.malinskiy.marathon.execution.strategy.NoSortingStrategy
+import com.malinskiy.marathon.execution.strategy.OmniPoolingStrategy
+import com.malinskiy.marathon.execution.strategy.OperatingSystemVersionPoolingStrategy
+import com.malinskiy.marathon.execution.strategy.ParallelShardingStrategy
+import com.malinskiy.marathon.execution.strategy.ProbabilityBasedFlakinessStrategy
+import com.malinskiy.marathon.execution.strategy.SuccessRateSortingStrategy
 import com.malinskiy.marathon.ios.IOSConfiguration
-import com.nhaarman.mockitokotlin2.whenever
+import com.sksamuel.hoplite.ConfigLoader
+import com.sksamuel.hoplite.EnvironmentVariablesPropertySource
+import com.sksamuel.hoplite.yaml.YamlParser
 import ddmlibModule
-import org.amshove.kluent.mock
+import org.amshove.kluent.`should be instance of`
+import org.amshove.kluent.shouldBe
+import org.amshove.kluent.shouldBeEmpty
+import org.amshove.kluent.shouldContainAll
 import org.amshove.kluent.shouldEqual
 import org.amshove.kluent.shouldNotThrow
 import org.amshove.kluent.shouldThrow
@@ -52,40 +52,32 @@ import java.time.format.DateTimeFormatter
 class ConfigFactoryTest {
 
     val referenceInstant: Instant = Instant.ofEpochSecond(1000000)
-    private val mockInstantTimeProvider = object : InstantTimeProvider {
-        override fun referenceTime(): Instant = referenceInstant
-    }
 
     lateinit var parser: ConfigFactory
 
-    fun mockEnvironmentReader(path: String? = null): EnvironmentReader {
-        val environmentReader: EnvironmentReader = mock()
-        whenever(environmentReader.read()) `it returns` EnvironmentConfiguration(path?.let { File(it) })
-        return environmentReader
-    }
-
     @BeforeEach
     fun `setup yaml mapper`() {
-        val mapper = ObjectMapper(YAMLFactory().disable(YAMLGenerator.Feature.USE_NATIVE_TYPE_ID))
-        mapper.registerModule(DeserializeModule(mockInstantTimeProvider))
-            .registerModule(KotlinModule())
-            .registerModule(JavaTimeModule())
-        parser = ConfigFactory(mapper)
+        val configLoader = ConfigLoader.Builder()
+            .addFileExtensionMapping("yaml", YamlParser())
+            .addSource(EnvironmentVariablesPropertySource(true, true))
+            .addDecoder(VendorDecoder())
+            .build()
+        parser = ConfigFactory(configLoader)
     }
 
     @Test
     fun `on sample config 1 should deserialize`() {
         val file = File(ConfigFactoryTest::class.java.getResource("/fixture/config/sample_1.yaml").file)
-        val configuration = parser.create(file, mockEnvironmentReader())
+        val configuration = parser.create(file)
 
         configuration.name shouldEqual "sample-app tests"
         configuration.outputDir shouldEqual File("./marathon")
-        configuration.analyticsConfiguration shouldEqual AnalyticsConfiguration.InfluxDbConfiguration(
+        configuration.analyticsConfiguration shouldEqual AnalyticsConfiguration.Influx(
             url = "http://influx.svc.cluster.local:8086",
             user = "root",
             password = "root",
             dbName = "marathon",
-            retentionPolicyConfiguration = AnalyticsConfiguration.InfluxDbConfiguration.RetentionPolicyConfiguration.default
+            retentionPolicyConfiguration = AnalyticsConfiguration.Influx.RetentionPolicyConfiguration.default
         )
         configuration.poolingStrategy shouldEqual ComboPoolingStrategy(
             listOf(
@@ -113,23 +105,23 @@ class ConfigFactoryTest {
             )
         )
         configuration.retryStrategy shouldEqual FixedQuotaRetryStrategy(100, 2)
-        SimpleClassnameFilter(".*".toRegex()) shouldEqual SimpleClassnameFilter(".*".toRegex())
+        TestFilter.SimpleClassnameFilter(".*".toRegex()) shouldEqual TestFilter.SimpleClassnameFilter(".*".toRegex())
 
         configuration.filteringConfiguration.allowlist shouldContainAll listOf(
-            SimpleClassnameFilter(".*".toRegex()),
-            FullyQualifiedClassnameFilter(".*".toRegex()),
-            TestMethodFilter(".*".toRegex()),
-            CompositionFilter(
+            TestFilter.SimpleClassnameFilter(".*".toRegex()),
+            TestFilter.FullyQualifiedClassnameFilter(".*".toRegex()),
+            TestFilter.TestMethodFilter(".*".toRegex()),
+            TestFilter.CompositionFilter(
                 listOf(
-                    TestPackageFilter(".*".toRegex()),
-                    TestMethodFilter(".*".toRegex())
-                ), CompositionFilter.OPERATION.UNION
+                    TestFilter.TestPackageFilter(".*".toRegex()),
+                    TestFilter.TestMethodFilter(".*".toRegex())
+                ), TestFilter.CompositionFilter.OPERATION.UNION
             )
         )
 
         configuration.filteringConfiguration.blocklist shouldContainAll listOf(
-            TestPackageFilter(".*".toRegex()),
-            AnnotationFilter(".*".toRegex())
+            TestFilter.TestPackageFilter(".*".toRegex()),
+            TestFilter.AnnotationFilter(".*".toRegex())
         )
         configuration.testClassRegexes.map { it.toString() } shouldContainAll listOf("^((?!Abstract).)*Test$")
 
@@ -172,13 +164,13 @@ class ConfigFactoryTest {
     fun `on sample config 1 with custom retention policy should deserialize`() {
         val file = File(ConfigFactoryTest::class.java.getResource("/fixture/config/sample_1_rp.yaml").file)
 
-        val configuration = parser.create(file, mockEnvironmentReader())
-        configuration.analyticsConfiguration shouldEqual AnalyticsConfiguration.InfluxDbConfiguration(
+        val configuration = parser.create(file)
+        configuration.analyticsConfiguration shouldEqual AnalyticsConfiguration.Influx(
             url = "http://influx.svc.cluster.local:8086",
             user = "root",
             password = "root",
             dbName = "marathon",
-            retentionPolicyConfiguration = AnalyticsConfiguration.InfluxDbConfiguration.RetentionPolicyConfiguration(
+            retentionPolicyConfiguration = AnalyticsConfiguration.Influx.RetentionPolicyConfiguration(
                 "rpMarathonTest",
                 "90d",
                 "1h",
@@ -191,18 +183,18 @@ class ConfigFactoryTest {
     @Test
     fun `on sample config 2 with minimal configuration should deserialize`() {
         val file = File(ConfigFactoryTest::class.java.getResource("/fixture/config/sample_2.yaml").file)
-        val configuration = parser.create(file, mockEnvironmentReader())
+        val configuration = parser.create(file)
 
         configuration.name shouldEqual "sample-app tests"
         configuration.outputDir shouldEqual File("./marathon")
-        configuration.analyticsConfiguration shouldEqual AnalyticsConfiguration.DisabledAnalytics
+        configuration.analyticsConfiguration shouldEqual AnalyticsConfiguration.Disabled
         configuration.poolingStrategy shouldEqual OmniPoolingStrategy()
         configuration.shardingStrategy shouldEqual ParallelShardingStrategy()
         configuration.sortingStrategy shouldEqual NoSortingStrategy()
         configuration.batchingStrategy shouldEqual IsolateBatchingStrategy()
         configuration.flakinessStrategy shouldEqual IgnoreFlakinessStrategy()
         configuration.retryStrategy shouldEqual NoRetryStrategy()
-        SimpleClassnameFilter(".*".toRegex()) shouldEqual SimpleClassnameFilter(".*".toRegex())
+        TestFilter.SimpleClassnameFilter(".*".toRegex()) shouldEqual TestFilter.SimpleClassnameFilter(".*".toRegex())
 
         configuration.filteringConfiguration.allowlist.shouldBeEmpty()
         configuration.filteringConfiguration.blocklist.shouldBeEmpty()
@@ -236,7 +228,7 @@ class ConfigFactoryTest {
     @Test
     fun `on config with ios vendor configuration should initialize a specific vendor configuration`() {
         val file = File(ConfigFactoryTest::class.java.getResource("/fixture/config/sample_3.yaml").file)
-        val configuration = parser.create(file, mockEnvironmentReader())
+        val configuration = parser.create(file)
 
         configuration.vendorConfiguration shouldEqual IOSConfiguration(
             derivedDataDir = file.parentFile.resolve("a"),
@@ -257,7 +249,7 @@ class ConfigFactoryTest {
     @Test
     fun `on configuration without an explicit remote rsync path should initialize a default one`() {
         val file = File(ConfigFactoryTest::class.java.getResource("/fixture/config/sample_4.yaml").file)
-        val configuration = parser.create(file, mockEnvironmentReader())
+        val configuration = parser.create(file)
 
         val iosConfiguration = configuration.vendorConfiguration as IOSConfiguration
         iosConfiguration.remoteRsyncPath shouldEqual "/usr/bin/rsync"
@@ -266,7 +258,7 @@ class ConfigFactoryTest {
     @Test
     fun `on configuration without an explicit xctestrun path should throw an exception`() {
         val file = File(ConfigFactoryTest::class.java.getResource("/fixture/config/sample_5.yaml").file)
-        val create = { parser.create(file, mockEnvironmentReader()) }
+        val create = { parser.create(file) }
 
         create shouldThrow ConfigurationException::class
     }
@@ -274,11 +266,10 @@ class ConfigFactoryTest {
     @Test
     fun `on configuration without androidSdk value should use value provided by environment`() {
         val file = File(ConfigFactoryTest::class.java.getResource("/fixture/config/sample_6.yaml").file)
-        val environmentReader = mockEnvironmentReader("/android/home")
-        val configuration = parser.create(file, environmentReader)
+        val configuration = parser.create(file)
 
         configuration.vendorConfiguration shouldEqual AndroidConfiguration(
-            environmentReader.read().androidSdk!!,
+            File("/local/android"),
             File("kotlin-buildscript/build/outputs/apk/debug/kotlin-buildscript-debug.apk"),
             File("kotlin-buildscript/build/outputs/apk/androidTest/debug/kotlin-buildscript-debug-androidTest.apk"),
             listOf(ddmlibModule),
@@ -295,7 +286,7 @@ class ConfigFactoryTest {
     @Test
     fun `on configuration without androidSdk value should throw an exception when ANDROID_HOME is not set`() {
         val file = File(ConfigFactoryTest::class.java.getResource("/fixture/config/sample_7.yaml").file)
-        val create = { parser.create(file, mockEnvironmentReader(null)) }
+        val create = { parser.create(file) }
 
         create shouldNotThrow ConfigurationException::class
     }
@@ -303,10 +294,10 @@ class ConfigFactoryTest {
     @Test
     fun `on configuration with allowlist but no blocklist should initialize an empty blocklist`() {
         val file = File(ConfigFactoryTest::class.java.getResource("/fixture/config/sample_8.yaml").file)
-        val configuration = parser.create(file, mockEnvironmentReader())
+        val configuration = parser.create(file)
 
         configuration.filteringConfiguration.allowlist shouldEqual listOf(
-            SimpleClassnameFilter(".*".toRegex())
+            TestFilter.SimpleClassnameFilter(".*".toRegex())
         )
 
         configuration.filteringConfiguration.blocklist shouldBe emptyList()
@@ -315,19 +306,19 @@ class ConfigFactoryTest {
     @Test
     fun `on configuration with blocklist but no allowlist should initialize an empty allowlist`() {
         val file = File(ConfigFactoryTest::class.java.getResource("/fixture/config/sample_9.yaml").file)
-        val configuration = parser.create(file, mockEnvironmentReader())
+        val configuration = parser.create(file)
 
         configuration.filteringConfiguration.allowlist shouldBe emptyList()
 
         configuration.filteringConfiguration.blocklist shouldEqual listOf(
-            SimpleClassnameFilter(".*".toRegex())
+            TestFilter.SimpleClassnameFilter(".*".toRegex())
         )
     }
 
     @Test
     fun `on configuration time limits specified as Duration should be used as relative values`() {
         val file = File(ConfigFactoryTest::class.java.getResource("/fixture/config/sample_10.yaml").file)
-        val configuration = parser.create(file, mockEnvironmentReader())
+        val configuration = parser.create(file)
 
         configuration.sortingStrategy `should be instance of` ExecutionTimeSortingStrategy::class
         val sortingStrategy = configuration.sortingStrategy as ExecutionTimeSortingStrategy

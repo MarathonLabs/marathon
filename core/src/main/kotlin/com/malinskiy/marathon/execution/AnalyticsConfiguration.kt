@@ -1,8 +1,8 @@
 package com.malinskiy.marathon.execution
 
 sealed class AnalyticsConfiguration {
-    object DisabledAnalytics : AnalyticsConfiguration()
-    data class InfluxDbConfiguration(
+    object Disabled : AnalyticsConfiguration()
+    data class Influx(
         val url: String,
         val user: String,
         val password: String,
@@ -21,7 +21,7 @@ sealed class AnalyticsConfiguration {
             }
         }
     }
-    data class GraphiteConfiguration(
+    data class Graphite(
         val host: String,
         val port: Int?,
         val prefix: String?

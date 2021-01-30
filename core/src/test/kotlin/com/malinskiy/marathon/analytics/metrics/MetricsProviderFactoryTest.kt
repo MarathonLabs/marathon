@@ -19,7 +19,7 @@ class MetricsProviderFactoryTest {
         val configuration = Configuration(
             name = "",
             outputDir = File(""),
-            analyticsConfiguration = AnalyticsConfiguration.DisabledAnalytics,
+            analyticsConfiguration = AnalyticsConfiguration.Disabled,
             poolingStrategy = null,
             shardingStrategy = null,
             sortingStrategy = null,
@@ -54,12 +54,12 @@ class MetricsProviderFactoryTest {
 
     @Test
     fun shouldReturnNoopProviderWhenConfigurationIsInvalid() {
-        val analyticsConfiguration = AnalyticsConfiguration.InfluxDbConfiguration(
+        val analyticsConfiguration = AnalyticsConfiguration.Influx(
             "host",
             "user",
             "password",
             "db",
-            AnalyticsConfiguration.InfluxDbConfiguration.RetentionPolicyConfiguration.default
+            AnalyticsConfiguration.Influx.RetentionPolicyConfiguration.default
         )
         val configuration = Configuration(
             name = "",

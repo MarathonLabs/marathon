@@ -37,12 +37,12 @@ class InfluxDbProviderIntegrationTest {
     fun `multiple creations should still have the same configured retention policy`() {
         val test = generateTest()
         val provider = InfluxDbProvider(
-            AnalyticsConfiguration.InfluxDbConfiguration(
+            AnalyticsConfiguration.Influx(
                 url = container.url,
                 dbName = database,
                 password = "",
                 user = "root",
-                retentionPolicyConfiguration = AnalyticsConfiguration.InfluxDbConfiguration.RetentionPolicyConfiguration.default
+                retentionPolicyConfiguration = AnalyticsConfiguration.Influx.RetentionPolicyConfiguration.default
             )
         )
         val firstDbInstance = provider.createDb()

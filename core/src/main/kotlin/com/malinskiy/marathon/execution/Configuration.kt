@@ -93,7 +93,7 @@ data class Configuration constructor(
             this(
                 name = name,
                 outputDir = outputDir,
-                analyticsConfiguration = analyticsConfiguration ?: AnalyticsConfiguration.DisabledAnalytics,
+                analyticsConfiguration = analyticsConfiguration ?: AnalyticsConfiguration.Disabled,
                 poolingStrategy = poolingStrategy ?: OmniPoolingStrategy(),
                 shardingStrategy = shardingStrategy ?: ParallelShardingStrategy(),
                 sortingStrategy = sortingStrategy ?: NoSortingStrategy(),

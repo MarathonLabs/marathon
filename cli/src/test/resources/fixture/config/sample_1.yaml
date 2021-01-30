@@ -77,7 +77,7 @@ vendorConfiguration:
     debug: "false"
   installOptions: "-d"
   screenRecordConfiguration:
-    preferableRecorderType: "screenshot"
+    preferableRecorderType: "SCREENSHOT"
     videoConfiguration:
       enabled: false
       width: 1080

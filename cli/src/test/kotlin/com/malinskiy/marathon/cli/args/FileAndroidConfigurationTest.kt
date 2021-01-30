@@ -13,7 +13,7 @@ import java.io.File
 class FileAndroidConfigurationTest {
     private val configuration = FileAndroidConfiguration(
         VendorType.DDMLIB,
-        null,
+        File("/home/ivanbalaksha/Android/Sdk"),
         null,
         File.createTempFile("foo", "bar"),
         null,
@@ -33,63 +33,63 @@ class FileAndroidConfigurationTest {
 
     @Test
     fun `if androidSdk is null should throw Exception if env android sdk also is null`() {
-        { configuration.toAndroidConfiguration(null) } shouldThrow ConfigurationException::class
+        { configuration.toAndroidConfiguration() } shouldThrow ConfigurationException::class
     }
 
     @Test
     fun `if androidSdk is null should use env android sdk if it is not null`() {
-        configuration.toAndroidConfiguration(env).androidSdk shouldEqual env
+        configuration.toAndroidConfiguration().androidSdk shouldEqual env
     }
 
     @Test
     fun `if android sdk is not null should use android sdk instead of env if both exists`() {
-        configuration.copy(androidSdk = sdk).toAndroidConfiguration(env).androidSdk shouldEqual sdk
+        configuration.copy(androidSdk = sdk).toAndroidConfiguration().androidSdk shouldEqual sdk
     }
 
     @Test
     fun `if android sdk is not null, test application output should be null by default`() {
-        configuration.toAndroidConfiguration(env).applicationApk shouldEqual null
+        configuration.toAndroidConfiguration().applicationApk shouldEqual null
     }
 
     @Test
     fun `if android sdk is not null, test application output should be null if provided`() {
-        configuration.copy(applicationApk = env).toAndroidConfiguration(env).applicationApk shouldEqual env
+        configuration.copy(applicationApk = env).toAndroidConfiguration().applicationApk shouldEqual env
     }
 
     @Test
     fun `if android sdk is not null test application apk should be equal`() {
-        configuration.copy(testApplicationApk = env).toAndroidConfiguration(env).testApplicationApk shouldEqual env
+        configuration.copy(testApplicationApk = env).toAndroidConfiguration().testApplicationApk shouldEqual env
     }
 
     @Test
     fun `if android sdk is not null auto grant permissions should be false by default`() {
-        configuration.toAndroidConfiguration(env).autoGrantPermission shouldEqual false
+        configuration.toAndroidConfiguration().autoGrantPermission shouldEqual false
     }
 
     @Test
     fun `if android sdk is not null auto grant permissions should be equal`() {
-        configuration.copy(autoGrantPermission = false).toAndroidConfiguration(env).autoGrantPermission shouldEqual false
-        configuration.copy(autoGrantPermission = true).toAndroidConfiguration(env).autoGrantPermission shouldEqual true
+        configuration.copy(autoGrantPermission = false).toAndroidConfiguration().autoGrantPermission shouldEqual false
+        configuration.copy(autoGrantPermission = true).toAndroidConfiguration().autoGrantPermission shouldEqual true
     }
 
     @Test
     fun `if android sdk is not null adb init timeout millis should be 30_000 by default`() {
-        configuration.toAndroidConfiguration(env).adbInitTimeoutMillis shouldEqual 30_000
+        configuration.toAndroidConfiguration().adbInitTimeoutMillis shouldEqual 30_000
     }
 
     @Test
     fun `if android sdk is not null adb init timeout millis should be equal`() {
         val timeout = 500_000
-        configuration.copy(adbInitTimeoutMillis = timeout).toAndroidConfiguration(env).adbInitTimeoutMillis shouldEqual timeout
+        configuration.copy(adbInitTimeoutMillis = timeout).toAndroidConfiguration().adbInitTimeoutMillis shouldEqual timeout
     }
 
     @Test
     fun `if android sdk is not null install options should be empty string by default`() {
-        configuration.toAndroidConfiguration(env).installOptions shouldEqual ""
+        configuration.toAndroidConfiguration().installOptions shouldEqual ""
     }
 
     @Test
     fun `if android sdk is not null install options should be equal if provided`() {
-        configuration.copy(installOptions = "-d").toAndroidConfiguration(env).installOptions shouldEqual "-d"
+        configuration.copy(installOptions = "-d").toAndroidConfiguration().installOptions shouldEqual "-d"
     }
 }

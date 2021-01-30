@@ -21,12 +21,12 @@ class InfluxMetricsProviderIntegrationTest : BaseMetricsProviderIntegrationTest(
 
         val influxDb: InfluxDB by lazy {
             InfluxDbProvider(
-                AnalyticsConfiguration.InfluxDbConfiguration(
+                AnalyticsConfiguration.Influx(
                     url = container.url,
                     dbName = dbName,
                     user = "",
                     password = "",
-                    retentionPolicyConfiguration = AnalyticsConfiguration.InfluxDbConfiguration.RetentionPolicyConfiguration.default
+                    retentionPolicyConfiguration = AnalyticsConfiguration.Influx.RetentionPolicyConfiguration.default
                 )
             ).createDb()
         }

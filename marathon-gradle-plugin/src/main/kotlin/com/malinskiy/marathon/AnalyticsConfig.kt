@@ -1,10 +1,10 @@
 package com.malinskiy.marathon
 
 import com.malinskiy.marathon.execution.AnalyticsConfiguration
-import com.malinskiy.marathon.execution.AnalyticsConfiguration.DisabledAnalytics
-import com.malinskiy.marathon.execution.AnalyticsConfiguration.GraphiteConfiguration
-import com.malinskiy.marathon.execution.AnalyticsConfiguration.InfluxDbConfiguration
-import com.malinskiy.marathon.execution.AnalyticsConfiguration.InfluxDbConfiguration.RetentionPolicyConfiguration
+import com.malinskiy.marathon.execution.AnalyticsConfiguration.Disabled
+import com.malinskiy.marathon.execution.AnalyticsConfiguration.Graphite
+import com.malinskiy.marathon.execution.AnalyticsConfiguration.Influx
+import com.malinskiy.marathon.execution.AnalyticsConfiguration.Influx.RetentionPolicyConfiguration
 import groovy.lang.Closure
 
 class AnalyticsConfig {
@@ -58,7 +58,7 @@ fun AnalyticsConfig.toAnalyticsConfiguration(): AnalyticsConfiguration {
     val influx = this.influx
     val graphite = this.graphite
     return when {
-        influx != null -> InfluxDbConfiguration(
+        influx != null -> Influx(
             dbName = influx.dbName,
             user = influx.user,
             password = influx.password,
@@ -66,12 +66,12 @@ fun AnalyticsConfig.toAnalyticsConfiguration(): AnalyticsConfiguration {
             retentionPolicyConfiguration = influx.retentionPolicy?.toRetentionPolicy()
                 ?: RetentionPolicyConfiguration.default
         )
-        graphite != null -> GraphiteConfiguration(
+        graphite != null -> Graphite(
             host = graphite.host,
             port = graphite.port?.toIntOrNull(),
             prefix = graphite.prefix
         )
-        else -> DisabledAnalytics
+        else -> Disabled
     }
 }
 

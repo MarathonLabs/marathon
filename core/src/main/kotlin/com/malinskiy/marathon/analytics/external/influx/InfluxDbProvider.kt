@@ -8,7 +8,7 @@ import java.util.concurrent.TimeUnit
 
 const val TIMEOUT_SEC = 60L
 
-class InfluxDbProvider(configuration: AnalyticsConfiguration.InfluxDbConfiguration) {
+class InfluxDbProvider(configuration: AnalyticsConfiguration.Influx) {
 
     private val url = configuration.url
     private val user = configuration.user

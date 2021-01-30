@@ -186,7 +186,7 @@ fun getConfiguration() =
     Configuration(
         name = "",
         outputDir = Files.createTempDirectory("test-run").toFile(),
-        analyticsConfiguration = AnalyticsConfiguration.DisabledAnalytics,
+        analyticsConfiguration = AnalyticsConfiguration.Disabled,
         poolingStrategy = null,
         shardingStrategy = null,
         sortingStrategy = null,
