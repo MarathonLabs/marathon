@@ -253,6 +253,7 @@ private fun createQueueActor(
     DevicePoolId("test"),
     mock(),
     track,
+    mock(),
     job,
     Dispatchers.Unconfined
 )
