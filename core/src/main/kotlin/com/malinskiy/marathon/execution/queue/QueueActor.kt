@@ -111,13 +111,13 @@ class QueueActor(
                 it.copy(status = TestStatus.FAILURE)
             }
             for (test in uncompletedToFailed) {
-                testResultReporter.testFailed(device, test)
+                testResultReporter.testIncomplete(device, test, final = true)
             }
         }
 
         if (uncompleted.isNotEmpty()) {
             for (test in uncompleted) {
-                testResultReporter.testFailed(device, test)
+                testResultReporter.testIncomplete(device, test, final = false)
             }
             returnTests(uncompleted.map { it.test })
             progressReporter.addTests(poolId, uncompleted.size)
@@ -169,7 +169,7 @@ class QueueActor(
         }
     }
 
-    private suspend fun handleFailedTests(
+    private fun handleFailedTests(
         failed: Collection<TestResult>,
         device: DeviceInfo
     ) {
