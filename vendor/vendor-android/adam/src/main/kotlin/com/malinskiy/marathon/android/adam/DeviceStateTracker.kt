@@ -1,7 +1,7 @@
 package com.malinskiy.marathon.android.adam
 
-import com.malinskiy.adam.request.devices.Device
-import com.malinskiy.adam.request.devices.DeviceState
+import com.malinskiy.adam.request.device.Device
+import com.malinskiy.adam.request.device.DeviceState
 import java.util.concurrent.ConcurrentHashMap
 
 class DeviceStateTracker {

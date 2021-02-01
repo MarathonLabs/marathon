@@ -25,5 +25,6 @@ allprojects {
         jcenter()
         mavenCentral()
         google()
+        mavenLocal()
     }
 }
