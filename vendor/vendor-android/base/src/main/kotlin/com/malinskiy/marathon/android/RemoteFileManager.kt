@@ -6,15 +6,16 @@ class RemoteFileManager(private val device: AndroidDevice) {
     private val outputDir by lazy { device.externalStorageMount }
 
     suspend fun removeRemotePath(remotePath: String, recursive: Boolean = false) {
-        device.executeShellCommand("rm ${if (recursive) "-r" else ""} $remotePath", "Could not delete remote file(s): $remotePath")
+        val errorMessage = "Could not delete remote file(s): $remotePath"
+        device.criticalExecuteShellCommand("rm ${if (recursive) "-r" else ""} $remotePath", errorMessage)
     }
 
     suspend fun createRemoteDirectory(remoteDir: String = outputDir) {
-        device.executeShellCommand("mkdir $remoteDir", "Could not create remote directory: $remoteDir")
+        device.criticalExecuteShellCommand("mkdir $remoteDir", "Could not create remote directory: $remoteDir")
     }
 
     suspend fun removeRemoteDirectory() {
-        device.executeShellCommand("rm -r $outputDir", "Could not delete remote directory: $outputDir")
+        device.criticalExecuteShellCommand("rm -r $outputDir", "Could not delete remote directory: $outputDir")
     }
 
     fun remoteVideoForTest(test: Test): String {

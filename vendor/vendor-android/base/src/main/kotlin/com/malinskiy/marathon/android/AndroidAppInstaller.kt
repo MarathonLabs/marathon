@@ -39,13 +39,13 @@ class AndroidAppInstaller(configuration: Configuration) {
             try {
                 if (installed(device, appPackage)) {
                     logger.info("Uninstalling $appPackage from ${device.serialNumber}")
-                    val uninstallMessage = device.safeUninstallPackage(appPackage)
+                    val uninstallMessage = device.safeUninstallPackage(appPackage)?.trim()
                     uninstallMessage?.let { logger.debug { it } }
                 }
                 logger.info("Installing $appPackage, ${appApk.absolutePath} to ${device.serialNumber}")
-                val installMessage = device.installPackage(appApk.absolutePath, true, optionalParams(device))
+                val installMessage = device.installPackage(appApk.absolutePath, true, optionalParams(device))?.trim()
                 installMessage?.let { logger.debug { it } }
-                if (installMessage == null || !installMessage.startsWith("Success")) {
+                if (installMessage == null || !installMessage.contains("Success")) {
                     throw InstallException(installMessage ?: "")
                 }
             } catch (e: InstallException) {

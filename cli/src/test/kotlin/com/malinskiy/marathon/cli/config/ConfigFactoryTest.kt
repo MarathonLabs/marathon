@@ -51,10 +51,10 @@ import org.amshove.kluent.shouldBe
 import org.amshove.kluent.shouldBeEmpty
 import org.amshove.kluent.shouldContainAll
 import org.amshove.kluent.shouldEqual
-import org.amshove.kluent.shouldNotThrow
 import org.amshove.kluent.shouldThrow
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 import java.io.File
 import java.time.Duration
 import java.time.Instant
@@ -306,9 +306,9 @@ class ConfigFactoryTest {
     @Test
     fun `on configuration without androidSdk value should throw an exception when ANDROID_HOME is not set`() {
         val file = File(ConfigFactoryTest::class.java.getResource("/fixture/config/sample_7.yaml").file)
-        val create = { parser.create(file, mockEnvironmentReader(null)) }
-
-        create shouldNotThrow ConfigurationException::class
+        assertThrows<ConfigurationException> {
+            parser.create(file, mockEnvironmentReader(null))
+        }
     }
 
     @Test
