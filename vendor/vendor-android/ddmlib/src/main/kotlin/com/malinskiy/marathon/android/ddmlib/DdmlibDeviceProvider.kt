@@ -1,5 +1,6 @@
 package com.malinskiy.marathon.android.ddmlib
 
+import com.android.ddmlib.AdbInitOptions
 import com.android.ddmlib.AndroidDebugBridge
 import com.android.ddmlib.DdmPreferences
 import com.android.ddmlib.IDevice
@@ -23,10 +24,12 @@ import kotlinx.coroutines.newFixedThreadPoolContext
 import java.nio.file.Paths
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ConcurrentMap
+import java.util.concurrent.TimeUnit
 import kotlin.coroutines.CoroutineContext
 
 private const val DEFAULT_DDM_LIB_TIMEOUT = 30000
 private const val DEFAULT_DDM_LIB_SLEEP_TIME = 500
+private const val DEFAULT_DDM_LIB_CREATE_BRIDGE_TIMEOUT = Long.MAX_VALUE
 
 class DdmlibDeviceProvider(
     configuration: Configuration,
@@ -56,7 +59,11 @@ class DdmlibDeviceProvider(
         }
 
         DdmPreferences.setTimeOut(DEFAULT_DDM_LIB_TIMEOUT)
-        AndroidDebugBridge.initIfNeeded(false)
+        val adbInitOptions = AdbInitOptions.Builder()
+            .enableUserManagedAdbMode(5037)
+            .setClientSupportEnabled(false)
+            .build()
+        AndroidDebugBridge.init(adbInitOptions)
 
         val absolutePath = Paths.get(vendorConfiguration.androidSdk.absolutePath, "platform-tools", "adb").toFile().absolutePath
 
@@ -143,7 +150,7 @@ class DdmlibDeviceProvider(
             }
         }
         AndroidDebugBridge.addDeviceChangeListener(listener)
-        adb = AndroidDebugBridge.createBridge(absolutePath, false)
+        adb = AndroidDebugBridge.createBridge(absolutePath, false, DEFAULT_DDM_LIB_CREATE_BRIDGE_TIMEOUT, TimeUnit.MILLISECONDS)
 
         var getDevicesCountdown = vendorConfiguration.waitForDevicesTimeoutMillis
         val sleepTime = DEFAULT_DDM_LIB_SLEEP_TIME
