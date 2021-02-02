@@ -30,7 +30,7 @@ val coreModule = module {
     single<Clock> { Clock.systemDefaultZone() }
     single<Timer> { SystemTimer(get()) }
     single<ProgressReporter> { ProgressReporter(get()) }
-    single<Marathon> { Marathon(get(), get(), get(), get(), get()) }
+    single<Marathon> { Marathon(get(), get(), get(), get(), get(), get()) }
 }
 
 fun KoinApplication.marathonConfiguration(configuration: Configuration): KoinApplication {

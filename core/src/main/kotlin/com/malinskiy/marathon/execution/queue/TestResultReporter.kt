@@ -41,6 +41,13 @@ class TestResultReporter(
                     transitionTo(TestState.Executed(it.device, it.testResult, count - 1))
                 }
             }
+            on<TestEvent.Incomplete> {
+                if (it.final) {
+                    transitionTo(TestState.Failed(it.device, it.testResult), TestAction.SaveReport(it.device, it.testResult))
+                } else {
+                    transitionTo(TestState.Executed(it.device, it.testResult, count))
+                }
+            }
             on<TestEvent.Retry> {
                 dontTransition()
             }
@@ -54,6 +61,13 @@ class TestResultReporter(
                     transitionTo(TestState.Failed(it.device, it.testResult), TestAction.SaveReport(it.device, it.testResult))
                 } else {
                     transitionTo(TestState.Executed(it.device, it.testResult, count - 1))
+                }
+            }
+            on<TestEvent.Incomplete> {
+                if (it.final) {
+                    transitionTo(TestState.Failed(it.device, it.testResult), TestAction.SaveReport(it.device, it.testResult))
+                } else {
+                    transitionTo(TestState.Executed(it.device, it.testResult, count))
                 }
             }
             on<TestEvent.Remove> {
@@ -74,6 +88,9 @@ class TestResultReporter(
         }
         state<TestState.Passed> {
             on<TestEvent.Failed> {
+                dontTransition()
+            }
+            on<TestEvent.Incomplete> {
                 dontTransition()
             }
         }
@@ -101,6 +118,10 @@ class TestResultReporter(
 
     fun testFailed(device: DeviceInfo, testResult: TestResult) {
         tests[testResult.test.toTestName()]?.transition(TestEvent.Failed(device, testResult))
+    }
+
+    fun testIncomplete(device: DeviceInfo, testResult: TestResult, final: Boolean) {
+        tests[testResult.test.toTestName()]?.transition(TestEvent.Incomplete(device, testResult, final))
     }
 
     fun retryTest(device: DeviceInfo, testResult: TestResult) {
@@ -132,12 +153,14 @@ class TestResultReporter(
             is TestEvent.Passed -> event.testResult
             is TestEvent.Failed -> event.testResult
             is TestEvent.Retry -> event.testResult
+            is TestEvent.Incomplete -> event.testResult
             else -> null
         }
         val device: DeviceInfo? = when (event) {
             is TestEvent.Passed -> event.device
             is TestEvent.Failed -> event.device
             is TestEvent.Retry -> event.device
+            is TestEvent.Incomplete -> event.device
             else -> null
         }
         return Pair(testResult, device)

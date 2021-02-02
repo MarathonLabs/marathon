@@ -43,4 +43,8 @@ class LogCatListener(
     override suspend fun testRunEnded(elapsedTime: Long, runMetrics: Map<String, String>) {
         device.removeLogcatListener(this)
     }
+
+    override suspend fun testRunFailed(errorMessage: String) {
+        device.removeLogcatListener(this)
+    }
 }

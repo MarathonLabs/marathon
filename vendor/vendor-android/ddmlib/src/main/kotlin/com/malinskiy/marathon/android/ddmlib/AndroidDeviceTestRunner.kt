@@ -92,10 +92,19 @@ class AndroidDeviceTestRunner(private val device: DdmlibAndroidDevice) {
         if (androidConfiguration.allureConfiguration.enabled) {
             device.fileManager.removeRemotePath(androidConfiguration.allureConfiguration.resultsDirectory, recursive = true)
             device.fileManager.createRemoteDirectory(androidConfiguration.allureConfiguration.resultsDirectory)
-            if (device.version.isGreaterOrEqualThan(30)) {
-                val command = "appops set --uid ${info.applicationPackage} MANAGE_EXTERNAL_STORAGE allow"
-                device.safeExecuteShellCommand(command)?.also {
-                    logger.debug { "Granted MANAGE_EXTERNAL_STORAGE to ${info.applicationPackage}: $it" }
+            when {
+                device.version.isGreaterOrEqualThan(30) -> {
+                    val command = "appops set --uid ${info.applicationPackage} MANAGE_EXTERNAL_STORAGE allow"
+                    device.criticalExecuteShellCommand(command).also {
+                        logger.debug { "Allure is enabled. Granted MANAGE_EXTERNAL_STORAGE to ${info.applicationPackage}: ${it.trim()}" }
+                    }
+                }
+                device.version.equals(29) -> {
+                    //API 29 doesn't have MANAGE_EXTERNAL_STORAGE, force legacy storage
+                    val command = "appops set --uid ${info.applicationPackage} LEGACY_STORAGE allow"
+                    device.criticalExecuteShellCommand(command).also {
+                        logger.debug { "Allure is enabled. Granted LEGACY_STORAGE to ${info.applicationPackage}: ${it.trim()}" }
+                    }
                 }
             }
         }

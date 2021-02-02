@@ -52,7 +52,11 @@ data class ExecutionReport(
         }
         val rawFailed = rawTests.count { it.status == TestStatus.FAILURE }
         val rawIncomplete = rawTests.count { it.status == TestStatus.INCOMPLETE }
-        val rawDuration = rawTests.map { it.durationMillis() }.sum()
+        val rawDuration = rawTests
+            //Incomplete tests mess up the calculations of time since their end time is 0 and duration is, hence, years
+            //We filter here for unavailable time just to be safe
+            .filter { it.startTime != 0L && it.endTime != 0L }
+            .map { it.durationMillis() }.sum()
 
         val retries = tests.map { result: TestResult ->
             Pair(result, poolTestEvents.filter { it.testResult.test == result.test && it.testResult !== result })

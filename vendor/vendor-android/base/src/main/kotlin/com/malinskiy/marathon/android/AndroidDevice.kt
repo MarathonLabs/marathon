@@ -2,15 +2,17 @@ package com.malinskiy.marathon.android
 
 import com.android.sdklib.AndroidVersion
 import com.malinskiy.marathon.android.executor.listeners.line.LineListener
+import com.malinskiy.marathon.android.model.Rotation
 import com.malinskiy.marathon.device.Device
 import java.awt.image.BufferedImage
-import java.util.concurrent.TimeUnit
+import java.time.Duration
 
 interface AndroidDevice : Device {
     val apiLevel: Int
     val version: AndroidVersion
     val fileManager: RemoteFileManager
     val externalStorageMount: String
+    val initialRotation: Rotation
 
     /**
      * Called only once per device's lifetime
@@ -28,6 +30,11 @@ interface AndroidDevice : Device {
      * @return null if command did not complete successfully, otherwise cmd output
      */
     suspend fun safeExecuteShellCommand(command: String, errorMessage: String = ""): String?
+
+    /**
+     * @throws com.malinskiy.marathon.android.exception.CommandRejectedException in case the command fails
+     */
+    suspend fun criticalExecuteShellCommand(command: String, errorMessage: String = ""): String
 
     /**
      * @throws com.malinskiy.marathon.android.exception.TransferException
@@ -60,7 +67,7 @@ interface AndroidDevice : Device {
     /**
      * @return screenshot or null if there was a failure
      */
-    suspend fun getScreenshot(timeout: Long, units: TimeUnit): BufferedImage?
+    suspend fun getScreenshot(timeout: Duration): BufferedImage?
     suspend fun safeStartScreenRecorder(remoteFilePath: String, options: VideoConfiguration)
 
     fun addLogcatListener(listener: LineListener)

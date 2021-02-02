@@ -41,6 +41,7 @@ import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withTimeout
 import java.awt.image.BufferedImage
 import java.io.IOException
+import java.time.Duration
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
@@ -154,9 +155,9 @@ class DdmlibAndroidDevice(
         }
     }
 
-    override suspend fun getScreenshot(timeout: Long, units: TimeUnit): BufferedImage? {
+    override suspend fun getScreenshot(timeout: Duration): BufferedImage? {
         return try {
-            val rawImage = ddmsDevice.getScreenshot(timeout, units)
+            val rawImage = ddmsDevice.getScreenshot(timeout.toMillis(), TimeUnit.MILLISECONDS)
             bufferedImageFrom(rawImage)
         } catch (e: TimeoutException) {
             throw java.util.concurrent.TimeoutException(e.message)
@@ -270,6 +271,16 @@ class DdmlibAndroidDevice(
     override suspend fun safeExecuteShellCommand(command: String, errorMessage: String): String? {
         val receiver = CollectingShellOutputReceiver()
         ddmsDevice.safeExecuteShellCommand(command, receiver)
+        return receiver.output()
+    }
+
+    override suspend fun criticalExecuteShellCommand(command: String, errorMessage: String): String {
+        val receiver = CollectingShellOutputReceiver()
+        try {
+            ddmsDevice.safeExecuteShellCommand(command, receiver)
+        } catch (e: Exception) {
+            throw CommandRejectedException(errorMessage)
+        }
         return receiver.output()
     }
 
