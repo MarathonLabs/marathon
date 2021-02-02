@@ -34,12 +34,12 @@ data class ExecutionReport(
         val passed = tests.count { it.status == TestStatus.PASSED }
         val ignored = tests.count {
             it.status == TestStatus.IGNORED
-                    || it.status == TestStatus.ASSUMPTION_FAILURE
+                || it.status == TestStatus.ASSUMPTION_FAILURE
         }
         val failed = tests.count {
             it.status != TestStatus.PASSED
-                    && it.status != TestStatus.IGNORED
-                    && it.status != TestStatus.ASSUMPTION_FAILURE
+                && it.status != TestStatus.IGNORED
+                && it.status != TestStatus.ASSUMPTION_FAILURE
         }
         val duration = tests.map { it.durationMillis() }.sum()
 
@@ -48,15 +48,20 @@ data class ExecutionReport(
         val rawPassed = rawTests.count { it.status == TestStatus.PASSED }
         val rawIgnored = rawTests.count {
             it.status == TestStatus.IGNORED
-                    || it.status == TestStatus.ASSUMPTION_FAILURE
+                || it.status == TestStatus.ASSUMPTION_FAILURE
         }
         val rawFailed = rawTests.count { it.status == TestStatus.FAILURE }
         val rawIncomplete = rawTests.count { it.status == TestStatus.INCOMPLETE }
         val rawDuration = rawTests.map { it.durationMillis() }.sum()
 
+        val retries = tests.map { result: TestResult ->
+            Pair(result, poolTestEvents.filter { it.testResult.test == result.test && it.testResult !== result })
+        }.toMap()
+
         return PoolSummary(
             poolId = poolId,
             tests = tests,
+            retries = retries,
             passed = passed,
             ignored = ignored,
             failed = failed,
