@@ -18,5 +18,5 @@ pluginManagement {
 }
 
 rootProject.name = "android-app"
-rootProject.buildFileName = "build.gradle.kts"
+rootProject.buildFileName = "build.gradle"
 include("app")

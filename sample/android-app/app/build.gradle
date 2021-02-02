@@ -1,0 +1,46 @@
+plugins {
+    id("com.android.application")
+    id("kotlin-android")
+    id("kotlin-android-extensions")
+    id("marathon") version "0.6.0"
+}
+
+android {
+    compileSdkVersion 30
+    buildToolsVersion "29.0.2"
+
+    defaultConfig {
+        minSdkVersion 18
+        targetSdkVersion 30
+
+        applicationId "com.example"
+        versionCode 1
+        versionName "1.0"
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+    }
+}
+
+marathon {
+    instrumentationArgs {
+        put("debug", "false")
+    }
+    vendor = com.malinskiy.marathon.android.VendorType.ADAM
+}
+
+dependencies {
+    implementation("androidx.appcompat:appcompat:1.2.0")
+    implementation("androidx.constraintlayout:constraintlayout:2.0.4")
+    implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.4.10")
+
+    androidTestImplementation("androidx.test:runner:1.3.0")
+    androidTestImplementation("androidx.test:rules:1.3.0")
+    androidTestImplementation("androidx.test.ext:junit:1.1.2")
+    androidTestImplementation("androidx.test.espresso:espresso-core:3.3.0")
+    androidTestImplementation("com.agoda.kakao:kakao:2.4.0")
+
+    androidTestImplementation("io.qameta.allure:allure-kotlin-model:2.1.2")
+    androidTestImplementation("io.qameta.allure:allure-kotlin-commons:2.1.2")
+    androidTestImplementation("io.qameta.allure:allure-kotlin-junit4:2.1.2")
+    androidTestImplementation("io.qameta.allure:allure-kotlin-android:2.1.2")
+}
