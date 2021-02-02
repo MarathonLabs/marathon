@@ -72,7 +72,9 @@ internal class JUnitReporter(private val outputDir: File) : Reporter {
         poolSummary.tests.forEach {
             val reruns = poolSummary.retries[it]
                 ?.filter { event ->
-                    if (isFailure(it)) {
+                    if (event.testResult.status == TestStatus.INCOMPLETE) return@filter false
+
+                    return@filter if (isFailure(it)) {
                         /**
                          * If final result is failure we should filter out success cases
                          * This happens when using strict mode and the test has to pass all retries or it will fail
