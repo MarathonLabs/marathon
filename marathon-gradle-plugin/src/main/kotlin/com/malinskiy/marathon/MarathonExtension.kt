@@ -3,6 +3,7 @@ package com.malinskiy.marathon
 import com.malinskiy.marathon.android.ScreenRecordConfiguration
 import com.malinskiy.marathon.android.VendorType
 import com.malinskiy.marathon.android.configuration.AllureConfiguration
+import com.malinskiy.marathon.android.configuration.FileSyncConfiguration
 import com.malinskiy.marathon.android.configuration.SerialStrategy
 import com.malinskiy.marathon.execution.policy.ScreenRecordingPolicy
 import groovy.lang.Closure
@@ -56,6 +57,7 @@ open class MarathonExtension(project: Project) {
     var waitForDevicesTimeoutMillis: Long? = null
 
     var allureConfiguration: AllureConfiguration? = null
+    var fileSyncConfiguration: FileSyncConfiguration? = null
 
     //Android specific for now
     var autoGrantPermission: Boolean? = null
@@ -100,6 +102,10 @@ open class MarathonExtension(project: Project) {
 
     fun allureConfiguration(block: AllureConfiguration.() -> Unit) {
         allureConfiguration = AllureConfiguration().also(block)
+    }
+
+    fun fileSyncConfiguration(block: FileSyncConfiguration.() -> Unit) {
+        fileSyncConfiguration = FileSyncConfiguration().also(block)
     }
 
     //Groovy way
@@ -160,6 +166,12 @@ open class MarathonExtension(project: Project) {
     fun allureConfiguration(closure: Closure<*>) {
         allureConfiguration = AllureConfiguration()
         closure.delegate = allureConfiguration
+        closure.call()
+    }
+
+    fun fileSyncConfiguration(closure: Closure<*>) {
+        fileSyncConfiguration = FileSyncConfiguration()
+        closure.delegate = fileSyncConfiguration
         closure.call()
     }
 }

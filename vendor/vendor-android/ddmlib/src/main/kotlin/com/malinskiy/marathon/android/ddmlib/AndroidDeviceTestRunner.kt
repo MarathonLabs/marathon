@@ -9,12 +9,14 @@ import com.android.ddmlib.testrunner.TestIdentifier
 import com.malinskiy.marathon.android.AndroidConfiguration
 import com.malinskiy.marathon.android.ApkParser
 import com.malinskiy.marathon.android.InstrumentationInfo
+import com.malinskiy.marathon.android.executor.listeners.AndroidTestRunListener
 import com.malinskiy.marathon.exceptions.DeviceLostException
 import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.test.Test
 import com.malinskiy.marathon.test.TestBatch
 import com.malinskiy.marathon.test.toTestName
+import kotlinx.coroutines.runBlocking
 import java.io.IOException
 import java.util.concurrent.TimeUnit
 
@@ -27,23 +29,25 @@ class AndroidDeviceTestRunner(private val device: DdmlibAndroidDevice) {
     suspend fun execute(
         configuration: Configuration,
         rawTestBatch: TestBatch,
-        listener: ITestRunListener
+        listener: AndroidTestRunListener
     ) {
 
         val ignoredTests = rawTestBatch.tests.filter { test ->
             test.metaProperties.any { it.name == JUNIT_IGNORE_META_PROPERTY_NAME }
         }
         val testBatch = TestBatch(rawTestBatch.tests - ignoredTests)
+        val listenerAdapter = listener.toDdmlibTestListener()
 
         val androidConfiguration = configuration.vendorConfiguration as AndroidConfiguration
         val info = ApkParser().parseInstrumentationInfo(androidConfiguration.testApplicationOutput)
         val runner = prepareTestRunner(configuration, androidConfiguration, info, testBatch)
 
         try {
-            notifyIgnoredTest(ignoredTests, listener)
+            notifyIgnoredTest(ignoredTests, listenerAdapter)
             if (testBatch.tests.isNotEmpty()) {
                 clearData(androidConfiguration, info)
-                runner.run(listener)
+                listener.beforeTestRun()
+                runner.run(listenerAdapter)
             } else {
                 listener.testRunEnded(0, emptyMap())
             }
@@ -90,8 +94,6 @@ class AndroidDeviceTestRunner(private val device: DdmlibAndroidDevice) {
             }
         }
         if (androidConfiguration.allureConfiguration.enabled) {
-            device.fileManager.removeRemotePath(androidConfiguration.allureConfiguration.resultsDirectory, recursive = true)
-            device.fileManager.createRemoteDirectory(androidConfiguration.allureConfiguration.resultsDirectory)
             when {
                 device.version.isGreaterOrEqualThan(30) -> {
                     val command = "appops set --uid ${info.applicationPackage} MANAGE_EXTERNAL_STORAGE allow"
@@ -135,6 +137,68 @@ class AndroidDeviceTestRunner(private val device: DdmlibAndroidDevice) {
 
         return runner
     }
+
+    private fun AndroidTestRunListener.toDdmlibTestListener(): ITestRunListener {
+        return object : ITestRunListener {
+            override fun testRunStarted(runName: String?, testCount: Int) {
+                runBlocking {
+                    this@toDdmlibTestListener.testRunStarted(runName ?: "", testCount)
+                }
+            }
+
+            override fun testStarted(test: TestIdentifier) {
+                runBlocking {
+                    this@toDdmlibTestListener.testStarted(test.toMarathonTestIdentifier())
+                }
+            }
+
+            override fun testAssumptionFailure(test: TestIdentifier, trace: String?) {
+                runBlocking {
+                    this@toDdmlibTestListener.testAssumptionFailure(test.toMarathonTestIdentifier(), trace ?: "")
+                }
+            }
+
+            override fun testRunStopped(elapsedTime: Long) {
+                runBlocking {
+                    this@toDdmlibTestListener.testRunStopped(elapsedTime)
+                }
+            }
+
+            override fun testFailed(test: TestIdentifier, trace: String?) {
+                runBlocking {
+                    this@toDdmlibTestListener.testFailed(test.toMarathonTestIdentifier(), trace ?: "")
+                }
+            }
+
+            override fun testEnded(test: TestIdentifier, testMetrics: MutableMap<String, String>?) {
+                runBlocking {
+                    this@toDdmlibTestListener.testEnded(test.toMarathonTestIdentifier(), testMetrics ?: emptyMap())
+                }
+            }
+
+            override fun testIgnored(test: TestIdentifier) {
+                runBlocking {
+                    this@toDdmlibTestListener.testIgnored(test.toMarathonTestIdentifier())
+                }
+            }
+
+            override fun testRunFailed(errorMessage: String?) {
+                runBlocking {
+                    this@toDdmlibTestListener.testRunFailed(errorMessage ?: "")
+                }
+            }
+
+            override fun testRunEnded(elapsedTime: Long, runMetrics: MutableMap<String, String>?) {
+                runBlocking {
+                    this@toDdmlibTestListener.testRunEnded(elapsedTime, runMetrics ?: emptyMap())
+                }
+            }
+
+        }
+    }
+
+    private fun TestIdentifier.toMarathonTestIdentifier() =
+        com.malinskiy.marathon.android.model.TestIdentifier(this.className, this.testName)
 }
 
 internal fun Test.toTestIdentifier(): TestIdentifier = TestIdentifier("$pkg.$clazz", method)

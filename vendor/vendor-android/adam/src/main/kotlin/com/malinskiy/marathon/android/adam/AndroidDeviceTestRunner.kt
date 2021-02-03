@@ -55,6 +55,7 @@ class AndroidDeviceTestRunner(private val device: AdamAndroidDevice) {
                 notifyIgnoredTest(ignoredTests, listener)
                 if (testBatch.tests.isNotEmpty()) {
                     clearData(androidConfiguration, info)
+                    listener.beforeTestRun()
                     channel = device.executeTestRequest(runnerRequest)
 
                     var events: List<TestEvent>? = null
@@ -123,8 +124,6 @@ class AndroidDeviceTestRunner(private val device: AdamAndroidDevice) {
             }
         }
         if (androidConfiguration.allureConfiguration.enabled) {
-            device.fileManager.removeRemotePath(androidConfiguration.allureConfiguration.resultsDirectory, recursive = true)
-            device.fileManager.createRemoteDirectory(androidConfiguration.allureConfiguration.resultsDirectory)
             when {
                 device.version.isGreaterOrEqualThan(30) -> {
                     val command = "appops set --uid ${info.applicationPackage} MANAGE_EXTERNAL_STORAGE allow"
