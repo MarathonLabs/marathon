@@ -17,9 +17,11 @@ class JUnitReportSerializer {
         XMLOutputFactory.newFactory().createXMLStreamWriter(FileOutputStream(file), "UTF-8").apply {
             document {
                 when {
-                    junitReport.testsuites.size == 1 -> writeTestSuite(junitReport.testsuites[0])
+                    junitReport.testsuites.size == 1 -> writeTestSuite(junitReport.testsuites[0], writeSchema = true)
                     junitReport.testsuites.size > 1 -> {
                         element("testsuites") {
+                            writeSchema()
+
                             junitReport.name?.let { attribute("name", it) }
                             junitReport.time?.let { attribute("time", it) }
                             junitReport.tests?.let { attribute("tests", it.toString()) }
@@ -38,8 +40,19 @@ class JUnitReportSerializer {
         }
     }
 
-    private fun XMLStreamWriter.writeTestSuite(testSuite: TestSuite) {
+    private fun XMLStreamWriter.writeSchema() {
+        attribute(
+            "xsi:noNamespaceSchemaLocation",
+            SCHEMA_URL
+        )
+        attribute("xmlns:xsi", "http://www.w3.org/2001/XMLSchema-instance")
+    }
+
+    private fun XMLStreamWriter.writeTestSuite(testSuite: TestSuite, writeSchema: Boolean = false) {
         element("testsuite") {
+            if (writeSchema) {
+                writeSchema()
+            }
             attribute("name", testSuite.name)
             attribute("tests", testSuite.tests.toString())
             attribute("failures", testSuite.failures.toString())
@@ -144,5 +157,10 @@ class JUnitReportSerializer {
                 it.systemErr?.let { stderr -> element("system-err") { writeCDataSafely(stderr) } }
             }
         }
+    }
+
+    companion object {
+        const val SCHEMA_URL =
+            "https://raw.githubusercontent.com/jenkinsci/xunit-plugin/ae25da5089d4f94ac6c4669bf736e4d416cc4665/src/main/resources/org/jenkinsci/plugins/xunit/types/model/xsd/junit-10.xsd"
     }
 }

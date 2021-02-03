@@ -174,6 +174,12 @@ class JUnitReporterTest {
         assertThat(actual, isValidJunitXml)
     }
 
+    @Test
+    fun `sample android junit xml is valid`() {
+        val actual = File(javaClass.getResource("/output/tests/myPool/xxyyzz/marathon_junit_report_android_sample.xml").file).readText()
+        assertThat(actual, isValidJunitXml)
+    }
+
     fun getConfiguration() =
         Configuration(
             name = "",
