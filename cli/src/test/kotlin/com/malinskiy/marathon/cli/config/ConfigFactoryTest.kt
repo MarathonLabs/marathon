@@ -88,7 +88,7 @@ class ConfigFactoryTest {
 
     @Test
     fun `on sample config 1 should deserialize`() {
-        val file = File(ConfigFactoryTest::class.java.getResource("/fixture/config/sample1.yaml").file)
+        val file = File(ConfigFactoryTest::class.java.getResource("/fixture/config/sample_1.yaml").file)
         val configuration = parser.create(file, mockEnvironmentReader())
 
         configuration.name shouldEqual "sample-app tests"
