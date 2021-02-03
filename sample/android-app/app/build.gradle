@@ -1,3 +1,8 @@
+import com.malinskiy.marathon.android.ScreenRecordConfiguration
+import com.malinskiy.marathon.android.VideoConfiguration
+import com.malinskiy.marathon.android.ScreenshotConfiguration
+import java.util.concurrent.TimeUnit
+
 plugins {
     id("com.android.application")
     id("kotlin-android")
@@ -26,6 +31,23 @@ marathon {
         put("debug", "false")
     }
     vendor = com.malinskiy.marathon.android.VendorType.ADAM
+    screenRecordConfiguration = new ScreenRecordConfiguration(
+        com.malinskiy.marathon.device.DeviceFeature.SCREENSHOT,
+        new VideoConfiguration(
+            false, //enabled
+            1080, //width
+            1920, //height
+            2, //Bitrate in Mbps
+            300, //Max duration in seconds
+            TimeUnit.SECONDS
+        ),
+        new ScreenshotConfiguration(
+            false, //enabled
+            1080, //width
+            1920, //height
+            200 //Delay between taking screenshots
+        )
+    )
 }
 
 dependencies {
