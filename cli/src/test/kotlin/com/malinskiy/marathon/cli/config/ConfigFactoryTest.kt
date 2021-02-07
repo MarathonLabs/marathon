@@ -11,6 +11,7 @@ import com.malinskiy.marathon.android.ScreenshotConfiguration
 import com.malinskiy.marathon.android.VideoConfiguration
 import com.malinskiy.marathon.android.configuration.AllureConfiguration
 import com.malinskiy.marathon.android.configuration.SerialStrategy
+import com.malinskiy.marathon.android.configuration.TimeoutConfiguration
 import com.malinskiy.marathon.cli.args.EnvironmentConfiguration
 import com.malinskiy.marathon.cli.args.environment.EnvironmentReader
 import com.malinskiy.marathon.cli.config.time.InstantTimeProvider
@@ -45,6 +46,7 @@ import com.malinskiy.marathon.ios.IOSConfiguration
 import com.nhaarman.mockitokotlin2.whenever
 import ddmlibModule
 import org.amshove.kluent.`it returns`
+import org.amshove.kluent.`should be equal to`
 import org.amshove.kluent.`should be instance of`
 import org.amshove.kluent.mock
 import org.amshove.kluent.shouldBe
@@ -347,5 +349,23 @@ class ConfigFactoryTest {
         configuration.flakinessStrategy `should be instance of` ProbabilityBasedFlakinessStrategy::class
         val flakinessStrategy = configuration.flakinessStrategy as ProbabilityBasedFlakinessStrategy
         flakinessStrategy.timeLimit shouldEqual referenceInstant.minus(Duration.ofDays(30))
+    }
+
+    @Test
+    fun `on configuration with timeout configuration in Android`() {
+        val file = File(ConfigFactoryTest::class.java.getResource("/fixture/config/sample_11.yaml").file)
+        val configuration = parser.create(file, mockEnvironmentReader())
+
+        val timeoutConfiguration = (configuration.vendorConfiguration as AndroidConfiguration).timeoutConfiguration
+        timeoutConfiguration `should be equal to` TimeoutConfiguration(
+            shell = Duration.ofSeconds(30),
+            listFiles = Duration.ofMinutes(1),
+            pushFile = Duration.ofHours(1),
+            pullFile = Duration.ofDays(1),
+            uninstall = Duration.ofSeconds(1),
+            install = Duration.parse("P1DT12H30M5S"),
+            screenrecorder = Duration.ofHours(1),
+            screencapturer = Duration.ofSeconds(1)
+        )
     }
 }
