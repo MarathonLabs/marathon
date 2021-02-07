@@ -1,6 +1,6 @@
 package com.malinskiy.marathon.cli.schema.android
 
-import com.malinskiy.marathon.device.DeviceFeature
+import com.malinskiy.marathon.cli.schema.common.DeviceFeature
 import java.util.concurrent.TimeUnit
 
 data class ScreenRecordConfiguration(
