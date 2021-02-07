@@ -7,23 +7,32 @@ import com.malinskiy.marathon.cli.schema.android.SerialStrategy
 import com.malinskiy.marathon.cli.schema.android.VendorType
 import java.io.File
 
+const val DEFAULT_INIT_TIMEOUT_MILLIS = 30_000
+
+const val DEFAULT_AUTO_GRANT_PERMISSION = false
+const val DEFAULT_APPLICATION_PM_CLEAR = false
+const val DEFAULT_TEST_APPLICATION_PM_CLEAR = false
+const val DEFAULT_INSTALL_OPTIONS = ""
+const val DEFAULT_WAIT_FOR_DEVICES_TIMEOUT = 30000L
+
 sealed class VendorConfiguration {
     data class Android(
         val vendor: VendorType = VendorType.DDMLIB,
         val androidSdk: File,
         val applicationApk: File?,
         val testApplicationApk: File,
-        val autoGrantPermission: Boolean?,
-        val instrumentationArgs: Map<String, String>?,
-        val applicationPmClear: Boolean?,
-        val testApplicationPmClear: Boolean = false,
-        val adbInitTimeoutMillis: Int?,
-        val installOptions: String?,
+        val autoGrantPermission: Boolean = DEFAULT_AUTO_GRANT_PERMISSION,
+        val instrumentationArgs: Map<String, String> = emptyMap(),
+        val applicationPmClear: Boolean = DEFAULT_APPLICATION_PM_CLEAR,
+        val testApplicationPmClear: Boolean = DEFAULT_TEST_APPLICATION_PM_CLEAR,
+        val adbInitTimeoutMillis: Int = DEFAULT_INIT_TIMEOUT_MILLIS,
+        val installOptions: String = DEFAULT_INSTALL_OPTIONS,
         val serialStrategy: SerialStrategy = SerialStrategy.AUTOMATIC,
         val screenRecordConfiguration: ScreenRecordConfiguration = ScreenRecordConfiguration(),
-        val waitForDevicesTimeoutMillis: Long?,
+        val waitForDevicesTimeoutMillis: Long = DEFAULT_WAIT_FOR_DEVICES_TIMEOUT,
         val allureConfiguration: AllureConfiguration = DEFAULT_ALLURE_CONFIGURATION
     ) : VendorConfiguration()
+
     data class IOS(
         val derivedDataDir: File,
         val xctestrunPath: File,
