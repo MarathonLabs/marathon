@@ -8,37 +8,41 @@ import com.malinskiy.marathon.cli.schema.strategies.ShardingStrategy
 import com.malinskiy.marathon.cli.schema.strategies.SortingStrategy
 import java.io.File
 
+private const val DEFAULT_EXECUTION_TIMEOUT_MILLIS: Long = 900_000
+private const val DEFAULT_OUTPUT_TIMEOUT_MILLIS: Long = 60_000
+private const val DEFAULT_DEVICE_INITIALIZATION_TIMEOUT_MILLIS = 180_000L
+
 data class Configuration(
     val name: String,
     val outputDir: File,
 
-    val analyticsConfiguration: AnalyticsConfiguration,
-    val poolingStrategy: PoolingStrategy,
-    val shardingStrategy: ShardingStrategy,
-    val sortingStrategy: SortingStrategy,
-    val batchingStrategy: BatchingStrategy,
-    val flakinessStrategy: FlakinessStrategy,
-    val retryStrategy: RetryStrategy,
-    val filteringConfiguration: FilteringConfiguration,
+    val analyticsConfiguration: AnalyticsConfiguration = AnalyticsConfiguration.Disabled,
+    val poolingStrategy: PoolingStrategy = PoolingStrategy.Omni,
+    val shardingStrategy: ShardingStrategy = ShardingStrategy.Disabled,
+    val sortingStrategy: SortingStrategy = SortingStrategy.Disabled,
+    val batchingStrategy: BatchingStrategy = BatchingStrategy.Disabled,
+    val flakinessStrategy: FlakinessStrategy = FlakinessStrategy.Disabled,
+    val retryStrategy: RetryStrategy = RetryStrategy.Disabled,
+    val filteringConfiguration: FilteringConfiguration = FilteringConfiguration(emptyList(), emptyList()),
 
-    val ignoreFailures: Boolean,
-    val isCodeCoverageEnabled: Boolean,
-    val fallbackToScreenshots: Boolean,
-    val strictMode: Boolean,
-    val uncompletedTestRetryQuota: Int,
+    val ignoreFailures: Boolean = false,
+    val isCodeCoverageEnabled: Boolean = false,
+    val fallbackToScreenshots: Boolean = false,
+    val strictMode: Boolean = false,
+    val uncompletedTestRetryQuota: Int = Integer.MAX_VALUE,
 
-    val testClassRegexes: Collection<Regex>,
-    val includeSerialRegexes: Collection<Regex>,
-    val excludeSerialRegexes: Collection<Regex>,
+    val testClassRegexes: List<Regex> = listOf(Regex("^((?!Abstract).)*Test[s]*$")),
+    val includeSerialRegexes: List<Regex> = emptyList(),
+    val excludeSerialRegexes: List<Regex> = emptyList(),
 
-    val testBatchTimeoutMillis: Long,
-    val testOutputTimeoutMillis: Long,
-    val debug: Boolean,
+    val testBatchTimeoutMillis: Long = DEFAULT_EXECUTION_TIMEOUT_MILLIS,
+    val testOutputTimeoutMillis: Long = DEFAULT_OUTPUT_TIMEOUT_MILLIS,
+    val debug: Boolean = true,
 
-    val screenRecordingPolicy: ScreenRecordingPolicy,
+    val screenRecordingPolicy: ScreenRecordingPolicy = ScreenRecordingPolicy.ON_FAILURE,
 
     val vendorConfiguration: VendorConfiguration,
 
-    val analyticsTracking: Boolean,
-    val deviceInitializationTimeoutMillis: Long
+    val analyticsTracking: Boolean = false,
+    val deviceInitializationTimeoutMillis: Long = DEFAULT_DEVICE_INITIALIZATION_TIMEOUT_MILLIS
 )
