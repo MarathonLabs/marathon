@@ -1,49 +1,47 @@
 name: "sample-app tests"
 outputDir: "./marathon"
 analyticsConfiguration:
-#analyticsConfiguration:
-#  url: "http://influx.svc.cluster.local:8086"
-#  user: "root"
-#  password: "root"
-#  dbName: "marathon"
-poolingStrategy:
-  list: [Omni]
-#    - "device-model"
-#    - "os-version"
-#    - "manufacturer"
-#    - "abi"
+  influx:
+    url: "http://influx.svc.cluster.local:8086"
+    user: "root"
+    password: "root"
+    dbName: "marathon"
+poolingStrategy: "omni"
 shardingStrategy:
+  type: "count"
   count: 5
 sortingStrategy:
   type: "success-rate"
   timeLimit: "2015-03-14T09:26:53.590Z"
 batchingStrategy:
-  fixedSize: 5
+  fixed-size: 5
 flakinessStrategy:
-#  minSuccessRate: 0.7
-#  maxCount: 3
-#  timeLimit: "2015-03-14T09:26:53.590Z"
+  type: "probability"
+  minSuccessRate: 0.7
+  maxCount: 3
+  timeLimit: "2015-03-14T09:26:53.590Z"
 retryStrategy:
+  type: "fixed-quota"
   totalAllowedRetryQuota: 100
   retryPerTestQuota: 2
-#filteringConfiguration:
-#  allowList:
-#    - simpleClassname: ".*"
-#    - fullyQualifiedClassname: ".*"
-#    - method: ".*"
-#    - composition:
-#        - package: ".*"
-#        - method: ".*"
-#      op: "UNION"
-#  blockList:
-#    - package: ".*"
-#    - annotation: ".*"
+filteringConfiguration:
+  allowlist:
+    - simpleClassname: ".*"
+    - fullyQualifiedClassname: ".*"
+    - method: ".*"
+    - composition:
+        - package: ".*"
+        - method: ".*"
+      op: "UNION"
+  blocklist:
+    - package: ".*"
+    - annotation: ".*"
 testClassRegexes:
   - "^((?!Abstract).)*Test$"
-#includeSerialRegexes:
-#  - "emulator-500[2,4]"
-#excludeSerialRegexes:
-#  - "emulator-5002"
+includeSerialRegexes:
+  - "emulator-500[2,4]"
+excludeSerialRegexes:
+  - "emulator-5002"
 ignoreFailures: false
 isCodeCoverageEnabled: false
 fallbackToScreenshots: false
@@ -54,9 +52,9 @@ debug: true
 screenRecordingPolicy: "ON_ANY"
 deviceInitializationTimeoutMillis: 300000
 vendorConfiguration:
-  androidSdk: "/home/ivanbalaksha/Android/Sdk"
-  applicationApk: "app/build/outputs/apk/debug/app-debug.apk"
-  testApplicationApk: "app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk"
+  androidSdk: "/local/android"
+  applicationApk: "kotlin-buildscript/build/outputs/apk/debug/kotlin-buildscript-debug.apk"
+  testApplicationApk: "kotlin-buildscript/build/outputs/apk/androidTest/debug/kotlin-buildscript-debug-androidTest.apk"
   autoGrantPermission: true
   applicationPmClear: true
   testApplicationPmClear: true
@@ -64,7 +62,7 @@ vendorConfiguration:
     debug: "false"
   installOptions: "-d"
   screenRecordConfiguration:
-    preferableRecorderType: "SCREENSHOT"
+    preferableRecorderType: "screenshot"
     videoConfiguration:
       enabled: false
       width: 1080

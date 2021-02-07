@@ -7,7 +7,7 @@ sealed class AnalyticsConfiguration {
         val user: String,
         val password: String,
         val dbName: String,
-        val retentionPolicyConfiguration: RetentionPolicyConfiguration = RetentionPolicyConfiguration.default
+        val retentionPolicy: RetentionPolicyConfiguration = RetentionPolicyConfiguration.default
     ) : AnalyticsConfiguration() {
         data class RetentionPolicyConfiguration(
             val name: String,

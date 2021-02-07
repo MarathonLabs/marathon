@@ -1,0 +1,15 @@
+name: "sample-app tests"
+outputDir: "./marathon"
+vendorConfiguration:
+  xctestrunPath: "a/Build/Products/UITesting_iphonesimulator11.0-x86_64.xctestrun"
+  derivedDataDir: "a"
+  remoteUsername: "testuser"
+  remotePrivateKey: "/home/testuser/.ssh/id_rsa"
+  alwaysEraseSimulators: false
+  knownHostsPath: "known_hosts"
+  remoteRsyncPath: "/usr/local/bin/rsync"
+  debugSsh: true
+  hideRunnerOutput: true
+  compactOutput: true
+  keepAliveIntervalMillis: 300000
+  devices: "Testdevices"

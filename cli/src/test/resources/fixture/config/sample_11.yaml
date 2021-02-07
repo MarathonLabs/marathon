@@ -1,0 +1,16 @@
+name: "sample-app tests"
+outputDir: "./marathon"
+vendorConfiguration:
+  androidSdk: "/local/android"
+  applicationApk: "kotlin-buildscript/build/outputs/apk/debug/kotlin-buildscript-debug.apk"
+  testApplicationApk: "kotlin-buildscript/build/outputs/apk/androidTest/debug/kotlin-buildscript-debug-androidTest.apk"
+  timeoutConfiguration:
+    shell: "PT30S"
+    listFiles: "PT1M"
+    pushFile: "PT1H"
+    pullFile: "P1D"
+    uninstall: "PT1S"
+    install: "P1DT12H30M5S"
+    screenrecorder: "PT1H"
+    screencapturer: "PT1S"
+    

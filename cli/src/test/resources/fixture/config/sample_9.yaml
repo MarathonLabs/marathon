@@ -1,0 +1,10 @@
+name: "sample-app tests"
+outputDir: "./marathon"
+vendorConfiguration:
+  androidSdk: "/local/android"
+  applicationApk: "kotlin-buildscript/build/outputs/apk/debug/kotlin-buildscript-debug.apk"
+  testApplicationApk: "kotlin-buildscript/build/outputs/apk/androidTest/debug/kotlin-buildscript-debug-androidTest.apk"
+filteringConfiguration:
+  blocklist:
+    - type: "simple-class-name"
+      regex: ".*"

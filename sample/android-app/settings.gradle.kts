@@ -4,6 +4,7 @@ pluginManagement {
         maven { url = uri("$rootDir/../../build/repository") }
         gradlePluginPortal()
         mavenLocal()
+        maven("https://dl.bintray.com/qameta/maven")
     }
     resolutionStrategy {
         eachPlugin {

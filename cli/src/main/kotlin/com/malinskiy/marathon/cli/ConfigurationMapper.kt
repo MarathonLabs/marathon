@@ -25,6 +25,7 @@ import com.malinskiy.marathon.execution.AnalyticsConfiguration.DisabledAnalytics
 import com.malinskiy.marathon.execution.AnalyticsConfiguration.GraphiteConfiguration
 import com.malinskiy.marathon.execution.AnalyticsConfiguration.InfluxDbConfiguration
 import com.malinskiy.marathon.execution.AnnotationFilter
+import com.malinskiy.marathon.execution.CompositionFilter
 import com.malinskiy.marathon.execution.FullyQualifiedClassnameFilter
 import com.malinskiy.marathon.execution.SimpleClassnameFilter
 import com.malinskiy.marathon.execution.TestMethodFilter
@@ -65,6 +66,7 @@ import com.malinskiy.marathon.android.ScreenRecordConfiguration as MarathonScree
 import com.malinskiy.marathon.device.DeviceFeature as MarathonDeviceFeature
 import com.malinskiy.marathon.android.configuration.AllureConfiguration as MarathonAllureConfiguration
 import com.malinskiy.marathon.android.configuration.TimeoutConfiguration as MarathonTimeoutConfiguration
+import com.malinskiy.marathon.execution.CompositionFilter.OPERATION as MarathonOperation
 
 class ConfigurationMapper {
     fun map(input: Configuration): MarathonConfiguration {
@@ -113,7 +115,7 @@ class ConfigurationMapper {
                 this.user,
                 this.password,
                 this.dbName,
-                this.retentionPolicyConfiguration.toMarathonInfluxRetentionPolicy()
+                this.retentionPolicy.toMarathonInfluxRetentionPolicy()
             )
         }
     }
@@ -157,7 +159,7 @@ class ConfigurationMapper {
     private fun BatchingStrategy.toMarathonBatchingStrategy(): MarathonBatchingStrategy {
         return when (this) {
             is BatchingStrategy.Disabled -> IsolateBatchingStrategy()
-            is BatchingStrategy.FixedSize -> FixedSizeBatchingStrategy(size, durationMillis, percentile, timeLimit, lastMileLength)
+            is BatchingStrategy.FixedSize -> FixedSizeBatchingStrategy(fixedSize, durationMillis, percentile, timeLimit, lastMileLength)
         }
     }
 
@@ -184,11 +186,20 @@ class ConfigurationMapper {
 
     private fun TestFilter.toMarathonFilter(): MarathonTestFilter {
         return when (this) {
-            is TestFilter.Annotation -> AnnotationFilter(regex)
-            is TestFilter.FullyQualifiedClassname -> FullyQualifiedClassnameFilter(regex)
-            is TestFilter.SimpleClassname -> SimpleClassnameFilter(regex)
-            is TestFilter.TestMethod -> TestMethodFilter(regex)
-            is TestFilter.TestPackage -> TestPackageFilter(regex)
+            is TestFilter.Annotation -> AnnotationFilter(annotation)
+            is TestFilter.FullyQualifiedClassname -> FullyQualifiedClassnameFilter(fullyQualifiedClassname)
+            is TestFilter.SimpleClassname -> SimpleClassnameFilter(simpleClassname)
+            is TestFilter.TestMethod -> TestMethodFilter(method)
+            is TestFilter.TestPackage -> TestPackageFilter(`package`)
+            is TestFilter.Composition -> CompositionFilter(filters.map { it.toMarathonFilter() }, op.toMarathonOperation())
+        }
+    }
+
+    private fun TestFilter.OPERATION.toMarathonOperation(): MarathonOperation {
+        return when (this) {
+            TestFilter.OPERATION.INTERSECTION -> MarathonOperation.INTERSECTION
+            TestFilter.OPERATION.SUBTRACT -> MarathonOperation.SUBTRACT
+            TestFilter.OPERATION.UNION -> MarathonOperation.UNION
         }
     }
 

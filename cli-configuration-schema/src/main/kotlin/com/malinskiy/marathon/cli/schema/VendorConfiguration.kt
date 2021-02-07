@@ -20,7 +20,7 @@ sealed class VendorConfiguration {
     data class Android(
         val vendor: VendorType = VendorType.DDMLIB,
         val androidSdk: File,
-        val applicationApk: File?,
+        val applicationApk: File? = null,
         val testApplicationApk: File,
         val autoGrantPermission: Boolean = DEFAULT_AUTO_GRANT_PERMISSION,
         val instrumentationArgs: Map<String, String> = emptyMap(),

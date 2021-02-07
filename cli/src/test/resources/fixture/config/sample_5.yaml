@@ -1,0 +1,6 @@
+name: "sample-app tests"
+outputDir: "./marathon"
+vendorConfiguration:
+  derivedDataDir: "a"
+  remoteUsername: "testuser"
+  remotePrivateKey: "/home/testuser/.ssh/id_rsa"
