@@ -1,7 +1,0 @@
-name: "sample-app tests"
-outputDir: "./marathon"
-vendorConfiguration:
-  type: "Android"
-  androidSdk: "/local/android"
-  applicationApk: "kotlin-buildscript/build/outputs/apk/debug/kotlin-buildscript-debug.apk"
-  testApplicationApk: "kotlin-buildscript/build/outputs/apk/androidTest/debug/kotlin-buildscript-debug-androidTest.apk"

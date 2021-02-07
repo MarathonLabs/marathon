@@ -5,7 +5,7 @@ retryStrategy:
   totalAllowedRetryQuota: 100
   retryPerTestQuota: 2
 vendorConfiguration:
-  type: "Android"
+  androidSdk: $ANDROID_SDK_ROOT
   applicationApk: "app/build/outputs/apk/debug/app-debug.apk"
   testApplicationApk: "app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk"
   autoGrantPermission: true

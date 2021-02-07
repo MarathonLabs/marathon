@@ -1,9 +1,0 @@
-name: "sample-app tests"
-outputDir: "./marathon"
-vendorConfiguration:
-  type: "iOS"
-  xctestrunPath: "a/Build/Products/UITesting_iphonesimulator11.0-x86_64.xctestrun"
-  derivedDataDir: "a"
-  remoteUsername: "testuser"
-  remotePrivateKey: "/home/testuser/.ssh/id_rsa"
-  debugSsh: true

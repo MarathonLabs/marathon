@@ -4,6 +4,7 @@ import com.malinskiy.marathon.cli.schema.android.AllureConfiguration
 import com.malinskiy.marathon.cli.schema.android.DEFAULT_ALLURE_CONFIGURATION
 import com.malinskiy.marathon.cli.schema.android.ScreenRecordConfiguration
 import com.malinskiy.marathon.cli.schema.android.SerialStrategy
+import com.malinskiy.marathon.cli.schema.android.TimeoutConfiguration
 import com.malinskiy.marathon.cli.schema.android.VendorType
 import java.io.File
 
@@ -30,7 +31,8 @@ sealed class VendorConfiguration {
         val serialStrategy: SerialStrategy = SerialStrategy.AUTOMATIC,
         val screenRecordConfiguration: ScreenRecordConfiguration = ScreenRecordConfiguration(),
         val waitForDevicesTimeoutMillis: Long = DEFAULT_WAIT_FOR_DEVICES_TIMEOUT,
-        val allureConfiguration: AllureConfiguration = DEFAULT_ALLURE_CONFIGURATION
+        val allureConfiguration: AllureConfiguration = DEFAULT_ALLURE_CONFIGURATION,
+        val timeoutConfiguration: TimeoutConfiguration = TimeoutConfiguration()
     ) : VendorConfiguration()
 
     data class IOS(

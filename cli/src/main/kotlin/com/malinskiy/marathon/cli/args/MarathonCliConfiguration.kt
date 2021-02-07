@@ -7,7 +7,7 @@ import java.io.File
 class MarathonCliConfiguration(parser: ArgParser) {
     val marathonfile: File by parser
         .storing("--marathonfile", "-m", help = "marathonfile file path") { File(this) }
-        .default(File("Marathonfile"))
+        .default(File("Marathonfile.yaml"))
     val analyticsTracking: Boolean by parser
         .storing("--analyticsTracking", help = "Enable anonymous analytics tracking") { this.toBoolean() }
         .default<Boolean>(false)
