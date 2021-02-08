@@ -5,6 +5,5 @@ vendorConfiguration:
   applicationApk: "kotlin-buildscript/build/outputs/apk/debug/kotlin-buildscript-debug.apk"
   testApplicationApk: "kotlin-buildscript/build/outputs/apk/androidTest/debug/kotlin-buildscript-debug-androidTest.apk"
 filteringConfiguration:
-  allowlist:
-    - type: "simple-class-name"
-      regex: ".*"
+  allowList:
+    - simpleClassname: ".*"
