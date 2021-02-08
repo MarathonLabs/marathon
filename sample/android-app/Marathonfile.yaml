@@ -1,43 +1,41 @@
 name: "sample-app tests"
 outputDir: "./marathon"
-analyticsConfiguration:
 #analyticsConfiguration:
 #  url: "http://influx.svc.cluster.local:8086"
 #  user: "root"
 #  password: "root"
 #  dbName: "marathon"
 poolingStrategy:
-  list: [Omni]
-#    - "device-model"
-#    - "os-version"
-#    - "manufacturer"
-#    - "abi"
-shardingStrategy:
-  count: 5
+  list:
+    - OsVersion
+    - Omni
+    - ABI
+    - Manufacturer
+    - Model
 sortingStrategy:
   type: "success-rate"
   timeLimit: "2015-03-14T09:26:53.590Z"
 batchingStrategy:
   fixedSize: 5
 flakinessStrategy:
-#  minSuccessRate: 0.7
-#  maxCount: 3
-#  timeLimit: "2015-03-14T09:26:53.590Z"
+  minSuccessRate: 0.7
+  maxCount: 3
+  timeLimit: "2015-03-14T09:26:53.590Z"
 retryStrategy:
   totalAllowedRetryQuota: 100
   retryPerTestQuota: 2
-#filteringConfiguration:
-#  allowList:
-#    - simpleClassname: ".*"
-#    - fullyQualifiedClassname: ".*"
-#    - method: ".*"
-#    - composition:
-#        - package: ".*"
-#        - method: ".*"
-#      op: "UNION"
-#  blockList:
-#    - package: ".*"
-#    - annotation: ".*"
+filteringConfiguration:
+  allowList:
+    - simpleClassname: ".*"
+    - fullyQualifiedClassname: ".*"
+    - method: ".*"
+    - composition:
+        - package: ".*"
+        - method: ".*"
+      op: "UNION"
+  blockList:
+    - package: ".*"
+    - annotation: ".*"
 testClassRegexes:
   - "^((?!Abstract).)*Test$"
 #includeSerialRegexes:

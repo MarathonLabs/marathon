@@ -5,6 +5,7 @@ buildscript {
         jcenter()
         mavenCentral()
         google()
+        maven("https://oss.sonatype.org/content/repositories/snapshots")
     }
     dependencies {
         classpath(BuildPlugins.kotlinPlugin)
@@ -40,6 +41,7 @@ allprojects {
         mavenCentral()
         google()
         maven("https://dl.bintray.com/qameta/maven")
+        maven("https://oss.sonatype.org/content/repositories/snapshots")
     }
 
     configurations.all {

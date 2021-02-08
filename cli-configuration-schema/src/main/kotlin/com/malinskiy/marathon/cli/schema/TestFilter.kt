@@ -6,7 +6,7 @@ sealed class TestFilter {
     data class TestPackage(val `package`: Regex) : TestFilter()
     data class Annotation(val annotation: Regex) : TestFilter()
     data class TestMethod(val method: Regex) : TestFilter()
-    data class Composition(val filters: List<TestFilter>, val op: OPERATION) : TestFilter()
+    data class Composition(val composition: List<TestFilter>, val op: OPERATION) : TestFilter()
     enum class OPERATION {
         UNION,
         INTERSECTION,

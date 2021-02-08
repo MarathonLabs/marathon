@@ -1,7 +1,6 @@
 package com.malinskiy.marathon.cli
 
 import com.malinskiy.marathon.android.AndroidConfiguration
-import com.malinskiy.marathon.android.VendorType as MarathonVendorType
 import com.malinskiy.marathon.android.adam.di.adamModule
 import com.malinskiy.marathon.cli.schema.AnalyticsConfiguration
 import com.malinskiy.marathon.cli.schema.Configuration
@@ -11,9 +10,11 @@ import com.malinskiy.marathon.cli.schema.TestFilter
 import com.malinskiy.marathon.cli.schema.VendorConfiguration
 import com.malinskiy.marathon.cli.schema.android.AllureConfiguration
 import com.malinskiy.marathon.cli.schema.android.ScreenRecordConfiguration
+import com.malinskiy.marathon.cli.schema.android.ScreenshotConfiguration
 import com.malinskiy.marathon.cli.schema.android.SerialStrategy
 import com.malinskiy.marathon.cli.schema.android.TimeoutConfiguration
 import com.malinskiy.marathon.cli.schema.android.VendorType
+import com.malinskiy.marathon.cli.schema.android.VideoConfiguration
 import com.malinskiy.marathon.cli.schema.common.DeviceFeature
 import com.malinskiy.marathon.cli.schema.strategies.BatchingStrategy
 import com.malinskiy.marathon.cli.schema.strategies.FlakinessStrategy
@@ -39,6 +40,7 @@ import com.malinskiy.marathon.execution.strategy.impl.pooling.parameterized.AbiP
 import com.malinskiy.marathon.execution.strategy.impl.pooling.parameterized.ComboPoolingStrategy
 import com.malinskiy.marathon.execution.strategy.impl.pooling.parameterized.ManufacturerPoolingStrategy
 import com.malinskiy.marathon.execution.strategy.impl.pooling.parameterized.ModelPoolingStrategy
+import com.malinskiy.marathon.execution.strategy.impl.pooling.parameterized.OperatingSystemVersionPoolingStrategy
 import com.malinskiy.marathon.execution.strategy.impl.retry.NoRetryStrategy
 import com.malinskiy.marathon.execution.strategy.impl.retry.fixedquota.FixedQuotaRetryStrategy
 import com.malinskiy.marathon.execution.strategy.impl.sharding.CountShardingStrategy
@@ -67,6 +69,8 @@ import com.malinskiy.marathon.device.DeviceFeature as MarathonDeviceFeature
 import com.malinskiy.marathon.android.configuration.AllureConfiguration as MarathonAllureConfiguration
 import com.malinskiy.marathon.android.configuration.TimeoutConfiguration as MarathonTimeoutConfiguration
 import com.malinskiy.marathon.execution.CompositionFilter.OPERATION as MarathonOperation
+import com.malinskiy.marathon.android.VideoConfiguration as MarathonVideoConfiguration
+import com.malinskiy.marathon.android.ScreenshotConfiguration as MarathonScreenshotConfiguration
 
 class ConfigurationMapper {
     fun map(input: Configuration): MarathonConfiguration {
@@ -137,7 +141,7 @@ class ConfigurationMapper {
             is PoolingStrategy.Combo -> ComboPoolingStrategy(list.map { it.toMarathonPoolingStrategy() })
             is PoolingStrategy.Manufacturer -> ManufacturerPoolingStrategy()
             is PoolingStrategy.Model -> ModelPoolingStrategy()
-            is PoolingStrategy.OperatingSystem -> ModelPoolingStrategy()
+            is PoolingStrategy.OsVersion -> OperatingSystemVersionPoolingStrategy()
         }
     }
 
@@ -191,7 +195,7 @@ class ConfigurationMapper {
             is TestFilter.SimpleClassname -> SimpleClassnameFilter(simpleClassname)
             is TestFilter.TestMethod -> TestMethodFilter(method)
             is TestFilter.TestPackage -> TestPackageFilter(`package`)
-            is TestFilter.Composition -> CompositionFilter(filters.map { it.toMarathonFilter() }, op.toMarathonOperation())
+            is TestFilter.Composition -> CompositionFilter(composition.map { it.toMarathonFilter() }, op.toMarathonOperation())
         }
     }
 
@@ -265,8 +269,9 @@ class ConfigurationMapper {
     private fun ScreenRecordConfiguration.toMarathonScreenRecordConfiguration(): MarathonScreenRecordConfiguration {
         return MarathonScreenRecordConfiguration(
             preferableRecorderType = preferableRecorderType?.toMarathonDeviceFeature(),
-
-            )
+            videoConfiguration = videoConfiguration.toMarathonVideoConfiguration(),
+            screenshotConfiguration = screenshotConfiguration.toMarathonScreenshotConfiguration()
+        )
     }
 
     private fun DeviceFeature.toMarathonDeviceFeature(): MarathonDeviceFeature {
@@ -274,6 +279,14 @@ class ConfigurationMapper {
             DeviceFeature.SCREENSHOT -> MarathonDeviceFeature.SCREENSHOT
             DeviceFeature.VIDEO -> MarathonDeviceFeature.VIDEO
         }
+    }
+
+    private fun VideoConfiguration.toMarathonVideoConfiguration(): MarathonVideoConfiguration {
+        return MarathonVideoConfiguration(enabled, width, height, bitrateMbps, timeLimit, timeLimitUnits)
+    }
+
+    private fun ScreenshotConfiguration.toMarathonScreenshotConfiguration(): MarathonScreenshotConfiguration {
+        return MarathonScreenshotConfiguration(enabled, width, height, delayMs)
     }
 
     private fun AllureConfiguration.toMarathonAllureConfiguration(): MarathonAllureConfiguration {
