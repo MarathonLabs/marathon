@@ -5,6 +5,9 @@ import com.malinskiy.marathon.execution.TestStatus
 import com.malinskiy.marathon.test.StubDevice
 import com.malinskiy.marathon.test.assert.shouldBeEqualToAsJson
 import com.malinskiy.marathon.test.setupMarathon
+import com.malinskiy.marathon.time.Timer
+import com.nhaarman.mockitokotlin2.mock
+import com.nhaarman.mockitokotlin2.whenever
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -28,6 +31,7 @@ class DisconnectingScenariosTest {
     fun `two healthy devices on execution of two tests while one device disconnects should pass`() {
         var output: File? = null
         val context = TestCoroutineContext("testing context")
+        val timerStub: Timer = mock()
 
         val marathon = setupMarathon {
             val test1 = MarathonTest("test", "SimpleTest", "test1", emptySet())
@@ -37,6 +41,7 @@ class DisconnectingScenariosTest {
 
             configuration {
                 output = outputDir
+                timer = timerStub
 
                 tests {
                     listOf(test1, test2)
@@ -63,6 +68,9 @@ class DisconnectingScenariosTest {
                 test2 to arrayOf(TestStatus.PASSED)
             )
         }
+
+        var i = 0L
+        whenever(timerStub.currentTimeMillis()).then { i++ }
 
         val job = GlobalScope.launch(context = context) {
             marathon.runAsync()

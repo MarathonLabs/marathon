@@ -15,6 +15,7 @@ import com.malinskiy.marathon.execution.progress.ProgressReporter
 import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.test.Test
 import com.malinskiy.marathon.test.toTestName
+import com.malinskiy.marathon.time.Timer
 import com.malinskiy.marathon.usageanalytics.TrackActionType
 import com.malinskiy.marathon.usageanalytics.UsageAnalytics
 import com.malinskiy.marathon.usageanalytics.tracker.Event
@@ -31,7 +32,8 @@ class Marathon(
     private val tracker: TrackerInternal,
     private val analytics: Analytics,
     private val progressReporter: ProgressReporter,
-    private val track: Track
+    private val track: Track,
+    private val timer: Timer
 ) {
 
     private val configurationValidator = LogicalConfigurationValidator()
@@ -99,6 +101,7 @@ class Marathon(
             shard,
             progressReporter,
             track,
+            timer,
             currentCoroutineContext
         )
 
