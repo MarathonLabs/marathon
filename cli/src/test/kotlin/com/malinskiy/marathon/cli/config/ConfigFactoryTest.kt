@@ -227,8 +227,8 @@ class ConfigFactoryTest {
         configuration.ignoreFailures shouldEqual false
         configuration.isCodeCoverageEnabled shouldEqual false
         configuration.fallbackToScreenshots shouldEqual false
-        configuration.testBatchTimeoutMillis shouldEqual 900_000
-        configuration.testOutputTimeoutMillis shouldEqual 60_000
+        configuration.testBatchTimeoutMillis shouldEqual 1800_000
+        configuration.testOutputTimeoutMillis shouldEqual 300_000
         configuration.debug shouldEqual true
         configuration.screenRecordingPolicy shouldEqual ScreenRecordingPolicy.ON_FAILURE
         configuration.vendorConfiguration shouldEqual AndroidConfiguration(

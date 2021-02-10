@@ -126,7 +126,8 @@ class AndroidDeviceTestRunner(private val device: DdmlibAndroidDevice) {
         logger.debug { "tests = ${tests.toList()}" }
 
         runner.setRunName("TestRunName")
-        runner.setMaxTimeToOutputResponse(configuration.testOutputTimeoutMillis * testBatch.tests.size, TimeUnit.MILLISECONDS)
+        runner.setMaxTimeToOutputResponse(configuration.testOutputTimeoutMillis, TimeUnit.MILLISECONDS)
+        runner.setMaxTimeout(configuration.testBatchTimeoutMillis, TimeUnit.MILLISECONDS)
         runner.setClassNames(tests)
 
         androidConfiguration.instrumentationArgs.forEach { key, value ->
