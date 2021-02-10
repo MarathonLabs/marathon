@@ -4,7 +4,7 @@ import androidx.test.ext.junit.rules.ActivityScenarioRule
 import com.android.emulator.control.VmRunState
 import com.google.protobuf.Empty
 import com.malinskiy.adam.junit4.android.rule.Mode
-import com.malinskiy.adam.junit4.rule.EmulatorRule
+import com.malinskiy.adam.junit4.rule.EmulatorGrpcRule
 import io.qameta.allure.android.runners.AllureAndroidJUnit4
 import io.qameta.allure.kotlin.*
 import kotlinx.coroutines.runBlocking
@@ -24,7 +24,7 @@ class GrpcActivityTest {
     val rule = ActivityScenarioRule(MainActivity::class.java)
 
     @get:Rule
-    val emulator = EmulatorRule(mode = Mode.ASSERT)
+    val emulator = EmulatorGrpcRule(mode = Mode.ASSERT)
 
     @Test
     fun testVmState() {

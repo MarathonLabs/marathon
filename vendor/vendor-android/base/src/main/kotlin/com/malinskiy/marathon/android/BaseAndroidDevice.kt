@@ -208,7 +208,7 @@ abstract class BaseAndroidDevice(
         return booted
     }
     
-    protected fun isLocalEmulator() = adbSerial.startsWith("emulator-")
+    fun isLocalEmulator() = adbSerial.startsWith("emulator-")
 
     protected suspend fun AndroidDevice.isEmulator(): Boolean = when {
         getProperty("ro.kernel.qemu")?.isNotBlank() ?: false -> true

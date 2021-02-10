@@ -64,7 +64,7 @@ import java.time.Duration
 import kotlin.coroutines.CoroutineContext
 
 class AdamAndroidDevice(
-    private val client: AndroidDebugBridgeClient,
+    internal val client: AndroidDebugBridgeClient,
     private val deviceStateTracker: DeviceStateTracker,
     adbSerial: String,
     configuration: AndroidConfiguration,
@@ -106,7 +106,7 @@ class AdamAndroidDevice(
             }
         }
 
-        setupReversePortForwarding()
+        setupTestAccess()
     }
 
     private val dispatcher by lazy {
@@ -374,41 +374,14 @@ class AdamAndroidDevice(
         return client.execute(runnerRequest, scope = this, serial = adbSerial)
     }
 
-    private suspend fun setupReversePortForwarding() {
-        val portForwarding = configuration.emulatorConfiguration.reversePortForwarding
+    private suspend fun setupTestAccess() {
+        val accessConfiguration = configuration.testAccessConfiguration
 
-        if (isLocalEmulator()) {
-            if (portForwarding.gRPC) {
-                val consolePort = adbSerial.substringAfter("emulator-").trim().toIntOrNull()
-                if (consolePort == null) {
-                    logger.debug { "Unable to parse emulator console port for serial $adbSerial" }
-                    return
-                }
-
-                //Convention is to use (console port + 3000) as the gRPC port
-                val gRPCPort = consolePort + 3000
-                reversePortForward(
-                    "gRPC",
-                    ReversePortForwardingRule(adbSerial, RemoteTcpPortSpec(gRPCPort), LocalTcpPortSpec(gRPCPort))
-                )
-            }
-            if (portForwarding.console) {
-                val consolePort = adbSerial.substringAfter("emulator-").trim().toIntOrNull()
-                if (consolePort == null) {
-                    logger.debug { "Unable to parse emulator console port for serial $adbSerial" }
-                    return
-                }
-                reversePortForward(
-                    "console",
-                    ReversePortForwardingRule(adbSerial, RemoteTcpPortSpec(consolePort), LocalTcpPortSpec(consolePort))
-                )
-            }
-            if (portForwarding.adb) {
-                reversePortForward(
-                    "adb",
-                    ReversePortForwardingRule(adbSerial, RemoteTcpPortSpec(client.port), LocalTcpPortSpec(client.port))
-                )
-            }
+        if (accessConfiguration.adb && !isLocalEmulator()) {
+            reversePortForward(
+                "adb",
+                ReversePortForwardingRule(adbSerial, RemoteTcpPortSpec(client.port), LocalTcpPortSpec(client.port))
+            )
         }
     }
 

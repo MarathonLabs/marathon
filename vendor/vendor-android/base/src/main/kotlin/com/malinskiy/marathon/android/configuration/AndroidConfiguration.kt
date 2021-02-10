@@ -35,7 +35,7 @@ data class AndroidConfiguration(
     val waitForDevicesTimeoutMillis: Long = DEFAULT_WAIT_FOR_DEVICES_TIMEOUT,
     val allureConfiguration: AllureConfiguration = DEFAULT_ALLURE_CONFIGURATION,
     val timeoutConfiguration: TimeoutConfiguration = TimeoutConfiguration(),
-    val emulatorConfiguration: EmulatorConfiguration = EmulatorConfiguration()
+    val testAccessConfiguration: TestAccessConfiguration = TestAccessConfiguration(),
 ) : VendorConfiguration, KoinComponent {
 
     private val koinModules = listOf(androidModule) + implementationModules
