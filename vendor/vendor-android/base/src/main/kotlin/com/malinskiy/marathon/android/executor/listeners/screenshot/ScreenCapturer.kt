@@ -12,15 +12,14 @@ import com.malinskiy.marathon.io.FileManager
 import com.malinskiy.marathon.io.FileType
 import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.test.Test
-import io.ktor.utils.io.*
 import io.ktor.util.cio.*
+import io.ktor.utils.io.*
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.withContext
 import org.imgscalr.Scalr
 import java.awt.image.BufferedImage
-import java.awt.image.RenderedImage
 import java.io.IOException
 import java.time.Duration
 import java.util.concurrent.TimeoutException
@@ -51,17 +50,15 @@ class ScreenCapturer(
             while (coroutineContext.isActive) {
                 val capturingTimeMillis = measureTimeMillis {
                     getScreenshot(targetRotation)?.let {
-                        measureTimeMillis {
-                            val success = writer.addFrame(
-                                it.convert(BufferedImage.TYPE_3BYTE_BGR),
-                                it.width.toShort(),
-                                it.height.toShort(),
-                                writeChannel
-                            )
-                            if (success) {
-                                frameCount++
-                            }
-                        }.let { println("Processing took $it") }
+                        val success = writer.addFrame(
+                            it.convert(BufferedImage.TYPE_3BYTE_BGR),
+                            it.width.toShort(),
+                            it.height.toShort(),
+                            writeChannel
+                        )
+                        if (success) {
+                            frameCount++
+                        }
                     }
                 }
                 val sleepTimeMillis = when {

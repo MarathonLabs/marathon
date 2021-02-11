@@ -1,7 +1,9 @@
 package com.malinskiy.marathon.android.executor.listeners.screenshot.gif
 
+import com.malinskiy.marathon.android.extension.writeAsynchronously
 import io.ktor.util.cio.*
 import io.ktor.utils.io.*
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.core.IsEqual.equalTo
@@ -25,9 +27,10 @@ class LZWEncoderTest {
         runBlocking {
             val frameFile = File(javaClass.classLoader.getResource(input).file)
             val tempFile = createTempFile()
-            val channel = tempFile.writeChannel()
-            encoder.encode(frameFile.readBytes().asSequence().map { it.toUByte().toInt() }, channel)
-            channel.close()
+
+            tempFile.writeAsynchronously(Dispatchers.IO) { channel: ByteWriteChannel ->
+                encoder.encode(frameFile.readBytes().asSequence().map { it.toUByte().toInt() }, channel)
+            }
 
             val expectedFile = File(javaClass.classLoader.getResource(output).file)
 

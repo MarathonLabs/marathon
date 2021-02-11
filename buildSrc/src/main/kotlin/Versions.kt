@@ -1,4 +1,5 @@
-object Versions {
+object
+Versions {
     val marathon = System.getenv("DEPLOY_VERSION_OVERRIDE") ?: "0.6.1"
 
     val kotlin = "1.4.20"
@@ -12,7 +13,7 @@ object Versions {
     val logbackClassic = "1.2.3"
     val axmlParser = "1.0"
     val bugsnag = "3.6.1"
-    val ktor = "1.4.1"
+    val ktor = "1.5.1"
 
     val junitGradle = "1.0.0"
     val androidGradleVersion = "4.0.0"
@@ -53,6 +54,8 @@ object Versions {
     val xmlUnit = "2.6.3"
     val assertk = "0.19"
     val imageComparison = "4.3.0"
+    val coroutinesDebug = "1.4.0"
+    val coroutinesTimeoutJunit5 = "1.0.0"
 }
 
 object BuildPlugins {
@@ -115,6 +118,8 @@ object TestLibraries {
 
     val testContainers = "org.testcontainers:testcontainers:${Versions.testContainers}"
     val testContainersInflux = "org.testcontainers:influxdb:${Versions.testContainers}"
+    val coroutinesDebug = "org.jetbrains.kotlinx:kotlinx-coroutines-debug:${Versions.coroutinesDebug}"
+    val coroutinesTimeoutJunit5 = "com.asarkar.kotlinx:coroutines-test:${Versions.coroutinesTimeoutJunit5}"
 }
 
 object Analytics {

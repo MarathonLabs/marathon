@@ -4,11 +4,11 @@ import com.github.romankh3.image.comparison.ImageComparison
 import com.github.romankh3.image.comparison.ImageComparisonUtil
 import com.github.romankh3.image.comparison.model.ImageComparisonResult
 import com.malinskiy.marathon.android.extension.convert
+import com.malinskiy.marathon.android.extension.writeAsynchronously
 import io.ktor.util.cio.*
 import io.ktor.utils.io.*
-import kotlinx.coroutines.NonCancellable
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.withContext
 import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.jupiter.api.Test
@@ -20,30 +20,24 @@ class GifEncoderKotlinTest {
     @Test
     fun testSample1() = runBlocking {
         val file = createTempFile()
-        var writer: GifEncoderKotlin? = null
-        var writeChannel: ByteWriteChannel? = null
-        try {
-            writeChannel = file.writeChannel()
-            writer = GifEncoderKotlin(repeat = 0)
-            writer.start(writeChannel)
-            writer.delay = 100
-            for (i in 1..3) {
-                val frameFile = File(javaClass.classLoader.getResource("gif/input_1/${i}.png").file)
-                val frame = ImageIO.read(frameFile)
-                writer.addFrame(
-                    frame.convert(BufferedImage.TYPE_3BYTE_BGR),
-                    frame.width.toShort(),
-                    frame.height.toShort(),
-                    writeChannel
-                )
+        file.writeAsynchronously(Dispatchers.IO) { writeChannel ->
+            val writer = GifEncoderKotlin(repeat = 0)
+            try {
+                writer.start(writeChannel)
+                writer.delay = 100
+                for (i in 1..3) {
+                    val frameFile = File(javaClass.classLoader.getResource("gif/input_1/${i}.png").file)
+                    val frame = ImageIO.read(frameFile)
+                    writer.addFrame(
+                        frame.convert(BufferedImage.TYPE_3BYTE_BGR),
+                        frame.width.toShort(),
+                        frame.height.toShort(),
+                        writeChannel
+                    )
+                }
+            } catch (e: Exception) {
+                writer.finish(writeChannel)
             }
-        } catch (e: Exception) {
-            e.printStackTrace()
-        } finally {
-            withContext(NonCancellable) {
-                writer?.finish(writeChannel!!)
-            }
-            writeChannel?.close()
         }
 
         val reader = ImageIO.getImageReadersByFormatName("gif").next()
