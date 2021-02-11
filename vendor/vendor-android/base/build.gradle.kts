@@ -17,6 +17,7 @@ dependencies {
     implementation(Libraries.axmlParser)
     implementation(Libraries.jacksonAnnotations)
     implementation(Libraries.scalr)
+    implementation(Libraries.ktorUtils)
     implementation(project(":core"))
     implementation(Libraries.logbackClassic)
     implementation(Libraries.androidCommon)
@@ -24,6 +25,7 @@ dependencies {
     testImplementation(TestLibraries.kluent)
     testImplementation(TestLibraries.mockitoKotlin)
     testImplementation(TestLibraries.junit5)
+    testImplementation(TestLibraries.imageComparison)
     testRuntime(TestLibraries.jupiterEngine)
     testImplementation(TestLibraries.koin)
 }

@@ -52,6 +52,7 @@ object Versions {
     val jsonAssert = "1.5.0"
     val xmlUnit = "2.6.3"
     val assertk = "0.19"
+    val imageComparison = "4.3.0"
 }
 
 object BuildPlugins {
@@ -110,6 +111,7 @@ object TestLibraries {
     val jsonAssert = "org.skyscreamer:jsonassert:${Versions.jsonAssert}"
     val xmlUnit = "org.xmlunit:xmlunit-matchers:${Versions.xmlUnit}"
     val assertk = "com.willowtreeapps.assertk:assertk:${Versions.assertk}"
+    val imageComparison = "com.github.romankh3:image-comparison:${Versions.imageComparison}"
 
     val testContainers = "org.testcontainers:testcontainers:${Versions.testContainers}"
     val testContainersInflux = "org.testcontainers:influxdb:${Versions.testContainers}"
