@@ -3,6 +3,8 @@ package com.malinskiy.marathon.android.executor.listeners.screenshot
 import com.malinskiy.marathon.android.AndroidDevice
 import com.malinskiy.marathon.android.ScreenshotConfiguration
 import com.malinskiy.marathon.android.exception.CommandRejectedException
+import com.malinskiy.marathon.android.executor.listeners.screenshot.gif.GifEncoderKotlin
+import com.malinskiy.marathon.android.extension.convert
 import com.malinskiy.marathon.android.model.Rotation
 import com.malinskiy.marathon.device.DevicePoolId
 import com.malinskiy.marathon.device.toDeviceInfo
@@ -10,15 +12,18 @@ import com.malinskiy.marathon.io.FileManager
 import com.malinskiy.marathon.io.FileType
 import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.test.Test
+import io.ktor.utils.io.*
+import io.ktor.util.cio.*
+import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
+import kotlinx.coroutines.withContext
 import org.imgscalr.Scalr
-import java.awt.image.BufferedImage.TYPE_INT_ARGB
+import java.awt.image.BufferedImage
 import java.awt.image.RenderedImage
 import java.io.IOException
 import java.time.Duration
 import java.util.concurrent.TimeoutException
-import javax.imageio.stream.FileImageOutputStream
 import kotlin.coroutines.coroutineContext
 import kotlin.system.measureTimeMillis
 
@@ -32,16 +37,31 @@ class ScreenCapturer(
 ) {
 
     suspend fun start(test: Test) {
-        var outputStream: FileImageOutputStream? = null
-        val writer: GifSequenceWriter? = null
+        val targetRotation = detectCurrentDeviceOrientation()
+
+        val writer: GifEncoderKotlin? = null
+        var writeChannel: ByteWriteChannel? = null
+        var frameCount = 0
+        val file = fileManager.createFile(FileType.SCREENSHOT, poolId, device.toDeviceInfo(), test)
         try {
-            val outputStream = FileImageOutputStream(fileManager.createFile(FileType.SCREENSHOT, poolId, device.toDeviceInfo(), test))
-            val writer = GifSequenceWriter(outputStream, TYPE_INT_ARGB, configuration.delayMs, true)
-            var targetRotation = detectCurrentDeviceOrientation()
+            writeChannel = file.writeChannel()
+            val writer = GifEncoderKotlin()
+            writer.delay = configuration.delayMs.toShort()
+            writer.start(writeChannel)
             while (coroutineContext.isActive) {
                 val capturingTimeMillis = measureTimeMillis {
                     getScreenshot(targetRotation)?.let {
-                        writer.writeToSequence(it)
+                        measureTimeMillis {
+                            val success = writer.addFrame(
+                                it.convert(BufferedImage.TYPE_3BYTE_BGR),
+                                it.width.toShort(),
+                                it.height.toShort(),
+                                writeChannel
+                            )
+                            if (success) {
+                                frameCount++
+                            }
+                        }.let { println("Processing took $it") }
                     }
                 }
                 val sleepTimeMillis = when {
@@ -51,14 +71,21 @@ class ScreenCapturer(
                 delay(sleepTimeMillis)
             }
         } finally {
-            writer?.close()
-            outputStream?.close()
+            withContext(NonCancellable) {
+                writeChannel?.let {
+                    writer?.finish(it)
+                    it.close()
+                }
+                if (frameCount == 0) {
+                    file.delete()
+                }
+            }
         }
     }
 
     private fun detectCurrentDeviceOrientation() = device.initialRotation
 
-    private suspend fun getScreenshot(targetOrientation: Rotation): RenderedImage? {
+    private suspend fun getScreenshot(targetOrientation: Rotation): BufferedImage? {
         return try {
             val screenshot = device.getScreenshot(timeout)?.let {
                 /**
