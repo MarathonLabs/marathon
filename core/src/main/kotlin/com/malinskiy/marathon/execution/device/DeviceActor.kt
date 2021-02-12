@@ -114,7 +114,7 @@ class DeviceActor(
                     if (batch == null) {
                         terminate()
                     } else {
-                        returnBatchAnd(batch) {
+                        returnBatchAnd(batch, "Device ${device.serialNumber} terminated") {
                             terminate()
                         }
                     }
@@ -194,19 +194,30 @@ class DeviceActor(
                 state.transition(DeviceEvent.Terminate)
             } catch (e: TestBatchExecutionException) {
                 logger.warn(e) { "Test batch failed execution" }
-                pool.send(DevicePoolMessage.FromDevice.ReturnTestBatch(device, batch))
+                pool.send(
+                    DevicePoolMessage.FromDevice.ReturnTestBatch(
+                        device,
+                        batch,
+                        "Test batch failed execution:\n${e.stackTraceToString()}"
+                    )
+                )
                 state.transition(DeviceEvent.Complete)
             } catch (e: Throwable) {
                 logger.error(e) { "Unknown vendor exception caught. Considering this a recoverable error" }
-                pool.send(DevicePoolMessage.FromDevice.ReturnTestBatch(device, batch))
+                pool.send(
+                    DevicePoolMessage.FromDevice.ReturnTestBatch(
+                        device, batch, "Unknown vendor exception caught. \n" +
+                            "${e.stackTraceToString()}"
+                    )
+                )
                 state.transition(DeviceEvent.Complete)
             }
         }
     }
 
-    private fun returnBatchAnd(batch: TestBatch, completionHandler: CompletionHandler = {}): Job {
+    private fun returnBatchAnd(batch: TestBatch, reason: String, completionHandler: CompletionHandler = {}): Job {
         return launch {
-            pool.send(DevicePoolMessage.FromDevice.ReturnTestBatch(device, batch))
+            pool.send(DevicePoolMessage.FromDevice.ReturnTestBatch(device, batch, reason))
         }.apply {
             invokeOnCompletion(completionHandler)
         }

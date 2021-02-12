@@ -101,7 +101,6 @@ class DerivedDataManagerTest {
         container.stop()
     }
 
-
     companion object {
         val logger = MarathonLogging.logger(javaClass.simpleName)
         val privateKey = File(javaClass.classLoader.getResource("fixtures/derived-data-manager/test_rsa").file)

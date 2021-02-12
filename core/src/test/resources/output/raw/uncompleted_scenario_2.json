@@ -13,23 +13,34 @@
   {
     "package": "test",
     "class": "SimpleTest",
-    "method": "test2",
-    "deviceSerial": "serial-2",
-    "status": "PASSED",
+    "method": "test1",
+    "deviceSerial": "serial-1",
+    "status": "INCOMPLETE",
     "ignored": false,
-    "success": true,
-    "timestamp": 0,
+    "success": false,
+    "timestamp": 1,
     "duration": 1
   },
   {
     "package": "test",
     "class": "SimpleTest",
     "method": "test1",
-    "deviceSerial": "serial-2",
-    "status": "PASSED",
+    "deviceSerial": "serial-1",
+    "status": "INCOMPLETE",
     "ignored": false,
-    "success": true,
-    "timestamp": 1,
+    "success": false,
+    "timestamp": 2,
+    "duration": 1
+  },
+  {
+    "package": "test",
+    "class": "SimpleTest",
+    "method": "test1",
+    "deviceSerial": "serial-1",
+    "status": "FAILURE",
+    "ignored": false,
+    "success": false,
+    "timestamp": 3,
     "duration": 1
   }
 ]

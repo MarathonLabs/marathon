@@ -163,6 +163,7 @@ class DdmlibDeviceProvider(
             getDevicesCountdown -= sleepTime
         }
         if (!adb.hasInitialDeviceList() || !adb.hasDevices()) {
+            terminate()
             throw NoDevicesException("No devices found.")
         }
     }

@@ -20,4 +20,10 @@ sealed class TestEvent {
         val device: DeviceInfo,
         val testResult: TestResult
     ) : TestEvent()
+
+    data class Incomplete(
+        val device: DeviceInfo,
+        val testResult: TestResult,
+        val final: Boolean
+    ) : TestEvent()
 }

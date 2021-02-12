@@ -12,6 +12,7 @@ import com.malinskiy.marathon.execution.DevicePoolMessage.FromScheduler.AddDevic
 import com.malinskiy.marathon.execution.DevicePoolMessage.FromScheduler.RemoveDevice
 import com.malinskiy.marathon.execution.progress.ProgressReporter
 import com.malinskiy.marathon.log.MarathonLogging
+import com.malinskiy.marathon.time.Timer
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.TimeoutCancellationException
@@ -36,6 +37,7 @@ class Scheduler(
     private val shard: TestShard,
     private val progressReporter: ProgressReporter,
     private val track: Track,
+    private val timer: Timer,
     override val coroutineContext: CoroutineContext
 ) : CoroutineScope {
 
@@ -105,7 +107,7 @@ class Scheduler(
         logger.debug { "device ${device.serialNumber} associated with poolId ${poolId.name}" }
         pools.computeIfAbsent(poolId) { id ->
             logger.debug { "pool actor ${id.name} is being created" }
-            DevicePoolActor(id, configuration, analytics, shard, progressReporter, track, parent, context)
+            DevicePoolActor(id, configuration, analytics, shard, progressReporter, track, timer, parent, context)
         }
         pools[poolId]?.send(AddDevice(device)) ?: logger.debug {
             "not sending the AddDevice event " +

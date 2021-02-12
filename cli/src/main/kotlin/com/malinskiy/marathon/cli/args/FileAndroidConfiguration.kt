@@ -11,6 +11,7 @@ import com.malinskiy.marathon.android.configuration.AllureConfiguration
 import com.malinskiy.marathon.android.configuration.DEFAULT_ALLURE_CONFIGURATION
 import com.malinskiy.marathon.android.configuration.FileSyncConfiguration
 import com.malinskiy.marathon.android.configuration.SerialStrategy
+import com.malinskiy.marathon.android.configuration.TimeoutConfiguration
 import com.malinskiy.marathon.android.defaultInitTimeoutMillis
 import com.malinskiy.marathon.exceptions.ConfigurationException
 import ddmlibModule
@@ -31,6 +32,7 @@ data class FileAndroidConfiguration(
     @JsonProperty("screenRecordConfiguration") val screenRecordConfiguration: ScreenRecordConfiguration = ScreenRecordConfiguration(),
     @JsonProperty("waitForDevicesTimeoutMillis") val waitForDevicesTimeoutMillis: Long?,
     @JsonProperty("allureConfiguration") val allureConfiguration: AllureConfiguration?,
+    @JsonProperty("timeoutConfiguration") val timeoutConfiguration: TimeoutConfiguration = TimeoutConfiguration()
     @JsonProperty("fileSyncConfiguration") val fileSyncConfiguration: FileSyncConfiguration?,
 ) : FileVendorConfiguration {
 
@@ -60,7 +62,8 @@ data class FileAndroidConfiguration(
             implementationModules = implementationModules,
             allureConfiguration = allureConfiguration
                 ?: DEFAULT_ALLURE_CONFIGURATION,
-            fileSyncConfiguration = fileSyncConfiguration ?: FileSyncConfiguration()
+            timeoutConfiguration = timeoutConfiguration ?: DEFAULT_ALLURE_CONFIGURATION,
+            fileSyncConfiguration = fileSyncConfiguration ?: FileSyncConfiguration(),
         )
     }
 }
