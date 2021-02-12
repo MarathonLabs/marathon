@@ -32,8 +32,8 @@ data class FileAndroidConfiguration(
     @JsonProperty("screenRecordConfiguration") val screenRecordConfiguration: ScreenRecordConfiguration = ScreenRecordConfiguration(),
     @JsonProperty("waitForDevicesTimeoutMillis") val waitForDevicesTimeoutMillis: Long?,
     @JsonProperty("allureConfiguration") val allureConfiguration: AllureConfiguration?,
-    @JsonProperty("timeoutConfiguration") val timeoutConfiguration: TimeoutConfiguration = TimeoutConfiguration()
-    @JsonProperty("fileSyncConfiguration") val fileSyncConfiguration: FileSyncConfiguration?,
+    @JsonProperty("timeoutConfiguration") val timeoutConfiguration: TimeoutConfiguration = TimeoutConfiguration(),
+    @JsonProperty("fileSyncConfiguration") val fileSyncConfiguration: FileSyncConfiguration = FileSyncConfiguration(),
 ) : FileVendorConfiguration {
 
     fun toAndroidConfiguration(environmentAndroidSdk: File?): AndroidConfiguration {
@@ -62,8 +62,8 @@ data class FileAndroidConfiguration(
             implementationModules = implementationModules,
             allureConfiguration = allureConfiguration
                 ?: DEFAULT_ALLURE_CONFIGURATION,
-            timeoutConfiguration = timeoutConfiguration ?: DEFAULT_ALLURE_CONFIGURATION,
-            fileSyncConfiguration = fileSyncConfiguration ?: FileSyncConfiguration(),
+            timeoutConfiguration = timeoutConfiguration,
+            fileSyncConfiguration = fileSyncConfiguration,
         )
     }
 }
