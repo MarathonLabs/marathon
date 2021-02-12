@@ -13,9 +13,9 @@ data class PoolSummary(
     val flaky: Int,
     val durationMillis: Long,
     val devices: List<DeviceInfo>,
-    val rawPassed: Int,
-    val rawIgnored: Int,
-    val rawFailed: Int,
-    val rawIncomplete: Int,
+    val rawPassed: List<String>,
+    val rawIgnored: List<String>,
+    val rawFailed: List<String>,
+    val rawIncomplete: List<String>,
     val rawDurationMillis: Long
 )

@@ -11,17 +11,41 @@ class StdoutReporter(private val timer: Timer) : Reporter {
         if (summary.pools.isEmpty()) return
 
         val cliReportBuilder = StringBuilder().appendLine("Marathon run finished:")
-        summary.pools.forEach {
-            cliReportBuilder.appendLine("Device pool ${it.poolId.name}:")
-            cliReportBuilder.appendLine("\t${it.passed.size} passed, ${it.failed.size} failed, ${it.ignored.size} ignored tests")
+        summary.pools.forEach { poolSummary ->
+            cliReportBuilder.appendLine("Device pool ${poolSummary.poolId.name}:")
+            cliReportBuilder.appendLine("\t${poolSummary.passed.size} passed, ${poolSummary.failed.size} failed, ${poolSummary.ignored.size} ignored tests")
 
-            if(it.failed.isNotEmpty()){
+            if(poolSummary.failed.isNotEmpty()){
                 cliReportBuilder.appendLine("\tFailed tests:")
-                it.failed.forEach { testName -> cliReportBuilder.appendLine("\t\t$testName") }
+                poolSummary.failed
+                    .toSortedSet()
+                    .forEach { testName -> cliReportBuilder.appendLine("\t\t$testName") }
             }
 
-            cliReportBuilder.appendLine("\tFlakiness overhead: ${it.rawDurationMillis - it.durationMillis}ms")
-            cliReportBuilder.appendLine("\tRaw: ${it.rawPassed} passed, ${it.rawFailed} failed, ${it.rawIgnored} ignored, ${it.rawIncomplete} incomplete tests")
+            cliReportBuilder.appendLine("\tFlakiness overhead: ${poolSummary.rawDurationMillis - poolSummary.durationMillis}ms")
+            cliReportBuilder.appendLine("\tRaw: ${poolSummary.rawPassed.size} passed, ${poolSummary.rawFailed.size} failed, ${poolSummary.rawIgnored.size} ignored, ${poolSummary.rawIncomplete.size} incomplete tests")
+
+            if(poolSummary.rawFailed.isNotEmpty()){
+                cliReportBuilder.appendLine("\tFailed tests:")
+                poolSummary.rawFailed
+                    .groupBy { it }
+                    .toSortedMap()
+                    .mapValues { it.value.size }
+                    .forEach { (testName, count) ->
+                        cliReportBuilder.appendLine("\t\t$testName failed $count times")
+                    }
+            }
+
+            if(poolSummary.rawIncomplete.isNotEmpty()){
+                cliReportBuilder.appendLine("\tIncomplete tests:")
+                    poolSummary.rawIncomplete
+                        .groupBy { it }
+                        .toSortedMap()
+                        .mapValues { it.value.size }
+                        .forEach { (testName, count) ->
+                            cliReportBuilder.appendLine("\t\t$testName incomplete $count times")
+                        }
+            }
         }
 
         val hours = TimeUnit.MILLISECONDS.toHours(timer.elapsedTimeMillis)
