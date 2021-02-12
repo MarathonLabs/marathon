@@ -4,6 +4,7 @@ import com.malinskiy.marathon.device.DeviceInfo
 import com.malinskiy.marathon.device.DevicePoolId
 import com.malinskiy.marathon.execution.TestResult
 import com.malinskiy.marathon.execution.TestStatus
+import com.malinskiy.marathon.test.toTestName
 import java.time.Instant
 
 /**
@@ -31,16 +32,24 @@ data class ExecutionReport(
             .map { it.testResult }
             .filter { it.status != TestStatus.INCOMPLETE }
 
-        val passed = tests.count { it.status == TestStatus.PASSED }
-        val ignored = tests.count {
-            it.status == TestStatus.IGNORED
+        val passed = tests
+            .filter { it.status == TestStatus.PASSED }
+            .map { it.test.toTestName() }
+            .toSet()
+
+        val ignored = tests
+            .filter { it.status == TestStatus.IGNORED
                     || it.status == TestStatus.ASSUMPTION_FAILURE
-        }
-        val failed = tests.count {
-            it.status != TestStatus.PASSED
+            }.map { it.test.toTestName() }
+            .toSet()
+
+        val failed = tests
+            .filter { it.status != TestStatus.PASSED
                     && it.status != TestStatus.IGNORED
                     && it.status != TestStatus.ASSUMPTION_FAILURE
-        }
+             }.map { it.test.toTestName() }
+            .toSet()
+
         val duration = tests.map { it.durationMillis() }.sum()
 
         val rawTests = poolTestEvents
