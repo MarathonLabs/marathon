@@ -32,7 +32,7 @@ class StdoutReporter(private val timer: Timer) : Reporter {
                     .toSortedMap()
                     .mapValues { it.value.size }
                     .forEach { (testName, count) ->
-                        cliReportBuilder.appendLine("\t\t$testName failed $count times")
+                        cliReportBuilder.appendLine("\t\t$testName failed $count time(s)")
                     }
             }
 
@@ -43,7 +43,7 @@ class StdoutReporter(private val timer: Timer) : Reporter {
                         .toSortedMap()
                         .mapValues { it.value.size }
                         .forEach { (testName, count) ->
-                            cliReportBuilder.appendLine("\t\t$testName incomplete $count times")
+                            cliReportBuilder.appendLine("\t\t$testName incomplete $count time(s)")
                         }
             }
         }
