@@ -18,6 +18,7 @@ import org.junit.runner.RunWith
 @Story("Slow")
 @Owner("user2")
 @Severity(SeverityLevel.CRITICAL)
+@LocalEmulatorTest
 class GrpcActivityTest {
 
     @get:Rule
