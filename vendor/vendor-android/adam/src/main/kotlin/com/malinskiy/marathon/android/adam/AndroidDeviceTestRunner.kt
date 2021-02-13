@@ -164,7 +164,8 @@ class AndroidDeviceTestRunner(private val device: AdamAndroidDevice) {
             instrumentOptions = InstrumentOptions(
                 clazz = tests,
                 overrides = overrides
-            )
+            ),
+            socketIdleTimeout = Long.MAX_VALUE
         )
 
         logger.debug { "Running ${String(request.serialize())}" }

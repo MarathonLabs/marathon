@@ -1004,11 +1004,10 @@ marathon {
 {% endtabs %}
 
 ## Test output timeout
-This parameter specifies the behaviour for the underlying test executor to timeout if there is no output.
- By default, this is set to 60 seconds.
+This parameter specifies the behaviour for the underlying test executor to timeout if there is no output. By default, this is set to 5
+minutes.
 
-{% tabs test-output-timeout %}
-{% tab test-output-timeout Marathonfile %}
+{% tabs test-output-timeout %} {% tab test-output-timeout Marathonfile %}
 ```yaml
 testOutputTimeoutMillis: 30000
 ```
@@ -1030,11 +1029,11 @@ marathon {
 {% endtabs %}
 
 ## Test batch timeout
-This parameter specifies the behaviour for the underlying test executor to timeout if the batch execution exceeded some duration.
- By default, this is set to 15 minutes.
 
-{% tabs test-output-timeout %}
-{% tab test-output-timeout Marathonfile %}
+This parameter specifies the behaviour for the underlying test executor to timeout if the batch execution exceeded some duration. By
+default, this is set to 30 minutes.
+
+{% tabs test-output-timeout %} {% tab test-output-timeout Marathonfile %}
 ```yaml
 testBatchTimeoutMillis: 900000
 ```

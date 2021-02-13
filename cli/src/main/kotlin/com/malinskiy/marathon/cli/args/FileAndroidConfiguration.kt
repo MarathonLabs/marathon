@@ -10,6 +10,7 @@ import com.malinskiy.marathon.android.configuration.DEFAULT_ALLURE_CONFIGURATION
 import com.malinskiy.marathon.android.configuration.DEFAULT_INSTALL_OPTIONS
 import com.malinskiy.marathon.android.configuration.DEFAULT_WAIT_FOR_DEVICES_TIMEOUT
 import com.malinskiy.marathon.android.configuration.SerialStrategy
+import com.malinskiy.marathon.android.configuration.TimeoutConfiguration
 import com.malinskiy.marathon.android.configuration.TestAccessConfiguration
 import com.malinskiy.marathon.android.configuration.defaultInitTimeoutMillis
 import com.malinskiy.marathon.exceptions.ConfigurationException
@@ -31,6 +32,7 @@ data class FileAndroidConfiguration(
     @JsonProperty("screenRecordConfiguration") val screenRecordConfiguration: ScreenRecordConfiguration = ScreenRecordConfiguration(),
     @JsonProperty("waitForDevicesTimeoutMillis") val waitForDevicesTimeoutMillis: Long?,
     @JsonProperty("allureConfiguration") val allureConfiguration: AllureConfiguration?,
+    @JsonProperty("timeoutConfiguration") val timeoutConfiguration: TimeoutConfiguration = TimeoutConfiguration(),
     @JsonProperty("testAccessConfiguration") val testAccessConfiguration: TestAccessConfiguration?,
 ) : FileVendorConfiguration {
 
@@ -60,6 +62,7 @@ data class FileAndroidConfiguration(
             implementationModules = implementationModules,
             allureConfiguration = allureConfiguration
                 ?: DEFAULT_ALLURE_CONFIGURATION,
+            timeoutConfiguration = timeoutConfiguration,
             testAccessConfiguration = testAccessConfiguration ?: TestAccessConfiguration(),
         )
     }

@@ -1,10 +1,10 @@
 object Versions {
-    val marathon = System.getenv("DEPLOY_VERSION_OVERRIDE") ?: "0.6.1"
+    val marathon = System.getenv("DEPLOY_VERSION_OVERRIDE") ?: "0.7.0"
 
     val kotlin = "1.4.20"
     val coroutines = "1.3.9"
 
-    val ddmlib = "27.0.0"
+    val ddmlib = "27.1.2"
     val adam = "0.3.0-SNAPSHOT"
     val dexTestParser = "2.1.1"
     val kotlinLogging = "1.7.6"

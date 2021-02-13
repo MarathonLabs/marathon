@@ -24,6 +24,8 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.newFixedThreadPoolContext
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withTimeoutOrNull
 import java.net.ConnectException
 import java.util.concurrent.ConcurrentHashMap
@@ -52,7 +54,7 @@ class AdamDeviceProvider(
 
     private lateinit var client: AndroidDebugBridgeClient
     private lateinit var deviceEventsChannel: ReceiveChannel<List<Device>>
-    private val deviceEventsChannelLock = Object()
+    private val deviceEventsChannelMutex = Mutex()
     private val deviceStateTracker = DeviceStateTracker()
 
     override suspend fun initialize(vendorConfiguration: VendorConfiguration) {
@@ -86,7 +88,7 @@ class AdamDeviceProvider(
                  * This allows us to survive `adb kill-server`
                  */
                 while (isActive) {
-                    synchronized(deviceEventsChannelLock) {
+                    deviceEventsChannelMutex.withLock {
                         deviceEventsChannel = client.execute(AsyncDeviceMonitorRequest(), this)
                     }
                     for (currentDeviceList in deviceEventsChannel) {
@@ -135,7 +137,7 @@ class AdamDeviceProvider(
     override suspend fun terminate() {
         bootWaitContext.close()
         channel.close()
-        synchronized(deviceEventsChannelLock) {
+        deviceEventsChannelMutex.withLock {
             deviceEventsChannel.cancel()
         }
     }

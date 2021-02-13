@@ -4,13 +4,13 @@ import java.time.Duration
 
 
 data class TimeoutConfiguration(
-    val shell: Duration = Duration.ofSeconds(20),
-    val listFiles: Duration = shell,
-    val pushFile: Duration = Duration.ofSeconds(60),
-    val pullFile: Duration = Duration.ofSeconds(30),
-    val uninstall: Duration = shell,
-    val install: Duration = shell,
-    val screenrecorder: Duration = Duration.ofMinutes(10),
-    val screencapturer: Duration = Duration.ofMillis(300),
-    val portForward: Duration = shell
+    var shell: Duration = Duration.ofSeconds(20),
+    var listFiles: Duration = shell,
+    var pushFile: Duration = Duration.ofSeconds(60),
+    var pullFile: Duration = Duration.ofSeconds(30),
+    var uninstall: Duration = shell,
+    var install: Duration = shell,
+    var screenrecorder: Duration = Duration.ofMinutes(10),
+    var screencapturer: Duration = Duration.ofMillis(300),
+    var portForward: Duration = shell,
 )
