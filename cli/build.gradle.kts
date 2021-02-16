@@ -46,6 +46,7 @@ dependencies {
     implementation(project(":vendor:vendor-android:ddmlib"))
     implementation(project(":vendor:vendor-android:adam"))
     implementation(project(":analytics:usage"))
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-debug:1.4.0")
     implementation(Libraries.kotlinStdLib)
     implementation(Libraries.kotlinCoroutines)
     implementation(Libraries.kotlinLogging)
