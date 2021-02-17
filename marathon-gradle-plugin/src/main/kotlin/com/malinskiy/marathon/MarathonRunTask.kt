@@ -110,7 +110,11 @@ open class MarathonRunTask : DefaultTask(), VerificationTask {
         val adbInitTimeout = extension.adbInitTimeout ?: defaultInitTimeoutMillis
         val installOptions = extension.installOptions ?: DEFAULT_INSTALL_OPTIONS
         val preferableRecorderType = extension.preferableRecorderType
-        val serialStrategy = extension.serialStrategy ?: SerialStrategy.AUTOMATIC
+        val serialStrategy = when {
+            extension.serialStrategy != null -> requireNotNull(extension.serialStrategy)
+            extension.serialStrategyName != null -> SerialStrategy.valueOf(requireNotNull(extension.serialStrategyName))
+            else -> SerialStrategy.AUTOMATIC
+        }
 
         return AndroidConfiguration(
             androidSdk = sdk,
