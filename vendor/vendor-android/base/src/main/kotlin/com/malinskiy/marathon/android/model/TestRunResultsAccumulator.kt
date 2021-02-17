@@ -143,11 +143,19 @@ class TestRunResultsAccumulator {
 
     fun testRunFailed(errorMessage: String) {
         runFailureMessage = errorMessage
+        fillEndTime()
+    }
+
+    private fun fillEndTime() {
+        testResults.values.filter { it.endTime == 0L }.forEach { it ->
+            it.endTime = System.currentTimeMillis()
+        }
     }
 
     fun testRunStopped(elapsedTime: Long) {
         this.elapsedTime += elapsedTime
         isRunComplete = true
+        fillEndTime()
     }
 
     fun testRunEnded(elapsedTime: Long, runMetrics: Map<String, String>) {
@@ -162,6 +170,7 @@ class TestRunResultsAccumulator {
         }
         this.elapsedTime += elapsedTime
         isRunComplete = true
+        fillEndTime()
     }
 
     /**

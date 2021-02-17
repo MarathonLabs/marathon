@@ -39,7 +39,8 @@ class AndroidTestParserTest {
             testApplicationOutput = apkFile,
             implementationModules = emptyList()
         ),
-        analyticsTracking = false
+        analyticsTracking = false,
+        deviceInitializationTimeoutMillis = null
     )
 
     @Test

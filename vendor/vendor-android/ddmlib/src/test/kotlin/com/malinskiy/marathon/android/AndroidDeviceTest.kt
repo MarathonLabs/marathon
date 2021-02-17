@@ -3,8 +3,8 @@ package com.malinskiy.marathon.android
 import com.android.ddmlib.IDevice
 import com.android.sdklib.AndroidVersion
 import com.malinskiy.marathon.analytics.internal.pub.Track
+import com.malinskiy.marathon.android.configuration.SerialStrategy
 import com.malinskiy.marathon.android.ddmlib.DdmlibAndroidDevice
-import com.malinskiy.marathon.android.serial.SerialStrategy
 import com.malinskiy.marathon.time.SystemTimer
 import com.nhaarman.mockitokotlin2.reset
 import com.nhaarman.mockitokotlin2.whenever
@@ -17,25 +17,25 @@ import java.time.Clock
 
 class AndroidDeviceTest {
     private val iDevice = mock<IDevice>()
+    private val configuration = mock<AndroidConfiguration>()
     private val track = Track()
     private val timer = SystemTimer(Clock.systemDefaultZone())
 
     @BeforeEach
     fun `setup mock`() {
         reset(iDevice)
-        whenever(iDevice.serialNumber).thenReturn("serial")
     }
 
     @Test
     fun `model return Unknown if ddmDevice property ro_product_model`() {
         whenever(iDevice.getProperty("ro.product.model")).thenReturn(null)
-        DdmlibAndroidDevice(iDevice, track, timer, SerialStrategy.AUTOMATIC).model shouldBe "Unknown"
+        DdmlibAndroidDevice(iDevice, "serial", configuration, track, timer, SerialStrategy.AUTOMATIC).model shouldBe "Unknown"
     }
 
     @Test
     fun `manufacturer return Unknown if ddmlib property`() {
         whenever(iDevice.getProperty("ro.product.manufacturer")).thenReturn(null)
-        DdmlibAndroidDevice(iDevice, track, timer, SerialStrategy.AUTOMATIC).manufacturer shouldBe "Unknown"
+        DdmlibAndroidDevice(iDevice, "serial", configuration, track, timer, SerialStrategy.AUTOMATIC).manufacturer shouldBe "Unknown"
     }
 
     @Test
@@ -45,6 +45,8 @@ class AndroidDeviceTest {
         whenever(iDevice.getProperty("ro.build.version.sdk")).thenReturn("INVALID_VERSION")
         DdmlibAndroidDevice(
             iDevice,
+            "serial",
+            configuration,
             track,
             timer,
             SerialStrategy.AUTOMATIC

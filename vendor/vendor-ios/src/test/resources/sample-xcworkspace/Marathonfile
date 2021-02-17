@@ -10,7 +10,7 @@ batchingStrategy:
   timeLimit: -P1D
 debug: true
 filteringConfiguration:
-  whitelist:
+  allowlist:
     - type: "simple-class-name"
       regex: "^(StoryboardTests|SlowTests)$"
 flakinessStrategy:

@@ -1,6 +1,9 @@
 package com.malinskiy.marathon.cli.args
 
-import com.malinskiy.marathon.android.serial.SerialStrategy
+import com.malinskiy.marathon.android.ScreenRecordConfiguration
+import com.malinskiy.marathon.android.VendorType
+import com.malinskiy.marathon.android.configuration.AllureConfiguration
+import com.malinskiy.marathon.android.configuration.SerialStrategy
 import com.malinskiy.marathon.exceptions.ConfigurationException
 import org.amshove.kluent.shouldEqual
 import org.amshove.kluent.shouldThrow
@@ -9,7 +12,7 @@ import java.io.File
 
 class FileAndroidConfigurationTest {
     private val configuration = FileAndroidConfiguration(
-        null,
+        VendorType.DDMLIB,
         null,
         null,
         File.createTempFile("foo", "bar"),
@@ -19,8 +22,10 @@ class FileAndroidConfigurationTest {
         null,
         null,
         null,
-        null,
-        SerialStrategy.AUTOMATIC
+        SerialStrategy.AUTOMATIC,
+        ScreenRecordConfiguration(),
+        15000L,
+        AllureConfiguration()
     )
 
     private val env: File = File.createTempFile("foo", "bar")

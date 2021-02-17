@@ -4,6 +4,7 @@ import com.malinskiy.marathon.device.DeviceProvider
 import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.execution.policy.ScreenRecordingPolicy
 import com.malinskiy.marathon.execution.strategy.FlakinessStrategy
+import com.malinskiy.marathon.execution.strategy.RetryStrategy
 import com.malinskiy.marathon.execution.strategy.ShardingStrategy
 import com.malinskiy.marathon.test.Mocks
 import com.malinskiy.marathon.test.StubDeviceProvider
@@ -33,7 +34,7 @@ class ConfigurationFactory {
     var includeSerialRegexes: List<Regex>? = null
     var isCodeCoverageEnabled = null
     var poolingStrategy = null
-    var retryStrategy = null
+    var retryStrategy: RetryStrategy? = null
     var shardingStrategy: ShardingStrategy? = null
     var sortingStrategy = null
     var testClassRegexes = null
@@ -41,6 +42,7 @@ class ConfigurationFactory {
     var testOutputTimeoutMillis = null
     var analyticsTracking = false
     var screenRecordingPolicy: ScreenRecordingPolicy? = null
+    var deviceInitializationTimeoutMillis: Long? = null
 
     fun tests(block: () -> List<Test>) {
         val testParser = vendorConfiguration.testParser()!!
@@ -77,6 +79,7 @@ class ConfigurationFactory {
             debug,
             screenRecordingPolicy,
             vendorConfiguration,
-            analyticsTracking
+            analyticsTracking,
+            deviceInitializationTimeoutMillis
         )
 }

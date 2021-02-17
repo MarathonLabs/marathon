@@ -69,7 +69,8 @@ class DerivedDataManagerTest {
             debugSsh = false,
             alwaysEraseSimulators = true
         ),
-        analyticsTracking = false
+        analyticsTracking = false,
+        deviceInitializationTimeoutMillis = null
     )
 
     @BeforeEach
@@ -99,7 +100,6 @@ class DerivedDataManagerTest {
     fun `stop rsync`() {
         container.stop()
     }
-
 
     companion object {
         val logger = MarathonLogging.logger(javaClass.simpleName)

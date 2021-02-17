@@ -37,7 +37,7 @@ retryStrategy:
   totalAllowedRetryQuota: 100
   retryPerTestQuota: 2
 filteringConfiguration:
-  whitelist:
+  allowlist:
     - type: "simple-class-name"
       regex: ".*"
     - type: "fully-qualified-class-name"
@@ -51,7 +51,7 @@ filteringConfiguration:
         - type: "method"
           regex: ".*"
       op: "UNION"
-  blacklist:
+  blocklist:
     - type: "package"
       regex: ".*"
     - type: "annotation"
@@ -80,4 +80,5 @@ vendorConfiguration:
   instrumentationArgs:
     debug: "false"
   installOptions: "-d"
-  preferableRecorderType: "screenshot"
+  screenRecordConfiguration:
+    preferableRecorderType: "screenshot"

@@ -208,9 +208,9 @@ class HtmlSummaryReporter(
     fun PoolSummary.toHtmlPoolSummary() = HtmlPoolSummary(
         id = poolId.name,
         tests = tests.map { it.toHtmlShortSuite() },
-        passedCount = passed,
-        failedCount = failed,
-        ignoredCount = ignored,
+        passedCount = passed.size,
+        failedCount = failed.size,
+        ignoredCount = ignored.size,
         durationMillis = durationMillis,
         devices = devices.map { it.toHtmlDevice() }
     )
@@ -218,9 +218,9 @@ class HtmlSummaryReporter(
 
     fun Summary.toHtmlIndex() = HtmlIndex(
         title = configuration.name,
-        totalFailed = pools.sumBy { it.failed },
-        totalIgnored = pools.sumBy { it.ignored },
-        totalPassed = pools.sumBy { it.passed },
+        totalFailed = pools.sumBy { it.failed.size },
+        totalIgnored = pools.sumBy { it.ignored.size },
+        totalPassed = pools.sumBy { it.passed.size },
         totalFlaky = pools.sumBy { it.flaky },
         totalDuration = totalDuration(pools),
         averageDuration = averageDuration(pools),

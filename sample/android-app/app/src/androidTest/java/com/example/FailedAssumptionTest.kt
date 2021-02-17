@@ -1,33 +1,26 @@
 package com.example
 
-import android.support.test.runner.AndroidJUnit4
-import io.qameta.allure.Epic
-import io.qameta.allure.Feature
-import io.qameta.allure.Owner
-import io.qameta.allure.Severity
-import io.qameta.allure.SeverityLevel
-import io.qameta.allure.Story
-import org.junit.Test
-import org.junit.Ignore
+import io.qameta.allure.android.runners.AllureAndroidJUnit4
+import io.qameta.allure.kotlin.*
 import org.junit.Assume.assumeTrue
+import org.junit.Ignore
+import org.junit.Test
 import org.junit.runner.RunWith
 
-
+@RunWith(AllureAndroidJUnit4::class)
 @Epic("Marathon")
 @Feature("Assumptions")
 @Owner("user1")
 @Severity(SeverityLevel.MINOR)
 @Story("Skipped")
-@RunWith(AndroidJUnit4::class)
 class FailedAssumptionTest {
     @Test
     fun failedAssumptionTest() {
-        assumeTrue(false)
+            assumeTrue(false)
     }
 
     @Test
     @Ignore
     fun ignoreTest() {
-
     }
 }

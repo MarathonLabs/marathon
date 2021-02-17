@@ -11,6 +11,7 @@ dependencies {
     implementation(Libraries.kotlinCoroutines)
     implementation(Libraries.kotlinLogging)
     implementation(Libraries.kotlinReflect)
+    implementation(Libraries.gson)
     implementation(TestLibraries.jsonAssert)
     implementation(TestLibraries.xmlUnit)
     implementation(TestLibraries.kluent)
@@ -20,5 +21,5 @@ dependencies {
 
 tasks.withType<KotlinCompile> {
     kotlinOptions.jvmTarget = "1.8"
-    kotlinOptions.apiVersion = "1.3"
+    kotlinOptions.apiVersion = "1.4"
 }

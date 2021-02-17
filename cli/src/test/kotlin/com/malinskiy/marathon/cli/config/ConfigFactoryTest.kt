@@ -6,7 +6,12 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLGenerator
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.KotlinModule
 import com.malinskiy.marathon.android.AndroidConfiguration
-import com.malinskiy.marathon.android.serial.SerialStrategy
+import com.malinskiy.marathon.android.ScreenRecordConfiguration
+import com.malinskiy.marathon.android.ScreenshotConfiguration
+import com.malinskiy.marathon.android.VideoConfiguration
+import com.malinskiy.marathon.android.configuration.AllureConfiguration
+import com.malinskiy.marathon.android.configuration.SerialStrategy
+import com.malinskiy.marathon.android.configuration.TimeoutConfiguration
 import com.malinskiy.marathon.cli.args.EnvironmentConfiguration
 import com.malinskiy.marathon.cli.args.environment.EnvironmentReader
 import com.malinskiy.marathon.cli.config.time.InstantTimeProvider
@@ -41,16 +46,17 @@ import com.malinskiy.marathon.ios.IOSConfiguration
 import com.nhaarman.mockitokotlin2.whenever
 import ddmlibModule
 import org.amshove.kluent.`it returns`
+import org.amshove.kluent.`should be equal to`
 import org.amshove.kluent.`should be instance of`
 import org.amshove.kluent.mock
 import org.amshove.kluent.shouldBe
 import org.amshove.kluent.shouldBeEmpty
 import org.amshove.kluent.shouldContainAll
 import org.amshove.kluent.shouldEqual
-import org.amshove.kluent.shouldNotThrow
 import org.amshove.kluent.shouldThrow
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 import java.io.File
 import java.time.Duration
 import java.time.Instant
@@ -122,7 +128,7 @@ class ConfigFactoryTest {
         configuration.retryStrategy shouldEqual FixedQuotaRetryStrategy(100, 2)
         SimpleClassnameFilter(".*".toRegex()) shouldEqual SimpleClassnameFilter(".*".toRegex())
 
-        configuration.filteringConfiguration.whitelist shouldContainAll listOf(
+        configuration.filteringConfiguration.allowlist shouldContainAll listOf(
             SimpleClassnameFilter(".*".toRegex()),
             FullyQualifiedClassnameFilter(".*".toRegex()),
             TestMethodFilter(".*".toRegex()),
@@ -134,7 +140,7 @@ class ConfigFactoryTest {
             )
         )
 
-        configuration.filteringConfiguration.blacklist shouldContainAll listOf(
+        configuration.filteringConfiguration.blocklist shouldContainAll listOf(
             TestPackageFilter(".*".toRegex()),
             AnnotationFilter(".*".toRegex())
         )
@@ -152,6 +158,7 @@ class ConfigFactoryTest {
         configuration.debug shouldEqual true
         configuration.screenRecordingPolicy shouldEqual ScreenRecordingPolicy.ON_ANY
 
+        configuration.deviceInitializationTimeoutMillis shouldEqual 300_000
         configuration.vendorConfiguration shouldEqual AndroidConfiguration(
             File("/local/android"),
             File("kotlin-buildscript/build/outputs/apk/debug/kotlin-buildscript-debug.apk"),
@@ -163,8 +170,14 @@ class ConfigFactoryTest {
             true,
             30_000,
             "-d",
-            DeviceFeature.SCREENSHOT,
-            SerialStrategy.AUTOMATIC
+            SerialStrategy.AUTOMATIC,
+            ScreenRecordConfiguration(
+                preferableRecorderType = DeviceFeature.SCREENSHOT,
+                videoConfiguration = VideoConfiguration(false, 1080, 1920, 2, 300),
+                screenshotConfiguration = ScreenshotConfiguration(false, 1080, 1920, 200)
+            ),
+            15000L,
+            AllureConfiguration()
         )
     }
 
@@ -204,8 +217,8 @@ class ConfigFactoryTest {
         configuration.retryStrategy shouldEqual NoRetryStrategy()
         SimpleClassnameFilter(".*".toRegex()) shouldEqual SimpleClassnameFilter(".*".toRegex())
 
-        configuration.filteringConfiguration.whitelist.shouldBeEmpty()
-        configuration.filteringConfiguration.blacklist.shouldBeEmpty()
+        configuration.filteringConfiguration.allowlist.shouldBeEmpty()
+        configuration.filteringConfiguration.blocklist.shouldBeEmpty()
 
         configuration.testClassRegexes.map { it.toString() } shouldContainAll listOf("^((?!Abstract).)*Test[s]*$")
 
@@ -214,8 +227,8 @@ class ConfigFactoryTest {
         configuration.ignoreFailures shouldEqual false
         configuration.isCodeCoverageEnabled shouldEqual false
         configuration.fallbackToScreenshots shouldEqual false
-        configuration.testBatchTimeoutMillis shouldEqual 900_000
-        configuration.testOutputTimeoutMillis shouldEqual 60_000
+        configuration.testBatchTimeoutMillis shouldEqual 1800_000
+        configuration.testOutputTimeoutMillis shouldEqual 300_000
         configuration.debug shouldEqual true
         configuration.screenRecordingPolicy shouldEqual ScreenRecordingPolicy.ON_FAILURE
         configuration.vendorConfiguration shouldEqual AndroidConfiguration(
@@ -229,7 +242,6 @@ class ConfigFactoryTest {
             false,
             30_000,
             "",
-            null,
             SerialStrategy.AUTOMATIC
         )
     }
@@ -289,7 +301,6 @@ class ConfigFactoryTest {
             false,
             30_000,
             "",
-            null,
             SerialStrategy.HOSTNAME
         )
     }
@@ -297,31 +308,31 @@ class ConfigFactoryTest {
     @Test
     fun `on configuration without androidSdk value should throw an exception when ANDROID_HOME is not set`() {
         val file = File(ConfigFactoryTest::class.java.getResource("/fixture/config/sample_7.yaml").file)
-        val create = { parser.create(file, mockEnvironmentReader(null)) }
-
-        create shouldNotThrow ConfigurationException::class
+        assertThrows<ConfigurationException> {
+            parser.create(file, mockEnvironmentReader(null))
+        }
     }
 
     @Test
-    fun `on configuration with whitelist but no blacklist should initialize an empty blacklist`() {
+    fun `on configuration with allowlist but no blocklist should initialize an empty blocklist`() {
         val file = File(ConfigFactoryTest::class.java.getResource("/fixture/config/sample_8.yaml").file)
         val configuration = parser.create(file, mockEnvironmentReader())
 
-        configuration.filteringConfiguration.whitelist shouldEqual listOf(
+        configuration.filteringConfiguration.allowlist shouldEqual listOf(
             SimpleClassnameFilter(".*".toRegex())
         )
 
-        configuration.filteringConfiguration.blacklist shouldBe emptyList()
+        configuration.filteringConfiguration.blocklist shouldBe emptyList()
     }
 
     @Test
-    fun `on configuration with blacklist but no whitelist should initialize an empty whitelist`() {
+    fun `on configuration with blocklist but no allowlist should initialize an empty allowlist`() {
         val file = File(ConfigFactoryTest::class.java.getResource("/fixture/config/sample_9.yaml").file)
         val configuration = parser.create(file, mockEnvironmentReader())
 
-        configuration.filteringConfiguration.whitelist shouldBe emptyList()
+        configuration.filteringConfiguration.allowlist shouldBe emptyList()
 
-        configuration.filteringConfiguration.blacklist shouldEqual listOf(
+        configuration.filteringConfiguration.blocklist shouldEqual listOf(
             SimpleClassnameFilter(".*".toRegex())
         )
     }
@@ -338,5 +349,23 @@ class ConfigFactoryTest {
         configuration.flakinessStrategy `should be instance of` ProbabilityBasedFlakinessStrategy::class
         val flakinessStrategy = configuration.flakinessStrategy as ProbabilityBasedFlakinessStrategy
         flakinessStrategy.timeLimit shouldEqual referenceInstant.minus(Duration.ofDays(30))
+    }
+
+    @Test
+    fun `on configuration with timeout configuration in Android`() {
+        val file = File(ConfigFactoryTest::class.java.getResource("/fixture/config/sample_11.yaml").file)
+        val configuration = parser.create(file, mockEnvironmentReader())
+
+        val timeoutConfiguration = (configuration.vendorConfiguration as AndroidConfiguration).timeoutConfiguration
+        timeoutConfiguration `should be equal to` TimeoutConfiguration(
+            shell = Duration.ofSeconds(30),
+            listFiles = Duration.ofMinutes(1),
+            pushFile = Duration.ofHours(1),
+            pullFile = Duration.ofDays(1),
+            uninstall = Duration.ofSeconds(1),
+            install = Duration.parse("P1DT12H30M5S"),
+            screenrecorder = Duration.ofHours(1),
+            screencapturer = Duration.ofSeconds(1)
+        )
     }
 }

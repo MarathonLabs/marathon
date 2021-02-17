@@ -30,6 +30,7 @@ buildConfig {
     appName = project.name
     version = Versions.marathon
     buildConfigField("String", "BUGSNAG_TOKEN", System.getenv("BUGSNAG_TOKEN"))
+    buildConfigField("String", "RELEASE_MODE", Deployment.releaseMode)
 }
 
 dependencies {
@@ -37,6 +38,7 @@ dependencies {
     implementation(project(":report:execution-timeline"))
 
     implementation(Libraries.allure)
+    implementation(Libraries.allureKotlinCommons)
     implementation(Libraries.allureEnvironment)
 
     implementation(project(":analytics:usage"))
@@ -96,5 +98,5 @@ Deployment.initialize(project)
 
 tasks.withType<KotlinCompile> {
     kotlinOptions.jvmTarget = "1.8"
-    kotlinOptions.apiVersion = "1.3"
+    kotlinOptions.apiVersion = "1.4"
 }

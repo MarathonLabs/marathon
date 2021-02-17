@@ -2,7 +2,6 @@ package com.malinskiy.marathon.analytics.metrics
 
 import com.malinskiy.marathon.analytics.external.MetricsProviderFactory
 import com.malinskiy.marathon.analytics.external.NoOpMetricsProvider
-import com.malinskiy.marathon.device.DeviceFeature
 import com.malinskiy.marathon.device.DeviceProvider
 import com.malinskiy.marathon.execution.AnalyticsConfiguration
 import com.malinskiy.marathon.execution.Configuration
@@ -44,9 +43,9 @@ class MetricsProviderFactoryTest {
                 override fun testParser(): TestParser? = null
                 override fun deviceProvider(): DeviceProvider? = null
                 override fun logConfigurator(): MarathonLogConfigurator? = null
-                override fun preferableRecorderType(): DeviceFeature? = null
             },
-            analyticsTracking = false
+            analyticsTracking = false,
+            deviceInitializationTimeoutMillis = null
         )
         val factory = MetricsProviderFactory(configuration)
         val metricsProvider = factory.create()
@@ -89,9 +88,9 @@ class MetricsProviderFactoryTest {
                 override fun testParser(): TestParser? = null
                 override fun deviceProvider(): DeviceProvider? = null
                 override fun logConfigurator(): MarathonLogConfigurator? = null
-                override fun preferableRecorderType(): DeviceFeature? = null
             },
-            analyticsTracking = false
+            analyticsTracking = false,
+            deviceInitializationTimeoutMillis = null
         )
         val factory = MetricsProviderFactory(configuration)
         val metricsProvider = factory.create()

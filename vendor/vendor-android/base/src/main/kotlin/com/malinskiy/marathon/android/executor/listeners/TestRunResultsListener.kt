@@ -47,7 +47,7 @@ class TestRunResultsListener(
 
     private val logger = MarathonLogging.logger("TestRunResultsListener")
 
-    override fun handleTestRunResults(runResult: TestRunResultsAccumulator) {
+    override suspend fun handleTestRunResults(runResult: TestRunResultsAccumulator) {
         val results = mergeParameterisedResults(runResult.testResults)
         val tests = testBatch.tests.associateBy { it.identifier() }
 
@@ -63,11 +63,17 @@ class TestRunResultsListener(
             results[it.test.identifier()]?.isSuccessful() ?: false
         }
 
-        val failed = nonNullTestResults.filterNot {
-            results[it.test.identifier()]?.isSuccessful() ?: false
+        val (reportedIncompleteTests, reportedNonNullTests) = nonNullTestResults.partition { it.status == TestStatus.INCOMPLETE }
+
+        val failed = reportedNonNullTests.filterNot {
+            val status = results[it.test.identifier()]
+            when {
+                status?.isSuccessful() == true -> true
+                else -> false
+            }
         }
 
-        val uncompleted = tests
+        val uncompleted = reportedIncompleteTests + tests
             .filterNot { expectedTest ->
                 results.containsKey(expectedTest.key)
             }

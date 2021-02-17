@@ -42,7 +42,8 @@ class PoolProgressTrackerTest {
             debug = false,
             screenRecordingPolicy = null,
             vendorConfiguration = TestVendorConfiguration(Mocks.TestParser.DEFAULT, StubDeviceProvider()),
-            analyticsTracking = false
+            analyticsTracking = false,
+            deviceInitializationTimeoutMillis = null
         )
     }
 

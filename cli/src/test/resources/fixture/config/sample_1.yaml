@@ -31,7 +31,7 @@ retryStrategy:
   totalAllowedRetryQuota: 100
   retryPerTestQuota: 2
 filteringConfiguration:
-  whitelist:
+  allowlist:
     - type: "simple-class-name"
       regex: ".*"
     - type: "fully-qualified-class-name"
@@ -45,7 +45,7 @@ filteringConfiguration:
         - type: "method"
           regex: ".*"
       op: "UNION"
-  blacklist:
+  blocklist:
     - type: "package"
       regex: ".*"
     - type: "annotation"
@@ -64,6 +64,7 @@ testBatchTimeoutMillis: 20000
 testOutputTimeoutMillis: 30000
 debug: true
 screenRecordingPolicy: "ON_ANY"
+deviceInitializationTimeoutMillis: 300000
 vendorConfiguration:
   type: "Android"
   androidSdk: "/local/android"
@@ -75,4 +76,17 @@ vendorConfiguration:
   instrumentationArgs:
     debug: "false"
   installOptions: "-d"
-  preferableRecorderType: "screenshot"
+  screenRecordConfiguration:
+    preferableRecorderType: "screenshot"
+    videoConfiguration:
+      enabled: false
+      width: 1080
+      height: 1920
+      bitrateMbps: 2
+      timeLimit: 300
+    screenshotConfiguration:
+      enabled: false
+      width: 1080
+      height: 1920
+      delayMs: 200
+  waitForDevicesTimeoutMillis: 15000

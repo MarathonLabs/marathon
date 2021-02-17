@@ -1,5 +1,6 @@
 package com.malinskiy.marathon.execution
 
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.delay
 
 @Suppress("TooGenericExceptionCaught")
@@ -8,6 +9,8 @@ suspend fun <T> withRetry(attempts: Int, delayTime: Long = 0, f: suspend () -> T
     while (true) {
         try {
             return f()
+        } catch (e: CancellationException) {
+            throw e
         } catch (th: Throwable) {
             if (attempt == attempts) {
                 throw th

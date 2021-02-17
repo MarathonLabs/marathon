@@ -6,8 +6,13 @@ import com.malinskiy.marathon.android.AndroidConfiguration
 import com.malinskiy.marathon.android.DEFAULT_APPLICATION_PM_CLEAR
 import com.malinskiy.marathon.android.DEFAULT_AUTO_GRANT_PERMISSION
 import com.malinskiy.marathon.android.DEFAULT_INSTALL_OPTIONS
+import com.malinskiy.marathon.android.DEFAULT_WAIT_FOR_DEVICES_TIMEOUT
+import com.malinskiy.marathon.android.ScreenRecordConfiguration
+import com.malinskiy.marathon.android.VendorType
+import com.malinskiy.marathon.android.adam.di.adamModule
+import com.malinskiy.marathon.android.configuration.DEFAULT_ALLURE_CONFIGURATION
+import com.malinskiy.marathon.android.configuration.SerialStrategy
 import com.malinskiy.marathon.android.defaultInitTimeoutMillis
-import com.malinskiy.marathon.android.serial.SerialStrategy
 import com.malinskiy.marathon.di.marathonStartKoin
 import com.malinskiy.marathon.exceptions.ExceptionsReporter
 import com.malinskiy.marathon.execution.Configuration
@@ -23,6 +28,7 @@ import org.gradle.api.GradleException
 import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.VerificationTask
+import org.koin.core.context.stopKoin
 import java.io.File
 
 private val log = MarathonLogging.logger {}
@@ -75,7 +81,8 @@ open class MarathonRunTask : DefaultTask(), VerificationTask {
             extensionConfig.debug,
             extensionConfig.screenRecordingPolicy,
             vendorConfiguration,
-            extensionConfig.analyticsTracking
+            extensionConfig.analyticsTracking,
+            extensionConfig.deviceInitializationTimeoutMillis
         )
 
         val androidConfiguration = cnf.vendorConfiguration as? AndroidConfiguration
@@ -86,15 +93,18 @@ open class MarathonRunTask : DefaultTask(), VerificationTask {
 
         UsageAnalytics.enable = cnf.analyticsTracking
         UsageAnalytics.USAGE_TRACKER.trackEvent(Event(TrackActionType.RunType, "gradle"))
+        try {
+            val application = marathonStartKoin(cnf)
+            val marathon: Marathon = application.koin.get()
 
-        val application = marathonStartKoin(cnf)
-        val marathon: Marathon = application.koin.get()
-
-        val success = marathon.run()
-        exceptionsTracker.end()
-        val shouldReportFailure = !cnf.ignoreFailures
-        if (!success && shouldReportFailure) {
-            throw GradleException("Tests failed! See ${cnf.outputDir}/html/index.html")
+            val success = marathon.run()
+            exceptionsTracker.end()
+            val shouldReportFailure = !cnf.ignoreFailures
+            if (!success && shouldReportFailure) {
+                throw GradleException("Tests failed! See ${cnf.outputDir}/html/index.html")
+            }
+        } finally {
+            stopKoin()
         }
     }
 
@@ -109,7 +119,15 @@ open class MarathonRunTask : DefaultTask(), VerificationTask {
         val testApplicationPmClear = extension.testApplicationPmClear ?: DEFAULT_APPLICATION_PM_CLEAR
         val adbInitTimeout = extension.adbInitTimeout ?: defaultInitTimeoutMillis
         val installOptions = extension.installOptions ?: DEFAULT_INSTALL_OPTIONS
-        val preferableRecorderType = extension.preferableRecorderType
+        val screenRecordConfiguration = extension.screenRecordConfiguration ?: ScreenRecordConfiguration()
+        val waitForDevicesTimeoutMillis = extension.waitForDevicesTimeoutMillis ?: DEFAULT_WAIT_FOR_DEVICES_TIMEOUT
+        val allureConfiguration = extension.allureConfiguration ?: DEFAULT_ALLURE_CONFIGURATION
+
+        val implementationModules = when (extension.vendor ?: VendorType.DDMLIB) {
+            VendorType.DDMLIB -> listOf(ddmlibModule)
+            VendorType.ADAM -> listOf(adamModule)
+        }
+
         val serialStrategy = when {
             extension.serialStrategy != null -> requireNotNull(extension.serialStrategy)
             extension.serialStrategyName != null -> SerialStrategy.valueOf(requireNotNull(extension.serialStrategyName))
@@ -120,15 +138,17 @@ open class MarathonRunTask : DefaultTask(), VerificationTask {
             androidSdk = sdk,
             applicationOutput = applicationApk,
             testApplicationOutput = instrumentationApk,
-            implementationModules = listOf(ddmlibModule),
+            implementationModules = implementationModules,
             autoGrantPermission = autoGrantPermission,
             instrumentationArgs = instrumentationArgs,
             applicationPmClear = applicationPmClear,
             testApplicationPmClear = testApplicationPmClear,
             adbInitTimeoutMillis = adbInitTimeout,
             installOptions = installOptions,
-            preferableRecorderType = preferableRecorderType,
-            serialStrategy = serialStrategy
+            screenRecordConfiguration = screenRecordConfiguration,
+            serialStrategy = serialStrategy,
+            waitForDevicesTimeoutMillis = waitForDevicesTimeoutMillis,
+            allureConfiguration = allureConfiguration
         )
     }
 
