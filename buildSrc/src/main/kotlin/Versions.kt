@@ -12,6 +12,8 @@ object Versions {
     val logbackClassic = "1.2.3"
     val axmlParser = "1.0"
     val bugsnag = "3.6.1"
+    val asm = "9.1"
+    val clikt = "3.1.0"
 
     val junitGradle = "1.0.0"
     val androidGradleVersion = "4.0.0"
@@ -94,6 +96,8 @@ object Libraries {
     val allureKotlinCommons = "io.qameta.allure:allure-kotlin-commons:${Versions.allureKotlin}"
     val koin = "org.koin:koin-core:${Versions.koin}"
     val bugsnag = "com.bugsnag:bugsnag:${Versions.bugsnag}"
+    val asm = "org.ow2.asm:asm:${Versions.asm}"
+    val clikt = "com.github.ajalt.clikt:clikt:${Versions.clikt}"
 }
 
 object TestLibraries {

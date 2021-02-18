@@ -1,0 +1,6 @@
+name: "sample-junit4-project tests"
+outputDir: "build/reports/marathon"
+vendorConfiguration:
+  type: "JUnit4"
+  applicationJar: "library/build/libs/library-all.jar"
+  testsJar: "library/build/libs/library-tests.jar"
