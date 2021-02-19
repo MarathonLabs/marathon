@@ -87,3 +87,40 @@ data class TestMethodFilter(@JsonProperty("regex") val regex: Regex) : TestFilte
         return "TestMethodFilter(regex=$regex)"
     }
 }
+
+
+data class AnnotationDataFilter(@JsonProperty("nameRegex") val nameRegex: Regex, @JsonProperty("valueRegex") val valueRegex: Regex ) : TestFilter {
+    class AnnotationData(
+        var name: String,
+        var value: String
+    )
+
+    override fun filter(tests: List<Test>): List<Test> = tests.filter {
+        it.metaProperties.map {
+            AnnotationData(it.name, it.values.getValue("value").toString())
+        }.any {
+            it.annotationMatches(Pair(nameRegex, valueRegex))
+        }
+    }
+    override fun filterNot(tests: List<Test>): List<Test> = tests.filterNot {
+        it.metaProperties.map {
+            AnnotationData(it.name, it.values.getValue("value").toString())
+        }.any {
+            it.annotationMatches(Pair(nameRegex, valueRegex))
+        }
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (other !is AnnotationDataFilter) return false
+        return (nameRegex.toString() + valueRegex.toString()).contentEquals((other.nameRegex.toString() + other.valueRegex.toString()))
+    }
+
+    override fun hashCode(): Int = nameRegex.hashCode() + valueRegex.hashCode()
+
+    override fun toString(): String {
+        return "AnnotationDataFilter(nameRegex=$nameRegex, valuesRegex=$valueRegex)"
+    }
+
+    private fun AnnotationData.annotationMatches(data: Pair<Regex, Regex>) =
+        this.name.matches(data.first) && this.value.matches(data.second)
+}
