@@ -13,6 +13,7 @@ dependencies {
     implementation(TestLibraries.junit)
     implementation(Libraries.asm)
     implementation(project(":core"))
+    implementation(project(":vendor:vendor-junit4:contract"))
 }
 
 tasks.withType<KotlinCompile> {

@@ -15,6 +15,11 @@ object Versions {
     val asm = "9.1"
     val clikt = "3.1.0"
 
+    val grpc = "1.34.1"
+    val grpcKotlin = "1.0.0"
+    val protobufGradle = "0.8.14"
+    val protobuf = "3.14.0"
+
     val junitGradle = "1.0.0"
     val androidGradleVersion = "4.0.0"
 
@@ -98,6 +103,10 @@ object Libraries {
     val bugsnag = "com.bugsnag:bugsnag:${Versions.bugsnag}"
     val asm = "org.ow2.asm:asm:${Versions.asm}"
     val clikt = "com.github.ajalt.clikt:clikt:${Versions.clikt}"
+    val protobufLite = "com.google.protobuf:protobuf-javalite:${Versions.protobuf}"
+    val grpcKotlinStubLite = "io.grpc:grpc-kotlin-stub-lite:${Versions.grpcKotlin}"
+    val grpcOkhttp = "io.grpc:grpc-okhttp:${Versions.grpc}"
+    val grpcNetty = "io.grpc:grpc-netty:${Versions.grpc}"
 }
 
 object TestLibraries {
