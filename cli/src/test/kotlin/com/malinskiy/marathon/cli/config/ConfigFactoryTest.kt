@@ -365,7 +365,8 @@ class ConfigFactoryTest {
             uninstall = Duration.ofSeconds(1),
             install = Duration.parse("P1DT12H30M5S"),
             screenrecorder = Duration.ofHours(1),
-            screencapturer = Duration.ofSeconds(1)
+            screencapturer = Duration.ofSeconds(1),
+            socketTimeout = Duration.ofSeconds(45)
         )
     }
 }
