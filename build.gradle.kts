@@ -2,7 +2,6 @@ import io.gitlab.arturbosch.detekt.extensions.DetektExtension
 
 buildscript {
     repositories {
-        jcenter()
         mavenCentral()
         google()
     }
@@ -36,7 +35,6 @@ allprojects {
 
     repositories {
         mavenLocal()
-        jcenter()
         mavenCentral()
         google()
         maven("https://dl.bintray.com/qameta/maven")

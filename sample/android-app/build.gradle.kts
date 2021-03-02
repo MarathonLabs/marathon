@@ -1,6 +1,5 @@
 buildscript {
     repositories {
-        jcenter()
         mavenCentral()
         google()
     }
@@ -22,7 +21,6 @@ buildscript {
 allprojects {
     repositories {
         maven { url = uri("$rootDir/../build/repository") }
-        jcenter()
         mavenCentral()
         google()
         maven { url = uri("https://dl.bintray.com/qameta/maven") }
