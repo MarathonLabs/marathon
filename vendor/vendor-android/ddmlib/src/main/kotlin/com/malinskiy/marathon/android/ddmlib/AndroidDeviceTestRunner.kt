@@ -194,7 +194,6 @@ class AndroidDeviceTestRunner(private val device: DdmlibAndroidDevice) {
                     this@toDdmlibTestListener.testRunEnded(elapsedTime, runMetrics ?: emptyMap())
                 }
             }
-
         }
     }
 
