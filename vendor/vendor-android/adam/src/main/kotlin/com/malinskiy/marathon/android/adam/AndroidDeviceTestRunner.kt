@@ -43,11 +43,11 @@ class AndroidDeviceTestRunner(private val device: AdamAndroidDevice) {
         val ignoredTests = rawTestBatch.tests.filter { test ->
             test.metaProperties.any { it.name == JUNIT_IGNORE_META_PROPERTY_NAME }
         }
-        val testBatch = TestBatch(rawTestBatch.tests - ignoredTests)
+        val testBatch = TestBatch(rawTestBatch.tests - ignoredTests, rawTestBatch.id)
 
         val androidConfiguration = configuration.vendorConfiguration as AndroidConfiguration
         val info = ApkParser().parseInstrumentationInfo(androidConfiguration.testApplicationOutput)
-        val runnerRequest = prepareTestRunnerRequest(androidConfiguration, info, testBatch)
+        val runnerRequest = prepareTestRunnerRequest(configuration, androidConfiguration, info, testBatch)
 
         var channel: ReceiveChannel<List<TestEvent>>? = null
         try {
@@ -143,6 +143,7 @@ class AndroidDeviceTestRunner(private val device: AdamAndroidDevice) {
     }
 
     private fun prepareTestRunnerRequest(
+        configuration: Configuration,
         androidConfiguration: AndroidConfiguration,
         info: InstrumentationInfo,
         testBatch: TestBatch
@@ -159,7 +160,12 @@ class AndroidDeviceTestRunner(private val device: AdamAndroidDevice) {
             noWindowAnimations = true,
             instrumentOptions = InstrumentOptions(
                 clazz = tests,
-                overrides = androidConfiguration.instrumentationArgs
+                coverageFile = if (configuration.isCodeCoverageEnabled) "${device.externalStorageMount}/coverage/coverage-${testBatch.id}.ec" else null,
+                overrides = androidConfiguration.instrumentationArgs.toMutableMap().apply {
+                    if (configuration.isCodeCoverageEnabled){
+                        put("coverage", "true")
+                    }
+                }
             ),
             socketIdleTimeout = Long.MAX_VALUE
         )

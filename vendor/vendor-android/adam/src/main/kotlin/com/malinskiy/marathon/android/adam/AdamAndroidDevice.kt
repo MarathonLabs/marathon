@@ -63,11 +63,12 @@ class AdamAndroidDevice(
     private val client: AndroidDebugBridgeClient,
     private val deviceStateTracker: DeviceStateTracker,
     adbSerial: String,
-    configuration: AndroidConfiguration,
+    configuration: Configuration,
+    androidConfiguration: AndroidConfiguration,
     track: Track,
     timer: Timer,
     serialStrategy: SerialStrategy
-) : BaseAndroidDevice(adbSerial, serialStrategy, configuration, track, timer) {
+) : BaseAndroidDevice(adbSerial, serialStrategy, configuration, androidConfiguration, track, timer) {
 
     /**
      * This adapter is thread-safe but the internal reusable buffer should be considered if we ever need to make screenshots in parallel
@@ -123,7 +124,7 @@ class AdamAndroidDevice(
 
     override suspend fun safeExecuteShellCommand(command: String, errorMessage: String): String? {
         return try {
-            withTimeoutOrNull(configuration.timeoutConfiguration.shell) {
+            withTimeoutOrNull(androidConfiguration.timeoutConfiguration.shell) {
                 client.execute(ShellCommandRequest(command), serial = adbSerial).output
             }
         } catch (e: Exception) {
@@ -133,7 +134,7 @@ class AdamAndroidDevice(
     }
 
     override suspend fun criticalExecuteShellCommand(command: String, errorMessage: String): String {
-        return withTimeoutOrNull(configuration.timeoutConfiguration.shell) {
+        return withTimeoutOrNull(androidConfiguration.timeoutConfiguration.shell) {
             client.execute(ShellCommandRequest(command), serial = adbSerial).output
         } ?: throw CommandRejectedException(errorMessage)
     }
@@ -207,7 +208,7 @@ class AdamAndroidDevice(
             //We have to use a second collection because we're iterating over directoriesToTraverse later
             val currentDepthDirs = mutableListOf<String>()
             for (dir in directoriesToTraverse) {
-                withTimeoutOrNull(configuration.timeoutConfiguration.listFiles) {
+                withTimeoutOrNull(androidConfiguration.timeoutConfiguration.listFiles) {
                     val currentDepthFiles = client.execute(request = ListFilesRequest(dir), serial = adbSerial)
 
                     filesToPull.addAll(currentDepthFiles.filter { it.type == AndroidFileType.REGULAR_FILE })
@@ -237,14 +238,14 @@ class AdamAndroidDevice(
             val localFile = File(localFileDirectory, file.name)
             val remoteFilePath = "${file.directory}${File.separator}${file.name}"
 
-            withTimeoutOrNull(configuration.timeoutConfiguration.pullFile) {
+            withTimeoutOrNull(androidConfiguration.timeoutConfiguration.pullFile) {
                 pullFile(remoteFilePath, localFile.absolutePath)
             } ?: logger.warn { "Pulling $remoteFilePath timed out. Ignoring" }
         }
     }
 
     override suspend fun safeUninstallPackage(appPackage: String, keepData: Boolean): String? {
-        return withTimeoutOrNull(configuration.timeoutConfiguration.uninstall) {
+        return withTimeoutOrNull(androidConfiguration.timeoutConfiguration.uninstall) {
             client.execute(UninstallRemotePackageRequest(appPackage, keepData = keepData), serial = adbSerial).output
         }
     }
@@ -254,14 +255,14 @@ class AdamAndroidDevice(
         val remotePath = "/data/local/tmp/${file.name}"
 
         try {
-            withTimeoutOrNull(configuration.timeoutConfiguration.pushFile) {
+            withTimeoutOrNull(androidConfiguration.timeoutConfiguration.pushFile) {
                 pushFile(absolutePath, remotePath, verify = true)
             } ?: throw InstallException("Timeout transferring $absolutePath")
         } catch (e: TransferException) {
             throw InstallException(e)
         }
 
-        val result = withTimeoutOrNull(configuration.timeoutConfiguration.install) {
+        val result = withTimeoutOrNull(androidConfiguration.timeoutConfiguration.install) {
             client.execute(
                 InstallRemotePackageRequest(
                     remotePath,
@@ -306,7 +307,7 @@ class AdamAndroidDevice(
     ) {
         val screenRecorderCommand = options.toScreenRecorderCommand(remoteFilePath)
         try {
-            withTimeoutOrNull(configuration.timeoutConfiguration.screenrecorder) {
+            withTimeoutOrNull(androidConfiguration.timeoutConfiguration.screenrecorder) {
                 val output = client.execute(ShellCommandRequest(screenRecorderCommand), serial = adbSerial)
                 logger.debug { "screenrecord output:\n $output" }
             }
