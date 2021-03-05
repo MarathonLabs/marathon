@@ -97,7 +97,6 @@ abstract class BaseAndroidDevice(
         realSerialNumber = detectRealSerialNumber()
         md5cmd = detectMd5Binary()
 
-
         if (androidConfiguration.allureConfiguration.enabled) {
             androidConfiguration.fileSyncConfiguration.pull.add(
                 FileSyncEntry(
@@ -107,15 +106,13 @@ abstract class BaseAndroidDevice(
             )
         }
 
-        if(configuration.isCodeCoverageEnabled){
-            if (configuration.isCodeCoverageEnabled){
-                androidConfiguration.fileSyncConfiguration.pull.add(
-                    FileSyncEntry(
-                        "coverage",
-                        AggregationMode.TEST_RUN
-                    )
+        if (configuration.isCodeCoverageEnabled) {
+            androidConfiguration.fileSyncConfiguration.pull.add(
+                FileSyncEntry(
+                    "coverage",
+                    AggregationMode.TEST_RUN
                 )
-            }
+            )
         }
     }
 
@@ -309,7 +306,7 @@ abstract class BaseAndroidDevice(
 
         return when {
             supportedFeatures.contains(DeviceFeature.SCREENSHOT) && screenshotEnabled -> DeviceFeature.SCREENSHOT
-            supportedFeatures.contains(DeviceFeature.VIDEO) && videoEnabled -> DeviceFeature.SCREENSHOT
+            supportedFeatures.contains(DeviceFeature.VIDEO) && videoEnabled -> DeviceFeature.VIDEO
             else -> null
         }
     }
