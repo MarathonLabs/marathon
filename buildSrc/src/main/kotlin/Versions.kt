@@ -46,7 +46,7 @@ object Versions {
     val mockitoKotlin = "2.0.0"
     val googleAnalitycsWrapper = "2.0.0"
     val dokka = "0.9.17"
-    val koin = "2.0.1"
+    val koin = "3.0.1-alpha-6"
     val jsonAssert = "1.5.0"
     val xmlUnit = "2.6.3"
     val assertk = "0.19"
@@ -90,7 +90,7 @@ object Libraries {
     val allure = "io.qameta.allure:allure-java-commons:${Versions.allureJava}"
     val allureEnvironment = "com.github.automatedowl:allure-environment-writer:${Versions.allureEnvironment}"
     val allureKotlinCommons = "io.qameta.allure:allure-kotlin-commons:${Versions.allureKotlin}"
-    val koin = "org.koin:koin-core:${Versions.koin}"
+    val koin = "io.insert-koin:koin-core:${Versions.koin}"
     val bugsnag = "com.bugsnag:bugsnag:${Versions.bugsnag}"
 }
 
@@ -102,7 +102,7 @@ object TestLibraries {
     val junit = "junit:junit:${Versions.junit}"
     val mockitoKotlin = "com.nhaarman.mockitokotlin2:mockito-kotlin:${Versions.mockitoKotlin}"
     val jupiterEngine = "org.junit.jupiter:junit-jupiter-engine:${Versions.jupiterEngine}"
-    val koin = "org.koin:koin-test:${Versions.koin}"
+    val koin = "io.insert-koin:koin-test:${Versions.koin}"
     val jsonAssert = "org.skyscreamer:jsonassert:${Versions.jsonAssert}"
     val xmlUnit = "org.xmlunit:xmlunit-matchers:${Versions.xmlUnit}"
     val assertk = "com.willowtreeapps.assertk:assertk:${Versions.assertk}"

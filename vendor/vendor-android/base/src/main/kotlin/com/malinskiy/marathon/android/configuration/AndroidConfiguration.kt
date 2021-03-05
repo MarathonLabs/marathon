@@ -10,8 +10,8 @@ import com.malinskiy.marathon.device.DeviceProvider
 import com.malinskiy.marathon.execution.TestParser
 import com.malinskiy.marathon.log.MarathonLogConfigurator
 import com.malinskiy.marathon.vendor.VendorConfiguration
-import org.koin.core.KoinComponent
-import org.koin.core.get
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.get
 import org.koin.core.module.Module
 import java.io.File
 
@@ -43,9 +43,9 @@ data class AndroidConfiguration(
 
     private val koinModules = listOf(androidModule) + implementationModules
 
-    override fun testParser(): TestParser? = get()
+    override fun testParser(): TestParser = get()
 
-    override fun deviceProvider(): DeviceProvider? = get()
+    override fun deviceProvider(): DeviceProvider = get()
 
     override fun logConfigurator(): MarathonLogConfigurator = AndroidLogConfigurator()
 
