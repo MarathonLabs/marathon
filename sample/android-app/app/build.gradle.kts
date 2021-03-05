@@ -25,6 +25,9 @@ android {
             isMinifyEnabled = false
             proguardFiles("proguard-rules.pro")
         }
+        getByName("debug") {
+            isTestCoverageEnabled = true
+        }
     }
 }
 

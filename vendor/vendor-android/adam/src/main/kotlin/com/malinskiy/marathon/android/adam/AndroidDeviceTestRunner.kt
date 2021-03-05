@@ -123,21 +123,21 @@ class AndroidDeviceTestRunner(private val device: AdamAndroidDevice) {
                 logger.debug { "Package ${info.instrumentationPackage} cleared: $it" }
             }
         }
-        if (androidConfiguration.allureConfiguration.enabled) {
+        if (androidConfiguration.fileSyncConfiguration.pull.isNotEmpty()) {
             when {
                 device.version.isGreaterOrEqualThan(30) -> {
                     val command = "appops set --uid ${info.applicationPackage} MANAGE_EXTERNAL_STORAGE allow"
                     device.criticalExecuteShellCommand(command).also {
-                        logger.debug { "Allure is enabled. Granted MANAGE_EXTERNAL_STORAGE to ${info.applicationPackage}: ${it.trim()}" }
+                        logger.debug { "File pull requested. Granted MANAGE_EXTERNAL_STORAGE to ${info.applicationPackage}: ${it.trim()}" }
                     }
                 }
                 device.version.equals(29) -> {
                     //API 29 doesn't have MANAGE_EXTERNAL_STORAGE, force legacy storage
                     val command = "appops set --uid ${info.applicationPackage} LEGACY_STORAGE allow"
                     device.criticalExecuteShellCommand(command).also {
-                        logger.debug { "Allure is enabled. Granted LEGACY_STORAGE to ${info.applicationPackage}: ${it.trim()}" }
+                        logger.debug { "File pull requested. Granted LEGACY_STORAGE to ${info.applicationPackage}: ${it.trim()}" }
                     }
-                }    
+                }
             }
         }
     }
