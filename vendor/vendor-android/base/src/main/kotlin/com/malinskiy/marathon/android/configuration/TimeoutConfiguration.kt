@@ -12,5 +12,5 @@ data class TimeoutConfiguration(
     var install: Duration = shell,
     var screenrecorder: Duration = Duration.ofMinutes(10),
     var screencapturer: Duration = Duration.ofMillis(300),
-    var socketTimeout: Duration = Duration.ofSeconds(30)
+    var socketIdleTimeout: Duration = Duration.ofSeconds(30)
 )

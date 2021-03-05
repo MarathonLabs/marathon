@@ -64,7 +64,7 @@ class AdamDeviceProvider(
 
         client = AndroidDebugBridgeClientFactory().apply {
             coroutineContext = adbCommunicationContext
-            idleTimeout = vendorConfiguration.timeoutConfiguration.socketTimeout
+            idleTimeout = vendorConfiguration.timeoutConfiguration.socketIdleTimeout
         }.build()
 
         try {
