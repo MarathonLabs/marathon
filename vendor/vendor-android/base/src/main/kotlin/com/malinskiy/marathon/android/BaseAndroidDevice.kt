@@ -2,16 +2,18 @@ package com.malinskiy.marathon.android
 
 import com.android.sdklib.AndroidVersion
 import com.malinskiy.marathon.analytics.internal.pub.Track
+import com.malinskiy.marathon.android.configuration.AggregationMode
+import com.malinskiy.marathon.android.configuration.FileSyncEntry
 import com.malinskiy.marathon.android.configuration.SerialStrategy
 import com.malinskiy.marathon.android.exception.InvalidSerialConfiguration
 import com.malinskiy.marathon.android.exception.TransferException
-import com.malinskiy.marathon.android.executor.listeners.AllureArtifactsTestRunListener
 import com.malinskiy.marathon.android.executor.listeners.CompositeTestRunListener
 import com.malinskiy.marathon.android.executor.listeners.DebugTestRunListener
 import com.malinskiy.marathon.android.executor.listeners.LogCatListener
 import com.malinskiy.marathon.android.executor.listeners.NoOpTestRunListener
 import com.malinskiy.marathon.android.executor.listeners.ProgressTestRunListener
 import com.malinskiy.marathon.android.executor.listeners.TestRunResultsListener
+import com.malinskiy.marathon.android.executor.listeners.filesync.FileSyncTestRunListener
 import com.malinskiy.marathon.android.executor.listeners.screenshot.ScreenCapturerTestRunListener
 import com.malinskiy.marathon.android.executor.listeners.video.ScreenRecorderTestRunListener
 import com.malinskiy.marathon.android.model.Rotation
@@ -93,6 +95,15 @@ abstract class BaseAndroidDevice(
         deviceFeatures = detectFeatures()
         realSerialNumber = detectRealSerialNumber()
         md5cmd = detectMd5Binary()
+
+        if (configuration.allureConfiguration.enabled) {
+            configuration.fileSyncConfiguration.pull.add(
+                FileSyncEntry(
+                    configuration.allureConfiguration.relativeResultsDirectory,
+                    AggregationMode.TEST_RUN
+                )
+            )
+        }
     }
 
     override suspend fun safePullFile(remoteFilePath: String, localFilePath: String) {
@@ -224,13 +235,11 @@ abstract class BaseAndroidDevice(
         val recorderListener = selectRecorderType(features, recordConfiguration)?.let { feature ->
             prepareRecorderListener(feature, fileManager, devicePoolId, screenRecordingPolicy, attachmentProviders)
         } ?: NoOpTestRunListener()
-        val allureListener = when (this@BaseAndroidDevice.configuration.allureConfiguration.enabled) {
-            false -> NoOpTestRunListener()
-            true -> AllureArtifactsTestRunListener(this, this@BaseAndroidDevice.configuration.allureConfiguration, fileManager)
-        }
 
         val logCatListener = LogCatListener(this, devicePoolId, LogWriter(fileManager))
             .also { attachmentProviders.add(it) }
+        val fileSyncTestRunListener =
+            FileSyncTestRunListener(devicePoolId, this, this@BaseAndroidDevice.configuration.fileSyncConfiguration, fileManager)
 
         return CompositeTestRunListener(
             listOf(
@@ -239,7 +248,7 @@ abstract class BaseAndroidDevice(
                 TestRunResultsListener(testBatch, this, deferred, timer, attachmentProviders),
                 DebugTestRunListener(this),
                 ProgressTestRunListener(this, devicePoolId, progressReporter),
-                allureListener
+                fileSyncTestRunListener
             )
         )
     }

@@ -1,13 +1,13 @@
 package com.malinskiy.marathon.android
 
 import com.android.ddmlib.IDevice
-import com.android.ddmlib.testrunner.ITestRunListener
 import com.android.sdklib.AndroidVersion
 import com.malinskiy.marathon.analytics.internal.pub.Track
 import com.malinskiy.marathon.android.configuration.SerialStrategy
 import com.malinskiy.marathon.android.ddmlib.AndroidDeviceTestRunner
 import com.malinskiy.marathon.android.ddmlib.DdmlibAndroidDevice
-import com.malinskiy.marathon.android.ddmlib.toTestIdentifier
+import com.malinskiy.marathon.android.executor.listeners.AndroidTestRunListener
+import com.malinskiy.marathon.android.model.TestIdentifier
 import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.test.MetaProperty
 import com.malinskiy.marathon.test.TestBatch
@@ -79,16 +79,18 @@ class AndroidDeviceTestRunnerTest {
         )
         val ignoredTest =
             MarathonTest("ignored", "ignored", "ignored", listOf(MetaProperty("org.junit.Ignore")))
-        val identifier = ignoredTest.toTestIdentifier()
+        val identifier = ignoredTest.toMarathonTestIdentifier()
         val validTest = MarathonTest("test", "test", "test", emptyList())
         val batch = TestBatch(listOf(ignoredTest, validTest))
-        val listener = mock<ITestRunListener>()
+        val listener = mock<AndroidTestRunListener>()
         runBlocking {
             androidDeviceTestRunner.execute(configuration, batch, listener)
+            verify(listener).beforeTestRun()
+            verify(listener).testStarted(eq(identifier))
+            verify(listener).testIgnored(eq(identifier))
+            verify(listener).testEnded(eq(identifier), eq(hashMapOf()))
         }
-        verify(listener).testStarted(eq(identifier))
-        verify(listener).testIgnored(eq(identifier))
-        verify(listener).testEnded(eq(identifier), eq(hashMapOf()))
+
         verifyNoMoreInteractions(listener)
 
     }
@@ -145,16 +147,19 @@ class AndroidDeviceTestRunnerTest {
         )
         val ignoredTest =
             MarathonTest("ignored", "ignored", "ignored", listOf(MetaProperty("org.junit.Ignore")))
-        val identifier = ignoredTest.toTestIdentifier()
+        val identifier = ignoredTest.toMarathonTestIdentifier()
         val batch = TestBatch(listOf(ignoredTest))
-        val listener = mock<ITestRunListener>()
+        val listener = mock<AndroidTestRunListener>()
         runBlocking {
             androidDeviceTestRunner.execute(configuration, batch, listener)
+            verify(listener).testStarted(eq(identifier))
+            verify(listener).testIgnored(eq(identifier))
+            verify(listener).testEnded(eq(identifier), eq(emptyMap()))
+            verify(listener).testRunEnded(eq(0), eq(emptyMap()))
         }
-        verify(listener).testStarted(eq(identifier))
-        verify(listener).testIgnored(eq(identifier))
-        verify(listener).testEnded(eq(identifier), eq(emptyMap()))
-        verify(listener).testRunEnded(eq(0), eq(emptyMap()))
         verifyNoMoreInteractions(listener)
     }
 }
+
+private fun com.malinskiy.marathon.test.Test.toMarathonTestIdentifier() =
+    TestIdentifier("$pkg.$clazz", method)
