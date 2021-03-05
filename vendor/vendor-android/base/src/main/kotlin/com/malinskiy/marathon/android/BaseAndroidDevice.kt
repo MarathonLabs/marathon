@@ -110,7 +110,7 @@ abstract class BaseAndroidDevice(
             androidConfiguration.fileSyncConfiguration.pull.add(
                 FileSyncEntry(
                     "coverage",
-                    AggregationMode.TEST_RUN
+                    AggregationMode.POOL
                 )
             )
         }
