@@ -43,11 +43,11 @@ class AndroidDeviceTestRunner(private val device: AdamAndroidDevice) {
         val ignoredTests = rawTestBatch.tests.filter { test ->
             test.metaProperties.any { it.name == JUNIT_IGNORE_META_PROPERTY_NAME }
         }
-        val testBatch = TestBatch(rawTestBatch.tests - ignoredTests)
+        val testBatch = TestBatch(rawTestBatch.tests - ignoredTests, rawTestBatch.id)
 
         val androidConfiguration = configuration.vendorConfiguration as AndroidConfiguration
         val info = ApkParser().parseInstrumentationInfo(androidConfiguration.testApplicationOutput)
-        val runnerRequest = prepareTestRunnerRequest(androidConfiguration, info, testBatch)
+        val runnerRequest = prepareTestRunnerRequest(configuration, androidConfiguration, info, testBatch)
 
         var channel: ReceiveChannel<List<TestEvent>>? = null
         try {
@@ -123,26 +123,27 @@ class AndroidDeviceTestRunner(private val device: AdamAndroidDevice) {
                 logger.debug { "Package ${info.instrumentationPackage} cleared: $it" }
             }
         }
-        if (androidConfiguration.allureConfiguration.enabled) {
+        if (androidConfiguration.fileSyncConfiguration.pull.isNotEmpty()) {
             when {
                 device.version.isGreaterOrEqualThan(30) -> {
                     val command = "appops set --uid ${info.applicationPackage} MANAGE_EXTERNAL_STORAGE allow"
                     device.criticalExecuteShellCommand(command).also {
-                        logger.debug { "Allure is enabled. Granted MANAGE_EXTERNAL_STORAGE to ${info.applicationPackage}: ${it.trim()}" }
+                        logger.debug { "File pull requested. Granted MANAGE_EXTERNAL_STORAGE to ${info.applicationPackage}: ${it.trim()}" }
                     }
                 }
                 device.version.equals(29) -> {
                     //API 29 doesn't have MANAGE_EXTERNAL_STORAGE, force legacy storage
                     val command = "appops set --uid ${info.applicationPackage} LEGACY_STORAGE allow"
                     device.criticalExecuteShellCommand(command).also {
-                        logger.debug { "Allure is enabled. Granted LEGACY_STORAGE to ${info.applicationPackage}: ${it.trim()}" }
+                        logger.debug { "File pull requested. Granted LEGACY_STORAGE to ${info.applicationPackage}: ${it.trim()}" }
                     }
-                }    
+                }
             }
         }
     }
 
     private fun prepareTestRunnerRequest(
+        configuration: Configuration,
         androidConfiguration: AndroidConfiguration,
         info: InstrumentationInfo,
         testBatch: TestBatch
@@ -159,7 +160,12 @@ class AndroidDeviceTestRunner(private val device: AdamAndroidDevice) {
             noWindowAnimations = true,
             instrumentOptions = InstrumentOptions(
                 clazz = tests,
-                overrides = androidConfiguration.instrumentationArgs
+                coverageFile = if (configuration.isCodeCoverageEnabled) "${device.externalStorageMount}/coverage/coverage-${testBatch.id}.ec" else null,
+                overrides = androidConfiguration.instrumentationArgs.toMutableMap().apply {
+                    if (configuration.isCodeCoverageEnabled){
+                        put("coverage", "true")
+                    }
+                }
             ),
             socketIdleTimeout = Long.MAX_VALUE
         )
