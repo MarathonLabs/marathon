@@ -305,8 +305,8 @@ abstract class BaseAndroidDevice(
         }
 
         return when {
-            supportedFeatures.contains(DeviceFeature.SCREENSHOT) && screenshotEnabled -> DeviceFeature.SCREENSHOT
             supportedFeatures.contains(DeviceFeature.VIDEO) && videoEnabled -> DeviceFeature.VIDEO
+            supportedFeatures.contains(DeviceFeature.SCREENSHOT) && screenshotEnabled -> DeviceFeature.SCREENSHOT
             else -> null
         }
     }
