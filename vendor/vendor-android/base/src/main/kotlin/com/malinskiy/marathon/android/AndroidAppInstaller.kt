@@ -6,6 +6,7 @@ import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.execution.withRetry
 import com.malinskiy.marathon.log.MarathonLogging
 import java.io.File
+import kotlin.system.measureTimeMillis
 
 class AndroidAppInstaller(configuration: Configuration) {
 
@@ -21,14 +22,22 @@ class AndroidAppInstaller(configuration: Configuration) {
      * @throws DeviceSetupException if unable to prepare the device
      */
     suspend fun prepareInstallation(device: AndroidDevice) {
-        val applicationInfo = ApkParser().parseInstrumentationInfo(androidConfiguration.testApplicationOutput)
+        var applicationInfo: InstrumentationInfo? = null
+        measureTimeMillis {
+            applicationInfo = ApkParser().parseInstrumentationInfo(androidConfiguration.testApplicationOutput)
+        }.let { time -> println("parsing instrumentation took $time ms") }
+
         logger.debug { "Installing application output to ${device.serialNumber}" }
-        androidConfiguration.applicationOutput?.let {
-            reinstall(device, applicationInfo.applicationPackage, it)
-        }
+        measureTimeMillis {
+            androidConfiguration.applicationOutput?.let {
+                reinstall(device, applicationInfo!!.applicationPackage, it)
+            }
+        }.let { time -> println("installing app took $time ms") }
         logger.debug { "Installing instrumentation package to ${device.serialNumber}" }
-        reinstall(device, applicationInfo.instrumentationPackage, androidConfiguration.testApplicationOutput)
-        logger.debug { "Prepare installation finished for ${device.serialNumber}" }
+        measureTimeMillis {
+            reinstall(device, applicationInfo!!.instrumentationPackage, androidConfiguration.testApplicationOutput)
+            logger.debug { "Prepare installation finished for ${device.serialNumber}" }
+        }.let { time -> println("installing test app took $time ms") }
     }
 
     /**

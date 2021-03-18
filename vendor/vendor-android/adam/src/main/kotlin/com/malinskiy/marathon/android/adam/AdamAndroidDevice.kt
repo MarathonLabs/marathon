@@ -53,6 +53,7 @@ import kotlinx.coroutines.channels.ReceiveChannel
 import kotlinx.coroutines.channels.receiveOrNull
 import kotlinx.coroutines.newFixedThreadPoolContext
 import kotlinx.coroutines.supervisorScope
+import kotlinx.coroutines.withContext
 import java.awt.image.BufferedImage
 import java.io.File
 import java.time.Duration
@@ -75,7 +76,7 @@ class AdamAndroidDevice(
     private val imageScreenCaptureAdapter = BufferedImageScreenCaptureAdapter()
     private lateinit var supportedFeatures: List<Feature>
 
-    override suspend fun setup() {
+    override suspend fun setup() = withContext(coroutineContext) {
         super.setup()
 
         fetchProps()
@@ -253,13 +254,15 @@ class AdamAndroidDevice(
         val file = File(absolutePath)
         val remotePath = "/data/local/tmp/${file.name}"
 
-        try {
-            withTimeoutOrNull(configuration.timeoutConfiguration.pushFile) {
-                pushFile(absolutePath, remotePath, verify = true)
-            } ?: throw InstallException("Timeout transferring $absolutePath")
-        } catch (e: TransferException) {
-            throw InstallException(e)
-        }
+        measureTimeMillis {
+            try {
+                withTimeoutOrNull(configuration.timeoutConfiguration.pushFile) {
+                    pushFile(absolutePath, remotePath, verify = true)
+                } ?: throw InstallException("Timeout transferring $absolutePath")
+            } catch (e: TransferException) {
+                throw InstallException(e)
+            }
+        }.let { time -> println("pushing took $time ms") }
 
         val result = withTimeoutOrNull(configuration.timeoutConfiguration.install) {
             client.execute(
@@ -271,7 +274,10 @@ class AdamAndroidDevice(
             )
         } ?: throw InstallException("Timeout transferring $absolutePath")
 
-        safeExecuteShellCommand("rm $remotePath")
+        measureTimeMillis {
+            safeExecuteShellCommand("rm $remotePath")
+        }.let { time -> println("rm package file took $time ms") }
+
         return result.output.trim()
     }
 
@@ -359,10 +365,18 @@ class AdamAndroidDevice(
 
     override suspend fun prepare(configuration: Configuration) = supervisorScope {
         track.trackDevicePreparing(this@AdamAndroidDevice) {
-            AndroidAppInstaller(configuration).prepareInstallation(this@AdamAndroidDevice)
-            fileManager.removeRemoteDirectory()
-            fileManager.createRemoteDirectory()
-            clearLogcat()
+            measureTimeMillis {
+                AndroidAppInstaller(configuration).prepareInstallation(this@AdamAndroidDevice)
+            }.let { time -> println("Install took $time ms") }
+
+            measureTimeMillis {
+                fileManager.removeRemoteDirectory()
+                fileManager.createRemoteDirectory()
+            }.let { time -> println("Remote dirs took $time ms") }
+
+            measureTimeMillis {
+                clearLogcat()
+            }.let { time -> println("Clearing logcat took $time ms") }
         }
     }
 

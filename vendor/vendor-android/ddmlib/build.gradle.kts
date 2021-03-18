@@ -12,7 +12,7 @@ dependencies {
     implementation(Libraries.allure)
     implementation(Libraries.kotlinCoroutines)
     implementation(Libraries.kotlinLogging)
-    implementation(Libraries.ddmlib)
+    api(Libraries.ddmlib)
     implementation(Libraries.dexTestParser)
     implementation(Libraries.axmlParser)
     implementation(Libraries.jacksonAnnotations)
