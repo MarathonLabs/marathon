@@ -236,7 +236,7 @@ class AdamAndroidDevice(
                 mkdirs()
             }
             val localFile = File(localFileDirectory, file.name)
-            val remoteFilePath = "${file.directory}${File.separator}${file.name}"
+            val remoteFilePath = "${file.directory}/${file.name}"
 
             withTimeoutOrNull(androidConfiguration.timeoutConfiguration.pullFile) {
                 pullFile(remoteFilePath, localFile.absolutePath)
