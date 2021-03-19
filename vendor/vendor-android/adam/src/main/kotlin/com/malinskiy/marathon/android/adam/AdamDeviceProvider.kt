@@ -34,7 +34,7 @@ import kotlin.coroutines.CoroutineContext
 private const val DEFAULT_WAIT_FOR_DEVICES_SLEEP_TIME = 500L
 
 class AdamDeviceProvider(
-    configuration: Configuration,
+    val configuration: Configuration,
     androidConfiguration: AndroidConfiguration,
     private val track: Track,
     private val timer: Timer
