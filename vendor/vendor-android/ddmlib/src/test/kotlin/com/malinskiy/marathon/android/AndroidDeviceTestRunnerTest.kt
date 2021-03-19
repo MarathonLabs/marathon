@@ -28,7 +28,21 @@ import com.malinskiy.marathon.test.Test as MarathonTest
 class AndroidDeviceTestRunnerTest {
 
     @Test
-    fun `should handle ignored tests before execution`() {
+    fun `should handle junit Ignore annotation`() {
+        verifyIgnored("org.junit.Ignore")
+    }
+
+    @Test
+    fun `should handle Suppress annotation`() {
+        verifyIgnored("android.support.test.filters.Suppress")
+    }
+
+    @Test
+    fun `should handle suitebuilder Suppress annotation`() {
+        verifyIgnored("android.test.suitebuilder.annotation.Suppress")
+    }
+
+    private fun verifyIgnored(annotationName: String) {
         val ddmsDevice = mock<IDevice>()
         val androidConfiguration = mock<AndroidConfiguration>()
         whenever(ddmsDevice.serialNumber).doReturn("testSerial")
@@ -81,11 +95,11 @@ class AndroidDeviceTestRunnerTest {
 
         val androidDeviceTestRunner = AndroidDeviceTestRunner(device)
 
-        val ignoredTest =
-            MarathonTest("ignored", "ignored", "ignored", listOf(MetaProperty("org.junit.Ignore")))
-        val identifier = ignoredTest.toMarathonTestIdentifier()
+        val junitIgnoredTest =
+            MarathonTest("ignored", "ignored", "ignored", listOf(MetaProperty(annotationName)))
+        val identifier = junitIgnoredTest.toMarathonTestIdentifier()
         val validTest = MarathonTest("test", "test", "test", emptyList())
-        val batch = TestBatch(listOf(ignoredTest, validTest))
+        val batch = TestBatch(listOf(junitIgnoredTest, validTest))
         val listener = mock<AndroidTestRunListener>()
         runBlocking {
             androidDeviceTestRunner.execute(configuration, batch, listener)
@@ -96,7 +110,6 @@ class AndroidDeviceTestRunnerTest {
         }
 
         verifyNoMoreInteractions(listener)
-
     }
 
     @Test
