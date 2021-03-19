@@ -48,11 +48,12 @@ import kotlin.coroutines.resumeWithException
 class DdmlibAndroidDevice(
     val ddmsDevice: IDevice,
     adbSerial: String,
-    configuration: AndroidConfiguration,
+    configuration: Configuration,
+    androidConfiguration: AndroidConfiguration,
     track: Track,
     timer: Timer,
     serialStrategy: SerialStrategy
-) : BaseAndroidDevice(adbSerial, serialStrategy, configuration, track, timer) {
+) : BaseAndroidDevice(adbSerial, serialStrategy, configuration, androidConfiguration, track, timer) {
 
     override suspend fun setup() {
         super.setup()

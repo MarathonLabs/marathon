@@ -105,6 +105,7 @@ class AdamDeviceProvider(
                                             client,
                                             deviceStateTracker,
                                             serial,
+                                            configuration,
                                             vendorConfiguration,
                                             track,
                                             timer,

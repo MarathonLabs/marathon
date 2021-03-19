@@ -32,7 +32,7 @@ private const val DEFAULT_DDM_LIB_SLEEP_TIME = 500
 private const val DEFAULT_DDM_LIB_CREATE_BRIDGE_TIMEOUT = Long.MAX_VALUE
 
 class DdmlibDeviceProvider(
-    configuration: Configuration,
+    private val configuration: Configuration,
     private val track: Track,
     private val timer: Timer
 ) : DeviceProvider, CoroutineScope {
@@ -75,6 +75,7 @@ class DdmlibDeviceProvider(
                             DdmlibAndroidDevice(
                                 it,
                                 device.serialNumber,
+                                configuration,
                                 vendorConfiguration,
                                 track,
                                 timer,
@@ -102,6 +103,7 @@ class DdmlibDeviceProvider(
                             DdmlibAndroidDevice(
                                 it,
                                 device.serialNumber,
+                                configuration,
                                 vendorConfiguration,
                                 track,
                                 timer,
