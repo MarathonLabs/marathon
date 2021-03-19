@@ -5,6 +5,7 @@ import com.malinskiy.marathon.android.configuration.AndroidLogConfigurator
 import com.malinskiy.marathon.android.configuration.DEFAULT_ALLURE_CONFIGURATION
 import com.malinskiy.marathon.android.configuration.FileSyncConfiguration
 import com.malinskiy.marathon.android.configuration.SerialStrategy
+import com.malinskiy.marathon.android.configuration.ThreadingConfiguration
 import com.malinskiy.marathon.android.configuration.TimeoutConfiguration
 import com.malinskiy.marathon.android.di.androidModule
 import com.malinskiy.marathon.device.DeviceProvider
@@ -14,6 +15,7 @@ import com.malinskiy.marathon.vendor.VendorConfiguration
 import org.koin.core.KoinComponent
 import org.koin.core.get
 import org.koin.core.module.Module
+import org.koin.dsl.module
 import java.io.File
 
 const val defaultInitTimeoutMillis = 30_000
@@ -41,9 +43,8 @@ data class AndroidConfiguration(
     val allureConfiguration: AllureConfiguration = DEFAULT_ALLURE_CONFIGURATION,
     val timeoutConfiguration: TimeoutConfiguration = TimeoutConfiguration(),
     val fileSyncConfiguration: FileSyncConfiguration = FileSyncConfiguration(),
+    val threadingConfiguration: ThreadingConfiguration = ThreadingConfiguration(),
 ) : VendorConfiguration, KoinComponent {
-
-    private val koinModules = listOf(androidModule) + implementationModules
 
     override fun testParser(): TestParser? = get()
 
@@ -51,5 +52,5 @@ data class AndroidConfiguration(
 
     override fun logConfigurator(): MarathonLogConfigurator = AndroidLogConfigurator()
 
-    override fun modules() = koinModules
+    override fun modules() = listOf(androidModule) + implementationModules + module { single { this@AndroidConfiguration } }
 }

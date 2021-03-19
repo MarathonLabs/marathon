@@ -34,7 +34,8 @@ import kotlin.coroutines.CoroutineContext
 private const val DEFAULT_WAIT_FOR_DEVICES_SLEEP_TIME = 500L
 
 class AdamDeviceProvider(
-    private val configuration: Configuration,
+    val configuration: Configuration,
+    androidConfiguration: AndroidConfiguration,
     private val track: Track,
     private val timer: Timer
 ) : DeviceProvider, CoroutineScope {
@@ -42,12 +43,13 @@ class AdamDeviceProvider(
     private val logger = MarathonLogging.logger("AdamDeviceProvider")
 
     private val channel: Channel<DeviceProvider.DeviceEvent> = unboundedChannel()
-    private val bootWaitContext = newFixedThreadPoolContext(4, "AdamDeviceProvider")
+    private val bootWaitContext =
+        newFixedThreadPoolContext(androidConfiguration.threadingConfiguration.bootWaitingThreads, "BootWaitThreadPool")
     override val coroutineContext: CoroutineContext
         get() = bootWaitContext
 
     private val adbCommunicationContext: CoroutineContext by lazy {
-        newFixedThreadPoolContext(4, "AdbIOThreadPool")
+        newFixedThreadPoolContext(androidConfiguration.threadingConfiguration.adbIoThreads, "AdbIOThreadPool")
     }
 
     override val deviceInitializationTimeoutMillis: Long = configuration.deviceInitializationTimeoutMillis
