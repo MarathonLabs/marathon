@@ -16,6 +16,7 @@ import com.malinskiy.marathon.android.AndroidConfiguration
 import com.malinskiy.marathon.android.ApkParser
 import com.malinskiy.marathon.android.InstrumentationInfo
 import com.malinskiy.marathon.android.executor.listeners.AndroidTestRunListener
+import com.malinskiy.marathon.android.extension.isIgnored
 import com.malinskiy.marathon.android.model.TestIdentifier
 import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.log.MarathonLogging
@@ -27,7 +28,6 @@ import kotlinx.coroutines.channels.receiveOrNull
 import kotlinx.coroutines.withTimeoutOrNull
 import java.io.IOException
 
-const val JUNIT_IGNORE_META_PROPERTY_NAME = "org.junit.Ignore"
 const val ERROR_STUCK = "Test got stuck. You can increase the timeout in settings if it's too strict"
 
 class AndroidDeviceTestRunner(private val device: AdamAndroidDevice) {
@@ -40,9 +40,7 @@ class AndroidDeviceTestRunner(private val device: AdamAndroidDevice) {
         listener: AndroidTestRunListener
     ) {
 
-        val ignoredTests = rawTestBatch.tests.filter { test ->
-            test.metaProperties.any { it.name == JUNIT_IGNORE_META_PROPERTY_NAME }
-        }
+        val ignoredTests = rawTestBatch.tests.filter { test -> test.isIgnored() }
         val testBatch = TestBatch(rawTestBatch.tests - ignoredTests, rawTestBatch.id)
 
         val androidConfiguration = configuration.vendorConfiguration as AndroidConfiguration
