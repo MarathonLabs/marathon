@@ -50,7 +50,6 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.async
 import kotlinx.coroutines.channels.ReceiveChannel
-import kotlinx.coroutines.channels.receiveOrNull
 import kotlinx.coroutines.newFixedThreadPoolContext
 import kotlinx.coroutines.supervisorScope
 import kotlinx.coroutines.withContext
@@ -91,9 +90,7 @@ class AdamAndroidDevice(
 
         async {
             val parser = LogCatMessageParser()
-
-            while (!logcatChannel.isClosedForReceive) {
-                val logPart = logcatChannel.receiveOrNull() ?: continue
+            for (logPart in logcatChannel) {
                 val messages = parser.processLogLines(logPart.lines(), this@AdamAndroidDevice)
                 //TODO: replace with Mutex.lock after the removal of ddmlib
                 synchronized(logcatListeners) {
@@ -103,12 +100,13 @@ class AdamAndroidDevice(
                         }
                     }
                 }
+                delay(500)
             }
         }
     }
 
     private val dispatcher by lazy {
-        newFixedThreadPoolContext(1, "AndroidDevice - execution - $adbSerial")
+        newFixedThreadPoolContext(2, "AndroidDevice - execution - $adbSerial")
     }
     private lateinit var logcatChannel: ReceiveChannel<String>
 
@@ -152,8 +150,8 @@ class AdamAndroidDevice(
                     CompatPullFileRequest(remoteFilePath, local, supportedFeatures, coroutineScope = this),
                     serial = adbSerial
                 )
-                while (!channel.isClosedForReceive) {
-                    progress = channel.receiveOrNull() ?: break
+                for (update in channel) {
+                    progress = update
                 }
             }
         } catch (e: PullFailedException) {
@@ -178,8 +176,8 @@ class AdamAndroidDevice(
                     CompatPushFileRequest(file, remoteFilePath, supportedFeatures, coroutineScope = this),
                     serial = adbSerial
                 )
-                while (!channel.isClosedForReceive) {
-                    progress = channel.receiveOrNull() ?: break
+                for (update in channel) {
+                    progress = update
                 }
             }
         } catch (e: PushFailedException) {
@@ -257,15 +255,13 @@ class AdamAndroidDevice(
         val file = File(absolutePath)
         val remotePath = "/data/local/tmp/${file.name}"
 
-        measureTimeMillis {
-            try {
-                withTimeoutOrNull(configuration.timeoutConfiguration.pushFile) {
-                    pushFile(absolutePath, remotePath, verify = true)
-                } ?: throw InstallException("Timeout transferring $absolutePath")
-            } catch (e: TransferException) {
-                throw InstallException(e)
-            }
-        }.let { time -> println("pushing took $time ms") }
+        try {
+            withTimeoutOrNull(configuration.timeoutConfiguration.pushFile) {
+                pushFile(absolutePath, remotePath, verify = true)
+            } ?: throw InstallException("Timeout transferring $absolutePath")
+        } catch (e: TransferException) {
+            throw InstallException(e)
+        }
 
         val result = withTimeoutOrNull(configuration.timeoutConfiguration.install) {
             client.execute(
@@ -277,9 +273,7 @@ class AdamAndroidDevice(
             )
         } ?: throw InstallException("Timeout transferring $absolutePath")
 
-        measureTimeMillis {
-            safeExecuteShellCommand("rm $remotePath")
-        }.let { time -> println("rm package file took $time ms") }
+        safeExecuteShellCommand("rm $remotePath")
 
         return result.output.trim()
     }
@@ -355,10 +349,12 @@ class AdamAndroidDevice(
         progressReporter: ProgressReporter
     ) {
         try {
-            supervisorScope {
-                val listener = createExecutionListeners(configuration, devicePoolId, testBatch, deferred, progressReporter)
-                AndroidDeviceTestRunner(this@AdamAndroidDevice).execute(configuration, testBatch, listener)
-            }
+            async(coroutineContext) {
+                supervisorScope {
+                    val listener = createExecutionListeners(configuration, devicePoolId, testBatch, deferred, progressReporter)
+                    AndroidDeviceTestRunner(this@AdamAndroidDevice).execute(configuration, testBatch, listener)
+                }
+            }.await()
         } catch (e: RequestRejectedException) {
             throw DeviceLostException(e)
         } catch (e: CommandRejectedException) {
@@ -366,21 +362,20 @@ class AdamAndroidDevice(
         }
     }
 
-    override suspend fun prepare(configuration: Configuration) = supervisorScope {
-        track.trackDevicePreparing(this@AdamAndroidDevice) {
-            measureTimeMillis {
-                AndroidAppInstaller(configuration).prepareInstallation(this@AdamAndroidDevice)
-            }.let { time -> println("Install took $time ms") }
+    override suspend fun prepare(configuration: Configuration) {
+        async(coroutineContext) {
+            supervisorScope {
 
-            measureTimeMillis {
-                fileManager.removeRemoteDirectory()
-                fileManager.createRemoteDirectory()
-            }.let { time -> println("Remote dirs took $time ms") }
+                track.trackDevicePreparing(this@AdamAndroidDevice) {
+                    AndroidAppInstaller(configuration).prepareInstallation(this@AdamAndroidDevice)
 
-            measureTimeMillis {
-                clearLogcat()
-            }.let { time -> println("Clearing logcat took $time ms") }
-        }
+                    fileManager.removeRemoteDirectory()
+                    fileManager.createRemoteDirectory()
+
+                    clearLogcat()
+                }
+            }
+        }.await()
     }
 
     override fun dispose() {
