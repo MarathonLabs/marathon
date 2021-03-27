@@ -76,15 +76,19 @@ class AdamAndroidDevice(
     private val imageScreenCaptureAdapter = BufferedImageScreenCaptureAdapter()
     private lateinit var supportedFeatures: List<Feature>
 
-    override suspend fun setup() = withContext(coroutineContext) {
-        super.setup()
+    override suspend fun setup() {
+        withContext(coroutineContext) {
+            super.setup()
 
-        fetchProps()
-        logcatChannel = client.execute(
-            ChanneledLogcatRequest(
-                modes = listOf(LogcatReadMode.long)
-            ), serial = adbSerial, scope = this
-        )
+            fetchProps()
+            logcatChannel = client.execute(
+                ChanneledLogcatRequest(
+                    modes = listOf(LogcatReadMode.long)
+                ), serial = adbSerial, scope = this@AdamAndroidDevice
+            )
+            supportedFeatures = client.execute(FetchDeviceFeaturesRequest(adbSerial))
+        }
+
         async {
             val parser = LogCatMessageParser()
 
@@ -101,7 +105,6 @@ class AdamAndroidDevice(
                 }
             }
         }
-        supportedFeatures = client.execute(FetchDeviceFeaturesRequest(adbSerial))
     }
 
     private val dispatcher by lazy {
