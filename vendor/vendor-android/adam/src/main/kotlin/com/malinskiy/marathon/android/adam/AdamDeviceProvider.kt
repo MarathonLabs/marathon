@@ -18,8 +18,10 @@ import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.time.Timer
 import com.malinskiy.marathon.vendor.VendorConfiguration
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.ReceiveChannel
@@ -27,8 +29,6 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.newFixedThreadPoolContext
-import kotlinx.coroutines.newSingleThreadContext
-import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withTimeoutOrNull
@@ -42,17 +42,15 @@ class AdamDeviceProvider(
     configuration: Configuration,
     private val track: Track,
     private val timer: Timer
-) : DeviceProvider {
-    private val devices: MutableMap<String, AdamAndroidDevice> = ConcurrentHashMap()
-    private val deviceSetupJobs: MutableMap<String, Job> = ConcurrentHashMap()
+) : DeviceProvider, CoroutineScope {
+    private val devices: MutableMap<String, ProvidedDevice> = ConcurrentHashMap()
     private val logger = MarathonLogging.logger("AdamDeviceProvider")
 
     private val channel: Channel<DeviceProvider.DeviceEvent> = unboundedChannel()
-    private val deviceMonitorContext = newSingleThreadContext("DeviceMonitor")
-    private val adbCommunicationContext: CoroutineContext by lazy {
-        newFixedThreadPoolContext(4, "AdbIOThreadPool")
-    }
+    override val coroutineContext: CoroutineContext by lazy { newFixedThreadPoolContext(1, "DeviceMonitor") }
+    private val adbCommunicationContext: CoroutineContext by lazy { newFixedThreadPoolContext(4, "AdbIOThreadPool") }
     private val setupSupervisor = SupervisorJob()
+    private var providerJob: Job? = null
 
     override val deviceInitializationTimeoutMillis: Long = configuration.deviceInitializationTimeoutMillis
 
@@ -89,50 +87,50 @@ class AdamDeviceProvider(
             }
         } ?: throw NoDevicesException("No devices found")
 
-        deviceMonitorContext.executor.execute {
-            runBlocking {
-                /**
-                 * This allows us to survive `adb kill-server`
-                 */
-                while (isActive) {
-                    deviceEventsChannelMutex.withLock {
-                        deviceEventsChannel = client.execute(AsyncDeviceMonitorRequest(), this)
-                    }
-                    for (currentDeviceList in deviceEventsChannel) {
-                        deviceStateTracker.update(currentDeviceList).forEach { update ->
-                            val serial = update.first
-                            val state = update.second
-                            when (state) {
-                                TrackingUpdate.CONNECTED -> {
-                                    val device =
-                                        AdamAndroidDevice(
-                                            client,
-                                            deviceStateTracker,
-                                            serial,
-                                            vendorConfiguration,
-                                            track,
-                                            timer,
-                                            vendorConfiguration.serialStrategy
-                                        )
-                                    track.trackProviderDevicePreparing(device) {
-                                        deviceSetupJobs[serial] = launch(setupSupervisor) {
-                                            devices[serial] = device
-                                            device.setup()
-                                            channel.send(DeviceProvider.DeviceEvent.DeviceConnected(device))
-                                        }
+        providerJob = launch {
+            /**
+             * This allows us to survive `adb kill-server`
+             */
+            while (isActive) {
+                deviceEventsChannelMutex.withLock {
+                    deviceEventsChannel = client.execute(AsyncDeviceMonitorRequest(), this)
+                }
+                for (currentDeviceList in deviceEventsChannel) {
+                    deviceStateTracker.update(currentDeviceList).forEach { update ->
+                        val serial = update.first
+                        val state = update.second
+                        when (state) {
+                            TrackingUpdate.CONNECTED -> {
+                                val device =
+                                    AdamAndroidDevice(
+                                        client,
+                                        deviceStateTracker,
+                                        serial,
+                                        vendorConfiguration,
+                                        track,
+                                        timer,
+                                        vendorConfiguration.serialStrategy
+                                    )
+                                track.trackProviderDevicePreparing(device) {
+                                    val job = launch(setupSupervisor) {
+                                        device.setup()
+                                        channel.send(DeviceProvider.DeviceEvent.DeviceConnected(device))
                                     }
+                                    devices[serial] = ProvidedDevice(device, job)
                                 }
-                                TrackingUpdate.DISCONNECTED -> {
-                                    deviceSetupJobs[serial]?.let { it.cancelAndJoin() }
-                                    devices[serial]?.let { device ->
-                                        channel.send(DeviceProvider.DeviceEvent.DeviceDisconnected(device))
-                                        device.dispose()
-                                    }
-                                }
-                                TrackingUpdate.NOTHING_TO_DO -> Unit
                             }
-                            logger.debug { "Device $serial changed state to $state" }
+                            TrackingUpdate.DISCONNECTED -> {
+                                devices[serial]?.let { (device, job) ->
+                                    if (job.isActive) {
+                                        job.cancelAndJoin()
+                                    }
+                                    channel.send(DeviceProvider.DeviceEvent.DeviceDisconnected(device))
+                                    device.dispose()
+                                }
+                            }
+                            TrackingUpdate.NOTHING_TO_DO -> Unit
                         }
+                        logger.debug { "Device $serial changed state to $state" }
                     }
                 }
             }
@@ -145,8 +143,9 @@ class AdamDeviceProvider(
     }
 
     override suspend fun terminate() {
-        deviceMonitorContext.close()
+        coroutineContext.cancel()
         setupSupervisor.cancel()
+        providerJob?.cancel()
         channel.close()
         deviceEventsChannelMutex.withLock {
             deviceEventsChannel.cancel()
@@ -155,3 +154,8 @@ class AdamDeviceProvider(
 
     override fun subscribe() = channel
 }
+
+data class ProvidedDevice(
+    val device: AdamAndroidDevice,
+    val setupJob: Job
+)
