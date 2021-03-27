@@ -41,7 +41,6 @@ class FileSyncTestRunListener(
 
             val basename = entry.relativePath.removeSuffix("/").substringAfterLast('/')
             val subfolder = File(localFolder, basename).apply { mkdirs() }
-            println("Pulling into ${subfolder.absolutePath}")
             device.safePullFolder(fullPath, subfolder.absolutePath)
         }
     }
