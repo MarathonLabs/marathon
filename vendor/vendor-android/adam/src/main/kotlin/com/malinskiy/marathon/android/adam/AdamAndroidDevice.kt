@@ -13,8 +13,6 @@ import com.malinskiy.adam.request.device.DeviceState
 import com.malinskiy.adam.request.device.FetchDeviceFeaturesRequest
 import com.malinskiy.adam.request.framebuffer.BufferedImageScreenCaptureAdapter
 import com.malinskiy.adam.request.framebuffer.ScreenCaptureRequest
-import com.malinskiy.adam.request.logcat.ChanneledLogcatRequest
-import com.malinskiy.adam.request.logcat.LogcatReadMode
 import com.malinskiy.adam.request.pkg.InstallRemotePackageRequest
 import com.malinskiy.adam.request.pkg.UninstallRemotePackageRequest
 import com.malinskiy.adam.request.prop.GetPropRequest
@@ -31,7 +29,6 @@ import com.malinskiy.marathon.android.AndroidAppInstaller
 import com.malinskiy.marathon.android.AndroidConfiguration
 import com.malinskiy.marathon.android.BaseAndroidDevice
 import com.malinskiy.marathon.android.VideoConfiguration
-import com.malinskiy.marathon.android.adam.log.LogCatMessageParser
 import com.malinskiy.marathon.android.configuration.SerialStrategy
 import com.malinskiy.marathon.android.exception.CommandRejectedException
 import com.malinskiy.marathon.android.exception.InstallException
@@ -62,12 +59,13 @@ import kotlin.system.measureTimeMillis
 class AdamAndroidDevice(
     private val client: AndroidDebugBridgeClient,
     private val deviceStateTracker: DeviceStateTracker,
+    private val logcatManager: LogcatManager,
     adbSerial: String,
     configuration: AndroidConfiguration,
     track: Track,
     timer: Timer,
     serialStrategy: SerialStrategy
-) : BaseAndroidDevice(adbSerial, serialStrategy, configuration, track, timer) {
+) : BaseAndroidDevice(adbSerial, serialStrategy, configuration, track, timer), LineListener {
 
     /**
      * This adapter is thread-safe but the internal reusable buffer should be considered if we ever need to make screenshots in parallel
@@ -80,36 +78,14 @@ class AdamAndroidDevice(
             super.setup()
 
             fetchProps()
-            logcatChannel = client.execute(
-                ChanneledLogcatRequest(
-                    modes = listOf(LogcatReadMode.long)
-                ), serial = adbSerial, scope = this@AdamAndroidDevice
-            )
             supportedFeatures = client.execute(FetchDeviceFeaturesRequest(adbSerial))
-        }
-
-        async {
-            val parser = LogCatMessageParser()
-            for (logPart in logcatChannel) {
-                val messages = parser.processLogLines(logPart.lines(), this@AdamAndroidDevice)
-                //TODO: replace with Mutex.lock after the removal of ddmlib
-                synchronized(logcatListeners) {
-                    messages.forEach { msg ->
-                        logcatListeners.forEach { listener ->
-                            listener.onLine("${msg.timestamp} ${msg.pid}-${msg.tid}/${msg.appName} ${msg.logLevel.priorityLetter}/${msg.tag}: ${msg.message}")
-                        }
-                    }
-                }
-                delay(500)
-            }
+            logcatManager.subscribe(this@AdamAndroidDevice)
         }
     }
 
     private val dispatcher by lazy {
         newFixedThreadPoolContext(2, "AndroidDevice - execution - $adbSerial")
     }
-    private lateinit var logcatChannel: ReceiveChannel<String>
-
     override val coroutineContext: CoroutineContext = dispatcher
 
     private var props: Map<String, String> = emptyMap()
@@ -303,6 +279,7 @@ class AdamAndroidDevice(
         }
     }
 
+
     override suspend fun safeStartScreenRecorder(
         remoteFilePath: String,
         options: VideoConfiguration
@@ -380,6 +357,7 @@ class AdamAndroidDevice(
 
     override fun dispose() {
         dispatcher.close()
+        logcatManager.unsubscribe(this)
     }
 
     fun executeTestRequest(runnerRequest: TestRunnerRequest): ReceiveChannel<List<TestEvent>> {
@@ -402,6 +380,12 @@ class AdamAndroidDevice(
                     })"
                 }
             }
+        }
+    }
+
+    override fun onLine(line: String) {
+        logcatListeners.forEach { listener ->
+            listener.onLine(line)
         }
     }
 }

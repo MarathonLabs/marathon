@@ -55,9 +55,11 @@ class AdamDeviceProvider(
     override val deviceInitializationTimeoutMillis: Long = configuration.deviceInitializationTimeoutMillis
 
     private lateinit var client: AndroidDebugBridgeClient
+    private lateinit var logcatManager: LogcatManager
     private lateinit var deviceEventsChannel: ReceiveChannel<List<Device>>
     private val deviceEventsChannelMutex = Mutex()
     private val deviceStateTracker = DeviceStateTracker()
+
 
     override suspend fun initialize(vendorConfiguration: VendorConfiguration) {
         if (vendorConfiguration !is AndroidConfiguration) {
@@ -69,6 +71,7 @@ class AdamDeviceProvider(
             idleTimeout = vendorConfiguration.timeoutConfiguration.socketIdleTimeout
             socketFactory = RoketFactory()
         }.build()
+        logcatManager = LogcatManager(client)
 
         try {
             printAdbServerVersion()
@@ -105,6 +108,7 @@ class AdamDeviceProvider(
                                     AdamAndroidDevice(
                                         client,
                                         deviceStateTracker,
+                                        logcatManager,
                                         serial,
                                         vendorConfiguration,
                                         track,
@@ -150,6 +154,7 @@ class AdamDeviceProvider(
         deviceEventsChannelMutex.withLock {
             deviceEventsChannel.cancel()
         }
+        logcatManager.close()
     }
 
     override fun subscribe() = channel
