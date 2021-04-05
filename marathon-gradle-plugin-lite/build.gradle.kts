@@ -7,9 +7,9 @@ plugins {
 
 gradlePlugin {
     (plugins) {
-        create("marathon-gradle-plugin") {
-            id = "marathon"
-            implementationClass = "com.malinskiy.marathon.MarathonPlugin"
+        create("marathon-gradle-plugin-lite") {
+            id = "marathon-lite"
+            implementationClass = "com.malinskiy.marathon.lite.MarathonPlugin"
         }
     }
 }

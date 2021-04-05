@@ -1,4 +1,4 @@
-package com.malinskiy.marathon
+package com.malinskiy.marathon.lite
 
 import com.malinskiy.marathon.execution.AnalyticsConfiguration
 import com.malinskiy.marathon.execution.AnalyticsConfiguration.DisabledAnalytics

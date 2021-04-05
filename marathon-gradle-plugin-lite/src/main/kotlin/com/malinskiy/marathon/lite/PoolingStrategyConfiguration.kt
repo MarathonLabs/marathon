@@ -1,4 +1,4 @@
-package com.malinskiy.marathon
+package com.malinskiy.marathon.lite
 
 import com.malinskiy.marathon.execution.strategy.PoolingStrategy
 import com.malinskiy.marathon.execution.strategy.impl.pooling.OmniPoolingStrategy

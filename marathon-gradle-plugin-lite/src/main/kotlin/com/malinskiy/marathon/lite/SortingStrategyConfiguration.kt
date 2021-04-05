@@ -1,4 +1,4 @@
-package com.malinskiy.marathon
+package com.malinskiy.marathon.lite
 
 import com.malinskiy.marathon.execution.strategy.SortingStrategy
 import com.malinskiy.marathon.execution.strategy.impl.sorting.ExecutionTimeSortingStrategy

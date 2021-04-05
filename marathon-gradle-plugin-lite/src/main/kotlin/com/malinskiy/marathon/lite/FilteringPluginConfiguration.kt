@@ -1,4 +1,4 @@
-package com.malinskiy.marathon
+package com.malinskiy.marathon.lite
 
 import com.malinskiy.marathon.execution.AnnotationDataFilter
 import com.malinskiy.marathon.execution.AnnotationFilter

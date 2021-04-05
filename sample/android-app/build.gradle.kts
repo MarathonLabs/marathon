@@ -6,7 +6,7 @@ buildscript {
     }
     dependencies {
         classpath(BuildPlugins.kotlinPlugin)
-        classpath(BuildPlugins.androidGradle)
+        classpath("com.android.tools.build:gradle:4.1.0")
         /**
          * Starting with kotlin plugin 1.3.41 coroutines dependency is not propagated to the classpath of gradle plugin
          *
