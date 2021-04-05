@@ -23,6 +23,7 @@ dependencies {
     implementation(project(":vendor:vendor-android:base"))
     implementation(project(":vendor:vendor-android:adam"))
     implementation(project(":vendor:vendor-android:ddmlib"))
-    implementation(BuildPlugins.androidGradle)
+//    implementation(BuildPlugins.androidGradle)
+    implementation("com.android.tools.build:gradle:4.1.0") //use 4.1.0 instead of 4.0.0
     implementation(project(":analytics:usage"))
 }
