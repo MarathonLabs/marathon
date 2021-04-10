@@ -1,6 +1,8 @@
 package com.malinskiy.marathon.cli.schema.strategies
 
-sealed class ShardingStrategy {
+import java.io.Serializable
+
+sealed class ShardingStrategy : Serializable {
     object Disabled : ShardingStrategy()
     data class Count(val count: Int) : ShardingStrategy()
 }

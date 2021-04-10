@@ -1,5 +1,6 @@
 package com.malinskiy.marathon.cli.schema.android
 
+import java.io.Serializable
 import java.time.Duration
 
 data class TimeoutConfiguration(
@@ -11,4 +12,4 @@ data class TimeoutConfiguration(
     val install: Duration = shell,
     val screenrecorder: Duration = Duration.ofMinutes(10),
     val screencapturer: Duration = Duration.ofMillis(300),
-)
+) : Serializable

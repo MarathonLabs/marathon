@@ -1,8 +1,9 @@
 package com.malinskiy.marathon.cli.schema.strategies
 
+import java.io.Serializable
 import java.time.Instant
 
-sealed class BatchingStrategy {
+sealed class BatchingStrategy : Serializable {
     data class FixedSize(
         val size: Int,
         val durationMillis: Long? = null,

@@ -1,12 +1,45 @@
 package com.malinskiy.marathon.lite
 
-import com.malinskiy.marathon.android.ScreenRecordConfiguration
-import com.malinskiy.marathon.android.VendorType
-import com.malinskiy.marathon.android.configuration.AllureConfiguration
-import com.malinskiy.marathon.android.configuration.FileSyncConfiguration
-import com.malinskiy.marathon.android.configuration.SerialStrategy
-import com.malinskiy.marathon.android.configuration.TimeoutConfiguration
-import com.malinskiy.marathon.execution.policy.ScreenRecordingPolicy
+import com.malinskiy.marathon.cli.schema.AnalyticsConfiguration
+import com.malinskiy.marathon.cli.schema.DEFAULT_ANALYTICS_CONFIGURATION
+import com.malinskiy.marathon.cli.schema.DEFAULT_APPLICATION_PM_CLEAR
+import com.malinskiy.marathon.cli.schema.DEFAULT_AUTO_GRANT_PERMISSION
+import com.malinskiy.marathon.cli.schema.DEFAULT_BATCHING_STRATEGY
+import com.malinskiy.marathon.cli.schema.DEFAULT_DEVICE_INITIALIZATION_TIMEOUT_MILLIS
+import com.malinskiy.marathon.cli.schema.DEFAULT_EXCLUDES_SERIAL_REGEXES
+import com.malinskiy.marathon.cli.schema.DEFAULT_EXECUTION_TIMEOUT_MILLIS
+import com.malinskiy.marathon.cli.schema.DEFAULT_FALLBACK_TO_SCREENSHOTS
+import com.malinskiy.marathon.cli.schema.DEFAULT_FILTERING_CONFIGURATION
+import com.malinskiy.marathon.cli.schema.DEFAULT_FLAKINESS_STRATEGY
+import com.malinskiy.marathon.cli.schema.DEFAULT_IGNORE_FAILURES
+import com.malinskiy.marathon.cli.schema.DEFAULT_INCLUDES_SERIAL_REGEXES
+import com.malinskiy.marathon.cli.schema.DEFAULT_INIT_TIMEOUT_MILLIS
+import com.malinskiy.marathon.cli.schema.DEFAULT_INSTALL_OPTIONS
+import com.malinskiy.marathon.cli.schema.DEFAULT_IS_CODE_COVERAGE_ENABLED
+import com.malinskiy.marathon.cli.schema.DEFAULT_OUTPUT_TIMEOUT_MILLIS
+import com.malinskiy.marathon.cli.schema.DEFAULT_POOLING_STRATEGY
+import com.malinskiy.marathon.cli.schema.DEFAULT_RETRY_STRATEGY
+import com.malinskiy.marathon.cli.schema.DEFAULT_SHARDING_STRATEGY
+import com.malinskiy.marathon.cli.schema.DEFAULT_SORTING_STRATEGY
+import com.malinskiy.marathon.cli.schema.DEFAULT_STRICT_MODE
+import com.malinskiy.marathon.cli.schema.DEFAULT_TEST_APPLICATION_PM_CLEAR
+import com.malinskiy.marathon.cli.schema.DEFAULT_TEST_CLASS_REGEXES
+import com.malinskiy.marathon.cli.schema.DEFAULT_UNCOMPLETED_TEST_RETRY_QUOTA
+import com.malinskiy.marathon.cli.schema.DEFAULT_WAIT_FOR_DEVICES_TIMEOUT
+import com.malinskiy.marathon.cli.schema.FilteringConfiguration
+import com.malinskiy.marathon.cli.schema.ScreenRecordingPolicy
+import com.malinskiy.marathon.cli.schema.android.AllureConfiguration
+import com.malinskiy.marathon.cli.schema.android.FileSyncConfiguration
+import com.malinskiy.marathon.cli.schema.android.ScreenRecordConfiguration
+import com.malinskiy.marathon.cli.schema.android.SerialStrategy
+import com.malinskiy.marathon.cli.schema.android.TimeoutConfiguration
+import com.malinskiy.marathon.cli.schema.android.VendorType
+import com.malinskiy.marathon.cli.schema.strategies.BatchingStrategy
+import com.malinskiy.marathon.cli.schema.strategies.FlakinessStrategy
+import com.malinskiy.marathon.cli.schema.strategies.PoolingStrategy
+import com.malinskiy.marathon.cli.schema.strategies.RetryStrategy
+import com.malinskiy.marathon.cli.schema.strategies.ShardingStrategy
+import com.malinskiy.marathon.cli.schema.strategies.SortingStrategy
 import org.gradle.api.model.ObjectFactory
 import org.gradle.api.provider.MapProperty
 import org.gradle.api.provider.Property
@@ -21,15 +54,15 @@ open class MarathonExtension @Inject constructor(
     var vendor: Property<VendorType> = objects.property()
     var bugsnag: Property<Boolean> = objects.property()
 
-    var analyticsConfiguration: Property<AnalyticsConfig> = objects.property()
+    var analyticsConfiguration: Property<AnalyticsConfiguration> = objects.property()
 
-    var poolingStrategy: Property<PoolingStrategyConfiguration> = objects.property()
-    var shardingStrategy: Property<ShardingStrategyConfiguration> = objects.property()
-    var sortingStrategy: Property<SortingStrategyConfiguration> = objects.property()
-    var batchingStrategy: Property<BatchingStrategyConfiguration> = objects.property()
-    var flakinessStrategy: Property<FlakinessStrategyConfiguration> = objects.property()
-    var retryStrategy: Property<RetryStrategyConfiguration> = objects.property()
-    var filteringConfiguration: Property<FilteringPluginConfiguration> = objects.property()
+    var poolingStrategy: Property<PoolingStrategy> = objects.property()
+    var shardingStrategy: Property<ShardingStrategy> = objects.property()
+    var sortingStrategy: Property<SortingStrategy> = objects.property()
+    var batchingStrategy: Property<BatchingStrategy> = objects.property()
+    var flakinessStrategy: Property<FlakinessStrategy> = objects.property()
+    var retryStrategy: Property<RetryStrategy> = objects.property()
+    var filteringConfiguration: Property<FilteringConfiguration> = objects.property()
 
     var baseOutputDir: Property<String> = objects.property()
 
@@ -69,4 +102,60 @@ open class MarathonExtension @Inject constructor(
     //Android specific for now
     var autoGrantPermission: Property<Boolean> = objects.property()
     var instrumentationArgs: MapProperty<String, String> = objects.mapProperty(String::class.java, String::class.java)
+
+    init {
+        name.convention("marathon")
+        baseOutputDir.set("")
+        vendor.convention(VendorType.DDMLIB)
+        bugsnag.convention(true)
+
+        analyticsConfiguration.convention(DEFAULT_ANALYTICS_CONFIGURATION)
+
+        poolingStrategy.convention(DEFAULT_POOLING_STRATEGY)
+        shardingStrategy.convention(DEFAULT_SHARDING_STRATEGY)
+        sortingStrategy.convention(DEFAULT_SORTING_STRATEGY)
+        batchingStrategy.convention(DEFAULT_BATCHING_STRATEGY)
+        flakinessStrategy.convention(DEFAULT_FLAKINESS_STRATEGY)
+        retryStrategy.convention(DEFAULT_RETRY_STRATEGY)
+        filteringConfiguration.convention(DEFAULT_FILTERING_CONFIGURATION)
+
+        // TODO: fix it later
+//        baseOutputDir: Property<String> = objects.property()
+
+        ignoreFailures.convention(DEFAULT_IGNORE_FAILURES)
+        isCodeCoverageEnabled.convention(DEFAULT_IS_CODE_COVERAGE_ENABLED)
+        fallbackToScreenshots.convention(DEFAULT_FALLBACK_TO_SCREENSHOTS)
+        strictMode.convention(DEFAULT_STRICT_MODE)
+        uncompletedTestRetryQuota.convention(DEFAULT_UNCOMPLETED_TEST_RETRY_QUOTA)
+
+        testClassRegexes.convention(DEFAULT_TEST_CLASS_REGEXES)
+        includeSerialRegexes.convention(DEFAULT_INCLUDES_SERIAL_REGEXES)
+        excludeSerialRegexes.convention(DEFAULT_EXCLUDES_SERIAL_REGEXES)
+
+        testBatchTimeoutMillis.convention(DEFAULT_EXECUTION_TIMEOUT_MILLIS)
+        testOutputTimeoutMillis.convention(DEFAULT_OUTPUT_TIMEOUT_MILLIS)
+        debug.convention(true)
+
+        screenRecordingPolicy.convention(ScreenRecordingPolicy.ON_FAILURE)
+
+        applicationPmClear.convention(DEFAULT_APPLICATION_PM_CLEAR)
+        testApplicationPmClear.convention(DEFAULT_TEST_APPLICATION_PM_CLEAR)
+        adbInitTimeout.convention(DEFAULT_INIT_TIMEOUT_MILLIS)
+        installOptions.convention(DEFAULT_INSTALL_OPTIONS)
+        serialStrategy.convention(SerialStrategy.AUTOMATIC)
+
+        screenRecordConfiguration.convention(ScreenRecordConfiguration())
+
+        analyticsTracking.convention(false)
+
+        deviceInitializationTimeoutMillis.convention(DEFAULT_DEVICE_INITIALIZATION_TIMEOUT_MILLIS)
+        waitForDevicesTimeoutMillis.convention(DEFAULT_WAIT_FOR_DEVICES_TIMEOUT)
+
+        allureConfiguration.convention(AllureConfiguration())
+        timeoutConfiguration.convention(TimeoutConfiguration())
+        fileSyncConfiguration.convention(FileSyncConfiguration())
+
+        autoGrantPermission.convention(DEFAULT_AUTO_GRANT_PERMISSION)
+        instrumentationArgs.convention(emptyMap())
+    }
 }

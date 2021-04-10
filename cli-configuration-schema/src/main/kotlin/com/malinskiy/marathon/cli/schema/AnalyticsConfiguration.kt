@@ -1,6 +1,8 @@
 package com.malinskiy.marathon.cli.schema
 
-sealed class AnalyticsConfiguration {
+import java.io.Serializable
+
+sealed class AnalyticsConfiguration : Serializable {
     object Disabled : AnalyticsConfiguration()
     data class InfluxDb(
         val url: String,

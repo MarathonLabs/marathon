@@ -6,6 +6,7 @@ import com.malinskiy.marathon.cli.schema.android.ScreenRecordConfiguration
 import com.malinskiy.marathon.cli.schema.android.SerialStrategy
 import com.malinskiy.marathon.cli.schema.android.VendorType
 import java.io.File
+import java.io.Serializable
 
 const val DEFAULT_INIT_TIMEOUT_MILLIS = 30_000
 
@@ -15,7 +16,7 @@ const val DEFAULT_TEST_APPLICATION_PM_CLEAR = false
 const val DEFAULT_INSTALL_OPTIONS = ""
 const val DEFAULT_WAIT_FOR_DEVICES_TIMEOUT = 30000L
 
-sealed class VendorConfiguration {
+sealed class VendorConfiguration : Serializable {
     data class Android(
         val vendor: VendorType = VendorType.DDMLIB,
         val androidSdk: File,
