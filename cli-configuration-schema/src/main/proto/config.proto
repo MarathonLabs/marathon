@@ -1,0 +1,315 @@
+syntax = "proto3";
+
+package com.malinskiy.marathon.cliconfig.proto;
+
+option java_multiple_files = true;
+option java_package = "com.malinskiy.marathon.cliconfig.proto";
+
+import "google/protobuf/duration.proto";
+import "google/protobuf/timestamp.proto";
+
+message AnalyticsConfiguration {
+  message Disabled {}
+
+  message InfluxDb {
+    string url = 1;
+    string user = 2;
+    string password = 3;
+    string db_name = 4;
+    message RetentionPolicy {
+      string name = 1;
+      string duration = 2;
+      string shard_duration = 3;
+      int32 replication_factor = 4;
+      bool is_default = 5;
+    }
+    RetentionPolicy retention_policy = 5;
+  }
+  message Graphite {
+    string host = 1;
+    int32 port = 2;
+    string prefix = 3;
+  }
+  oneof config {
+    Disabled disabled = 1;
+    InfluxDb influx = 2;
+    Graphite graphite = 3;
+  }
+}
+
+message PoolingStrategy {
+  message Omni {}
+
+  message Abi {}
+
+  message Combo {
+    repeated PoolingStrategy list = 1;
+  }
+  message Manufacturer {}
+
+  message Model {}
+
+  message OsVersion {}
+
+  oneof strategy {
+    Omni omni = 1;
+    Abi abi = 2;
+    Combo combo = 3;
+    Manufacturer manufacturer = 4;
+    Model model = 5;
+    OsVersion os_version = 6;
+  }
+}
+
+message ShardingStrategy {
+  message Disabled {}
+
+  message Count {
+    int32 count = 1;
+  }
+  oneof strategy {
+    Disabled disabled = 1;
+    Count count = 2;
+  }
+}
+
+message SortingStrategy {
+  message Disabled {}
+
+  message SuccessRate {
+    google.protobuf.Timestamp time_limit = 1;
+    bool ascending = 2;
+  }
+  message ExecutionTime {
+    double percentile = 1;
+    google.protobuf.Timestamp time_limit = 2;
+  }
+  oneof strategy {
+    Disabled disabled = 1;
+    SuccessRate success_rate = 2;
+    ExecutionTime execution_time = 3;
+  }
+}
+
+message BatchingStrategy {
+  message Disabled {}
+
+  message FixedSize {
+    int32 fixed_size = 1;
+    int64 duration_millis = 2;
+    double percentile = 3;
+    google.protobuf.Timestamp time_limit = 4;
+    int64 last_mile_length = 5;
+  }
+  oneof strategy {
+    Disabled disabled = 1;
+    FixedSize fixed_size = 2;
+  }
+}
+
+message FlakinessStrategy {
+  message Disabled {}
+
+  message ProbabilityBased {
+    double min_success_rate = 1;
+    int32 max_count = 2;
+    google.protobuf.Timestamp time_limit = 3;
+  }
+  oneof strategy {
+    Disabled disabled = 1;
+    ProbabilityBased probability_based = 2;
+  }
+}
+
+message RetryStrategy {
+  message Disabled {}
+
+  message FixedQuota {
+    int32 total_allowed_retry_quota = 1;
+    int32 retry_per_test_quota = 2;
+  }
+  oneof strategy {
+    Disabled disabled = 1;
+    FixedQuota fixed_quota = 2;
+  }
+}
+
+enum DeviceFeature {
+  VIDEO = 0;
+  SCREENSHOT = 1;
+}
+
+message FilteringConfiguration {
+  message TestFilter {
+    message SimpleClassname {
+      string simple_classname = 1;
+    }
+    message FullyQualifiedClassname {
+      string fully_qualified_classname = 1;
+    }
+    message TestPackage {
+      string package = 1;
+    }
+    message Annotation {
+      string annotation = 1;
+    }
+    message TestMethod {
+      string method = 1;
+    }
+    message Composition {
+      enum Operation {
+        UNION = 0;
+        INTERSECTION = 1;
+        SUBTRACT = 2;
+      }
+      repeated TestFilter filters = 1;
+      Operation operation = 2;
+    }
+    oneof filter {
+      SimpleClassname simple_classname = 1;
+      FullyQualifiedClassname fully_qualified_classname = 2;
+      TestPackage test_package = 3;
+      Annotation annotation = 4;
+      TestMethod test_method = 5;
+      Composition composition = 6;
+    }
+  }
+  repeated TestFilter allow_list = 1;
+  repeated TestFilter block_list = 2;
+}
+
+enum ScreenRecordingPolicy {
+  ON_FAILURE = 0;
+  ON_ANY = 1;
+}
+
+message VendorConfiguration {
+  oneof config {
+    AndroidConfiguration android = 1;
+    IosConfiguration ios = 2;
+  }
+}
+
+message AndroidConfiguration {
+  enum VendorType {
+    DDMLIB = 0;
+    ADAM = 1;
+  }
+  VendorType vendor = 1;
+  string android_sdk = 2;
+  string application_apk = 3;
+  string test_application_apk = 4;
+  bool auto_grant_permission = 5;
+  map<string, string> instrumentation_args = 6;
+  bool application_pm_clear = 7;
+  bool test_application_pm_clear = 8;
+  int32 adb_init_timeout_millis = 9;
+  string install_options = 10;
+  enum SerialStrategy {
+    AUTOMATIC = 0;
+    MARATHON_PROPERTY = 1;
+    BOOT_PROPERTY = 2;
+    HOSTNAME = 3;
+    DDMS = 4;
+  }
+  SerialStrategy serial_strategy = 11;
+  message ScreenRecordConfiguration {
+    message VideoConfiguration {
+      bool enabled = 1;
+      int32 width = 2;
+      int32 height = 3;
+      int32 bitmap_mbps = 4;
+      google.protobuf.Duration duration = 5;
+    }
+    message ScreenshotConfiguration {
+      bool enabled = 1;
+      int32 width = 2;
+      int32 height = 3;
+      int32 delay_ms = 4;
+    }
+    DeviceFeature preferable_recorder_type = 1;
+    VideoConfiguration video_configuration = 2;
+    ScreenshotConfiguration screenshot_configuration = 3;
+  }
+  ScreenRecordConfiguration screen_record_configuration = 12;
+  int64 wait_for_devices_timeout_millis = 13;
+  message AllureConfiguration {
+    bool enabled = 1;
+    string results_directory = 2;
+  }
+  AllureConfiguration allure_configuration = 14;
+  message TimeoutConfiguration {
+    google.protobuf.Duration shell = 1;
+    google.protobuf.Duration list_files = 2;
+    google.protobuf.Duration push_file = 3;
+    google.protobuf.Duration pull_file = 4;
+    google.protobuf.Duration uninstall = 5;
+    google.protobuf.Duration install = 6;
+    google.protobuf.Duration screen_recorder = 7;
+    google.protobuf.Duration screen_capturer = 8;
+  }
+  TimeoutConfiguration timeout_configuration = 15;
+  message FileSyncConfiguration {
+    message FileSyncEntry {
+      enum AggregationMode {
+        DEVICE = 0;
+        POOL = 1;
+        DEVICE_AND_POOL = 2;
+        TEST_RUN = 3;
+      }
+      string relative_path = 1;
+      AggregationMode aggregation_mode = 2;
+    }
+    repeated FileSyncEntry pull = 1;
+  }
+  FileSyncConfiguration file_sync_configuration = 16;
+  message ThreadingConfiguration {
+    int32 boot_waiting_threads = 1;
+    int32 adb_io_threads = 2;
+  }
+  ThreadingConfiguration threading_configuration = 17;
+}
+
+message IosConfiguration {
+  string derived_data_dir = 1;
+  string xctestrun_path = 2;
+  string remote_username = 3;
+  string remote_private_key = 4;
+  string known_hosts_path = 5;
+  string remote_rsync_path = 6;
+  bool debug_ssh = 7;
+  bool always_erase_simulators = 8;
+  bool hide_runner_output = 9;
+  bool compact_output = 10;
+  int64 keep_alive_interval_millis = 11;
+  string devices_file = 12;
+  string source_root = 13;
+}
+
+message Configuration {
+  string name = 1;
+  string output_dir = 2;
+  AnalyticsConfiguration analytics_configuration = 3;
+  PoolingStrategy pooling_strategy = 4;
+  ShardingStrategy sharding_strategy = 5;
+  SortingStrategy sorting_strategy = 6;
+  BatchingStrategy batching_strategy = 7;
+  FlakinessStrategy flakiness_strategy = 8;
+  RetryStrategy retry_strategy = 9;
+  FilteringConfiguration filtering_configuration = 10;
+  bool ignore_failures = 11;
+  bool is_code_coverage_enabled = 12;
+  bool fallback_to_screenshots = 13;
+  bool strict_mode = 14;
+  int32 uncompleted_test_retry_quota = 15;
+  repeated string test_class_regexes = 16;
+  repeated string include_serial_regexes = 17;
+  repeated string exclude_serial_regexes = 18;
+  int64 test_batch_timeout_millis = 19;
+  int64 test_output_timeout_millis = 20;
+  bool debug = 21;
+  ScreenRecordingPolicy screen_recording_policy = 22;
+  VendorConfiguration vendor_configuration = 23;
+  bool analytics_tracking = 24;
+  int64 device_initialization_timeout_millis = 25;
+}

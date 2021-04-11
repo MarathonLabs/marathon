@@ -46,6 +46,7 @@ dependencies {
     implementation(project(":vendor:vendor-android:ddmlib"))
     implementation(project(":vendor:vendor-android:adam"))
     implementation(project(":analytics:usage"))
+    implementation(project(":cli-configuration-schema"))
     implementation(Libraries.kotlinStdLib)
     implementation(Libraries.kotlinCoroutines)
     implementation(Libraries.kotlinLogging)
