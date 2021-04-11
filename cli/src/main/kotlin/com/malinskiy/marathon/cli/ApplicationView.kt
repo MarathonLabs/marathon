@@ -12,9 +12,11 @@ import com.malinskiy.marathon.cli.args.environment.SystemEnvironmentReader
 import com.malinskiy.marathon.cli.config.ConfigFactory
 import com.malinskiy.marathon.cli.config.DeserializeModule
 import com.malinskiy.marathon.cli.config.time.InstantTimeProviderImpl
+import com.malinskiy.marathon.cli.proto.Mapper
 import com.malinskiy.marathon.config.AppType
 import com.malinskiy.marathon.di.marathonStartKoin
 import com.malinskiy.marathon.exceptions.ExceptionsReporterFactory
+import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.usageanalytics.TrackActionType
 import com.malinskiy.marathon.usageanalytics.UsageAnalytics
@@ -26,6 +28,21 @@ import org.koin.core.context.stopKoin
 
 private val logger = MarathonLogging.logger {}
 
+fun parseConfiguration(marathonCliConfiguration: MarathonCliConfiguration): Configuration {
+    return if (marathonCliConfiguration.marathonProto.exists()) {
+        Mapper().parse(marathonCliConfiguration.marathonProto)
+    } else {
+        val mapper = ObjectMapper(YAMLFactory().disable(YAMLGenerator.Feature.USE_NATIVE_TYPE_ID))
+        mapper.registerModule(DeserializeModule(InstantTimeProviderImpl()))
+            .registerModule(KotlinModule())
+            .registerModule(JavaTimeModule())
+        ConfigFactory(mapper).create(
+            marathonfile = marathonCliConfiguration.marathonfile,
+            environmentReader = SystemEnvironmentReader()
+        )
+    }
+}
+
 fun main(args: Array<String>): Unit = mainBody(
     programName = "marathon v${BuildConfig.VERSION}"
 ) {
@@ -34,14 +51,8 @@ fun main(args: Array<String>): Unit = mainBody(
         val bugsnagExceptionsReporter = ExceptionsReporterFactory.get(bugsnagReporting)
         try {
             bugsnagExceptionsReporter.start(AppType.CLI)
-            val mapper = ObjectMapper(YAMLFactory().disable(YAMLGenerator.Feature.USE_NATIVE_TYPE_ID))
-            mapper.registerModule(DeserializeModule(InstantTimeProviderImpl()))
-                .registerModule(KotlinModule())
-                .registerModule(JavaTimeModule())
-            val configuration = ConfigFactory(mapper).create(
-                marathonfile = marathonfile,
-                environmentReader = SystemEnvironmentReader()
-            )
+            val configuration = parseConfiguration(this)
+
 
             val application = marathonStartKoin(configuration)
             val marathon: Marathon = application.koin.get()

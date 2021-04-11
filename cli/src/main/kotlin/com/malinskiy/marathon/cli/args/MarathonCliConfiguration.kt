@@ -8,6 +8,8 @@ class MarathonCliConfiguration(parser: ArgParser) {
     val marathonfile: File by parser
         .storing("--marathonfile", "-m", help = "marathonfile file path") { File(this) }
         .default(File("Marathonfile"))
+    val marathonProto: File by parser.storing("--proto", "-p", help = "protobuf file path") { File(this) }
+        .default(File("Marathonfile.protobinary"))
     val analyticsTracking: Boolean by parser
         .storing("--analyticsTracking", help = "Enable anonymous analytics tracking") { this.toBoolean() }
         .default<Boolean>(false)

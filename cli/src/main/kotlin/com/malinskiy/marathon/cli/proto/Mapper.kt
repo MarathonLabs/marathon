@@ -118,6 +118,10 @@ class Mapper {
             deviceInitializationTimeoutMillis = protoConfig.deviceInitializationTimeoutMillis
         )
     }
+
+    fun parse(marathonProto: File): Configuration {
+        return convert(ProtoConfig.parseFrom(marathonProto.inputStream()))
+    }
 }
 
 
