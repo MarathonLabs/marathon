@@ -5,7 +5,7 @@ import java.time.Instant
 
 sealed class BatchingStrategy : Serializable {
     data class FixedSize(
-        val size: Int,
+        val fixedSize: Int,
         val durationMillis: Long? = null,
         val percentile: Double? = null,
         val timeLimit: Instant? = null,

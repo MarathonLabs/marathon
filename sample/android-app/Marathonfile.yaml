@@ -1,26 +1,19 @@
 name: "sample-app tests"
 outputDir: "./marathon"
-analyticsConfiguration:
-  url: "http://influx.svc.cluster.local:8086"
-  user: "root"
-  password: "root"
-  dbName: "marathon"
-  retentionPolicy:
-    name: "rpMarathonTest"
-    duration: "90d"
-    shardDuration: "1h"
-    replicationFactor: 5
-    isDefault: false
+#analyticsConfiguration:
+#  url: "http://influx.svc.cluster.local:8086"
+#  user: "root"
+#  password: "root"
+#  dbName: "marathon"
 poolingStrategy:
   list:
-    - Omni
-    - Model
     - OsVersion
-    - Manufacturer
+    - Omni
     - ABI
-shardingStrategy:
-  count: 5
+    - Manufacturer
+    - Model
 sortingStrategy:
+  type: "success-rate"
   timeLimit: "2015-03-14T09:26:53.590Z"
 batchingStrategy:
   fixedSize: 5
@@ -45,10 +38,10 @@ filteringConfiguration:
     - annotation: ".*"
 testClassRegexes:
   - "^((?!Abstract).)*Test$"
-includeSerialRegexes:
-  - "emulator-500[2,4]"
-excludeSerialRegexes:
-  - "emulator-5002"
+#includeSerialRegexes:
+#  - "emulator-500[2,4]"
+#excludeSerialRegexes:
+#  - "emulator-5002"
 ignoreFailures: false
 isCodeCoverageEnabled: false
 fallbackToScreenshots: false
@@ -56,10 +49,12 @@ strictMode: true
 testBatchTimeoutMillis: 20000
 testOutputTimeoutMillis: 30000
 debug: true
+screenRecordingPolicy: "ON_ANY"
+deviceInitializationTimeoutMillis: 300000
 vendorConfiguration:
-  androidSdk: "/local/android"
-  applicationApk: "kotlin-buildscript/build/outputs/apk/debug/kotlin-buildscript-debug.apk"
-  testApplicationApk: "kotlin-buildscript/build/outputs/apk/androidTest/debug/kotlin-buildscript-debug-androidTest.apk"
+  androidSdk: "/home/ivanbalaksha/Android/Sdk"
+  applicationApk: "app/build/outputs/apk/debug/app-debug.apk"
+  testApplicationApk: "app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk"
   autoGrantPermission: true
   applicationPmClear: true
   testApplicationPmClear: true
@@ -68,3 +63,15 @@ vendorConfiguration:
   installOptions: "-d"
   screenRecordConfiguration:
     preferableRecorderType: "SCREENSHOT"
+    videoConfiguration:
+      enabled: false
+      width: 1080
+      height: 1920
+      bitrateMbps: 2
+      timeLimit: 300
+    screenshotConfiguration:
+      enabled: false
+      width: 1080
+      height: 1920
+      delayMs: 200
+  waitForDevicesTimeoutMillis: 15000

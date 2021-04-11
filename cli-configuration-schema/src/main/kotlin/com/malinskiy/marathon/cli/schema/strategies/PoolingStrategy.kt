@@ -8,5 +8,5 @@ sealed class PoolingStrategy: Serializable {
     data class Combo(val list: List<PoolingStrategy>) : PoolingStrategy()
     object Manufacturer : PoolingStrategy()
     object Model : PoolingStrategy()
-    object OperatingSystem : PoolingStrategy()
+    object OsVersion : PoolingStrategy()
 }

@@ -4,6 +4,7 @@ import com.malinskiy.marathon.cli.schema.android.AllureConfiguration
 import com.malinskiy.marathon.cli.schema.android.DEFAULT_ALLURE_CONFIGURATION
 import com.malinskiy.marathon.cli.schema.android.ScreenRecordConfiguration
 import com.malinskiy.marathon.cli.schema.android.SerialStrategy
+import com.malinskiy.marathon.cli.schema.android.TimeoutConfiguration
 import com.malinskiy.marathon.cli.schema.android.VendorType
 import java.io.File
 import java.io.Serializable
@@ -20,7 +21,7 @@ sealed class VendorConfiguration : Serializable {
     data class Android(
         val vendor: VendorType = VendorType.DDMLIB,
         val androidSdk: File,
-        val applicationApk: File?,
+        val applicationApk: File? = null,
         val testApplicationApk: File,
         val autoGrantPermission: Boolean = DEFAULT_AUTO_GRANT_PERMISSION,
         val instrumentationArgs: Map<String, String> = emptyMap(),
@@ -31,7 +32,8 @@ sealed class VendorConfiguration : Serializable {
         val serialStrategy: SerialStrategy = SerialStrategy.AUTOMATIC,
         val screenRecordConfiguration: ScreenRecordConfiguration = ScreenRecordConfiguration(),
         val waitForDevicesTimeoutMillis: Long = DEFAULT_WAIT_FOR_DEVICES_TIMEOUT,
-        val allureConfiguration: AllureConfiguration = DEFAULT_ALLURE_CONFIGURATION
+        val allureConfiguration: AllureConfiguration = DEFAULT_ALLURE_CONFIGURATION,
+        val timeoutConfiguration: TimeoutConfiguration = TimeoutConfiguration()
     ) : VendorConfiguration()
 
     data class IOS(

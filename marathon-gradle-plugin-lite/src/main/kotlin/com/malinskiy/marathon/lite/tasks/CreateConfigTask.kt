@@ -183,7 +183,7 @@ open class CreateConfigTask @Inject constructor(
 
 
     @get:OutputFile
-    val configOutput: Provider<RegularFile> = projectLayout.buildDirectory.file("Marathonfile");
+    val configOutput: Provider<RegularFile> = projectLayout.buildDirectory.file("Marathonfile.yaml");
 
     @TaskAction
     fun createConfig() {
