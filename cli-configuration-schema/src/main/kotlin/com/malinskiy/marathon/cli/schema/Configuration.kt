@@ -52,9 +52,9 @@ data class Configuration(
     val strictMode: Boolean = DEFAULT_STRICT_MODE,
     val uncompletedTestRetryQuota: Int = DEFAULT_UNCOMPLETED_TEST_RETRY_QUOTA,
 
-    val testClassRegexes: List<Regex> = DEFAULT_TEST_CLASS_REGEXES.map { Regex(it) },
-    val includeSerialRegexes: List<Regex> = DEFAULT_INCLUDES_SERIAL_REGEXES.map { Regex(it) },
-    val excludeSerialRegexes: List<Regex> = DEFAULT_EXCLUDES_SERIAL_REGEXES.map { Regex(it) },
+    val testClassRegexes: List<String> = DEFAULT_TEST_CLASS_REGEXES,
+    val includeSerialRegexes: List<String> = DEFAULT_INCLUDES_SERIAL_REGEXES,
+    val excludeSerialRegexes: List<String> = DEFAULT_EXCLUDES_SERIAL_REGEXES,
 
     val testBatchTimeoutMillis: Long = DEFAULT_EXECUTION_TIMEOUT_MILLIS,
     val testOutputTimeoutMillis: Long = DEFAULT_OUTPUT_TIMEOUT_MILLIS,

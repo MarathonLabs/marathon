@@ -1,6 +1,11 @@
 package com.malinskiy.marathon.lite.tasks
 
 import com.android.build.api.variant.BuiltArtifactsLoader
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
+import com.fasterxml.jackson.dataformat.yaml.YAMLGenerator
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
+import com.fasterxml.jackson.module.kotlin.KotlinModule
 import com.malinskiy.marathon.cli.schema.AnalyticsConfiguration
 import com.malinskiy.marathon.cli.schema.Configuration
 import com.malinskiy.marathon.cli.schema.FilteringConfiguration
@@ -23,6 +28,7 @@ import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.file.ProjectLayout
 import org.gradle.api.file.RegularFile
 import org.gradle.api.model.ObjectFactory
+import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.MapProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.provider.Provider
@@ -34,7 +40,6 @@ import org.gradle.api.tasks.PathSensitive
 import org.gradle.api.tasks.PathSensitivity
 import org.gradle.api.tasks.TaskAction
 import org.gradle.kotlin.dsl.property
-import org.yaml.snakeyaml.Yaml
 import java.io.File
 import java.io.FileWriter
 import javax.inject.Inject
@@ -113,13 +118,13 @@ open class CreateConfigTask @Inject constructor(
     val uncompletedTestRetryQuota: Property<Int> = objects.property()
 
     @get:Input
-    val testClassRegexes: Property<Collection<String>> = objects.property()
+    val testClassRegexes: ListProperty<String> = objects.listProperty(String::class.java)
 
     @get:Input
-    val includeSerialRegexes: Property<Collection<String>> = objects.property()
+    val includeSerialRegexes: ListProperty<String> = objects.listProperty(String::class.java)
 
     @get:Input
-    val excludeSerialRegexes: Property<Collection<String>> = objects.property()
+    val excludeSerialRegexes: ListProperty<String> = objects.listProperty(String::class.java)
 
     @get:Input
     val testBatchTimeoutMillis: Property<Long> = objects.property()
@@ -206,9 +211,9 @@ open class CreateConfigTask @Inject constructor(
             fallbackToScreenshots.get(),
             strictMode.get(),
             uncompletedTestRetryQuota.get(),
-            testClassRegexes.get().map { Regex(it) },
-            includeSerialRegexes.get().map { Regex(it) },
-            excludeSerialRegexes.get().map { Regex(it) },
+            testClassRegexes.get(),
+            includeSerialRegexes.get(),
+            excludeSerialRegexes.get(),
             testBatchTimeoutMillis.get(),
             testOutputTimeoutMillis.get(),
             debug.get(),
@@ -221,10 +226,12 @@ open class CreateConfigTask @Inject constructor(
     }
 
     private fun saveConfig(config: Configuration, output: File) {
-        val yaml = Yaml()
-        println(config)
-        println(yaml.dumpAsMap(config))
-        yaml.dump(config, FileWriter(output))
+        val mapper = ObjectMapper(YAMLFactory().disable(YAMLGenerator.Feature.USE_NATIVE_TYPE_ID))
+        mapper
+//            .registerModule(DeserializeModule(InstantTimeProviderImpl()))
+            .registerModule(KotlinModule())
+            .registerModule(JavaTimeModule())
+        mapper.writeValue(FileWriter(output), config)
     }
 
     private fun createAndroidConfiguration(

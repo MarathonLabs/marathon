@@ -20,7 +20,10 @@ dependencies {
     implementation(gradleApi())
     implementation(Libraries.kotlinLogging)
     implementation(project(":cli-configuration-schema"))
-    implementation("org.yaml:snakeyaml:1.27")
-//    implementation(BuildPlugins.androidGradle)
     implementation("com.android.tools.build:gradle:4.1.0") //use 4.1.0 instead of 4.0.0
+    implementation(Libraries.jacksonDatabind)
+    implementation(Libraries.jacksonAnnotations)
+    implementation(Libraries.jacksonKotlin)
+    implementation(Libraries.jacksonYaml)
+    implementation(Libraries.jacksonJSR310)
 }
