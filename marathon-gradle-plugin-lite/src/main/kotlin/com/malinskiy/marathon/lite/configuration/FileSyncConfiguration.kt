@@ -1,10 +1,10 @@
-package com.malinskiy.marathon.lite.configuration.android
+package com.malinskiy.marathon.lite.configuration
 
 import java.io.Serializable
 
-data class FileSyncConfiguration (
+data class FileSyncConfiguration(
     val pull: MutableList<FileSyncEntry> = mutableListOf()
-): Serializable
+) : Serializable
 
 data class FileSyncEntry(
     val relativePath: String,

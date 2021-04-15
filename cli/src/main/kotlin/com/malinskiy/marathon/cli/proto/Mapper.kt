@@ -84,38 +84,55 @@ import com.malinskiy.marathon.cliconfig.proto.ShardingStrategy as ProtoShardingS
 import com.malinskiy.marathon.cliconfig.proto.SortingStrategy as ProtoSortingStrategy
 import com.malinskiy.marathon.cliconfig.proto.VendorConfiguration as ProtoVendorConfiguration
 
+fun <T, O> O.get(check: O.() -> Boolean, get: O.() -> T): T? {
+    if (check(this)) {
+        return get(this)
+    }
+    return null
+}
+
 class Mapper {
-    fun convert(protoConfig: ProtoConfig): Configuration {
+    private fun convert(protoConfig: ProtoConfig): Configuration {
         return Configuration(
             name = protoConfig.name,
             outputDir = File(protoConfig.outputDir),
-            analyticsConfiguration = protoConfig.analyticsConfiguration.convert(),
-            poolingStrategy = protoConfig.poolingStrategy.convert(),
-            shardingStrategy = protoConfig.shardingStrategy.convert(),
-            sortingStrategy = protoConfig.sortingStrategy.convert(),
-            batchingStrategy = protoConfig.batchingStrategy.convert(),
-            flakinessStrategy = protoConfig.flakinessStrategy.convert(),
-            retryStrategy = protoConfig.retryStrategy.convert(),
-            filteringConfiguration = protoConfig.filteringConfiguration.convert(),
+            analyticsConfiguration = protoConfig.get({ hasAnalyticsConfiguration() }, { analyticsConfiguration })?.convert(),
+            poolingStrategy = protoConfig.get({ hasPoolingStrategy() }, { poolingStrategy })?.convert(),
+            shardingStrategy = protoConfig.get({ hasShardingStrategy() }, { shardingStrategy })?.convert(),
+            sortingStrategy = protoConfig.get({ hasSortingStrategy() }, { sortingStrategy })?.convert(),
+            batchingStrategy = protoConfig.get({ hasBatchingStrategy() }, { batchingStrategy })?.convert(),
+            flakinessStrategy = protoConfig.get({ hasFlakinessStrategy() }, { flakinessStrategy })?.convert(),
+            retryStrategy = protoConfig.get({ hasRetryStrategy() }, { retryStrategy })?.convert(),
+            filteringConfiguration = protoConfig.get({ hasFilteringConfiguration() }, { filteringConfiguration })?.convert(),
 
-            ignoreFailures = protoConfig.ignoreFailures,
-            isCodeCoverageEnabled = protoConfig.isCodeCoverageEnabled,
-            fallbackToScreenshots = protoConfig.fallbackToScreenshots,
-            strictMode = protoConfig.strictMode,
-            uncompletedTestRetryQuota = protoConfig.uncompletedTestRetryQuota,
+            ignoreFailures = protoConfig.get({ hasIgnoreFailures() }, { ignoreFailures }),
+            isCodeCoverageEnabled = protoConfig.get({ hasIsCodeCoverageEnabled() }, { isCodeCoverageEnabled }),
+            fallbackToScreenshots = protoConfig.get({ hasFallbackToScreenshots() }, { fallbackToScreenshots }),
+            strictMode = protoConfig.get({ hasStrictMode() }, { strictMode }),
+            uncompletedTestRetryQuota = protoConfig.get({ hasUncompletedTestRetryQuota() }, { uncompletedTestRetryQuota }),
 
-            testClassRegexes = protoConfig.testClassRegexesList.map { it.toRegex() },
-            includeSerialRegexes = protoConfig.includeSerialRegexesList.map { it.toRegex() },
-            excludeSerialRegexes = protoConfig.excludeSerialRegexesList.map { it.toRegex() },
+            testClassRegexes = protoConfig.get(
+                { hasTestClassRegexes() },
+                { testClassRegexes }
+            )?.valuesList?.map { it.toRegex() },
+            includeSerialRegexes = protoConfig.get(
+                { hasIncludeSerialRegexes() },
+                { includeSerialRegexes }
+            )?.valuesList?.map { it.toRegex() },
+            excludeSerialRegexes = protoConfig.get(
+                { hasExcludeSerialRegexes() },
+                { excludeSerialRegexes }
+            )?.valuesList?.map { it.toRegex() },
 
-            testBatchTimeoutMillis = protoConfig.testBatchTimeoutMillis,
-            testOutputTimeoutMillis = protoConfig.testOutputTimeoutMillis,
-            debug = protoConfig.debug,
+            testBatchTimeoutMillis = protoConfig.get({ hasTestBatchTimeoutMillis() }, { testBatchTimeoutMillis }),
+            testOutputTimeoutMillis = protoConfig.get({ hasTestOutputTimeoutMillis() }, { testOutputTimeoutMillis }),
+            debug = protoConfig.get({ hasDebug() }, { debug }),
 
-            screenRecordingPolicy = protoConfig.screenRecordingPolicy.convert(),
+            screenRecordingPolicy = protoConfig.get({ hasScreenRecordingPolicy() }, { screenRecordingPolicy })?.convert(),
             vendorConfiguration = protoConfig.vendorConfiguration.convert(),
-            analyticsTracking = protoConfig.analyticsTracking,
-            deviceInitializationTimeoutMillis = protoConfig.deviceInitializationTimeoutMillis
+            analyticsTracking = protoConfig.get({ hasAnalyticsTracking() }, { analyticsTracking }),
+            deviceInitializationTimeoutMillis = protoConfig.get({ hasDeviceInitializationTimeoutMillis() },
+                                                                { deviceInitializationTimeoutMillis })
         )
     }
 
@@ -275,24 +292,27 @@ fun ProtoAndroidConfiguration.convert(): AndroidConfiguration {
         DDMLIB -> listOf(ddmlibModule)
         else -> throw fail("VendorType")
     }
+    with(this) {
+        get({ hasAutoGrantPermission() }, { autoGrantPermission })
+    }
     return AndroidConfiguration(
         androidSdk = File(androidSdk),
         applicationOutput = File(applicationApk),
         testApplicationOutput = File(testApplicationApk),
         implementationModules = implementationModules,
-        autoGrantPermission = autoGrantPermission,
+        autoGrantPermission = get({ hasAutoGrantPermission() }, { autoGrantPermission }),
         instrumentationArgs = this.instrumentationArgsMap,
-        applicationPmClear = applicationPmClear,
-        testApplicationPmClear = testApplicationPmClear,
-        adbInitTimeoutMillis = adbInitTimeoutMillis,
-        installOptions = installOptions,
-        serialStrategy = serialStrategy.convert(),
-        screenRecordConfiguration = screenRecordConfiguration.convert(),
-        waitForDevicesTimeoutMillis = waitForDevicesTimeoutMillis,
-        allureConfiguration = allureConfiguration.convert(),
-        timeoutConfiguration = timeoutConfiguration.convert(),
-        fileSyncConfiguration = fileSyncConfiguration.convert(),
-        threadingConfiguration = threadingConfiguration.convert(),
+        applicationPmClear = get({ hasApplicationPmClear() }, { applicationPmClear }),
+        testApplicationPmClear = get({ hasTestApplicationPmClear() }, { testApplicationPmClear }),
+        adbInitTimeoutMillis = get({ hasAdbInitTimeoutMillis() }, { adbInitTimeoutMillis }),
+        installOptions = get({ hasInstallOptions() }, { installOptions }),
+        serialStrategy = get({ hasSerialStrategy() }, { serialStrategy })?.convert(),
+        screenRecordConfiguration = get({ hasScreenRecordConfiguration() }, { screenRecordConfiguration })?.convert(),
+        waitForDevicesTimeoutMillis = get({ hasWaitForDevicesTimeoutMillis() }, { waitForDevicesTimeoutMillis }),
+        allureConfiguration = get({ hasAllureConfiguration() }, { allureConfiguration })?.convert(),
+        timeoutConfiguration = get({ hasTimeoutConfiguration() }, { timeoutConfiguration })?.convert(),
+        fileSyncConfiguration = get({ hasFileSyncConfiguration() }, { fileSyncConfiguration })?.convert(),
+        threadingConfiguration = get({ hasThreadingConfiguration() }, { threadingConfiguration })?.convert(),
     )
 }
 

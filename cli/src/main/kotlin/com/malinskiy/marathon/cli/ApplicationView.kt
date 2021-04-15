@@ -53,7 +53,7 @@ fun main(args: Array<String>): Unit = mainBody(
             bugsnagExceptionsReporter.start(AppType.CLI)
             val configuration = parseConfiguration(this)
 
-
+            println(configuration)
             val application = marathonStartKoin(configuration)
             val marathon: Marathon = application.koin.get()
 

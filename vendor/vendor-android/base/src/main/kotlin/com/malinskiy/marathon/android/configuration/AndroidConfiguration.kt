@@ -45,6 +45,44 @@ data class AndroidConfiguration(
     val fileSyncConfiguration: FileSyncConfiguration = FileSyncConfiguration(),
     val threadingConfiguration: ThreadingConfiguration = ThreadingConfiguration(),
 ) : VendorConfiguration, KoinComponent {
+    constructor(
+        androidSdk: File,
+        applicationOutput: File?,
+        testApplicationOutput: File,
+        implementationModules: List<Module>,
+        autoGrantPermission: Boolean?,
+        instrumentationArgs: Map<String, String>?,
+        applicationPmClear: Boolean?,
+        testApplicationPmClear: Boolean?,
+        adbInitTimeoutMillis: Int?,
+        installOptions: String?,
+        serialStrategy: SerialStrategy?,
+        screenRecordConfiguration: ScreenRecordConfiguration?,
+        waitForDevicesTimeoutMillis: Long?,
+        allureConfiguration: AllureConfiguration?,
+        timeoutConfiguration: TimeoutConfiguration?,
+        fileSyncConfiguration: FileSyncConfiguration?,
+        threadingConfiguration: ThreadingConfiguration?,
+    ) :
+        this(
+            androidSdk,
+            applicationOutput,
+            testApplicationOutput,
+            implementationModules,
+            autoGrantPermission = autoGrantPermission ?: DEFAULT_AUTO_GRANT_PERMISSION,
+            instrumentationArgs = instrumentationArgs ?: emptyMap(),
+            applicationPmClear = applicationPmClear ?: DEFAULT_APPLICATION_PM_CLEAR,
+            testApplicationPmClear = testApplicationPmClear ?: DEFAULT_TEST_APPLICATION_PM_CLEAR,
+            adbInitTimeoutMillis = adbInitTimeoutMillis ?: defaultInitTimeoutMillis,
+            installOptions = installOptions ?: DEFAULT_INSTALL_OPTIONS,
+            serialStrategy = serialStrategy ?: SerialStrategy.AUTOMATIC,
+            screenRecordConfiguration = screenRecordConfiguration ?: ScreenRecordConfiguration(),
+            waitForDevicesTimeoutMillis = waitForDevicesTimeoutMillis ?: DEFAULT_WAIT_FOR_DEVICES_TIMEOUT,
+            allureConfiguration = allureConfiguration ?: DEFAULT_ALLURE_CONFIGURATION,
+            timeoutConfiguration = timeoutConfiguration ?: TimeoutConfiguration(),
+            fileSyncConfiguration = fileSyncConfiguration ?: FileSyncConfiguration(),
+            threadingConfiguration = threadingConfiguration ?: ThreadingConfiguration(),
+        )
 
     override fun testParser(): TestParser? = get()
 

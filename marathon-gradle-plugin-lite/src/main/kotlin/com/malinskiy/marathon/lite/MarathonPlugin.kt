@@ -18,6 +18,7 @@ import org.gradle.api.plugins.JavaBasePlugin.VERIFICATION_GROUP
 import org.gradle.kotlin.dsl.create
 import org.gradle.kotlin.dsl.getByName
 import org.gradle.kotlin.dsl.register
+import kotlin.random.Random
 
 private typealias GenericCommonExtension = CommonExtension<AndroidSourceSet, BuildFeatures, BuildType, DefaultConfig, ProductFlavor, SigningConfig, Variant<VariantProperties>, VariantProperties>
 
@@ -25,8 +26,9 @@ private const val TASK_PREFIX = "marathon"
 
 class MarathonPlugin : Plugin<Project> {
     override fun apply(project: Project) {
+        val marathonExtension = project.extensions.create<MarathonExtension>("marathon")
         project.afterEvaluate {
-            val marathonExtension = project.extensions.create<MarathonExtension>("marathon")
+
             val androidExtension = project.extensions.getByName<GenericCommonExtension>("android")
             androidExtension.onVariants {
                 androidTestProperties {
@@ -78,7 +80,7 @@ class MarathonPlugin : Plugin<Project> {
                             allureConfiguration.set(marathonExtension.allureConfiguration)
                             timeoutConfiguration.set(marathonExtension.timeoutConfiguration)
                             fileSyncConfiguration.set(marathonExtension.fileSyncConfiguration)
-                            autoGrantPermission.set(marathonExtension.autoGrantPermission)
+                            autoGrantPermissions.set(marathonExtension.autoGrantPermissions)
                             instrumentationArgs.set(marathonExtension.instrumentationArgs)
                         }
                     val runTask = project.tasks.register<MarathonRunTask>("$TASK_PREFIX${testVariantProperties.name.capitalize()}") {
@@ -86,6 +88,7 @@ class MarathonPlugin : Plugin<Project> {
                         description = "Runs instrumentation tests on all the connected devices for '${testVariantProperties.name}' " +
                             "variation and generates a report with screenshots"
                         marathonConfigFile.set(generateConfigTask.get().configOutput)
+                        randomProperty.set(Random.nextInt())
                     }
 //                    artifacts.use(generateConfigTask)
 //                        .wiredWith(CreateConfigTask::configOutput)

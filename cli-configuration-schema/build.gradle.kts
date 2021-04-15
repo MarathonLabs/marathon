@@ -9,13 +9,13 @@ plugins {
 }
 
 dependencies {
-    api("com.google.protobuf:protobuf-java:3.6.1")
+    api("com.google.protobuf:protobuf-java:3.15.8")
 }
 
 Deployment.initialize(project)
 protobuf {
     protoc {
-        artifact = "com.google.protobuf:protoc:3.6.1"
+        artifact = "com.google.protobuf:protoc:3.15.8"
     }
 }
 buildConfig {

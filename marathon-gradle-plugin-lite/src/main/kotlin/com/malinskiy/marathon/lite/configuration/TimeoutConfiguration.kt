@@ -1,4 +1,4 @@
-package com.malinskiy.marathon.lite.configuration.android
+package com.malinskiy.marathon.lite.configuration
 
 import java.io.Serializable
 import java.time.Duration
