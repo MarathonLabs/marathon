@@ -26,6 +26,7 @@ import ddmlibModule
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
 import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.InputDirectory
 import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.VerificationTask
@@ -43,7 +44,7 @@ open class MarathonRunTask : DefaultTask(), VerificationTask {
     lateinit var testVariant: TestVariant
     @Input
     lateinit var extensionConfig: MarathonExtension
-    @Input
+    @InputDirectory
     lateinit var sdk: File
     @Input
     lateinit var cnf: Configuration
