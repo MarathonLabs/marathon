@@ -7,7 +7,6 @@ import com.android.build.gradle.LibraryPlugin
 import com.android.build.gradle.api.BaseVariantOutput
 import com.android.build.gradle.api.TestVariant
 import com.malinskiy.marathon.config.AppType
-import com.malinskiy.marathon.exceptions.BugsnagExceptionsReporter
 import com.malinskiy.marathon.exceptions.ExceptionsReporter
 import com.malinskiy.marathon.exceptions.ExceptionsReporterFactory
 import com.malinskiy.marathon.extensions.executeGradleCompat
@@ -83,13 +82,13 @@ class MarathonPlugin : Plugin<Project> {
                     group = JavaBasePlugin.VERIFICATION_GROUP
                     description = "Runs instrumentation tests on all the connected devices for '${variant.name}' " +
                         "variation and generates a report with screenshots"
-                    flavorName = variant.name
-                    applicationVariant = variant.testedVariant
-                    testVariant = variant
-                    extensionConfig = config
-                    sdk = sdkDirectory
+                    flavorName.set(variant.name)
+                    applicationVariant.set(variant.testedVariant)
+                    testVariant.set(variant)
+                    marathonExtension.set(config)
+                    sdk.set(sdkDirectory)
                     outputs.upToDateWhen { false }
-                    exceptionsTracker = exceptionsReporter
+                    exceptionsTracker.set(exceptionsReporter)
                     executeGradleCompat(
                         exec = {
                             dependsOn(variant.testedVariant.assembleProvider, variant.assembleProvider)
