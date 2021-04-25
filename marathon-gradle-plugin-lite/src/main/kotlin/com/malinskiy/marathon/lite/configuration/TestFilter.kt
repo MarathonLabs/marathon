@@ -2,7 +2,6 @@ package com.malinskiy.marathon.lite.configuration
 
 import com.malinskiy.marathon.cliconfig.proto.FilteringConfiguration.TestFilter.*
 import com.malinskiy.marathon.cliconfig.proto.FilteringConfiguration.TestFilter.Annotation
-import com.malinskiy.marathon.cliconfig.proto.FilteringConfiguration.TestFilter.Annotation.*
 import java.io.Serializable
 import kotlin.String
 import com.malinskiy.marathon.cliconfig.proto.FilteringConfiguration as ProtoFilteringConfiguration

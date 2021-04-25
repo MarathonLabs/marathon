@@ -205,7 +205,6 @@ open class CreateConfigTask @Inject constructor(
     @get:Optional
     val fileSyncConfiguration: Property<FileSyncConfiguration> = objects.property()
 
-    //Android specific for now
     @get:Input
     @get:Optional
     val autoGrantPermissions: Property<Boolean> = objects.property()
@@ -228,6 +227,7 @@ open class CreateConfigTask @Inject constructor(
 
         val vendorConfiguration = createAndroidConfiguration(applicationApk?.let { File(it) }, instrumentationApk)
         val builder = Configuration.newBuilder()
+        builder.outputDir = output.absolutePath
         analyticsConfiguration.orNull?.let { builder.setAnalyticsConfiguration(it.toProto()) }
         poolingStrategy.orNull?.let { builder.setPoolingStrategy(it.toProto()) }
         shardingStrategy.orNull?.let { builder.setShardingStrategy(it.toProto()) }

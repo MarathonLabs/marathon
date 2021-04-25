@@ -89,10 +89,8 @@ class MarathonPlugin : Plugin<Project> {
                             "variation and generates a report with screenshots"
                         marathonConfigFile.set(generateConfigTask.get().configOutput)
                         randomProperty.set(Random.nextInt())
+                        dependsOn(generateConfigTask)
                     }
-//                    artifacts.use(generateConfigTask)
-//                        .wiredWith(CreateConfigTask::configOutput)
-//                        .toAppendTo(ArtifactType.MANY_ARTIFACT)
                 }
             }
         }

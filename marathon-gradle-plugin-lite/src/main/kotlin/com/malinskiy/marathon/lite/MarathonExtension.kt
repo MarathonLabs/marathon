@@ -81,13 +81,8 @@ open class MarathonExtension @Inject constructor(
 
     init {
         name.convention("marathon")
-        baseOutputDir.set("")
         vendor.convention(VendorType.ADAM)
         bugsnag.convention(false)
-
-//        // TODO: fix it later
-////        baseOutputDir: Property<String> = objects.property()
-//
         instrumentationArgs.convention(emptyMap())
     }
 }
