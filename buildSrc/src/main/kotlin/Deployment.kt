@@ -57,11 +57,11 @@ object Deployment {
         val javaPlugin = project.the(JavaPluginConvention::class)
 
         val sourcesJar by project.tasks.creating(org.gradle.api.tasks.bundling.Jar::class) {
-            classifier = "sources"
+            archiveClassifier.set("sources")
             from(javaPlugin.sourceSets["main"].allSource)
         }
         val javadocJar by project.tasks.creating(org.gradle.api.tasks.bundling.Jar::class) {
-            classifier = "javadoc"
+            archiveClassifier.set("javadoc")
             from(javaPlugin.docsDir)
             dependsOn("javadoc")
         }
