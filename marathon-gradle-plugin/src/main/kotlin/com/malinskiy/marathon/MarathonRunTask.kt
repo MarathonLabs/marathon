@@ -25,6 +25,8 @@ import com.malinskiy.marathon.usageanalytics.tracker.Event
 import ddmlibModule
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
+import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.InputDirectory
 import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.VerificationTask
@@ -34,13 +36,21 @@ import java.io.File
 private val log = MarathonLogging.logger {}
 
 open class MarathonRunTask : DefaultTask(), VerificationTask {
+    @Input
     lateinit var flavorName: String
+    @Input
     lateinit var applicationVariant: BaseVariant
+    @Input
     lateinit var testVariant: TestVariant
+    @Input
     lateinit var extensionConfig: MarathonExtension
+    @InputDirectory
     lateinit var sdk: File
+    @Input
     lateinit var cnf: Configuration
+    @Input
     lateinit var exceptionsTracker: ExceptionsReporter
+    @Input
     var ignoreFailure: Boolean = false
 
     @OutputDirectory
