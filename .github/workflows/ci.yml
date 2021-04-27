@@ -11,16 +11,16 @@ jobs:
           java-version: 1.8
       - name: test
         run: |
-        chmod 0600 $GITHUB_WORKSPACE/vendor/vendor-ios/src/test/resources/fixtures/derived-data-manager/test_rsa
-        ./gradlew clean test jacocoTestReport integrationTest
-        bash <(curl -s https://codecov.io/bash)
+          chmod 0600 $GITHUB_WORKSPACE/vendor/vendor-ios/src/test/resources/fixtures/derived-data-manager/test_rsa
+          ./gradlew clean test jacocoTestReport integrationTest
+          bash <(curl -s https://codecov.io/bash)
       - name: detekt
         run: |
-        ./gradlew clean detektCheck
+          ./gradlew clean detektCheck
       - name: deliver maven
         if: ${{ startsWith(github.ref, 'refs/tags/') || github.ref == 'refs/heads/develop' }}
         run: |
-        bash .buildsystem/deploy-sonatype.sh
+          bash .buildsystem/deploy-sonatype.sh
         env:
           SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
           SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
@@ -28,7 +28,7 @@ jobs:
       - name: assemble cli
         if: ${{ startsWith(github.ref, 'refs/tags/') }}
         run: |
-        ./gradlew :cli:assembleDist -PreleaseMode=RELEASE
+          ./gradlew :cli:assembleDist -PreleaseMode=RELEASE
       - name: deliver cli
         uses: softprops/action-gh-release@v1
         if: ${{ startsWith(github.ref, 'refs/tags/') }}
@@ -37,7 +37,7 @@ jobs:
       - name: deliver cli snapshot
         if: ${{ github.ref == 'refs/heads/develop' }}
         run: |
-        ./gradlew :cli:publishDistZipPublicationToGitHubRepository -PreleaseMode=SNAPSHOT
+          ./gradlew :cli:publishDistZipPublicationToGitHubRepository -PreleaseMode=SNAPSHOT
         env:
           GITHUB_MAVEN_USERNAME: ${{ secrets.GH_MAVEN_USERNAME }}
           GITHUB_MAVEN_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
