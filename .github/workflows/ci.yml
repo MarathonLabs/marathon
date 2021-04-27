@@ -25,6 +25,8 @@ jobs:
           SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
           SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
           GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
+      - uses: little-core-labs/get-git-tag@v3.0.2
+        if: ${{ startsWith(github.ref, 'refs/tags/') }}
       - name: assemble cli
         if: ${{ startsWith(github.ref, 'refs/tags/') }}
         run: |
