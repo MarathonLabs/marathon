@@ -15,6 +15,7 @@ jobs:
           ./gradlew clean test jacocoTestReport integrationTest
           bash <(curl -s https://codecov.io/bash)
       - name: detekt
+        continue-on-error: true
         run: |
           ./gradlew clean detektCheck
       - name: deliver maven
