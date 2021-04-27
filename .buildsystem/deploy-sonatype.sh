@@ -21,10 +21,10 @@ for i in ":core" ":vendor:vendor-android:base" ":vendor:vendor-android:ddmlib" "
   TARGETS="$TARGETS $i:publishDefaultPublicationToOSSHRRepository"
 done
 
-if [ -z "$TRAVIS_TAG" ]; then
+if [ -z "$GIT_TAG_NAME" ]; then
   echo "not on a tag -> deploy snapshot version"
   ./gradlew $TARGETS -PreleaseMode=SNAPSHOT
 else
-  echo "on a tag -> deploy release version $TRAVIS_TAG"
+  echo "on a tag -> deploy release version $GIT_TAG_NAME"
   ./gradlew $TARGETS -PreleaseMode=RELEASE
 fi
