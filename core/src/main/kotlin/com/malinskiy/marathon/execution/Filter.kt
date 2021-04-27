@@ -1,6 +1,7 @@
 package com.malinskiy.marathon.execution
 
 import com.fasterxml.jackson.annotation.JsonProperty
+import com.malinskiy.marathon.test.MetaProperty
 import com.malinskiy.marathon.test.Test
 
 interface TestFilter {
@@ -90,24 +91,20 @@ data class TestMethodFilter(@JsonProperty("regex") val regex: Regex) : TestFilte
 
 
 data class AnnotationDataFilter(@JsonProperty("nameRegex") val nameRegex: Regex, @JsonProperty("valueRegex") val valueRegex: Regex ) : TestFilter {
-    class AnnotationData(
-        var name: String,
-        var value: String
-    )
-
-    override fun filter(tests: List<Test>): List<Test> = tests.filter {
-        it.metaProperties.map {
-            AnnotationData(it.name, it.values.getValue("value").toString())
-        }.any {
-            it.annotationMatches(Pair(nameRegex, valueRegex))
+    override fun filter(tests: List<Test>): List<Test> = tests.filter { test ->
+        test.metaProperties.any {
+            match(it)
         }
     }
-    override fun filterNot(tests: List<Test>): List<Test> = tests.filterNot {
-        it.metaProperties.map {
-            AnnotationData(it.name, it.values.getValue("value").toString())
-        }.any {
-            it.annotationMatches(Pair(nameRegex, valueRegex))
+
+    override fun filterNot(tests: List<Test>): List<Test> = tests.filterNot { test ->
+        test.metaProperties.any {
+            match(it)
         }
+    }
+
+    private fun match(metaProperty: MetaProperty): Boolean {
+        return nameRegex.matches(metaProperty.name) && metaProperty.values.containsKey("value") && valueRegex.matches(metaProperty.values["value"].toString())
     }
 
     override fun equals(other: Any?): Boolean {
@@ -120,7 +117,4 @@ data class AnnotationDataFilter(@JsonProperty("nameRegex") val nameRegex: Regex,
     override fun toString(): String {
         return "AnnotationDataFilter(nameRegex=$nameRegex, valuesRegex=$valueRegex)"
     }
-
-    private fun AnnotationData.annotationMatches(data: Pair<Regex, Regex>) =
-        this.name.matches(data.first) && this.value.matches(data.second)
 }
