@@ -17,18 +17,24 @@ const val DEFAULT_PUBLICATION_NAME = "default"
 const val DIST_ZIP_PUBLICATION_NAME = "distZip"
 
 object Deployment {
-    val user = System.getenv("SONATYPE_USERNAME")
-    val password = System.getenv("SONATYPE_PASSWORD")
-    val githubUser = System.getenv("GH_MAVEN_USERNAME")
-    val githubPassword = System.getenv("GH_MAVEN_PASSWORD")
+    val user: String
+        get() = System.getenv("SONATYPE_USERNAME")
+    val password: String
+        get() = System.getenv("SONATYPE_PASSWORD")
+    val githubUser: String
+        get() = System.getenv("GH_MAVEN_USERNAME")
+    val githubPassword: String
+        get() = System.getenv("GH_MAVEN_PASSWORD")
     var releaseMode: String? = null
     var versionSuffix: String? = null
     var deployUrl: String? = null
 
-    val snapshotDeployUrl = System.getenv("SONATYPE_SNAPSHOTS_URL")
-        ?: "https://oss.sonatype.org/content/repositories/snapshots/"
-    val releaseDeployUrl = System.getenv("SONATYPE_RELEASES_URL")
-        ?: "https://oss.sonatype.org/service/local/staging/deploy/maven2/"
+    val snapshotDeployUrl: String
+        get() = System.getenv("SONATYPE_SNAPSHOTS_URL")
+            ?: "https://oss.sonatype.org/content/repositories/snapshots/"
+    val releaseDeployUrl: String
+        get() = System.getenv("SONATYPE_RELEASES_URL")
+            ?: "https://oss.sonatype.org/service/local/staging/deploy/maven2/"
     val githubDeployUrl = "https://maven.pkg.github.com/Malinskiy/marathon"
 
     fun initialize(project: Project) {
