@@ -7,183 +7,120 @@ import com.malinskiy.marathon.android.configuration.FileSyncConfiguration
 import com.malinskiy.marathon.android.configuration.SerialStrategy
 import com.malinskiy.marathon.android.configuration.TimeoutConfiguration
 import com.malinskiy.marathon.execution.policy.ScreenRecordingPolicy
-import groovy.lang.Closure
-import org.gradle.api.Project
+import org.gradle.api.Action
+import org.gradle.api.model.ObjectFactory
+import org.gradle.api.provider.MapProperty
+import org.gradle.api.provider.Property
+import org.gradle.kotlin.dsl.mapProperty
+import org.gradle.kotlin.dsl.property
+import java.io.Serializable
+import javax.inject.Inject
 
-open class MarathonExtension(project: Project) {
-    var name: String = "Marathon"
+open class MarathonExtension @Inject constructor(objects: ObjectFactory) : Serializable {
+    val name: Property<String> = objects.property()
 
-    var vendor: VendorType? = null
-    var bugsnag: Boolean? = null
+    val vendor: Property<VendorType> = objects.property()
+    val bugsnag: Property<Boolean> = objects.property()
 
-    var analyticsConfiguration: AnalyticsConfig? = null
+    val analyticsConfiguration: Property<AnalyticsConfig> = objects.property()
 
-    var poolingStrategy: PoolingStrategyConfiguration? = null
-    var shardingStrategy: ShardingStrategyConfiguration? = null
-    var sortingStrategy: SortingStrategyConfiguration? = null
-    var batchingStrategy: BatchingStrategyConfiguration? = null
-    var flakinessStrategy: FlakinessStrategyConfiguration? = null
-    var retryStrategy: RetryStrategyConfiguration? = null
-    var filteringConfiguration: FilteringPluginConfiguration? = null
+    val poolingStrategy: Property<PoolingStrategyConfiguration> = objects.property()
+    val shardingStrategy: Property<ShardingStrategyConfiguration> = objects.property()
+    val sortingStrategy: Property<SortingStrategyConfiguration> = objects.property()
+    val batchingStrategy: Property<BatchingStrategyConfiguration> = objects.property()
+    val flakinessStrategy: Property<FlakinessStrategyConfiguration> = objects.property()
+    val retryStrategy: Property<RetryStrategyConfiguration> = objects.property()
+    val filteringConfiguration: Property<FilteringPluginConfiguration> = objects.property()
 
-    var baseOutputDir: String? = null
+    val baseOutputDir: Property<String> = objects.property()
 
-    var ignoreFailures: Boolean? = null
-    var isCodeCoverageEnabled: Boolean? = null
-    var fallbackToScreenshots: Boolean? = null
-    var strictMode: Boolean? = null
-    var uncompletedTestRetryQuota: Int? = null
+    val ignoreFailures: Property<Boolean> = objects.property()
+    val isCodeCoverageEnabled: Property<Boolean> = objects.property()
+    val fallbackToScreenshots: Property<Boolean> = objects.property()
+    val strictMode: Property<Boolean> = objects.property()
+    val uncompletedTestRetryQuota: Property<Int> = objects.property()
 
-    var testClassRegexes: Collection<String>? = null
-    var includeSerialRegexes: Collection<String>? = null
-    var excludeSerialRegexes: Collection<String>? = null
+    val testClassRegexes: Property<Collection<String>> = objects.property()
+    val includeSerialRegexes: Property<Collection<String>> = objects.property()
+    val excludeSerialRegexes: Property<Collection<String>> = objects.property()
 
-    var testBatchTimeoutMillis: Long? = null
-    var testOutputTimeoutMillis: Long? = null
-    var debug: Boolean? = null
+    val testBatchTimeoutMillis: Property<Long> = objects.property()
+    val testOutputTimeoutMillis: Property<Long> = objects.property()
+    val debug: Property<Boolean> = objects.property()
 
-    var screenRecordingPolicy: ScreenRecordingPolicy? = null
+    val screenRecordingPolicy: Property<ScreenRecordingPolicy> = objects.property()
 
-    var applicationPmClear: Boolean? = null
-    var testApplicationPmClear: Boolean? = null
-    var adbInitTimeout: Int? = null
-    var installOptions: String? = null
-    var serialStrategy: SerialStrategy? = null
+    val applicationPmClear: Property<Boolean> = objects.property()
+    val testApplicationPmClear: Property<Boolean> = objects.property()
+    val adbInitTimeout: Property<Int> = objects.property()
+    val installOptions: Property<String> = objects.property()
+    val serialStrategy: Property<SerialStrategy> = objects.property()
 
-    var screenRecordConfiguration: ScreenRecordConfiguration? = null
+    val screenRecordConfiguration: Property<ScreenRecordConfiguration> = objects.property()
 
-    var analyticsTracking: Boolean = false
+    val analyticsTracking: Property<Boolean> = objects.property()
 
-    var deviceInitializationTimeoutMillis: Long? = null
-    var waitForDevicesTimeoutMillis: Long? = null
+    val deviceInitializationTimeoutMillis: Property<Long> = objects.property()
+    val waitForDevicesTimeoutMillis: Property<Long> = objects.property()
 
-    var allureConfiguration: AllureConfiguration? = null
-    var timeoutConfiguration: TimeoutConfiguration? = null
-    var fileSyncConfiguration: FileSyncConfiguration? = null
+    val allureConfiguration: Property<AllureConfiguration> = objects.property()
+    val timeoutConfiguration: Property<TimeoutConfiguration> = objects.property()
+    val fileSyncConfiguration: Property<FileSyncConfiguration> = objects.property()
 
     //Android specific for now
-    var autoGrantPermission: Boolean? = null
-    var instrumentationArgs: MutableMap<String, String> = mutableMapOf()
+    val autoGrantPermission: Property<Boolean> = objects.property()
+    val instrumentationArgs: MapProperty<String, String> = objects.mapProperty()
 
-    //Kotlin way
-    fun analytics(block: AnalyticsConfig.() -> Unit) {
-        analyticsConfiguration = AnalyticsConfig().also(block)
+    init {
+        name.convention("Marathon")
+        analyticsTracking.convention(false)
     }
 
-    fun batchingStrategy(block: BatchingStrategyConfiguration.() -> Unit) {
-        batchingStrategy = BatchingStrategyConfiguration().also(block)
+    fun analytics(action: Action<AnalyticsConfig>) {
+        analyticsConfiguration.set(AnalyticsConfig().also(action::execute))
     }
 
-    fun flakinessStrategy(block: FlakinessStrategyConfiguration.() -> Unit) {
-        flakinessStrategy = FlakinessStrategyConfiguration().also(block)
+    fun batchingStrategy(action: Action<BatchingStrategyConfiguration>) {
+        batchingStrategy.set(BatchingStrategyConfiguration().also(action::execute))
     }
 
-    fun poolingStrategy(block: PoolingStrategyConfiguration.() -> Unit) {
-        poolingStrategy = PoolingStrategyConfiguration().also(block)
+    fun flakinessStrategy(action: Action<FlakinessStrategyConfiguration>) {
+        flakinessStrategy.set(FlakinessStrategyConfiguration().also(action::execute))
     }
 
-    fun retryStrategy(block: RetryStrategyConfiguration.() -> Unit) {
-        retryStrategy = RetryStrategyConfiguration().also(block)
+    fun poolingStrategy(action: Action<PoolingStrategyConfiguration>) {
+        poolingStrategy.set(PoolingStrategyConfiguration().also(action::execute))
     }
 
-    fun shardingStrategy(block: ShardingStrategyConfiguration.() -> Unit) {
-        shardingStrategy = ShardingStrategyConfiguration().also(block)
+    fun retryStrategy(action: Action<RetryStrategyConfiguration>) {
+        retryStrategy.set(RetryStrategyConfiguration().also(action::execute))
     }
 
-    fun sortingStrategy(block: SortingStrategyConfiguration.() -> Unit) {
-        sortingStrategy = SortingStrategyConfiguration().also(block)
+    fun shardingStrategy(action: Action<ShardingStrategyConfiguration>) {
+        shardingStrategy.set(ShardingStrategyConfiguration().also(action::execute))
     }
 
-    fun filteringConfiguration(block: FilteringPluginConfiguration.() -> Unit) {
-        filteringConfiguration = FilteringPluginConfiguration().also(block)
+    fun sortingStrategy(action: Action<SortingStrategyConfiguration>) {
+        sortingStrategy.set(SortingStrategyConfiguration().also(action::execute))
     }
 
-    fun instrumentationArgs(block: MutableMap<String, String>.() -> Unit) {
-        instrumentationArgs = mutableMapOf<String, String>().also(block)
+    fun filteringConfiguration(action: Action<FilteringPluginConfiguration>) {
+        filteringConfiguration.set(FilteringPluginConfiguration().also(action::execute))
     }
 
-    fun allureConfiguration(block: AllureConfiguration.() -> Unit) {
-        allureConfiguration = AllureConfiguration().also(block)
+    fun instrumentationArgs(action: Action<MutableMap<String, String>>) {
+        instrumentationArgs.set(mutableMapOf<String, String>().also(action::execute))
     }
 
-    fun timeoutConfiguration(block: TimeoutConfiguration.() -> Unit) {
-        timeoutConfiguration = TimeoutConfiguration().also(block)
+    fun allureConfiguration(action: Action<AllureConfiguration>) {
+        allureConfiguration.set(AllureConfiguration().also(action::execute))
     }
 
-    fun fileSyncConfiguration(block: FileSyncConfiguration.() -> Unit) {
-        fileSyncConfiguration = FileSyncConfiguration().also(block)
+    fun timeoutConfiguration(action: Action<TimeoutConfiguration>) {
+        timeoutConfiguration.set(TimeoutConfiguration().also(action::execute))
     }
 
-    //Groovy way
-    fun analytics(closure: Closure<*>) {
-        analyticsConfiguration = AnalyticsConfig()
-        closure.delegate = analyticsConfiguration
-        closure.call()
-    }
-
-    fun batchingStrategy(closure: Closure<*>) {
-        batchingStrategy = BatchingStrategyConfiguration()
-        closure.delegate = batchingStrategy
-        closure.call()
-    }
-
-    fun flakinessStrategy(closure: Closure<*>) {
-        flakinessStrategy = FlakinessStrategyConfiguration()
-        closure.delegate = flakinessStrategy
-        closure.call()
-    }
-
-    fun poolingStrategy(closure: Closure<*>) {
-        poolingStrategy = PoolingStrategyConfiguration()
-        closure.delegate = poolingStrategy
-        closure.call()
-    }
-
-    fun retryStrategy(closure: Closure<*>) {
-        retryStrategy = RetryStrategyConfiguration()
-        closure.delegate = retryStrategy
-        closure.call()
-    }
-
-    fun shardingStrategy(closure: Closure<*>) {
-        shardingStrategy = ShardingStrategyConfiguration()
-        closure.delegate = shardingStrategy
-        closure.call()
-    }
-
-    fun sortingStrategy(closure: Closure<*>) {
-        sortingStrategy = SortingStrategyConfiguration()
-        closure.delegate = sortingStrategy
-        closure.call()
-    }
-
-    fun filteringConfiguration(closure: Closure<*>) {
-        filteringConfiguration = FilteringPluginConfiguration()
-        closure.delegate = filteringConfiguration
-        closure.call()
-    }
-
-    fun instrumentationArgs(closure: Closure<*>) {
-        instrumentationArgs = mutableMapOf()
-        closure.delegate = instrumentationArgs
-        closure.call()
-    }
-
-    fun allureConfiguration(closure: Closure<*>) {
-        allureConfiguration = AllureConfiguration()
-        closure.delegate = allureConfiguration
-        closure.call()
-    }
-
-    fun timeoutConfiguration(closure: Closure<*>) {
-        timeoutConfiguration = TimeoutConfiguration()
-        closure.delegate = timeoutConfiguration
-        closure.call()
-    }
-
-    fun fileSyncConfiguration(closure: Closure<*>) {
-        fileSyncConfiguration = FileSyncConfiguration()
-        closure.delegate = fileSyncConfiguration
-        closure.call()
+    fun fileSyncConfiguration(action: Action<FileSyncConfiguration>) {
+        fileSyncConfiguration.set(FileSyncConfiguration().also(action::execute))
     }
 }

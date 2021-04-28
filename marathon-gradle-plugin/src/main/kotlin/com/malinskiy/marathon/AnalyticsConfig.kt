@@ -5,34 +5,23 @@ import com.malinskiy.marathon.execution.AnalyticsConfiguration.DisabledAnalytics
 import com.malinskiy.marathon.execution.AnalyticsConfiguration.GraphiteConfiguration
 import com.malinskiy.marathon.execution.AnalyticsConfiguration.InfluxDbConfiguration
 import com.malinskiy.marathon.execution.AnalyticsConfiguration.InfluxDbConfiguration.RetentionPolicyConfiguration
-import groovy.lang.Closure
+import org.gradle.api.Action
+import java.io.Serializable
 
-class AnalyticsConfig {
+class AnalyticsConfig : Serializable {
     var influx: InfluxConfig? = null
     var graphite: GraphiteConfig? = null
 
-    fun influx(closure: Closure<*>) {
-        influx = InfluxConfig()
-        closure.delegate = influx
-        closure.call()
+    fun influx(action: Action<InfluxConfig>) {
+        influx = InfluxConfig().also(action::execute)
     }
 
-    fun influx(block: InfluxConfig.() -> Unit) {
-        influx = InfluxConfig().also(block)
-    }
-
-    fun graphite(closure: Closure<*>) {
-        graphite = GraphiteConfig()
-        closure.delegate = graphite
-        closure.call()
-    }
-
-    fun graphite(block: GraphiteConfig.() -> Unit) {
-        graphite = GraphiteConfig().also(block)
+    fun graphite(action: Action<GraphiteConfig>) {
+        graphite = GraphiteConfig().also(action::execute)
     }
 }
 
-class InfluxConfig {
+class InfluxConfig : Serializable {
     var url: String = ""
     var user: String = ""
     var password: String = ""
@@ -40,7 +29,7 @@ class InfluxConfig {
     var retentionPolicy: RetentionPolicy? = null
 }
 
-class RetentionPolicy {
+class RetentionPolicy : Serializable {
     var name: String = "rpMarathon"
     var duration: String = "30d"
     var shardDuration: String = "30m"
@@ -48,7 +37,7 @@ class RetentionPolicy {
     var isDefault: Boolean = true
 }
 
-class GraphiteConfig {
+class GraphiteConfig : Serializable {
     var host: String = ""
     var port: String? = null
     var prefix: String? = null

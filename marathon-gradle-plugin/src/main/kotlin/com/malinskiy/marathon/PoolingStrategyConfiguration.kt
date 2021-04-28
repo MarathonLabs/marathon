@@ -7,8 +7,9 @@ import com.malinskiy.marathon.execution.strategy.impl.pooling.parameterized.Comb
 import com.malinskiy.marathon.execution.strategy.impl.pooling.parameterized.ManufacturerPoolingStrategy
 import com.malinskiy.marathon.execution.strategy.impl.pooling.parameterized.ModelPoolingStrategy
 import com.malinskiy.marathon.execution.strategy.impl.pooling.parameterized.OperatingSystemVersionPoolingStrategy
+import java.io.Serializable
 
-class PoolingStrategyConfiguration {
+class PoolingStrategyConfiguration : Serializable{
     var operatingSystem: Boolean? = null
     var abi: Boolean? = null
     var manufacturer: Boolean? = null

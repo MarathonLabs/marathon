@@ -8,38 +8,35 @@ import com.malinskiy.marathon.execution.SimpleClassnameFilter
 import com.malinskiy.marathon.execution.TestFilter
 import com.malinskiy.marathon.execution.TestMethodFilter
 import com.malinskiy.marathon.execution.TestPackageFilter
-import groovy.lang.Closure
+import org.gradle.api.Action
+import java.io.Serializable
 
-open class FilteringPluginConfiguration {
+open class FilteringPluginConfiguration : Serializable {
     //groovy
     var groovyAllowList: Wrapper? = null
     var groovyBlockList: Wrapper? = null
 
-    fun allowlist(closure: Closure<*>) {
-        groovyAllowList = Wrapper()
-        closure.delegate = groovyAllowList
-        closure.call()
+    fun allowlist(action: Action<Wrapper>) {
+        groovyAllowList = Wrapper().also(action::execute)
     }
 
-    fun blocklist(closure: Closure<*>) {
-        groovyBlockList = Wrapper()
-        closure.delegate = groovyBlockList
-        closure.call()
+    fun blocklist(action: Action<Wrapper>) {
+        groovyBlockList = Wrapper().also(action::execute)
     }
 
-    //kts
-    var allowlist: MutableCollection<TestFilter> = mutableListOf()
-    var blocklist: MutableCollection<TestFilter> = mutableListOf()
-    fun allowlist(block: MutableCollection<TestFilter>.() -> Unit) {
-        allowlist.also(block)
-    }
-
-    fun blocklist(block: MutableCollection<TestFilter>.() -> Unit) {
-        blocklist.also(block)
-    }
+//    //kts
+//    var allowlist: MutableCollection<TestFilter> = mutableListOf()
+//    var blocklist: MutableCollection<TestFilter> = mutableListOf()
+//    fun allowlist(action: Action<MutableCollection<TestFilter>>) {
+//        allowlist.also(action::execute)
+//    }
+//
+//    fun blocklist(action: Action<MutableCollection<TestFilter>>) {
+//        blocklist.also(action::execute)
+//    }
 }
 
-open class Wrapper {
+open class Wrapper : Serializable {
     open var simpleClassNameFilter: ArrayList<String>? = null
     open var fullyQualifiedClassnameFilter: ArrayList<String>? = null
     open var testPackageFilter: ArrayList<String>? = null
@@ -67,7 +64,7 @@ fun Wrapper.toList(): List<TestFilter> {
     }
     this.annotationDataFilter?.map {
         val currentData = it.split(",")
-        AnnotationDataFilter( currentData.first().toRegex(), currentData[1].toRegex())
+        AnnotationDataFilter(currentData.first().toRegex(), currentData[1].toRegex())
     }?.let {
         mutableList.addAll(it)
     }
@@ -75,12 +72,12 @@ fun Wrapper.toList(): List<TestFilter> {
 }
 
 fun FilteringPluginConfiguration.toFilteringConfiguration(): FilteringConfiguration {
-    if (groovyAllowList != null || groovyBlockList != null) {
+//    if (groovyAllowList != null || groovyBlockList != null) {
         val allow = groovyAllowList?.toList() ?: emptyList()
 
         val block = groovyBlockList?.toList() ?: emptyList()
         return FilteringConfiguration(allow, block)
-    }
-    return FilteringConfiguration(allowlist, blocklist)
+//    }
+//    return FilteringConfiguration(allowlist, blocklist)
 }
 

@@ -4,8 +4,10 @@ import com.malinskiy.marathon.execution.strategy.ShardingStrategy
 import com.malinskiy.marathon.execution.strategy.impl.sharding.CountShardingStrategy
 import com.malinskiy.marathon.execution.strategy.impl.sharding.ParallelShardingStrategy
 import groovy.lang.Closure
+import org.gradle.api.Action
+import java.io.Serializable
 
-class ShardingStrategyConfiguration {
+class ShardingStrategyConfiguration : Serializable {
     var countSharding: CountShardingStrategyConfiguration? = null
 
     fun countSharding(closure: Closure<*>) {
@@ -14,12 +16,12 @@ class ShardingStrategyConfiguration {
         closure.call()
     }
 
-    fun countSharding(block: CountShardingStrategyConfiguration.() -> Unit) {
-        countSharding = CountShardingStrategyConfiguration().also(block)
+    fun countSharding(action: Action<CountShardingStrategyConfiguration>) {
+        countSharding = CountShardingStrategyConfiguration().also(action::execute)
     }
 }
 
-class CountShardingStrategyConfiguration {
+class CountShardingStrategyConfiguration : Serializable{
     var count = 1
 }
 
