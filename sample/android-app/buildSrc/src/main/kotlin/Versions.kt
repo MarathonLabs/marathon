@@ -1,5 +1,5 @@
 object Versions {
-    val kotlin = "1.4.10"
+    val kotlin = "1.4.31"
     val coroutines = "1.3.9"
 
     val androidGradleVersion = "4.1.0"
