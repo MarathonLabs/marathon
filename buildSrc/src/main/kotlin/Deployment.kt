@@ -93,21 +93,29 @@ object Deployment {
                     name = "Local"
                     setUrl("${project.rootDir}/build/repository")
                 }
-                maven {
-                    name = "OSSHR"
-                    credentials {
-                        username = Deployment.user
-                        password = Deployment.password
+                if (System.getenv("SONATYPE_USERNAME") != null &&
+                    System.getenv("SONATYPE_PASSWORD") != null
+                ) {
+                    maven {
+                        name = "OSSHR"
+                        credentials {
+                            username = Deployment.user
+                            password = Deployment.password
+                        }
+                        url = URI.create(Deployment.deployUrl)
                     }
-                    url = URI.create(Deployment.deployUrl)
                 }
-                maven {
-                    name = "GitHub"
-                    credentials {
-                        username = Deployment.githubUser
-                        password = Deployment.githubPassword
+                if (System.getenv("GH_MAVEN_USERNAME") != null &&
+                    System.getenv("GH_MAVEN_PASSWORD") != null
+                ) {
+                    maven {
+                        name = "GitHub"
+                        credentials {
+                            username = Deployment.githubUser
+                            password = Deployment.githubPassword
+                        }
+                        url = URI.create(Deployment.githubDeployUrl)
                     }
-                    url = URI.create(Deployment.githubDeployUrl)
                 }
             }
         }
