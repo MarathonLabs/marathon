@@ -39,10 +39,11 @@ import org.gradle.api.tasks.VerificationTask
 import org.gradle.kotlin.dsl.property
 import org.koin.core.context.stopKoin
 import java.io.File
+import javax.inject.Inject
 
 private val log = MarathonLogging.logger {}
 
-open class MarathonRunTask(objects: ObjectFactory) : DefaultTask(), VerificationTask {
+open class MarathonRunTask @Inject constructor(objects: ObjectFactory) : DefaultTask(), VerificationTask {
     @Input
     val flavorName: Property<String> = objects.property()
 
