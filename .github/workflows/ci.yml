@@ -40,6 +40,7 @@ jobs:
         env:
           GITHUB_MAVEN_USERNAME: ${{ secrets.GH_MAVEN_USERNAME }}
           GITHUB_MAVEN_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
+          SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
           GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
   cd-release:
     runs-on: ubuntu-20.04
