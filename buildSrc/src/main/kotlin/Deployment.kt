@@ -19,8 +19,8 @@ const val DIST_ZIP_PUBLICATION_NAME = "distZip"
 object Deployment {
     val user = System.getenv("SONATYPE_USERNAME")
     val password = System.getenv("SONATYPE_PASSWORD")
-    val githubUser = System.getenv("GITHUB_MAVEN_USERNAME")
-    val githubPassword = System.getenv("GITHUB_MAVEN_PASSWORD")
+    val githubUser = System.getenv("GH_MAVEN_USERNAME")
+    val githubPassword = System.getenv("GH_MAVEN_PASSWORD")
     var releaseMode: String? = null
     var versionSuffix: String? = null
     var deployUrl: String? = null

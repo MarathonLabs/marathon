@@ -38,8 +38,8 @@ jobs:
         run: |
           ./gradlew :cli:publishDistZipPublicationToGitHubRepository -PreleaseMode=SNAPSHOT
         env:
-          GITHUB_MAVEN_USERNAME: ${{ secrets.GH_MAVEN_USERNAME }}
-          GITHUB_MAVEN_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
+          GH_MAVEN_USERNAME: ${{ secrets.GH_MAVEN_USERNAME }}
+          GH_MAVEN_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
           SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
           GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
   cd-release:
