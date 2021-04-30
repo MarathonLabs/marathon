@@ -17,6 +17,9 @@ jobs:
       - name: detekt
         run: |
           ./gradlew clean detektCheck || true
+      - name: validateGradlePlugins
+        run: |
+          ./gradlew validatePlugins
   cd-snapshot:
     runs-on: ubuntu-20.04
     needs: ci
