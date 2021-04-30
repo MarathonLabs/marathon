@@ -39,7 +39,6 @@ allprojects {
         jcenter()
         mavenCentral()
         google()
-        maven("https://dl.bintray.com/qameta/maven")
     }
 
     configurations.all {
