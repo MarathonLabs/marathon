@@ -24,6 +24,14 @@ class FileManager(private val output: File) {
     }
 
     fun createFolder(folderType: FolderType): File = createDirectories(get(output.absolutePath, folderType.dir)).toFile()
+    fun createFolder(folderType: FolderType, pool: DevicePoolId, device: DeviceInfo): File =
+        createDirectories(get(output.absolutePath, folderType.dir, pool.name, device.serialNumber)).toFile()
+
+    fun createFolder(folderType: FolderType, pool: DevicePoolId): File =
+        createDirectories(get(output.absolutePath, folderType.dir, pool.name)).toFile()
+
+    fun createFolder(folderType: FolderType, device: DeviceInfo): File =
+        createDirectories(get(output.absolutePath, folderType.dir, device.serialNumber)).toFile()
 
     fun createTestResultFile(filename: String): File {
         val resultsFolder = get(output.absolutePath, FileType.TEST_RESULT.dir).toFile()

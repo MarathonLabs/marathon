@@ -50,6 +50,9 @@ filteringConfiguration:
       regex: ".*"
     - type: "annotation"
       regex: ".*"
+    - type: "annotationData"
+      nameRegex: ".*"
+      valueRegex: ".*"
 testClassRegexes:
   - "^((?!Abstract).)*Test$"
 includeSerialRegexes:

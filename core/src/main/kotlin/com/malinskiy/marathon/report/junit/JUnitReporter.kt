@@ -36,9 +36,9 @@ internal class JUnitReporter(private val outputDir: File) : Reporter {
                 val testSuite = TestSuite(
                     name = poolId.name,
                     tests = results.size,
-                    failures = poolSummary.failed,
+                    failures = poolSummary.failed.size,
                     errors = 0,
-                    skipped = poolSummary.ignored,
+                    skipped = poolSummary.ignored.size,
                     time = results.map { it.durationMillis() }.sum().toJUnitSeconds(),
                     timestamp = FORMATTER.format(results.maxBy { it.endTime }?.endTime),
                     testcase = createTestCases(poolSummary),

@@ -62,7 +62,7 @@ dependencies {
     testImplementation(TestLibraries.mockitoKotlin)
     testImplementation(TestLibraries.koin)
     testImplementation(TestLibraries.xmlUnit)
-    testRuntime(TestLibraries.jupiterEngine)
+    testRuntimeOnly(TestLibraries.jupiterEngine)
 }
 
 tasks.named<JacocoReport>("jacocoTestReport").configure {

@@ -17,6 +17,7 @@ import com.malinskiy.marathon.cli.config.time.InstantTimeProvider
 import com.malinskiy.marathon.device.DeviceFeature
 import com.malinskiy.marathon.exceptions.ConfigurationException
 import com.malinskiy.marathon.execution.AnalyticsConfiguration
+import com.malinskiy.marathon.execution.AnnotationDataFilter
 import com.malinskiy.marathon.execution.AnnotationFilter
 import com.malinskiy.marathon.execution.CompositionFilter
 import com.malinskiy.marathon.execution.FullyQualifiedClassnameFilter
@@ -59,6 +60,8 @@ import java.io.File
 import java.time.Duration
 import java.time.Instant
 import java.time.format.DateTimeFormatter
+import com.malinskiy.marathon.android.configuration.TimeoutConfiguration
+import org.amshove.kluent.`should be equal to`
 
 class ConfigFactoryTest {
 
@@ -140,7 +143,8 @@ class ConfigFactoryTest {
 
         configuration.filteringConfiguration.blocklist shouldContainAll listOf(
             TestPackageFilter(".*".toRegex()),
-            AnnotationFilter(".*".toRegex())
+            AnnotationFilter(".*".toRegex()),
+            AnnotationDataFilter(".*".toRegex(), ".*".toRegex())
         )
         configuration.testClassRegexes.map { it.toString() } shouldContainAll listOf("^((?!Abstract).)*Test$")
 
@@ -225,8 +229,8 @@ class ConfigFactoryTest {
         configuration.ignoreFailures shouldEqual false
         configuration.isCodeCoverageEnabled shouldEqual false
         configuration.fallbackToScreenshots shouldEqual false
-        configuration.testBatchTimeoutMillis shouldEqual 900_000
-        configuration.testOutputTimeoutMillis shouldEqual 60_000
+        configuration.testBatchTimeoutMillis shouldEqual 1800_000
+        configuration.testOutputTimeoutMillis shouldEqual 300_000
         configuration.debug shouldEqual true
         configuration.screenRecordingPolicy shouldEqual ScreenRecordingPolicy.ON_FAILURE
         configuration.vendorConfiguration shouldEqual AndroidConfiguration(
@@ -347,5 +351,24 @@ class ConfigFactoryTest {
         configuration.flakinessStrategy `should be instance of` ProbabilityBasedFlakinessStrategy::class
         val flakinessStrategy = configuration.flakinessStrategy as ProbabilityBasedFlakinessStrategy
         flakinessStrategy.timeLimit shouldEqual referenceInstant.minus(Duration.ofDays(30))
+    }
+
+    @Test
+    fun `on configuration with timeout configuration in Android`() {
+        val file = File(ConfigFactoryTest::class.java.getResource("/fixture/config/sample_11.yaml").file)
+        val configuration = parser.create(file, mockEnvironmentReader())
+
+        val timeoutConfiguration = (configuration.vendorConfiguration as AndroidConfiguration).timeoutConfiguration
+        timeoutConfiguration `should be equal to` TimeoutConfiguration(
+            shell = Duration.ofSeconds(30),
+            listFiles = Duration.ofMinutes(1),
+            pushFile = Duration.ofHours(1),
+            pullFile = Duration.ofDays(1),
+            uninstall = Duration.ofSeconds(1),
+            install = Duration.parse("P1DT12H30M5S"),
+            screenrecorder = Duration.ofHours(1),
+            screencapturer = Duration.ofSeconds(1),
+            socketIdleTimeout = Duration.ofSeconds(45)
+        )
     }
 }

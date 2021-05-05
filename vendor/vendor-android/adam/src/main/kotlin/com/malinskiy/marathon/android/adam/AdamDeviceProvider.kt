@@ -24,6 +24,8 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.newFixedThreadPoolContext
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withTimeoutOrNull
 import java.net.ConnectException
 import java.util.concurrent.ConcurrentHashMap
@@ -32,7 +34,8 @@ import kotlin.coroutines.CoroutineContext
 private const val DEFAULT_WAIT_FOR_DEVICES_SLEEP_TIME = 500L
 
 class AdamDeviceProvider(
-    configuration: Configuration,
+    val configuration: Configuration,
+    androidConfiguration: AndroidConfiguration,
     private val track: Track,
     private val timer: Timer
 ) : DeviceProvider, CoroutineScope {
@@ -40,19 +43,20 @@ class AdamDeviceProvider(
     private val logger = MarathonLogging.logger("AdamDeviceProvider")
 
     private val channel: Channel<DeviceProvider.DeviceEvent> = unboundedChannel()
-    private val bootWaitContext = newFixedThreadPoolContext(4, "AdamDeviceProvider")
+    private val bootWaitContext =
+        newFixedThreadPoolContext(androidConfiguration.threadingConfiguration.bootWaitingThreads, "BootWaitThreadPool")
     override val coroutineContext: CoroutineContext
         get() = bootWaitContext
 
     private val adbCommunicationContext: CoroutineContext by lazy {
-        newFixedThreadPoolContext(4, "AdbIOThreadPool")
+        newFixedThreadPoolContext(androidConfiguration.threadingConfiguration.adbIoThreads, "AdbIOThreadPool")
     }
 
     override val deviceInitializationTimeoutMillis: Long = configuration.deviceInitializationTimeoutMillis
 
     private lateinit var client: AndroidDebugBridgeClient
     private lateinit var deviceEventsChannel: ReceiveChannel<List<Device>>
-    private val deviceEventsChannelLock = Object()
+    private val deviceEventsChannelMutex = Mutex()
     private val deviceStateTracker = DeviceStateTracker()
 
     override suspend fun initialize(vendorConfiguration: VendorConfiguration) {
@@ -62,6 +66,7 @@ class AdamDeviceProvider(
 
         client = AndroidDebugBridgeClientFactory().apply {
             coroutineContext = adbCommunicationContext
+            idleTimeout = vendorConfiguration.timeoutConfiguration.socketIdleTimeout
         }.build()
 
         try {
@@ -86,7 +91,7 @@ class AdamDeviceProvider(
                  * This allows us to survive `adb kill-server`
                  */
                 while (isActive) {
-                    synchronized(deviceEventsChannelLock) {
+                    deviceEventsChannelMutex.withLock {
                         deviceEventsChannel = client.execute(AsyncDeviceMonitorRequest(), this)
                     }
                     for (currentDeviceList in deviceEventsChannel) {
@@ -100,6 +105,7 @@ class AdamDeviceProvider(
                                             client,
                                             deviceStateTracker,
                                             serial,
+                                            configuration,
                                             vendorConfiguration,
                                             track,
                                             timer,
@@ -135,7 +141,7 @@ class AdamDeviceProvider(
     override suspend fun terminate() {
         bootWaitContext.close()
         channel.close()
-        synchronized(deviceEventsChannelLock) {
+        deviceEventsChannelMutex.withLock {
             deviceEventsChannel.cancel()
         }
     }
