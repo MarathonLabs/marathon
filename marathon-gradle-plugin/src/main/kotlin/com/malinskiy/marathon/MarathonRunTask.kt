@@ -47,17 +47,17 @@ open class MarathonRunTask @Inject constructor(objects: ObjectFactory) : Default
     @Input
     val flavorName: Property<String> = objects.property()
 
-    @Input
+    @Internal
     val applicationVariant: Property<BaseVariant> = objects.property()
 
-    @Input
+    @Internal
     val testVariant: Property<TestVariant> = objects.property()
 
     @InputDirectory
     @PathSensitive(PathSensitivity.NAME_ONLY)
     val sdk: DirectoryProperty = objects.directoryProperty()
 
-    @Input
+    @Internal
     val marathonExtension: Property<MarathonExtension> = objects.property()
 
     @Internal
