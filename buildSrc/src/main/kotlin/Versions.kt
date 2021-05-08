@@ -1,7 +1,7 @@
 object Versions {
     val marathon = System.getenv("DEPLOY_VERSION_OVERRIDE") ?: "0.7.0"
 
-    val kotlin = "1.4.20"
+    val kotlin = "1.4.31"
     val coroutines = "1.3.9"
 
     val ddmlib = "27.1.2"
@@ -37,7 +37,7 @@ object Versions {
     val guava = "26.0-jre"
     val rsync4j = "3.1.2-12"
     val sshj = "0.26.0"
-    val testContainers = "1.15.0-rc2"
+    val testContainers = "1.15.3"
     val jupiterEngine = "5.1.0"
     val jansi = "1.17.1"
     val scalr = "4.2"
