@@ -69,7 +69,6 @@ class AdamDeviceProvider(
         client = AndroidDebugBridgeClientFactory().apply {
             coroutineContext = adbCommunicationContext
             idleTimeout = vendorConfiguration.timeoutConfiguration.socketIdleTimeout
-            socketFactory = RoketFactory()
         }.build()
         logcatManager = LogcatManager(client)
 
