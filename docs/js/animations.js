@@ -5,7 +5,7 @@ $(window).on("load", function() {
 
     // Function to load GitHub stats, which expects a DOM element with 'stars' as id
     (function loadGitHubStats() {
-        var gitHubAPI = "https://api.github.com/repos/Malinskiy/marathon?callback=?";
+        var gitHubAPI = "https://api.github.com/repos/MarathonLabs/marathon?callback=?";
         $.getJSON(gitHubAPI).done(function(data) {
             $('#stars').text(data.data.stargazers_count);
         });

@@ -35,7 +35,7 @@ object Deployment {
     val releaseDeployUrl: String
         get() = System.getenv("SONATYPE_RELEASES_URL")
             ?: "https://oss.sonatype.org/service/local/staging/deploy/maven2/"
-    val githubDeployUrl = "https://maven.pkg.github.com/Malinskiy/marathon"
+    val githubDeployUrl = "https://maven.pkg.github.com/MarathonLabs/marathon"
 
     fun initialize(project: Project) {
         val releaseMode: String? by project
@@ -144,7 +144,7 @@ object Deployment {
     fun customizePom(project: Project, pom: MavenPom?) {
         pom?.apply {
             name.set(project.name)
-            url.set("https://github.com/Malinskiy/marathon")
+            url.set("https://github.com/MarathonLabs/marathon")
             description.set("Android & iOS test runner")
 
             licenses {
@@ -163,7 +163,7 @@ object Deployment {
             }
 
             scm {
-                url.set("https://github.com/Malinskiy/marathon")
+                url.set("https://github.com/MarathonLabs/marathon")
             }
         }
     }

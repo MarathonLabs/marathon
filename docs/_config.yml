@@ -15,7 +15,7 @@ google_analytics_id: 'UA-131132823-2'
 navigation: 2
 
 # URL to source code, used in _includes/footer.html
-codeurl: 'https://github.com/Malinskiy/marathon'
+codeurl: 'https://github.com/MarathonLabs/marathon'
 
 # URL to documentation for other language(s), used in _includes/header.html
 otherlang: []
