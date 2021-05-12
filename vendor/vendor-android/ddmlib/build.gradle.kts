@@ -25,7 +25,7 @@ dependencies {
     testImplementation(TestLibraries.mockitoKotlin)
     testImplementation(TestLibraries.koin)
     testImplementation(TestLibraries.junit5)
-    testRuntime(TestLibraries.jupiterEngine)
+    testRuntimeOnly(TestLibraries.jupiterEngine)
 }
 
 Deployment.initialize(project)

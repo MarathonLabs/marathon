@@ -28,21 +28,25 @@ import com.malinskiy.marathon.test.Test as MarathonTest
 class AndroidDeviceTestRunnerTest {
 
     @Test
-    fun `should handle ignored tests before execution`() {
+    fun `should handle junit Ignore annotation`() {
+        verifyIgnored("org.junit.Ignore")
+    }
+
+    @Test
+    fun `should handle Suppress annotation`() {
+        verifyIgnored("android.support.test.filters.Suppress")
+    }
+
+    @Test
+    fun `should handle suitebuilder Suppress annotation`() {
+        verifyIgnored("android.test.suitebuilder.annotation.Suppress")
+    }
+
+    private fun verifyIgnored(annotationName: String) {
         val ddmsDevice = mock<IDevice>()
         val androidConfiguration = mock<AndroidConfiguration>()
         whenever(ddmsDevice.serialNumber).doReturn("testSerial")
         whenever(ddmsDevice.version).doReturn(AndroidVersion(26))
-        val device =
-            DdmlibAndroidDevice(
-                ddmsDevice,
-                "testSerial",
-                androidConfiguration,
-                Track(),
-                SystemTimer(Clock.systemDefaultZone()),
-                SerialStrategy.AUTOMATIC
-            )
-        val androidDeviceTestRunner = AndroidDeviceTestRunner(device)
         val apkFile = File(javaClass.classLoader.getResource("android_test_1.apk").file)
         val output = File("")
         val configuration = Configuration(
@@ -77,11 +81,25 @@ class AndroidDeviceTestRunnerTest {
             analyticsTracking = false,
             deviceInitializationTimeoutMillis = null
         )
-        val ignoredTest =
-            MarathonTest("ignored", "ignored", "ignored", listOf(MetaProperty("org.junit.Ignore")))
-        val identifier = ignoredTest.toMarathonTestIdentifier()
+
+        val device =
+            DdmlibAndroidDevice(
+                ddmsDevice,
+                "testSerial",
+                configuration,
+                androidConfiguration,
+                Track(),
+                SystemTimer(Clock.systemDefaultZone()),
+                SerialStrategy.AUTOMATIC
+            )
+
+        val androidDeviceTestRunner = AndroidDeviceTestRunner(device)
+
+        val junitIgnoredTest =
+            MarathonTest("ignored", "ignored", "ignored", listOf(MetaProperty(annotationName)))
+        val identifier = junitIgnoredTest.toMarathonTestIdentifier()
         val validTest = MarathonTest("test", "test", "test", emptyList())
-        val batch = TestBatch(listOf(ignoredTest, validTest))
+        val batch = TestBatch(listOf(junitIgnoredTest, validTest))
         val listener = mock<AndroidTestRunListener>()
         runBlocking {
             androidDeviceTestRunner.execute(configuration, batch, listener)
@@ -92,7 +110,6 @@ class AndroidDeviceTestRunnerTest {
         }
 
         verifyNoMoreInteractions(listener)
-
     }
 
     @Test
@@ -101,16 +118,7 @@ class AndroidDeviceTestRunnerTest {
         val androidConfiguration = mock<AndroidConfiguration>()
         whenever(ddmsDevice.serialNumber).doReturn("testSerial")
         whenever(ddmsDevice.version).doReturn(AndroidVersion(26))
-        val device =
-            DdmlibAndroidDevice(
-                ddmsDevice,
-                "testSerial",
-                androidConfiguration,
-                Track(),
-                SystemTimer(Clock.systemDefaultZone()),
-                SerialStrategy.AUTOMATIC
-            )
-        val androidDeviceTestRunner = AndroidDeviceTestRunner(device)
+
         val apkFile = File(javaClass.classLoader.getResource("android_test_1.apk").file)
         val output = File("")
         val configuration = Configuration(
@@ -145,6 +153,20 @@ class AndroidDeviceTestRunnerTest {
             analyticsTracking = false,
             deviceInitializationTimeoutMillis = null
         )
+
+        val device =
+            DdmlibAndroidDevice(
+                ddmsDevice,
+                "testSerial",
+                configuration,
+                androidConfiguration,
+                Track(),
+                SystemTimer(Clock.systemDefaultZone()),
+                SerialStrategy.AUTOMATIC
+            )
+        val androidDeviceTestRunner = AndroidDeviceTestRunner(device)
+
+
         val ignoredTest =
             MarathonTest("ignored", "ignored", "ignored", listOf(MetaProperty("org.junit.Ignore")))
         val identifier = ignoredTest.toMarathonTestIdentifier()

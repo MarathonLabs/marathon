@@ -9,6 +9,7 @@ import com.malinskiy.marathon.device.DevicePoolId
 import com.malinskiy.marathon.device.toDeviceInfo
 import com.malinskiy.marathon.io.FileManager
 import com.malinskiy.marathon.io.FolderType
+import com.malinskiy.marathon.log.MarathonLogging
 import java.io.File
 
 class FileSyncTestRunListener(
@@ -17,6 +18,8 @@ class FileSyncTestRunListener(
     private val configuration: FileSyncConfiguration,
     private val fileManager: FileManager
 ) : AndroidTestRunListener {
+
+    private val logger = MarathonLogging.logger("FileSyncTestRunListener")
 
     override suspend fun beforeTestRun() {
         super.beforeTestRun()
@@ -41,6 +44,7 @@ class FileSyncTestRunListener(
 
             val basename = entry.relativePath.removeSuffix("/").substringAfterLast('/')
             val subfolder = File(localFolder, basename).apply { mkdirs() }
+            logger.debug { "Pulling into ${subfolder.absolutePath}" }
             device.safePullFolder(fullPath, subfolder.absolutePath)
         }
     }

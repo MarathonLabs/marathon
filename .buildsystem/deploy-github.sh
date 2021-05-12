@@ -21,8 +21,8 @@ for i in ":core" ":vendor:vendor-android:base" ":vendor:vendor-android:ddmlib" "
   TARGETS="$TARGETS $i:publishDefaultPublicationToGitHubRepository"
 done
 
-if [ -n "$TRAVIS_TAG" ]; then
-  echo "on a tag -> deploy release version $TRAVIS_TAG"
+if [ -n "$GIT_TAG_NAME" ]; then
+  echo "on a tag -> deploy release version $GIT_TAG_NAME"
   ./gradlew $TARGETS -PreleaseMode=RELEASE
 else
   echo "not on a tag -> skipping deployment to GitHub"

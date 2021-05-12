@@ -23,7 +23,7 @@ dependencies {
     testImplementation(TestLibraries.kluent)
     testImplementation(TestLibraries.mockitoKotlin)
     testImplementation(TestLibraries.junit5)
-    testRuntime(TestLibraries.jupiterEngine)
+    testRuntimeOnly(TestLibraries.jupiterEngine)
     testImplementation(TestLibraries.koin)
 }
 

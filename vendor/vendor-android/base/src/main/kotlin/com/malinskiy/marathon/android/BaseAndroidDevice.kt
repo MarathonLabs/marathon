@@ -42,7 +42,8 @@ import kotlin.system.measureTimeMillis
 abstract class BaseAndroidDevice(
     val adbSerial: String,
     protected val serialStrategy: SerialStrategy,
-    protected val configuration: AndroidConfiguration,
+    protected val configuration: Configuration,
+    protected val androidConfiguration: AndroidConfiguration,
     protected val track: Track,
     protected val timer: Timer
 ) : AndroidDevice, CoroutineScope {
@@ -96,11 +97,20 @@ abstract class BaseAndroidDevice(
         realSerialNumber = detectRealSerialNumber()
         md5cmd = detectMd5Binary()
 
-        if (configuration.allureConfiguration.enabled) {
-            configuration.fileSyncConfiguration.pull.add(
+        if (androidConfiguration.allureConfiguration.enabled) {
+            androidConfiguration.fileSyncConfiguration.pull.add(
                 FileSyncEntry(
-                    configuration.allureConfiguration.relativeResultsDirectory,
+                    androidConfiguration.allureConfiguration.relativeResultsDirectory,
                     AggregationMode.TEST_RUN
+                )
+            )
+        }
+
+        if (configuration.isCodeCoverageEnabled) {
+            androidConfiguration.fileSyncConfiguration.pull.add(
+                FileSyncEntry(
+                    "coverage",
+                    AggregationMode.POOL
                 )
             )
         }
@@ -108,7 +118,7 @@ abstract class BaseAndroidDevice(
 
     override suspend fun safePullFile(remoteFilePath: String, localFilePath: String) {
         try {
-            withTimeoutOrNull(configuration.timeoutConfiguration.pullFile) {
+            withTimeoutOrNull(androidConfiguration.timeoutConfiguration.pullFile) {
                 pullFile(remoteFilePath, localFilePath)
             } ?: logger.warn { "Pulling $remoteFilePath timed out. Ignoring" }
         } catch (e: TransferException) {
@@ -230,7 +240,7 @@ abstract class BaseAndroidDevice(
 
         val features = this.deviceFeatures
 
-        val recordConfiguration = this@BaseAndroidDevice.configuration.screenRecordConfiguration
+        val recordConfiguration = this@BaseAndroidDevice.androidConfiguration.screenRecordConfiguration
         val screenRecordingPolicy = configuration.screenRecordingPolicy
         val recorderListener = selectRecorderType(features, recordConfiguration)?.let { feature ->
             prepareRecorderListener(feature, fileManager, devicePoolId, screenRecordingPolicy, attachmentProviders)
@@ -238,8 +248,9 @@ abstract class BaseAndroidDevice(
 
         val logCatListener = LogCatListener(this, devicePoolId, LogWriter(fileManager))
             .also { attachmentProviders.add(it) }
+
         val fileSyncTestRunListener =
-            FileSyncTestRunListener(devicePoolId, this, this@BaseAndroidDevice.configuration.fileSyncConfiguration, fileManager)
+            FileSyncTestRunListener(devicePoolId, this, this@BaseAndroidDevice.androidConfiguration.fileSyncConfiguration, fileManager)
 
         return CompositeTestRunListener(
             listOf(
@@ -263,7 +274,7 @@ abstract class BaseAndroidDevice(
                     fileManager,
                     devicePoolId,
                     this,
-                    configuration.screenRecordConfiguration.videoConfiguration,
+                    androidConfiguration.screenRecordConfiguration.videoConfiguration,
                     screenRecordingPolicy,
                     this
                 )
@@ -276,8 +287,8 @@ abstract class BaseAndroidDevice(
                     devicePoolId,
                     this,
                     screenRecordingPolicy,
-                    configuration.screenRecordConfiguration.screenshotConfiguration,
-                    configuration.timeoutConfiguration.screencapturer,
+                    androidConfiguration.screenRecordConfiguration.screenshotConfiguration,
+                    androidConfiguration.timeoutConfiguration.screencapturer,
                     this
                 )
                     .also { attachmentProviders.add(it) }
@@ -294,8 +305,8 @@ abstract class BaseAndroidDevice(
         }
 
         return when {
-            supportedFeatures.contains(DeviceFeature.SCREENSHOT) && screenshotEnabled -> DeviceFeature.SCREENSHOT
             supportedFeatures.contains(DeviceFeature.VIDEO) && videoEnabled -> DeviceFeature.VIDEO
+            supportedFeatures.contains(DeviceFeature.SCREENSHOT) && screenshotEnabled -> DeviceFeature.SCREENSHOT
             else -> null
         }
     }

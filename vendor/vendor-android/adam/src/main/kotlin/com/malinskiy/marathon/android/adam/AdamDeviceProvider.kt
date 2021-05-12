@@ -38,7 +38,8 @@ import kotlin.coroutines.CoroutineContext
 private const val DEFAULT_WAIT_FOR_DEVICES_SLEEP_TIME = 500L
 
 class AdamDeviceProvider(
-    configuration: Configuration,
+    val configuration: Configuration,
+    androidConfiguration: AndroidConfiguration,
     private val track: Track,
     private val timer: Timer
 ) : DeviceProvider, CoroutineScope {
@@ -47,7 +48,7 @@ class AdamDeviceProvider(
 
     private val channel: Channel<DeviceProvider.DeviceEvent> = unboundedChannel()
     override val coroutineContext: CoroutineContext by lazy { newFixedThreadPoolContext(1, "DeviceMonitor") }
-    private val adbCommunicationContext: CoroutineContext by lazy { newFixedThreadPoolContext(4, "AdbIOThreadPool") }
+    private val adbCommunicationContext: CoroutineContext by lazy { newFixedThreadPoolContext(androidConfiguration.threadingConfiguration.adbIoThreads, "AdbIOThreadPool") }
     private val setupSupervisor = SupervisorJob()
     private var providerJob: Job? = null
 
@@ -89,31 +90,32 @@ class AdamDeviceProvider(
         } ?: throw NoDevicesException("No devices found")
 
         providerJob = launch {
-            /**
-             * This allows us to survive `adb kill-server`
-             */
-            while (isActive) {
-                deviceEventsChannelMutex.withLock {
-                    deviceEventsChannel = client.execute(AsyncDeviceMonitorRequest(), this)
-                }
-                for (currentDeviceList in deviceEventsChannel) {
-                    deviceStateTracker.update(currentDeviceList).forEach { update ->
-                        val serial = update.first
-                        val state = update.second
-                        when (state) {
-                            TrackingUpdate.CONNECTED -> {
-                                val device =
-                                    AdamAndroidDevice(
-                                        client,
-                                        deviceStateTracker,
-                                        logcatManager,
-                                        serial,
-                                        vendorConfiguration,
-                                        track,
-                                        timer,
-                                        vendorConfiguration.serialStrategy
-                                    )
-                                track.trackProviderDevicePreparing(device) {
+                /**
+                 * This allows us to survive `adb kill-server`
+                 */
+                while (isActive) {
+                    deviceEventsChannelMutex.withLock {
+                        deviceEventsChannel = client.execute(AsyncDeviceMonitorRequest(), this)
+                    }
+                    for (currentDeviceList in deviceEventsChannel) {
+                        deviceStateTracker.update(currentDeviceList).forEach { update ->
+                            val serial = update.first
+                            val state = update.second
+                            when (state) {
+                                TrackingUpdate.CONNECTED -> {
+                                    val device =
+                                        AdamAndroidDevice(
+                                            client,
+                                            deviceStateTracker,
+                                            logcatManager,
+                                            serial,
+                                            configuration,
+                                            vendorConfiguration,
+                                            track,
+                                            timer,
+                                            vendorConfiguration.serialStrategy
+                                        )
+                                    track.trackProviderDevicePreparing(device) {
                                     val job = launch(setupSupervisor) {
                                         device.setup()
                                         channel.send(DeviceProvider.DeviceEvent.DeviceConnected(device))
