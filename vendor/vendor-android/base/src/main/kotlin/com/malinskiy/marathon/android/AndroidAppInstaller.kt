@@ -21,15 +21,14 @@ class AndroidAppInstaller(configuration: Configuration) {
      * @throws DeviceSetupException if unable to prepare the device
      */
     suspend fun prepareInstallation(device: AndroidDevice) {
-        var applicationInfo: InstrumentationInfo? = null
-        applicationInfo = ApkParser().parseInstrumentationInfo(androidConfiguration.testApplicationOutput)
+        val applicationInfo = ApkParser().parseInstrumentationInfo(androidConfiguration.testApplicationOutput)
 
         logger.debug { "Installing application output to ${device.serialNumber}" }
         androidConfiguration.applicationOutput?.let {
-            reinstall(device, applicationInfo!!.applicationPackage, it)
+            reinstall(device, applicationInfo.applicationPackage, it)
         }
         logger.debug { "Installing instrumentation package to ${device.serialNumber}" }
-        reinstall(device, applicationInfo!!.instrumentationPackage, androidConfiguration.testApplicationOutput)
+        reinstall(device, applicationInfo.instrumentationPackage, androidConfiguration.testApplicationOutput)
         logger.debug { "Prepare installation finished for ${device.serialNumber}" }
     }
 
