@@ -9,6 +9,7 @@ fun generateTestResult(): TestResult = generateTestResult(generateTest())
 fun generateTestResult(test: Test): TestResult = TestResult(
     test,
     createDeviceInfo(),
+    "stub-batch",
     TestStatus.PASSED,
     0,
     10000
