@@ -10,6 +10,7 @@ import com.malinskiy.marathon.execution.TestStatus
 import com.malinskiy.marathon.generateTest
 import java.time.Instant
 import java.time.temporal.ChronoUnit
+import java.util.*
 
 val test = generateTest()
 
@@ -89,7 +90,8 @@ private fun creteTestEvent(device: DeviceInfo, duration: Long, status: TestStatu
         device = device,
         status = status,
         startTime = whenWasSent.minusMillis(duration).toEpochMilli(),
-        endTime = whenWasSent.toEpochMilli()
+        endTime = whenWasSent.toEpochMilli(),
+        testBatchId = UUID.randomUUID().toString()
     ),
     true
 )
