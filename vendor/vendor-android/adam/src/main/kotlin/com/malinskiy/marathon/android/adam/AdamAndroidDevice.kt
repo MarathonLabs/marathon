@@ -13,8 +13,6 @@ import com.malinskiy.adam.request.device.DeviceState
 import com.malinskiy.adam.request.device.FetchDeviceFeaturesRequest
 import com.malinskiy.adam.request.framebuffer.BufferedImageScreenCaptureAdapter
 import com.malinskiy.adam.request.framebuffer.ScreenCaptureRequest
-import com.malinskiy.adam.request.logcat.ChanneledLogcatRequest
-import com.malinskiy.adam.request.logcat.LogcatReadMode
 import com.malinskiy.adam.request.pkg.InstallRemotePackageRequest
 import com.malinskiy.adam.request.pkg.UninstallRemotePackageRequest
 import com.malinskiy.adam.request.prop.GetPropRequest
@@ -31,7 +29,6 @@ import com.malinskiy.marathon.android.AndroidAppInstaller
 import com.malinskiy.marathon.android.AndroidConfiguration
 import com.malinskiy.marathon.android.BaseAndroidDevice
 import com.malinskiy.marathon.android.VideoConfiguration
-import com.malinskiy.marathon.android.adam.log.LogCatMessageParser
 import com.malinskiy.marathon.android.configuration.SerialStrategy
 import com.malinskiy.marathon.android.exception.CommandRejectedException
 import com.malinskiy.marathon.android.exception.InstallException
@@ -50,9 +47,9 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.async
 import kotlinx.coroutines.channels.ReceiveChannel
-import kotlinx.coroutines.channels.receiveOrNull
 import kotlinx.coroutines.newFixedThreadPoolContext
 import kotlinx.coroutines.supervisorScope
+import kotlinx.coroutines.withContext
 import java.awt.image.BufferedImage
 import java.io.File
 import java.time.Duration
@@ -62,13 +59,14 @@ import kotlin.system.measureTimeMillis
 class AdamAndroidDevice(
     private val client: AndroidDebugBridgeClient,
     private val deviceStateTracker: DeviceStateTracker,
+    private val logcatManager: LogcatManager,
     adbSerial: String,
     configuration: Configuration,
     androidConfiguration: AndroidConfiguration,
     track: Track,
     timer: Timer,
     serialStrategy: SerialStrategy
-) : BaseAndroidDevice(adbSerial, serialStrategy, configuration, androidConfiguration, track, timer) {
+) : BaseAndroidDevice(adbSerial, serialStrategy, configuration, androidConfiguration, track, timer), LineListener {
 
     /**
      * This adapter is thread-safe but the internal reusable buffer should be considered if we ever need to make screenshots in parallel
@@ -77,38 +75,18 @@ class AdamAndroidDevice(
     private lateinit var supportedFeatures: List<Feature>
 
     override suspend fun setup() {
-        super.setup()
+        withContext(coroutineContext) {
+            super.setup()
 
-        fetchProps()
-        logcatChannel = client.execute(
-            ChanneledLogcatRequest(
-                modes = listOf(LogcatReadMode.long)
-            ), serial = adbSerial, scope = this
-        )
-        async {
-            val parser = LogCatMessageParser()
-
-            while (!logcatChannel.isClosedForReceive) {
-                val logPart = logcatChannel.receiveOrNull() ?: continue
-                val messages = parser.processLogLines(logPart.lines(), this@AdamAndroidDevice)
-                //TODO: replace with Mutex.lock after the removal of ddmlib
-                synchronized(logcatListeners) {
-                    messages.forEach { msg ->
-                        logcatListeners.forEach { listener ->
-                            listener.onLine("${msg.timestamp} ${msg.pid}-${msg.tid}/${msg.appName} ${msg.logLevel.priorityLetter}/${msg.tag}: ${msg.message}")
-                        }
-                    }
-                }
-            }
+            fetchProps()
+            supportedFeatures = client.execute(FetchDeviceFeaturesRequest(adbSerial))
+            logcatManager.subscribe(this@AdamAndroidDevice)
         }
-        supportedFeatures = client.execute(FetchDeviceFeaturesRequest(adbSerial))
     }
 
     private val dispatcher by lazy {
-        newFixedThreadPoolContext(1, "AndroidDevice - execution - $adbSerial")
+        newFixedThreadPoolContext(2, "AndroidDevice - execution - $adbSerial")
     }
-    private lateinit var logcatChannel: ReceiveChannel<String>
-
     override val coroutineContext: CoroutineContext = dispatcher
 
     private var props: Map<String, String> = emptyMap()
@@ -149,8 +127,8 @@ class AdamAndroidDevice(
                     CompatPullFileRequest(remoteFilePath, local, supportedFeatures, coroutineScope = this),
                     serial = adbSerial
                 )
-                while (!channel.isClosedForReceive) {
-                    progress = channel.receiveOrNull() ?: break
+                for (update in channel) {
+                    progress = update
                 }
             }
         } catch (e: PullFailedException) {
@@ -175,8 +153,8 @@ class AdamAndroidDevice(
                     CompatPushFileRequest(file, remoteFilePath, supportedFeatures, coroutineScope = this),
                     serial = adbSerial
                 )
-                while (!channel.isClosedForReceive) {
-                    progress = channel.receiveOrNull() ?: break
+                for (update in channel) {
+                    progress = update
                 }
             }
         } catch (e: PushFailedException) {
@@ -347,10 +325,12 @@ class AdamAndroidDevice(
         progressReporter: ProgressReporter
     ) {
         try {
-            supervisorScope {
-                val listener = createExecutionListeners(configuration, devicePoolId, testBatch, deferred, progressReporter)
-                AndroidDeviceTestRunner(this@AdamAndroidDevice).execute(configuration, testBatch, listener)
-            }
+            async(coroutineContext) {
+                supervisorScope {
+                    val listener = createExecutionListeners(configuration, devicePoolId, testBatch, deferred, progressReporter)
+                    AndroidDeviceTestRunner(this@AdamAndroidDevice).execute(configuration, testBatch, listener)
+                }
+            }.await()
         } catch (e: RequestRejectedException) {
             throw DeviceLostException(e)
         } catch (e: CommandRejectedException) {
@@ -358,17 +338,25 @@ class AdamAndroidDevice(
         }
     }
 
-    override suspend fun prepare(configuration: Configuration) = supervisorScope {
-        track.trackDevicePreparing(this@AdamAndroidDevice) {
-            AndroidAppInstaller(configuration).prepareInstallation(this@AdamAndroidDevice)
-            fileManager.removeRemoteDirectory()
-            fileManager.createRemoteDirectory()
-            clearLogcat()
-        }
+    override suspend fun prepare(configuration: Configuration) {
+        async(coroutineContext) {
+            supervisorScope {
+
+                track.trackDevicePreparing(this@AdamAndroidDevice) {
+                    AndroidAppInstaller(configuration).prepareInstallation(this@AdamAndroidDevice)
+
+                    fileManager.removeRemoteDirectory()
+                    fileManager.createRemoteDirectory()
+
+                    clearLogcat()
+                }
+            }
+        }.await()
     }
 
     override fun dispose() {
         dispatcher.close()
+        logcatManager.unsubscribe(this)
     }
 
     fun executeTestRequest(runnerRequest: TestRunnerRequest): ReceiveChannel<List<TestEvent>> {
@@ -391,6 +379,12 @@ class AdamAndroidDevice(
                     })"
                 }
             }
+        }
+    }
+
+    override fun onLine(line: String) {
+        logcatListeners.forEach { listener ->
+            listener.onLine(line)
         }
     }
 }

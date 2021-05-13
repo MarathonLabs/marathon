@@ -40,7 +40,7 @@ import java.util.*
 import kotlin.system.measureTimeMillis
 
 abstract class BaseAndroidDevice(
-    protected val adbSerial: String,
+    val adbSerial: String,
     protected val serialStrategy: SerialStrategy,
     protected val configuration: Configuration,
     protected val androidConfiguration: AndroidConfiguration,

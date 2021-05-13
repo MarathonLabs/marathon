@@ -20,6 +20,8 @@ dependencies {
     testImplementation(TestLibraries.kluent)
     testImplementation(TestLibraries.mockitoKotlin)
     testImplementation(TestLibraries.koin)
+    testImplementation(TestLibraries.junit5)
+    testImplementation(TestLibraries.jupiterEngine)
 }
 
 Deployment.initialize(project)
