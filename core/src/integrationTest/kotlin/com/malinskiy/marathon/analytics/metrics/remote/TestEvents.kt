@@ -10,7 +10,7 @@ import com.malinskiy.marathon.execution.TestStatus
 import com.malinskiy.marathon.generateTest
 import java.time.Instant
 import java.time.temporal.ChronoUnit
-import java.util.*
+import java.util.UUID
 
 val test = generateTest()
 
