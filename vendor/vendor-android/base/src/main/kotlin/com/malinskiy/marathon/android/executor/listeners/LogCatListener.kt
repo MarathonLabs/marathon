@@ -23,7 +23,7 @@ class LogCatListener(
         attachmentListeners.add(listener)
     }
 
-    private val stringBuffer = StringBuffer()
+    private val stringBuffer = StringBuffer(4096)
 
     override fun onLine(line: String) {
         stringBuffer.appendln(line)
