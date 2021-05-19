@@ -57,7 +57,8 @@ class AndroidDeviceTestRunner(private val device: AdamAndroidDevice) {
                 if (testBatch.tests.isNotEmpty()) {
                     clearData(androidConfiguration, info)
                     listener.beforeTestRun()
-                    logger.debug { "Execution started" }
+
+                    logger.debug { "Running ${String(runnerRequest.serialize())}" }
                     val localChannel = device.executeTestRequest(runnerRequest)
                     channel = localChannel
 
@@ -173,8 +174,6 @@ class AndroidDeviceTestRunner(private val device: AdamAndroidDevice) {
             ),
             socketIdleTimeout = Long.MAX_VALUE
         )
-
-        logger.debug { "Running ${String(request.serialize())}" }
 
         return request
     }

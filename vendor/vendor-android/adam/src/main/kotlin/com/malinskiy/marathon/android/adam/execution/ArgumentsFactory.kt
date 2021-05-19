@@ -53,7 +53,9 @@ class ArgumentsFactory(private val device: AdamAndroidDevice) {
                 } else {
                     additionalArgs[TestRunnerContract.consolePortArgumentName] = consolePort.toString()
                     additionalArgs[TestRunnerContract.consoleHostArgumentName] = EMULATOR_HOST_LOOPBACK_ADDR
-                    additionalArgs[TestRunnerContract.emulatorAuthTokenArgumentName] = configuration.consoleToken
+                    if (configuration.consoleToken.isNotBlank()) {
+                        additionalArgs[TestRunnerContract.emulatorAuthTokenArgumentName] = configuration.consoleToken
+                    }
                 }
             } else {
                 logger.warn { "Access to emulator console port is requested, but device ${device.adbSerial} is not a local emulator" }
