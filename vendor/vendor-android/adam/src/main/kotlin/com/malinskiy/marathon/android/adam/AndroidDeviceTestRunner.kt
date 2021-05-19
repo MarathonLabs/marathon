@@ -26,6 +26,7 @@ import com.malinskiy.marathon.test.TestBatch
 import com.malinskiy.marathon.test.toTestName
 import kotlinx.coroutines.channels.ReceiveChannel
 import kotlinx.coroutines.channels.receiveOrNull
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.withTimeoutOrNull
 import java.io.IOException
 
@@ -56,17 +57,23 @@ class AndroidDeviceTestRunner(private val device: AdamAndroidDevice) {
                 if (testBatch.tests.isNotEmpty()) {
                     clearData(androidConfiguration, info)
                     listener.beforeTestRun()
-                    channel = device.executeTestRequest(runnerRequest)
+                    logger.debug { "Execution started" }
+                    val localChannel = device.executeTestRequest(runnerRequest)
+                    channel = localChannel
 
-                    var events: List<TestEvent>? = null
-                    do {
-                        events?.let {
-                            processEvents(it, listener)
+                    while (isActive) {
+                        val update: List<TestEvent>? = withTimeoutOrNull(configuration.testOutputTimeoutMillis) {
+                            localChannel.receiveOrNull()
                         }
-                        events = withTimeoutOrNull(configuration.testOutputTimeoutMillis) {
-                            channel?.receiveOrNull()
+                        if (update == null) {
+                            listener.testRunFailed(ERROR_STUCK)
+                            return@withTimeoutOrNull
+                        } else {
+                            processEvents(update, listener)
                         }
-                    } while (events != null)
+                    }
+
+                    logger.debug { "Execution finished" }
                 } else {
                     listener.testRunEnded(0, emptyMap())
                 }
