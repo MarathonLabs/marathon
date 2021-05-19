@@ -62,9 +62,9 @@ class AndroidDeviceTestRunner(private val device: AdamAndroidDevice) {
                     val localChannel = device.executeTestRequest(runnerRequest)
                     channel = localChannel
 
-                    while (isActive) {
+                    while (!localChannel.isClosedForReceive && isActive) {
                         val update: List<TestEvent>? = withTimeoutOrNull(configuration.testOutputTimeoutMillis) {
-                            localChannel.receiveOrNull()
+                            localChannel.receiveOrNull() ?: emptyList()
                         }
                         if (update == null) {
                             listener.testRunFailed(ERROR_STUCK)
