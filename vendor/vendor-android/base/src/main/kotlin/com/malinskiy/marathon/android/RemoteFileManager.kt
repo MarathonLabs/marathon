@@ -18,13 +18,13 @@ class RemoteFileManager(private val device: AndroidDevice) {
         device.criticalExecuteShellCommand("rm -r $outputDir", "Could not delete remote directory: $outputDir")
     }
 
-    fun remoteVideoForTest(test: Test): String {
-        return remoteFileForTest(videoFileName(test))
+    fun remoteVideoForTest(test: Test, testBatchId: String): String {
+        return remoteFileForTest(videoFileName(test, testBatchId))
     }
 
     private fun remoteFileForTest(filename: String): String {
         return "$outputDir/$filename"
     }
 
-    private fun videoFileName(test: Test): String = "${test.pkg}.${test.clazz}-${test.method}.mp4"
+    private fun videoFileName(test: Test, testBatchId: String): String = "${test.pkg}.${test.clazz}-${test.method}-$testBatchId.mp4"
 }
