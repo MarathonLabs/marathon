@@ -5,11 +5,11 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
 import com.fasterxml.jackson.dataformat.yaml.YAMLGenerator
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.KotlinModule
-import com.malinskiy.marathon.android.configuration.AndroidConfiguration
 import com.malinskiy.marathon.android.ScreenRecordConfiguration
 import com.malinskiy.marathon.android.ScreenshotConfiguration
 import com.malinskiy.marathon.android.VideoConfiguration
 import com.malinskiy.marathon.android.configuration.AllureConfiguration
+import com.malinskiy.marathon.android.configuration.AndroidConfiguration
 import com.malinskiy.marathon.android.configuration.SerialStrategy
 import com.malinskiy.marathon.android.configuration.TimeoutConfiguration
 import com.malinskiy.marathon.cli.args.EnvironmentConfiguration
@@ -18,6 +18,7 @@ import com.malinskiy.marathon.cli.config.time.InstantTimeProvider
 import com.malinskiy.marathon.device.DeviceFeature
 import com.malinskiy.marathon.exceptions.ConfigurationException
 import com.malinskiy.marathon.execution.AnalyticsConfiguration
+import com.malinskiy.marathon.execution.AnnotationDataFilter
 import com.malinskiy.marathon.execution.AnnotationFilter
 import com.malinskiy.marathon.execution.CompositionFilter
 import com.malinskiy.marathon.execution.FullyQualifiedClassnameFilter
@@ -142,7 +143,8 @@ class ConfigFactoryTest {
 
         configuration.filteringConfiguration.blocklist shouldContainAll listOf(
             TestPackageFilter(".*".toRegex()),
-            AnnotationFilter(".*".toRegex())
+            AnnotationFilter(".*".toRegex()),
+            AnnotationDataFilter(".*".toRegex(), ".*".toRegex())
         )
         configuration.testClassRegexes.map { it.toString() } shouldContainAll listOf("^((?!Abstract).)*Test$")
 
@@ -365,7 +367,8 @@ class ConfigFactoryTest {
             uninstall = Duration.ofSeconds(1),
             install = Duration.parse("P1DT12H30M5S"),
             screenrecorder = Duration.ofHours(1),
-            screencapturer = Duration.ofSeconds(1)
+            screencapturer = Duration.ofSeconds(1),
+            socketIdleTimeout = Duration.ofSeconds(45)
         )
     }
 }

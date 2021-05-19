@@ -26,7 +26,6 @@ allprojects {
         jcenter()
         mavenCentral()
         google()
-        maven { url = uri("https://dl.bintray.com/qameta/maven") }
         mavenLocal()
     }
 }

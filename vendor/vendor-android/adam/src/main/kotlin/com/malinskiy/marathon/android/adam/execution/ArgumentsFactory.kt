@@ -5,14 +5,22 @@ import com.malinskiy.adam.request.forwarding.RemoteTcpPortSpec
 import com.malinskiy.marathon.android.adam.AdamAndroidDevice
 import com.malinskiy.marathon.android.configuration.AndroidConfiguration
 import com.malinskiy.marathon.android.configuration.TestAccessConfiguration
+import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.log.MarathonLogging
 
 class ArgumentsFactory(private val device: AdamAndroidDevice) {
     private val logger = MarathonLogging.logger("ArgumentsFactory")
 
 
-    fun generate(configuration: AndroidConfiguration) =
-        configuration.instrumentationArgs + generateTestAccessArgs(configuration.testAccessConfiguration)
+    fun generate(configuration: Configuration, androidConfiguration: AndroidConfiguration): Map<String, String> {
+        return mutableMapOf<String, String>().apply {
+            putAll(androidConfiguration.instrumentationArgs)
+            putAll(generateTestAccessArgs(androidConfiguration.testAccessConfiguration))
+            if (configuration.isCodeCoverageEnabled) {
+                put("coverage", "true")
+            }
+        }.toMap()
+    }
 
     private fun generateTestAccessArgs(configuration: TestAccessConfiguration): Map<String, String> {
         val additionalArgs = mutableMapOf<String, String>()

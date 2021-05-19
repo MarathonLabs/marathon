@@ -986,31 +986,66 @@ By default, the build fails if some tests failed. If you want to the build to su
 ```yaml
 ignoreFailures: true
 ```
-{% endtab %}
-{% tab ignore-failures Gradle %}
+
+{% endtab %} {% tab ignore-failures Gradle %}
+
 ```kotlin
 marathon {
     ignoreFailures = true
 }
 ```
-{% endtab %}
-{% tab ignore-failures Gradle Kotlin %}
+
+{% endtab %} {% tab ignore-failures Gradle Kotlin %}
+
 ```kotlin
 marathon {
     ignoreFailures = true
 }
 ```
-{% endtab %}
-{% endtabs %}
+
+{% endtab %} {% endtabs %}
+
+## Code coverage
+
+Depending on the vendor implementation code coverage may not be supported. By default, code coverage is disabled. If this option is enabled,
+code coverage will be collected and marathon assumes that code coverage generation will be setup by user (e.g. proper build flags, jacoco
+jar added to classpath, etc).
+
+{% tabs code-coverage %} {% tab code-coverage Marathonfile %}
+
+```yaml
+isCodeCoverageEnabled: true
+```
+
+{% endtab %} {% tab code-coverage Gradle %}
+
+```kotlin
+marathon {
+    isCodeCoverageEnabled = true
+}
+```
+
+{% endtab %} {% tab code-coverage Gradle Kotlin %}
+
+```kotlin
+marathon {
+    isCodeCoverageEnabled = true
+}
+```
+
+{% endtab %} {% endtabs %}
 
 ## Test output timeout
+
 This parameter specifies the behaviour for the underlying test executor to timeout if there is no output. By default, this is set to 5
 minutes.
 
 {% tabs test-output-timeout %} {% tab test-output-timeout Marathonfile %}
+
 ```yaml
 testOutputTimeoutMillis: 30000
 ```
+
 {% endtab %}
 {% tab test-output-timeout Gradle %}
 ```kotlin
@@ -1218,4 +1253,4 @@ See relevant vendor module page, e.g. [Android][3] or [iOS][4]
 [2]: https://graphiteapp.org/
 [3]: {% post_url 2018-11-19-android %}
 [4]: {% post_url 2018-11-19-ios %}
-[5]: https://github.com/Malinskiy/marathon/blob/develop/cli/src/main/kotlin/com/malinskiy/marathon/cli/config/ConfigFactory.kt
+[5]: https://github.com/MarathonLabs/marathon/blob/develop/cli/src/main/kotlin/com/malinskiy/marathon/cli/config/ConfigFactory.kt

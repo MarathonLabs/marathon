@@ -18,12 +18,16 @@ import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.time.Timer
 import com.malinskiy.marathon.vendor.VendorConfiguration
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.ReceiveChannel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.newFixedThreadPoolContext
-import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withTimeoutOrNull
@@ -34,28 +38,33 @@ import kotlin.coroutines.CoroutineContext
 private const val DEFAULT_WAIT_FOR_DEVICES_SLEEP_TIME = 500L
 
 class AdamDeviceProvider(
-    configuration: Configuration,
+    val configuration: Configuration,
+    androidConfiguration: AndroidConfiguration,
     private val track: Track,
     private val timer: Timer
 ) : DeviceProvider, CoroutineScope {
-    private val devices: MutableMap<String, AdamAndroidDevice> = ConcurrentHashMap()
+    private val devices: MutableMap<String, ProvidedDevice> = ConcurrentHashMap()
     private val logger = MarathonLogging.logger("AdamDeviceProvider")
 
     private val channel: Channel<DeviceProvider.DeviceEvent> = unboundedChannel()
-    private val bootWaitContext = newFixedThreadPoolContext(4, "AdamDeviceProvider")
-    override val coroutineContext: CoroutineContext
-        get() = bootWaitContext
-
+    override val coroutineContext: CoroutineContext by lazy { newFixedThreadPoolContext(1, "DeviceMonitor") }
     private val adbCommunicationContext: CoroutineContext by lazy {
-        newFixedThreadPoolContext(4, "AdbIOThreadPool")
+        newFixedThreadPoolContext(
+            androidConfiguration.threadingConfiguration.adbIoThreads,
+            "AdbIOThreadPool"
+        )
     }
+    private val setupSupervisor = SupervisorJob()
+    private var providerJob: Job? = null
 
     override val deviceInitializationTimeoutMillis: Long = configuration.deviceInitializationTimeoutMillis
 
     private lateinit var client: AndroidDebugBridgeClient
+    private lateinit var logcatManager: LogcatManager
     private lateinit var deviceEventsChannel: ReceiveChannel<List<Device>>
     private val deviceEventsChannelMutex = Mutex()
     private val deviceStateTracker = DeviceStateTracker()
+
 
     override suspend fun initialize(vendorConfiguration: VendorConfiguration) {
         if (vendorConfiguration !is AndroidConfiguration) {
@@ -64,13 +73,16 @@ class AdamDeviceProvider(
 
         client = AndroidDebugBridgeClientFactory().apply {
             coroutineContext = adbCommunicationContext
+            idleTimeout = vendorConfiguration.timeoutConfiguration.socketIdleTimeout
         }.build()
+        logcatManager = LogcatManager(client)
 
         try {
             printAdbServerVersion()
         } catch (e: ConnectException) {
             val success = StartAdbInteractor().execute(androidHome = vendorConfiguration.androidSdk)
             if (!success) {
+
                 throw AdbStartException()
             }
             printAdbServerVersion()
@@ -82,18 +94,17 @@ class AdamDeviceProvider(
             }
         } ?: throw NoDevicesException("No devices found")
 
-        bootWaitContext.executor.execute {
-            runBlocking {
-                /**
-                 * This allows us to survive `adb kill-server`
-                 */
-                while (isActive) {
-                    deviceEventsChannelMutex.withLock {
-                        deviceEventsChannel = client.execute(AsyncDeviceMonitorRequest(), this)
-                    }
-                    for (currentDeviceList in deviceEventsChannel) {
-                        deviceStateTracker.update(currentDeviceList).forEach { update ->
-                            val serial = update.first
+        providerJob = launch {
+            /**
+             * This allows us to survive `adb kill-server`
+             */
+            while (isActive) {
+                deviceEventsChannelMutex.withLock {
+                    deviceEventsChannel = client.execute(AsyncDeviceMonitorRequest(), this)
+                }
+                for (currentDeviceList in deviceEventsChannel) {
+                    deviceStateTracker.update(currentDeviceList).forEach { update ->
+                        val serial = update.first
                             val state = update.second
                             when (state) {
                                 TrackingUpdate.CONNECTED -> {
@@ -101,28 +112,34 @@ class AdamDeviceProvider(
                                         AdamAndroidDevice(
                                             client,
                                             deviceStateTracker,
+                                            logcatManager,
                                             serial,
+                                            configuration,
                                             vendorConfiguration,
                                             track,
                                             timer,
                                             vendorConfiguration.serialStrategy
                                         )
                                     track.trackProviderDevicePreparing(device) {
-                                        device.setup()
+                                        val job = launch(setupSupervisor) {
+                                            device.setup()
+                                            channel.send(DeviceProvider.DeviceEvent.DeviceConnected(device))
+                                        }
+                                        devices[serial] = ProvidedDevice(device, job)
                                     }
-                                    channel.send(DeviceProvider.DeviceEvent.DeviceConnected(device))
-                                    devices[serial] = device
                                 }
                                 TrackingUpdate.DISCONNECTED -> {
-                                    devices[serial]?.let { device ->
+                                    devices[serial]?.let { (device, job) ->
+                                        if (job.isActive) {
+                                            job.cancelAndJoin()
+                                        }
                                         channel.send(DeviceProvider.DeviceEvent.DeviceDisconnected(device))
                                         device.dispose()
                                     }
                                 }
                                 TrackingUpdate.NOTHING_TO_DO -> Unit
                             }
-                            logger.debug { "Device $serial changed state to $state" }
-                        }
+                        logger.debug { "Device $serial changed state to $state" }
                     }
                 }
             }
@@ -135,12 +152,20 @@ class AdamDeviceProvider(
     }
 
     override suspend fun terminate() {
-        bootWaitContext.close()
+        coroutineContext.cancel()
+        setupSupervisor.cancel()
+        providerJob?.cancel()
         channel.close()
         deviceEventsChannelMutex.withLock {
             deviceEventsChannel.cancel()
         }
+        logcatManager.close()
     }
 
     override fun subscribe() = channel
 }
+
+data class ProvidedDevice(
+    val device: AdamAndroidDevice,
+    val setupJob: Job
+)

@@ -1,5 +1,6 @@
 name: "sample-app tests"
 outputDir: "build/reports/marathon"
+isCodeCoverageEnabled: true
 retryStrategy:
   type: "fixed-quota"
   totalAllowedRetryQuota: 100
@@ -20,4 +21,5 @@ vendorConfiguration:
   testAccessConfiguration:
     adb: true
     gRPC: true
+    console: true
 deviceInitializationTimeoutMillis: 180000

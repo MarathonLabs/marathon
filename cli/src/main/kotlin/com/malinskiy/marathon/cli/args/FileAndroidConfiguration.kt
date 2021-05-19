@@ -9,9 +9,11 @@ import com.malinskiy.marathon.android.configuration.AndroidConfiguration
 import com.malinskiy.marathon.android.configuration.DEFAULT_ALLURE_CONFIGURATION
 import com.malinskiy.marathon.android.configuration.DEFAULT_INSTALL_OPTIONS
 import com.malinskiy.marathon.android.configuration.DEFAULT_WAIT_FOR_DEVICES_TIMEOUT
+import com.malinskiy.marathon.android.configuration.FileSyncConfiguration
 import com.malinskiy.marathon.android.configuration.SerialStrategy
-import com.malinskiy.marathon.android.configuration.TimeoutConfiguration
 import com.malinskiy.marathon.android.configuration.TestAccessConfiguration
+import com.malinskiy.marathon.android.configuration.ThreadingConfiguration
+import com.malinskiy.marathon.android.configuration.TimeoutConfiguration
 import com.malinskiy.marathon.android.configuration.defaultInitTimeoutMillis
 import com.malinskiy.marathon.exceptions.ConfigurationException
 import ddmlibModule
@@ -33,6 +35,8 @@ data class FileAndroidConfiguration(
     @JsonProperty("waitForDevicesTimeoutMillis") val waitForDevicesTimeoutMillis: Long?,
     @JsonProperty("allureConfiguration") val allureConfiguration: AllureConfiguration?,
     @JsonProperty("timeoutConfiguration") val timeoutConfiguration: TimeoutConfiguration = TimeoutConfiguration(),
+    @JsonProperty("fileSyncConfiguration") val fileSyncConfiguration: FileSyncConfiguration = FileSyncConfiguration(),
+    @JsonProperty("threadingConfiguration") val threadingConfiguration: ThreadingConfiguration = ThreadingConfiguration(),
     @JsonProperty("testAccessConfiguration") val testAccessConfiguration: TestAccessConfiguration?,
 ) : FileVendorConfiguration {
 
@@ -63,6 +67,8 @@ data class FileAndroidConfiguration(
             allureConfiguration = allureConfiguration
                 ?: DEFAULT_ALLURE_CONFIGURATION,
             timeoutConfiguration = timeoutConfiguration,
+            fileSyncConfiguration = fileSyncConfiguration,
+            threadingConfiguration = threadingConfiguration,
             testAccessConfiguration = testAccessConfiguration ?: TestAccessConfiguration(),
         )
     }

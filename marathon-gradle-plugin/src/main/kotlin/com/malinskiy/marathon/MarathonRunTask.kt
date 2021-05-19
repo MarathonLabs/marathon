@@ -2,15 +2,15 @@ package com.malinskiy.marathon
 
 import com.android.build.gradle.api.BaseVariant
 import com.android.build.gradle.api.TestVariant
+import com.malinskiy.marathon.android.ScreenRecordConfiguration
+import com.malinskiy.marathon.android.VendorType
+import com.malinskiy.marathon.android.adam.di.adamModule
 import com.malinskiy.marathon.android.configuration.AndroidConfiguration
+import com.malinskiy.marathon.android.configuration.DEFAULT_ALLURE_CONFIGURATION
 import com.malinskiy.marathon.android.configuration.DEFAULT_APPLICATION_PM_CLEAR
 import com.malinskiy.marathon.android.configuration.DEFAULT_AUTO_GRANT_PERMISSION
 import com.malinskiy.marathon.android.configuration.DEFAULT_INSTALL_OPTIONS
 import com.malinskiy.marathon.android.configuration.DEFAULT_WAIT_FOR_DEVICES_TIMEOUT
-import com.malinskiy.marathon.android.ScreenRecordConfiguration
-import com.malinskiy.marathon.android.VendorType
-import com.malinskiy.marathon.android.adam.di.adamModule
-import com.malinskiy.marathon.android.configuration.DEFAULT_ALLURE_CONFIGURATION
 import com.malinskiy.marathon.android.configuration.SerialStrategy
 import com.malinskiy.marathon.android.configuration.defaultInitTimeoutMillis
 import com.malinskiy.marathon.di.marathonStartKoin
@@ -25,39 +25,62 @@ import com.malinskiy.marathon.usageanalytics.tracker.Event
 import ddmlibModule
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
+import org.gradle.api.file.DirectoryProperty
+import org.gradle.api.model.ObjectFactory
+import org.gradle.api.provider.Property
+import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.InputDirectory
+import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.OutputDirectory
+import org.gradle.api.tasks.PathSensitive
+import org.gradle.api.tasks.PathSensitivity
 import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.VerificationTask
+import org.gradle.kotlin.dsl.property
 import org.koin.core.context.stopKoin
 import java.io.File
+import javax.inject.Inject
 
 private val log = MarathonLogging.logger {}
 
-open class MarathonRunTask : DefaultTask(), VerificationTask {
-    lateinit var flavorName: String
-    lateinit var applicationVariant: BaseVariant
-    lateinit var testVariant: TestVariant
-    lateinit var extensionConfig: MarathonExtension
-    lateinit var sdk: File
-    lateinit var cnf: Configuration
-    lateinit var exceptionsTracker: ExceptionsReporter
-    var ignoreFailure: Boolean = false
+open class MarathonRunTask @Inject constructor(objects: ObjectFactory) : DefaultTask(), VerificationTask {
+    @Input
+    val flavorName: Property<String> = objects.property()
+
+    @Internal
+    val applicationVariant: Property<BaseVariant> = objects.property()
+
+    @Internal
+    val testVariant: Property<TestVariant> = objects.property()
+
+    @InputDirectory
+    @PathSensitive(PathSensitivity.NAME_ONLY)
+    val sdk: DirectoryProperty = objects.directoryProperty()
+
+    @Internal
+    val marathonExtension: Property<MarathonExtension> = objects.property()
+
+    @Internal
+    val exceptionsTracker: Property<ExceptionsReporter> = objects.property()
+
+    private var ignoreFailure: Boolean = false
 
     @OutputDirectory
     var fakeLockingOutput = File(project.rootProject.buildDir, "fake-marathon-locking-output")
 
     @TaskAction
     fun runMarathon() {
-        val instrumentationApk = testVariant.extractTestApplication()
-        val applicationApk = applicationVariant.extractApplication()
+        val tracker = exceptionsTracker.get()
+        val extensionConfig = marathonExtension.get()
+        val instrumentationApk = testVariant.get().extractTestApplication()
+        val applicationApk = applicationVariant.get().extractApplication()
 
-        val baseOutputDir =
-            if (extensionConfig.baseOutputDir != null) File(extensionConfig.baseOutputDir) else File(project.buildDir, "reports/marathon")
-        val output = File(baseOutputDir, flavorName)
+        val baseOutputDir = extensionConfig.baseOutputDir?.let { File(it) } ?: File(project.buildDir, "reports/marathon")
+        val output = File(baseOutputDir, flavorName.get())
 
         val vendorConfiguration = createAndroidConfiguration(extensionConfig, applicationApk, instrumentationApk)
 
-        cnf = Configuration(
+        val cnf = Configuration(
             extensionConfig.name,
             output,
             extensionConfig.analyticsConfiguration?.toAnalyticsConfiguration(),
@@ -98,7 +121,7 @@ open class MarathonRunTask : DefaultTask(), VerificationTask {
             val marathon: Marathon = application.koin.get()
 
             val success = marathon.run()
-            exceptionsTracker.end()
+            tracker.end()
             val shouldReportFailure = !cnf.ignoreFailures
             if (!success && shouldReportFailure) {
                 throw GradleException("Tests failed! See ${cnf.outputDir}/html/index.html")
@@ -130,7 +153,7 @@ open class MarathonRunTask : DefaultTask(), VerificationTask {
         }
 
         return AndroidConfiguration(
-            androidSdk = sdk,
+            androidSdk = sdk.get().asFile,
             applicationOutput = applicationApk,
             testApplicationOutput = instrumentationApk,
             implementationModules = implementationModules,

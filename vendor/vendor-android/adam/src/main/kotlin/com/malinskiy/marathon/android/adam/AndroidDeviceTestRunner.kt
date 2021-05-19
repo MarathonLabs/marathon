@@ -17,6 +17,7 @@ import com.malinskiy.marathon.android.InstrumentationInfo
 import com.malinskiy.marathon.android.adam.execution.ArgumentsFactory
 import com.malinskiy.marathon.android.configuration.AndroidConfiguration
 import com.malinskiy.marathon.android.executor.listeners.AndroidTestRunListener
+import com.malinskiy.marathon.android.extension.isIgnored
 import com.malinskiy.marathon.android.model.TestIdentifier
 import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.log.MarathonLogging
@@ -28,7 +29,6 @@ import kotlinx.coroutines.channels.receiveOrNull
 import kotlinx.coroutines.withTimeoutOrNull
 import java.io.IOException
 
-const val JUNIT_IGNORE_META_PROPERTY_NAME = "org.junit.Ignore"
 const val ERROR_STUCK = "Test got stuck. You can increase the timeout in settings if it's too strict"
 
 class AndroidDeviceTestRunner(private val device: AdamAndroidDevice) {
@@ -42,14 +42,12 @@ class AndroidDeviceTestRunner(private val device: AdamAndroidDevice) {
         listener: AndroidTestRunListener
     ) {
 
-        val ignoredTests = rawTestBatch.tests.filter { test ->
-            test.metaProperties.any { it.name == JUNIT_IGNORE_META_PROPERTY_NAME }
-        }
-        val testBatch = TestBatch(rawTestBatch.tests - ignoredTests)
+        val ignoredTests = rawTestBatch.tests.filter { test -> test.isIgnored() }
+        val testBatch = TestBatch(rawTestBatch.tests - ignoredTests, rawTestBatch.id)
 
         val androidConfiguration = configuration.vendorConfiguration as AndroidConfiguration
         val info = ApkParser().parseInstrumentationInfo(androidConfiguration.testApplicationOutput)
-        val runnerRequest = prepareTestRunnerRequest(androidConfiguration, info, testBatch)
+        val runnerRequest = prepareTestRunnerRequest(configuration, androidConfiguration, info, testBatch)
 
         var channel: ReceiveChannel<List<TestEvent>>? = null
         try {
@@ -57,6 +55,7 @@ class AndroidDeviceTestRunner(private val device: AdamAndroidDevice) {
                 notifyIgnoredTest(ignoredTests, listener)
                 if (testBatch.tests.isNotEmpty()) {
                     clearData(androidConfiguration, info)
+                    listener.beforeTestRun()
                     channel = device.executeTestRequest(runnerRequest)
 
                     var events: List<TestEvent>? = null
@@ -124,28 +123,27 @@ class AndroidDeviceTestRunner(private val device: AdamAndroidDevice) {
                 logger.debug { "Package ${info.instrumentationPackage} cleared: $it" }
             }
         }
-        if (androidConfiguration.allureConfiguration.enabled) {
-            device.fileManager.removeRemotePath(androidConfiguration.allureConfiguration.resultsDirectory, recursive = true)
-            device.fileManager.createRemoteDirectory(androidConfiguration.allureConfiguration.resultsDirectory)
+        if (androidConfiguration.fileSyncConfiguration.pull.isNotEmpty()) {
             when {
                 device.version.isGreaterOrEqualThan(30) -> {
                     val command = "appops set --uid ${info.applicationPackage} MANAGE_EXTERNAL_STORAGE allow"
                     device.criticalExecuteShellCommand(command).also {
-                        logger.debug { "Allure is enabled. Granted MANAGE_EXTERNAL_STORAGE to ${info.applicationPackage}: ${it.trim()}" }
+                        logger.debug { "File pull requested. Granted MANAGE_EXTERNAL_STORAGE to ${info.applicationPackage}: ${it.trim()}" }
                     }
                 }
                 device.version.equals(29) -> {
                     //API 29 doesn't have MANAGE_EXTERNAL_STORAGE, force legacy storage
                     val command = "appops set --uid ${info.applicationPackage} LEGACY_STORAGE allow"
                     device.criticalExecuteShellCommand(command).also {
-                        logger.debug { "Allure is enabled. Granted LEGACY_STORAGE to ${info.applicationPackage}: ${it.trim()}" }
+                        logger.debug { "File pull requested. Granted LEGACY_STORAGE to ${info.applicationPackage}: ${it.trim()}" }
                     }
                 }
             }
         }
     }
 
-    private suspend fun prepareTestRunnerRequest(
+    private fun prepareTestRunnerRequest(
+        configuration: Configuration,
         androidConfiguration: AndroidConfiguration,
         info: InstrumentationInfo,
         testBatch: TestBatch
@@ -155,7 +153,7 @@ class AndroidDeviceTestRunner(private val device: AdamAndroidDevice) {
         }
 
         logger.debug { "tests = ${tests.toList()}" }
-        val overrides = argumentsFactory.generate(androidConfiguration)
+        val overrides = argumentsFactory.generate(configuration, androidConfiguration)
 
         val request = TestRunnerRequest(
             testPackage = info.instrumentationPackage,
@@ -163,6 +161,7 @@ class AndroidDeviceTestRunner(private val device: AdamAndroidDevice) {
             noWindowAnimations = true,
             instrumentOptions = InstrumentOptions(
                 clazz = tests,
+                coverageFile = if (configuration.isCodeCoverageEnabled) "${device.externalStorageMount}/coverage/coverage-${testBatch.id}.ec" else null,
                 overrides = overrides
             ),
             socketIdleTimeout = Long.MAX_VALUE

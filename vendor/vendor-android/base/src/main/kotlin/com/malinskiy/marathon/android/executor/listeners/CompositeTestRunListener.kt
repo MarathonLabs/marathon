@@ -7,6 +7,10 @@ class CompositeTestRunListener(private val listeners: List<AndroidTestRunListene
         listeners.forEach(f)
     }
 
+    override suspend fun beforeTestRun() {
+        execute { it.beforeTestRun() }
+    }
+
     override suspend fun testRunStarted(runName: String, testCount: Int) {
         execute { it.testRunStarted(runName, testCount) }
     }

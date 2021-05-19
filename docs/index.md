@@ -34,7 +34,7 @@ $ brew install malinskiy/tap/marathon
 
 ### Or manually download the binary
 ```bash
-curl https://github.com/Malinskiy/marathon/releases/download/X.X.X/marathon-X.X.X.zip -o marathon-X.X.X.zip
+curl https://github.com/MarathonLabs/marathon/releases/download/X.X.X/marathon-X.X.X.zip -o marathon-X.X.X.zip
 unzip -d $DESTINATION marathon-X.X.X.zip
 export PATH=$PATH:$DESTINATION/marathon-X.X.X/bin
 ```
