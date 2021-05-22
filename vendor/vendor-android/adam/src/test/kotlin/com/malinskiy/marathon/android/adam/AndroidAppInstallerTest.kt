@@ -16,6 +16,7 @@ import com.malinskiy.marathon.time.SystemTimer
 import com.nhaarman.mockitokotlin2.mock
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.io.TempDir
 import java.io.File
 import java.time.Clock
 
@@ -26,6 +27,9 @@ class AndroidAppInstallerTest {
 
     @AdbServer
     lateinit var server: AndroidDebugBridgeServer
+
+    @TempDir
+    lateinit var temp: File
 
     @Test
     fun testCleanInstallation() {
@@ -79,28 +83,10 @@ class AndroidAppInstallerTest {
                     )
 
                     shell("pm list packages", "")
-                    session {
-                        respondOkay()
-                        expectCmd { "sync:" }.accept()
-                        expectSend { "/data/local/tmp/app-debug.apk,511" }
-                            .receiveFile(File.createTempFile("xyinya", "y "))
-                            .done()
-                    }
-                    shell("md5 /data/local/tmp/app-debug.apk", "122fc3b5d69b262db9b84dfc00e8f1d4")
-                    shell("pm install -r -r   /data/local/tmp/app-debug.apk", "Success")
-                    shell("rm /data/local/tmp/app-debug.apk", "")
+                    receiveFile("/data/local/tmp/app-debug.apk", "511", "122fc3b5d69b262db9b84dfc00e8f1d4")
 
                     shell("pm list packages", "package:com.example")
-                    session {
-                        respondOkay()
-                        expectCmd { "sync:" }.accept()
-                        expectSend { "/data/local/tmp/app-debug-androidTest.apk,511" }
-                            .receiveFile(File.createTempFile("xyinya", "y "))
-                            .done()
-                    }
-                    shell("md5 /data/local/tmp/app-debug-androidTest.apk", "8d103498247b3711817a9f18624dede7")
-                    shell("pm install -r -r   /data/local/tmp/app-debug-androidTest.apk", "Success")
-                    shell("rm /data/local/tmp/app-debug-androidTest.apk", "")
+                    receiveFile("/data/local/tmp/app-debug-androidTest.apk", "511", "8d103498247b3711817a9f18624dede7")
 
                     other { transportCmd ->
                         when (transportCmd) {
@@ -125,6 +111,23 @@ class AndroidAppInstallerTest {
             respondOkay()
             expectShell { "$cmd;echo x$?" }.accept().respond("${stdout}x0")
         }
+    }
+
+    fun DeviceExpectation.receiveFile(path: String, mode: String, md5: String) {
+        val tempFile = File(temp, "receive").apply {
+            delete()
+        }
+
+        session {
+            respondOkay()
+            expectCmd { "sync:" }.accept()
+            expectSend { "$path,$mode" }
+                .receiveFile(tempFile)
+                .done()
+        }
+        shell("md5 $path", md5)
+        shell("pm install -r -r   $path", "Success")
+        shell("rm $path", "")
     }
 
     private fun createConfiguration(strictMode: Boolean): Configuration {
