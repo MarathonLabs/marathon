@@ -22,6 +22,7 @@ dependencies {
     testImplementation(TestLibraries.koin)
     testImplementation(TestLibraries.junit5)
     testImplementation(TestLibraries.jupiterEngine)
+    testImplementation(TestLibraries.adamServerStubJunit5)
 }
 
 Deployment.initialize(project)
