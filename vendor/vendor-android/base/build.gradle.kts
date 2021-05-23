@@ -25,6 +25,8 @@ dependencies {
     testImplementation(TestLibraries.junit5)
     testRuntimeOnly(TestLibraries.jupiterEngine)
     testImplementation(TestLibraries.koin)
+    testImplementation(TestLibraries.adamServerStubJunit5)
+    testImplementation(project(":vendor:vendor-android:adam"))
 }
 
 Deployment.initialize(project)
