@@ -12,7 +12,14 @@ fun DeviceExpectation.shell(cmd: String, stdout: String) {
     }
 }
 
-fun DeviceExpectation.receiveFile(tempDir: File, path: String, mode: String, md5: String) {
+fun DeviceExpectation.installApk(tempDir: File, path: String, mode: String, md5: String, params: String) {
+    pushFile(tempDir, path, mode)
+    shell("md5 $path", md5)
+    shell("pm install $params $path", "Success")
+    shell("rm $path", "")
+}
+
+fun DeviceExpectation.pushFile(tempDir: File, path: String, mode: String) {
     val tempFile = File(tempDir, "receive").apply {
         delete()
     }
@@ -24,9 +31,6 @@ fun DeviceExpectation.receiveFile(tempDir: File, path: String, mode: String, md5
             .receiveFile(tempFile)
             .done()
     }
-    shell("md5 $path", md5)
-    shell("pm install -r -r   $path", "Success")
-    shell("rm $path", "")
 }
 
 fun DeviceExpectation.boot(

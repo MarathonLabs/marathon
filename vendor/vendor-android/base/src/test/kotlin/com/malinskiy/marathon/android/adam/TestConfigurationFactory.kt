@@ -6,7 +6,7 @@ import com.malinskiy.marathon.execution.Configuration
 import java.io.File
 
 object TestConfigurationFactory {
-    fun create(): Configuration {
+    fun create(autoGrantPermission: Boolean = false, installOptions: String = ""): Configuration {
         return Configuration(
             name = "",
             outputDir = File(""),
@@ -35,9 +35,11 @@ object TestConfigurationFactory {
                 applicationOutput = File(javaClass.classLoader.getResource("apk/app-debug.apk").file),
                 testApplicationOutput = File(javaClass.classLoader.getResource("apk/app-debug-androidTest.apk").file),
                 implementationModules = listOf(adamModule),
+                autoGrantPermission = autoGrantPermission,
+                installOptions = installOptions,
             ),
             analyticsTracking = false,
-            deviceInitializationTimeoutMillis = null
+            deviceInitializationTimeoutMillis = null,
         )
     }
 }

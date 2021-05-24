@@ -9,7 +9,7 @@ import com.malinskiy.marathon.android.adam.TestConfigurationFactory
 import com.malinskiy.marathon.android.adam.TestDeviceFactory
 import com.malinskiy.marathon.android.adam.boot
 import com.malinskiy.marathon.android.adam.features
-import com.malinskiy.marathon.android.adam.receiveFile
+import com.malinskiy.marathon.android.adam.installApk
 import com.malinskiy.marathon.android.adam.shell
 import com.nhaarman.mockitokotlin2.mock
 import kotlinx.coroutines.runBlocking
@@ -40,10 +40,64 @@ class AndroidAppInstallerTest {
                     boot()
 
                     shell("pm list packages", "")
-                    receiveFile(temp, "/data/local/tmp/app-debug.apk", "511", "122fc3b5d69b262db9b84dfc00e8f1d4")
+                    installApk(temp, "/data/local/tmp/app-debug.apk", "511", "122fc3b5d69b262db9b84dfc00e8f1d4", "-r")
 
                     shell("pm list packages", "package:com.example")
-                    receiveFile(temp, "/data/local/tmp/app-debug-androidTest.apk", "511", "8d103498247b3711817a9f18624dede7")
+                    installApk(temp, "/data/local/tmp/app-debug-androidTest.apk", "511", "8d103498247b3711817a9f18624dede7", "-r")
+
+                }
+                features("emulator-5554")
+            }
+
+            device.setup()
+            installer.prepareInstallation(device)
+        }
+    }
+
+    @Test
+    fun testCleanInstallationWithAutograntPermissions() {
+        val configuration = TestConfigurationFactory.create(autoGrantPermission = true)
+        val installer = AndroidAppInstaller(configuration)
+        val device = TestDeviceFactory.create(client, configuration, mock())
+
+        runBlocking {
+            server.multipleSessions {
+                serial("emulator-5554") {
+                    boot()
+
+                    shell("pm list packages", "")
+                    installApk(temp, "/data/local/tmp/app-debug.apk", "511", "122fc3b5d69b262db9b84dfc00e8f1d4", "-r -g")
+
+                    shell("pm list packages", "package:com.example")
+                    installApk(temp, "/data/local/tmp/app-debug-androidTest.apk", "511", "8d103498247b3711817a9f18624dede7", "-r -g")
+
+                }
+                features("emulator-5554")
+            }
+
+            device.setup()
+            installer.prepareInstallation(device)
+        }
+    }
+
+    @Test
+    fun testReinstallWithExtraArguments() {
+        val configuration = TestConfigurationFactory.create(installOptions = "-custom")
+        val installer = AndroidAppInstaller(configuration)
+        val device = TestDeviceFactory.create(client, configuration, mock())
+
+        runBlocking {
+            server.multipleSessions {
+                serial("emulator-5554") {
+                    boot()
+
+                    shell("pm list packages", "package:com.example")
+                    shell("pm uninstall com.example", "Great success")
+                    installApk(temp, "/data/local/tmp/app-debug.apk", "511", "122fc3b5d69b262db9b84dfc00e8f1d4", "-r -custom")
+
+                    shell("pm list packages", "package:com.example.test")
+                    shell("pm uninstall com.example.test", "Great success")
+                    installApk(temp, "/data/local/tmp/app-debug-androidTest.apk", "511", "8d103498247b3711817a9f18624dede7", "-r -custom")
 
                 }
                 features("emulator-5554")

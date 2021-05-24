@@ -228,7 +228,7 @@ class AdamAndroidDevice(
         }
     }
 
-    override suspend fun installPackage(absolutePath: String, reinstall: Boolean, optionalParams: String): String? {
+    override suspend fun installPackage(absolutePath: String, reinstall: Boolean, optionalParams: List<String>): String? {
         val file = File(absolutePath)
         val remotePath = "/data/local/tmp/${file.name}"
 
@@ -245,7 +245,7 @@ class AdamAndroidDevice(
                 InstallRemotePackageRequest(
                     remotePath,
                     reinstall = reinstall,
-                    extraArgs = optionalParams.split(" ").toList() + " "
+                    extraArgs = optionalParams.filter { it.isNotBlank() }
                 ), serial = adbSerial
             )
         } ?: throw InstallException("Timeout transferring $absolutePath")
