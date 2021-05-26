@@ -11,9 +11,12 @@ import com.malinskiy.marathon.android.adam.boot
 import com.malinskiy.marathon.android.adam.features
 import com.malinskiy.marathon.android.adam.installApk
 import com.malinskiy.marathon.android.adam.shell
+import com.malinskiy.marathon.android.adam.shellFail
+import com.malinskiy.marathon.exceptions.DeviceSetupException
 import com.nhaarman.mockitokotlin2.mock
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.io.TempDir
 import java.io.File
 
@@ -105,6 +108,59 @@ class AndroidAppInstallerTest {
 
             device.setup()
             installer.prepareInstallation(device)
+        }
+    }
+
+    @Test
+    fun testInstallException() {
+        val configuration = TestConfigurationFactory.create()
+        val installer = AndroidAppInstaller(configuration)
+        val device = TestDeviceFactory.create(client, configuration, mock())
+
+        runBlocking {
+            server.multipleSessions {
+                serial("emulator-5554") {
+                    boot()
+
+                    shell("pm list packages", "")
+                    installApk(temp, "/data/local/tmp/app-debug.apk", "511", "122fc3b5d69b262db9b84dfc00e8f1d4", "-r", stdout = "Failure")
+
+                    shell("pm list packages", "")
+                    installApk(temp, "/data/local/tmp/app-debug.apk", "511", "122fc3b5d69b262db9b84dfc00e8f1d4", "-r", stdout = "Failure")
+
+                    shell("pm list packages", "")
+                    installApk(temp, "/data/local/tmp/app-debug.apk", "511", "122fc3b5d69b262db9b84dfc00e8f1d4", "-r", stdout = "Failure")
+                }
+                features("emulator-5554")
+            }
+
+            device.setup()
+
+            assertThrows<DeviceSetupException> { installer.prepareInstallation(device) }
+        }
+    }
+
+    @Test
+    fun testPmListException() {
+        val configuration = TestConfigurationFactory.create()
+        val installer = AndroidAppInstaller(configuration)
+        val device = TestDeviceFactory.create(client, configuration, mock())
+
+        runBlocking {
+            server.multipleSessions {
+                serial("emulator-5554") {
+                    boot()
+
+                    shellFail()
+                    shellFail()
+                    shellFail()
+                }
+                features("emulator-5554")
+            }
+
+            device.setup()
+
+            assertThrows<DeviceSetupException> { installer.prepareInstallation(device) }
         }
     }
 }

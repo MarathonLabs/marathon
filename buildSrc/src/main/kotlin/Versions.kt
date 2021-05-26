@@ -16,7 +16,7 @@ object Versions {
     val junitGradle = "1.0.0"
     val androidGradleVersion = "4.0.0"
 
-    val junit5 = "5.6.0"
+    val junit5 = "5.7.2"
     val kluent = "1.64"
 
     val kakao = "1.4.0"

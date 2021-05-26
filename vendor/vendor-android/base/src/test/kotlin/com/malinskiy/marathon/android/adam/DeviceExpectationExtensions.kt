@@ -12,10 +12,16 @@ fun DeviceExpectation.shell(cmd: String, stdout: String) {
     }
 }
 
-fun DeviceExpectation.installApk(tempDir: File, path: String, mode: String, md5: String, params: String) {
+fun DeviceExpectation.shellFail() {
+    session {
+        respondTransport(false, "Expected failure")
+    }
+}
+
+fun DeviceExpectation.installApk(tempDir: File, path: String, mode: String, md5: String, params: String, stdout: String = "Success") {
     pushFile(tempDir, path, mode)
     shell("md5 $path", md5)
-    shell("pm install $params $path", "Success")
+    shell("pm install $params $path", stdout)
     shell("rm $path", "")
 }
 
