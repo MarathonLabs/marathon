@@ -25,7 +25,7 @@ class TestRunResultsListener(
     private val deferred: CompletableDeferred<TestBatchResults>,
     private val timer: Timer,
     attachmentProviders: List<AttachmentProvider>
-) : AbstractTestRunResultListener(), AttachmentListener {
+) : AbstractTestRunResultListener(timer), AttachmentListener {
 
     private val attachments: MutableMap<Test, MutableList<Attachment>> = mutableMapOf()
     private val creationTime = timer.currentTimeMillis()
