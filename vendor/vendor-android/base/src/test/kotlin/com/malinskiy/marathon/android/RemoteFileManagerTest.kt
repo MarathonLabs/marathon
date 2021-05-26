@@ -15,8 +15,6 @@ import com.malinskiy.marathon.android.adam.shell
 import com.nhaarman.mockitokotlin2.mock
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.io.TempDir
-import java.io.File
 
 @AdbTest
 class RemoteFileManagerTest {
@@ -25,9 +23,6 @@ class RemoteFileManagerTest {
 
     @AdbServer
     lateinit var server: AndroidDebugBridgeServer
-
-    @TempDir
-    lateinit var temp: File
 
     @Test
     fun testCreateRemoteDirectory() {
