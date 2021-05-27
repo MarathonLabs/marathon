@@ -30,7 +30,7 @@ fun main(args: Array<String>): Unit = mainBody(
     programName = "marathon v${BuildConfig.VERSION}"
 ) {
     ArgParser(args).parseInto(::MarathonCliConfiguration).run {
-        logger.info { "Starting marathon" }
+        logger.info { "Starting marathon v${BuildConfig.VERSION}" }
         val bugsnagExceptionsReporter = ExceptionsReporterFactory.get(bugsnagReporting)
         try {
             bugsnagExceptionsReporter.start(AppType.CLI)
