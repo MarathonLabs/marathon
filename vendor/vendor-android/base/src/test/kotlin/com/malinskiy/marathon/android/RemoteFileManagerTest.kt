@@ -12,6 +12,9 @@ import com.malinskiy.marathon.android.adam.TestDeviceFactory
 import com.malinskiy.marathon.android.adam.boot
 import com.malinskiy.marathon.android.adam.features
 import com.malinskiy.marathon.android.adam.shell
+import com.malinskiy.marathon.android.configuration.AggregationMode
+import com.malinskiy.marathon.android.configuration.FileSyncConfiguration
+import com.malinskiy.marathon.android.configuration.FileSyncEntry
 import com.nhaarman.mockitokotlin2.mock
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Test
@@ -26,7 +29,16 @@ class RemoteFileManagerTest {
 
     @Test
     fun testCreateRemoteDirectory() {
-        val configuration = TestConfigurationFactory.create()
+        val configuration = TestConfigurationFactory.create(
+            fileSyncConfiguration = FileSyncConfiguration(
+                mutableListOf(
+                    FileSyncEntry(
+                        "screenshots",
+                        AggregationMode.DEVICE
+                    )
+                )
+            )
+        )
         val device = TestDeviceFactory.create(client, configuration, mock())
         val manager = RemoteFileManager(device)
 
@@ -49,7 +61,16 @@ class RemoteFileManagerTest {
 
     @Test
     fun testRemoveRemoteDirectory() {
-        val configuration = TestConfigurationFactory.create()
+        val configuration = TestConfigurationFactory.create(
+            fileSyncConfiguration = FileSyncConfiguration(
+                mutableListOf(
+                    FileSyncEntry(
+                        "screenshots",
+                        AggregationMode.DEVICE
+                    )
+                )
+            )
+        )
         val device = TestDeviceFactory.create(client, configuration, mock())
         val manager = RemoteFileManager(device)
 
@@ -70,7 +91,16 @@ class RemoteFileManagerTest {
 
     @Test
     fun testRemoveRemotePath() {
-        val configuration = TestConfigurationFactory.create()
+        val configuration = TestConfigurationFactory.create(
+            fileSyncConfiguration = FileSyncConfiguration(
+                mutableListOf(
+                    FileSyncEntry(
+                        "screenshots",
+                        AggregationMode.DEVICE
+                    )
+                )
+            )
+        )
         val device = TestDeviceFactory.create(client, configuration, mock())
         val manager = RemoteFileManager(device)
 
@@ -93,7 +123,16 @@ class RemoteFileManagerTest {
 
     @Test
     fun testRemoteVideo() {
-        val configuration = TestConfigurationFactory.create()
+        val configuration = TestConfigurationFactory.create(
+            fileSyncConfiguration = FileSyncConfiguration(
+                mutableListOf(
+                    FileSyncEntry(
+                        "screenshots",
+                        AggregationMode.DEVICE
+                    )
+                )
+            )
+        )
         val device = TestDeviceFactory.create(client, configuration, mock())
         val manager = RemoteFileManager(device)
 

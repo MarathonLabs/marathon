@@ -2,11 +2,16 @@ package com.malinskiy.marathon.android.adam
 
 import com.malinskiy.marathon.android.AndroidConfiguration
 import com.malinskiy.marathon.android.adam.di.adamModule
+import com.malinskiy.marathon.android.configuration.FileSyncConfiguration
 import com.malinskiy.marathon.execution.Configuration
 import java.io.File
 
 object TestConfigurationFactory {
-    fun create(autoGrantPermission: Boolean = false, installOptions: String = ""): Configuration {
+    fun create(
+        autoGrantPermission: Boolean = false,
+        installOptions: String = "",
+        fileSyncConfiguration: FileSyncConfiguration = FileSyncConfiguration(),
+    ): Configuration {
         return Configuration(
             name = "",
             outputDir = File(""),
@@ -37,6 +42,7 @@ object TestConfigurationFactory {
                 implementationModules = listOf(adamModule),
                 autoGrantPermission = autoGrantPermission,
                 installOptions = installOptions,
+                fileSyncConfiguration = fileSyncConfiguration
             ),
             analyticsTracking = false,
             deviceInitializationTimeoutMillis = null,
