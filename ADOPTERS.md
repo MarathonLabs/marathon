@@ -4,3 +4,4 @@ Here's a (non-exhaustive) list of companies that use marathon. Don't see yours? 
 
 * [Agoda](https://github.com/agoda-com) uses marathon to speed up its CI process of running thousands of UI tests every hour to ensure its iOS and Android application quality.
 * [Revolut](https://github.com/revolut-mobile)
+* [Nexign](https://nexign.com)
