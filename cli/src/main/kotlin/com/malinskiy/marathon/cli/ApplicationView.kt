@@ -52,7 +52,9 @@ fun main(args: Array<String>): Unit = mainBody(
 
             val shouldReportFailure = !configuration.ignoreFailures
             if (!success && shouldReportFailure) {
-                throw SystemExitException("Build failed", 1)
+                throw SystemExitException("Test run failed", 1)
+            } else {
+                throw SystemExitException("Test run finished", 0)
             }
         } finally {
             stopKoin()
