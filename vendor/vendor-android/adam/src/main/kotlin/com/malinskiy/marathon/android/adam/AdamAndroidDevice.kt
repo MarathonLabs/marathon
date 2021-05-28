@@ -22,6 +22,7 @@ import com.malinskiy.adam.request.sync.AndroidFileType
 import com.malinskiy.adam.request.sync.ListFilesRequest
 import com.malinskiy.adam.request.sync.compat.CompatPullFileRequest
 import com.malinskiy.adam.request.sync.compat.CompatPushFileRequest
+import com.malinskiy.adam.request.sync.compat.CompatStatFileRequest
 import com.malinskiy.adam.request.testrunner.TestEvent
 import com.malinskiy.adam.request.testrunner.TestRunnerRequest
 import com.malinskiy.marathon.analytics.internal.pub.Track
@@ -123,18 +124,23 @@ class AdamAndroidDevice(
             val local = File(localFilePath)
 
             measureFileTransfer(local) {
-                val channel = client.execute(
-                    CompatPullFileRequest(remoteFilePath, local, supportedFeatures, coroutineScope = this),
-                    serial = adbSerial
-                )
-                for (update in channel) {
-                    progress = update
+                val stat = client.execute(CompatStatFileRequest(remoteFilePath, supportedFeatures), serialNumber)
+                if (stat.exists()) {
+                    val channel = client.execute(
+                        CompatPullFileRequest(remoteFilePath, local, supportedFeatures, coroutineScope = this, size = stat.size().toLong()),
+                        serial = adbSerial
+                    )
+                    for (update in channel) {
+                        progress = update
+                    }
+                } else {
+                    throw TransferException("Couldn't pull file $remoteFilePath from device $serialNumber because it doesn't exist")
                 }
             }
         } catch (e: PullFailedException) {
-            throw TransferException("Couldn't pull file $remoteFilePath from device $serialNumber")
+            throw TransferException("Couldn't pull file $remoteFilePath from device $serialNumber", e)
         } catch (e: UnsupportedSyncProtocolException) {
-            throw TransferException("Device $serialNumber does not support sync: file transfer")
+            throw TransferException("Device $serialNumber does not support sync: file transfer", e)
         }
 
         if (progress != 1.0) {

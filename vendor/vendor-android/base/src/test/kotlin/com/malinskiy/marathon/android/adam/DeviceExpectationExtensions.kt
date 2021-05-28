@@ -2,13 +2,17 @@ package com.malinskiy.marathon.android.adam
 
 import com.malinskiy.adam.server.stub.dsl.DeviceExpectation
 import com.malinskiy.marathon.android.model.Rotation
+import kotlinx.coroutines.delay
 import java.io.File
 
 fun DeviceExpectation.property(name: String, value: String) = shell("getprop $name", value)
-fun DeviceExpectation.shell(cmd: String, stdout: String) {
+fun DeviceExpectation.shell(cmd: String, stdout: String, delay: Long? = null) {
     session {
         respondOkay()
-        expectShell { "$cmd;echo x$?" }.accept().respond("${stdout}x0")
+        expectShell { "$cmd;echo x$?" }
+            .accept()
+            .apply { if (delay != null) delay(delay) }
+            .respond("${stdout}x0")
     }
 }
 
@@ -36,6 +40,37 @@ fun DeviceExpectation.pushFile(tempDir: File, path: String, mode: String) {
         expectSend { "$path,$mode" }
             .receiveFile(tempFile)
             .done()
+    }
+}
+
+fun DeviceExpectation.pullFile(tempDir: File, path: String) {
+    val tempFile = File(tempDir, "send").apply {
+        delete()
+        writeText("X")
+    }
+
+    session {
+        respondOkay()
+        expectCmd { "sync:" }.accept()
+        expectStat { path }
+        respondStat(size = tempFile.length().toInt())
+    }
+
+    session {
+        respondOkay()
+        expectCmd { "sync:" }.accept()
+        expectRecv { "$path" }
+            .respondFile(tempFile)
+            .respondDoneDone()
+    }
+}
+
+fun DeviceExpectation.framebuffer(file: File) {
+    session {
+        respondOkay()
+        expectFramebuffer()
+            .accept()
+            .respondScreencaptureV2(file)
     }
 }
 
