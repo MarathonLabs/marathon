@@ -5,6 +5,7 @@ plugins {
     id("org.jetbrains.kotlin.jvm")
     id("org.jetbrains.dokka")
     id("org.junit.platform.gradle.plugin")
+    jacoco
 }
 
 dependencies {

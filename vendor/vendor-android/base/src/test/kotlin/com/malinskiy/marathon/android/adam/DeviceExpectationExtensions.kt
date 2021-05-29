@@ -95,7 +95,7 @@ fun DeviceExpectation.boot(
                     """.trimIndent()
     )
     shell("dumpsys input", "SurfaceOrientation: ${initialRotation.value}")
-    shell("echo \$EXTERNAL_STORAGE", "$externalStorage\n")
+    shell("echo \$EXTERNAL_STORAGE", "$externalStorage\r\n")
     shell(
         "ls /system/bin/screenrecord", when (hasScreenRecord) {
             true -> "/system/bin/screenrecord"

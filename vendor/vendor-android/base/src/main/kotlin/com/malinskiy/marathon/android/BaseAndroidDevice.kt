@@ -36,7 +36,7 @@ import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
-import java.util.*
+import java.util.UUID
 import kotlin.system.measureTimeMillis
 
 abstract class BaseAndroidDevice(
@@ -242,7 +242,7 @@ abstract class BaseAndroidDevice(
 
         val recordConfiguration = this@BaseAndroidDevice.androidConfiguration.screenRecordConfiguration
         val screenRecordingPolicy = configuration.screenRecordingPolicy
-        val recorderListener = selectRecorderType(features, recordConfiguration)?.let { feature ->
+        val recorderListener = RecorderTypeSelector.selectRecorderType(features, recordConfiguration)?.let { feature ->
             prepareRecorderListener(feature, fileManager, devicePoolId, testBatch.id, screenRecordingPolicy, attachmentProviders)
         } ?: NoOpTestRunListener()
 
@@ -297,30 +297,6 @@ abstract class BaseAndroidDevice(
                     .also { attachmentProviders.add(it) }
             }
         }
-
-    private fun selectRecorderType(supportedFeatures: Collection<DeviceFeature>, configuration: ScreenRecordConfiguration): DeviceFeature? {
-        val preferred = configuration.preferableRecorderType
-        val screenshotEnabled = recorderEnabled(DeviceFeature.SCREENSHOT, configuration)
-        val videoEnabled = recorderEnabled(DeviceFeature.VIDEO, configuration)
-
-        if (preferred != null && supportedFeatures.contains(preferred) && recorderEnabled(preferred, configuration)) {
-            return preferred
-        }
-
-        return when {
-            supportedFeatures.contains(DeviceFeature.VIDEO) && videoEnabled -> DeviceFeature.VIDEO
-            supportedFeatures.contains(DeviceFeature.SCREENSHOT) && screenshotEnabled -> DeviceFeature.SCREENSHOT
-            else -> null
-        }
-    }
-
-    private fun recorderEnabled(
-        type: DeviceFeature,
-        configuration: ScreenRecordConfiguration
-    ) = when (type) {
-        DeviceFeature.VIDEO -> configuration.videoConfiguration.enabled
-        DeviceFeature.SCREENSHOT -> configuration.screenshotConfiguration.enabled
-    }
 
     private suspend fun detectMd5Binary(): String {
         for (path in listOf("/system/bin/md5", "/system/bin/md5sum")) {

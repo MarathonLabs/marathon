@@ -2,6 +2,7 @@ package com.malinskiy.marathon.android.adam
 
 import com.malinskiy.marathon.android.AndroidConfiguration
 import com.malinskiy.marathon.android.adam.di.adamModule
+import com.malinskiy.marathon.android.configuration.AllureConfiguration
 import com.malinskiy.marathon.android.configuration.FileSyncConfiguration
 import com.malinskiy.marathon.execution.Configuration
 import java.io.File
@@ -11,6 +12,8 @@ object TestConfigurationFactory {
         autoGrantPermission: Boolean = false,
         installOptions: String = "",
         fileSyncConfiguration: FileSyncConfiguration = FileSyncConfiguration(),
+        allureConfiguration: AllureConfiguration = AllureConfiguration(),
+        isCodeCoverageEnabled: Boolean = false,
     ): Configuration {
         return Configuration(
             name = "",
@@ -24,7 +27,7 @@ object TestConfigurationFactory {
             retryStrategy = null,
             filteringConfiguration = null,
             ignoreFailures = null,
-            isCodeCoverageEnabled = null,
+            isCodeCoverageEnabled = isCodeCoverageEnabled,
             fallbackToScreenshots = null,
             strictMode = false,
             uncompletedTestRetryQuota = null,
@@ -42,7 +45,8 @@ object TestConfigurationFactory {
                 implementationModules = listOf(adamModule),
                 autoGrantPermission = autoGrantPermission,
                 installOptions = installOptions,
-                fileSyncConfiguration = fileSyncConfiguration
+                fileSyncConfiguration = fileSyncConfiguration,
+                allureConfiguration = allureConfiguration
             ),
             analyticsTracking = false,
             deviceInitializationTimeoutMillis = null,
