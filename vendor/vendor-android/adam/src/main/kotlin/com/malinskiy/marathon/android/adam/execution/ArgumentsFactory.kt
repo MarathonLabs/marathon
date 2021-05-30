@@ -1,6 +1,6 @@
 package com.malinskiy.marathon.android.adam.execution
 
-import com.malinskiy.adam.junit4.android.contract.TestRunnerContract
+import com.malinskiy.adam.android.contract.TestRunnerContract
 import com.malinskiy.adam.request.forwarding.RemoteTcpPortSpec
 import com.malinskiy.marathon.android.adam.AdamAndroidDevice
 import com.malinskiy.marathon.android.configuration.AndroidConfiguration
