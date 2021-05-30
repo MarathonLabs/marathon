@@ -241,7 +241,8 @@ private fun createTestResult(test: MarathonTest, status: TestStatus) = TestResul
     startTime = 0,
     endTime = 0,
     stacktrace = null,
-    attachments = emptyList()
+    attachments = emptyList(),
+    testBatchId = "stub-batch"
 )
 
 private fun createQueueActor(

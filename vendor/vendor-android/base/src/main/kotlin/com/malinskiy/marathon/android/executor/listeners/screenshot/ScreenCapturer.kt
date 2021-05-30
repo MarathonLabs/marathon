@@ -26,6 +26,7 @@ import kotlin.system.measureTimeMillis
 class ScreenCapturer(
     val device: AndroidDevice,
     private val poolId: DevicePoolId,
+    private val testBatchId: String,
     private val fileManager: FileManager,
     private val configuration: ScreenshotConfiguration,
     private val timeout: Duration
@@ -35,7 +36,8 @@ class ScreenCapturer(
         var outputStream: FileImageOutputStream? = null
         val writer: GifSequenceWriter? = null
         try {
-            val outputStream = FileImageOutputStream(fileManager.createFile(FileType.SCREENSHOT, poolId, device.toDeviceInfo(), test))
+            val outputStream =
+                FileImageOutputStream(fileManager.createFile(FileType.SCREENSHOT, poolId, device.toDeviceInfo(), test, testBatchId))
             val writer = GifSequenceWriter(outputStream, TYPE_INT_ARGB, configuration.delayMs, true)
             var targetRotation = detectCurrentDeviceOrientation()
             while (coroutineContext.isActive) {

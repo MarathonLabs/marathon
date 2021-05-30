@@ -15,16 +15,17 @@ import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.report.attachment.AttachmentListener
 import com.malinskiy.marathon.report.attachment.AttachmentProvider
 import com.malinskiy.marathon.test.toSimpleSafeTestName
-import java.time.Duration
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.async
 import kotlinx.coroutines.cancelAndJoin
+import java.time.Duration
 
 class ScreenCapturerTestRunListener(
     private val fileManager: FileManager,
     private val pool: DevicePoolId,
+    private val testBatchId: String,
     private val device: AndroidDevice,
     private val screenRecordingPolicy: ScreenRecordingPolicy,
     private val screenshotConfiguration: ScreenshotConfiguration,
@@ -41,7 +42,7 @@ class ScreenCapturerTestRunListener(
 
     private var supervisorJob: Job? = null
     private var hasFailed: Boolean = false
-    private val screenCapturer = ScreenCapturer(device, pool, fileManager, screenshotConfiguration, timeout)
+    private val screenCapturer = ScreenCapturer(device, pool, testBatchId, fileManager, screenshotConfiguration, timeout)
     private val logger = MarathonLogging.logger(ScreenCapturerTestRunListener::class.java.simpleName)
 
     override suspend fun testStarted(test: TestIdentifier) {

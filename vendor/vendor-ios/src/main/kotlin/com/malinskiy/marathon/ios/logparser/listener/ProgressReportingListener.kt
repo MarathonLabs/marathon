@@ -43,6 +43,7 @@ class ProgressReportingListener(
             TestResult(
                 it,
                 device.toDeviceInfo(),
+                testBatchId = testBatch.id,
                 TestStatus.FAILURE,
                 lastCompletedTestEndTime,
                 lastCompletedTestEndTime,
@@ -53,12 +54,32 @@ class ProgressReportingListener(
 
     override fun testFailed(test: Test, startTime: Long, endTime: Long) {
         progressReporter.testFailed(poolId, device.toDeviceInfo(), test)
-        failure.add(TestResult(test, device.toDeviceInfo(), TestStatus.FAILURE, startTime, endTime, testLogListener.getLastLog()))
+        failure.add(
+            TestResult(
+                test,
+                device.toDeviceInfo(),
+                testBatch.id,
+                TestStatus.FAILURE,
+                startTime,
+                endTime,
+                testLogListener.getLastLog()
+            )
+        )
     }
 
     override fun testPassed(test: Test, startTime: Long, endTime: Long) {
         progressReporter.testPassed(poolId, device.toDeviceInfo(), test)
-        success.add(TestResult(test, device.toDeviceInfo(), TestStatus.PASSED, startTime, endTime, testLogListener.getLastLog()))
+        success.add(
+            TestResult(
+                test,
+                device.toDeviceInfo(),
+                testBatch.id,
+                TestStatus.PASSED,
+                startTime,
+                endTime,
+                testLogListener.getLastLog()
+            )
+        )
     }
 
     override fun testStarted(test: Test) {

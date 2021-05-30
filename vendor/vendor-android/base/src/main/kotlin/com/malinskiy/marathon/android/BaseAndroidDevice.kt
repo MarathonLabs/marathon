@@ -252,10 +252,10 @@ abstract class BaseAndroidDevice(
         val recordConfiguration = this@BaseAndroidDevice.androidConfiguration.screenRecordConfiguration
         val screenRecordingPolicy = configuration.screenRecordingPolicy
         val recorderListener = selectRecorderType(features, recordConfiguration)?.let { feature ->
-            prepareRecorderListener(feature, fileManager, devicePoolId, screenRecordingPolicy, attachmentProviders)
+            prepareRecorderListener(feature, fileManager, devicePoolId, testBatch.id, screenRecordingPolicy, attachmentProviders)
         } ?: NoOpTestRunListener()
 
-        val logCatListener = LogCatListener(this, devicePoolId, LogWriter(fileManager))
+        val logCatListener = LogCatListener(this, devicePoolId, testBatch.id, LogWriter(fileManager))
             .also { attachmentProviders.add(it) }
 
         val fileSyncTestRunListener =
@@ -274,7 +274,8 @@ abstract class BaseAndroidDevice(
     }
 
     private fun prepareRecorderListener(
-        feature: DeviceFeature, fileManager: FileManager, devicePoolId: DevicePoolId, screenRecordingPolicy: ScreenRecordingPolicy,
+        feature: DeviceFeature, fileManager: FileManager, devicePoolId: DevicePoolId, testBatchId: String,
+        screenRecordingPolicy: ScreenRecordingPolicy,
         attachmentProviders: MutableList<AttachmentProvider>
     ): NoOpTestRunListener =
         when (feature) {
@@ -282,6 +283,7 @@ abstract class BaseAndroidDevice(
                 ScreenRecorderTestRunListener(
                     fileManager,
                     devicePoolId,
+                    testBatchId,
                     this,
                     androidConfiguration.screenRecordConfiguration.videoConfiguration,
                     screenRecordingPolicy,
@@ -294,6 +296,7 @@ abstract class BaseAndroidDevice(
                 ScreenCapturerTestRunListener(
                     fileManager,
                     devicePoolId,
+                    testBatchId,
                     this,
                     screenRecordingPolicy,
                     androidConfiguration.screenRecordConfiguration.screenshotConfiguration,
