@@ -25,10 +25,8 @@ import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.times
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.withContext
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
 import java.io.File
@@ -122,13 +120,11 @@ class ScreenCapturerTestRunListenerTest {
                 Duration.ofMillis(300),
                 this
             )
-            withContext(Dispatchers.Unconfined) {
-                listener.registerListener(attachmentListener)
-                listener.testRunStarted("Testing", 1)
-                delay(300)
-                listener.testStarted(test1)
-                listener.testRunFailed("Problems are all around us")
-            }
+            listener.registerListener(attachmentListener)
+            listener.testRunStarted("Testing", 1)
+            listener.testStarted(test1)
+            delay(300)
+            listener.testRunFailed("Problems are all around us")
 
             verify(fileManager, times(2)).createFile(FileType.SCREENSHOT, devicePoolId, device.toDeviceInfo(), test1.toTest(), batch.id)
             verify(fileManager, times(1)).createFile(FileType.SCREENSHOT, devicePoolId, device.toDeviceInfo(), batch.id)
