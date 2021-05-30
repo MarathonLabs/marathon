@@ -155,6 +155,7 @@ class AdamDeviceProvider(
             deviceEventsChannel.cancel()
         }
         logcatManager.close()
+        client.socketFactory.close()
     }
 
     override fun subscribe() = channel
