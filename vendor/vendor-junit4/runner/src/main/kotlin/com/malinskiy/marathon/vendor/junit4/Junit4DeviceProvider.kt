@@ -6,6 +6,7 @@ import com.malinskiy.marathon.time.Timer
 import com.malinskiy.marathon.vendor.VendorConfiguration
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.runBlocking
+import java.util.concurrent.ConcurrentHashMap
 
 class Junit4DeviceProvider(
     private val timer: Timer
@@ -13,18 +14,24 @@ class Junit4DeviceProvider(
     override val deviceInitializationTimeoutMillis: Long = 1_000
 
     private val channel: Channel<DeviceProvider.DeviceEvent> = unboundedChannel()
+    private val devices: MutableMap<String, Junit4Device> = ConcurrentHashMap()
 
     override suspend fun initialize(vendorConfiguration: VendorConfiguration) {
     }
 
     override suspend fun terminate() {
+        devices.forEach { serial, device ->
+            device.dispose()
+        }
         channel.close()
     }
 
     override fun subscribe(): Channel<DeviceProvider.DeviceEvent> {
         runBlocking {
             //For now only local instance is supported
-            channel.send(DeviceProvider.DeviceEvent.DeviceConnected(Junit4Device(timer)))
+            val localhost = Junit4Device(timer)
+            devices["localhost"] = localhost
+            channel.send(DeviceProvider.DeviceEvent.DeviceConnected(localhost))
         }
 
         return channel

@@ -17,7 +17,6 @@ import org.junit.runner.Result
 import org.junit.runner.manipulation.Filter
 import org.junit.runner.notification.Failure
 import org.junit.runner.notification.RunListener
-import kotlin.system.exitProcess
 
 class TestExecutorServer(private val port: Int) {
     private val server: Server = ServerBuilder
@@ -46,10 +45,10 @@ class TestExecutorServer(private val port: Int) {
     }
 
     private class TestExecutorService : TestExecutorGrpcKt.TestExecutorCoroutineImplBase() {
+        private val core = JUnitCore()
+
         override fun execute(request: TestRequest): Flow<TestEvent> {
             val tests = request.fqtnList
-
-            val core = JUnitCore()
 
             val klasses = mutableSetOf<Class<*>>()
             val testDescriptions = tests.map { fqtn ->
@@ -61,12 +60,14 @@ class TestExecutorServer(private val port: Int) {
                 Description.createTestDescription(loadClass, method)
             }.toHashSet()
 
-            val request = Request.classes(*klasses.toTypedArray()).filterWith(TestFilter(testDescriptions))
+            val request = Request.classes(*klasses.toTypedArray())
+                .filterWith(TestFilter(testDescriptions))
 
             return callbackFlow {
                 val callback = object : RunListener() {
                     override fun testRunStarted(description: Description) {
                         super.testRunStarted(description)
+                        println("Started: ${description}")
                         try {
                             sendBlocking(
                                 TestEvent.newBuilder()
@@ -127,6 +128,7 @@ class TestExecutorServer(private val port: Int) {
 
                     override fun testFailure(failure: Failure) {
                         super.testFailure(failure)
+                        println(failure.exception.cause?.printStackTrace())
                         try {
                             sendBlocking(
                                 TestEvent.newBuilder()
@@ -187,7 +189,6 @@ class TestExecutorServer(private val port: Int) {
                 )
                 awaitClose {
                     core.removeListener(callback)
-                    exitProcess(0)
                 }
             }
         }

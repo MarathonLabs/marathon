@@ -15,11 +15,13 @@ import com.malinskiy.marathon.vendor.junit4.client.TestExecutorClient
 import com.malinskiy.marathon.vendor.junit4.configuration.Junit4Configuration
 import com.malinskiy.marathon.vendor.junit4.executor.listener.CompositeTestRunListener
 import com.malinskiy.marathon.vendor.junit4.executor.listener.DebugTestRunListener
+import com.malinskiy.marathon.vendor.junit4.executor.listener.ProgressTestRunListener
 import com.malinskiy.marathon.vendor.junit4.executor.listener.TestRunResultsListener
 import io.grpc.ManagedChannelBuilder
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.asExecutor
+import java.io.File
 import java.util.*
 
 class Junit4Device(protected val timer: Timer) : Device {
@@ -32,8 +34,29 @@ class Junit4Device(protected val timer: Timer) : Device {
     override val healthy: Boolean = true
     override val abi: String = System.getProperty("os.arch")
 
+    private lateinit var client: TestExecutorClient
+    private lateinit var process: Process
+
     override suspend fun prepare(configuration: Configuration) {
-        //TODO: create a long-running JVM service with gRPC interface for running tests instead of spawning JVM per execution
+        val conf = configuration.vendorConfiguration as Junit4Configuration
+        val booterFile = javaClass.getResource("/booter-all.jar").file
+        val applicationJar = File(conf.applicationJar.toURI())
+        val testJar = File(conf.testsJar.toURI())
+        val classpath = "$applicationJar:$testJar:$booterFile"
+        val controlPort = 50051
+        //TODO: allow specifying java executable
+        process = ProcessBuilder("java", "-cp", "$classpath", "com.malinskiy.marathon.vendor.junit4.booter.BooterKt")
+            .apply {
+                environment()["PORT"] = controlPort.toString()
+                inheritIO()
+            }.start()
+
+        val localChannel = ManagedChannelBuilder.forAddress("localhost", controlPort).apply {
+            usePlaintext()
+            executor(Dispatchers.IO.asExecutor())
+        }.build()
+
+        client = TestExecutorClient(localChannel)
     }
 
     override suspend fun execute(
@@ -43,33 +66,21 @@ class Junit4Device(protected val timer: Timer) : Device {
         deferred: CompletableDeferred<TestBatchResults>,
         progressReporter: ProgressReporter
     ) {
-        val conf = configuration.vendorConfiguration as Junit4Configuration
-        val booterFile = "booter-all.jar"
-        val classpath = "${conf.applicationJar}:${conf.testsJar}:${booterFile}"
-        val controlPort = 50051
-        //TODO: allow specifying java executable
-        val processBuilder = ProcessBuilder("java", "-cp", "$classpath", "com.malinskiy.marathon.vendor.junit4.booter.BooterKt")
-        processBuilder.environment()["PORT"] = controlPort.toString()
-        val process = processBuilder.start()
-
         val tests = testBatch.tests.map { it.toTestName() }
         val listener = CompositeTestRunListener(
             listOf(
                 DebugTestRunListener(this),
+                ProgressTestRunListener(this, devicePoolId, progressReporter),
                 TestRunResultsListener(testBatch, this, deferred, timer, emptyList())
             )
         )
 
-        val localChannel = ManagedChannelBuilder.forAddress("localhost", controlPort).apply {
-            usePlaintext()
-            executor(Dispatchers.IO.asExecutor())
-        }.build()
-
-        val client = TestExecutorClient(localChannel)
         client.execute(tests, listener)
-
-        process.waitFor()
     }
 
-    override fun dispose() {}
+    override fun dispose() {
+        client.close()
+        process.destroy()
+        process.waitFor()
+    }
 }

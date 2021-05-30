@@ -1,6 +1,7 @@
 syntax = "proto3";
 
 package com.malinskiy.marathon.vendor.junit4.contract;
+
 import "google/protobuf/empty.proto";
 
 option java_multiple_files = true;
@@ -32,4 +33,5 @@ message TestRequest {
 
 service TestExecutor {
     rpc execute(TestRequest) returns (stream TestEvent);
+    rpc terminate(google.protobuf.Empty) returns (google.protobuf.Empty);
 }

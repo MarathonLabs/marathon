@@ -18,7 +18,7 @@ class JarParser {
         val result = mutableListOf<Test>()
         visitClasses(file) { classZipEntry, inputStream ->
             val classReader = ClassReader(inputStream)
-            val visitor = JarClassVisitor(Opcodes.ASM4)
+            val visitor = JarClassVisitor(Opcodes.ASM6)
             classReader.accept(visitor, 0)
 
             val fqcn = classZipEntry.fqcn
