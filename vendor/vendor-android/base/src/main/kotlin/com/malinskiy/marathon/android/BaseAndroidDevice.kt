@@ -15,7 +15,7 @@ import com.malinskiy.marathon.android.executor.listeners.ProgressTestRunListener
 import com.malinskiy.marathon.android.executor.listeners.TestRunResultsListener
 import com.malinskiy.marathon.android.executor.listeners.filesync.FileSyncTestRunListener
 import com.malinskiy.marathon.android.executor.listeners.screenshot.ScreenCapturerTestRunListener
-import com.malinskiy.marathon.android.executor.listeners.video.ScreenRecorderTestRunListener
+import com.malinskiy.marathon.android.executor.listeners.video.ScreenRecorderTestBatchListener
 import com.malinskiy.marathon.android.model.Rotation
 import com.malinskiy.marathon.device.DeviceFeature
 import com.malinskiy.marathon.device.DevicePoolId
@@ -36,7 +36,7 @@ import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
-import java.util.UUID
+import java.util.*
 import kotlin.system.measureTimeMillis
 
 abstract class BaseAndroidDevice(
@@ -271,7 +271,7 @@ abstract class BaseAndroidDevice(
     ): NoOpTestRunListener =
         when (feature) {
             DeviceFeature.VIDEO -> {
-                ScreenRecorderTestRunListener(
+                ScreenRecorderTestBatchListener(
                     fileManager,
                     devicePoolId,
                     testBatchId,

@@ -25,7 +25,7 @@ import kotlinx.coroutines.cancelAndJoin
 import java.time.Duration
 import kotlin.system.measureTimeMillis
 
-class ScreenRecorderTestRunListener(
+class ScreenRecorderTestBatchListener(
     private val fileManager: FileManager,
     private val pool: DevicePoolId,
     private val testBatchId: String,

@@ -49,7 +49,7 @@ class ScreenRecorderTestRunListenerTest {
         val attachmentListener = mock<AttachmentListener>()
         val videoFile = File(temp, "video")
         runBlocking {
-            val listener = ScreenRecorderTestRunListener(
+            val listener = ScreenRecorderTestBatchListener(
                 fileManager,
                 devicePoolId,
                 batch.id,
@@ -103,7 +103,7 @@ class ScreenRecorderTestRunListenerTest {
         val attachmentListener = mock<AttachmentListener>()
         val videoFile = File(temp, "video")
         runBlocking {
-            val listener = ScreenRecorderTestRunListener(
+            val listener = ScreenRecorderTestBatchListener(
                 fileManager,
                 devicePoolId,
                 batch.id,
@@ -158,7 +158,7 @@ class ScreenRecorderTestRunListenerTest {
         val attachmentListener = mock<AttachmentListener>()
         val videoFile = File(temp, "video")
         runBlocking {
-            val listener = ScreenRecorderTestRunListener(
+            val listener = ScreenRecorderTestBatchListener(
                 fileManager,
                 devicePoolId,
                 batch.id,
