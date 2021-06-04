@@ -30,7 +30,7 @@ object Versions {
     val espresso = "3.0.1"
     val espressoRules = "1.0.1"
     val espressoRunner = "1.0.1"
-    val junit = "4.12"
+    val junit = "4.13.2"
     val gson = "2.8.5"
     val apacheCommonsText = "1.3"
     val apacheCommonsIO = "2.6"
