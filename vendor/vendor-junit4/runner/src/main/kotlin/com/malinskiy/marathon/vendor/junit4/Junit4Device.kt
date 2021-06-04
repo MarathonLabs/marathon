@@ -17,12 +17,13 @@ import com.malinskiy.marathon.vendor.junit4.executor.listener.CompositeTestRunLi
 import com.malinskiy.marathon.vendor.junit4.executor.listener.DebugTestRunListener
 import com.malinskiy.marathon.vendor.junit4.executor.listener.ProgressTestRunListener
 import com.malinskiy.marathon.vendor.junit4.executor.listener.TestRunResultsListener
+import com.malinskiy.marathon.vendor.junit4.install.Junit4AppInstaller
 import io.grpc.ManagedChannelBuilder
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.asExecutor
 import java.io.File
-import java.util.*
+import java.util.UUID
 
 class Junit4Device(protected val timer: Timer) : Device {
     override val operatingSystem: OperatingSystem = OperatingSystem(System.getProperty("os.name") ?: "")
@@ -39,10 +40,13 @@ class Junit4Device(protected val timer: Timer) : Device {
 
     override suspend fun prepare(configuration: Configuration) {
         val conf = configuration.vendorConfiguration as Junit4Configuration
-        val booterFile = javaClass.getResource("/booter-all.jar").file
-        val applicationJar = File(conf.applicationJar.toURI())
-        val testJar = File(conf.testsJar.toURI())
-        val classpath = "$applicationJar:$testJar:$booterFile"
+        val installer = Junit4AppInstaller(conf)
+        installer.install()
+
+        val booterFile = booterJar()
+        val applicationClasspath = conf.applicationClasspath.joinToString(separator = ":") { File(it.toURI()).toString() }
+        val testClasspath = conf.testClasspath.joinToString(separator = ":") { File(it.toURI()).toString() }
+        val classpath = "$applicationClasspath:$testClasspath:$booterFile"
         val controlPort = 50051
         //TODO: allow specifying java executable
         process = ProcessBuilder("java", "-cp", "$classpath", "com.malinskiy.marathon.vendor.junit4.booter.BooterKt")
@@ -76,6 +80,12 @@ class Junit4Device(protected val timer: Timer) : Device {
         )
 
         client.execute(tests, listener)
+    }
+
+    private fun booterJar(): File {
+        val tempFile = File.createTempFile("marathon", "booter.jar").apply { deleteOnExit() }
+        javaClass.getResourceAsStream("/booter-all.jar").copyTo(tempFile.outputStream())
+        return tempFile
     }
 
     override fun dispose() {

@@ -105,10 +105,11 @@ class TestRunResultsListener(
             TestResult(
                 it,
                 device.toDeviceInfo(),
+                testBatch.id,
                 TestStatus.INCOMPLETE,
                 lastCompletedTestEndTime,
                 timer.currentTimeMillis(),
-                testRunResult.runFailureMessage
+                testRunResult.runFailureMessage,
             )
         }
     }
@@ -144,7 +145,8 @@ class TestRunResultsListener(
             startTime = value.startTime,
             endTime = value.endTime,
             stacktrace = value.stackTrace,
-            attachments = attachments
+            attachments = attachments,
+            testBatchId = testBatch.id,
         )
     }
 

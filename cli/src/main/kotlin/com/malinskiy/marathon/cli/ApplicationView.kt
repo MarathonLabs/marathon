@@ -40,7 +40,9 @@ fun main(args: Array<String>): Unit = mainBody(
                 .registerModule(JavaTimeModule())
             val configuration = ConfigFactory(mapper).create(
                 marathonfile = marathonfile,
-                environmentReader = SystemEnvironmentReader()
+                environmentReader = SystemEnvironmentReader(),
+                applicationClasspath = applicationClasspath,
+                testApplicationClasspath = testApplicationClasspath
             )
 
             val application = marathonStartKoin(configuration)

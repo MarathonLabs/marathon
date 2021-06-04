@@ -5,14 +5,20 @@ import com.malinskiy.marathon.vendor.junit4.configuration.Junit4Configuration
 import java.io.File
 
 class FileJUnit4Configuration(
-    @JsonProperty("applicationJar") val applicationJar: File,
-    @JsonProperty("testsJar") val testsJar: File,
+    @JsonProperty("applicationClasspath") val applicationClasspath: List<File>?,
+    @JsonProperty("testClasspath") val testClasspath: List<File>?,
 ) : FileVendorConfiguration {
 
-    fun toJUnit4Configuration(): Junit4Configuration {
+    fun toJUnit4Configuration(applicationClasspath: List<File>?, testClasspath: List<File>?): Junit4Configuration {
         return Junit4Configuration(
-            applicationJar = applicationJar,
-            testsJar = testsJar
+            applicationClasspath = mutableListOf<File>().apply {
+                this@FileJUnit4Configuration.applicationClasspath?.let { addAll(it) }
+                applicationClasspath?.let { addAll(it) }
+            },
+            testClasspath = mutableListOf<File>().apply {
+                this@FileJUnit4Configuration.testClasspath?.let { addAll(it) }
+                testClasspath?.let { addAll(it) }
+            }
         )
     }
 }

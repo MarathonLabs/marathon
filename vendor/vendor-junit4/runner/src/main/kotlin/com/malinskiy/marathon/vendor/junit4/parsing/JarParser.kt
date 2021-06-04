@@ -1,10 +1,7 @@
 package com.malinskiy.marathon.vendor.junit4.parsing
 
 import com.malinskiy.marathon.test.Test
-import org.objectweb.asm.AnnotationVisitor
 import org.objectweb.asm.ClassReader
-import org.objectweb.asm.ClassVisitor
-import org.objectweb.asm.MethodVisitor
 import org.objectweb.asm.Opcodes
 import java.io.BufferedInputStream
 import java.io.File
@@ -59,32 +56,6 @@ class JarParser {
                 }
             }
         }
-    }
-}
-
-class JarClassVisitor(api: Int) : ClassVisitor(api) {
-    val methods: MutableList<JarMethodVisitor> = mutableListOf()
-
-    override fun visitMethod(
-        access: Int,
-        name: String,
-        descriptor: String,
-        signature: String?,
-        exceptions: Array<out String>?
-    ): MethodVisitor? {
-        val methodVisitor = super.visitMethod(access, name, descriptor, signature, exceptions)
-        val jarMethodVisitor = JarMethodVisitor(name, api)
-        methods.add(jarMethodVisitor)
-        return methodVisitor ?: jarMethodVisitor
-    }
-}
-
-class JarMethodVisitor(val name: String, api: Int) : MethodVisitor(api) {
-    val annotations: MutableList<String> = mutableListOf()
-
-    override fun visitAnnotation(descriptor: String, visible: Boolean): AnnotationVisitor? {
-        annotations.add(descriptor)
-        return super.visitAnnotation(descriptor, visible)
     }
 }
 

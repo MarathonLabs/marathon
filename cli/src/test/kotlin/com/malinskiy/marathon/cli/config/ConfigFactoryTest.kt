@@ -11,6 +11,7 @@ import com.malinskiy.marathon.android.ScreenshotConfiguration
 import com.malinskiy.marathon.android.VideoConfiguration
 import com.malinskiy.marathon.android.configuration.AllureConfiguration
 import com.malinskiy.marathon.android.configuration.SerialStrategy
+import com.malinskiy.marathon.android.configuration.TimeoutConfiguration
 import com.malinskiy.marathon.cli.args.EnvironmentConfiguration
 import com.malinskiy.marathon.cli.args.environment.EnvironmentReader
 import com.malinskiy.marathon.cli.config.time.InstantTimeProvider
@@ -46,6 +47,7 @@ import com.malinskiy.marathon.ios.IOSConfiguration
 import com.nhaarman.mockitokotlin2.whenever
 import ddmlibModule
 import org.amshove.kluent.`it returns`
+import org.amshove.kluent.`should be equal to`
 import org.amshove.kluent.`should be instance of`
 import org.amshove.kluent.mock
 import org.amshove.kluent.shouldBe
@@ -60,8 +62,6 @@ import java.io.File
 import java.time.Duration
 import java.time.Instant
 import java.time.format.DateTimeFormatter
-import com.malinskiy.marathon.android.configuration.TimeoutConfiguration
-import org.amshove.kluent.`should be equal to`
 
 class ConfigFactoryTest {
 
@@ -90,7 +90,7 @@ class ConfigFactoryTest {
     @Test
     fun `on sample config 1 should deserialize`() {
         val file = File(ConfigFactoryTest::class.java.getResource("/fixture/config/sample_1.yaml").file)
-        val configuration = parser.create(file, mockEnvironmentReader())
+        val configuration = parser.create(file, mockEnvironmentReader(), applicationClasspath)
 
         configuration.name shouldEqual "sample-app tests"
         configuration.outputDir shouldEqual File("./marathon")
@@ -187,7 +187,7 @@ class ConfigFactoryTest {
     fun `on sample config 1 with custom retention policy should deserialize`() {
         val file = File(ConfigFactoryTest::class.java.getResource("/fixture/config/sample_1_rp.yaml").file)
 
-        val configuration = parser.create(file, mockEnvironmentReader())
+        val configuration = parser.create(file, mockEnvironmentReader(), applicationClasspath)
         configuration.analyticsConfiguration shouldEqual AnalyticsConfiguration.InfluxDbConfiguration(
             url = "http://influx.svc.cluster.local:8086",
             user = "root",
@@ -206,7 +206,7 @@ class ConfigFactoryTest {
     @Test
     fun `on sample config 2 with minimal configuration should deserialize`() {
         val file = File(ConfigFactoryTest::class.java.getResource("/fixture/config/sample_2.yaml").file)
-        val configuration = parser.create(file, mockEnvironmentReader())
+        val configuration = parser.create(file, mockEnvironmentReader(), applicationClasspath)
 
         configuration.name shouldEqual "sample-app tests"
         configuration.outputDir shouldEqual File("./marathon")
@@ -251,7 +251,7 @@ class ConfigFactoryTest {
     @Test
     fun `on config with ios vendor configuration should initialize a specific vendor configuration`() {
         val file = File(ConfigFactoryTest::class.java.getResource("/fixture/config/sample_3.yaml").file)
-        val configuration = parser.create(file, mockEnvironmentReader())
+        val configuration = parser.create(file, mockEnvironmentReader(), applicationClasspath)
 
         configuration.vendorConfiguration shouldEqual IOSConfiguration(
             derivedDataDir = file.parentFile.resolve("a"),
@@ -272,7 +272,7 @@ class ConfigFactoryTest {
     @Test
     fun `on configuration without an explicit remote rsync path should initialize a default one`() {
         val file = File(ConfigFactoryTest::class.java.getResource("/fixture/config/sample_4.yaml").file)
-        val configuration = parser.create(file, mockEnvironmentReader())
+        val configuration = parser.create(file, mockEnvironmentReader(), applicationClasspath)
 
         val iosConfiguration = configuration.vendorConfiguration as IOSConfiguration
         iosConfiguration.remoteRsyncPath shouldEqual "/usr/bin/rsync"
@@ -281,7 +281,7 @@ class ConfigFactoryTest {
     @Test
     fun `on configuration without an explicit xctestrun path should throw an exception`() {
         val file = File(ConfigFactoryTest::class.java.getResource("/fixture/config/sample_5.yaml").file)
-        val create = { parser.create(file, mockEnvironmentReader()) }
+        val create = { parser.create(file, mockEnvironmentReader(), applicationClasspath) }
 
         create shouldThrow ConfigurationException::class
     }
@@ -290,7 +290,7 @@ class ConfigFactoryTest {
     fun `on configuration without androidSdk value should use value provided by environment`() {
         val file = File(ConfigFactoryTest::class.java.getResource("/fixture/config/sample_6.yaml").file)
         val environmentReader = mockEnvironmentReader("/android/home")
-        val configuration = parser.create(file, environmentReader)
+        val configuration = parser.create(file, environmentReader, applicationClasspath)
 
         configuration.vendorConfiguration shouldEqual AndroidConfiguration(
             environmentReader.read().androidSdk!!,
@@ -311,14 +311,14 @@ class ConfigFactoryTest {
     fun `on configuration without androidSdk value should throw an exception when ANDROID_HOME is not set`() {
         val file = File(ConfigFactoryTest::class.java.getResource("/fixture/config/sample_7.yaml").file)
         assertThrows<ConfigurationException> {
-            parser.create(file, mockEnvironmentReader(null))
+            parser.create(file, mockEnvironmentReader(null), applicationClasspath)
         }
     }
 
     @Test
     fun `on configuration with allowlist but no blocklist should initialize an empty blocklist`() {
         val file = File(ConfigFactoryTest::class.java.getResource("/fixture/config/sample_8.yaml").file)
-        val configuration = parser.create(file, mockEnvironmentReader())
+        val configuration = parser.create(file, mockEnvironmentReader(), applicationClasspath)
 
         configuration.filteringConfiguration.allowlist shouldEqual listOf(
             SimpleClassnameFilter(".*".toRegex())
@@ -330,7 +330,7 @@ class ConfigFactoryTest {
     @Test
     fun `on configuration with blocklist but no allowlist should initialize an empty allowlist`() {
         val file = File(ConfigFactoryTest::class.java.getResource("/fixture/config/sample_9.yaml").file)
-        val configuration = parser.create(file, mockEnvironmentReader())
+        val configuration = parser.create(file, mockEnvironmentReader(), applicationClasspath)
 
         configuration.filteringConfiguration.allowlist shouldBe emptyList()
 
@@ -342,7 +342,7 @@ class ConfigFactoryTest {
     @Test
     fun `on configuration time limits specified as Duration should be used as relative values`() {
         val file = File(ConfigFactoryTest::class.java.getResource("/fixture/config/sample_10.yaml").file)
-        val configuration = parser.create(file, mockEnvironmentReader())
+        val configuration = parser.create(file, mockEnvironmentReader(), applicationClasspath)
 
         configuration.sortingStrategy `should be instance of` ExecutionTimeSortingStrategy::class
         val sortingStrategy = configuration.sortingStrategy as ExecutionTimeSortingStrategy
@@ -356,7 +356,7 @@ class ConfigFactoryTest {
     @Test
     fun `on configuration with timeout configuration in Android`() {
         val file = File(ConfigFactoryTest::class.java.getResource("/fixture/config/sample_11.yaml").file)
-        val configuration = parser.create(file, mockEnvironmentReader())
+        val configuration = parser.create(file, mockEnvironmentReader(), applicationClasspath)
 
         val timeoutConfiguration = (configuration.vendorConfiguration as AndroidConfiguration).timeoutConfiguration
         timeoutConfiguration `should be equal to` TimeoutConfiguration(

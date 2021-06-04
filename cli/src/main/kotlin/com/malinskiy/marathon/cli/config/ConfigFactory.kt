@@ -20,7 +20,12 @@ private val logger = MarathonLogging.logger {}
 class ConfigFactory(private val mapper: ObjectMapper) {
     private val environmentVariableSubstitutor = StringSubstitutor(StringLookupFactory.INSTANCE.environmentVariableStringLookup())
 
-    fun create(marathonfile: File, environmentReader: EnvironmentReader): Configuration {
+    fun create(
+        marathonfile: File,
+        environmentReader: EnvironmentReader,
+        applicationClasspath: List<File>?,
+        testApplicationClasspath: List<File>?,
+    ): Configuration {
         logger.info { "Checking $marathonfile config" }
 
         if (!marathonfile.isFile) {
@@ -39,7 +44,7 @@ class ConfigFactory(private val mapper: ObjectMapper) {
                 fileVendorConfiguration.toAndroidConfiguration(environmentReader.read().androidSdk)
             }
             is FileJUnit4Configuration -> {
-                fileVendorConfiguration.toJUnit4Configuration()
+                fileVendorConfiguration.toJUnit4Configuration(applicationClasspath, testApplicationClasspath)
             }
             else -> throw ConfigurationException("No vendor config present in ${marathonfile.absolutePath}")
         }

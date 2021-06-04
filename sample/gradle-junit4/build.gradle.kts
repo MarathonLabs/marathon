@@ -3,6 +3,7 @@ buildscript {
         jcenter()
         mavenCentral()
         google()
+        mavenLocal()
     }
     dependencies {
         classpath(BuildPlugins.kotlinPlugin)
