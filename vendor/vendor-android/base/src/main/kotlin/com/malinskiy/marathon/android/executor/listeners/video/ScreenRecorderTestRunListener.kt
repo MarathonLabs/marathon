@@ -26,6 +26,7 @@ import kotlin.system.measureTimeMillis
 class ScreenRecorderTestRunListener(
     private val fileManager: FileManager,
     private val pool: DevicePoolId,
+    private val testBatchId: String,
     private val device: AndroidDevice,
     private val videoConfiguration: VideoConfiguration,
     private val screenRecordingPolicy: ScreenRecordingPolicy,
@@ -48,7 +49,7 @@ class ScreenRecorderTestRunListener(
     override suspend fun testStarted(test: TestIdentifier) {
         hasFailed = false
 
-        val screenRecorder = ScreenRecorder(device, videoConfiguration, device.fileManager.remoteVideoForTest(test.toTest()))
+        val screenRecorder = ScreenRecorder(device, videoConfiguration, device.fileManager.remoteVideoForTest(test.toTest(), testBatchId))
         val supervisor = SupervisorJob()
         supervisorJob = supervisor
         async(supervisor) {
@@ -106,8 +107,8 @@ class ScreenRecorderTestRunListener(
     }
 
     private suspend fun pullTestVideo(test: Test) {
-        val localVideoFile = fileManager.createFile(FileType.VIDEO, pool, device.toDeviceInfo(), test)
-        val remoteFilePath = device.fileManager.remoteVideoForTest(test)
+        val localVideoFile = fileManager.createFile(FileType.VIDEO, pool, device.toDeviceInfo(), test, testBatchId)
+        val remoteFilePath = device.fileManager.remoteVideoForTest(test, testBatchId)
         val millis = measureTimeMillis {
             device.safePullFile(remoteFilePath, localVideoFile.toString())
         }
@@ -116,7 +117,7 @@ class ScreenRecorderTestRunListener(
     }
 
     private suspend fun removeTestVideo(test: Test) {
-        val remoteFilePath = device.fileManager.remoteVideoForTest(test)
+        val remoteFilePath = device.fileManager.remoteVideoForTest(test, testBatchId)
         val millis = measureTimeMillis {
             device.fileManager.removeRemotePath(remoteFilePath)
         }

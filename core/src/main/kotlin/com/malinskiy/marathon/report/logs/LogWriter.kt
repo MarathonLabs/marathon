@@ -8,8 +8,8 @@ import com.malinskiy.marathon.test.Test
 import java.io.File
 
 class LogWriter(private val fileManager: FileManager) {
-    fun saveLogs(test: Test, devicePoolId: DevicePoolId, device: DeviceInfo, logs: List<String>): File {
-        return fileManager.createFile(FileType.LOG, devicePoolId, device, test).apply {
+    fun saveLogs(test: Test, devicePoolId: DevicePoolId, testBatchId: String, device: DeviceInfo, logs: List<String>): File {
+        return fileManager.createFile(FileType.LOG, devicePoolId, device, test, testBatchId = testBatchId).apply {
             writeText(logs.joinToString("\n"))
         }
     }

@@ -173,6 +173,7 @@ fun createTestEvent(
         TestResult(
             MarathonTest("com", "example", methodName, emptyList()),
             deviceInfo,
+            "stub-batch",
             status,
             1541675929849,
             1541675941768,

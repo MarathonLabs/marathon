@@ -14,6 +14,7 @@ import com.malinskiy.marathon.report.logs.LogWriter
 class LogCatListener(
     private val device: AndroidDevice,
     private val devicePoolId: DevicePoolId,
+    private val testBatchId: String,
     private val logWriter: LogWriter
 ) : NoOpTestRunListener(), AttachmentProvider, LineListener {
     private val attachmentListeners = mutableListOf<AttachmentListener>()
@@ -22,7 +23,7 @@ class LogCatListener(
         attachmentListeners.add(listener)
     }
 
-    private val stringBuffer = StringBuffer()
+    private val stringBuffer = StringBuffer(4096)
 
     override fun onLine(line: String) {
         stringBuffer.appendln(line)
@@ -35,7 +36,7 @@ class LogCatListener(
     override suspend fun testEnded(test: TestIdentifier, testMetrics: Map<String, String>) {
         device.removeLogcatListener(this)
 
-        val file = logWriter.saveLogs(test.toTest(), devicePoolId, device.toDeviceInfo(), listOf(stringBuffer.toString()))
+        val file = logWriter.saveLogs(test.toTest(), devicePoolId, testBatchId, device.toDeviceInfo(), listOf(stringBuffer.toString()))
 
         attachmentListeners.forEach { it.onAttachment(test.toTest(), Attachment(file, AttachmentType.LOG)) }
     }

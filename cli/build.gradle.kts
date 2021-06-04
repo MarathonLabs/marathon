@@ -23,14 +23,14 @@ val jvmOptions = listOf(
 ).filter { it.isNotBlank() }
 
 application {
-    mainClassName = "com.malinskiy.marathon.cli.ApplicationViewKt"
+    mainClass.set("com.malinskiy.marathon.cli.ApplicationViewKt")
     applicationName = "marathon"
     applicationDefaultJvmArgs = jvmOptions
 }
 
 distributions {
     getByName("main") {
-        baseName = "marathon"
+        distributionBaseName.set("marathon")
     }
 }
 
@@ -60,10 +60,10 @@ dependencies {
     implementation(Libraries.jacksonYaml)
     implementation(Libraries.jacksonJSR310)
     implementation(Libraries.apacheCommonsText)
-    testCompile(TestLibraries.kluent)
-    testCompile(TestLibraries.mockitoKotlin)
+    testImplementation(TestLibraries.kluent)
+    testImplementation(TestLibraries.mockitoKotlin)
     testImplementation(TestLibraries.junit5)
-    testRuntime(TestLibraries.jupiterEngine)
+    testRuntimeOnly(TestLibraries.jupiterEngine)
 }
 
 Deployment.initialize(project)

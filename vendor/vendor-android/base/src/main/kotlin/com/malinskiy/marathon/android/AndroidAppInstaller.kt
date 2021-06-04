@@ -22,6 +22,7 @@ class AndroidAppInstaller(configuration: Configuration) {
      */
     suspend fun prepareInstallation(device: AndroidDevice) {
         val applicationInfo = ApkParser().parseInstrumentationInfo(androidConfiguration.testApplicationOutput)
+
         logger.debug { "Installing application output to ${device.serialNumber}" }
         androidConfiguration.applicationOutput?.let {
             reinstall(device, applicationInfo.applicationPackage, it)
