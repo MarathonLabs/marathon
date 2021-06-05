@@ -65,17 +65,14 @@ class AndroidAppInstaller(configuration: Configuration) {
         return lines.any { it == "package:$appPackage" }
     }
 
-    private fun optionalParams(device: AndroidDevice): String {
-        val options = if (device.apiLevel >= MARSHMALLOW_VERSION_CODE && androidConfiguration.autoGrantPermission) {
-            "-g -r"
-        } else {
-            "-r"
-        }
-
-        return if (androidConfiguration.installOptions.isNotEmpty()) {
-            "$options ${androidConfiguration.installOptions}"
-        } else {
-            options
-        }
+    private fun optionalParams(device: AndroidDevice): List<String> {
+        return mutableListOf<String>().apply {
+            if (device.apiLevel >= MARSHMALLOW_VERSION_CODE && androidConfiguration.autoGrantPermission) {
+                add("-g")
+            }
+            if (androidConfiguration.installOptions.isNotEmpty()) {
+                addAll(androidConfiguration.installOptions.split(" "))
+            }
+        }.toList()
     }
 }

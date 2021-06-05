@@ -7,7 +7,7 @@ class RemoteFileManager(private val device: AndroidDevice) {
 
     suspend fun removeRemotePath(remotePath: String, recursive: Boolean = false) {
         val errorMessage = "Could not delete remote file(s): $remotePath"
-        device.criticalExecuteShellCommand("rm ${if (recursive) "-r" else ""} $remotePath", errorMessage)
+        device.criticalExecuteShellCommand("rm ${if (recursive) "-r " else ""}$remotePath", errorMessage)
     }
 
     suspend fun createRemoteDirectory(remoteDir: String = outputDir) {

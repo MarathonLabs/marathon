@@ -17,6 +17,12 @@ class FileManager(private val output: File) {
         return createFile(directory, filename)
     }
 
+    fun createFile(fileType: FileType, pool: DevicePoolId, device: DeviceInfo, testBatchId: String): File {
+        val directory = createDirectory(fileType, pool, device)
+        val filename = createFilename(fileType, testBatchId)
+        return createFile(directory, filename)
+    }
+
     fun createFile(fileType: FileType, pool: DevicePoolId, device: DeviceInfo): File {
         val directory = createDirectory(fileType, pool)
         val filename = createFilename(device, fileType)
@@ -55,6 +61,9 @@ class FileManager(private val output: File) {
         get(output.absolutePath, fileType.dir, pool.name)
 
     private fun createFile(directory: Path, filename: String): File = File(directory.toFile(), filename)
+
+    private fun createFilename(fileType: FileType, testBatchId: String): String =
+        "$testBatchId.${fileType.suffix}"
 
     private fun createFilename(test: Test, fileType: FileType, testBatchId: String? = null): String =
         "${test.toTestName()}${testBatchId?.let { "-$it" } ?: ""}.${fileType.suffix}"
