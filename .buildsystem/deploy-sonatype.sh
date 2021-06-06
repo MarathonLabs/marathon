@@ -16,15 +16,19 @@ if [ -z "$GPG_PASSPHRASE" ]; then
   exit 1
 fi
 
-TARGETS=""
+ASSEMBLE_TARGETS=""
+PUBLISH_TARGETS=""
 for i in ":core" ":vendor:vendor-android:base" ":vendor:vendor-android:ddmlib" ":vendor:vendor-android:adam" ":marathon-gradle-plugin" ":report:execution-timeline" ":report:html-report" ":analytics:usage"; do
-  TARGETS="$TARGETS $i:publishDefaultPublicationToOSSHRRepository"
+  ASSEMBLE_TARGETS="$ASSEMBLE_TARGETS $i:assemble"
+  PUBLISH_TARGETS="$PUBLISH_TARGETS $i:publishDefaultPublicationToOSSHRRepository"
 done
 
 if [ -z "$GIT_TAG_NAME" ]; then
   echo "not on a tag -> deploy snapshot version"
-  ./gradlew $TARGETS -PreleaseMode=SNAPSHOT
+  ./gradlew $ASSEMBLE_TARGETS -PreleaseMode=SNAPSHOT
+  ./gradlew $PUBLISH_TARGETS -PreleaseMode=SNAPSHOT
 else
   echo "on a tag -> deploy release version $GIT_TAG_NAME"
-  ./gradlew $TARGETS -PreleaseMode=RELEASE
+  ./gradlew $ASSEMBLE_TARGETS -PreleaseMode=RELEASE
+  ./gradlew $PUBLISH_TARGETS -PreleaseMode=RELEASE
 fi
