@@ -2,7 +2,6 @@ import io.gitlab.arturbosch.detekt.extensions.DetektExtension
 
 buildscript {
     repositories {
-        jcenter()
         mavenCentral()
         google()
     }
@@ -39,7 +38,6 @@ allprojects {
 
     repositories {
         mavenLocal()
-        jcenter()
         mavenCentral()
         google()
     }
