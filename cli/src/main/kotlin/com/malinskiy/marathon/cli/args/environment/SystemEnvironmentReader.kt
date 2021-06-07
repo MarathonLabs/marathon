@@ -4,7 +4,7 @@ import com.malinskiy.marathon.cli.args.EnvironmentConfiguration
 import java.io.File
 
 class SystemEnvironmentReader(
-    private val environment: (String) -> String?
+    private val environment: (String) -> String? = { System.getenv(it) }
 ) : EnvironmentReader {
     override fun read() = EnvironmentConfiguration(
         androidSdk = androidSdkPath()?.let { File(it) }
