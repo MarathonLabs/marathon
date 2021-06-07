@@ -1,3 +1,5 @@
+import com.github.benmanes.gradle.versions.updates.DependencyUpdatesTask
+import io.gitlab.arturbosch.detekt.Detekt
 import io.gitlab.arturbosch.detekt.extensions.DetektExtension
 
 buildscript {
@@ -27,7 +29,20 @@ configure<DetektExtension> {
     baseline = file("${rootProject.projectDir}/reports/baseline.xml")
 }
 
-tasks.withType(io.gitlab.arturbosch.detekt.Detekt::class).configureEach {
+fun isNonStable(version: String): Boolean {
+    val stableKeyword = listOf("RELEASE", "FINAL", "GA").any { version.toUpperCase().contains(it) }
+    val regex = "^[0-9,.v-]+(-r)?$".toRegex()
+    val isStable = stableKeyword || regex.matches(version)
+    return isStable.not()
+}
+
+tasks.withType<DependencyUpdatesTask> {
+    rejectVersionIf {
+        isNonStable(candidate.version) && !isNonStable(currentVersion)
+    }
+}
+
+tasks.withType<Detekt> {
     exclude(".*/resources/.*")
     exclude(".*/build/.*")
     exclude(".*/sample-app/.*")
