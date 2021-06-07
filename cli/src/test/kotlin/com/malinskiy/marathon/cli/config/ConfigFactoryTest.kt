@@ -11,6 +11,7 @@ import com.malinskiy.marathon.android.ScreenshotConfiguration
 import com.malinskiy.marathon.android.VideoConfiguration
 import com.malinskiy.marathon.android.configuration.AllureConfiguration
 import com.malinskiy.marathon.android.configuration.SerialStrategy
+import com.malinskiy.marathon.android.configuration.TimeoutConfiguration
 import com.malinskiy.marathon.cli.args.EnvironmentConfiguration
 import com.malinskiy.marathon.cli.args.environment.EnvironmentReader
 import com.malinskiy.marathon.cli.config.time.InstantTimeProvider
@@ -43,11 +44,11 @@ import com.malinskiy.marathon.execution.strategy.impl.sorting.ExecutionTimeSorti
 import com.malinskiy.marathon.execution.strategy.impl.sorting.NoSortingStrategy
 import com.malinskiy.marathon.execution.strategy.impl.sorting.SuccessRateSortingStrategy
 import com.malinskiy.marathon.ios.IOSConfiguration
+import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
 import ddmlibModule
-import org.amshove.kluent.`it returns`
+import org.amshove.kluent.`should be equal to`
 import org.amshove.kluent.`should be instance of`
-import org.amshove.kluent.mock
 import org.amshove.kluent.shouldBe
 import org.amshove.kluent.shouldBeEmpty
 import org.amshove.kluent.shouldContainAll
@@ -60,8 +61,6 @@ import java.io.File
 import java.time.Duration
 import java.time.Instant
 import java.time.format.DateTimeFormatter
-import com.malinskiy.marathon.android.configuration.TimeoutConfiguration
-import org.amshove.kluent.`should be equal to`
 
 class ConfigFactoryTest {
 
@@ -73,8 +72,8 @@ class ConfigFactoryTest {
     lateinit var parser: ConfigFactory
 
     fun mockEnvironmentReader(path: String? = null): EnvironmentReader {
-        val environmentReader: EnvironmentReader = mock()
-        whenever(environmentReader.read()) `it returns` EnvironmentConfiguration(path?.let { File(it) })
+        val environmentReader = mock<EnvironmentReader>()
+        whenever(environmentReader.read()).thenReturn(EnvironmentConfiguration(path?.let { File(it) }))
         return environmentReader
     }
 

@@ -26,31 +26,31 @@ class TestFilterDeserializer : StdDeserializer<TestFilter>(TestFilter::class.jav
         return when (type) {
             "simple-class-name" -> {
                 (node as ObjectNode).remove("type")
-                codec.treeToValue<SimpleClassnameFilter>(node)
+                codec.treeToValue<SimpleClassnameFilter>(node) ?: throw ConfigurationException("Missing filter strategy")
             }
             "fully-qualified-class-name" -> {
                 (node as ObjectNode).remove("type")
-                codec.treeToValue<FullyQualifiedClassnameFilter>(node)
+                codec.treeToValue<FullyQualifiedClassnameFilter>(node) ?: throw ConfigurationException("Missing filter strategy")
             }
             "package" -> {
                 (node as ObjectNode).remove("type")
-                codec.treeToValue<TestPackageFilter>(node)
+                codec.treeToValue<TestPackageFilter>(node) ?: throw ConfigurationException("Missing filter strategy")
             }
             "annotation" -> {
                 (node as ObjectNode).remove("type")
-                codec.treeToValue<AnnotationFilter>(node)
+                codec.treeToValue<AnnotationFilter>(node) ?: throw ConfigurationException("Missing filter strategy")
             }
             "method" -> {
                 (node as ObjectNode).remove("type")
-                codec.treeToValue<TestMethodFilter>(node)
+                codec.treeToValue<TestMethodFilter>(node) ?: throw ConfigurationException("Missing filter strategy")
             }
             "composition" -> {
                 (node as ObjectNode).remove("type")
-                codec.treeToValue<CompositionFilter>(node)
+                codec.treeToValue<CompositionFilter>(node) ?: throw ConfigurationException("Missing filter strategy")
             }
             "annotationData" -> {
                 (node as ObjectNode).remove("type")
-                codec.treeToValue<AnnotationDataFilter>(node)
+                codec.treeToValue<AnnotationDataFilter>(node) ?: throw ConfigurationException("Missing filter strategy")
             }
 
             else -> throw ConfigurationException("Unrecognized filter type $type")

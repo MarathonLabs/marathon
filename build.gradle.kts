@@ -15,20 +15,23 @@ buildscript {
 
 
 plugins {
-    id("io.gitlab.arturbosch.detekt") version "1.0.0.RC6-4"
+    id("io.gitlab.arturbosch.detekt") version "1.17.1"
+    id("com.github.ben-manes.versions") version "0.39.0"
 }
 
 configure<DetektExtension> {
     debug = true
-    version = "1.0.0.RC6-4"
-    profile = "main"
+    input = files(
+        rootProject.projectDir.absolutePath
+    )
+    config = files("${rootProject.projectDir}/default-detekt-config.yml")
+    baseline = file("${rootProject.projectDir}/reports/baseline.xml")
+}
 
-    profile("main", Action {
-        input = rootProject.projectDir.absolutePath
-        filters = ".*/resources/.*,.*/build/.*,.*/sample-app/.*"
-        config = "${rootProject.projectDir}/default-detekt-config.yml"
-        baseline = "${rootProject.projectDir}/reports/baseline.xml"
-    })
+tasks.withType(io.gitlab.arturbosch.detekt.Detekt::class).configureEach {
+    exclude(".*/resources/.*")
+    exclude(".*/build/.*")
+    exclude(".*/sample-app/.*")
 }
 
 allprojects {
