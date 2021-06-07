@@ -31,10 +31,12 @@ val coreModule = module {
 }
 
 fun marathonStartKoin(configuration: Configuration): KoinApplication {
+    val configurationModule = module {
+        single { configuration }
+    }
+
     return startKoin {
-        module {
-            single { configuration }
-        }
+        modules(configurationModule)
         modules(coreModule)
         modules(analyticsModule)
         modules(configuration.vendorConfiguration.modules())
