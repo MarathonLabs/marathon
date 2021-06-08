@@ -860,45 +860,164 @@ marathon {
     }
 }
 ```
-{% endtab %}
-{% endtabs %}
+
+{% endtab %} {% endtabs %}
 
 # Additional parameters
 
 ## Test filtering configuration
-Filtering of tests is important since usually we as developers have the same codebase for all the different types of tests we want to
- execute. In order to indicate to marathon which tests you want to execute you can use the allowlist and blocklist parameters. First
- allowlist is applied, then the blocklist. Each accepts a *TestFilter* based on the *class name*, *fully qualified class name*, *package*, 
- *annotation* or *method*. Each expects a regular expression as a value.
+
+In order to indicate to marathon which tests you want to execute you can use the allowlist and blocklist parameters.
+
+First allowlist is applied, then the blocklist. Each accepts a *TestFilter*:
+
+| YAML type                         | Gradle class                       | Description                                                                                |
+| --------------------------------- |:----------------------------------:| ------------------------------------------------------------------------------------------:|
+| "fully-qualified-test-name"       | `FullyQualifiedTestnameFilter`     | Filters tests by their FQTN which is `$package.$class#$method`. The `#` sign is important! |
+| "fully-qualified-class-name"      | `FullyQualifiedClassnameFilter`    | Filters tests by their FQCN which is `$package.$class`                                     |
+| "simple-class-name"               | `SimpleClassnameFilter`            | Filters tests by using only test class name, e.g. `MyTest`                                 |
+| "package"                         | `TestPackageFilter`                | Filters tests by using only test package, e.g. `com.example`                               |
+| "method"                          | `TestMethodFilter`                 | Filters tests by using only test method, e.g. `myComplicatedTest`                          |
+| "annotation"                      | `AnnotationFilter`                 | Filters tests by using only test annotation name, e.g. `androidx.test.filters.LargeTest`   |
+
+Each of the above filters expects **only one** of the following parameters:
+
+- A `regex` for matching
+- An array of `values`
+- A `file` that contains each value on a separate line (empty lines will be ignored)
+
+### Regex filtering
+
+An example of `regex` filtering is executing any test for a particular package, e.g. for package: `com.example` and it's subpackages:
+
+```yaml
+allowlist:
+    - type: "package"
+      regex: "com\.example.*"
+```
+
+### Values filtering
+
+You could also specify each package separately via values:
+
+```yaml
+allowlist:
+    - type: "package"
+      values:
+          - "com.example"
+          - "com.example.subpackage"
+```
+
+### Values file filtering
+
+Or you can supply these packages via a file (be careful with the relative paths: they will be relative to the workdir of the process):
+
+```yaml
+allowlist:
+    - type: "package"
+      file: "testing/myfilterfile"
+```
+
+Inside the `testing/myfilterfile` you should supply the values, each on a separate line:
+
+```
+com.example
+com.example.subpackage
+```
+
+### Running only specific tests
+
+A common scenario is to execute a list of tests. You can do this via the FQTN filter:
+
+{% tabs run-specific-tests %} {% tab run-specific-tests Marathonfile %}
+
+```yaml
+allowlist:
+    - type: "fully-qualified-test-name"
+      values:
+          - "com.example.ElaborateTest#testMethod"
+          - "com.example.subpackage.OtherTest#testSomethingElse"
+```
+
+{% endtab %} {% tab run-specific-tests Gradle Kotlin %}
+
+```kotlin
+marathon {
+    filteringConfiguration {
+        allowlist = mutableListOf(
+            FullyQualifiedTestnameFilter(
+                values = listOf(
+                    "com.example.ElaborateTest#testMethod",
+                    "com.example.subpackage.OtherTest#testSomethingElse",
+                )
+            )
+        )
+    }
+}
+```
+
+{% endtab %} {% endtabs %}
+
+### More examples
+
+If you want to execute tests `ScaryTest` and `FlakyTest` for any package using the *class name* filter:
+
+```yaml
+- type: "simple-class-name"
+  values:
+      - "ScaryTest"
+      - "FlakyTest" 
+```
+
+In case you want to separate the filtering configuration from the *Marathonfile* you can supply a reference to an external file:
+
+```yaml
+- type: "simple-class-name"
+  file: testing/myfilterfile
+```
+
+Inside the `testing/myfilterfile` you should supply the same values, each on a separate line, e.g. *fully qualified class name* filter:
+
+```
+com.example.ScaryTest
+com.example.subpackage.FlakyTest
+```
+
+### Composition filtering
 
 In order to filter using multiple filters at the same time a *composition* filter is also available which accepts a list of base filters and
- also an operation such as **UNION**, **INTERSECTION** or **SUBTRACT**. You can create complex filters such as get all the tests
- starting with *E2E* but get only methods from there ending with *Test*. Composition filter is not supported by groovy gradle scripts, but 
- is supported if you use gradle kts.
+also an operation such as **UNION**, **INTERSECTION** or **SUBTRACT**. You can create complex filters such as get all the tests starting
+with *E2E* but get only methods from there ending with *Test*. Composition filter is not supported by groovy gradle scripts, but is
+supported if you use gradle kts.
 
 An important thing to mention is that by default platform specific ignore options are not taken into account. This is because a
- cross-platform test runner cannot account for all the possible test frameworks out there. However, each framework's ignore option can still
- be "explained" to marathon, e.g. JUnit's **org.junit.Ignore** annotation can be specified in the filtering configuration.
+cross-platform test runner cannot account for all the possible test frameworks out there. However, each framework's ignore option can still
+be "explained" to marathon, e.g. JUnit's **org.junit.Ignore** annotation can be specified in the filtering configuration.
 
 {% tabs filtering %}
 {% tab filtering Marathonfile %}
+
 ```yaml
 filteringConfiguration:
-  allowlist:
-    - type: "simple-class-name"
-      regex: ".*"
-    - type: "fully-qualified-class-name"
-      regex: ".*"
-    - type: "method"
-      regex: ".*"
-    - type: "composition"
-      filters:
-        - type: "package"
+    allowlist:
+        - type: "simple-class-name"
           regex: ".*"
+        - type: "fully-qualified-class-name"
+          values:
+              - "com.example.MyTest"
+              - "com.example.MyOtherTest"
+        - type: "fully-qualified-class-name"
+          file: "testing/mytestfilter"
         - type: "method"
-          regex: ".*"
-      op: "UNION"
-  blocklist:
+          regex: "."
+        - type: "composition"
+          filters:
+              - type: "package"
+                regex: ".*"
+              - type: "method"
+                regex: ".*"
+          op: "UNION"
+    blocklist:
     - type: "package"
       regex: ".*"
     - type: "annotation"
@@ -907,6 +1026,7 @@ filteringConfiguration:
 {% endtab %}
 {% tab filtering Gradle %}
 ```kotlin
+//Simple access Groovy configuration doesn't allow specifying anything besides the test filter regex
 marathon {
     filteringConfiguration {
         allowlist {
@@ -925,8 +1045,8 @@ marathon {
 {% tab filtering Gradle Kotlin %}
 ```kotlin
 marathon {
-    filteringConfiguration { 
-        allowlist = listOf(
+    filteringConfiguration {
+        allowlist = mutableListOf(
             SimpleClassnameFilter(".*".toRegex()),
             FullyQualifiedClassnameFilter(".*".toRegex()),
             TestMethodFilter(".*".toRegex()),
@@ -938,7 +1058,7 @@ marathon {
                 CompositionFilter.OPERATION.UNION
             )
         )
-        blocklist = listOf(
+        blocklist = mutableListOf(
             TestPackageFilter(".*".toRegex()),
             AnnotationFilter(".*".toRegex())
         )
