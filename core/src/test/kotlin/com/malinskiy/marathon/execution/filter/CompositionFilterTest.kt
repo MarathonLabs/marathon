@@ -1,5 +1,8 @@
-package com.malinskiy.marathon.execution
+package com.malinskiy.marathon.execution.filter
 
+import com.malinskiy.marathon.execution.AnnotationFilter
+import com.malinskiy.marathon.execution.CompositionFilter
+import com.malinskiy.marathon.execution.SimpleClassnameFilter
 import com.malinskiy.marathon.test.MetaProperty
 import org.amshove.kluent.shouldEqual
 import org.junit.jupiter.api.Test

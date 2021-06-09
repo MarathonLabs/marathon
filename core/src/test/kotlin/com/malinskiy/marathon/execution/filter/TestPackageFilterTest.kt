@@ -1,6 +1,7 @@
-package com.malinskiy.marathon.execution
+package com.malinskiy.marathon.execution.filter
 
-import org.amshove.kluent.shouldEqual
+import com.malinskiy.marathon.execution.TestPackageFilter
+import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.Test
 import com.malinskiy.marathon.test.Test as MarathonTest
 
@@ -8,7 +9,7 @@ class TestPackageFilterTest {
     private val simpleTest = stubTest("com.example")
     private val complexTest = stubTest("com.example.subpackage")
     private val someClass = stubTest("com.sample")
-    private val simpleClassnameFilter = TestPackageFilter("""com\.example.*""".toRegex())
+    private val simpleClassnameFilter = TestPackageFilter(regex = """com\.example.*""".toRegex())
     val tests = listOf(
         simpleTest,
         complexTest,
@@ -17,12 +18,12 @@ class TestPackageFilterTest {
 
     @Test
     fun shouldFilter() {
-        simpleClassnameFilter.filter(tests) shouldEqual listOf(simpleTest, complexTest)
+        simpleClassnameFilter.filter(tests) shouldBeEqualTo listOf(simpleTest, complexTest)
     }
 
     @Test
     fun shouldFilterNot() {
-        simpleClassnameFilter.filterNot(tests) shouldEqual listOf(someClass)
+        simpleClassnameFilter.filterNot(tests) shouldBeEqualTo listOf(someClass)
     }
 }
 

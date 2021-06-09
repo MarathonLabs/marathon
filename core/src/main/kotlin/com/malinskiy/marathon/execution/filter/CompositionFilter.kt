@@ -7,6 +7,8 @@ class CompositionFilter(
     @SerializedName("filters") private val filters: List<TestFilter>,
     @SerializedName("op") private val op: OPERATION
 ) : TestFilter {
+    override fun validate() = filters.forEach { it.validate() }
+
     override fun filter(tests: List<Test>): List<Test> {
         return when (op) {
             OPERATION.UNION -> filterWithUnionOperation(tests)
