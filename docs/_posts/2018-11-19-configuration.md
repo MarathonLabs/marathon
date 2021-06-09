@@ -1159,10 +1159,13 @@ marathon {
 {% endtab %} {% endtabs %}
 
 ## Fragmented execution of tests
-This is a test filter similar to sharded test execution that [AOSP provides][6]
+This is a test filter similar to sharded test execution that [AOSP provides][6].
 
 It is intended to be used in situations where it is not possible to connect multiple execution devices to a single test run, e.g. CI setup
-that can schedule parallel jobs each containing a single execution device.
+that can schedule parallel jobs each containing a single execution device. There are two parameters for using fragmentation:
+
+* **count** - the number of overall fragments (e.g. 10 parallel execution)
+* **index** - current execution index (in our case of 10 executions valid indexes are 0..9)
 
 This is a dynamic programming technique, hence the results will be sub-optimal compared to connecting multiple devices to the same test
 run
