@@ -43,6 +43,10 @@ class FragmentationFilter(private val index: Int, private val count: Int) : Test
         if (index >= count) throw ConfigurationException("Fragment index [$index] should be less than count [$count]")
 
         logger.info { "Executing test fragment $index out of $count" }
+        logger.warn {
+            "Test fragmentation is a suboptimal solution in regards to the performance of your tests. " +
+                "Please consider connecting all your devices to a single test execution."
+        }
     }
 
     override fun filter(tests: List<Test>): List<Test> = tests.filter(predicate)
