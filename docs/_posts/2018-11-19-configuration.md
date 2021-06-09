@@ -1171,10 +1171,10 @@ run
 
 ```yaml
 filteringConfiguration:
-allowlist:
-  - type: "fragmentation"
-    index: 0
-    count: 10
+  allowlist:
+    - type: "fragmentation"
+      index: 0
+      count: 10
 ```
 
 {% endtab %} {% tab fragmentation Gradle Kotlin %}
@@ -1194,10 +1194,10 @@ marathon {
 If you want to dynamically pass the index of the test run you can use yaml envvar interpolation, e.g.:
 ```yaml
 filteringConfiguration:
-allowlist:
-  - type: "fragmentation"
-    index: ${MARATHON_FRAGMENT_INDEX}
-    count: 10
+  allowlist:
+    - type: "fragmentation"
+      index: ${MARATHON_FRAGMENT_INDEX}
+      count: 10
 ```
 
 and then execute the testing as following:
