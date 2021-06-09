@@ -1,5 +1,6 @@
-package com.malinskiy.marathon.execution
+package com.malinskiy.marathon.execution.filter
 
+import com.malinskiy.marathon.execution.FullyQualifiedClassnameFilter
 import org.amshove.kluent.shouldEqual
 import org.junit.jupiter.api.Test
 import com.malinskiy.marathon.test.Test as MarathonTest
