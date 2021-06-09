@@ -16,6 +16,7 @@ import com.malinskiy.marathon.execution.SimpleClassnameFilter
 import com.malinskiy.marathon.execution.TestFilter
 import com.malinskiy.marathon.execution.TestMethodFilter
 import com.malinskiy.marathon.execution.TestPackageFilter
+import com.malinskiy.marathon.execution.filter.FragmentationFilter
 import com.malinskiy.marathon.execution.filter.FullyQualifiedTestnameFilter
 
 class TestFilterDeserializer : StdDeserializer<TestFilter>(TestFilter::class.java) {
@@ -56,6 +57,10 @@ class TestFilterDeserializer : StdDeserializer<TestFilter>(TestFilter::class.jav
             "annotationData" -> {
                 (node as ObjectNode).remove("type")
                 codec.treeToValue<AnnotationDataFilter>(node)
+            }
+            "fragmentation" -> {
+                (node as ObjectNode).remove("type")
+                codec.treeToValue<FragmentationFilter>(node)
             }
 
             else -> throw ConfigurationException("Unrecognized filter type $type")
