@@ -120,7 +120,8 @@ Here you will find a list of currently supported configuration parameters and ex
 additional parameters might not be supported by all vendor modules. If you find that something doesn't work - please submit an issue for a
 vendor module at fault.
 
-* TOC {:toc}
+* TOC 
+{:toc}
 
 # General parameters
 
@@ -1157,6 +1158,59 @@ marathon {
 
 {% endtab %} {% endtabs %}
 
+## Fragmented execution of tests
+This is a test filter similar to sharded test execution that [AOSP provides][6].
+
+It is intended to be used in situations where it is not possible to connect multiple execution devices to a single test run, e.g. CI setup
+that can schedule parallel jobs each containing a single execution device. There are two parameters for using fragmentation:
+
+* **count** - the number of overall fragments (e.g. 10 parallel execution)
+* **index** - current execution index (in our case of 10 executions valid indexes are 0..9)
+
+This is a dynamic programming technique, hence the results will be sub-optimal compared to connecting multiple devices to the same test
+run
+
+{% tabs fragmentation %} {% tab fragmentation Marathonfile %}
+
+```yaml
+filteringConfiguration:
+  allowlist:
+    - type: "fragmentation"
+      index: 0
+      count: 10
+```
+
+{% endtab %} {% tab fragmentation Gradle Kotlin %}
+
+```kotlin
+marathon {
+  filteringConfiguration {
+    allowlist = mutableListOf(
+      FragmentationFilter(index = 0, count = 10)
+    )
+  }
+}
+```
+
+{% endtab %} {% endtabs %}
+
+If you want to dynamically pass the index of the test run you can use yaml envvar interpolation, e.g.:
+```yaml
+filteringConfiguration:
+  allowlist:
+    - type: "fragmentation"
+      index: ${MARATHON_FRAGMENT_INDEX}
+      count: 10
+```
+
+and then execute the testing as following:
+
+```bash
+$ MARATHON_FRAGMENT_INDEX=0 marathon
+```
+
+To pass the fragment index in gradle refer to the [Gradle's dynamic project properties](https://docs.gradle.org/current/javadoc/org/gradle/api/Project.html#properties)
+
 ## Test class regular expression
 
 By default, test classes are found using the ```"^((?!Abstract).)*Test[s]*$"``` regex. You can override this if you need to.
@@ -1491,3 +1545,4 @@ See relevant vendor module page, e.g. [Android][3] or [iOS][4]
 [3]: {% post_url 2018-11-19-android %}
 [4]: {% post_url 2018-11-19-ios %}
 [5]: https://github.com/MarathonLabs/marathon/blob/develop/cli/src/main/kotlin/com/malinskiy/marathon/cli/config/ConfigFactory.kt
+[6]: https://source.android.com/devices/tech/test_infra/tradefed/architecture/advanced/sharding
