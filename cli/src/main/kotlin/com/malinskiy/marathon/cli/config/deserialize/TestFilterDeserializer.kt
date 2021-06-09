@@ -36,7 +36,7 @@ class TestFilterDeserializer : StdDeserializer<TestFilter>(TestFilter::class.jav
             }
             "fully-qualified-test-name" -> {
                 (node as ObjectNode).remove("type")
-                codec.treeToValue<FullyQualifiedTestnameFilter>(node)
+                codec.treeToValue<FullyQualifiedTestnameFilter>(node) ?: throw ConfigurationException("Missing filter strategy")
             }
             "package" -> {
                 (node as ObjectNode).remove("type")
@@ -60,7 +60,7 @@ class TestFilterDeserializer : StdDeserializer<TestFilter>(TestFilter::class.jav
             }
             "fragmentation" -> {
                 (node as ObjectNode).remove("type")
-                codec.treeToValue<FragmentationFilter>(node)
+                codec.treeToValue<FragmentationFilter>(node) ?: throw ConfigurationException("Missing filter strategy")
             }
 
             else -> throw ConfigurationException("Unrecognized filter type $type")
