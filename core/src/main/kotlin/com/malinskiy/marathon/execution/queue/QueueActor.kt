@@ -12,6 +12,7 @@ import com.malinskiy.marathon.execution.TestBatchResults
 import com.malinskiy.marathon.execution.TestResult
 import com.malinskiy.marathon.execution.TestShard
 import com.malinskiy.marathon.execution.TestStatus
+import com.malinskiy.marathon.execution.bundle.TestBundleIdentifier
 import com.malinskiy.marathon.execution.progress.ProgressReporter
 import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.test.Test
@@ -21,7 +22,8 @@ import com.malinskiy.marathon.time.Timer
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.SendChannel
-import java.util.*
+import java.util.PriorityQueue
+import java.util.Queue
 import kotlin.coroutines.CoroutineContext
 
 class QueueActor(
@@ -33,6 +35,7 @@ class QueueActor(
     private val progressReporter: ProgressReporter,
     private val track: Track,
     private val timer: Timer,
+    private val testBundleIdentifier: TestBundleIdentifier?,
     poolJob: Job,
     coroutineContext: CoroutineContext
 ) :
@@ -199,7 +202,7 @@ class QueueActor(
         //Don't separate the condition and the mutator into separate suspending blocks
         if (queue.isNotEmpty() && !activeBatches.containsKey(device.serialNumber)) {
             logger.debug { "sending next batch for device ${device.serialNumber}" }
-            val batch = batching.process(queue, analytics)
+            val batch = batching.process(queue, analytics, testBundleIdentifier)
             activeBatches[device.serialNumber] = batch
             pool.send(FromQueue.ExecuteBatch(device, batch))
             return

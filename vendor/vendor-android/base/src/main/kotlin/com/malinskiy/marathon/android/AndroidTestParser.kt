@@ -3,31 +3,36 @@ package com.malinskiy.marathon.android
 import com.linkedin.dex.parser.DecodedValue
 import com.linkedin.dex.parser.DexParser
 import com.linkedin.dex.parser.TestAnnotation
+import com.malinskiy.marathon.android.model.AndroidTestBundle
 import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.execution.TestParser
 import com.malinskiy.marathon.test.MetaProperty
 import com.malinskiy.marathon.test.Test
 
-class AndroidTestParser : TestParser {
+class AndroidTestParser(private val testBundleIdentifier: AndroidTestBundleIdentifier) : TestParser {
     override fun extract(configuration: Configuration): List<Test> {
         val androidConfiguration = configuration.vendorConfiguration as AndroidConfiguration
+        val testBundles = androidConfiguration.testBundlesCompat()
+        return testBundles.flatMap { bundle ->
+            val tests = DexParser.findTestMethods(bundle.testApplication.absolutePath)
+            return@flatMap tests.map {
+                val testName = it.testName
+                val annotations = it.annotations.map { it.toMetaProperty() }
+                val split = testName.split("#")
 
-        val tests = DexParser.findTestMethods(androidConfiguration.testApplicationOutput.absolutePath)
-        return tests.map {
-            val testName = it.testName
-            val annotations = it.annotations.map { it.toMetaProperty() }
-            val split = testName.split("#")
+                if (split.size != 2) throw IllegalStateException("Can't parse test $testName")
 
-            if (split.size != 2) throw IllegalStateException("Can't parse test $testName")
+                val methodName = split[1]
+                val packageAndClassName = split[0]
 
-            val methodName = split[1]
-            val packageAndClassName = split[0]
+                val lastDotIndex = packageAndClassName.indexOfLast { c -> c == '.' }
+                val packageName = packageAndClassName.substring(0 until lastDotIndex)
+                val className = packageAndClassName.substring(lastDotIndex + 1 until packageAndClassName.length)
 
-            val lastDotIndex = packageAndClassName.indexOfLast { c -> c == '.' }
-            val packageName = packageAndClassName.substring(0 until lastDotIndex)
-            val className = packageAndClassName.substring(lastDotIndex + 1 until packageAndClassName.length)
-
-            Test(packageName, className, methodName, annotations)
+                val test = Test(packageName, className, methodName, annotations)
+                testBundleIdentifier.put(test, AndroidTestBundle(bundle.application, bundle.testApplication))
+                test
+            }
         }
     }
 }

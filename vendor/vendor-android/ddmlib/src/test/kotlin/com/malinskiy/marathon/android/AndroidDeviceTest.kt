@@ -33,6 +33,7 @@ class AndroidDeviceTest {
         whenever(iDevice.getProperty("ro.product.model")).thenReturn(null)
         DdmlibAndroidDevice(
             iDevice,
+            AndroidTestBundleIdentifier(),
             "serial",
             configuration,
             androidConfiguration,
@@ -47,6 +48,7 @@ class AndroidDeviceTest {
         whenever(iDevice.getProperty("ro.product.manufacturer")).thenReturn(null)
         DdmlibAndroidDevice(
             iDevice,
+            AndroidTestBundleIdentifier(),
             "serial",
             configuration,
             androidConfiguration,
@@ -63,6 +65,7 @@ class AndroidDeviceTest {
         whenever(iDevice.getProperty("ro.build.version.sdk")).thenReturn("INVALID_VERSION")
         DdmlibAndroidDevice(
             iDevice,
+            AndroidTestBundleIdentifier(),
             "serial",
             configuration,
             androidConfiguration,
