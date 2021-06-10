@@ -24,11 +24,11 @@ class FileVendorConfigurationDeserializer : StdDeserializer<FileVendorConfigurat
         return when (type) {
             TYPE_IOS -> {
                 (node as ObjectNode).remove("type")
-                codec.treeToValue<FileIOSConfiguration>(node)
+                codec.treeToValue<FileIOSConfiguration>(node) ?: throw ConfigurationException("Missing vendor configuration")
             }
             TYPE_ANDROID -> {
                 (node as ObjectNode).remove("type")
-                codec.treeToValue<FileAndroidConfiguration>(node)
+                codec.treeToValue<FileAndroidConfiguration>(node) ?: throw ConfigurationException("Missing vendor configuration")
             }
             else -> throw ConfigurationException(
                 "Unrecognized vendor type $type. " +
