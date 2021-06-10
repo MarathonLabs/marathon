@@ -16,6 +16,8 @@ import com.malinskiy.marathon.execution.SimpleClassnameFilter
 import com.malinskiy.marathon.execution.TestFilter
 import com.malinskiy.marathon.execution.TestMethodFilter
 import com.malinskiy.marathon.execution.TestPackageFilter
+import com.malinskiy.marathon.execution.filter.FragmentationFilter
+import com.malinskiy.marathon.execution.filter.FullyQualifiedTestnameFilter
 
 class TestFilterDeserializer : StdDeserializer<TestFilter>(TestFilter::class.java) {
     override fun deserialize(p: JsonParser?, ctxt: DeserializationContext?): TestFilter {
@@ -31,6 +33,10 @@ class TestFilterDeserializer : StdDeserializer<TestFilter>(TestFilter::class.jav
             "fully-qualified-class-name" -> {
                 (node as ObjectNode).remove("type")
                 codec.treeToValue<FullyQualifiedClassnameFilter>(node)
+            }
+            "fully-qualified-test-name" -> {
+                (node as ObjectNode).remove("type")
+                codec.treeToValue<FullyQualifiedTestnameFilter>(node)
             }
             "package" -> {
                 (node as ObjectNode).remove("type")
@@ -51,6 +57,10 @@ class TestFilterDeserializer : StdDeserializer<TestFilter>(TestFilter::class.jav
             "annotationData" -> {
                 (node as ObjectNode).remove("type")
                 codec.treeToValue<AnnotationDataFilter>(node)
+            }
+            "fragmentation" -> {
+                (node as ObjectNode).remove("type")
+                codec.treeToValue<FragmentationFilter>(node)
             }
 
             else -> throw ConfigurationException("Unrecognized filter type $type")

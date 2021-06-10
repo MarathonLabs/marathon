@@ -25,7 +25,7 @@ class TestRunResultsListener(
     private val deferred: CompletableDeferred<TestBatchResults>,
     private val timer: Timer,
     attachmentProviders: List<AttachmentProvider>
-) : AbstractTestRunResultListener(), AttachmentListener {
+) : AbstractTestRunResultListener(timer), AttachmentListener {
 
     private val attachments: MutableMap<Test, MutableList<Attachment>> = mutableMapOf()
     private val creationTime = timer.currentTimeMillis()
@@ -105,6 +105,7 @@ class TestRunResultsListener(
             TestResult(
                 it,
                 device.toDeviceInfo(),
+                testBatch.id,
                 TestStatus.INCOMPLETE,
                 lastCompletedTestEndTime,
                 timer.currentTimeMillis(),
@@ -140,6 +141,7 @@ class TestRunResultsListener(
         return TestResult(
             test = testInstanceFromBatch ?: test,
             device = device.toDeviceInfo(),
+            testBatchId = testBatch.id,
             status = value.status.toMarathonStatus(),
             startTime = value.startTime,
             endTime = value.endTime,

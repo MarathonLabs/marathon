@@ -11,6 +11,7 @@ import com.malinskiy.marathon.android.ScreenshotConfiguration
 import com.malinskiy.marathon.android.VideoConfiguration
 import com.malinskiy.marathon.android.configuration.AllureConfiguration
 import com.malinskiy.marathon.android.configuration.SerialStrategy
+import com.malinskiy.marathon.android.configuration.TimeoutConfiguration
 import com.malinskiy.marathon.cli.args.EnvironmentConfiguration
 import com.malinskiy.marathon.cli.args.environment.EnvironmentReader
 import com.malinskiy.marathon.cli.config.time.InstantTimeProvider
@@ -46,11 +47,12 @@ import com.malinskiy.marathon.ios.IOSConfiguration
 import com.nhaarman.mockitokotlin2.whenever
 import ddmlibModule
 import org.amshove.kluent.`it returns`
+import org.amshove.kluent.`should be equal to`
 import org.amshove.kluent.`should be instance of`
 import org.amshove.kluent.mock
 import org.amshove.kluent.shouldBe
 import org.amshove.kluent.shouldBeEmpty
-import org.amshove.kluent.shouldContainAll
+import org.amshove.kluent.shouldContainSame
 import org.amshove.kluent.shouldEqual
 import org.amshove.kluent.shouldThrow
 import org.junit.jupiter.api.BeforeEach
@@ -60,8 +62,6 @@ import java.io.File
 import java.time.Duration
 import java.time.Instant
 import java.time.format.DateTimeFormatter
-import com.malinskiy.marathon.android.configuration.TimeoutConfiguration
-import org.amshove.kluent.`should be equal to`
 
 class ConfigFactoryTest {
 
@@ -129,9 +129,11 @@ class ConfigFactoryTest {
         configuration.retryStrategy shouldEqual FixedQuotaRetryStrategy(100, 2)
         SimpleClassnameFilter(".*".toRegex()) shouldEqual SimpleClassnameFilter(".*".toRegex())
 
-        configuration.filteringConfiguration.allowlist shouldContainAll listOf(
+        configuration.filteringConfiguration.allowlist shouldContainSame listOf(
             SimpleClassnameFilter(".*".toRegex()),
+            SimpleClassnameFilter(values = listOf("SimpleTest")),
             FullyQualifiedClassnameFilter(".*".toRegex()),
+            FullyQualifiedClassnameFilter(file = File("filterfile")),
             TestMethodFilter(".*".toRegex()),
             CompositionFilter(
                 listOf(
@@ -141,12 +143,12 @@ class ConfigFactoryTest {
             )
         )
 
-        configuration.filteringConfiguration.blocklist shouldContainAll listOf(
+        configuration.filteringConfiguration.blocklist shouldContainSame listOf(
             TestPackageFilter(".*".toRegex()),
             AnnotationFilter(".*".toRegex()),
             AnnotationDataFilter(".*".toRegex(), ".*".toRegex())
         )
-        configuration.testClassRegexes.map { it.toString() } shouldContainAll listOf("^((?!Abstract).)*Test$")
+        configuration.testClassRegexes.map { it.toString() } shouldContainSame listOf("^((?!Abstract).)*Test$")
 
         // Regex doesn't have proper equals method. Need to check the patter itself
         configuration.includeSerialRegexes.joinToString(separator = "") { it.pattern } shouldEqual """emulator-500[2,4]""".toRegex().pattern
@@ -222,7 +224,7 @@ class ConfigFactoryTest {
         configuration.filteringConfiguration.allowlist.shouldBeEmpty()
         configuration.filteringConfiguration.blocklist.shouldBeEmpty()
 
-        configuration.testClassRegexes.map { it.toString() } shouldContainAll listOf("^((?!Abstract).)*Test[s]*$")
+        configuration.testClassRegexes.map { it.toString() } shouldContainSame listOf("^((?!Abstract).)*Test[s]*$")
 
         configuration.includeSerialRegexes shouldEqual emptyList()
         configuration.excludeSerialRegexes shouldEqual emptyList()

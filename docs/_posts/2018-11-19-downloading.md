@@ -66,8 +66,8 @@ pluginManagement {
 
 All the relevant test tasks should start with **marathon** prefix such as *marathonDebugAndroidTest*.
 
-[1]: https://github.com/Malinskiy/marathon/releases
+[1]: https://github.com/MarathonLabs/marathon/releases
 [2]: https://search.maven.org/
 [3]: https://bintray.com/bintray/jcenter
-[4]: https://github.com/Malinskiy/marathon/releases/latest
+[4]: https://github.com/MarathonLabs/marathon/releases/latest
 [5]: https://brew.sh/

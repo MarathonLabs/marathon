@@ -13,9 +13,12 @@ class LogicalConfigurationValidator : ConfigurationValidator {
                 throw ConfigurationException(
                     "Configuration is invalid: " +
                             "can't use complex sharding and complex flakiness strategy at the same time. " +
-                            "See: https://github.com/Malinskiy/marathon/issues/197"
+                            "See: https://github.com/MarathonLabs/marathon/issues/197"
                 )
             }
         }
+        
+        configuration.filteringConfiguration.allowlist.forEach { it.validate() }
+        configuration.filteringConfiguration.blocklist.forEach { it.validate() }
     }
 }
