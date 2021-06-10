@@ -82,6 +82,7 @@ class AndroidDeviceTestRunner(private val device: AdamAndroidDevice) {
             logger.error(e) { errorMessage }
             listener.testRunFailed(errorMessage)
         } finally {
+            listener.afterTestRun()
             channel?.cancel(null)
         }
     }
