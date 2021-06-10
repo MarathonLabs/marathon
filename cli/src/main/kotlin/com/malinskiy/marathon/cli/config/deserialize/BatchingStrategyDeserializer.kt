@@ -22,7 +22,7 @@ class BatchingStrategyDeserializer : StdDeserializer<BatchingStrategy>(BatchingS
             "isolate" -> IsolateBatchingStrategy()
             "fixed-size" -> {
                 (node as ObjectNode).remove("type")
-                return codec.treeToValue<FixedSizeBatchingStrategy>(node)
+                return codec.treeToValue<FixedSizeBatchingStrategy>(node) ?: throw ConfigurationException("Missing batching strategy")
             }
             else -> throw ConfigurationException("Unrecognized batching strategy $type")
         }

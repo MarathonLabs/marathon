@@ -3,7 +3,6 @@ package com.malinskiy.marathon.test.factory
 import com.google.gson.Gson
 import com.malinskiy.marathon.Marathon
 import com.malinskiy.marathon.di.analyticsModule
-import com.malinskiy.marathon.di.marathonConfiguration
 import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.execution.progress.ProgressReporter
 import com.malinskiy.marathon.io.FileManager
@@ -24,16 +23,20 @@ class MarathonFactory {
         val configuration = configurationFactory.build()
 
         val coreTestModule = module {
-            single<FileManager> { FileManager(get<Configuration>().outputDir) }
-            single<Gson> { Gson() }
+            single { FileManager(get<Configuration>().outputDir) }
+            single { Gson() }
             single<Clock> { Clock.systemDefaultZone() }
-            single<Timer> { timer ?: SystemTimer(get()) }
-            single<ProgressReporter> { ProgressReporter(get()) }
-            single<Marathon> { Marathon(get(), get(), get(), get(), get(), get()) }
+            single { timer ?: SystemTimer(get()) }
+            single { ProgressReporter(get()) }
+            single { Marathon(get(), get(), get(), get(), get(), get()) }
+        }
+
+        val configurationModule = module {
+            single { configuration }
         }
 
         val marathonStartKoin = startKoin {
-            marathonConfiguration(configuration)
+            modules(configurationModule)
             modules(coreTestModule)
             modules(analyticsModule)
             modules(configuration.vendorConfiguration.modules())
