@@ -22,7 +22,7 @@ class RetryStrategyDeserializer : StdDeserializer<RetryStrategy>(RetryStrategy::
             "no-retry" -> NoRetryStrategy()
             "fixed-quota" -> {
                 (node as ObjectNode).remove("type")
-                return codec.treeToValue<FixedQuotaRetryStrategy>(node)
+                return codec.treeToValue<FixedQuotaRetryStrategy>(node) ?: throw ConfigurationException("Missing retry strategy")
             }
             else -> throw ConfigurationException("Unrecognized retry strategy $type")
         }
