@@ -44,12 +44,11 @@ import com.malinskiy.marathon.execution.strategy.impl.sorting.ExecutionTimeSorti
 import com.malinskiy.marathon.execution.strategy.impl.sorting.NoSortingStrategy
 import com.malinskiy.marathon.execution.strategy.impl.sorting.SuccessRateSortingStrategy
 import com.malinskiy.marathon.ios.IOSConfiguration
+import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
 import ddmlibModule
-import org.amshove.kluent.`it returns`
 import org.amshove.kluent.`should be equal to`
 import org.amshove.kluent.`should be instance of`
-import org.amshove.kluent.mock
 import org.amshove.kluent.shouldBe
 import org.amshove.kluent.shouldBeEmpty
 import org.amshove.kluent.shouldContainSame
@@ -73,8 +72,8 @@ class ConfigFactoryTest {
     lateinit var parser: ConfigFactory
 
     fun mockEnvironmentReader(path: String? = null): EnvironmentReader {
-        val environmentReader: EnvironmentReader = mock()
-        whenever(environmentReader.read()) `it returns` EnvironmentConfiguration(path?.let { File(it) })
+        val environmentReader = mock<EnvironmentReader>()
+        whenever(environmentReader.read()).thenReturn(EnvironmentConfiguration(path?.let { File(it) }))
         return environmentReader
     }
 

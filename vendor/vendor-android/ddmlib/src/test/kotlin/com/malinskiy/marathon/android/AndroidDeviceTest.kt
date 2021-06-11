@@ -7,9 +7,9 @@ import com.malinskiy.marathon.android.configuration.SerialStrategy
 import com.malinskiy.marathon.android.ddmlib.DdmlibAndroidDevice
 import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.time.SystemTimer
+import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.reset
 import com.nhaarman.mockitokotlin2.whenever
-import org.amshove.kluent.mock
 import org.amshove.kluent.shouldBe
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.BeforeEach

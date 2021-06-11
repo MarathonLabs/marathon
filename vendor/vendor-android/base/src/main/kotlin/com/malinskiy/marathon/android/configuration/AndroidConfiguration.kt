@@ -14,8 +14,8 @@ import com.malinskiy.marathon.execution.TestParser
 import com.malinskiy.marathon.execution.bundle.TestBundleIdentifier
 import com.malinskiy.marathon.log.MarathonLogConfigurator
 import com.malinskiy.marathon.vendor.VendorConfiguration
-import org.koin.core.KoinComponent
-import org.koin.core.get
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.get
 import org.koin.core.module.Module
 import org.koin.dsl.module
 import java.io.File
@@ -49,15 +49,18 @@ data class AndroidConfiguration(
     val threadingConfiguration: ThreadingConfiguration = ThreadingConfiguration(),
 ) : VendorConfiguration, KoinComponent {
 
-    override fun testParser(): TestParser? = get()
+    private val koinModules = listOf(androidModule) + implementationModules + module { single { this@AndroidConfiguration } }
+    
+    override fun testParser(): TestParser = get()
 
-    override fun deviceProvider(): DeviceProvider? = get()
-    override fun testBundleIdentifier(): TestBundleIdentifier? = get()
+    override fun deviceProvider(): DeviceProvider = get()
+
+    override fun testBundleIdentifier(): TestBundleIdentifier = get()
 
     override fun logConfigurator(): MarathonLogConfigurator = AndroidLogConfigurator()
 
-    override fun modules() = listOf(androidModule) + implementationModules + module { single { this@AndroidConfiguration } }
-    
+    override fun modules() = koinModules
+
     fun testBundlesCompat(): List<AndroidTestBundle> {
         return mutableListOf<AndroidTestBundle>().apply {
             outputs?.let { addAll(it) }

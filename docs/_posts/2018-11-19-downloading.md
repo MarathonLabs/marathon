@@ -30,11 +30,9 @@ brew install malinskiy/tap/marathon
 ```
 
 ## Gradle
-Marathon gradle plugin is published to [MavenCentral][2] so make sure you have this registry either by declaring it directly or using an aggregating registry such as [jCenter][3]. Then apply the plugin
+Marathon gradle plugin is published to [MavenCentral][2]. Then apply the plugin
 
-
-{% tabs gradle %}
-{% tab gradle .gradle %}
+{% tabs gradle %} {% tab gradle .gradle %}
 ```kotlin
 plugins {
     id 'marathon' version 'X.X.X'
@@ -68,6 +66,5 @@ All the relevant test tasks should start with **marathon** prefix such as *marat
 
 [1]: https://github.com/MarathonLabs/marathon/releases
 [2]: https://search.maven.org/
-[3]: https://bintray.com/bintray/jcenter
 [4]: https://github.com/MarathonLabs/marathon/releases/latest
 [5]: https://brew.sh/

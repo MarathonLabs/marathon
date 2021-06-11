@@ -13,16 +13,16 @@ import com.malinskiy.marathon.test.Mocks
 import com.malinskiy.marathon.test.StubDeviceProvider
 import com.malinskiy.marathon.test.TestVendorConfiguration
 import com.nhaarman.mockitokotlin2.inOrder
+import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.reset
 import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
-import org.amshove.kluent.mock
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import java.io.File
 
 class TestResultReporterTest {
-    private val track: Track = mock()
-    private val analytics = mock(Analytics::class)
+    private val track = mock<Track>()
+    private val analytics = mock<Analytics>()
 
     @BeforeEach
     fun `setup mocks`() {

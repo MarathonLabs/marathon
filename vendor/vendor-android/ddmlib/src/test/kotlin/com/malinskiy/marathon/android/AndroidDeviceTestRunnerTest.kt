@@ -15,12 +15,12 @@ import com.malinskiy.marathon.test.TestBatch
 import com.malinskiy.marathon.time.SystemTimer
 import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.eq
+import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
 import com.nhaarman.mockitokotlin2.whenever
 import ddmlibModule
 import kotlinx.coroutines.runBlocking
-import org.amshove.kluent.mock
 import org.junit.jupiter.api.Test
 import java.io.File
 import java.time.Clock
