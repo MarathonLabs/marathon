@@ -5,8 +5,8 @@ import com.malinskiy.marathon.execution.TestParser
 import com.malinskiy.marathon.ios.di.iosModule
 import com.malinskiy.marathon.log.MarathonLogConfigurator
 import com.malinskiy.marathon.vendor.VendorConfiguration
-import org.koin.core.KoinComponent
-import org.koin.core.get
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.get
 import java.io.File
 
 data class IOSConfiguration(
@@ -25,11 +25,11 @@ data class IOSConfiguration(
     val sourceRoot: File = File(".")
 ) : VendorConfiguration, KoinComponent {
 
-    override fun testParser(): TestParser? = get()
+    override fun testParser(): TestParser = get()
 
-    override fun deviceProvider(): DeviceProvider? = get()
+    override fun deviceProvider(): DeviceProvider = get()
 
-    override fun logConfigurator(): MarathonLogConfigurator? = IOSLogConfigurator()
+    override fun logConfigurator(): MarathonLogConfigurator = IOSLogConfigurator()
 
     override fun modules() = listOf(iosModule)
 }

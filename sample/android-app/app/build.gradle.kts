@@ -6,7 +6,7 @@ plugins {
 }
 
 android {
-    buildToolsVersion("29.0.2")
+    buildToolsVersion("30.0.2")
     compileSdkVersion(30)
 
     defaultConfig {
@@ -35,6 +35,7 @@ marathon {
     instrumentationArgs {
         put("debug", "false")
     }
+    vendor = com.malinskiy.marathon.android.VendorType.ADAM
 }
 
 dependencies {
