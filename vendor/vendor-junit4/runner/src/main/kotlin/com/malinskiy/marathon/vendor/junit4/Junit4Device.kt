@@ -8,13 +8,17 @@ import com.malinskiy.marathon.device.OperatingSystem
 import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.execution.TestBatchResults
 import com.malinskiy.marathon.execution.progress.ProgressReporter
+import com.malinskiy.marathon.io.FileManager
+import com.malinskiy.marathon.log.MarathonLogging
+import com.malinskiy.marathon.report.logs.LogWriter
 import com.malinskiy.marathon.test.TestBatch
-import com.malinskiy.marathon.test.toTestName
 import com.malinskiy.marathon.time.Timer
 import com.malinskiy.marathon.vendor.junit4.client.TestExecutorClient
 import com.malinskiy.marathon.vendor.junit4.configuration.Junit4Configuration
 import com.malinskiy.marathon.vendor.junit4.executor.listener.CompositeTestRunListener
 import com.malinskiy.marathon.vendor.junit4.executor.listener.DebugTestRunListener
+import com.malinskiy.marathon.vendor.junit4.executor.listener.LineListener
+import com.malinskiy.marathon.vendor.junit4.executor.listener.LogListener
 import com.malinskiy.marathon.vendor.junit4.executor.listener.ProgressTestRunListener
 import com.malinskiy.marathon.vendor.junit4.executor.listener.TestRunResultsListener
 import com.malinskiy.marathon.vendor.junit4.install.Junit4AppInstaller
@@ -23,9 +27,12 @@ import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.asExecutor
 import java.io.File
+import java.io.InputStream
+import java.util.Scanner
 import java.util.UUID
+import java.util.concurrent.ConcurrentLinkedQueue
 
-class Junit4Device(protected val timer: Timer) : Device {
+class Junit4Device(protected val timer: Timer, private val controlPort: Int = 50051) : Device {
     override val operatingSystem: OperatingSystem = OperatingSystem(System.getProperty("os.name") ?: "")
     override val serialNumber: String = UUID.randomUUID().toString()
     override val model: String = System.getProperty("java.version")
@@ -34,9 +41,14 @@ class Junit4Device(protected val timer: Timer) : Device {
     override val deviceFeatures: Collection<DeviceFeature> = emptySet()
     override val healthy: Boolean = true
     override val abi: String = System.getProperty("os.arch")
+    private val forkEvery: Int = 1000
+    private var current: Int = 0
 
     private lateinit var client: TestExecutorClient
     private lateinit var process: Process
+    private lateinit var argsFile: File
+
+    private val logger = MarathonLogging.logger {}
 
     override suspend fun prepare(configuration: Configuration) {
         val conf = configuration.vendorConfiguration as Junit4Configuration
@@ -44,23 +56,42 @@ class Junit4Device(protected val timer: Timer) : Device {
         installer.install()
 
         val booterFile = booterJar()
-        val applicationClasspath = conf.applicationClasspath.joinToString(separator = ":") { File(it.toURI()).toString() }
-        val testClasspath = conf.testClasspath.joinToString(separator = ":") { File(it.toURI()).toString() }
-        val classpath = "$applicationClasspath:$testClasspath:$booterFile"
-        val controlPort = 50051
-        //TODO: allow specifying java executable
-        process = ProcessBuilder("java", "-cp", "$classpath", "com.malinskiy.marathon.vendor.junit4.booter.BooterKt")
-            .apply {
-                environment()["PORT"] = controlPort.toString()
-                inheritIO()
-            }.start()
 
-        val localChannel = ManagedChannelBuilder.forAddress("localhost", controlPort).apply {
-            usePlaintext()
-            executor(Dispatchers.IO.asExecutor())
-        }.build()
+        val applicationClasspath = mutableListOf<File>().apply {
+            conf.testBundles?.forEach { bundle ->
+                bundle.applicationClasspath?.let { addAll(it) }
+            }
+            conf.applicationClasspath?.let { addAll(it) }
+        }.joinToString(separator = ":") { File(it.toURI()).toString() }
 
-        client = TestExecutorClient(localChannel)
+        val testClasspath = mutableListOf<File>().apply {
+            conf.testBundles?.forEach { bundle ->
+                bundle.testClasspath?.let { addAll(it) }
+            }
+            conf.testClasspath?.let { addAll(it) }
+        }.joinToString(separator = ":") { File(it.toURI()).toString() }
+
+        val classpath = "$booterFile:$applicationClasspath:$testClasspath"
+        argsFile = File("argsfile-${controlPort}").apply {
+            deleteOnExit()
+            delete()
+            if(conf.debugBooter) {
+                appendText("-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=1044 ")
+            }
+            appendText("-cp ")
+            appendText(classpath)
+            appendText(" com.malinskiy.marathon.vendor.junit4.booter.BooterKt")
+        }
+
+        if (configuration.debug) {
+            addLogListener(object : LineListener {
+                override fun onLine(line: String) {
+                    logger.debug { line }
+                }
+            })
+        }
+
+        fork(false)
     }
 
     override suspend fun execute(
@@ -70,20 +101,49 @@ class Junit4Device(protected val timer: Timer) : Device {
         deferred: CompletableDeferred<TestBatchResults>,
         progressReporter: ProgressReporter
     ) {
-        val tests = testBatch.tests.map { it.toTestName() }
+        if (current >= forkEvery) {
+            fork(true)
+            current = 0
+        }
+
+        val fileManager = FileManager(configuration.outputDir)
         val listener = CompositeTestRunListener(
             listOf(
                 DebugTestRunListener(this),
                 ProgressTestRunListener(this, devicePoolId, progressReporter),
-                TestRunResultsListener(testBatch, this, deferred, timer, emptyList())
+                TestRunResultsListener(testBatch, this, deferred, timer, emptyList()),
+                LogListener(this, devicePoolId, testBatch.id, LogWriter(fileManager))
             )
         )
 
-        client.execute(tests, listener)
+        client.execute(testBatch.tests, listener)
+        current += testBatch.tests.size
+    }
+
+    private fun fork(clean: Boolean) {
+        if (clean) {
+            dispose()
+        }
+
+        //TODO: allow specifying java executable
+        process = ProcessBuilder("java", "@${argsFile.absolutePath}")
+            .apply {
+                environment()["PORT"] = controlPort.toString()
+            }.start()
+
+        inheritIO(process.inputStream)
+        inheritIO(process.errorStream)
+
+        val localChannel = ManagedChannelBuilder.forAddress("localhost", controlPort).apply {
+            usePlaintext()
+            executor(Dispatchers.IO.asExecutor())
+        }.build()
+
+        client = TestExecutorClient(localChannel)
     }
 
     private fun booterJar(): File {
-        val tempFile = File.createTempFile("marathon", "booter.jar").apply { deleteOnExit() }
+        val tempFile = File.createTempFile("marathon", "booter.jar")
         javaClass.getResourceAsStream("/booter-all.jar").copyTo(tempFile.outputStream())
         return tempFile
     }
@@ -92,5 +152,24 @@ class Junit4Device(protected val timer: Timer) : Device {
         client.close()
         process.destroy()
         process.waitFor()
+    }
+
+    private fun inheritIO(src: InputStream) {
+        Thread {
+            val sc = Scanner(src)
+            while (sc.hasNextLine()) {
+                logListeners.forEach { it.onLine(sc.nextLine()) }
+            }
+        }.start()
+    }
+
+    private val logListeners = ConcurrentLinkedQueue<LineListener>()
+
+    fun addLogListener(logListener: LineListener) {
+        logListeners.add(logListener)
+    }
+
+    fun removeLogListener(logListener: LineListener) {
+        logListeners.remove(logListener)
     }
 }

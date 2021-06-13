@@ -18,6 +18,8 @@ class MarathonCliConfiguration(parser: ArgParser) {
         .storing("--application-classpath", help = "JUnit 4 application classpath") {
             this.split(":").filter { it.isNotBlank() }.map { File(it) }
         }
+        .default(null)
     val testApplicationClasspath: List<File>? by parser
         .storing("--test-classpath", help = "JUnit 4 test classpath") { this.split(":").filter { it.isNotBlank() }.map { File(it) } }
+        .default(null)
 }

@@ -1,6 +1,7 @@
 package com.malinskiy.marathon.vendor.junit4.parsing
 
 import com.malinskiy.marathon.extension.relativePathTo
+import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.test.Test
 import org.objectweb.asm.ClassReader
 import org.objectweb.asm.Opcodes
@@ -8,6 +9,8 @@ import java.io.File
 import java.io.FileNotFoundException
 
 class DirectoryParser {
+    private val logger = MarathonLogging.logger {}
+    
     fun findTests(directory: File): List<Test> {
         val result = mutableListOf<Test>()
         visitClasses(directory) { directory, file ->
@@ -23,13 +26,18 @@ class DirectoryParser {
                 result.addAll(
                     visitor.methods
                         .filter { it.annotations.contains("Lorg/junit/Test;") }
-                        .map { method ->
-                            Test(
-                                pkg = pkg,
-                                clazz = className,
-                                method = method.name,
-                                metaProperties = emptySet()
-                            )
+                        .mapNotNull { method ->
+                            if (visitor.abstract) {
+                                logger.warn { "Abstract test class $fqcn" }
+                                null
+                            } else {
+                                Test(
+                                    pkg = pkg,
+                                    clazz = className,
+                                    method = method.name,
+                                    metaProperties = emptySet()
+                                )
+                            }
                         }
                 )
             }

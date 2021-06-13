@@ -50,8 +50,8 @@ open class MarathonRunTask @Inject constructor(objects: ObjectFactory) : Default
                 println("Workdir: ${project.projectDir}")
             }.start()
 
-        inheritIO(process.inputStream, System.out);
-        inheritIO(process.errorStream, System.err);
+        inheritIO(process.inputStream, System.out)
+        inheritIO(process.errorStream, System.err)
 
         process.waitFor()
     }

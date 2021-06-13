@@ -13,7 +13,7 @@ class AsmTestParser : TestParser {
         val directoryParser = DirectoryParser()
         val jarParser = JarParser()
 
-        return conf.testClasspath.filter { it.exists() }.flatMap {
+        return conf.testClasspath?.filter { it.exists() }?.flatMap {
             when {
                 it.extension == "jar" -> {
                     jarParser.findTests(it)
@@ -28,6 +28,6 @@ class AsmTestParser : TestParser {
                     throw RuntimeException("Only test jars are supported")
                 }
             }
-        }
+        } ?: emptyList()
     }
 }

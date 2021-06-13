@@ -48,10 +48,11 @@ class TestExecutorServer(private val port: Int) {
         private val core = JUnitCore()
 
         override fun execute(request: TestRequest): Flow<TestEvent> {
-            val tests = request.fqtnList
+            val tests = request.testDescriptionList
 
             val klasses = mutableSetOf<Class<*>>()
-            val testDescriptions = tests.map { fqtn ->
+            val testDescriptions = tests.map { test ->
+                val fqtn = test.fqtn
                 val klass = fqtn.substringBefore('#')
                 val loadClass = Class.forName(klass)
                 klasses.add(loadClass)
@@ -60,14 +61,27 @@ class TestExecutorServer(private val port: Int) {
                 Description.createTestDescription(loadClass, method)
             }.toHashSet()
 
+            val testFilter = TestFilter(testDescriptions)
             val request = Request.classes(*klasses.toTypedArray())
-                .filterWith(TestFilter(testDescriptions))
+                .filterWith(testFilter)
+
+//            val request = Request.classes(Class.forName("com.atlassian.renderer.v2.functional.TestLink"))
+//                .filterWith(
+//                    TestFilter(
+//                        hashSetOf(
+//                            Description.createTestDescription(
+//                                Class.forName("com.atlassian.renderer.v2.functional.TestLink"),
+//                                "link2 raw"
+//                            )
+//                        )
+//                    )
+//                )
 
             return callbackFlow {
                 val callback = object : RunListener() {
                     override fun testRunStarted(description: Description) {
                         super.testRunStarted(description)
-                        println("Started: ${description}")
+//                        println("Started: ${description}")
                         try {
                             sendBlocking(
                                 TestEvent.newBuilder()
@@ -97,6 +111,7 @@ class TestExecutorServer(private val port: Int) {
 
                     override fun testStarted(description: Description) {
                         super.testStarted(description)
+                        val description = description.toActualDescription(testFilter.actualClassLocator)
                         try {
                             sendBlocking(
                                 TestEvent.newBuilder()
@@ -113,6 +128,7 @@ class TestExecutorServer(private val port: Int) {
 
                     override fun testFinished(description: Description) {
                         super.testFinished(description)
+                        val description = description.toActualDescription(testFilter.actualClassLocator)
                         try {
                             sendBlocking(
                                 TestEvent.newBuilder()
@@ -128,13 +144,14 @@ class TestExecutorServer(private val port: Int) {
 
                     override fun testFailure(failure: Failure) {
                         super.testFailure(failure)
-                        println(failure.exception.cause?.printStackTrace())
+                        val description = failure.description.toActualDescription(testFilter.actualClassLocator)
+//                        println(failure.exception.cause?.printStackTrace())
                         try {
                             sendBlocking(
                                 TestEvent.newBuilder()
                                     .setEventType(EventType.TEST_FAILURE)
-                                    .setClassname(failure.description.className)
-                                    .setMethod(failure.description.methodName)
+                                    .setClassname(description.className)
+                                    .setMethod(description.methodName)
                                     .setMessage(failure.message)
                                     .setStacktrace(failure.trace)
                                     .build()
@@ -146,12 +163,13 @@ class TestExecutorServer(private val port: Int) {
 
                     override fun testAssumptionFailure(failure: Failure) {
                         super.testAssumptionFailure(failure)
+                        val description = failure.description.toActualDescription(testFilter.actualClassLocator)
                         try {
                             sendBlocking(
                                 TestEvent.newBuilder()
                                     .setEventType(EventType.TEST_ASSUMPTION_FAILURE)
-                                    .setClassname(failure.description.className)
-                                    .setMethod(failure.description.methodName)
+                                    .setClassname(description.className)
+                                    .setMethod(description.methodName)
                                     .setMessage(failure.message)
                                     .setStacktrace(failure.trace)
                                     .build()
@@ -163,6 +181,7 @@ class TestExecutorServer(private val port: Int) {
 
                     override fun testIgnored(description: Description) {
                         super.testIgnored(description)
+                        val description = description.toActualDescription(testFilter.actualClassLocator)
                         try {
                             sendBlocking(
                                 TestEvent.newBuilder()
@@ -178,15 +197,25 @@ class TestExecutorServer(private val port: Int) {
                 }
                 core.addListener(callback)
                 val result = core.run(request)
-                println(
-                    """
-                    Success: ${result.wasSuccessful()}
-                    Tests: ${result.runCount}
-                    Ignored: ${result.ignoreCount}
-                    Failures: ${result.failureCount}
-                    ${result.failures.joinToString("\n") { "${it.description.displayName}: ${it.message}" }}
-                    """.trimIndent()
-                )
+//                println(
+//                    """
+//                    Success: ${result.wasSuccessful()}
+//                    Tests: ${result.runCount}
+//                    Ignored: ${result.ignoreCount}
+//                    Failures: ${result.failureCount}
+//                    ${result.failures.joinToString("\n") { "${it.description.displayName}: ${it.message}" }}
+//                    """.trimIndent()
+//                )
+//                result.failures.forEach {
+//                    println(
+//                        """
+//                            ${it.testHeader}
+//                            ${it.message}: ${it.description}
+//                            ${it.exception}
+//                            ${it.trace}
+//                        """.trimIndent()
+//                    )
+//                }
                 awaitClose {
                     core.removeListener(callback)
                 }
@@ -195,15 +224,55 @@ class TestExecutorServer(private val port: Int) {
     }
 }
 
+private fun Description.toActualDescription(actualClassLocator: MutableMap<Description, String>): Description {
+    return if(className == TestFilter.CLASS_NAME_STUB) {
+        Description.createTestDescription(actualClassLocator[this], methodName, *annotations.toTypedArray())
+    } else {
+        this
+    }
+}
+
 class TestFilter(private val testDescriptions: HashSet<Description>) : Filter() {
+    private val verifiedChildren = mutableSetOf<Description>()
+    val actualClassLocator = mutableMapOf<Description, String>()
+
     override fun shouldRun(description: Description): Boolean {
+//        println("JUnit asks about $description")
+
+        return if (verifiedChildren.contains(description)) {
+//            println("Already unfiltered $description before")
+            true
+        } else {
+            shouldRun(description, className = null)
+        }
+    }
+
+    fun shouldRun(description: Description, className: String?): Boolean {
         if (description.isTest) {
-            return testDescriptions.contains(description)
+//            println("$description")
+            /**
+             * Handling for parameterized tests that report org.junit.runners.model.TestClass as their test class
+             */
+            val verificationDescription = if (description.className == CLASS_NAME_STUB && className != null) {
+                Description.createTestDescription(className, description.methodName, *description.annotations.toTypedArray())
+            } else {
+                description
+            }
+            val contains = testDescriptions.contains(verificationDescription)
+            if (contains) {
+                verifiedChildren.add(description)
+                if(description.className == CLASS_NAME_STUB && className != null) {
+                    actualClassLocator[description] = className
+                }
+            }
+
+            return contains
         }
 
         // explicitly check if any children want to run
         for (each in description.children) {
-            if (shouldRun(each!!)) {
+//            println("$description")
+            if (shouldRun(each!!, description.className)) {
                 return true
             }
         }
@@ -211,4 +280,8 @@ class TestFilter(private val testDescriptions: HashSet<Description>) : Filter() 
     }
 
     override fun describe() = "Marathon JUnit4 execution filter"
+    
+    companion object {
+        const val CLASS_NAME_STUB = "org.junit.runners.model.TestClass"
+    }
 }

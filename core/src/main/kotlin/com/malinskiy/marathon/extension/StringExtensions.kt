@@ -7,3 +7,9 @@ internal fun String.withPrefix(prefix: String?): String {
         "$prefix.$this"
     }
 }
+
+fun String.safePathLength(): String {
+    return if(length >= 128) {
+        substring(0 until 128)
+    } else this
+}

@@ -44,7 +44,7 @@ class ConfigFactory(private val mapper: ObjectMapper) {
                 fileVendorConfiguration.toAndroidConfiguration(environmentReader.read().androidSdk)
             }
             is FileJUnit4Configuration -> {
-                fileVendorConfiguration.toJUnit4Configuration(applicationClasspath, testApplicationClasspath)
+                fileVendorConfiguration.toJUnit4Configuration(mapper, applicationClasspath, testApplicationClasspath)
             }
             else -> throw ConfigurationException("No vendor config present in ${marathonfile.absolutePath}")
         }

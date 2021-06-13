@@ -1,5 +1,6 @@
 package com.malinskiy.marathon.vendor.junit4.parsing
 
+import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.test.Test
 import org.objectweb.asm.ClassReader
 import org.objectweb.asm.Opcodes
@@ -11,11 +12,13 @@ import java.util.zip.ZipEntry
 import java.util.zip.ZipInputStream
 
 class JarParser {
+    private val logger = MarathonLogging.logger {}
+
     fun findTests(file: File): List<Test> {
         val result = mutableListOf<Test>()
         visitClasses(file) { classZipEntry, inputStream ->
             val classReader = ClassReader(inputStream)
-            val visitor = JarClassVisitor(Opcodes.ASM6)
+            val visitor = JarClassVisitor(Opcodes.ASM7)
             classReader.accept(visitor, 0)
 
             val fqcn = classZipEntry.fqcn
@@ -25,13 +28,18 @@ class JarParser {
             result.addAll(
                 visitor.methods
                     .filter { it.annotations.contains("Lorg/junit/Test;") }
-                    .map { method ->
-                        Test(
-                            pkg = pkg,
-                            clazz = className,
-                            method = method.name,
-                            metaProperties = emptySet()
-                        )
+                    .mapNotNull { method ->
+                        if (visitor.abstract) {
+                            logger.warn { "Abstract test class $fqcn" }
+                            null
+                        } else {
+                            Test(
+                                pkg = pkg,
+                                clazz = className,
+                                method = method.name,
+                                metaProperties = emptySet()
+                            )
+                        }
                     }
             )
         }

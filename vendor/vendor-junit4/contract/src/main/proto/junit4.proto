@@ -28,7 +28,12 @@ message TestEvent {
 }
 
 message TestRequest {
-    repeated string fqtn = 1;
+    repeated TestDescription testDescription = 1;
+}
+
+message TestDescription {
+    string fqtn = 1;
+    string description = 2; 
 }
 
 service TestExecutor {

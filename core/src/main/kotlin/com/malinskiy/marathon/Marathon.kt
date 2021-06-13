@@ -22,7 +22,7 @@ import com.malinskiy.marathon.usageanalytics.tracker.Event
 import com.malinskiy.marathon.vendor.VendorConfiguration
 import kotlinx.coroutines.runBlocking
 import org.koin.core.context.stopKoin
-import java.util.*
+import java.util.ServiceLoader
 import kotlin.coroutines.coroutineContext
 
 private val log = MarathonLogging.logger {}
@@ -92,7 +92,9 @@ class Marathon(
         val shard = prepareTestShard(tests, analytics)
 
         log.info("Scheduling ${tests.size} tests")
-        log.debug(tests.joinToString(", ") { it.toTestName() })
+        for(t in tests) {
+            log.debug("- ${t.toTestName()}")
+        }
         val currentCoroutineContext = coroutineContext
         val scheduler = Scheduler(
             deviceProvider,

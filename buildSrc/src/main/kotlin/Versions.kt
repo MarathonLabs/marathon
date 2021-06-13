@@ -23,7 +23,8 @@ object Versions {
     val junitGradle = "1.0.0"
     val androidGradleVersion = "4.0.0"
 
-    val junit5 = "5.6.0"
+    val junit5 = "5.7.2"
+    val junit5launcher = "1.7.2"
     val kluent = "1.64"
 
     val kakao = "1.4.0"
@@ -111,6 +112,8 @@ object Libraries {
 
 object TestLibraries {
     val junit5 = "org.junit.jupiter:junit-jupiter:${Versions.junit5}"
+    val junit5vintage = "org.junit.vintage:junit-vintage-engine:${Versions.junit5}"
+    val junit5launcher = "org.junit.platform:junit-platform-launcher:${Versions.junit5launcher}"
     val kluent = "org.amshove.kluent:kluent:${Versions.kluent}"
     val kakao = "com.agoda.kakao:kakao:${Versions.kakao}"
 

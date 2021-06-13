@@ -1,6 +1,9 @@
 package com.malinskiy.marathon.vendor.junit4.client
 
+import com.malinskiy.marathon.test.Test
+import com.malinskiy.marathon.test.toTestName
 import com.malinskiy.marathon.vendor.junit4.contract.EventType
+import com.malinskiy.marathon.vendor.junit4.contract.TestDescription
 import com.malinskiy.marathon.vendor.junit4.contract.TestEvent
 import com.malinskiy.marathon.vendor.junit4.contract.TestExecutorGrpcKt
 import com.malinskiy.marathon.vendor.junit4.contract.TestRequest
@@ -18,9 +21,18 @@ class TestExecutorClient(
     private val stub: TestExecutorGrpcKt.TestExecutorCoroutineStub =
         TestExecutorGrpcKt.TestExecutorCoroutineStub(channel).withWaitForReady()
 
-    suspend fun execute(tests: List<String>, listener: JUnit4TestRunListener) {
+    suspend fun execute(tests: List<Test>, listener: JUnit4TestRunListener) {
+
+        val descriptions = tests.map {
+            TestDescription.newBuilder()
+                .apply {
+                    fqtn = it.toTestName()
+                }
+                .build()
+        }
+
         val request = TestRequest.newBuilder()
-            .addAllFqtn(tests)
+            .addAllTestDescription(descriptions)
             .build()
 
         val responseFlow = stub.execute(request)

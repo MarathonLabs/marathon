@@ -16,6 +16,8 @@ dependencies {
     implementation(Libraries.kotlinLogging)
     implementation(Libraries.logbackClassic)
     implementation(TestLibraries.junit)
+    implementation(TestLibraries.junit5launcher)
+    implementation(TestLibraries.junit5vintage)
     implementation(Libraries.asm)
     implementation(project(":core"))
     implementation(project(":vendor:vendor-junit4:contract"))

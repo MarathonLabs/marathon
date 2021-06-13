@@ -10,6 +10,7 @@ import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.execution.TestResult
 import com.malinskiy.marathon.execution.TestStatus
 import com.malinskiy.marathon.extension.relativePathTo
+import com.malinskiy.marathon.extension.safePathLength
 import com.malinskiy.marathon.report.HtmlDevice
 import com.malinskiy.marathon.report.HtmlFullTest
 import com.malinskiy.marathon.report.HtmlIndex
@@ -22,7 +23,8 @@ import org.apache.commons.text.StringEscapeUtils
 import java.io.File
 import java.io.InputStream
 import java.text.SimpleDateFormat
-import java.util.*
+import java.util.Date
+import java.util.TimeZone
 import kotlin.math.roundToLong
 
 class HtmlSummaryReporter(
@@ -99,7 +101,7 @@ class HtmlSummaryReporter(
                 }
                 .forEach { (test, htmlTest, testDir) ->
                     val testJson = gson.toJson(htmlTest)
-                    val testHtmlFile = File(testDir, "${htmlTest.id}.html")
+                    val testHtmlFile = File(testDir, "${htmlTest.id.safePathLength()}.html")
 
                     testHtmlFile.writeText(
                         indexHtml
@@ -114,7 +116,7 @@ class HtmlSummaryReporter(
 
                     val testLogDetails = toHtmlTestLogDetails(pool.poolId.name, htmlTest)
                     val testLogJson = gson.toJson(testLogDetails)
-                    val testLogHtmlFile = File(logDir, "${htmlTest.id}.html")
+                    val testLogHtmlFile = File(logDir, "${htmlTest.id.safePathLength()}.html")
 
                     testLogHtmlFile.writeText(
                         indexHtml
