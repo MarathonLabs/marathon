@@ -7,10 +7,13 @@ import com.malinskiy.marathon.vendor.junit4.configuration.Junit4Configuration
 import com.malinskiy.marathon.vendor.junit4.parsing.TestBundle
 import java.io.File
 
+
 class FileJUnit4Configuration(
     @JsonProperty("applicationClasspath") val applicationClasspath: List<File>?,
     @JsonProperty("testClasspath") val testClasspath: List<File>?,
+    @JsonProperty("testPackageRoot") val testPackageRoot: String,
     @JsonProperty("source") val source: File? = null,
+    @JsonProperty("debugBooter") val debugBooter: Boolean = false,
 ) : FileVendorConfiguration {
 
     fun toJUnit4Configuration(mapper: ObjectMapper, applicationClasspath: List<File>?, testClasspath: List<File>?): Junit4Configuration {
@@ -19,7 +22,7 @@ class FileJUnit4Configuration(
         source?.let { folder ->
             for (file in folder.walkTopDown()) {
                 if (file.isFile) {
-                    val subconfig = mapper.readValue<FileJUnit4Configuration>(file.readText())
+                    val subconfig = mapper.readValue<FileJUnit4ModuleConfiguration>(file.readText())
                     testBundles.add(
                         TestBundle(
                             file.name,
@@ -40,7 +43,9 @@ class FileJUnit4Configuration(
                 this@FileJUnit4Configuration.testClasspath?.let { addAll(it) }
                 testClasspath?.let { addAll(it) }
             },
+            testPackageRoot = testPackageRoot,
             testBundles = testBundles.toList(),
+            debugBooter = debugBooter,
         )
     }
 }

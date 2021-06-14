@@ -91,10 +91,10 @@ class Marathon(
         val tests = applyTestFilters(parsedTests)
         val shard = prepareTestShard(tests, analytics)
 
-        log.info("Scheduling ${tests.size} tests")
         for(t in tests) {
             log.debug("- ${t.toTestName()}")
         }
+        log.info("Scheduling ${tests.size} tests")
         val currentCoroutineContext = coroutineContext
         val scheduler = Scheduler(
             deviceProvider,

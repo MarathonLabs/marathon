@@ -28,10 +28,13 @@ class Junit4DeviceProvider(
 
     override fun subscribe(): Channel<DeviceProvider.DeviceEvent> {
         runBlocking {
-            //For now only local instance is supported
-            val localhost = Junit4Device(timer)
-            devices["localhost"] = localhost
-            channel.send(DeviceProvider.DeviceEvent.DeviceConnected(localhost))
+            val count = Runtime.getRuntime().availableProcessors()
+            for(i in 0 until count) {
+                //For now only local instance is supported
+                val localhost = Junit4Device(timer, controlPort = 50051 + i)
+                devices["localhost-$i"] = localhost
+                channel.send(DeviceProvider.DeviceEvent.DeviceConnected(localhost))
+            }
         }
 
         return channel

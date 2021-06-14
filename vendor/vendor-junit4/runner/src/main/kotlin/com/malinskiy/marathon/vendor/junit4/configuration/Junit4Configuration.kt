@@ -13,6 +13,7 @@ data class Junit4Configuration(
     val applicationClasspath: List<File>?,
     val testClasspath: List<File>?,
     val testBundles: List<TestBundle>?,
+    val testPackageRoot: String? = null,
     val debugBooter: Boolean = false,
 ) : VendorConfiguration, KoinComponent {
     override fun logConfigurator(): MarathonLogConfigurator = Junit4LogConfigurator()

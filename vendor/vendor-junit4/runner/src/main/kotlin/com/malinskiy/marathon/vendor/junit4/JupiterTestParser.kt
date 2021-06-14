@@ -50,7 +50,7 @@ class JupiterTestParser : TestParser {
 
                 val discoveryRequest = LauncherDiscoveryRequestBuilder()
                     .selectors(
-                        DiscoverySelectors.selectPackage("com.atlassian")
+                        DiscoverySelectors.selectPackage(conf.testPackageRoot)
                     )
                     .listeners(LauncherDiscoveryListeners.logging())
                     .filters(
