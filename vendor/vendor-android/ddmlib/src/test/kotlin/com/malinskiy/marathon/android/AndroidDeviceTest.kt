@@ -5,10 +5,11 @@ import com.android.sdklib.AndroidVersion
 import com.malinskiy.marathon.analytics.internal.pub.Track
 import com.malinskiy.marathon.android.configuration.SerialStrategy
 import com.malinskiy.marathon.android.ddmlib.DdmlibAndroidDevice
+import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.time.SystemTimer
+import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.reset
 import com.nhaarman.mockitokotlin2.whenever
-import org.amshove.kluent.mock
 import org.amshove.kluent.shouldBe
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.BeforeEach
@@ -17,7 +18,8 @@ import java.time.Clock
 
 class AndroidDeviceTest {
     private val iDevice = mock<IDevice>()
-    private val configuration = mock<AndroidConfiguration>()
+    private val configuration = mock<Configuration>()
+    private val androidConfiguration = mock<AndroidConfiguration>()
     private val track = Track()
     private val timer = SystemTimer(Clock.systemDefaultZone())
 
@@ -29,13 +31,29 @@ class AndroidDeviceTest {
     @Test
     fun `model return Unknown if ddmDevice property ro_product_model`() {
         whenever(iDevice.getProperty("ro.product.model")).thenReturn(null)
-        DdmlibAndroidDevice(iDevice, "serial", configuration, track, timer, SerialStrategy.AUTOMATIC).model shouldBe "Unknown"
+        DdmlibAndroidDevice(
+            iDevice,
+            "serial",
+            configuration,
+            androidConfiguration,
+            track,
+            timer,
+            SerialStrategy.AUTOMATIC
+        ).model shouldBe "Unknown"
     }
 
     @Test
     fun `manufacturer return Unknown if ddmlib property`() {
         whenever(iDevice.getProperty("ro.product.manufacturer")).thenReturn(null)
-        DdmlibAndroidDevice(iDevice, "serial", configuration, track, timer, SerialStrategy.AUTOMATIC).manufacturer shouldBe "Unknown"
+        DdmlibAndroidDevice(
+            iDevice,
+            "serial",
+            configuration,
+            androidConfiguration,
+            track,
+            timer,
+            SerialStrategy.AUTOMATIC
+        ).manufacturer shouldBe "Unknown"
     }
 
     @Test
@@ -47,6 +65,7 @@ class AndroidDeviceTest {
             iDevice,
             "serial",
             configuration,
+            androidConfiguration,
             track,
             timer,
             SerialStrategy.AUTOMATIC

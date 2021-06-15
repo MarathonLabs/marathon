@@ -32,7 +32,7 @@ private const val DEFAULT_DDM_LIB_SLEEP_TIME = 500
 private const val DEFAULT_DDM_LIB_CREATE_BRIDGE_TIMEOUT = Long.MAX_VALUE
 
 class DdmlibDeviceProvider(
-    configuration: Configuration,
+    private val configuration: Configuration,
     private val track: Track,
     private val timer: Timer
 ) : DeviceProvider, CoroutineScope {
@@ -55,7 +55,7 @@ class DdmlibDeviceProvider(
 
         logger.warn {
             "ddmlib Android vendor will be deprecated in 0.7.0 and is scheduled to be removed in 0.8.0.\n" +
-                "\tMore info: https://malinskiy.github.io/marathon/ven/android.html#vendor-module-selection"
+                "\tMore info: https://marathonlabs.github.io/marathon/ven/android.html#vendor-module-selection"
         }
 
         DdmPreferences.setTimeOut(DEFAULT_DDM_LIB_TIMEOUT)
@@ -75,6 +75,7 @@ class DdmlibDeviceProvider(
                             DdmlibAndroidDevice(
                                 it,
                                 device.serialNumber,
+                                configuration,
                                 vendorConfiguration,
                                 track,
                                 timer,
@@ -102,6 +103,7 @@ class DdmlibDeviceProvider(
                             DdmlibAndroidDevice(
                                 it,
                                 device.serialNumber,
+                                configuration,
                                 vendorConfiguration,
                                 track,
                                 timer,

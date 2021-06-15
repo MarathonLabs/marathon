@@ -11,9 +11,15 @@ import java.nio.file.Paths.get
 
 @Suppress("TooManyFunctions")
 class FileManager(private val output: File) {
-    fun createFile(fileType: FileType, pool: DevicePoolId, device: DeviceInfo, test: Test): File {
+    fun createFile(fileType: FileType, pool: DevicePoolId, device: DeviceInfo, test: Test, testBatchId: String? = null): File {
         val directory = createDirectory(fileType, pool, device)
-        val filename = createFilename(test, fileType)
+        val filename = createFilename(test, fileType, testBatchId)
+        return createFile(directory, filename)
+    }
+
+    fun createFile(fileType: FileType, pool: DevicePoolId, device: DeviceInfo, testBatchId: String): File {
+        val directory = createDirectory(fileType, pool, device)
+        val filename = createFilename(fileType, testBatchId)
         return createFile(directory, filename)
     }
 
@@ -56,7 +62,11 @@ class FileManager(private val output: File) {
 
     private fun createFile(directory: Path, filename: String): File = File(directory.toFile(), filename)
 
-    private fun createFilename(test: Test, fileType: FileType): String = "${test.toTestName()}.${fileType.suffix}"
+    private fun createFilename(fileType: FileType, testBatchId: String): String =
+        "$testBatchId.${fileType.suffix}"
+
+    private fun createFilename(test: Test, fileType: FileType, testBatchId: String? = null): String =
+        "${test.toTestName()}${testBatchId?.let { "-$it" } ?: ""}.${fileType.suffix}"
 
     private fun createFilename(device: DeviceInfo, fileType: FileType): String = "${device.serialNumber}.${fileType.suffix}"
 }

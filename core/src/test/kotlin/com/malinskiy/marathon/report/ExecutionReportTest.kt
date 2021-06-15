@@ -115,6 +115,7 @@ class ExecutionReportTest {
             TestResult(
                 MarathonTest("com", "example", methodName, emptyList()),
                 deviceInfo,
+                "stub-batch",
                 status,
                 0,
                 100

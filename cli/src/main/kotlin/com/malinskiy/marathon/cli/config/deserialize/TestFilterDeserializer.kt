@@ -16,6 +16,8 @@ import com.malinskiy.marathon.execution.SimpleClassnameFilter
 import com.malinskiy.marathon.execution.TestFilter
 import com.malinskiy.marathon.execution.TestMethodFilter
 import com.malinskiy.marathon.execution.TestPackageFilter
+import com.malinskiy.marathon.execution.filter.FragmentationFilter
+import com.malinskiy.marathon.execution.filter.FullyQualifiedTestnameFilter
 
 class TestFilterDeserializer : StdDeserializer<TestFilter>(TestFilter::class.java) {
     override fun deserialize(p: JsonParser?, ctxt: DeserializationContext?): TestFilter {
@@ -26,31 +28,39 @@ class TestFilterDeserializer : StdDeserializer<TestFilter>(TestFilter::class.jav
         return when (type) {
             "simple-class-name" -> {
                 (node as ObjectNode).remove("type")
-                codec.treeToValue<SimpleClassnameFilter>(node)
+                codec.treeToValue<SimpleClassnameFilter>(node) ?: throw ConfigurationException("Missing filter strategy")
             }
             "fully-qualified-class-name" -> {
                 (node as ObjectNode).remove("type")
-                codec.treeToValue<FullyQualifiedClassnameFilter>(node)
+                codec.treeToValue<FullyQualifiedClassnameFilter>(node) ?: throw ConfigurationException("Missing filter strategy")
+            }
+            "fully-qualified-test-name" -> {
+                (node as ObjectNode).remove("type")
+                codec.treeToValue<FullyQualifiedTestnameFilter>(node) ?: throw ConfigurationException("Missing filter strategy")
             }
             "package" -> {
                 (node as ObjectNode).remove("type")
-                codec.treeToValue<TestPackageFilter>(node)
+                codec.treeToValue<TestPackageFilter>(node) ?: throw ConfigurationException("Missing filter strategy")
             }
             "annotation" -> {
                 (node as ObjectNode).remove("type")
-                codec.treeToValue<AnnotationFilter>(node)
+                codec.treeToValue<AnnotationFilter>(node) ?: throw ConfigurationException("Missing filter strategy")
             }
             "method" -> {
                 (node as ObjectNode).remove("type")
-                codec.treeToValue<TestMethodFilter>(node)
+                codec.treeToValue<TestMethodFilter>(node) ?: throw ConfigurationException("Missing filter strategy")
             }
             "composition" -> {
                 (node as ObjectNode).remove("type")
-                codec.treeToValue<CompositionFilter>(node)
+                codec.treeToValue<CompositionFilter>(node) ?: throw ConfigurationException("Missing filter strategy")
             }
             "annotationData" -> {
                 (node as ObjectNode).remove("type")
-                codec.treeToValue<AnnotationDataFilter>(node)
+                codec.treeToValue<AnnotationDataFilter>(node) ?: throw ConfigurationException("Missing filter strategy")
+            }
+            "fragmentation" -> {
+                (node as ObjectNode).remove("type")
+                codec.treeToValue<FragmentationFilter>(node) ?: throw ConfigurationException("Missing filter strategy")
             }
 
             else -> throw ConfigurationException("Unrecognized filter type $type")

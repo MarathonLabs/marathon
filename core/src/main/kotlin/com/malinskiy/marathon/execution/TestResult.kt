@@ -6,6 +6,7 @@ import com.malinskiy.marathon.test.Test
 data class TestResult(
     val test: Test,
     val device: DeviceInfo,
+    val testBatchId: String,
     val status: TestStatus,
     val startTime: Long,
     val endTime: Long,

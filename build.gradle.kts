@@ -1,8 +1,9 @@
+import com.github.benmanes.gradle.versions.updates.DependencyUpdatesTask
+import io.gitlab.arturbosch.detekt.Detekt
 import io.gitlab.arturbosch.detekt.extensions.DetektExtension
 
 buildscript {
     repositories {
-        jcenter()
         mavenCentral()
         google()
     }
@@ -15,20 +16,36 @@ buildscript {
 
 
 plugins {
-    id("io.gitlab.arturbosch.detekt") version "1.0.0.RC6-4"
+    id("io.gitlab.arturbosch.detekt") version "1.17.1"
+    id("com.github.ben-manes.versions") version "0.39.0"
 }
 
 configure<DetektExtension> {
     debug = true
-    version = "1.0.0.RC6-4"
-    profile = "main"
+    input = files(
+        rootProject.projectDir.absolutePath
+    )
+    config = files("${rootProject.projectDir}/default-detekt-config.yml")
+    baseline = file("${rootProject.projectDir}/reports/baseline.xml")
+}
 
-    profile("main", Action {
-        input = rootProject.projectDir.absolutePath
-        filters = ".*/resources/.*,.*/build/.*,.*/sample-app/.*"
-        config = "${rootProject.projectDir}/default-detekt-config.yml"
-        baseline = "${rootProject.projectDir}/reports/baseline.xml"
-    })
+fun isNonStable(version: String): Boolean {
+    val stableKeyword = listOf("RELEASE", "FINAL", "GA").any { version.toUpperCase().contains(it) }
+    val regex = "^[0-9,.v-]+(-r)?$".toRegex()
+    val isStable = stableKeyword || regex.matches(version)
+    return isStable.not()
+}
+
+tasks.withType<DependencyUpdatesTask> {
+    rejectVersionIf {
+        isNonStable(candidate.version) && !isNonStable(currentVersion)
+    }
+}
+
+tasks.withType<Detekt> {
+    exclude(".*/resources/.*")
+    exclude(".*/build/.*")
+    exclude(".*/sample-app/.*")
 }
 
 allprojects {
@@ -36,10 +53,8 @@ allprojects {
 
     repositories {
         mavenLocal()
-        jcenter()
         mavenCentral()
         google()
-        maven("https://dl.bintray.com/qameta/maven")
     }
 
     configurations.all {

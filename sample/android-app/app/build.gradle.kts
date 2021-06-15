@@ -6,7 +6,7 @@ plugins {
 }
 
 android {
-    buildToolsVersion("29.0.2")
+    buildToolsVersion("30.0.2")
     compileSdkVersion(30)
 
     defaultConfig {
@@ -25,6 +25,9 @@ android {
             isMinifyEnabled = false
             proguardFiles("proguard-rules.pro")
         }
+        getByName("debug") {
+            isTestCoverageEnabled = true
+        }
     }
 }
 
@@ -32,6 +35,7 @@ marathon {
     instrumentationArgs {
         put("debug", "false")
     }
+    vendor = com.malinskiy.marathon.android.VendorType.ADAM
 }
 
 dependencies {

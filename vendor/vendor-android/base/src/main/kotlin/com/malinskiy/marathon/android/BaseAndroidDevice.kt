@@ -15,7 +15,7 @@ import com.malinskiy.marathon.android.executor.listeners.ProgressTestRunListener
 import com.malinskiy.marathon.android.executor.listeners.TestRunResultsListener
 import com.malinskiy.marathon.android.executor.listeners.filesync.FileSyncTestRunListener
 import com.malinskiy.marathon.android.executor.listeners.screenshot.ScreenCapturerTestRunListener
-import com.malinskiy.marathon.android.executor.listeners.video.ScreenRecorderTestRunListener
+import com.malinskiy.marathon.android.executor.listeners.video.ScreenRecorderTestBatchListener
 import com.malinskiy.marathon.android.model.Rotation
 import com.malinskiy.marathon.device.DeviceFeature
 import com.malinskiy.marathon.device.DevicePoolId
@@ -40,9 +40,10 @@ import java.util.*
 import kotlin.system.measureTimeMillis
 
 abstract class BaseAndroidDevice(
-    protected val adbSerial: String,
+    val adbSerial: String,
     protected val serialStrategy: SerialStrategy,
-    protected val configuration: AndroidConfiguration,
+    protected val configuration: Configuration,
+    protected val androidConfiguration: AndroidConfiguration,
     protected val track: Track,
     protected val timer: Timer
 ) : AndroidDevice, CoroutineScope {
@@ -96,11 +97,20 @@ abstract class BaseAndroidDevice(
         realSerialNumber = detectRealSerialNumber()
         md5cmd = detectMd5Binary()
 
-        if (configuration.allureConfiguration.enabled) {
-            configuration.fileSyncConfiguration.pull.add(
+        if (androidConfiguration.allureConfiguration.enabled) {
+            androidConfiguration.fileSyncConfiguration.pull.add(
                 FileSyncEntry(
-                    configuration.allureConfiguration.relativeResultsDirectory,
+                    androidConfiguration.allureConfiguration.relativeResultsDirectory,
                     AggregationMode.TEST_RUN
+                )
+            )
+        }
+
+        if (configuration.isCodeCoverageEnabled) {
+            androidConfiguration.fileSyncConfiguration.pull.add(
+                FileSyncEntry(
+                    "coverage",
+                    AggregationMode.POOL
                 )
             )
         }
@@ -108,7 +118,7 @@ abstract class BaseAndroidDevice(
 
     override suspend fun safePullFile(remoteFilePath: String, localFilePath: String) {
         try {
-            withTimeoutOrNull(configuration.timeoutConfiguration.pullFile) {
+            withTimeoutOrNull(androidConfiguration.timeoutConfiguration.pullFile) {
                 pullFile(remoteFilePath, localFilePath)
             } ?: logger.warn { "Pulling $remoteFilePath timed out. Ignoring" }
         } catch (e: TransferException) {
@@ -230,16 +240,17 @@ abstract class BaseAndroidDevice(
 
         val features = this.deviceFeatures
 
-        val recordConfiguration = this@BaseAndroidDevice.configuration.screenRecordConfiguration
+        val recordConfiguration = this@BaseAndroidDevice.androidConfiguration.screenRecordConfiguration
         val screenRecordingPolicy = configuration.screenRecordingPolicy
-        val recorderListener = selectRecorderType(features, recordConfiguration)?.let { feature ->
-            prepareRecorderListener(feature, fileManager, devicePoolId, screenRecordingPolicy, attachmentProviders)
+        val recorderListener = RecorderTypeSelector.selectRecorderType(features, recordConfiguration)?.let { feature ->
+            prepareRecorderListener(feature, fileManager, devicePoolId, testBatch.id, screenRecordingPolicy, attachmentProviders)
         } ?: NoOpTestRunListener()
 
-        val logCatListener = LogCatListener(this, devicePoolId, LogWriter(fileManager))
+        val logCatListener = LogCatListener(this, devicePoolId, testBatch.id, LogWriter(fileManager))
             .also { attachmentProviders.add(it) }
+
         val fileSyncTestRunListener =
-            FileSyncTestRunListener(devicePoolId, this, this@BaseAndroidDevice.configuration.fileSyncConfiguration, fileManager)
+            FileSyncTestRunListener(devicePoolId, this, this@BaseAndroidDevice.androidConfiguration.fileSyncConfiguration, fileManager)
 
         return CompositeTestRunListener(
             listOf(
@@ -254,16 +265,18 @@ abstract class BaseAndroidDevice(
     }
 
     private fun prepareRecorderListener(
-        feature: DeviceFeature, fileManager: FileManager, devicePoolId: DevicePoolId, screenRecordingPolicy: ScreenRecordingPolicy,
+        feature: DeviceFeature, fileManager: FileManager, devicePoolId: DevicePoolId, testBatchId: String,
+        screenRecordingPolicy: ScreenRecordingPolicy,
         attachmentProviders: MutableList<AttachmentProvider>
     ): NoOpTestRunListener =
         when (feature) {
             DeviceFeature.VIDEO -> {
-                ScreenRecorderTestRunListener(
+                ScreenRecorderTestBatchListener(
                     fileManager,
                     devicePoolId,
+                    testBatchId,
                     this,
-                    configuration.screenRecordConfiguration.videoConfiguration,
+                    androidConfiguration.screenRecordConfiguration.videoConfiguration,
                     screenRecordingPolicy,
                     this
                 )
@@ -274,39 +287,16 @@ abstract class BaseAndroidDevice(
                 ScreenCapturerTestRunListener(
                     fileManager,
                     devicePoolId,
+                    testBatchId,
                     this,
                     screenRecordingPolicy,
-                    configuration.screenRecordConfiguration.screenshotConfiguration,
-                    configuration.timeoutConfiguration.screencapturer,
+                    androidConfiguration.screenRecordConfiguration.screenshotConfiguration,
+                    androidConfiguration.timeoutConfiguration.screencapturer,
                     this
                 )
                     .also { attachmentProviders.add(it) }
             }
         }
-
-    private fun selectRecorderType(supportedFeatures: Collection<DeviceFeature>, configuration: ScreenRecordConfiguration): DeviceFeature? {
-        val preferred = configuration.preferableRecorderType
-        val screenshotEnabled = recorderEnabled(DeviceFeature.SCREENSHOT, configuration)
-        val videoEnabled = recorderEnabled(DeviceFeature.VIDEO, configuration)
-
-        if (preferred != null && supportedFeatures.contains(preferred) && recorderEnabled(preferred, configuration)) {
-            return preferred
-        }
-
-        return when {
-            supportedFeatures.contains(DeviceFeature.SCREENSHOT) && screenshotEnabled -> DeviceFeature.SCREENSHOT
-            supportedFeatures.contains(DeviceFeature.VIDEO) && videoEnabled -> DeviceFeature.VIDEO
-            else -> null
-        }
-    }
-
-    private fun recorderEnabled(
-        type: DeviceFeature,
-        configuration: ScreenRecordConfiguration
-    ) = when (type) {
-        DeviceFeature.VIDEO -> configuration.videoConfiguration.enabled
-        DeviceFeature.SCREENSHOT -> configuration.screenshotConfiguration.enabled
-    }
 
     private suspend fun detectMd5Binary(): String {
         for (path in listOf("/system/bin/md5", "/system/bin/md5sum")) {

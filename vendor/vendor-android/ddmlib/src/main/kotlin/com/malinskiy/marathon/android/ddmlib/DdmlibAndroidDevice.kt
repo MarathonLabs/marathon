@@ -48,11 +48,12 @@ import kotlin.coroutines.resumeWithException
 class DdmlibAndroidDevice(
     val ddmsDevice: IDevice,
     adbSerial: String,
-    configuration: AndroidConfiguration,
+    configuration: Configuration,
+    androidConfiguration: AndroidConfiguration,
     track: Track,
     timer: Timer,
     serialStrategy: SerialStrategy
-) : BaseAndroidDevice(adbSerial, serialStrategy, configuration, track, timer) {
+) : BaseAndroidDevice(adbSerial, serialStrategy, configuration, androidConfiguration, track, timer) {
 
     override suspend fun setup() {
         super.setup()
@@ -197,9 +198,9 @@ class DdmlibAndroidDevice(
 
     override val coroutineContext: CoroutineContext = dispatcher
 
-    override suspend fun installPackage(absolutePath: String, reinstall: Boolean, optionalParams: String): String? {
+    override suspend fun installPackage(absolutePath: String, reinstall: Boolean, optionalParams: List<String>): String? {
         return try {
-            ddmsDevice.safeInstallPackage(absolutePath, reinstall, optionalParams)
+            ddmsDevice.safeInstallPackage(absolutePath, reinstall, *(optionalParams.filter { it.isNotBlank() }).toTypedArray())
         } catch (e: InstallException) {
             throw com.malinskiy.marathon.android.exception.InstallException(e)
         }

@@ -5,15 +5,17 @@ import com.malinskiy.marathon.android.configuration.AndroidLogConfigurator
 import com.malinskiy.marathon.android.configuration.DEFAULT_ALLURE_CONFIGURATION
 import com.malinskiy.marathon.android.configuration.FileSyncConfiguration
 import com.malinskiy.marathon.android.configuration.SerialStrategy
+import com.malinskiy.marathon.android.configuration.ThreadingConfiguration
 import com.malinskiy.marathon.android.configuration.TimeoutConfiguration
 import com.malinskiy.marathon.android.di.androidModule
 import com.malinskiy.marathon.device.DeviceProvider
 import com.malinskiy.marathon.execution.TestParser
 import com.malinskiy.marathon.log.MarathonLogConfigurator
 import com.malinskiy.marathon.vendor.VendorConfiguration
-import org.koin.core.KoinComponent
-import org.koin.core.get
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.get
 import org.koin.core.module.Module
+import org.koin.dsl.module
 import java.io.File
 
 const val defaultInitTimeoutMillis = 30_000
@@ -41,13 +43,14 @@ data class AndroidConfiguration(
     val allureConfiguration: AllureConfiguration = DEFAULT_ALLURE_CONFIGURATION,
     val timeoutConfiguration: TimeoutConfiguration = TimeoutConfiguration(),
     val fileSyncConfiguration: FileSyncConfiguration = FileSyncConfiguration(),
+    val threadingConfiguration: ThreadingConfiguration = ThreadingConfiguration(),
 ) : VendorConfiguration, KoinComponent {
 
-    private val koinModules = listOf(androidModule) + implementationModules
+    private val koinModules = listOf(androidModule) + implementationModules + module { single { this@AndroidConfiguration } }
+    
+    override fun testParser(): TestParser = get()
 
-    override fun testParser(): TestParser? = get()
-
-    override fun deviceProvider(): DeviceProvider? = get()
+    override fun deviceProvider(): DeviceProvider = get()
 
     override fun logConfigurator(): MarathonLogConfigurator = AndroidLogConfigurator()
 

@@ -133,6 +133,7 @@ class QueueActor(
             TestResult(
                 it,
                 device,
+                batch.id,
                 TestStatus.INCOMPLETE,
                 currentTimeMillis,
                 currentTimeMillis + 1
