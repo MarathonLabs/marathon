@@ -1,7 +1,7 @@
 package com.example
 
-import com.agoda.kakao.edit.KEditText
-import com.agoda.kakao.screen.Screen
+import io.github.kakaocup.kakao.edit.KEditText
+import io.github.kakaocup.kakao.screen.Screen
 
 
 class MainScreen : Screen<MainScreen>() {
