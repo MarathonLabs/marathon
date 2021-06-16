@@ -65,8 +65,10 @@ class FileManager(private val output: File) {
     private fun createFilename(fileType: FileType, testBatchId: String): String =
         "$testBatchId.${fileType.suffix}"
 
-    private fun createFilename(test: Test, fileType: FileType, testBatchId: String? = null): String =
-        "${test.toTestName()}${testBatchId?.let { "-$it" } ?: ""}.${fileType.suffix}"
+    private fun createFilename(test: Test, fileType: FileType, testBatchId: String? = null): String {
+        val testSuffix = "${testBatchId?.let { "-$it" } ?: ""}.${fileType.suffix}"
+        return "${test.toTestName().take(256 - testSuffix.length)}$testSuffix"
+    }
 
     private fun createFilename(device: DeviceInfo, fileType: FileType): String = "${device.serialNumber}.${fileType.suffix}"
 }
