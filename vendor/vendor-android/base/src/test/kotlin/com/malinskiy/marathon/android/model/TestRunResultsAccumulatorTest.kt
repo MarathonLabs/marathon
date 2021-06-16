@@ -5,7 +5,7 @@ import assertk.assertions.containsOnly
 import assertk.assertions.isEqualTo
 import assertk.assertions.isFalse
 import assertk.assertions.isTrue
-import org.amshove.kluent.mock
+import com.nhaarman.mockitokotlin2.mock
 import org.junit.jupiter.api.Test
 
 class TestRunResultsAccumulatorTest {
