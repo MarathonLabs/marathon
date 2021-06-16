@@ -54,7 +54,7 @@ class MarathonPlugin : Plugin<Project> {
             val conf = extensions.getByName("marathon") as? MarathonExtension ?: MarathonExtension(project)
 
             testedExtension!!.testVariants.all {
-                log.info { "Applying marathon for $this" }
+                log.info { "Applying marathon for ${this.baseName}" }
                 val testTaskForVariant = createTask(this, project, conf, testedExtension.sdkDirectory, exceptionsReporter)
                 marathonTask.dependsOn(testTaskForVariant)
             }
