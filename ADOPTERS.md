@@ -7,4 +7,4 @@ Here's a (non-exhaustive) list of companies that use marathon. Don't see yours? 
 * [Nexign](https://nexign.com)
 * [Wink](https://wink.ru)
 * [VTB](https://www.vtb.ru)
-* [CFT](www.cft.ru)
+* [CFT](https://www.cft.ru)
