@@ -261,6 +261,7 @@ private fun createQueueActor(
     mock(),
     track,
     mock(),
+    null,
     job,
     Dispatchers.Unconfined
 )

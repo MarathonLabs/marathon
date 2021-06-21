@@ -10,6 +10,7 @@ import com.malinskiy.marathon.exceptions.NoDevicesException
 import com.malinskiy.marathon.execution.DevicePoolMessage.FromScheduler
 import com.malinskiy.marathon.execution.DevicePoolMessage.FromScheduler.AddDevice
 import com.malinskiy.marathon.execution.DevicePoolMessage.FromScheduler.RemoveDevice
+import com.malinskiy.marathon.execution.bundle.TestBundleIdentifier
 import com.malinskiy.marathon.execution.progress.ProgressReporter
 import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.time.Timer
@@ -38,6 +39,7 @@ class Scheduler(
     private val progressReporter: ProgressReporter,
     private val track: Track,
     private val timer: Timer,
+    private val testBundleIdentifier: TestBundleIdentifier?,
     override val coroutineContext: CoroutineContext
 ) : CoroutineScope {
 
@@ -107,7 +109,7 @@ class Scheduler(
         logger.debug { "device ${device.serialNumber} associated with poolId ${poolId.name}" }
         pools.computeIfAbsent(poolId) { id ->
             logger.debug { "pool actor ${id.name} is being created" }
-            DevicePoolActor(id, configuration, analytics, shard, progressReporter, track, timer, parent, context)
+            DevicePoolActor(id, configuration, analytics, shard, progressReporter, track, timer, parent, context, testBundleIdentifier)
         }
         pools[poolId]?.send(AddDevice(device)) ?: logger.debug {
             "not sending the AddDevice event " +
