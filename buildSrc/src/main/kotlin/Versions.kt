@@ -18,7 +18,7 @@ object Versions {
     val junit5 = "5.7.2"
     val kluent = "1.65"
 
-    val kakao = "1.4.0"
+    val kakao = "3.0.2"
     val espresso = "3.0.1"
     val espressoRules = "1.0.1"
     val espressoRunner = "1.0.1"
@@ -97,7 +97,7 @@ object Libraries {
 object TestLibraries {
     val junit5 = "org.junit.jupiter:junit-jupiter:${Versions.junit5}"
     val kluent = "org.amshove.kluent:kluent:${Versions.kluent}"
-    val kakao = "com.agoda.kakao:kakao:${Versions.kakao}"
+    val kakao = "io.github.kakaocup:kakao:${Versions.kakao}"
 
     val junit = "junit:junit:${Versions.junit}"
     val mockitoKotlin = "com.nhaarman.mockitokotlin2:mockito-kotlin:${Versions.mockitoKotlin}"
