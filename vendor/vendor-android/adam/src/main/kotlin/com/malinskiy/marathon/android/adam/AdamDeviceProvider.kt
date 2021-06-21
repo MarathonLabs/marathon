@@ -10,6 +10,7 @@ import com.malinskiy.adam.request.misc.GetAdbServerVersionRequest
 import com.malinskiy.marathon.actor.unboundedChannel
 import com.malinskiy.marathon.analytics.internal.pub.Track
 import com.malinskiy.marathon.android.AndroidConfiguration
+import com.malinskiy.marathon.android.AndroidTestBundleIdentifier
 import com.malinskiy.marathon.android.exception.AdbStartException
 import com.malinskiy.marathon.device.DeviceProvider
 import com.malinskiy.marathon.exceptions.NoDevicesException
@@ -57,6 +58,7 @@ class AdamDeviceProvider(
     private lateinit var client: AndroidDebugBridgeClient
     private lateinit var logcatManager: LogcatManager
     private lateinit var deviceEventsChannel: ReceiveChannel<List<Device>>
+    private lateinit var testBundleIdentifier: AndroidTestBundleIdentifier
     private val deviceEventsChannelMutex = Mutex()
     private val deviceStateTracker = DeviceStateTracker()
 
@@ -71,6 +73,7 @@ class AdamDeviceProvider(
             idleTimeout = vendorConfiguration.timeoutConfiguration.socketIdleTimeout
         }.build()
         logcatManager = LogcatManager(client)
+        testBundleIdentifier = vendorConfiguration.testBundleIdentifier() as AndroidTestBundleIdentifier
 
         try {
             printAdbServerVersion()
@@ -108,6 +111,7 @@ class AdamDeviceProvider(
                                             client,
                                             deviceStateTracker,
                                             logcatManager,
+                                            testBundleIdentifier,
                                             serial,
                                             configuration,
                                             vendorConfiguration,

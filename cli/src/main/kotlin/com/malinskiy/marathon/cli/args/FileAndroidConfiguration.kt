@@ -14,6 +14,7 @@ import com.malinskiy.marathon.android.configuration.SerialStrategy
 import com.malinskiy.marathon.android.configuration.ThreadingConfiguration
 import com.malinskiy.marathon.android.configuration.TimeoutConfiguration
 import com.malinskiy.marathon.android.defaultInitTimeoutMillis
+import com.malinskiy.marathon.android.model.AndroidTestBundle
 import com.malinskiy.marathon.exceptions.ConfigurationException
 import ddmlibModule
 import java.io.File
@@ -22,7 +23,8 @@ data class FileAndroidConfiguration(
     @JsonProperty("vendor") val vendor: VendorType = VendorType.DDMLIB,
     @JsonProperty("androidSdk") val androidSdk: File?,
     @JsonProperty("applicationApk") val applicationOutput: File?,
-    @JsonProperty("testApplicationApk") val testApplicationOutput: File,
+    @JsonProperty("testApplicationApk") val testApplicationOutput: File?,
+    @JsonProperty("outputs") val outputs: List<AndroidTestBundle>?,
     @JsonProperty("autoGrantPermission") val autoGrantPermission: Boolean?,
     @JsonProperty("instrumentationArgs") val instrumentationArgs: Map<String, String>?,
     @JsonProperty("applicationPmClear") val applicationPmClear: Boolean?,
@@ -52,6 +54,7 @@ data class FileAndroidConfiguration(
             androidSdk = finalAndroidSdk,
             applicationOutput = applicationOutput,
             testApplicationOutput = testApplicationOutput,
+            outputs = outputs,
             autoGrantPermission = autoGrantPermission ?: false,
             instrumentationArgs = instrumentationArgs ?: emptyMap(),
             applicationPmClear = applicationPmClear ?: false,

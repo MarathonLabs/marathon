@@ -18,6 +18,7 @@ class FileAndroidConfigurationTest {
         null,
         null,
         File.createTempFile("foo", "bar"),
+        outputs = null,
         null,
         null,
         null,
