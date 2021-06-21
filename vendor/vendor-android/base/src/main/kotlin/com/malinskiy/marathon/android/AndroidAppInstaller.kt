@@ -21,17 +21,20 @@ class AndroidAppInstaller(configuration: Configuration) {
      * @throws DeviceSetupException if unable to prepare the device
      */
     suspend fun prepareInstallation(device: AndroidDevice) {
-        val applicationInfo = ApkParser().parseInstrumentationInfo(androidConfiguration.testApplicationOutput)
+        val testBundles = androidConfiguration.testBundlesCompat()
+        testBundles.forEach { bundle ->
+            val applicationInfo = ApkParser().parseInstrumentationInfo(bundle.testApplication)
 
-        logger.debug { "Installing application output to ${device.serialNumber}" }
-        androidConfiguration.applicationOutput?.let {
-            reinstall(device, applicationInfo.applicationPackage, it)
+            logger.debug { "Installing application output to ${device.serialNumber}" }
+            bundle.application?.let {
+                reinstall(device, applicationInfo.applicationPackage, it)
+            }
+            logger.debug { "Installing instrumentation package to ${device.serialNumber}" }
+            reinstall(device, applicationInfo.instrumentationPackage, bundle.testApplication)
+            logger.debug { "Prepare installation finished for ${device.serialNumber}" }
         }
-        logger.debug { "Installing instrumentation package to ${device.serialNumber}" }
-        reinstall(device, applicationInfo.instrumentationPackage, androidConfiguration.testApplicationOutput)
-        logger.debug { "Prepare installation finished for ${device.serialNumber}" }
     }
-
+    
     /**
      * @throws DeviceSetupException if unable to reinstall (even with retries)
      */
