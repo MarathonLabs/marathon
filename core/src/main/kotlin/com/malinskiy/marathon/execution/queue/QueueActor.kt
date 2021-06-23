@@ -52,7 +52,7 @@ class QueueActor(
     private val activeBatches = mutableMapOf<String, TestBatch>()
     private val uncompletedTestsRetryCount = mutableMapOf<Test, Int>()
 
-    private val testResultReporter = TestResultReporter(poolId, analytics, testShard, configuration, track)
+    private val testResultReporter = TestResultReporter(poolId, testShard, configuration, track)
 
     init {
         queue.addAll(testShard.tests + testShard.flakyTests)
@@ -186,7 +186,7 @@ class QueueActor(
             testResultReporter.retryTest(device, it)
         }
 
-        val (retryable, noRetries) = failed.partition { testResult ->
+        val (_, noRetries) = failed.partition { testResult ->
             retryList.map { retry -> retry.test }.contains(testResult.test)
         }
 

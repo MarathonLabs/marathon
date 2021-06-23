@@ -1,6 +1,7 @@
 package com.malinskiy.marathon.execution.progress.tracker
 
 import com.malinskiy.marathon.execution.Configuration
+import com.malinskiy.marathon.execution.strategy.ExecutionStrategy
 import com.malinskiy.marathon.test.Mocks
 import com.malinskiy.marathon.test.StubDeviceProvider
 import com.malinskiy.marathon.test.TestVendorConfiguration
@@ -18,7 +19,7 @@ class PoolProgressTrackerTest {
         metaProperties = emptyList()
     )
 
-    private fun createConfiguration(strictMode: Boolean): Configuration {
+    private fun createConfiguration(executionStrategy: ExecutionStrategy): Configuration {
         return Configuration(
             name = "",
             outputDir = File(""),
@@ -33,7 +34,8 @@ class PoolProgressTrackerTest {
             ignoreFailures = null,
             isCodeCoverageEnabled = null,
             fallbackToScreenshots = null,
-            strictMode = strictMode,
+            executionStrategy = executionStrategy,
+            failFast = null,
             uncompletedTestRetryQuota = null,
             testClassRegexes = null,
             includeSerialRegexes = null,
@@ -50,7 +52,7 @@ class PoolProgressTrackerTest {
 
     @Test
     fun nonStrictMode_case1() {
-        val tracker = PoolProgressTracker(createConfiguration(strictMode = false))
+        val tracker = PoolProgressTracker(createConfiguration(executionStrategy = ExecutionStrategy.ANY_SUCCESS))
         tracker.totalTests(1)
         tracker.testStarted(test)
         tracker.testPassed(test)
@@ -62,7 +64,7 @@ class PoolProgressTrackerTest {
 
     @Test
     fun strictMode_case1() {
-        val tracker = PoolProgressTracker(createConfiguration(strictMode = true))
+        val tracker = PoolProgressTracker(createConfiguration(executionStrategy = ExecutionStrategy.ALL_SUCCESS))
         tracker.totalTests(1)
         tracker.testStarted(test)
         tracker.testPassed(test)
@@ -71,10 +73,10 @@ class PoolProgressTrackerTest {
         tracker.testPassed(test)
         tracker.aggregateResult().shouldEqualTo(false)
     }
-    
+
     @Test
     fun all_incomplete() {
-        val tracker = PoolProgressTracker(createConfiguration(strictMode = false)).apply { 
+        val tracker = PoolProgressTracker(createConfiguration(executionStrategy = ExecutionStrategy.ANY_SUCCESS)).apply {
             totalTests(1)
         }
         tracker.aggregateResult() shouldBeEqualTo false

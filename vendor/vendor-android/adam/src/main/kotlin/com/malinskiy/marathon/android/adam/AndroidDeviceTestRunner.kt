@@ -74,6 +74,15 @@ class AndroidDeviceTestRunner(private val device: AdamAndroidDevice, private val
                             return@withTimeoutOrNull
                         } else {
                             processEvents(update, listener)
+                            if (configuration.failFast) {
+                                val hasFailed = update
+                                    .filterIsInstance<TestRunFailed>()
+                                    .isNotEmpty()
+                                if (hasFailed) {
+                                    listener.testRunStopped(0)
+                                    return@withTimeoutOrNull
+                                }
+                            }
                         }
                     }
 

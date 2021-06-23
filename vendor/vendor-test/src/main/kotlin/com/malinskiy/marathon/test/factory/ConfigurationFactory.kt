@@ -3,6 +3,7 @@ package com.malinskiy.marathon.test.factory
 import com.malinskiy.marathon.device.DeviceProvider
 import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.execution.policy.ScreenRecordingPolicy
+import com.malinskiy.marathon.execution.strategy.ExecutionStrategy
 import com.malinskiy.marathon.execution.strategy.FlakinessStrategy
 import com.malinskiy.marathon.execution.strategy.RetryStrategy
 import com.malinskiy.marathon.execution.strategy.ShardingStrategy
@@ -13,18 +14,20 @@ import com.malinskiy.marathon.test.TestVendorConfiguration
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.whenever
 import kotlinx.coroutines.channels.Channel
+import java.io.File
 import java.nio.file.Files
 
 class ConfigurationFactory {
     var name = "DEFAULT_TEST_CONFIG"
-    var outputDir = Files.createTempDirectory("test-run").toFile()
+    var outputDir: File = Files.createTempDirectory("test-run").toFile()
     var vendorConfiguration = TestVendorConfiguration(Mocks.TestParser.DEFAULT, StubDeviceProvider())
     var debug = null
     var batchingStrategy = null
     var analyticsConfiguration = null
     var excludeSerialRegexes: List<Regex>? = null
     var fallbackToScreenshots = null
-    var strictMode = null
+    var executionStrategy: ExecutionStrategy? = null
+    var failFast: Boolean? = null
     var uncompletedTestRetryQuota: Int? = null
     var filteringConfiguration = null
     var flakinessStrategy: FlakinessStrategy? = null
@@ -67,7 +70,8 @@ class ConfigurationFactory {
             ignoreFailures,
             isCodeCoverageEnabled,
             fallbackToScreenshots,
-            strictMode,
+            executionStrategy,
+            failFast,
             uncompletedTestRetryQuota,
             testClassRegexes,
             includeSerialRegexes,

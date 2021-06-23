@@ -5,6 +5,7 @@ import com.malinskiy.marathon.android.adam.di.adamModule
 import com.malinskiy.marathon.android.configuration.AllureConfiguration
 import com.malinskiy.marathon.android.configuration.FileSyncConfiguration
 import com.malinskiy.marathon.execution.Configuration
+import com.malinskiy.marathon.execution.strategy.ExecutionStrategy
 import java.io.File
 
 object TestConfigurationFactory {
@@ -29,7 +30,8 @@ object TestConfigurationFactory {
             ignoreFailures = null,
             isCodeCoverageEnabled = isCodeCoverageEnabled,
             fallbackToScreenshots = null,
-            strictMode = false,
+            executionStrategy = ExecutionStrategy.ANY_SUCCESS,
+            failFast = null,
             uncompletedTestRetryQuota = null,
             testClassRegexes = null,
             includeSerialRegexes = null,
