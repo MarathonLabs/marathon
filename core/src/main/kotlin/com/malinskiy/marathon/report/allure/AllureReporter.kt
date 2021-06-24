@@ -109,7 +109,7 @@ class AllureReporter(val configuration: Configuration, private val outputDirecto
     }
 
     private fun getHistoryId(test: Test) =
-        ResultsUtils.generateMethodSignatureHash(test.clazz, test.method, emptyList())
+        ResultsUtils.generateMethodSignatureHash(test.clazz, test.method, listOf(test.pkg))
 
     private fun Test.getOptionalLabels(): Collection<Label> {
         val list = mutableListOf<Label>()
