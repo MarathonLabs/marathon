@@ -1087,29 +1087,29 @@ be "explained" to marathon, e.g. JUnit's **org.junit.Ignore** annotation can be 
 
 ```yaml
 filteringConfiguration:
-allowlist:
-  - type: "simple-class-name"
-    regex: ".*"
-  - type: "fully-qualified-class-name"
-    values:
-      - "com.example.MyTest"
-      - "com.example.MyOtherTest"
-  - type: "fully-qualified-class-name"
-    file: "testing/mytestfilter"
-  - type: "method"
-    regex: "."
-  - type: "composition"
-    filters:
-      - type: "package"
-        regex: ".*"
-      - type: "method"
-        regex: ".*"
-    op: "UNION"
-blocklist:
-  - type: "package"
-    regex: ".*"
-  - type: "annotation"
-    regex: ".*"
+  allowlist:
+    - type: "simple-class-name"
+      regex: ".*"
+    - type: "fully-qualified-class-name"
+      values:
+        - "com.example.MyTest"
+        - "com.example.MyOtherTest"
+    - type: "fully-qualified-class-name"
+      file: "testing/mytestfilter"
+    - type: "method"
+      regex: "."
+    - type: "composition"
+      filters:
+        - type: "package"
+          regex: ".*"
+        - type: "method"
+          regex: ".*"
+      op: "UNION"
+  blocklist:
+    - type: "package"
+      regex: ".*"
+    - type: "annotation"
+      regex: ".*"
 ```
 
 {% endtab %} {% tab filtering Gradle %}
