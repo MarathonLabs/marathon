@@ -4,6 +4,7 @@ import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.test.Mocks
 import com.malinskiy.marathon.test.StubDeviceProvider
 import com.malinskiy.marathon.test.TestVendorConfiguration
+import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldEqualTo
 import org.junit.jupiter.api.Test
 import java.io.File
@@ -67,5 +68,13 @@ class PoolProgressTrackerTest {
         tracker.aggregateResult().shouldEqualTo(false)
         tracker.testPassed(test)
         tracker.aggregateResult().shouldEqualTo(false)
+    }
+    
+    @Test
+    fun all_incomplete() {
+        val tracker = PoolProgressTracker(createConfiguration(strictMode = false)).apply { 
+            totalTests(1)
+        }
+        tracker.aggregateResult() shouldBeEqualTo false
     }
 }
