@@ -51,6 +51,7 @@ class PoolProgressTrackerTest {
     @Test
     fun nonStrictMode_case1() {
         val tracker = PoolProgressTracker(createConfiguration(strictMode = false))
+        tracker.totalTests(1)
         tracker.testStarted(test)
         tracker.testPassed(test)
         tracker.testFailed(test)
@@ -62,6 +63,7 @@ class PoolProgressTrackerTest {
     @Test
     fun strictMode_case1() {
         val tracker = PoolProgressTracker(createConfiguration(strictMode = true))
+        tracker.totalTests(1)
         tracker.testStarted(test)
         tracker.testPassed(test)
         tracker.testFailed(test)
