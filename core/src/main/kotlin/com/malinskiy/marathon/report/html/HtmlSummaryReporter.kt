@@ -22,7 +22,8 @@ import org.apache.commons.text.StringEscapeUtils
 import java.io.File
 import java.io.InputStream
 import java.text.SimpleDateFormat
-import java.util.*
+import java.util.Date
+import java.util.TimeZone
 import kotlin.math.roundToLong
 
 class HtmlSummaryReporter(
@@ -268,8 +269,6 @@ class HtmlSummaryReporter(
         testId = fullTest.id,
         displayName = fullTest.name,
         deviceId = fullTest.deviceId,
-        logPath = "../../../../../logs/$poolId/${fullTest.deviceId}/${fullTest.packageName}.${fullTest.className}%23${fullTest.name}.log"
+        logPath = "../${fullTest.logFile}"
     )
-
-
 }
