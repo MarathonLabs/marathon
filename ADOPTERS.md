@@ -6,3 +6,5 @@ Here's a (non-exhaustive) list of companies that use marathon. Don't see yours? 
 * [Revolut](https://github.com/revolut-mobile)
 * [Nexign](https://nexign.com)
 * [Wink](https://wink.ru)
+* [VTB](https://www.vtb.ru)
+* [CFT](https://www.cft.ru)

@@ -28,6 +28,7 @@ import com.malinskiy.adam.request.testrunner.TestRunnerRequest
 import com.malinskiy.marathon.analytics.internal.pub.Track
 import com.malinskiy.marathon.android.AndroidAppInstaller
 import com.malinskiy.marathon.android.AndroidConfiguration
+import com.malinskiy.marathon.android.AndroidTestBundleIdentifier
 import com.malinskiy.marathon.android.BaseAndroidDevice
 import com.malinskiy.marathon.android.VideoConfiguration
 import com.malinskiy.marathon.android.configuration.SerialStrategy
@@ -61,6 +62,7 @@ class AdamAndroidDevice(
     private val client: AndroidDebugBridgeClient,
     private val deviceStateTracker: DeviceStateTracker,
     private val logcatManager: LogcatManager,
+    private val testBundleIdentifier: AndroidTestBundleIdentifier,
     adbSerial: String,
     configuration: Configuration,
     androidConfiguration: AndroidConfiguration,
@@ -334,7 +336,7 @@ class AdamAndroidDevice(
             async(coroutineContext) {
                 supervisorScope {
                     val listener = createExecutionListeners(configuration, devicePoolId, testBatch, deferred, progressReporter)
-                    AndroidDeviceTestRunner(this@AdamAndroidDevice).execute(configuration, testBatch, listener)
+                    AndroidDeviceTestRunner(this@AdamAndroidDevice, testBundleIdentifier).execute(configuration, testBatch, listener)
                 }
             }.await()
         } catch (e: RequestRejectedException) {

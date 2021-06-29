@@ -8,7 +8,8 @@ import java.io.File
 import com.malinskiy.marathon.test.Test as MarathonTest
 
 class AndroidTestParserTest {
-    private val parser = AndroidTestParser()
+    private val testBundleIdentifier = AndroidTestBundleIdentifier()
+    private val parser = AndroidTestParser(testBundleIdentifier)
     private val apkFile = File(javaClass.classLoader.getResource("android_test_1.apk").file)
     private val configuration = Configuration(
         name = "",

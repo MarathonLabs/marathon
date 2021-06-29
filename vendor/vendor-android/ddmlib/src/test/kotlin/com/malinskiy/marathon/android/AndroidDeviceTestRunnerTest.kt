@@ -7,6 +7,7 @@ import com.malinskiy.marathon.android.configuration.SerialStrategy
 import com.malinskiy.marathon.android.ddmlib.AndroidDeviceTestRunner
 import com.malinskiy.marathon.android.ddmlib.DdmlibAndroidDevice
 import com.malinskiy.marathon.android.executor.listeners.AndroidTestRunListener
+import com.malinskiy.marathon.android.model.AndroidTestBundle
 import com.malinskiy.marathon.android.model.TestIdentifier
 import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.test.MetaProperty
@@ -45,9 +46,16 @@ class AndroidDeviceTestRunnerTest {
     private fun verifyIgnored(annotationName: String) {
         val ddmsDevice = mock<IDevice>()
         val androidConfiguration = mock<AndroidConfiguration>()
+        val testBundleIdentifier = mock<AndroidTestBundleIdentifier>()
         whenever(ddmsDevice.serialNumber).doReturn("testSerial")
         whenever(ddmsDevice.version).doReturn(AndroidVersion(26))
         val apkFile = File(javaClass.classLoader.getResource("android_test_1.apk").file)
+        whenever(testBundleIdentifier.identify(MarathonTest("test", "test", "test", emptyList()))).doReturn(
+            AndroidTestBundle(
+                null,
+                apkFile
+            )
+        )
         val output = File("")
         val configuration = Configuration(
             name = "",
@@ -85,6 +93,7 @@ class AndroidDeviceTestRunnerTest {
         val device =
             DdmlibAndroidDevice(
                 ddmsDevice,
+                testBundleIdentifier,
                 "testSerial",
                 configuration,
                 androidConfiguration,
@@ -93,7 +102,7 @@ class AndroidDeviceTestRunnerTest {
                 SerialStrategy.AUTOMATIC
             )
 
-        val androidDeviceTestRunner = AndroidDeviceTestRunner(device)
+        val androidDeviceTestRunner = AndroidDeviceTestRunner(device, testBundleIdentifier)
 
         val junitIgnoredTest =
             MarathonTest("ignored", "ignored", "ignored", listOf(MetaProperty(annotationName)))
@@ -116,10 +125,17 @@ class AndroidDeviceTestRunnerTest {
     fun `should send runEnded if only ignored tests are executed`() {
         val ddmsDevice = mock<IDevice>()
         val androidConfiguration = mock<AndroidConfiguration>()
+        val testBundleIdentifier = mock<AndroidTestBundleIdentifier>()
+
         whenever(ddmsDevice.serialNumber).doReturn("testSerial")
         whenever(ddmsDevice.version).doReturn(AndroidVersion(26))
-
         val apkFile = File(javaClass.classLoader.getResource("android_test_1.apk").file)
+        whenever(testBundleIdentifier.identify(MarathonTest("ignored", "ignored", "ignored", emptyList()))).thenReturn(
+            AndroidTestBundle(
+                null,
+                apkFile
+            )
+        )
         val output = File("")
         val configuration = Configuration(
             name = "",
@@ -157,6 +173,7 @@ class AndroidDeviceTestRunnerTest {
         val device =
             DdmlibAndroidDevice(
                 ddmsDevice,
+                testBundleIdentifier,
                 "testSerial",
                 configuration,
                 androidConfiguration,
@@ -164,7 +181,7 @@ class AndroidDeviceTestRunnerTest {
                 SystemTimer(Clock.systemDefaultZone()),
                 SerialStrategy.AUTOMATIC
             )
-        val androidDeviceTestRunner = AndroidDeviceTestRunner(device)
+        val androidDeviceTestRunner = AndroidDeviceTestRunner(device, testBundleIdentifier)
 
 
         val ignoredTest =

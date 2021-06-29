@@ -4,6 +4,7 @@ import com.malinskiy.adam.AndroidDebugBridgeClient
 import com.malinskiy.marathon.analytics.internal.pub.Track
 import com.malinskiy.marathon.android.AndroidConfiguration
 import com.malinskiy.marathon.android.AndroidDevice
+import com.malinskiy.marathon.android.AndroidTestBundleIdentifier
 import com.malinskiy.marathon.android.configuration.SerialStrategy
 import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.time.SystemTimer
@@ -15,6 +16,7 @@ object TestDeviceFactory {
             client = client,
             deviceStateTracker = DeviceStateTracker(),
             logcatManager = logcatManager,
+            AndroidTestBundleIdentifier(),
             "emulator-5554",
             configuration,
             configuration.vendorConfiguration as AndroidConfiguration,
