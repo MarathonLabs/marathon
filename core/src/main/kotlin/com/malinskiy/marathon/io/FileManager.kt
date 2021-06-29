@@ -73,7 +73,7 @@ class FileManager(private val output: File) {
         val testName = test.toTestName().take(256 - testSuffix.length)
         val fileName = "$testName$testSuffix"
         if(testName.length + testSuffix.length > 256) {
-            log.warn("File name length cannot excess 256 characters and has been trimmed to $fileName. This happened because the combination of file path, test class name, and test name is too long.")
+            log.error("File name length cannot excess 256 characters and has been trimmed to $fileName and can create a conflict. This happened because the combination of file path, test class name, and test name is too long.")
         }
         return fileName
     }
