@@ -42,6 +42,7 @@ object Versions {
     val scalr = "4.2"
     val allureJava = "2.14.0"
     val allureKotlin = "2.2.6"
+    val allureTestFilter = "2.14.0"
     val allureEnvironment = "1.0.0"
     val mockitoKotlin = "2.2.0"
     val googleAnalitycsWrapper = "2.0.0"
@@ -90,6 +91,7 @@ object Libraries {
     val allure = "io.qameta.allure:allure-java-commons:${Versions.allureJava}"
     val allureEnvironment = "com.github.automatedowl:allure-environment-writer:${Versions.allureEnvironment}"
     val allureKotlinCommons = "io.qameta.allure:allure-kotlin-commons:${Versions.allureKotlin}"
+    val allureTestFilter = "io.qameta.allure:allure-test-filter:${Versions.allureTestFilter}"
     val koin = "io.insert-koin:koin-core:${Versions.koin}"
     val bugsnag = "com.bugsnag:bugsnag:${Versions.bugsnag}"
 }
