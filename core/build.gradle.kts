@@ -47,6 +47,7 @@ dependencies {
     implementation(Libraries.allure)
     implementation(Libraries.allureKotlinCommons)
     implementation(Libraries.allureEnvironment)
+    implementation(Libraries.allureTestFilter)
 
     implementation(project(":analytics:usage"))
     implementation(Libraries.gson)

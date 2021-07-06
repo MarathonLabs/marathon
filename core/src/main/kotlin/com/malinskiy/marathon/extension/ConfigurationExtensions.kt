@@ -8,6 +8,7 @@ import com.malinskiy.marathon.config.strategy.RetryStrategyConfiguration
 import com.malinskiy.marathon.config.strategy.ShardingStrategyConfiguration
 import com.malinskiy.marathon.config.strategy.SortingStrategyConfiguration
 import com.malinskiy.marathon.execution.TestFilter
+import com.malinskiy.marathon.execution.filter.AllureTestFilter
 import com.malinskiy.marathon.execution.filter.AnnotationDataFilter
 import com.malinskiy.marathon.execution.filter.AnnotationFilter
 import com.malinskiy.marathon.execution.filter.CompositionFilter
@@ -66,6 +67,7 @@ fun TestFilterConfiguration.toTestFilter(): TestFilter {
         is TestFilterConfiguration.SimpleClassnameFilterConfiguration -> SimpleClassnameFilter(this)
         is TestFilterConfiguration.TestMethodFilterConfiguration -> TestMethodFilter(this)
         is TestFilterConfiguration.TestPackageFilterConfiguration -> TestPackageFilter(this)
+        is TestFilterConfiguration.AllureFilterConfiguration -> AllureTestFilter(this)
     }
 }
 
