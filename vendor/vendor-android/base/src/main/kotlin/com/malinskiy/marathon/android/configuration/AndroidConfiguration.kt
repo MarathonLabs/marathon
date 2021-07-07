@@ -8,8 +8,10 @@ import com.malinskiy.marathon.android.configuration.SerialStrategy
 import com.malinskiy.marathon.android.configuration.ThreadingConfiguration
 import com.malinskiy.marathon.android.configuration.TimeoutConfiguration
 import com.malinskiy.marathon.android.di.androidModule
+import com.malinskiy.marathon.android.model.AndroidTestBundle
 import com.malinskiy.marathon.device.DeviceProvider
 import com.malinskiy.marathon.execution.TestParser
+import com.malinskiy.marathon.execution.bundle.TestBundleIdentifier
 import com.malinskiy.marathon.log.MarathonLogConfigurator
 import com.malinskiy.marathon.vendor.VendorConfiguration
 import org.koin.core.component.KoinComponent
@@ -29,7 +31,8 @@ const val DEFAULT_WAIT_FOR_DEVICES_TIMEOUT = 30000L
 data class AndroidConfiguration(
     val androidSdk: File,
     val applicationOutput: File?,
-    val testApplicationOutput: File,
+    val testApplicationOutput: File?,
+    val outputs: List<AndroidTestBundle>? = null,
     val implementationModules: List<Module>,
     val autoGrantPermission: Boolean = DEFAULT_AUTO_GRANT_PERMISSION,
     val instrumentationArgs: Map<String, String> = emptyMap(),
@@ -52,7 +55,23 @@ data class AndroidConfiguration(
 
     override fun deviceProvider(): DeviceProvider = get()
 
+    override fun testBundleIdentifier(): TestBundleIdentifier = get()
+
     override fun logConfigurator(): MarathonLogConfigurator = AndroidLogConfigurator()
 
     override fun modules() = koinModules
+
+    fun testBundlesCompat(): List<AndroidTestBundle> {
+        return mutableListOf<AndroidTestBundle>().apply {
+            outputs?.let { addAll(it) }
+            testApplicationOutput?.let {
+                add(
+                    AndroidTestBundle(
+                        applicationOutput,
+                        testApplicationOutput
+                    )
+                )
+            }
+        }.toList()
+    }
 }

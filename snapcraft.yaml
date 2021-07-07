@@ -1,0 +1,29 @@
+name: marathon
+title: Marathon
+version: '0.6.2'
+grade: stable
+summary: Cross-platform test runner
+description: |
+  Marathon is a fast and platform-independent test runner focused on performance and stability. Marathon offers easy to use platform
+  implementations for Android and iOS as well as an API for use with custom hardware farms.
+  Marathon implements multiple key concepts related to test execution such as test batching, device pools, test sharding, test sorting,
+  preventive retries as well as post-factum retries. By default, most of these are set to conservative defaults but custom configurations
+  are encouraged for those who want to optimize performance and/or stability.
+  Marathon’s primary focus is on full control over the balance between stability of test execution and the overall test run performance.
+base: core18
+confinement: devmode
+
+parts:
+  marathon:
+    plugin: dump
+    source: https://github.com/MarathonLabs/marathon/releases/download/$SNAPCRAFT_PROJECT_VERSION/marathon-$SNAPCRAFT_PROJECT_VERSION.zip
+
+apps:
+  marathon:
+    command: marathon
+    environment:
+      JAVA_HOME: $SNAP/usr/lib/jvm/java-11-openjdk-amd64
+      PATH: $JAVA_HOME/jre/bin:$PATH
+    plugs:
+      - home
+      - network

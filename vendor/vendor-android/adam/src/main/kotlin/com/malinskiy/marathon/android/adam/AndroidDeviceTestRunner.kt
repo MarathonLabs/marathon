@@ -13,7 +13,7 @@ import com.malinskiy.adam.request.testrunner.TestRunStopped
 import com.malinskiy.adam.request.testrunner.TestRunnerRequest
 import com.malinskiy.adam.request.testrunner.TestStarted
 import com.malinskiy.marathon.android.AndroidConfiguration
-import com.malinskiy.marathon.android.ApkParser
+import com.malinskiy.marathon.android.AndroidTestBundleIdentifier
 import com.malinskiy.marathon.android.InstrumentationInfo
 import com.malinskiy.marathon.android.executor.listeners.AndroidTestRunListener
 import com.malinskiy.marathon.android.extension.isIgnored
@@ -31,7 +31,7 @@ import java.io.IOException
 
 const val ERROR_STUCK = "Test got stuck. You can increase the timeout in settings if it's too strict"
 
-class AndroidDeviceTestRunner(private val device: AdamAndroidDevice) {
+class AndroidDeviceTestRunner(private val device: AdamAndroidDevice, private val bundleIdentifier: AndroidTestBundleIdentifier) {
     private val logger = MarathonLogging.logger("AndroidDeviceTestRunner")
 
     @OptIn(ExperimentalStdlibApi::class)
@@ -43,16 +43,22 @@ class AndroidDeviceTestRunner(private val device: AdamAndroidDevice) {
 
         val ignoredTests = rawTestBatch.tests.filter { test -> test.isIgnored() }
         val testBatch = TestBatch(rawTestBatch.tests - ignoredTests, rawTestBatch.id)
+        if (testBatch.tests.isEmpty()) {
+            notifyIgnoredTest(ignoredTests, listener)
+            listener.testRunEnded(0, emptyMap())
+            return
+        }
 
         val androidConfiguration = configuration.vendorConfiguration as AndroidConfiguration
-        val info = ApkParser().parseInstrumentationInfo(androidConfiguration.testApplicationOutput)
-        val runnerRequest = prepareTestRunnerRequest(configuration, androidConfiguration, info, testBatch)
-
-        var channel: ReceiveChannel<List<TestEvent>>? = null
-        try {
-            withTimeoutOrNull(configuration.testBatchTimeoutMillis) {
-                notifyIgnoredTest(ignoredTests, listener)
-                if (testBatch.tests.isNotEmpty()) {
+        val infoToTestMap: Map<InstrumentationInfo, Test> = testBatch.tests.associateBy {
+            bundleIdentifier.identify(it).instrumentationInfo
+        }
+        infoToTestMap.keys.forEach { info ->
+            val runnerRequest = prepareTestRunnerRequest(configuration, androidConfiguration, info, testBatch)
+            var channel: ReceiveChannel<List<TestEvent>>? = null
+            try {
+                withTimeoutOrNull(configuration.testBatchTimeoutMillis) {
+                    notifyIgnoredTest(ignoredTests, listener)
                     clearData(androidConfiguration, info)
                     listener.beforeTestRun()
                     logger.debug { "Execution started" }
@@ -72,18 +78,16 @@ class AndroidDeviceTestRunner(private val device: AdamAndroidDevice) {
                     }
 
                     logger.debug { "Execution finished" }
-                } else {
-                    listener.testRunEnded(0, emptyMap())
-                }
-                Unit
-            } ?: listener.testRunFailed(ERROR_STUCK)
-        } catch (e: IOException) {
-            val errorMessage = "adb error while running tests ${testBatch.tests.map { it.toTestName() }}"
-            logger.error(e) { errorMessage }
-            listener.testRunFailed(errorMessage)
-        } finally {
-            listener.afterTestRun()
-            channel?.cancel(null)
+                    Unit
+                } ?: listener.testRunFailed(ERROR_STUCK)
+            } catch (e: IOException) {
+                val errorMessage = "adb error while running tests ${testBatch.tests.map { it.toTestName() }}"
+                logger.error(e) { errorMessage }
+                listener.testRunFailed(errorMessage)
+            } finally {
+                listener.afterTestRun()
+                channel?.cancel(null)
+            }
         }
     }
 

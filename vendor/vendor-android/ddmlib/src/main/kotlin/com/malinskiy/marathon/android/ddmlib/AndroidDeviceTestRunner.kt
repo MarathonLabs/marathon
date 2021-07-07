@@ -7,7 +7,7 @@ import com.android.ddmlib.testrunner.ITestRunListener
 import com.android.ddmlib.testrunner.RemoteAndroidTestRunner
 import com.android.ddmlib.testrunner.TestIdentifier
 import com.malinskiy.marathon.android.AndroidConfiguration
-import com.malinskiy.marathon.android.ApkParser
+import com.malinskiy.marathon.android.AndroidTestBundleIdentifier
 import com.malinskiy.marathon.android.InstrumentationInfo
 import com.malinskiy.marathon.android.executor.listeners.AndroidTestRunListener
 import com.malinskiy.marathon.android.extension.isIgnored
@@ -23,7 +23,7 @@ import java.util.concurrent.TimeUnit
 
 const val ERROR_STUCK = "Test got stuck. You can increase the timeout in settings if it's too strict"
 
-class AndroidDeviceTestRunner(private val device: DdmlibAndroidDevice) {
+class AndroidDeviceTestRunner(private val device: DdmlibAndroidDevice, private val bundleIdentifier: AndroidTestBundleIdentifier) {
     private val logger = MarathonLogging.logger("AndroidDeviceTestRunner")
 
     suspend fun execute(
@@ -35,39 +35,49 @@ class AndroidDeviceTestRunner(private val device: DdmlibAndroidDevice) {
         val ignoredTests = rawTestBatch.tests.filter { test -> test.isIgnored() }
         val testBatch = TestBatch(rawTestBatch.tests - ignoredTests)
         val listenerAdapter = listener.toDdmlibTestListener()
+        if (testBatch.tests.isEmpty()) {
+            notifyIgnoredTest(ignoredTests, listenerAdapter)
+            listener.testRunEnded(0, emptyMap())
+            return
+        }
 
         val androidConfiguration = configuration.vendorConfiguration as AndroidConfiguration
-        val info = ApkParser().parseInstrumentationInfo(androidConfiguration.testApplicationOutput)
-        val runner = prepareTestRunner(configuration, androidConfiguration, info, testBatch)
+        val infoToTestMap: Map<InstrumentationInfo, Test> = testBatch.tests.associateBy {
+            bundleIdentifier.identify(it).instrumentationInfo
+        }
 
-        try {
-            notifyIgnoredTest(ignoredTests, listenerAdapter)
-            if (testBatch.tests.isNotEmpty()) {
-                clearData(androidConfiguration, info)
-                listener.beforeTestRun()
-                runner.run(listenerAdapter)
-            } else {
-                listener.testRunEnded(0, emptyMap())
+        infoToTestMap.keys.forEach { info ->
+            val runner = prepareTestRunner(configuration, androidConfiguration, info, testBatch)
+
+            try {
+                notifyIgnoredTest(ignoredTests, listenerAdapter)
+                if (testBatch.tests.isNotEmpty()) {
+                    clearData(androidConfiguration, info)
+                    listener.beforeTestRun()
+                    runner.run(listenerAdapter)
+                } else {
+                    listener.testRunEnded(0, emptyMap())
+                }
+            } catch (e: ShellCommandUnresponsiveException) {
+                logger.warn(ERROR_STUCK)
+                listener.testRunFailed(ERROR_STUCK)
+            } catch (e: TimeoutException) {
+                logger.warn(ERROR_STUCK)
+                listener.testRunFailed(ERROR_STUCK)
+            } catch (e: AdbCommandRejectedException) {
+                val errorMessage = "adb error while running tests ${testBatch.tests.map { it.toTestName() }}"
+                logger.error(e) { errorMessage }
+                listener.testRunFailed(errorMessage)
+                if (e.isDeviceOffline) {
+                    throw DeviceLostException(e)
+                }
+            } catch (e: IOException) {
+                val errorMessage = "adb error while running tests ${testBatch.tests.map { it.toTestName() }}"
+                logger.error(e) { errorMessage }
+                listener.testRunFailed(errorMessage)
+            } finally {
+                listener.afterTestRun()
             }
-        } catch (e: ShellCommandUnresponsiveException) {
-            logger.warn(ERROR_STUCK)
-            listener.testRunFailed(ERROR_STUCK)
-        } catch (e: TimeoutException) {
-            logger.warn(ERROR_STUCK)
-            listener.testRunFailed(ERROR_STUCK)
-        } catch (e: AdbCommandRejectedException) {
-            val errorMessage = "adb error while running tests ${testBatch.tests.map { it.toTestName() }}"
-            logger.error(e) { errorMessage }
-            listener.testRunFailed(errorMessage)
-            if (e.isDeviceOffline) {
-                throw DeviceLostException(e)
-            }
-        } catch (e: IOException) {
-            val errorMessage = "adb error while running tests ${testBatch.tests.map { it.toTestName() }}"
-            logger.error(e) { errorMessage }
-            listener.testRunFailed(errorMessage)
-        } finally {
-            listener.afterTestRun()
         }
     }
 
