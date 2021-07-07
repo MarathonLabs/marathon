@@ -36,7 +36,7 @@ import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
-import java.util.*
+import java.util.UUID
 import kotlin.system.measureTimeMillis
 
 abstract class BaseAndroidDevice(
@@ -256,7 +256,7 @@ abstract class BaseAndroidDevice(
             listOf(
                 recorderListener,
                 logCatListener,
-                TestRunResultsListener(testBatch, this, deferred, timer, attachmentProviders),
+                TestRunResultsListener(testBatch, this, deferred, timer, progressReporter, devicePoolId, attachmentProviders),
                 DebugTestRunListener(this),
                 ProgressTestRunListener(this, devicePoolId, progressReporter),
                 fileSyncTestRunListener
