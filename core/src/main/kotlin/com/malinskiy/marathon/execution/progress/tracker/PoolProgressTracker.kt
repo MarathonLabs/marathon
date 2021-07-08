@@ -83,11 +83,17 @@ class PoolProgressTracker(private val configuration: Configuration) {
         updateStatus(test, ProgressEvent.Ignored)
     }
 
-    fun aggregateResult(): Boolean = tests.all {
-        when (it.value.state) {
-            is ProgressTestState.Passed -> true
-            is ProgressTestState.Ignored -> true
-            else -> false
+    fun aggregateResult(): Boolean {
+        return if(tests.size == totalTests.get()) {
+            tests.all {
+                when (it.value.state) {
+                    is ProgressTestState.Passed -> true
+                    is ProgressTestState.Ignored -> true
+                    else -> false
+                }
+            }
+        } else {
+            false
         }
     }
 
