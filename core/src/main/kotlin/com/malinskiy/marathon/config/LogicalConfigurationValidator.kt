@@ -17,5 +17,8 @@ class LogicalConfigurationValidator : ConfigurationValidator {
                 )
             }
         }
+        
+        configuration.filteringConfiguration.allowlist.forEach { it.validate() }
+        configuration.filteringConfiguration.blocklist.forEach { it.validate() }
     }
 }

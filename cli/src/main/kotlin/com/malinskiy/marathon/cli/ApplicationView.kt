@@ -30,7 +30,7 @@ fun main(args: Array<String>): Unit = mainBody(
     programName = "marathon v${BuildConfig.VERSION}"
 ) {
     ArgParser(args).parseInto(::MarathonCliConfiguration).run {
-        logger.info { "Starting marathon" }
+        logger.info { "Starting marathon v${BuildConfig.VERSION}" }
         val bugsnagExceptionsReporter = ExceptionsReporterFactory.get(bugsnagReporting)
         try {
             bugsnagExceptionsReporter.start(AppType.CLI)
@@ -54,7 +54,9 @@ fun main(args: Array<String>): Unit = mainBody(
 
             val shouldReportFailure = !configuration.ignoreFailures
             if (!success && shouldReportFailure) {
-                throw SystemExitException("Build failed", 1)
+                throw SystemExitException("Test run failed", 1)
+            } else {
+                throw SystemExitException("Test run finished", 0)
             }
         } finally {
             stopKoin()

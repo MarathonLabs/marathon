@@ -60,7 +60,7 @@ interface AndroidDevice : Device {
     /**
      * @throws com.malinskiy.marathon.android.exception.InstallException in case of failure to push the apk
      */
-    suspend fun installPackage(absolutePath: String, reinstall: Boolean, optionalParams: String): String?
+    suspend fun installPackage(absolutePath: String, reinstall: Boolean, optionalParams: List<String>): String?
     suspend fun safeUninstallPackage(appPackage: String, keepData: Boolean = false): String?
     suspend fun safeClearPackage(packageName: String): String?
 

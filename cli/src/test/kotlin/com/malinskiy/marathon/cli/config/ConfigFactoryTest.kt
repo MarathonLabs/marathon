@@ -44,15 +44,15 @@ import com.malinskiy.marathon.execution.strategy.impl.sorting.ExecutionTimeSorti
 import com.malinskiy.marathon.execution.strategy.impl.sorting.NoSortingStrategy
 import com.malinskiy.marathon.execution.strategy.impl.sorting.SuccessRateSortingStrategy
 import com.malinskiy.marathon.ios.IOSConfiguration
+import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
 import ddmlibModule
 import org.amshove.kluent.`it returns`
 import org.amshove.kluent.`should be equal to`
 import org.amshove.kluent.`should be instance of`
-import org.amshove.kluent.mock
 import org.amshove.kluent.shouldBe
 import org.amshove.kluent.shouldBeEmpty
-import org.amshove.kluent.shouldContainAll
+import org.amshove.kluent.shouldContainSame
 import org.amshove.kluent.shouldEqual
 import org.amshove.kluent.shouldThrow
 import org.junit.jupiter.api.BeforeEach
@@ -73,8 +73,8 @@ class ConfigFactoryTest {
     lateinit var parser: ConfigFactory
 
     fun mockEnvironmentReader(path: String? = null): EnvironmentReader {
-        val environmentReader: EnvironmentReader = mock()
-        whenever(environmentReader.read()) `it returns` EnvironmentConfiguration(path?.let { File(it) })
+        val environmentReader = mock<EnvironmentReader>()
+        whenever(environmentReader.read()).thenReturn(EnvironmentConfiguration(path?.let { File(it) }))
         return environmentReader
     }
 
@@ -129,9 +129,11 @@ class ConfigFactoryTest {
         configuration.retryStrategy shouldEqual FixedQuotaRetryStrategy(100, 2)
         SimpleClassnameFilter(".*".toRegex()) shouldEqual SimpleClassnameFilter(".*".toRegex())
 
-        configuration.filteringConfiguration.allowlist shouldContainAll listOf(
+        configuration.filteringConfiguration.allowlist shouldContainSame listOf(
             SimpleClassnameFilter(".*".toRegex()),
+            SimpleClassnameFilter(values = listOf("SimpleTest")),
             FullyQualifiedClassnameFilter(".*".toRegex()),
+            FullyQualifiedClassnameFilter(file = File("filterfile")),
             TestMethodFilter(".*".toRegex()),
             CompositionFilter(
                 listOf(
@@ -141,12 +143,12 @@ class ConfigFactoryTest {
             )
         )
 
-        configuration.filteringConfiguration.blocklist shouldContainAll listOf(
+        configuration.filteringConfiguration.blocklist shouldContainSame listOf(
             TestPackageFilter(".*".toRegex()),
             AnnotationFilter(".*".toRegex()),
             AnnotationDataFilter(".*".toRegex(), ".*".toRegex())
         )
-        configuration.testClassRegexes.map { it.toString() } shouldContainAll listOf("^((?!Abstract).)*Test$")
+        configuration.testClassRegexes.map { it.toString() } shouldContainSame listOf("^((?!Abstract).)*Test$")
 
         // Regex doesn't have proper equals method. Need to check the patter itself
         configuration.includeSerialRegexes.joinToString(separator = "") { it.pattern } shouldEqual """emulator-500[2,4]""".toRegex().pattern
@@ -165,6 +167,7 @@ class ConfigFactoryTest {
             File("/local/android"),
             File("kotlin-buildscript/build/outputs/apk/debug/kotlin-buildscript-debug.apk"),
             File("kotlin-buildscript/build/outputs/apk/androidTest/debug/kotlin-buildscript-debug-androidTest.apk"),
+            null,
             listOf(ddmlibModule),
             true,
             mapOf("debug" to "false"),
@@ -222,7 +225,7 @@ class ConfigFactoryTest {
         configuration.filteringConfiguration.allowlist.shouldBeEmpty()
         configuration.filteringConfiguration.blocklist.shouldBeEmpty()
 
-        configuration.testClassRegexes.map { it.toString() } shouldContainAll listOf("^((?!Abstract).)*Test[s]*$")
+        configuration.testClassRegexes.map { it.toString() } shouldContainSame listOf("^((?!Abstract).)*Test[s]*$")
 
         configuration.includeSerialRegexes shouldEqual emptyList()
         configuration.excludeSerialRegexes shouldEqual emptyList()
@@ -237,6 +240,7 @@ class ConfigFactoryTest {
             File("/local/android"),
             File("kotlin-buildscript/build/outputs/apk/debug/kotlin-buildscript-debug.apk"),
             File("kotlin-buildscript/build/outputs/apk/androidTest/debug/kotlin-buildscript-debug-androidTest.apk"),
+            null,
             listOf(ddmlibModule),
             false,
             mapOf(),
@@ -296,6 +300,7 @@ class ConfigFactoryTest {
             environmentReader.read().androidSdk!!,
             File("kotlin-buildscript/build/outputs/apk/debug/kotlin-buildscript-debug.apk"),
             File("kotlin-buildscript/build/outputs/apk/androidTest/debug/kotlin-buildscript-debug-androidTest.apk"),
+            null,
             listOf(ddmlibModule),
             false,
             mapOf(),

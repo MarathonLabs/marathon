@@ -23,6 +23,7 @@ class FlakinessStrategyDeserializer : StdDeserializer<FlakinessStrategy>(Flakine
             "probability" -> {
                 (node as ObjectNode).remove("type")
                 return codec.treeToValue<ProbabilityBasedFlakinessStrategy>(node)
+                    ?: throw ConfigurationException("Missing flakiness strategy")
             }
             else -> throw ConfigurationException("Unrecognized flakiness strategy $type")
         }

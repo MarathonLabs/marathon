@@ -1,10 +1,10 @@
 object Versions {
     val kotlin = "1.4.10"
-    val coroutines = "1.3.9"
+    val coroutines = "1.4.3"
 
-    val androidGradleVersion = "4.1.0"
+    val androidGradleVersion = "4.2.0"
 
-    val kakao = "2.4.0"
+    val kakao = "3.0.2"
     val espresso = "3.3.0"
     val espressoRules = "1.3.0"
     val espressoRunner = "1.3.0"
@@ -29,7 +29,7 @@ object Libraries {
 }
 
 object TestLibraries {
-    val kakao = "com.agoda.kakao:kakao:${Versions.kakao}"
+    val kakao = "io.github.kakaocup:kakao:${Versions.kakao}"
 
     val testRunner = "androidx.test:runner:${Versions.espressoRunner}"
     val testRules = "androidx.test:rules:${Versions.espressoRules}"

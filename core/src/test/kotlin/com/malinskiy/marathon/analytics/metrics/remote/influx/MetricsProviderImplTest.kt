@@ -7,10 +7,10 @@ import com.malinskiy.marathon.analytics.metrics.remote.SuccessRate
 import com.malinskiy.marathon.generateTest
 import com.malinskiy.marathon.test.toSafeTestName
 import com.nhaarman.mockitokotlin2.eq
+import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
 import com.nhaarman.mockitokotlin2.whenever
-import org.amshove.kluent.mock
 import org.amshove.kluent.shouldEqualTo
 import org.junit.jupiter.api.Test
 import java.time.Instant

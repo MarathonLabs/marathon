@@ -21,7 +21,7 @@ class ShardingStrategyDeserializer : StdDeserializer<ShardingStrategy>(ShardingS
         return when (type) {
             "count" -> {
                 (node as ObjectNode).remove("type")
-                return codec.treeToValue<CountShardingStrategy>(node)
+                return codec.treeToValue<CountShardingStrategy>(node) ?: throw ConfigurationException("Missing sharding strategy")
             }
             "parallel" -> ParallelShardingStrategy()
             else -> throw ConfigurationException("Unrecognized sharding strategy ${type}")

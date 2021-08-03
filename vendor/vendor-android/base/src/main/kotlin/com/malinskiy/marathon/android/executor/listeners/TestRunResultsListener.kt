@@ -5,11 +5,13 @@ import com.malinskiy.marathon.android.model.AndroidTestStatus
 import com.malinskiy.marathon.android.model.TestIdentifier
 import com.malinskiy.marathon.android.model.TestRunResultsAccumulator
 import com.malinskiy.marathon.device.Device
+import com.malinskiy.marathon.device.DevicePoolId
 import com.malinskiy.marathon.device.toDeviceInfo
 import com.malinskiy.marathon.execution.Attachment
 import com.malinskiy.marathon.execution.TestBatchResults
 import com.malinskiy.marathon.execution.TestResult
 import com.malinskiy.marathon.execution.TestStatus
+import com.malinskiy.marathon.execution.progress.ProgressReporter
 import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.report.attachment.AttachmentListener
 import com.malinskiy.marathon.report.attachment.AttachmentProvider
@@ -24,8 +26,10 @@ class TestRunResultsListener(
     private val device: Device,
     private val deferred: CompletableDeferred<TestBatchResults>,
     private val timer: Timer,
+    private val progressReporter: ProgressReporter,
+    private val poolId: DevicePoolId,
     attachmentProviders: List<AttachmentProvider>
-) : AbstractTestRunResultListener(), AttachmentListener {
+) : AbstractTestRunResultListener(timer), AttachmentListener {
 
     private val attachments: MutableMap<Test, MutableList<Attachment>> = mutableMapOf()
     private val creationTime = timer.currentTimeMillis()
@@ -125,6 +129,8 @@ class TestRunResultsListener(
                     result[realIdentifier] = e.value
                 } else {
                     result[realIdentifier]?.status = maybeExistingParameterizedResult.status + e.value.status
+                    //Needed for proper result aggregation
+                    progressReporter.addTests(poolId, 1)
                 }
             } else {
                 result[test] = e.value

@@ -11,6 +11,7 @@ import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.execution.Scheduler
 import com.malinskiy.marathon.execution.TestParser
 import com.malinskiy.marathon.execution.TestShard
+import com.malinskiy.marathon.execution.bundle.TestBundleIdentifier
 import com.malinskiy.marathon.execution.progress.ProgressReporter
 import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.test.Test
@@ -52,6 +53,10 @@ class Marathon(
         return vendorDeviceProvider
     }
 
+    private fun loadTestBundleIdentifier(vendorConfiguration: VendorConfiguration): TestBundleIdentifier? {
+        return vendorConfiguration.testBundleIdentifier() ?: ServiceLoader.load(TestBundleIdentifier::class.java).firstOrNull()
+    }
+
     private fun loadTestParser(vendorConfiguration: VendorConfiguration): TestParser {
         val vendorTestParser = vendorConfiguration.testParser()
         if (vendorTestParser != null) {
@@ -83,6 +88,7 @@ class Marathon(
 
         val testParser = loadTestParser(configuration.vendorConfiguration)
         val deviceProvider = loadDeviceProvider(configuration.vendorConfiguration)
+        val testBundleIdentifier = loadTestBundleIdentifier(configuration.vendorConfiguration)
 
         configurationValidator.validate(configuration)
 
@@ -104,6 +110,7 @@ class Marathon(
             progressReporter,
             track,
             timer,
+            testBundleIdentifier,
             currentCoroutineContext
         )
 

@@ -1,6 +1,6 @@
 package com.malinskiy.marathon.test
 
-import java.util.*
+import java.util.Objects
 
 data class Test(
     val pkg: String,
@@ -25,4 +25,13 @@ data class Test(
 fun Test.toTestName(): String = "$pkg.$clazz#$method"
 fun Test.toSimpleSafeTestName(): String = "$clazz.$method"
 fun Test.toSafeTestName(): String = "$pkg.$clazz.$method"
-
+fun Test.toHumanReadableTestName(): String {
+    return StringBuilder().apply {
+        if (pkg.isNotBlank()) {
+            append("$pkg.")
+        }
+        append(clazz)
+        append('#')
+        append(method)
+    }.toString()
+}

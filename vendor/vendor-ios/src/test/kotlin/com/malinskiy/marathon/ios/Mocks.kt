@@ -6,13 +6,13 @@ import com.malinskiy.marathon.ios.cmd.remote.CommandSession
 import com.malinskiy.marathon.ios.device.RemoteSimulator
 import com.malinskiy.marathon.ios.simctl.model.SimctlDeviceList
 import com.malinskiy.marathon.ios.simctl.model.SimctlDeviceListDeserializer
-import org.amshove.kluent.mock
+import com.nhaarman.mockitokotlin2.mock
 
 class Mocks {
     class CommandExecutor {
         companion object {
             val DEFAULT = object : com.malinskiy.marathon.ios.cmd.remote.CommandExecutor {
-                val mock = mock(CommandSession::class)
+                val mock = mock<CommandSession>()
                 override fun startSession(command: String): CommandSession = mock
 
                 override fun execBlocking(command: String, maxExecutionDurationMillis: Long, testOutputTimeoutMillis: Long): CommandResult =
@@ -37,7 +37,7 @@ class Mocks {
             val DEFAULT = com.malinskiy.marathon.ios.IOSDevice(
                 RemoteSimulator("localhost", "63D0962A-0A41-4BE9-A99E-E6220412BEB1", null),
                 1,
-                mock(IOSConfiguration::class),
+                mock<IOSConfiguration>(),
                 gson,
                 mock(),
                 object : HealthChangeListener {

@@ -1,0 +1,26 @@
+name: "Multi-project Android tests"
+outputDir: "build/reports/marathon"
+isCodeCoverageEnabled: true
+batchingStrategy:
+  type: "fixed-size"
+  size: 5
+retryStrategy:
+  type: "fixed-quota"
+  totalAllowedRetryQuota: 100
+  retryPerTestQuota: 2
+vendorConfiguration:
+  type: "Android"
+  outputs:
+  - application: "android-app/app/build/outputs/apk/debug/app-debug.apk"
+    testApplication: "android-app/app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk"
+  - testApplication: "android-library/library/build/outputs/apk/androidTest/debug/library-debug-androidTest.apk"  
+  autoGrantPermission: true
+  instrumentationArgs:
+    debug: "false"
+  applicationPmClear: true
+  testApplicationPmClear: true
+  vendor: ADAM
+  waitForDevicesTimeoutMillis: 60000
+  allureConfiguration:
+    enabled: true
+deviceInitializationTimeoutMillis: 180000
