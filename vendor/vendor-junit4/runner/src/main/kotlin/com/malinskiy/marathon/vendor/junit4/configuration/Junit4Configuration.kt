@@ -5,8 +5,8 @@ import com.malinskiy.marathon.vendor.VendorConfiguration
 import com.malinskiy.marathon.vendor.junit4.Junit4DeviceProvider
 import com.malinskiy.marathon.vendor.junit4.JupiterTestParser
 import com.malinskiy.marathon.vendor.junit4.parsing.TestBundle
-import org.koin.core.KoinComponent
-import org.koin.core.get
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.get
 import java.io.File
 
 data class Junit4Configuration(

@@ -34,7 +34,7 @@ class FileVendorConfigurationDeserializer : StdDeserializer<FileVendorConfigurat
             }
             TYPE_JUnit4 -> {
                 (node as ObjectNode).remove("type")
-                codec.treeToValue<FileJUnit4Configuration>(node)
+                codec.treeToValue<FileJUnit4Configuration>(node) ?: throw ConfigurationException("Missing vendor configuration")
             }
             else -> throw ConfigurationException(
                 "Unrecognized vendor type $type. " +
