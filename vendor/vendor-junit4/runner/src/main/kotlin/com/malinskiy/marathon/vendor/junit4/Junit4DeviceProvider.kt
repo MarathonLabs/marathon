@@ -2,6 +2,7 @@ package com.malinskiy.marathon.vendor.junit4
 
 import com.malinskiy.marathon.actor.unboundedChannel
 import com.malinskiy.marathon.device.DeviceProvider
+import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.time.Timer
 import com.malinskiy.marathon.vendor.VendorConfiguration
 import kotlinx.coroutines.channels.Channel
@@ -9,9 +10,10 @@ import kotlinx.coroutines.runBlocking
 import java.util.concurrent.ConcurrentHashMap
 
 class Junit4DeviceProvider(
+    private val configuration: Configuration,
     private val timer: Timer
 ) : DeviceProvider {
-    override val deviceInitializationTimeoutMillis: Long = 1_000
+    override val deviceInitializationTimeoutMillis: Long = configuration.deviceInitializationTimeoutMillis
 
     private val channel: Channel<DeviceProvider.DeviceEvent> = unboundedChannel()
     private val devices: MutableMap<String, Junit4Device> = ConcurrentHashMap()

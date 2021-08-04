@@ -20,5 +20,5 @@ data class Junit4Configuration(
 
     override fun testParser() = JupiterTestParser()
 
-    override fun deviceProvider() = Junit4DeviceProvider(get())
+    override fun deviceProvider() = Junit4DeviceProvider(get(), get())
 }
