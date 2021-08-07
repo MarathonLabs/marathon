@@ -17,11 +17,14 @@ import org.junit.runner.Result
 import org.junit.runner.manipulation.Filter
 import org.junit.runner.notification.Failure
 import org.junit.runner.notification.RunListener
+import java.io.File
+import java.net.URLClassLoader
 
 class TestExecutorServer(private val port: Int) {
     private val server: Server = ServerBuilder
         .forPort(port)
         .addService(TestExecutorService())
+        .maxInboundMessageSize((32 * 1e6).toInt())
         .build()
 
     fun start() {
@@ -29,7 +32,7 @@ class TestExecutorServer(private val port: Int) {
         println("Server started, listening on $port")
         Runtime.getRuntime().addShutdownHook(
             Thread {
-                println("*** shutting down gRPC server since JVM is shutting down")
+                println("*** JVM is shutting down: shutting down gRPC server")
                 this@TestExecutorServer.stop()
                 println("*** server shut down")
             }
@@ -48,184 +51,170 @@ class TestExecutorServer(private val port: Int) {
         private val core = JUnitCore()
 
         override fun execute(request: TestRequest): Flow<TestEvent> {
-            val tests = request.testDescriptionList
+            try {
+                val tests = request.testDescriptionList
 
-            val klasses = mutableSetOf<Class<*>>()
-            val testDescriptions = tests.map { test ->
-                val fqtn = test.fqtn
-                val klass = fqtn.substringBefore('#')
-                val loadClass = Class.forName(klass)
-                klasses.add(loadClass)
+                val classloader: ClassLoader = URLClassLoader.newInstance(
+                    request.testEnvironment.classpathList.map { File(it).toURI().toURL() }.toTypedArray(),
+                    Thread.currentThread().contextClassLoader
+                )
 
-                val method = fqtn.substringAfter('#')
-                Description.createTestDescription(loadClass, method)
-            }.toHashSet()
+                return classloader.switch {
+                    val klasses = mutableSetOf<Class<*>>()
+                    val testDescriptions = tests.map { test ->
+                        val fqtn = test.fqtn
+                        val klass = fqtn.substringBefore('#')
+                        val loadClass = Class.forName(klass, false, classloader)
+                        klasses.add(loadClass)
 
-            val testFilter = TestFilter(testDescriptions)
-            val request = Request.classes(*klasses.toTypedArray())
-                .filterWith(testFilter)
+                        val method = fqtn.substringAfter('#')
+                        Description.createTestDescription(loadClass, method)
+                    }.toHashSet()
 
-//            val request = Request.classes(Class.forName("com.atlassian.renderer.v2.functional.TestLink"))
-//                .filterWith(
-//                    TestFilter(
-//                        hashSetOf(
-//                            Description.createTestDescription(
-//                                Class.forName("com.atlassian.renderer.v2.functional.TestLink"),
-//                                "link2 raw"
-//                            )
-//                        )
-//                    )
-//                )
+                    val testFilter = TestFilter(testDescriptions)
+                    val request = Request.classes(*klasses.toTypedArray())
+                        .filterWith(testFilter)
 
-            return callbackFlow {
-                val callback = object : RunListener() {
-                    override fun testRunStarted(description: Description) {
-                        super.testRunStarted(description)
+                    return@switch callbackFlow {
+                        val callback = object : RunListener() {
+                            override fun testRunStarted(description: Description) {
+                                super.testRunStarted(description)
 //                        println("Started: ${description}")
-                        try {
-                            sendBlocking(
-                                TestEvent.newBuilder()
-                                    .setEventType(EventType.RUN_STARTED)
-                                    .build()
-                            )
-                        } catch (e: Exception) {
-                            // Handle exception from the channel: failure in flow or premature closing
-                        }
-                    }
+                                try {
+                                    sendBlocking(
+                                        TestEvent.newBuilder()
+                                            .setEventType(EventType.RUN_STARTED)
+                                            .build()
+                                    )
+                                } catch (e: Exception) {
+                                    // Handle exception from the channel: failure in flow or premature closing
+                                }
+                            }
 
-                    override fun testRunFinished(result: Result) {
-                        super.testRunFinished(result)
-                        try {
-                            sendBlocking(
-                                TestEvent.newBuilder()
-                                    .setEventType(EventType.RUN_FINISHED)
-                                    .setTotalDurationMillis(result.runTime)
-                                    .build()
-                            )
-                        } catch (e: Exception) {
-                            // Handle exception from the channel: failure in flow or premature closing
-                        }
+                            override fun testRunFinished(result: Result) {
+                                super.testRunFinished(result)
+                                try {
+                                    sendBlocking(
+                                        TestEvent.newBuilder()
+                                            .setEventType(EventType.RUN_FINISHED)
+                                            .setTotalDurationMillis(result.runTime)
+                                            .build()
+                                    )
+                                } catch (e: Exception) {
+                                    // Handle exception from the channel: failure in flow or premature closing
+                                }
 
-                        channel.close()
-                    }
+                                channel.close()
+                            }
 
-                    override fun testStarted(description: Description) {
-                        super.testStarted(description)
-                        val description = description.toActualDescription(testFilter.actualClassLocator)
-                        try {
-                            sendBlocking(
-                                TestEvent.newBuilder()
-                                    .setEventType(EventType.TEST_STARTED)
-                                    .setClassname(description.className)
-                                    .setMethod(description.methodName)
-                                    .setTestCount(description.testCount())
-                                    .build()
-                            )
-                        } catch (e: Exception) {
-                            // Handle exception from the channel: failure in flow or premature closing
-                        }
-                    }
+                            override fun testStarted(description: Description) {
+                                super.testStarted(description)
+                                val description = description.toActualDescription(testFilter.actualClassLocator)
+                                try {
+                                    sendBlocking(
+                                        TestEvent.newBuilder()
+                                            .setEventType(EventType.TEST_STARTED)
+                                            .setClassname(description.className)
+                                            .setMethod(description.methodName)
+                                            .setTestCount(description.testCount())
+                                            .build()
+                                    )
+                                } catch (e: Exception) {
+                                    // Handle exception from the channel: failure in flow or premature closing
+                                }
+                            }
 
-                    override fun testFinished(description: Description) {
-                        super.testFinished(description)
-                        val description = description.toActualDescription(testFilter.actualClassLocator)
-                        try {
-                            sendBlocking(
-                                TestEvent.newBuilder()
-                                    .setEventType(EventType.TEST_FINISHED)
-                                    .setClassname(description.className)
-                                    .setMethod(description.methodName)
-                                    .build()
-                            )
-                        } catch (e: Exception) {
-                            // Handle exception from the channel: failure in flow or premature closing
-                        }
-                    }
+                            override fun testFinished(description: Description) {
+                                super.testFinished(description)
+                                val description = description.toActualDescription(testFilter.actualClassLocator)
+                                try {
+                                    sendBlocking(
+                                        TestEvent.newBuilder()
+                                            .setEventType(EventType.TEST_FINISHED)
+                                            .setClassname(description.className)
+                                            .setMethod(description.methodName)
+                                            .build()
+                                    )
+                                } catch (e: Exception) {
+                                    // Handle exception from the channel: failure in flow or premature closing
+                                }
+                            }
 
-                    override fun testFailure(failure: Failure) {
-                        super.testFailure(failure)
-                        val description = failure.description.toActualDescription(testFilter.actualClassLocator)
+                            override fun testFailure(failure: Failure) {
+                                super.testFailure(failure)
+                                val description = failure.description.toActualDescription(testFilter.actualClassLocator)
 //                        println(failure.exception.cause?.printStackTrace())
-                        try {
-                            sendBlocking(
-                                TestEvent.newBuilder()
-                                    .setEventType(EventType.TEST_FAILURE)
-                                    .setClassname(description.className)
-                                    .setMethod(description.methodName)
-                                    .setMessage(failure.message)
-                                    .setStacktrace(failure.trace)
-                                    .build()
-                            )
-                        } catch (e: Exception) {
-                            // Handle exception from the channel: failure in flow or premature closing
-                        }
-                    }
+                                try {
+                                    sendBlocking(
+                                        TestEvent.newBuilder()
+                                            .setEventType(EventType.TEST_FAILURE)
+                                            .setClassname(description.className)
+                                            .setMethod(description.methodName)
+                                            .setMessage(failure.message)
+                                            .setStacktrace(failure.trace)
+                                            .build()
+                                    )
+                                } catch (e: Exception) {
+                                    // Handle exception from the channel: failure in flow or premature closing
+                                }
+                            }
 
-                    override fun testAssumptionFailure(failure: Failure) {
-                        super.testAssumptionFailure(failure)
-                        val description = failure.description.toActualDescription(testFilter.actualClassLocator)
-                        try {
-                            sendBlocking(
-                                TestEvent.newBuilder()
-                                    .setEventType(EventType.TEST_ASSUMPTION_FAILURE)
-                                    .setClassname(description.className)
-                                    .setMethod(description.methodName)
-                                    .setMessage(failure.message)
-                                    .setStacktrace(failure.trace)
-                                    .build()
-                            )
-                        } catch (e: Exception) {
-                            // Handle exception from the channel: failure in flow or premature closing
-                        }
-                    }
+                            override fun testAssumptionFailure(failure: Failure) {
+                                super.testAssumptionFailure(failure)
+                                val description = failure.description.toActualDescription(testFilter.actualClassLocator)
+                                try {
+                                    sendBlocking(
+                                        TestEvent.newBuilder()
+                                            .setEventType(EventType.TEST_ASSUMPTION_FAILURE)
+                                            .setClassname(description.className)
+                                            .setMethod(description.methodName)
+                                            .setMessage(failure.message)
+                                            .setStacktrace(failure.trace)
+                                            .build()
+                                    )
+                                } catch (e: Exception) {
+                                    // Handle exception from the channel: failure in flow or premature closing
+                                }
+                            }
 
-                    override fun testIgnored(description: Description) {
-                        super.testIgnored(description)
-                        val description = description.toActualDescription(testFilter.actualClassLocator)
+                            override fun testIgnored(description: Description) {
+                                super.testIgnored(description)
+                                val description = description.toActualDescription(testFilter.actualClassLocator)
+                                try {
+                                    sendBlocking(
+                                        TestEvent.newBuilder()
+                                            .setEventType(EventType.TEST_IGNORED)
+                                            .setClassname(description.className)
+                                            .setMethod(description.methodName)
+                                            .build()
+                                    )
+                                } catch (e: Exception) {
+                                    // Handle exception from the channel: failure in flow or premature closing
+                                }
+                            }
+                        }
+
+                        core.addListener(callback)
                         try {
-                            sendBlocking(
-                                TestEvent.newBuilder()
-                                    .setEventType(EventType.TEST_IGNORED)
-                                    .setClassname(description.className)
-                                    .setMethod(description.methodName)
-                                    .build()
-                            )
+                            val result = core.run(request)
                         } catch (e: Exception) {
-                            // Handle exception from the channel: failure in flow or premature closing
+                            e.printStackTrace()
+                        }
+                        awaitClose {
+                            core.removeListener(callback)
                         }
                     }
                 }
-                core.addListener(callback)
-                val result = core.run(request)
-//                println(
-//                    """
-//                    Success: ${result.wasSuccessful()}
-//                    Tests: ${result.runCount}
-//                    Ignored: ${result.ignoreCount}
-//                    Failures: ${result.failureCount}
-//                    ${result.failures.joinToString("\n") { "${it.description.displayName}: ${it.message}" }}
-//                    """.trimIndent()
-//                )
-//                result.failures.forEach {
-//                    println(
-//                        """
-//                            ${it.testHeader}
-//                            ${it.message}: ${it.description}
-//                            ${it.exception}
-//                            ${it.trace}
-//                        """.trimIndent()
-//                    )
-//                }
-                awaitClose {
-                    core.removeListener(callback)
-                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+                throw e
             }
         }
     }
 }
 
 private fun Description.toActualDescription(actualClassLocator: MutableMap<Description, String>): Description {
-    return if(className == TestFilter.CLASS_NAME_STUB) {
+    return if (className == TestFilter.CLASS_NAME_STUB) {
         Description.createTestDescription(actualClassLocator[this], methodName, *annotations.toTypedArray())
     } else {
         this
@@ -237,7 +226,7 @@ class TestFilter(private val testDescriptions: HashSet<Description>) : Filter() 
     val actualClassLocator = mutableMapOf<Description, String>()
 
     override fun shouldRun(description: Description): Boolean {
-//        println("JUnit asks about $description")
+        println("JUnit asks about $description")
 
         return if (verifiedChildren.contains(description)) {
 //            println("Already unfiltered $description before")
@@ -249,7 +238,7 @@ class TestFilter(private val testDescriptions: HashSet<Description>) : Filter() 
 
     fun shouldRun(description: Description, className: String?): Boolean {
         if (description.isTest) {
-//            println("$description")
+            println("$description")
             /**
              * Handling for parameterized tests that report org.junit.runners.model.TestClass as their test class
              */
@@ -261,7 +250,7 @@ class TestFilter(private val testDescriptions: HashSet<Description>) : Filter() 
             val contains = testDescriptions.contains(verificationDescription)
             if (contains) {
                 verifiedChildren.add(description)
-                if(description.className == CLASS_NAME_STUB && className != null) {
+                if (description.className == CLASS_NAME_STUB && className != null) {
                     actualClassLocator[description] = className
                 }
             }
@@ -270,17 +259,19 @@ class TestFilter(private val testDescriptions: HashSet<Description>) : Filter() 
         }
 
         // explicitly check if any children want to run
+        var childrenResult = false
         for (each in description.children) {
 //            println("$description")
             if (shouldRun(each!!, description.className)) {
-                return true
+                childrenResult = true
             }
         }
-        return false
+
+        return childrenResult
     }
 
     override fun describe() = "Marathon JUnit4 execution filter"
-    
+
     companion object {
         const val CLASS_NAME_STUB = "org.junit.runners.model.TestClass"
     }

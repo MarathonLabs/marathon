@@ -3,6 +3,7 @@ package com.malinskiy.marathon.vendor.junit4
 import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.execution.TestParser
 import com.malinskiy.marathon.log.MarathonLogging
+import com.malinskiy.marathon.test.MetaProperty
 import com.malinskiy.marathon.test.Test
 import com.malinskiy.marathon.vendor.junit4.configuration.Junit4Configuration
 import com.malinskiy.marathon.vendor.junit4.extensions.switch
@@ -20,15 +21,23 @@ import org.junit.vintage.engine.VintageTestEngine
 import java.io.File
 import java.net.URLClassLoader
 
-class JupiterTestParser : TestParser {
+class JupiterTestParser(private val testBundleIdentifier: Junit4TestBundleIdentifier) : TestParser {
     private val logger = MarathonLogging.logger {}
 
     override fun extract(configuration: Configuration): List<Test> {
         val conf = configuration.vendorConfiguration as Junit4Configuration
         val discoveredTests = mutableListOf<Test>()
 
-        conf.testBundles?.forEach { bundle ->
-            logger.debug { "Parsing ${bundle.name}" }
+        /**
+         * Parallelization is not supported currently by junit5
+         */
+        var counter = 1
+        conf.testBundlesCompat().forEach { bundle ->
+            logger.info { "Parsing ${bundle.id}" }
+            println("Parsing ${counter++} of ${conf.testBundlesCompat().size}")
+
+            val bundleTests = mutableListOf<Test>()
+
             val cp = mutableListOf<File>().apply {
                 bundle.testClasspath?.let { addAll(it) }
                 bundle.applicationClasspath?.let { addAll(it) }
@@ -72,14 +81,14 @@ class JupiterTestParser : TestParser {
                                         val source = method.source.get()
                                         when (source) {
                                             is MethodSource -> {
-                                                discoveredTests.add(source.toTest())
+                                                bundleTests.add(source.toTest())
                                             }
                                             is ClassSource -> {
                                                 val testIdentifier = plan.getTestIdentifier(method.uniqueId)
                                                 if (plan.getParent(testIdentifier).isPresent) {
                                                     val parent = plan.getParent(testIdentifier).get()
                                                     val classSource = parent.source.get() as ClassSource
-                                                    discoveredTests.add(classSource.toTest(source, testIdentifier.displayName))
+                                                    bundleTests.add(classSource.toTest(source, testIdentifier.displayName))
                                                 } else {
                                                     logger.warn { "Unknown test ${method.uniqueId}" }
                                                 }
@@ -95,7 +104,7 @@ class JupiterTestParser : TestParser {
                                                 val source = parameterizedTest.source.get()
                                                 when (source) {
                                                     is MethodSource -> {
-                                                        discoveredTests.add(source.toParameterizedTest(parameterizedTest))
+                                                        bundleTests.add(source.toParameterizedTest(parameterizedTest))
                                                     }
                                                     else -> {
                                                         logger.warn { "Unknown test ${parameterizedTest.uniqueId}" }
@@ -114,6 +123,11 @@ class JupiterTestParser : TestParser {
                     }
                 }
             }
+
+            bundleTests.forEach {
+                testBundleIdentifier.put(it, bundle)
+            }
+            discoveredTests.addAll(bundleTests)
         }
 
         return discoveredTests.toList()
@@ -135,5 +149,8 @@ private fun MethodSource.toTest(): Test {
 private fun MethodSource.toParameterizedTest(parameterizedTest: TestIdentifier): Test {
     val clazz = className.substringAfterLast(".")
     val pkg = className.substringBeforeLast(".")
-    return Test(pkg, clazz, parameterizedTest.displayName, emptyList())
+    val meta = javaMethod.declaredAnnotations.mapNotNull { it.annotationClass.qualifiedName?.let { name -> MetaProperty(name) } } +
+        javaClass.declaredAnnotations.mapNotNull { it.annotationClass.qualifiedName?.let { name -> MetaProperty(name) } }
+
+    return Test(pkg, clazz, parameterizedTest.displayName, meta)
 }

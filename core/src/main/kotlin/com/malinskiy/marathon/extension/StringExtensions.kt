@@ -20,7 +20,11 @@ object MD5 {
 }
 
 fun String.safePathLength(): String {
-    return if(length >= 128) {
+    return if (length >= 128) {
         substring(0 until 128)
     } else this
+}
+
+fun String.escape(): String {
+    return replace(regex = "[^a-zA-Z0-9\\.\\#]".toRegex(), "-")
 }

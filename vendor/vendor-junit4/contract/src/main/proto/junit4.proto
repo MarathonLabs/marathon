@@ -29,11 +29,16 @@ message TestEvent {
 
 message TestRequest {
     repeated TestDescription testDescription = 1;
+    TestEnvironment testEnvironment = 2;
+}
+
+message TestEnvironment {
+    repeated string classpath = 1;
 }
 
 message TestDescription {
     string fqtn = 1;
-    string description = 2; 
+    string description = 2;
 }
 
 service TestExecutor {

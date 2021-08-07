@@ -22,6 +22,7 @@ import com.malinskiy.marathon.time.Timer
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.SendChannel
+import kotlinx.coroutines.job
 import java.util.PriorityQueue
 import java.util.Queue
 import kotlin.coroutines.CoroutineContext
@@ -57,6 +58,22 @@ class QueueActor(
     init {
         queue.addAll(testShard.tests + testShard.flakyTests)
         progressReporter.totalTests(poolId, queue.size)
+        coroutineContext.job.invokeOnCompletion {
+            if (activeBatches.isNotEmpty()) {
+                /**
+                 * This prints out the in-progress batches for hanging build
+                 */
+                logger.warn {
+                    "Closing active queue. Tests in progress:\n" + activeBatches.map {
+                        "${it.key}\n${
+                            it.value.tests.joinToString(
+                                separator = "\n - "
+                            ) { test -> test.toTestName() }
+                        }"
+                    }
+                }
+            }
+        }
     }
 
     override suspend fun receive(msg: QueueMessage) {

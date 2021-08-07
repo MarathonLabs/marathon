@@ -37,8 +37,10 @@ class LogListener(private val device: Junit4Device,
     }
 
     override suspend fun testEnded(test: TestIdentifier, testMetrics: Map<String, String>) {
-        val file = logWriter.saveLogs(test.toTest(), devicePoolId, testBatchId, device.toDeviceInfo(), listOf(stringBuffer.toString()))
-        attachmentListeners.forEach { it.onAttachment(test.toTest(), Attachment(file, AttachmentType.LOG)) }
+        if (stringBuffer.isNotEmpty()) {
+            val file = logWriter.saveLogs(test.toTest(), devicePoolId, testBatchId, device.toDeviceInfo(), listOf(stringBuffer.toString()))
+            attachmentListeners.forEach { it.onAttachment(test.toTest(), Attachment(file, AttachmentType.LOG)) }
+        }
     }
 
     override suspend fun testRunEnded(elapsedTime: Long, runMetrics: Map<String, String>) {

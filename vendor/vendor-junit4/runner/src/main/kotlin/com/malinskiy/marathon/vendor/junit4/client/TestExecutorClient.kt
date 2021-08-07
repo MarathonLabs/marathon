@@ -4,6 +4,7 @@ import com.malinskiy.marathon.test.Test
 import com.malinskiy.marathon.test.toTestName
 import com.malinskiy.marathon.vendor.junit4.contract.EventType
 import com.malinskiy.marathon.vendor.junit4.contract.TestDescription
+import com.malinskiy.marathon.vendor.junit4.contract.TestEnvironment
 import com.malinskiy.marathon.vendor.junit4.contract.TestEvent
 import com.malinskiy.marathon.vendor.junit4.contract.TestExecutorGrpcKt
 import com.malinskiy.marathon.vendor.junit4.contract.TestRequest
@@ -13,16 +14,19 @@ import io.grpc.ManagedChannel
 import io.grpc.StatusException
 import kotlinx.coroutines.flow.collect
 import java.io.Closeable
+import java.io.File
 import java.util.concurrent.TimeUnit
 
 class TestExecutorClient(
     private val channel: ManagedChannel
 ) : Closeable {
     private val stub: TestExecutorGrpcKt.TestExecutorCoroutineStub =
-        TestExecutorGrpcKt.TestExecutorCoroutineStub(channel).withWaitForReady()
+        TestExecutorGrpcKt.TestExecutorCoroutineStub(channel)
+            .withWaitForReady()
+            .withMaxInboundMessageSize((32 * 1e6).toInt())
+            .withMaxOutboundMessageSize((32 * 1e6).toInt())
 
-    suspend fun execute(tests: List<Test>, listener: JUnit4TestRunListener) {
-
+    suspend fun execute(tests: List<Test>, applicationClasspath: List<File>, testClasspath: List<File>, listener: JUnit4TestRunListener) {
         val descriptions = tests.map {
             TestDescription.newBuilder()
                 .apply {
@@ -31,8 +35,14 @@ class TestExecutorClient(
                 .build()
         }
 
+        val testEnvironment = TestEnvironment.newBuilder()
+            .addAllClasspath(testClasspath.map { it.absolutePath })
+            .addAllClasspath(applicationClasspath.map { it.absolutePath })
+            .build()
+
         val request = TestRequest.newBuilder()
             .addAllTestDescription(descriptions)
+            .setTestEnvironment(testEnvironment)
             .build()
 
         val responseFlow = stub.execute(request)

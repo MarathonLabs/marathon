@@ -6,11 +6,16 @@ import com.malinskiy.marathon.analytics.internal.sub.PoolSummary
 import com.malinskiy.marathon.analytics.internal.sub.Summary
 import com.malinskiy.marathon.device.DeviceFeature
 import com.malinskiy.marathon.device.DeviceInfo
+import com.malinskiy.marathon.device.DevicePoolId
 import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.execution.TestResult
 import com.malinskiy.marathon.execution.TestStatus
+import com.malinskiy.marathon.extension.escape
 import com.malinskiy.marathon.extension.relativePathTo
 import com.malinskiy.marathon.extension.safePathLength
+import com.malinskiy.marathon.io.FileManager
+import com.malinskiy.marathon.io.FileType
+import com.malinskiy.marathon.io.FolderType
 import com.malinskiy.marathon.report.HtmlDevice
 import com.malinskiy.marathon.report.HtmlFullTest
 import com.malinskiy.marathon.report.HtmlIndex
@@ -29,6 +34,7 @@ import kotlin.math.roundToLong
 
 class HtmlSummaryReporter(
     private val gson: Gson,
+    private val fileManager: FileManager,
     private val rootOutput: File,
     private val configuration: Configuration
 ) : Reporter {
@@ -43,13 +49,11 @@ class HtmlSummaryReporter(
         val summary = executionReport.summary
         if (summary.pools.isEmpty()) return
 
-        val outputDir = File(rootOutput, "/html")
-        rootOutput.mkdirs()
-        outputDir.mkdirs()
-
         val htmlIndexJson = gson.toJson(summary.toHtmlIndex())
 
         val formattedDate = SimpleDateFormat("HH:mm:ss z, MMM d yyyy").apply { timeZone = TimeZone.getTimeZone("UTC") }.format(Date())
+
+        val outputDir = fileManager.createFolder(FolderType.HTML)
 
         val appJs = File(outputDir, "app.min.js")
         inputStreamFromResources("html-report/app.min.js").copyTo(appJs.outputStream())
@@ -101,7 +105,7 @@ class HtmlSummaryReporter(
                 }
                 .forEach { (test, htmlTest, testDir) ->
                     val testJson = gson.toJson(htmlTest)
-                    val testHtmlFile = File(testDir, "${htmlTest.id.safePathLength()}.html")
+                    val testHtmlFile = File(testDir, "${htmlTest.id.escape().safePathLength()}.html")
 
                     testHtmlFile.writeText(
                         indexHtml
@@ -116,7 +120,7 @@ class HtmlSummaryReporter(
 
                     val testLogDetails = toHtmlTestLogDetails(pool.poolId.name, htmlTest)
                     val testLogJson = gson.toJson(testLogDetails)
-                    val testLogHtmlFile = File(logDir, "${htmlTest.id.safePathLength()}.html")
+                    val testLogHtmlFile = File(logDir, "${htmlTest.id.escape().safePathLength()}.html")
 
                     testLogHtmlFile.writeText(
                         indexHtml
@@ -181,17 +185,19 @@ class HtmlSummaryReporter(
     }
 
     private fun TestResult.receiveLogPath(poolId: String, batchId: String): String {
-        val logRelativePath = "/logs/$poolId/${device.serialNumber}/${test.pkg}.${test.clazz}#${test.method}-$batchId.log"
+        val logRelativePath = fileManager.createFile(FileType.LOG, DevicePoolId(poolId), device, test, batchId).relativePathTo(rootOutput)
         val logFullPath = File(rootOutput, logRelativePath)
-        return when (device.deviceFeatures.contains(DeviceFeature.VIDEO) && logFullPath.exists()) {
-            true -> "../../../..${logRelativePath.replace("#", "%23")}"
-            false -> ""
+        return if (logFullPath.exists()) {
+            "../../../../${logRelativePath.replace("#", "%23")}"
+        } else {
+            ""
         }
     }
 
     fun TestResult.toHtmlFullTest(poolId: String, batchId: String) = HtmlFullTest(
         poolId = poolId,
         id = "${test.pkg}.${test.clazz}.${test.method}",
+        filename = "${test.pkg}.${test.clazz}.${test.method}".escape().safePathLength() + ".html",
         packageName = test.pkg,
         className = test.clazz,
         name = test.method,
@@ -254,6 +260,7 @@ class HtmlSummaryReporter(
 
     fun TestResult.toHtmlShortSuite() = HtmlShortTest(
         id = "${test.pkg}.${test.clazz}.${test.method}",
+        fileName = "${test.pkg}.${test.clazz}.${test.method}".escape().safePathLength() + ".html",
         packageName = test.pkg,
         className = test.clazz,
         name = test.method,

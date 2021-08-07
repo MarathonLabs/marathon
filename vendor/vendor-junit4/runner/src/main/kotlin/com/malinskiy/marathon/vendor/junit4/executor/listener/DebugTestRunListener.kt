@@ -1,10 +1,12 @@
 package com.malinskiy.marathon.vendor.junit4.executor.listener
 
 import com.malinskiy.marathon.log.MarathonLogging
+import com.malinskiy.marathon.test.Test
+import com.malinskiy.marathon.test.toTestName
 import com.malinskiy.marathon.vendor.junit4.Junit4Device
 import com.malinskiy.marathon.vendor.junit4.model.TestIdentifier
 
-class DebugTestRunListener(private val device: Junit4Device) : JUnit4TestRunListener {
+class DebugTestRunListener(private val device: Junit4Device, private val expectedTests: List<Test>) : JUnit4TestRunListener {
 
     private val logger = MarathonLogging.logger("DebugTestRunListener")
 
@@ -14,6 +16,13 @@ class DebugTestRunListener(private val device: Junit4Device) : JUnit4TestRunList
 
     override suspend fun testStarted(test: TestIdentifier) {
         logger.info { "testStarted ${device.serialNumber} test = $test" }
+        if (!expectedTests.contains(test.toTest())) {
+            logger.error {
+                "Unexpected test ${
+                    test.toTest().toTestName()
+                }. Expected one of: ${expectedTests.joinToString(separator = "\n") { it.toTestName() }}"
+            }
+        }
     }
 
     override suspend fun testAssumptionFailure(test: TestIdentifier, trace: String) {
