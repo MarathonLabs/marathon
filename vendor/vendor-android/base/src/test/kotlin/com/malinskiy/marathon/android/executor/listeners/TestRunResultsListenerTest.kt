@@ -105,6 +105,7 @@ class TestRunResultsListenerTest {
                 testStarted(TestRunResultsAccumulatorTest.test5)
 
                 testRunEnded(1234, mapOf("metric1" to "value1"))
+                afterTestRun()
             }
 
             verify(attachmentProvider).registerListener(any())
@@ -155,6 +156,7 @@ class TestRunResultsListenerTest {
             listener.apply {
                 beforeTestRun()
                 testRunEnded(1000, emptyMap())
+                afterTestRun()
             }
 
             val result = deferred.await()
@@ -208,6 +210,7 @@ class TestRunResultsListenerTest {
                 testStarted(id2)
                 testEnded(id2, emptyMap())
                 testRunEnded(1000, emptyMap())
+                afterTestRun()
             }
 
             val result = deferred.await()
@@ -252,6 +255,7 @@ class TestRunResultsListenerTest {
                 beforeTestRun()
                 testRunStarted("Testing", 3)
                 testRunFailed("Problems")
+                afterTestRun()
             }
 
             val result = deferred.await()
@@ -296,6 +300,7 @@ class TestRunResultsListenerTest {
                 testStarted(test1)
                 testEnded(test1, emptyMap())
                 testRunFailed("Problems")
+                afterTestRun()
             }
 
             val result = deferred.await()
@@ -351,6 +356,7 @@ class TestRunResultsListenerTest {
                 testStarted(id2)
                 testFailed(id2, "trace")
                 testRunEnded(1000, emptyMap())
+                afterTestRun()
             }
 
             val result = deferred.await()
@@ -404,6 +410,7 @@ class TestRunResultsListenerTest {
                 testStarted(id2)
                 testFailed(id2, "trace")
                 testRunEnded(1000, emptyMap())
+                afterTestRun()
             }
 
             val result = deferred.await()
@@ -455,6 +462,7 @@ class TestRunResultsListenerTest {
                 testStarted(id1)
                 testStarted(id2)
                 testRunEnded(1000, emptyMap())
+                afterTestRun()
             }
 
             val result = deferred.await()
@@ -509,6 +517,7 @@ class TestRunResultsListenerTest {
                 testStarted(id2)
                 testAssumptionFailure(id2, "trace2")
                 testRunEnded(1000, emptyMap())
+                afterTestRun()
             }
 
             val result = deferred.await()
@@ -565,6 +574,7 @@ class TestRunResultsListenerTest {
                 testStarted(id2)
                 testIgnored(id2)
                 testRunEnded(1000, emptyMap())
+                afterTestRun()
             }
 
             val result = deferred.await()

@@ -116,6 +116,7 @@ class AndroidDeviceTestRunnerTest {
             verify(listener).testStarted(eq(identifier))
             verify(listener).testIgnored(eq(identifier))
             verify(listener).testEnded(eq(identifier), eq(hashMapOf()))
+            verify(listener).afterTestRun()
         }
 
         verifyNoMoreInteractions(listener)
