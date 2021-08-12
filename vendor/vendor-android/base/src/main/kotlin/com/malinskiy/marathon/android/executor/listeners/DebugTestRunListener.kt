@@ -47,4 +47,8 @@ class DebugTestRunListener(private val device: AndroidDevice) : AndroidTestRunLi
     override suspend fun testRunEnded(elapsedTime: Long, runMetrics: Map<String, String>) {
         logger.info { "testRunEnded elapsedTime $elapsedTime" }
     }
+
+    override suspend fun afterTestRun() {
+        logger.info { "afterTestRun" }
+    }
 }

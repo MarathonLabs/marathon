@@ -10,6 +10,12 @@ import com.malinskiy.marathon.time.Timer
 
 abstract class AbstractTestRunResultListener(timer: Timer) : NoOpTestRunListener() {
     protected val runResult = TestRunResultsAccumulator(timer)
+    private var reason: TestBatchResults.RunCompletionReason? = null
+
+    protected val completionReason: TestBatchResults.RunCompletionReason
+        get() = requireNotNull(reason) {
+            "Reason must be set. Call one of [testRunFailed, testRunStopped, testRunEnded]"
+        }
 
     override suspend fun testRunStarted(runName: String, testCount: Int) {
         runResult.testRunStarted(runName, testCount)
@@ -37,21 +43,16 @@ abstract class AbstractTestRunResultListener(timer: Timer) : NoOpTestRunListener
 
     override suspend fun testRunFailed(errorMessage: String) {
         runResult.testRunFailed(errorMessage)
-        handleTestRunResults(runResult, RUN_FAILED)
+        reason = RUN_FAILED
     }
 
     override suspend fun testRunStopped(elapsedTime: Long) {
         runResult.testRunStopped(elapsedTime)
-        handleTestRunResults(runResult, RUN_STOPPED)
+        reason = RUN_STOPPED
     }
 
     override suspend fun testRunEnded(elapsedTime: Long, runMetrics: Map<String, String>) {
         runResult.testRunEnded(elapsedTime, runMetrics)
-        handleTestRunResults(runResult, RUN_END)
+        reason = RUN_END
     }
-
-    abstract suspend fun handleTestRunResults(
-        runResult: TestRunResultsAccumulator,
-        reason: TestBatchResults.RunCompletionReason
-    )
 }

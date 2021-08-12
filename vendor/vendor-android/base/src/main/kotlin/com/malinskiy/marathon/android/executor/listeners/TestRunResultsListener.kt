@@ -51,9 +51,7 @@ class TestRunResultsListener(
 
     private val logger = MarathonLogging.logger("TestRunResultsListener")
 
-    override suspend fun afterTestRun(
-        reason: TestBatchResults.RunCompletionReason
-    ) {
+    override suspend fun afterTestRun() {
         val results = mergeParameterisedResults(runResult.testResults)
         val tests = testBatch.tests.associateBy { it.identifier() }
 
@@ -92,7 +90,7 @@ class TestRunResultsListener(
             }
         }
 
-        deferred.complete(TestBatchResults(device, finished, failed, uncompleted, reason))
+        deferred.complete(TestBatchResults(device, finished, failed, uncompleted, completionReason))
     }
 
     private fun Collection<Test>.createUncompletedTestResults(
