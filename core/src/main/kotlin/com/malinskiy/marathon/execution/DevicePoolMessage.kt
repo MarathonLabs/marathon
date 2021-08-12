@@ -19,7 +19,13 @@ sealed class DevicePoolMessage {
 
     sealed class FromQueue : DevicePoolMessage() {
         object Notify : FromQueue()
-        object Terminated : FromQueue()
+        object IsEmpty : FromQueue()
+
+        /**
+         * The message that leads to stopping the whole TestRun
+         */
+        object Stopped : FromQueue()
+
         data class ExecuteBatch(val device: DeviceInfo, val batch: TestBatch) : FromQueue()
     }
 }

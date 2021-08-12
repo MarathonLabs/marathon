@@ -1,5 +1,6 @@
 package com.malinskiy.marathon.execution
 
+import com.malinskiy.marathon.actor.Actor
 import com.malinskiy.marathon.analytics.external.Analytics
 import com.malinskiy.marathon.analytics.internal.pub.Track
 import com.malinskiy.marathon.device.Device
@@ -14,10 +15,9 @@ import com.malinskiy.marathon.execution.bundle.TestBundleIdentifier
 import com.malinskiy.marathon.execution.progress.ProgressReporter
 import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.time.Timer
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.TimeoutCancellationException
-import kotlinx.coroutines.cancelAndJoin
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.SendChannel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -40,29 +40,44 @@ class Scheduler(
     private val track: Track,
     private val timer: Timer,
     private val testBundleIdentifier: TestBundleIdentifier?,
-    override val coroutineContext: CoroutineContext
-) : CoroutineScope {
+    context: CoroutineContext,
+    private val job: Job = Job()
+) : Actor<SchedulerMessage>(parent = null, context = context) {
 
-    private val job = Job()
     private val pools = ConcurrentHashMap<DevicePoolId, SendChannel<FromScheduler>>()
     private val poolingStrategy = configuration.poolingStrategy
 
     private val logger = MarathonLogging.logger("Scheduler")
 
     suspend fun execute() {
-        subscribeOnDevices(job)
         try {
+            subscribeOnDevices(job)
             withTimeout(deviceProvider.deviceInitializationTimeoutMillis) {
                 while (pools.isEmpty()) {
                     delay(100)
                 }
             }
+            /**
+             * this loop leads to that I couldn't set parent for Scheduler Actor
+             * So parent = null but we close Actor with finally block
+             */
+            for (child in job.children) {
+                child.join()
+            }
         } catch (e: TimeoutCancellationException) {
-            job.cancelAndJoin()
-            throw NoDevicesException("")
+            throw NoDevicesException("Timeout ${deviceProvider.deviceInitializationTimeoutMillis} ms reached while waiting devices initialization")
+        } finally {
+            close()
+            logger.info { "is closed" }
         }
-        for (child in job.children) {
-            child.join()
+    }
+
+    override suspend fun receive(msg: SchedulerMessage) {
+        when (msg) {
+            SchedulerMessage.FromDevicePool.Stopped ->
+                pools.values.forEach { pool ->
+                    pool.send(FromScheduler.Terminate)
+                }
         }
     }
 
@@ -109,7 +124,19 @@ class Scheduler(
         logger.debug { "device ${device.serialNumber} associated with poolId ${poolId.name}" }
         pools.computeIfAbsent(poolId) { id ->
             logger.debug { "pool actor ${id.name} is being created" }
-            DevicePoolActor(id, configuration, analytics, shard, progressReporter, track, timer, parent, context, testBundleIdentifier)
+            DevicePoolActor(
+                id,
+                configuration,
+                progressReporter,
+                Channel(),
+                analytics,
+                shard,
+                track,
+                timer,
+                parent,
+                context,
+                testBundleIdentifier
+            )
         }
         pools[poolId]?.send(AddDevice(device)) ?: logger.debug {
             "not sending the AddDevice event " +
@@ -129,5 +156,11 @@ class Scheduler(
         }
 
         return !(allowListAccepted && blockListAccepted)
+    }
+}
+
+sealed class SchedulerMessage {
+    sealed class FromDevicePool : SchedulerMessage() {
+        object Stopped : FromDevicePool()
     }
 }

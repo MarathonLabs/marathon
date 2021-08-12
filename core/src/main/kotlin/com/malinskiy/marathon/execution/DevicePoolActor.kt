@@ -25,16 +25,16 @@ import kotlin.coroutines.CoroutineContext
 class DevicePoolActor(
     private val poolId: DevicePoolId,
     private val configuration: Configuration,
+    private val progressReporter: ProgressReporter,
+    private val scheduler: SendChannel<SchedulerMessage.FromDevicePool>,
     analytics: Analytics,
     shard: TestShard,
-    private val progressReporter: ProgressReporter,
     track: Track,
     timer: Timer,
     parent: Job,
     context: CoroutineContext,
     testBundleIdentifier: TestBundleIdentifier?,
-) :
-    Actor<DevicePoolMessage>(parent = parent, context = context) {
+) : Actor<DevicePoolMessage>(parent = parent, context = context) {
 
     private val logger = MarathonLogging.logger("DevicePoolActor[${poolId.name}]")
 
@@ -47,8 +47,9 @@ class DevicePoolActor(
             is DevicePoolMessage.FromDevice.CompletedTestBatch -> deviceCompleted(msg.device, msg.results)
             is DevicePoolMessage.FromDevice.ReturnTestBatch -> deviceReturnedTestBatch(msg.device, msg.batch, msg.reason)
             is DevicePoolMessage.FromQueue.Notify -> notifyDevices()
-            is DevicePoolMessage.FromQueue.Terminated -> onQueueTerminated()
+            is DevicePoolMessage.FromQueue.IsEmpty -> onQueueIsEmpty()
             is DevicePoolMessage.FromQueue.ExecuteBatch -> executeBatch(msg.device, msg.batch)
+            is DevicePoolMessage.FromQueue.Stopped -> onQueueStopped()
         }
     }
 
@@ -80,11 +81,15 @@ class DevicePoolActor(
         }
     }
 
-    private suspend fun onQueueTerminated() {
+    private suspend fun onQueueIsEmpty() {
         devices.values.forEach {
             it.safeSend(DeviceEvent.Terminate)
         }
         terminate()
+    }
+
+    private suspend fun onQueueStopped() {
+        scheduler.send(SchedulerMessage.FromDevicePool.Stopped)
     }
 
     private suspend fun deviceReturnedTestBatch(device: Device, batch: TestBatch, reason: String) {
@@ -99,21 +104,21 @@ class DevicePoolActor(
         maybeRequestBatch(msg.device)
     }
 
-    // Requests a batch of tests for a random device from the list of devices not running tests at the moment.
-    // When @avoidingDevice is not null, attemtps to send the request for any other device whenever available.
-    private suspend fun maybeRequestBatch(avoidingDevice: Device? = null) {
+    /**
+     * Requests a batch of tests for a random device from the list of devices not running tests at the moment.
+     * @param avoidingDevice - try to send the request for any other device whenever available or to [avoidingDevice].
+     */
+    private suspend fun maybeRequestBatch(avoidingDevice: Device) {
         val availableDevices = devices.values.asSequence()
             .map { it as DeviceActor }
             .filter { it.isAvailable }
             .filter { it.device != avoidingDevice }
             .toList()
         if (availableDevices.isEmpty()) {
-            if (avoidingDevice != null) {
-                devices[avoidingDevice.serialNumber]?.let {
-                    val avoidingDeviceActor = it as? DeviceActor
-                    if (avoidingDeviceActor?.isAvailable == true) {
-                        queue.safeSend(QueueMessage.RequestBatch(avoidingDevice.toDeviceInfo()))
-                    }
+            devices[avoidingDevice.serialNumber]?.let {
+                val avoidingDeviceActor = it as? DeviceActor
+                if (avoidingDeviceActor?.isAvailable == true) {
+                    queue.safeSend(QueueMessage.RequestBatch(avoidingDevice.toDeviceInfo()))
                 }
             }
         } else {

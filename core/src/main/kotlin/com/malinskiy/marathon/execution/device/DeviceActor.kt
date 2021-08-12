@@ -60,9 +60,9 @@ class DeviceActor(
             }
         }
         state<DeviceState.Ready> {
-            on<DeviceEvent.Execute> {
+            on<DeviceEvent.Execute> { event ->
                 val deferred = CompletableDeferred<TestBatchResults>()
-                transitionTo(DeviceState.Running(it.batch, deferred), DeviceAction.ExecuteBatch(it.batch, deferred))
+                transitionTo(DeviceState.Running(event.batch, deferred), DeviceAction.ExecuteBatch(event.batch, deferred))
             }
             on<DeviceEvent.WakeUp> {
                 transitionTo(DeviceState.Ready, DeviceAction.NotifyIsReady())

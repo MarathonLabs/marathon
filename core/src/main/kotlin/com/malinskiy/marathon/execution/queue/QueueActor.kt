@@ -6,7 +6,6 @@ import com.malinskiy.marathon.analytics.internal.pub.Track
 import com.malinskiy.marathon.device.DeviceInfo
 import com.malinskiy.marathon.device.DevicePoolId
 import com.malinskiy.marathon.execution.Configuration
-import com.malinskiy.marathon.execution.DevicePoolMessage
 import com.malinskiy.marathon.execution.DevicePoolMessage.FromQueue
 import com.malinskiy.marathon.execution.TestBatchResults
 import com.malinskiy.marathon.execution.TestResult
@@ -94,8 +93,16 @@ class QueueActor(
             handleFailedTests(failed, device)
         }
         activeBatches.remove(device.serialNumber)
-        if (queue.isNotEmpty()) {
-            pool.send(FromQueue.Notify)
+        when (results.runCompletionReason) {
+            TestBatchResults.RunCompletionReason.RUN_END,
+            TestBatchResults.RunCompletionReason.RUN_FAILED -> {
+                if (queue.isNotEmpty()) {
+                    pool.send(FromQueue.Notify)
+                }
+            }
+            TestBatchResults.RunCompletionReason.RUN_STOPPED -> {
+                pool.send(FromQueue.Stopped)
+            }
         }
     }
 
@@ -208,7 +215,7 @@ class QueueActor(
             return
         }
         if (queueIsEmpty && activeBatches.isEmpty()) {
-            pool.send(DevicePoolMessage.FromQueue.Terminated)
+            pool.send(FromQueue.IsEmpty)
             onTerminate()
         } else if (queueIsEmpty) {
             logger.debug {

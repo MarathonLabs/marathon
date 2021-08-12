@@ -101,15 +101,15 @@ class Marathon(
         log.debug(tests.joinToString(", ") { it.toTestName() })
         val currentCoroutineContext = coroutineContext
         val scheduler = Scheduler(
-            deviceProvider,
-            analytics,
-            configuration,
-            shard,
-            progressReporter,
-            track,
-            timer,
-            testBundleIdentifier,
-            currentCoroutineContext
+            deviceProvider = deviceProvider,
+            analytics = analytics,
+            configuration = configuration,
+            shard = shard,
+            progressReporter = progressReporter,
+            track = track,
+            timer = timer,
+            testBundleIdentifier = testBundleIdentifier,
+            context = currentCoroutineContext
         )
 
         if (configuration.outputDir.exists()) {
