@@ -20,7 +20,7 @@ dependencies {
     implementation(TestLibraries.junit5vintage)
     implementation(Libraries.asm)
     implementation(project(":core"))
-    implementation(project(":vendor:vendor-junit4:contract"))
+    implementation(project(":vendor:vendor-junit4:booter-contract"))
 }
 
 tasks.withType<KotlinCompile> {

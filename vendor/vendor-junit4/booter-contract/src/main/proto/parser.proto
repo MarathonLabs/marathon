@@ -1,0 +1,36 @@
+syntax = "proto3";
+
+package com.malinskiy.marathon.vendor.junit4.parser.contract;
+
+import "google/protobuf/empty.proto";
+
+option java_multiple_files = true;
+option java_package = "com.malinskiy.marathon.vendor.junit4.parser.contract";
+
+message DiscoverRequest {
+    repeated string applicationClasspath = 1;
+    repeated string testClasspath = 2;
+    string rootPackage = 3;
+}
+
+message DiscoverEvent {
+    EventType eventType = 1;
+    repeated TestDescription test = 2;
+}
+
+enum EventType {
+    PARTIAL_PARSE = 0;
+    FINISHED = 1;
+}
+
+message TestDescription {
+    string pkg = 1;
+    string clazz = 2;
+    string method = 3;
+    repeated string metaProperties = 4;
+}
+
+service TestParser {
+    rpc execute(DiscoverRequest) returns (stream DiscoverEvent);
+    rpc terminate(google.protobuf.Empty) returns (google.protobuf.Empty);
+}

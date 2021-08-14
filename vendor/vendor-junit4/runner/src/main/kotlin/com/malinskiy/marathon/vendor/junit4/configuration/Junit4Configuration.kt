@@ -5,7 +5,7 @@ import com.malinskiy.marathon.log.MarathonLogConfigurator
 import com.malinskiy.marathon.vendor.VendorConfiguration
 import com.malinskiy.marathon.vendor.junit4.Junit4DeviceProvider
 import com.malinskiy.marathon.vendor.junit4.Junit4TestBundleIdentifier
-import com.malinskiy.marathon.vendor.junit4.JupiterTestParser
+import com.malinskiy.marathon.vendor.junit4.RemoteJupiterTestParser
 import com.malinskiy.marathon.vendor.junit4.model.JUnit4TestBundle
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.get
@@ -21,7 +21,7 @@ data class Junit4Configuration(
     val testBundles: List<JUnit4TestBundle>?,
     val testPackageRoot: String? = null,
     val debugBooter: Boolean = false,
-    val parallelism: Int? = null,
+    val parallelism: Int = Runtime.getRuntime().availableProcessors(),
     val forkEvery: Int = 1000,
     val javaHome: File?,
     val javaOptions: List<String> = emptyList(),
@@ -29,7 +29,7 @@ data class Junit4Configuration(
 ) : VendorConfiguration, KoinComponent {
     override fun logConfigurator(): MarathonLogConfigurator = Junit4LogConfigurator()
 
-    override fun testParser() = JupiterTestParser(get())
+    override fun testParser() = RemoteJupiterTestParser(get())
 
     override fun deviceProvider() = Junit4DeviceProvider(get(), get())
 

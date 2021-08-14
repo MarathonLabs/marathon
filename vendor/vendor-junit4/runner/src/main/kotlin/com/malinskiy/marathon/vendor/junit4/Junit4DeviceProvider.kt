@@ -19,7 +19,7 @@ class Junit4DeviceProvider(
     private val channel: Channel<DeviceProvider.DeviceEvent> = unboundedChannel()
     private val devices: MutableMap<String, Junit4Device> = ConcurrentHashMap()
     private lateinit var testBundleIdentifier: Junit4TestBundleIdentifier
-    private var parallelism: Int? = null
+    private var parallelism: Int = 0
 
     override suspend fun initialize(vendorConfiguration: VendorConfiguration) {
         val junit4Configuration = vendorConfiguration as Junit4Configuration
@@ -36,7 +36,7 @@ class Junit4DeviceProvider(
 
     override fun subscribe(): Channel<DeviceProvider.DeviceEvent> {
         runBlocking {
-            val count = (parallelism ?: Runtime.getRuntime().availableProcessors())
+            val count = parallelism
             for (i in 0 until count) {
                 //For now only local instance is supported
                 val localhost = Junit4Device(configuration, timer, testBundleIdentifier, controlPort = 50051 + i)

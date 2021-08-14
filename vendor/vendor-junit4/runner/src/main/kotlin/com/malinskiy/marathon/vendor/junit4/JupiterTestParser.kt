@@ -20,114 +20,120 @@ import org.junit.platform.launcher.listeners.discovery.LauncherDiscoveryListener
 import org.junit.vintage.engine.VintageTestEngine
 import java.io.File
 import java.net.URLClassLoader
+import kotlin.system.measureTimeMillis
 
 class JupiterTestParser(private val testBundleIdentifier: Junit4TestBundleIdentifier) : TestParser {
     private val logger = MarathonLogging.logger {}
 
-    override fun extract(configuration: Configuration): List<Test> {
-        val conf = configuration.vendorConfiguration as Junit4Configuration
+    override suspend fun extract(configuration: Configuration): List<Test> {
         val discoveredTests = mutableListOf<Test>()
 
-        /**
-         * Parallelization is not supported currently by junit5
-         */
-        var counter = 1
-        conf.testBundlesCompat().forEach { bundle ->
-            logger.info { "Parsing ${bundle.id}" }
-            println("Parsing ${counter++} of ${conf.testBundlesCompat().size}")
+        measureTimeMillis {
+            val conf = configuration.vendorConfiguration as Junit4Configuration
 
-            val bundleTests = mutableListOf<Test>()
+            /**
+             * Parallelization is not supported currently by junit5
+             */
+            var counter = 1
+            conf.testBundlesCompat().forEach { bundle ->
+                logger.info { "Parsing ${bundle.id}" }
+                println("Parsing ${counter++} of ${conf.testBundlesCompat().size}")
 
-            val cp = mutableListOf<File>().apply {
-                bundle.testClasspath?.let { addAll(it) }
-                bundle.applicationClasspath?.let { addAll(it) }
-            }.toList()
+                val bundleTests = mutableListOf<Test>()
 
-            val classpathToScan = cp.map { it.toURI().toURL() }
-                .toTypedArray()
-            val classloader: ClassLoader = URLClassLoader.newInstance(
-                classpathToScan,
-                Thread.currentThread().contextClassLoader
-            )
+                val cp = mutableListOf<File>().apply {
+                    bundle.testClasspath?.let { addAll(it) }
+                    bundle.applicationClasspath?.let { addAll(it) }
+                }.toList()
 
-            val plan: TestPlan = classloader.switch {
-                val launcherConfig = LauncherConfig.builder()
-                    .addTestEngines(VintageTestEngine())
-                    .enableTestEngineAutoRegistration(false)
-                    .build()
-                val launcher = LauncherFactory.create(launcherConfig)
+                val classpathToScan = cp.map { it.toURI().toURL() }
+                    .toTypedArray()
+                val classloader: ClassLoader = URLClassLoader.newInstance(
+                    classpathToScan,
+                    Thread.currentThread().contextClassLoader
+                )
 
-                val discoveryRequest = LauncherDiscoveryRequestBuilder()
-                    .selectors(
-                        DiscoverySelectors.selectPackage(conf.testPackageRoot)
-                    )
-                    .listeners(LauncherDiscoveryListeners.logging())
-                    .filters(
-                        ClassNameFilter.includeClassNamePatterns(ClassNameFilter.STANDARD_INCLUDE_PATTERN)
-                    )
-                    .build()
+                val plan: TestPlan = classloader.switch {
+                    val launcherConfig = LauncherConfig.builder()
+                        .addTestEngines(VintageTestEngine())
+                        .enableTestEngineAutoRegistration(false)
+                        .build()
+                    val launcher = LauncherFactory.create(launcherConfig)
 
-                launcher.discover(discoveryRequest)
-            }
+                    val discoveryRequest = LauncherDiscoveryRequestBuilder()
+                        .selectors(
+                            DiscoverySelectors.selectPackage(conf.testPackageRoot)
+                        )
+                        .listeners(LauncherDiscoveryListeners.logging())
+                        .filters(
+                            ClassNameFilter.includeClassNamePatterns(ClassNameFilter.STANDARD_INCLUDE_PATTERN)
+                        )
+                        .build()
 
-            if (plan.containsTests()) {
-                plan.roots.forEach { root: TestIdentifier ->
-                    val tests = plan.getChildren(root)
-                    tests.forEach { test: TestIdentifier ->
-                        when {
-                            test.isContainer -> {
-                                plan.getChildren(test).forEach { method ->
-                                    if (method.source.isPresent) {
-                                        val source = method.source.get()
-                                        when (source) {
-                                            is MethodSource -> {
-                                                bundleTests.add(source.toTest())
-                                            }
-                                            is ClassSource -> {
-                                                val testIdentifier = plan.getTestIdentifier(method.uniqueId)
-                                                if (plan.getParent(testIdentifier).isPresent) {
-                                                    val parent = plan.getParent(testIdentifier).get()
-                                                    val classSource = parent.source.get() as ClassSource
-                                                    bundleTests.add(classSource.toTest(source, testIdentifier.displayName))
-                                                } else {
+                    launcher.discover(discoveryRequest)
+                }
+
+                if (plan.containsTests()) {
+                    plan.roots.forEach { root: TestIdentifier ->
+                        val tests = plan.getChildren(root)
+                        tests.forEach { test: TestIdentifier ->
+                            when {
+                                test.isContainer -> {
+                                    plan.getChildren(test).forEach { method ->
+                                        if (method.source.isPresent) {
+                                            val source = method.source.get()
+                                            when (source) {
+                                                is MethodSource -> {
+                                                    bundleTests.add(source.toTest())
+                                                }
+                                                is ClassSource -> {
+                                                    val testIdentifier = plan.getTestIdentifier(method.uniqueId)
+                                                    if (plan.getParent(testIdentifier).isPresent) {
+                                                        val parent = plan.getParent(testIdentifier).get()
+                                                        val classSource = parent.source.get() as ClassSource
+                                                        bundleTests.add(classSource.toTest(source, testIdentifier.displayName))
+                                                    } else {
+                                                        logger.warn { "Unknown test ${method.uniqueId}" }
+                                                    }
+                                                }
+                                                else -> {
                                                     logger.warn { "Unknown test ${method.uniqueId}" }
                                                 }
                                             }
-                                            else -> {
-                                                logger.warn { "Unknown test ${method.uniqueId}" }
-                                            }
-                                        }
-                                    } else if (method.isContainer) {
-                                        //Most likely a parameterized test
-                                        plan.getChildren(method).forEach { parameterizedTest ->
-                                            if (parameterizedTest.source.isPresent) {
-                                                val source = parameterizedTest.source.get()
-                                                when (source) {
-                                                    is MethodSource -> {
-                                                        bundleTests.add(source.toParameterizedTest(parameterizedTest))
+                                        } else if (method.isContainer) {
+                                            //Most likely a parameterized test
+                                            plan.getChildren(method).forEach { parameterizedTest ->
+                                                if (parameterizedTest.source.isPresent) {
+                                                    val source = parameterizedTest.source.get()
+                                                    when (source) {
+                                                        is MethodSource -> {
+                                                            bundleTests.add(source.toParameterizedTest(parameterizedTest))
+                                                        }
+                                                        else -> {
+                                                            logger.warn { "Unknown test ${parameterizedTest.uniqueId}" }
+                                                        }
                                                     }
-                                                    else -> {
-                                                        logger.warn { "Unknown test ${parameterizedTest.uniqueId}" }
-                                                    }
+                                                } else {
+                                                    logger.warn { "Unknown test ${parameterizedTest.uniqueId}" }
                                                 }
-                                            } else {
-                                                logger.warn { "Unknown test ${parameterizedTest.uniqueId}" }
                                             }
+                                        } else {
+                                            logger.warn { "Unknown test ${method.uniqueId}" }
                                         }
-                                    } else {
-                                        logger.warn { "Unknown test ${method.uniqueId}" }
                                     }
                                 }
                             }
                         }
                     }
                 }
-            }
 
-            bundleTests.forEach {
-                testBundleIdentifier.put(it, bundle)
+                bundleTests.forEach {
+                    testBundleIdentifier.put(it, bundle)
+                }
+                discoveredTests.addAll(bundleTests)
             }
-            discoveredTests.addAll(bundleTests)
+        }.let {
+            logger.debug { "Parsing finished in ${it}ms" }
         }
 
         return discoveredTests.toList()

@@ -10,9 +10,11 @@ dependencies {
     implementation(Libraries.kotlinStdLib)
     implementation(Libraries.kotlinCoroutines)
     implementation(TestLibraries.junit)
+    implementation(TestLibraries.junit5launcher)
+    implementation(TestLibraries.junit5vintage)
     implementation(Libraries.grpcNetty)
     implementation(project(":core"))
-    implementation(project(":vendor:vendor-junit4:contract"))
+    implementation(project(":vendor:vendor-junit4:booter-contract"))
 }
 
 tasks.withType<KotlinCompile> {

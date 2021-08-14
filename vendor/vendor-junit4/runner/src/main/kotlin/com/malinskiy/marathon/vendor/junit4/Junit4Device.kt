@@ -9,12 +9,12 @@ import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.execution.TestBatchResults
 import com.malinskiy.marathon.execution.progress.ProgressReporter
 import com.malinskiy.marathon.io.FileManager
-import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.report.logs.LogWriter
 import com.malinskiy.marathon.test.Test
 import com.malinskiy.marathon.test.TestBatch
 import com.malinskiy.marathon.time.Timer
-import com.malinskiy.marathon.vendor.junit4.client.TestExecutorClient
+import com.malinskiy.marathon.vendor.junit4.booter.Booter
+import com.malinskiy.marathon.vendor.junit4.booter.Mode
 import com.malinskiy.marathon.vendor.junit4.configuration.Junit4Configuration
 import com.malinskiy.marathon.vendor.junit4.executor.listener.CompositeTestRunListener
 import com.malinskiy.marathon.vendor.junit4.executor.listener.DebugTestRunListener
@@ -27,17 +27,9 @@ import com.malinskiy.marathon.vendor.junit4.executor.listener.TestRunResultsList
 import com.malinskiy.marathon.vendor.junit4.extensions.isIgnored
 import com.malinskiy.marathon.vendor.junit4.install.Junit4AppInstaller
 import com.malinskiy.marathon.vendor.junit4.model.TestIdentifier
-import io.grpc.ManagedChannelBuilder
 import kotlinx.coroutines.CompletableDeferred
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.asExecutor
 import java.io.File
-import java.io.InputStream
-import java.nio.file.Path
-import java.nio.file.Paths
-import java.util.Scanner
 import java.util.UUID
-import java.util.concurrent.ConcurrentLinkedQueue
 
 class Junit4Device(
     configuration: Configuration,
@@ -55,53 +47,23 @@ class Junit4Device(
     override val abi: String = System.getProperty("os.arch")
     private var forkEvery: Int = 1000
     private var current: Int = 0
-    private var useArgfiles: Boolean = true
+
     private val fileManager = FileManager(configuration.outputDir)
     private val logWriter = LogWriter(fileManager)
 
-
-    private lateinit var client: TestExecutorClient
-    private lateinit var process: Process
-    private lateinit var args: String
-    private lateinit var argsFile: File
-    private lateinit var javaBinary: Path
+    private lateinit var booter: Booter
     private var deviceLogListener: DeviceLogListener? = null
-
-    private val logger = MarathonLogging.logger {}
 
     override suspend fun prepare(configuration: Configuration) {
         val conf = configuration.vendorConfiguration as Junit4Configuration
 
-        javaBinary = conf.javaHome?.let { Paths.get(it.absolutePath, "bin", "java") } ?: Paths.get("java")
         forkEvery = conf.forkEvery
+
+        booter = Booter(conf, controlPort, Mode.RUNNER)
+        booter.prepare()
 
         val installer = Junit4AppInstaller(conf)
         installer.install()
-
-        val booterFile = booterJar()
-
-        val classpath = "$booterFile"
-
-        args = StringBuilder().apply {
-            if (conf.debugBooter) {
-                append("-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=1044 ")
-            }
-            append(conf.javaOptions.joinToString(separator = "") { "$it " })
-            append("-cp ")
-            append(classpath)
-            append(" com.malinskiy.marathon.vendor.junit4.booter.BooterKt")
-        }.toString()
-
-        useArgfiles = conf.useArgfiles
-        if (useArgfiles) {
-            argsFile = File("argsfile-${controlPort}").apply {
-                deleteOnExit()
-                delete()
-                appendText(args)
-            }
-        }
-
-        fork(false)
     }
 
     override suspend fun execute(
@@ -118,7 +80,7 @@ class Junit4Device(
         }
 
         if (current >= forkEvery) {
-            fork(true)
+            booter.recreate()
             current = 0
         }
 
@@ -148,67 +110,20 @@ class Junit4Device(
         }
 
         notifyIgnoredTest(ignoredTests, listener)
-        client.execute(testBatch.tests, applicationClasspath, testClasspath, listener)
+        booter.testExecutorClient!!.execute(testBatch.tests, applicationClasspath, testClasspath, listener)
         current += testBatch.tests.size
     }
 
-    private fun fork(clean: Boolean) {
-        if (clean) {
-            dispose()
-        }
-
-        process = if (useArgfiles) {
-            ProcessBuilder(javaBinary.toString(), "@${argsFile.absolutePath}")
-        } else {
-            ProcessBuilder(javaBinary.toString(), *args.split(" ").toTypedArray())
-        }.apply {
-            environment()["PORT"] = controlPort.toString()
-        }.start()
-
-
-        inheritIO(process.inputStream)
-        inheritIO(process.errorStream)
-
-        val localChannel = ManagedChannelBuilder.forAddress("localhost", controlPort).apply {
-            usePlaintext()
-            executor(Dispatchers.IO.asExecutor())
-        }.build()
-
-        client = TestExecutorClient(localChannel)
-    }
-
-    private fun booterJar(): File {
-        val tempFile = File.createTempFile("marathon", "booter.jar")
-        javaClass.getResourceAsStream("/booter-all.jar").copyTo(tempFile.outputStream())
-        return tempFile
-    }
-
     override fun dispose() {
-        client.close()
-        process.destroy()
-        process.waitFor()
+        booter.dispose()
     }
-
-    private fun inheritIO(src: InputStream) {
-        Thread {
-            val scanner = Scanner(src)
-            while (scanner.hasNextLine()) {
-                val line = scanner.nextLine()
-                logListeners.forEach { listener ->
-                    listener.onLine(line)
-                }
-            }
-        }.start()
-    }
-
-    private val logListeners = ConcurrentLinkedQueue<LineListener>()
 
     fun addLogListener(logListener: LineListener) {
-        logListeners.add(logListener)
+        booter.addLogListener(logListener)
     }
 
     fun removeLogListener(logListener: LineListener) {
-        logListeners.remove(logListener)
+        booter.removeLogListener(logListener)
     }
 
     private suspend fun notifyIgnoredTest(ignoredTests: List<Test>, listeners: JUnit4TestRunListener) {

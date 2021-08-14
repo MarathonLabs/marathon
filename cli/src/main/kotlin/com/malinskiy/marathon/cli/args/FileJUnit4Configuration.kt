@@ -14,7 +14,7 @@ class FileJUnit4Configuration(
     @JsonProperty("testPackageRoot") val testPackageRoot: String,
     @JsonProperty("source") val source: File? = null,
     @JsonProperty("debugBooter") val debugBooter: Boolean = false,
-    @JsonProperty("parallelism") val parallelism: Int? = null,
+    @JsonProperty("parallelism") val parallelism: Int = Runtime.getRuntime().availableProcessors(),
     @JsonProperty("forkEvery") val forkEvery: Int = 1000,
     @JsonProperty("javaHome") val javaHome: File? = null,
     @JsonProperty("javaOptions") val javaOptions: List<String> = emptyList(),

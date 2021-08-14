@@ -8,7 +8,7 @@ import com.malinskiy.marathon.vendor.junit4.parsing.DirectoryParser
 import com.malinskiy.marathon.vendor.junit4.parsing.JarParser
 
 class AsmTestParser : TestParser {
-    override fun extract(configuration: Configuration): List<Test> {
+    override suspend fun extract(configuration: Configuration): List<Test> {
         val conf = configuration.vendorConfiguration as Junit4Configuration
         val directoryParser = DirectoryParser()
         val jarParser = JarParser()

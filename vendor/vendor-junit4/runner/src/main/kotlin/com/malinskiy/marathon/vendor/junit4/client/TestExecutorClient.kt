@@ -81,6 +81,6 @@ class TestExecutorClient(
     }
 
     override fun close() {
-        channel.shutdown().awaitTermination(5, TimeUnit.SECONDS)
+        channel.shutdown().awaitTermination(10, TimeUnit.SECONDS)
     }
 }
