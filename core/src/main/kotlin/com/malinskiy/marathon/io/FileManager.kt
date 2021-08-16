@@ -3,11 +3,11 @@ package com.malinskiy.marathon.io
 import com.malinskiy.marathon.device.DeviceInfo
 import com.malinskiy.marathon.device.DevicePoolId
 import com.malinskiy.marathon.test.Test
-import com.malinskiy.marathon.test.toTestName
 import java.io.File
 import java.nio.file.Files.createDirectories
 import java.nio.file.Path
 import java.nio.file.Paths.get
+import java.util.UUID
 
 @Suppress("TooManyFunctions")
 class FileManager(private val output: File) {
@@ -46,7 +46,7 @@ class FileManager(private val output: File) {
 
     private fun createFile(directory: Path, filename: String): File = File(directory.toFile(), filename)
 
-    private fun createFilename(test: Test, fileType: FileType): String = "${test.toTestName()}.${fileType.suffix}"
+    private fun createFilename(test: Test, fileType: FileType): String = "${UUID.randomUUID()}.${fileType.suffix}"
 
     private fun createFilename(device: DeviceInfo, fileType: FileType): String = "${device.serialNumber}.${fileType.suffix}"
 }

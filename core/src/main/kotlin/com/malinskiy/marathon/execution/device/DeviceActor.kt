@@ -111,9 +111,11 @@ class DeviceActor(
                 is DeviceAction.Terminate -> {
                     val batch = sideEffect.batch
                     if (batch == null) {
+                        logger.debug { "deviceAction batch == null terminate" }
                         terminate()
                     } else {
                         returnBatch(batch).invokeOnCompletion {
+                            logger.debug { "deviceAction batch != null terminate" }
                             terminate()
                         }
                     }

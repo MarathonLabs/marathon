@@ -56,18 +56,23 @@ class QueueActor(
     override suspend fun receive(msg: QueueMessage) {
         when (msg) {
             is QueueMessage.RequestBatch -> {
+                logger.debug { "receive msg RequestBatch" }
                 onRequestBatch(msg.device)
             }
             is QueueMessage.IsEmpty -> {
+                logger.debug { "receive msg IsEmpty" }
                 msg.deferred.complete(queue.isEmpty() && activeBatches.isEmpty())
             }
             is QueueMessage.Terminate -> {
+                logger.debug { "receive msg Terminate" }
                 onTerminate()
             }
             is QueueMessage.Completed -> {
+                logger.debug { "receive msg Completed" }
                 onBatchCompleted(msg.device, msg.results)
             }
             is QueueMessage.ReturnBatch -> {
+                logger.debug { "receive msg ReturnBatch" }
                 onReturnBatch(msg.device, msg.batch)
             }
         }
@@ -98,6 +103,7 @@ class QueueActor(
             }
             returnTests(uncompleted.map { it.test })
         }
+        logger.debug { "activeBatches removed ${device.serialNumber}" }
         activeBatches.remove(device.serialNumber)
     }
 
@@ -183,7 +189,7 @@ class QueueActor(
         if (queueIsEmpty && activeBatches.isEmpty()) {
             pool.send(DevicePoolMessage.FromQueue.Terminated)
             onTerminate()
-        } else {
+        } else if (queueIsEmpty) {
             logger.debug {
                 "queue is empty but there are active batches present for " +
                         "${activeBatches.keys.joinToString { it }}"
