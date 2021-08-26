@@ -45,7 +45,7 @@ dependencies {
     implementation(project(":vendor:vendor-android:base"))
     implementation(project(":vendor:vendor-android:ddmlib"))
     implementation(project(":vendor:vendor-android:adam"))
-    implementation(project(":vendor:vendor-junit4:runner"))
+    implementation(project(":vendor:vendor-junit4:vendor-junit4-core"))
     implementation(project(":analytics:usage"))
     implementation(Libraries.kotlinStdLib)
     implementation(Libraries.kotlinCoroutines)

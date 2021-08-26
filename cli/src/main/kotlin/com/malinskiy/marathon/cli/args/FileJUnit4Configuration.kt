@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.malinskiy.marathon.vendor.junit4.configuration.Junit4Configuration
+import com.malinskiy.marathon.vendor.junit4.configuration.executor.ExecutorConfiguration
 import com.malinskiy.marathon.vendor.junit4.model.JUnit4TestBundle
 import java.io.File
 
@@ -13,12 +14,8 @@ class FileJUnit4Configuration(
     @JsonProperty("testClasspath") val testClasspath: List<File>?,
     @JsonProperty("testPackageRoot") val testPackageRoot: String,
     @JsonProperty("source") val source: File? = null,
-    @JsonProperty("debugBooter") val debugBooter: Boolean = false,
-    @JsonProperty("parallelism") val parallelism: Int = Runtime.getRuntime().availableProcessors(),
     @JsonProperty("forkEvery") val forkEvery: Int = 1000,
-    @JsonProperty("javaHome") val javaHome: File? = null,
-    @JsonProperty("javaOptions") val javaOptions: List<String> = emptyList(),
-    @JsonProperty("useArgfiles") val useArgfiles: Boolean = true,
+    @JsonProperty("executorConfiguration") val executorConfiguration: ExecutorConfiguration,
 
     ) : FileVendorConfiguration {
 
@@ -56,12 +53,8 @@ class FileJUnit4Configuration(
             },
             testPackageRoot = testPackageRoot,
             testBundles = testBundles.toList(),
-            debugBooter = debugBooter,
-            parallelism = parallelism,
             forkEvery = forkEvery,
-            javaHome = this.javaHome ?: javaHome,
-            javaOptions = javaOptions,
-            useArgfiles = useArgfiles,
+            executorConfiguration = executorConfiguration,
         )
     }
 }
