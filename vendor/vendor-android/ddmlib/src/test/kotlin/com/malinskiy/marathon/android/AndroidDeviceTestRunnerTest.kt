@@ -192,10 +192,12 @@ class AndroidDeviceTestRunnerTest {
         val listener = mock<AndroidTestRunListener>()
         runBlocking {
             androidDeviceTestRunner.execute(configuration, batch, listener)
+            verify(listener).beforeTestRun()
             verify(listener).testStarted(eq(identifier))
             verify(listener).testIgnored(eq(identifier))
             verify(listener).testEnded(eq(identifier), eq(emptyMap()))
             verify(listener).testRunEnded(eq(0), eq(emptyMap()))
+            verify(listener).afterTestRun()
         }
         verifyNoMoreInteractions(listener)
     }
