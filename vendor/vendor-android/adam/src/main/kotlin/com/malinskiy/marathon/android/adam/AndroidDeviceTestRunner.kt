@@ -44,8 +44,10 @@ class AndroidDeviceTestRunner(private val device: AdamAndroidDevice, private val
         val ignoredTests = rawTestBatch.tests.filter { test -> test.isIgnored() }
         val testBatch = TestBatch(rawTestBatch.tests - ignoredTests, rawTestBatch.id)
         if (testBatch.tests.isEmpty()) {
+            listener.beforeTestRun()
             notifyIgnoredTest(ignoredTests, listener)
             listener.testRunEnded(0, emptyMap())
+            listener.afterTestRun()
             return
         }
 
