@@ -15,6 +15,7 @@ class FileJUnit4Configuration(
     @JsonProperty("testPackageRoot") val testPackageRoot: String,
     @JsonProperty("source") val source: File? = null,
     @JsonProperty("forkEvery") val forkEvery: Int = 1000,
+    @JsonProperty("debugBooter") val debugBooter: Boolean = false,
     @JsonProperty("executorConfiguration") val executorConfiguration: ExecutorConfiguration,
 
     ) : FileVendorConfiguration {
@@ -54,6 +55,7 @@ class FileJUnit4Configuration(
             testPackageRoot = testPackageRoot,
             testBundles = testBundles.toList(),
             forkEvery = forkEvery,
+            debugBooter = debugBooter,
             executorConfiguration = executorConfiguration,
         )
     }

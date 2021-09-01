@@ -7,7 +7,9 @@ plugins {
 }
 
 tasks.processResources.configure {
-    from(rootProject.project("vendor:vendor-junit4:vendor-junit4-runner").layout.buildDirectory.dir("libs").get().asFile)
+    from(rootProject.project("vendor:vendor-junit4:vendor-junit4-runner").layout.buildDirectory.dir("libs").get().asFile) {
+        rename { it.replace(".jar", "") }
+    }
     dependsOn(rootProject.project("vendor:vendor-junit4:vendor-junit4-runner").tasks.getByName("shadowJar"))
 }
 
@@ -20,6 +22,7 @@ dependencies {
     implementation(Libraries.grpcNetty)
     implementation(project(":core"))
     implementation(project(":vendor:vendor-junit4:vendor-junit4-booter-contract"))
+    implementation(project(":vendor:vendor-junit4:vendor-junit4-runner-contract"))
 }
 
 tasks.withType<KotlinCompile> {

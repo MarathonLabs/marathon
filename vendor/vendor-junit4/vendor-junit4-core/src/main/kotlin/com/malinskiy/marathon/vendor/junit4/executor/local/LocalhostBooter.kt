@@ -99,6 +99,7 @@ class LocalhostBooter(
         }.apply {
             environment()["PORT"] = controlPort.toString()
             environment()["MODE"] = mode.toString()
+            environment()["EXEC_MODE"] = "ISOLATED"
         }.start()
 
 
@@ -111,7 +112,7 @@ class LocalhostBooter(
         }.build()
 
         when (mode) {
-            Mode.RUNNER -> testExecutorClient = TestExecutorClient(localChannel)
+            Mode.RUNNER -> testExecutorClient = TestExecutorClient(localChannel, conf.executorConfiguration)
             Mode.DISCOVER -> testDiscoveryClient = TestDiscoveryClient(localChannel)
         }
     }
@@ -131,7 +132,7 @@ class LocalhostBooter(
     companion object {
         val booterJar: File by lazy {
             val tempFile = File.createTempFile("marathon", "booter.jar")
-            javaClass.getResourceAsStream("/booter-all.jar").copyTo(tempFile.outputStream())
+            javaClass.getResourceAsStream("/vendor-junit4-booter-all.jar").copyTo(tempFile.outputStream())
             tempFile.deleteOnExit()
             tempFile
         }

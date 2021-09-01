@@ -7,7 +7,7 @@ import com.google.protobuf.gradle.protoc
 import com.google.protobuf.gradle.remove
 
 plugins {
-    kotlin("jvm")
+    `java-library`
     id("com.google.protobuf") version Versions.protobufGradle
     id("idea")
 }

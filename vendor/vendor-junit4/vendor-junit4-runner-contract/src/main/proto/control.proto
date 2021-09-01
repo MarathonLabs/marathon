@@ -7,10 +7,6 @@ option java_package = "com.malinskiy.marathon.vendor.junit4.runner.contract";
 option java_outer_classname = "Protocol";
 
 message Frame {
-    message Header {
-        int32 length = 1;
-    }
-
     message Message {
         Type type = 1;
         sint32 testCount = 2;

@@ -8,6 +8,7 @@ import com.malinskiy.marathon.vendor.junit4.booter.contract.TestEnvironment
 import com.malinskiy.marathon.vendor.junit4.booter.contract.TestEvent
 import com.malinskiy.marathon.vendor.junit4.booter.contract.TestExecutorGrpcKt
 import com.malinskiy.marathon.vendor.junit4.booter.contract.TestRequest
+import com.malinskiy.marathon.vendor.junit4.configuration.executor.ExecutorConfiguration
 import com.malinskiy.marathon.vendor.junit4.executor.listener.JUnit4TestRunListener
 import com.malinskiy.marathon.vendor.junit4.model.TestIdentifier
 import io.grpc.ManagedChannel
@@ -18,7 +19,8 @@ import java.io.File
 import java.util.concurrent.TimeUnit
 
 class TestExecutorClient(
-    private val channel: ManagedChannel
+    private val channel: ManagedChannel,
+    private val executorConfiguration: ExecutorConfiguration
 ) : Closeable {
     private val stub: TestExecutorGrpcKt.TestExecutorCoroutineStub =
         TestExecutorGrpcKt.TestExecutorCoroutineStub(channel)
@@ -38,6 +40,11 @@ class TestExecutorClient(
         val testEnvironment = TestEnvironment.newBuilder()
             .addAllClasspath(testClasspath.map { it.absolutePath })
             .addAllClasspath(applicationClasspath.map { it.absolutePath })
+            .apply {
+                if (executorConfiguration.debug) {
+                    addJavaOptions("-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=1045")
+                }
+            }
             .build()
 
         val request = TestRequest.newBuilder()
