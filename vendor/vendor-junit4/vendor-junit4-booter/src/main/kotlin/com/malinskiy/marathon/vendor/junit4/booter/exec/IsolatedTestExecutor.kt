@@ -53,9 +53,12 @@ class IsolatedTestExecutor : TestExecutor {
                     val message = Frame.Message.parseDelimitedFrom(inputStream)
                     emit(message.toTestEvent())
                 }
-            }
 
+                inputStream.close()
+            }
+            socket.close()
             process.waitFor()
+
         }
     }
 

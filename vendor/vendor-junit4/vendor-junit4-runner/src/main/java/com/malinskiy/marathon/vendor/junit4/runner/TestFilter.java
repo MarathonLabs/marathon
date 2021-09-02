@@ -21,8 +21,6 @@ public class TestFilter extends Filter {
 
     @Override
     public boolean shouldRun(Description description) {
-        System.out.println("JUnit asks about $description");
-
         if (verifiedChildren.contains(description)) {
             return true;
         }
