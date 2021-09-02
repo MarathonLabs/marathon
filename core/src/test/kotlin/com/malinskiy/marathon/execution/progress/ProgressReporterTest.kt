@@ -52,7 +52,7 @@ class ProgressReporterTest {
         val test2 = MarathonTest("com.example", "SimpleTest", "method2", emptyList())
         val test3 = MarathonTest("com.example", "SimpleTest", "method3", emptyList())
 
-        reporter.totalTests(poolId, 3)
+        reporter.testCountExpectation(poolId, 3)
         reporter.progress().shouldEqualTo(.0f)
 
         /**
@@ -72,7 +72,7 @@ class ProgressReporterTest {
         /**
          * adding 4 retries for test2 and then test 2 passes once
          */
-        reporter.addTests(poolId, 4)
+        reporter.addRetries(poolId, 4)
         reporter.progress().shouldEqualTo(2 / 7f)
         reporter.testStarted(poolId, deviceInfo, test2)
         reporter.testPassed(poolId, deviceInfo, test2)
