@@ -114,14 +114,16 @@ class Junit4Device(
 
         val applicationClasspath = mutableSetOf<File>()
         val testClasspath = mutableSetOf<File>()
+        var workdir: String? = null
         testBatch.tests.forEach {
             val bundle = testBundleIdentifier.identify(it)
             bundle.applicationClasspath?.let { list -> applicationClasspath.addAll(list) }
             bundle.testClasspath?.let { list -> testClasspath.addAll(list) }
+            bundle.workdir?.let { dir -> workdir = dir }
         }
 
         notifyIgnoredTest(ignoredTests, listener)
-        booter.testExecutorClient!!.execute(testBatch.tests, applicationClasspath.toList(), testClasspath.toList(), listener)
+        booter.testExecutorClient!!.execute(testBatch.tests, applicationClasspath.toList(), testClasspath.toList(), workdir, listener)
         current += testBatch.tests.size
     }
 

@@ -10,6 +10,7 @@ plugins {
     `java-library`
     id("com.google.protobuf") version Versions.protobufGradle
     id("idea")
+    id("com.github.johnrengelman.shadow") version "6.1.0"
 }
 
 protobuf {
@@ -33,6 +34,15 @@ protobuf {
 java {
     sourceCompatibility = JavaVersion.VERSION_1_8
     targetCompatibility = JavaVersion.VERSION_1_8
+}
+
+tasks.create<com.github.jengelman.gradle.plugins.shadow.tasks.ConfigureShadowRelocation>("relocateShadowJar") {
+    target = tasks["shadowJar"] as com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+    prefix = "com.malinskiy.marathon.vendor.junit4.shadows"
+}
+
+tasks.named<com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar>("shadowJar").configure {
+    dependsOn(tasks["relocateShadowJar"])
 }
 
 dependencies {

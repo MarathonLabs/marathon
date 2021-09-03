@@ -69,7 +69,7 @@ class QueueActor(
                             it.value.tests.joinToString(
                                 separator = "\n - "
                             ) { test -> test.toTestName() }
-                        }"
+                        }\n"
                     }
                 }
             }

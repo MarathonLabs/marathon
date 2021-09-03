@@ -36,6 +36,7 @@ message TestEnvironment {
     repeated string classpath = 1;
     string javaHome = 2;
     repeated string javaOptions = 3;
+    string workdir = 4;
 }
 
 message TestDescription {

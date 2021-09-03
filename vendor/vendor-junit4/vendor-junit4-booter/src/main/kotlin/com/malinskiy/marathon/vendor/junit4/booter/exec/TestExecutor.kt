@@ -9,7 +9,8 @@ interface TestExecutor {
         tests: MutableList<TestDescription>,
         javaHome: String?,
         javaOptions: List<String>,
-        classpathList: MutableList<String>
+        classpathList: MutableList<String>,
+        workdir: String
     ): Flow<TestEvent>
 }
 

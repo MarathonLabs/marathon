@@ -7,4 +7,5 @@ class JUnit4TestBundle(
     override val id: String,
     val applicationClasspath: List<File>? = null,
     val testClasspath: List<File>? = null,
+    val workdir: String? = null,
 ) : TestBundle()

@@ -9,6 +9,7 @@ import com.malinskiy.marathon.vendor.junit4.parser.contract.EventType
 import com.malinskiy.marathon.vendor.junit4.parser.contract.TestDescription
 import com.malinskiy.marathon.vendor.junit4.parser.contract.TestParserGrpcKt
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flow
 import org.junit.platform.engine.discovery.ClassNameFilter
 import org.junit.platform.engine.discovery.DiscoverySelectors
@@ -119,7 +120,7 @@ class TestParserService : TestParserGrpcKt.TestParserCoroutineImplBase() {
         emit(
             DiscoverEvent.newBuilder().setEventType(EventType.FINISHED).build()
         )
-    }
+    }.catch { it.printStackTrace() }
 
     override suspend fun terminate(request: Empty): Empty {
         exitProcess(0)

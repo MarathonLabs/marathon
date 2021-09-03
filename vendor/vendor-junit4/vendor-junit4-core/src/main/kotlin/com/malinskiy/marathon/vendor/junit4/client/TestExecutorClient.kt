@@ -12,7 +12,7 @@ import com.malinskiy.marathon.vendor.junit4.configuration.executor.ExecutorConfi
 import com.malinskiy.marathon.vendor.junit4.executor.listener.JUnit4TestRunListener
 import com.malinskiy.marathon.vendor.junit4.model.TestIdentifier
 import io.grpc.ManagedChannel
-import io.grpc.StatusException
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collect
 import java.io.Closeable
 import java.io.File
@@ -28,7 +28,13 @@ class TestExecutorClient(
             .withMaxInboundMessageSize((32 * 1e6).toInt())
             .withMaxOutboundMessageSize((32 * 1e6).toInt())
 
-    suspend fun execute(tests: List<Test>, applicationClasspath: List<File>, testClasspath: List<File>, listener: JUnit4TestRunListener) {
+    suspend fun execute(
+        tests: List<Test>,
+        applicationClasspath: List<File>,
+        testClasspath: List<File>,
+        workdirectory: String?,
+        listener: JUnit4TestRunListener
+    ) {
         val descriptions = tests.map {
             TestDescription.newBuilder()
                 .apply {
@@ -44,6 +50,12 @@ class TestExecutorClient(
                 if (executorConfiguration.debug) {
                     addJavaOptions("-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=1045")
                 }
+                executorConfiguration.javaHome?.let {
+                    javaHome = it.absolutePath
+                }
+                workdirectory?.let {
+                    workdir = it
+                }
             }
             .build()
 
@@ -53,8 +65,8 @@ class TestExecutorClient(
             .build()
 
         val responseFlow = stub.execute(request)
-        try {
-            responseFlow.collect { event: TestEvent ->
+        responseFlow.catch { it.printStackTrace() }
+            .collect { event: TestEvent ->
                 when (event.eventType) {
                     EventType.RUN_STARTED -> {
                         listener.testRunStarted("Marathon JUnit4 Test Run", event.testCount)
@@ -80,13 +92,6 @@ class TestExecutorClient(
                     EventType.UNRECOGNIZED -> Unit
                 }
             }
-        } catch (e: StatusException) {
-            e.printStackTrace()
-            //gRPC connection closed
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
-        println("Flow collected")
     }
 
     override fun close() {

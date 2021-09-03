@@ -1,11 +1,11 @@
 package com.malinskiy.marathon.vendor.junit4.runner;
 
+import com.malinskiy.marathon.vendor.junit4.runner.contract.TestIdentifier;
 import org.junit.runner.Description;
 import org.junit.runner.JUnitCore;
 import org.junit.runner.Request;
 
-import java.io.File;
-import java.io.FileNotFoundException;
+import java.io.*;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.util.*;
@@ -21,9 +21,10 @@ public class Runner {
             ListenerAdapter adapter = new ListenerAdapter(socket);
 
             List<String> tests = new ArrayList<>();
-            try (Scanner scanner = new Scanner(filterFile)) {
-                while (scanner.hasNextLine()) {
-                    tests.add(scanner.nextLine());
+            try (InputStream stream = new BufferedInputStream(new FileInputStream(filterFile))) {
+                TestIdentifier identifier;
+                while ((identifier = TestIdentifier.parseDelimitedFrom(stream)) != null) {
+                    tests.add(identifier.getFqtn());
                 }
             }
             catch (FileNotFoundException e) {
@@ -59,13 +60,16 @@ public class Runner {
                 core.addListener(adapter);
                 core.run(request);
                 core.removeListener(adapter);
+                System.exit(0);
             }
             catch (Exception e) {
                 e.printStackTrace();
+                System.exit(1);
             }
         }
         catch (Exception e) {
             failMiserably(e);
+            System.exit(1);
         }
     }
 

@@ -77,6 +77,9 @@ public final class MarathonMojo extends AbstractMojo {
         try {
             FileWriter writer = new FileWriter(config);
             
+            writer.append("workdir: ");
+            writer.append(project.getBasedir().getAbsolutePath());
+            writer.append("\n");
             writer.append("applicationClasspath:\n");
             writer.append("- " + classesDirectory.getAbsolutePath() + "\n");
             for(Artifact a : runtime) {

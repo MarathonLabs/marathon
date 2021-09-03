@@ -36,7 +36,8 @@ class FileJUnit4Configuration(
                         JUnit4TestBundle(
                             file.name,
                             applicationClasspath = subconfig.applicationClasspath,
-                            testClasspath = subconfig.testClasspath
+                            testClasspath = subconfig.testClasspath,
+                            workdir = subconfig.workdir,
                         )
                     )
                 }
