@@ -74,3 +74,16 @@ jobs:
           files: cli/build/distributions/marathon-*.zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  notify:
+    needs: cd-snapshot
+    runs-on: ubuntu-latest
+    steps:      
+      - uses: actions/checkout@master
+      - name: Send Telegram Release message
+        uses: appleboy/telegram-action@master
+        with:
+          to: ${{ secrets.TELEGRAM_TO }}
+          token: ${{ secrets.TELEGRAM_TOKEN }}
+          message: |
+            New Marathon version has been released https://github.com/MarathonLabs/marathon/releases/
+
