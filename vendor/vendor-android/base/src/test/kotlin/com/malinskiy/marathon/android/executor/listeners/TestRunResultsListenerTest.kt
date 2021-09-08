@@ -584,7 +584,14 @@ class TestRunResultsListenerTest {
             )
             assertThat(result.failed).isEmpty()
             assertThat(result.uncompleted).isEmpty()
-            verify(progressReporter, times(2)).addTests(poolId, 1)
+            
+            /**
+             * Due to the need for consistency first parameterized test does not end up being reported to remove the need to remove the
+             * parent test
+             */
+            verify(progressReporter, times(0)).addTestDiscoveredDuringRuntime(poolId, id0.toTest())
+            verify(progressReporter, times(1)).addTestDiscoveredDuringRuntime(poolId, id1.toTest())
+            verify(progressReporter, times(1)).addTestDiscoveredDuringRuntime(poolId, id2.toTest())
         }
     }
 

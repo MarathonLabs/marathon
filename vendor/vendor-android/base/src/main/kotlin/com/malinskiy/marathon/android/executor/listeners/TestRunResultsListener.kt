@@ -130,7 +130,7 @@ class TestRunResultsListener(
                 } else {
                     result[realIdentifier]?.status = maybeExistingParameterizedResult.status + e.value.status
                     //Needed for proper result aggregation
-                    progressReporter.addTests(poolId, 1)
+                    progressReporter.addTestDiscoveredDuringRuntime(poolId, test.toTest())
                 }
             } else {
                 result[test] = e.value
