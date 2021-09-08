@@ -5,7 +5,6 @@ import com.malinskiy.marathon.test.Mocks
 import com.malinskiy.marathon.test.StubDeviceProvider
 import com.malinskiy.marathon.test.TestVendorConfiguration
 import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldEqualTo
 import org.junit.jupiter.api.Test
 import java.io.File
 import com.malinskiy.marathon.test.Test as MarathonTest
@@ -51,32 +50,70 @@ class PoolProgressTrackerTest {
     @Test
     fun nonStrictMode_case1() {
         val tracker = PoolProgressTracker(createConfiguration(strictMode = false))
-        tracker.totalTests(1)
+        tracker.testCountExpectation(1)
         tracker.testStarted(test)
         tracker.testPassed(test)
         tracker.testFailed(test)
-        tracker.aggregateResult().shouldEqualTo(true)
+        tracker.aggregateResult().shouldBeEqualTo(true)
         tracker.testPassed(test)
-        tracker.aggregateResult().shouldEqualTo(true)
+        tracker.aggregateResult().shouldBeEqualTo(true)
     }
 
     @Test
     fun strictMode_case1() {
         val tracker = PoolProgressTracker(createConfiguration(strictMode = true))
-        tracker.totalTests(1)
+        tracker.testCountExpectation(1)
         tracker.testStarted(test)
         tracker.testPassed(test)
         tracker.testFailed(test)
-        tracker.aggregateResult().shouldEqualTo(false)
+        tracker.aggregateResult().shouldBeEqualTo(false)
         tracker.testPassed(test)
-        tracker.aggregateResult().shouldEqualTo(false)
+        tracker.aggregateResult().shouldBeEqualTo(false)
     }
-    
+
     @Test
     fun all_incomplete() {
-        val tracker = PoolProgressTracker(createConfiguration(strictMode = false)).apply { 
-            totalTests(1)
+        val tracker = PoolProgressTracker(createConfiguration(strictMode = false)).apply {
+            testCountExpectation(1)
         }
         tracker.aggregateResult() shouldBeEqualTo false
+    }
+
+    @Test
+    fun withRetries() {
+        val tracker = PoolProgressTracker(createConfiguration(strictMode = false))
+
+        tracker.testCountExpectation(1)
+        tracker.testStarted(test)
+        tracker.testFailed(test)
+        tracker.addTestRetries(1)
+        tracker.testStarted(test)
+        tracker.testPassed(test)
+        tracker.aggregateResult().shouldBeEqualTo(true)
+    }
+
+    @Test
+    fun withRuntimeDiscovery() {
+        val tracker = PoolProgressTracker(createConfiguration(strictMode = false))
+        val test0 = MarathonTest(
+            pkg = "com.malinskiy.marathon",
+            clazz = "ParameterizedTest",
+            method = "test[0]",
+            metaProperties = emptyList()
+        )
+        val test1 = MarathonTest(
+            pkg = "com.malinskiy.marathon",
+            clazz = "ParameterizedTest",
+            method = "test[1]",
+            metaProperties = emptyList()
+        )
+
+        tracker.testCountExpectation(1)
+        tracker.testStarted(test0)
+        tracker.testPassed(test0)
+        tracker.testStarted(test1)
+        tracker.testPassed(test1)
+        tracker.addTestDiscoveredDuringRuntime(test1)
+        tracker.aggregateResult().shouldBeEqualTo(true)
     }
 }
