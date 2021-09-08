@@ -75,7 +75,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   notify:
-    needs: cd-snapshot
+    needs: cd-release
     runs-on: ubuntu-latest
     steps:      
       - uses: actions/checkout@master
