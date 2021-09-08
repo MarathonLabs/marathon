@@ -91,4 +91,29 @@ class PoolProgressTrackerTest {
         tracker.testPassed(test)
         tracker.aggregateResult().shouldBeEqualTo(true)
     }
+
+    @Test
+    fun withRuntimeDiscovery() {
+        val tracker = PoolProgressTracker(createConfiguration(strictMode = false))
+        val test0 = MarathonTest(
+            pkg = "com.malinskiy.marathon",
+            clazz = "ParameterizedTest",
+            method = "test[0]",
+            metaProperties = emptyList()
+        )
+        val test1 = MarathonTest(
+            pkg = "com.malinskiy.marathon",
+            clazz = "ParameterizedTest",
+            method = "test[1]",
+            metaProperties = emptyList()
+        )
+
+        tracker.testCountExpectation(1)
+        tracker.testStarted(test0)
+        tracker.testPassed(test0)
+        tracker.testStarted(test1)
+        tracker.testPassed(test1)
+        tracker.addTestDiscoveredDuringRuntime(test1)
+        tracker.aggregateResult().shouldBeEqualTo(true)
+    }
 }
