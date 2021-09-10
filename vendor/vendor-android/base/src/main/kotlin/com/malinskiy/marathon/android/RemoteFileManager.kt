@@ -37,7 +37,7 @@ class RemoteFileManager(private val device: AndroidDevice) {
         val testName = rawTestName.take(MAX_FILENAME - testSuffix.length)
         val fileName = "$testName$testSuffix"
         if (rawTestName.length > testName.length) {
-            log.error("Remote filename length cannot exceed $MAX_FILENAME characters and has been trimmed to $fileName and can create a conflict. This happened because the combination of test class name and test name is too long.")
+            log.error { "Remote filename length cannot exceed $MAX_FILENAME characters and has been trimmed to $fileName and can create a conflict. This happened because the combination of test class name and test name is too long." }
         }
         return fileName
     }
