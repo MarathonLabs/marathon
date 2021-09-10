@@ -18,3 +18,7 @@ fun String.md5(): BigInteger {
 object MD5 {
     val md5: MessageDigest by lazy { MessageDigest.getInstance("MD5") }
 }
+
+fun String.escape(): String {
+    return replace(regex = "[^a-zA-Z0-9\\.\\#]".toRegex(), "-")
+}
