@@ -12,7 +12,6 @@ import com.malinskiy.marathon.execution.TestResult
 import com.malinskiy.marathon.execution.TestStatus
 import com.malinskiy.marathon.extension.escape
 import com.malinskiy.marathon.extension.relativePathTo
-import com.malinskiy.marathon.extension.safePathLength
 import com.malinskiy.marathon.io.FileManager
 import com.malinskiy.marathon.io.FileType
 import com.malinskiy.marathon.io.FolderType
@@ -281,4 +280,10 @@ class HtmlSummaryReporter(
         deviceId = fullTest.deviceId,
         logPath = "../${fullTest.logFile}"
     )
+}
+
+private fun String.safePathLength(): String {
+    return if (length >= 128) {
+        substring(0 until 128)
+    } else this
 }

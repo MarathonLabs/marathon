@@ -19,12 +19,6 @@ object MD5 {
     val md5: MessageDigest by lazy { MessageDigest.getInstance("MD5") }
 }
 
-fun String.safePathLength(): String {
-    return if (length >= 128) {
-        substring(0 until 128)
-    } else this
-}
-
 fun String.escape(): String {
     return replace(regex = "[^a-zA-Z0-9\\.\\#]".toRegex(), "-")
 }
