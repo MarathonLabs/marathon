@@ -86,6 +86,8 @@ class Marathon(
         configureLogging(configuration.vendorConfiguration)
         trackAnalytics(configuration)
 
+        logSystemInformation()
+
         val testParser = loadTestParser(configuration.vendorConfiguration)
         val deviceProvider = loadDeviceProvider(configuration.vendorConfiguration)
         val testBundleIdentifier = loadTestBundleIdentifier(configuration.vendorConfiguration)
@@ -131,6 +133,16 @@ class Marathon(
 
         stopKoin()
         return progressReporter.aggregateResult()
+    }
+
+    private fun logSystemInformation() {
+        log.info { "System Information:" }
+
+        val properties = System.getProperties()
+        val systemProperties = properties.filterKeys { it.toString().startsWith("java") || it.toString().startsWith("os") }
+        systemProperties.forEach {
+            log.info { "${it.key}: ${it.value}" }
+        }
     }
 
     private fun installShutdownHook(block: suspend () -> Unit): ShutdownHook {

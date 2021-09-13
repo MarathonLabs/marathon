@@ -57,7 +57,7 @@ class QueueActor(
 
     init {
         queue.addAll(testShard.tests + testShard.flakyTests)
-        progressReporter.totalTests(poolId, queue.size)
+        progressReporter.testCountExpectation(poolId, queue.size)
         coroutineContext.job.invokeOnCompletion {
             if (activeBatches.isNotEmpty()) {
                 /**
@@ -140,7 +140,7 @@ class QueueActor(
                 testResultReporter.testIncomplete(device, test, final = false)
             }
             returnTests(uncompleted.map { it.test })
-            progressReporter.addTests(poolId, uncompleted.size)
+            progressReporter.addRetries(poolId, uncompleted.size)
         }
     }
 
@@ -197,7 +197,7 @@ class QueueActor(
         logger.debug { "handle failed tests ${device.serialNumber}" }
         val retryList = retry.process(poolId, failed, testShard)
 
-        progressReporter.addTests(poolId, retryList.size)
+        progressReporter.addRetries(poolId, retryList.size)
         queue.addAll(retryList.map { it.test })
         retryList.forEach {
             testResultReporter.retryTest(device, it)

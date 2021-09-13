@@ -68,7 +68,7 @@ class FileManager(private val output: File) {
         val maybeTooLongPath = File(directory.toFile(), filename)
         return if (maybeTooLongPath.absolutePath.length > MAX_PATH) {
             val trimmed = maybeTooLongPath.absolutePath.substring(0 until MAX_PATH)
-            log.error("File path length cannot excess $MAX_PATH characters and has been trimmed to $trimmed and can create a conflict. This happened because the combination of file path, test class name, and test name is too long.")
+            log.error { "File path length cannot exceed $MAX_PATH characters and has been trimmed to $trimmed and can create a conflict. This happened because the combination of file path, test class name, and test name is too long." }
             File(trimmed)
         } else {
             maybeTooLongPath
@@ -80,10 +80,11 @@ class FileManager(private val output: File) {
 
     private fun createFilename(test: Test, fileType: FileType, limit: Int, testBatchId: String? = null): String {
         val testSuffix = "${testBatchId?.let { "-$it" } ?: ""}.${fileType.suffix}"
-        val testName = test.toTestName().escape().take(limit - testSuffix.length)
+        val rawTestName = test.toTestName().escape()
+        val testName = rawTestName.take(limit - testSuffix.length)
         val fileName = "$testName$testSuffix"
-        if (testName.length + testSuffix.length > limit) {
-            log.error("File name length cannot excess $limit characters and has been trimmed to $fileName and can create a conflict. This happened because the combination of file path, test class name, and test name is too long.")
+        if (rawTestName.length > testName.length) {
+            log.error { "File name length cannot exceed $limit characters and has been trimmed to $fileName and can create a conflict. This happened because the combination of file path, test class name, and test name is too long." }
         }
         return fileName
     }

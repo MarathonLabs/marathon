@@ -51,7 +51,7 @@ class TestRunResultsListener(
 
     private val logger = MarathonLogging.logger("TestRunResultsListener")
 
-    override suspend fun handleTestRunResults(runResult: TestRunResultsAccumulator) {
+    override suspend fun afterTestRun() {
         val results = mergeParameterisedResults(runResult.testResults)
         val tests = testBatch.tests.associateBy { it.identifier() }
 
@@ -135,7 +135,7 @@ class TestRunResultsListener(
                 } else {
                     result[realIdentifier]?.status = maybeExistingParameterizedResult.status + e.value.status
                     //Needed for proper result aggregation
-                    progressReporter.addTests(poolId, 1)
+                    progressReporter.addTestDiscoveredDuringRuntime(poolId, test.toTest())
                 }
             } else {
                 result[test] = e.value

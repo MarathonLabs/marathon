@@ -12,7 +12,6 @@ import com.malinskiy.marathon.execution.TestResult
 import com.malinskiy.marathon.execution.TestStatus
 import com.malinskiy.marathon.extension.escape
 import com.malinskiy.marathon.extension.relativePathTo
-import com.malinskiy.marathon.extension.safePathLength
 import com.malinskiy.marathon.io.FileManager
 import com.malinskiy.marathon.io.FileType
 import com.malinskiy.marathon.io.FolderType
@@ -167,19 +166,21 @@ class HtmlSummaryReporter(
     )
 
     private fun TestResult.receiveScreenshotPath(poolId: String, batchId: String): String {
-        val screenshotRelativePath = "/screenshot/$poolId/${device.serialNumber}/${test.pkg}.${test.clazz}#${test.method}-$batchId.gif"
+        val screenshotRelativePath =
+            fileManager.createFile(FileType.SCREENSHOT, DevicePoolId(poolId), device, test, batchId).relativePathTo(rootOutput)
         val screenshotFullPath = File(rootOutput, screenshotRelativePath)
         return when (device.deviceFeatures.contains(DeviceFeature.SCREENSHOT) && screenshotFullPath.exists()) {
-            true -> "../../../..${screenshotRelativePath.replace("#", "%23")}"
+            true -> "../../../../${screenshotRelativePath.replace("#", "%23")}"
             false -> ""
         }
     }
 
     private fun TestResult.receiveVideoPath(poolId: String, batchId: String): String {
-        val videoRelativePath = "/video/$poolId/${device.serialNumber}/${test.pkg}.${test.clazz}#${test.method}-$batchId.mp4"
+        val videoRelativePath =
+            fileManager.createFile(FileType.VIDEO, DevicePoolId(poolId), device, test, batchId).relativePathTo(rootOutput)
         val videoFullPath = File(rootOutput, videoRelativePath)
         return when (device.deviceFeatures.contains(DeviceFeature.VIDEO) && videoFullPath.exists()) {
-            true -> "../../../..${videoRelativePath.replace("#", "%23")}"
+            true -> "../../../../${videoRelativePath.replace("#", "%23")}"
             false -> ""
         }
     }
@@ -279,4 +280,10 @@ class HtmlSummaryReporter(
         deviceId = fullTest.deviceId,
         logPath = "../${fullTest.logFile}"
     )
+}
+
+private fun String.safePathLength(): String {
+    return if (length >= 128) {
+        substring(0 until 128)
+    } else this
 }

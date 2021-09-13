@@ -58,12 +58,12 @@ export default class Pool extends Component {
                         <div className="margin-bottom-5">
                     <span className="label info"
                           style={{background: this.state.colors[test.deviceId]}}>{test.deviceId}</span>
-                  </div>
-                  <div className="margin-bottom-5">
-                    <span className="label big">{ convertTime(test.duration_millis) }</span>
-                  </div>
-                </div>
-              </a> )
+                        </div>
+                        <div className="margin-bottom-5">
+                            <span className="label big">{convertTime(test.duration_millis)}</span>
+                        </div>
+                    </div>
+                </a>)
             }) }
           </div>
         </div>
