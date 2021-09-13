@@ -1,6 +1,6 @@
 package com.malinskiy.marathon.vendor.junit4.runner;
 
-import com.malinskiy.marathon.vendor.junit4.runner.contract.Frame;
+import com.malinskiy.marathon.vendor.junit4.runner.contract.Message;
 import org.junit.runner.Description;
 import org.junit.runner.Result;
 import org.junit.runner.notification.Failure;
@@ -20,8 +20,8 @@ public class ListenerAdapter extends RunListener {
     @Override
     public void testRunStarted(Description description) throws Exception {
         super.testRunStarted(description);
-        send(socket, Frame.Message.newBuilder()
-            .setType(Frame.Message.Type.RUN_STARTED)
+        send(socket, Message.newBuilder()
+            .setType(Message.Type.RUN_STARTED)
             .build()
         );
     }
@@ -29,8 +29,8 @@ public class ListenerAdapter extends RunListener {
     @Override
     public void testRunFinished(Result result) throws Exception {
         super.testRunFinished(result);
-        send(socket, Frame.Message.newBuilder()
-            .setType(Frame.Message.Type.RUN_FINISHED)
+        send(socket, Message.newBuilder()
+            .setType(Message.Type.RUN_FINISHED)
             .setTotalDurationMillis(result.getRunTime())
             .build()
         );
@@ -49,8 +49,8 @@ public class ListenerAdapter extends RunListener {
     @Override
     public void testStarted(Description description) throws Exception {
         super.testStarted(description);
-        send(socket, Frame.Message.newBuilder()
-            .setType(Frame.Message.Type.TEST_STARTED)
+        send(socket, Message.newBuilder()
+            .setType(Message.Type.TEST_STARTED)
             .setClassname(description.getClassName())
             .setMethod(description.getMethodName())
             .build()
@@ -60,8 +60,8 @@ public class ListenerAdapter extends RunListener {
     @Override
     public void testFinished(Description description) throws Exception {
         super.testFinished(description);
-        send(socket, Frame.Message.newBuilder()
-            .setType(Frame.Message.Type.TEST_FINISHED)
+        send(socket, Message.newBuilder()
+            .setType(Message.Type.TEST_FINISHED)
             .setClassname(description.getClassName())
             .setMethod(description.getMethodName())
             .build()
@@ -71,8 +71,8 @@ public class ListenerAdapter extends RunListener {
     @Override
     public void testFailure(Failure failure) throws Exception {
         super.testFailure(failure);
-        send(socket, Frame.Message.newBuilder()
-            .setType(Frame.Message.Type.TEST_FAILURE)
+        send(socket, Message.newBuilder()
+            .setType(Message.Type.TEST_FAILURE)
             .setClassname(failure.getDescription().getClassName())
             .setMethod(failure.getDescription().getMethodName())
             .setMessage(failure.getMessage())
@@ -84,8 +84,8 @@ public class ListenerAdapter extends RunListener {
     @Override
     public void testAssumptionFailure(Failure failure) {
         super.testAssumptionFailure(failure);
-        send(socket, Frame.Message.newBuilder()
-            .setType(Frame.Message.Type.TEST_ASSUMPTION_FAILURE)
+        send(socket, Message.newBuilder()
+            .setType(Message.Type.TEST_ASSUMPTION_FAILURE)
             .setClassname(failure.getDescription().getClassName())
             .setMethod(failure.getDescription().getMethodName())
             .setMessage(failure.getMessage())
@@ -97,15 +97,15 @@ public class ListenerAdapter extends RunListener {
     @Override
     public void testIgnored(Description description) throws Exception {
         super.testIgnored(description);
-        send(socket, Frame.Message.newBuilder()
-            .setType(Frame.Message.Type.TEST_IGNORED)
+        send(socket, Message.newBuilder()
+            .setType(Message.Type.TEST_IGNORED)
             .setClassname(description.getClassName())
             .setMethod(description.getMethodName())
             .build()
         );
     }
 
-    private void send(Socket socket, Frame.Message message) {
+    private void send(Socket socket, Message message) {
         try {
             OutputStream stream = socket.getOutputStream();
             message.writeDelimitedTo(stream);

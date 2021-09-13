@@ -3,7 +3,7 @@ package com.malinskiy.marathon.vendor.junit4.booter.exec
 import com.malinskiy.marathon.vendor.junit4.booter.contract.EventType
 import com.malinskiy.marathon.vendor.junit4.booter.contract.TestDescription
 import com.malinskiy.marathon.vendor.junit4.booter.contract.TestEvent
-import com.malinskiy.marathon.vendor.junit4.runner.contract.Frame
+import com.malinskiy.marathon.vendor.junit4.runner.contract.Message
 import com.malinskiy.marathon.vendor.junit4.runner.contract.TestIdentifier
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
@@ -75,7 +75,7 @@ class IsolatedTestExecutor : TestExecutor {
                 val inputStream = it.getInputStream()
 
                 while (!it.isInputShutdown) {
-                    val message: Frame.Message = Frame.Message.parseDelimitedFrom(inputStream) ?: break
+                    val message: Message = Message.parseDelimitedFrom(inputStream) ?: break
                     emit(message.toTestEvent())
                 }
 
@@ -117,45 +117,45 @@ class IsolatedTestExecutor : TestExecutor {
     }
 }
 
-private fun Frame.Message.toTestEvent(): TestEvent {
+private fun Message.toTestEvent(): TestEvent {
     return when (type) {
-        Frame.Message.Type.RUN_STARTED -> TestEvent.newBuilder()
+        Message.Type.RUN_STARTED -> TestEvent.newBuilder()
             .setEventType(EventType.RUN_STARTED)
             .build()
-        Frame.Message.Type.RUN_FINISHED -> TestEvent.newBuilder()
+        Message.Type.RUN_FINISHED -> TestEvent.newBuilder()
             .setEventType(EventType.RUN_FINISHED)
             .setTotalDurationMillis(totalDurationMillis)
             .build()
-        Frame.Message.Type.TEST_STARTED -> TestEvent.newBuilder()
+        Message.Type.TEST_STARTED -> TestEvent.newBuilder()
             .setEventType(EventType.TEST_STARTED)
             .setClassname(classname)
             .setMethod(method)
             .setTestCount(testCount)
             .build()
-        Frame.Message.Type.TEST_FINISHED -> TestEvent.newBuilder()
+        Message.Type.TEST_FINISHED -> TestEvent.newBuilder()
             .setEventType(EventType.TEST_FINISHED)
             .setClassname(classname)
             .setMethod(method)
             .build()
-        Frame.Message.Type.TEST_FAILURE -> TestEvent.newBuilder()
+        Message.Type.TEST_FAILURE -> TestEvent.newBuilder()
             .setEventType(EventType.TEST_FAILURE)
             .setClassname(classname)
             .setMethod(method)
             .setMessage(message)
             .setStacktrace(stacktrace)
             .build()
-        Frame.Message.Type.TEST_ASSUMPTION_FAILURE -> TestEvent.newBuilder()
+        Message.Type.TEST_ASSUMPTION_FAILURE -> TestEvent.newBuilder()
             .setEventType(EventType.TEST_ASSUMPTION_FAILURE)
             .setClassname(classname)
             .setMethod(method)
             .setMessage(message)
             .setStacktrace(stacktrace)
             .build()
-        Frame.Message.Type.TEST_IGNORED -> TestEvent.newBuilder()
+        Message.Type.TEST_IGNORED -> TestEvent.newBuilder()
             .setEventType(EventType.TEST_IGNORED)
             .setClassname(classname)
             .setMethod(method)
             .build()
-        Frame.Message.Type.UNRECOGNIZED -> TODO()
+        Message.Type.UNRECOGNIZED -> TODO()
     }
 }
