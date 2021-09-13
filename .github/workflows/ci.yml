@@ -85,5 +85,5 @@ jobs:
           to: ${{ secrets.TELEGRAM_TO }}
           token: ${{ secrets.TELEGRAM_TOKEN }}
           message: |
-            New Marathon version has been released https://github.com/MarathonLabs/marathon/releases/
+            New Marathon version has been submitted to Maven central and will be available soon https://github.com/MarathonLabs/marathon/releases/
 
