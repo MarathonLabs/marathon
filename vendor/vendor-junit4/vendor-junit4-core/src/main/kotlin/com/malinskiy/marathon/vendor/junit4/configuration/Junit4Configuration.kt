@@ -5,9 +5,9 @@ import com.malinskiy.marathon.log.MarathonLogConfigurator
 import com.malinskiy.marathon.vendor.VendorConfiguration
 import com.malinskiy.marathon.vendor.junit4.Junit4DeviceProvider
 import com.malinskiy.marathon.vendor.junit4.Junit4TestBundleIdentifier
-import com.malinskiy.marathon.vendor.junit4.RemoteJupiterTestParser
 import com.malinskiy.marathon.vendor.junit4.configuration.executor.ExecutorConfiguration
 import com.malinskiy.marathon.vendor.junit4.model.JUnit4TestBundle
+import com.malinskiy.marathon.vendor.junit4.parsing.RemoteJupiterTestParser
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.get
 import org.koin.dsl.module
@@ -44,7 +44,7 @@ data class Junit4Configuration(
     fun testBundlesCompat(): List<JUnit4TestBundle> {
         return mutableListOf<JUnit4TestBundle>().apply {
             testBundles?.let { addAll(it) }
-            if (!applicationClasspath.isNullOrEmpty() && !testClasspath.isNullOrEmpty()) {
+            if (!testClasspath.isNullOrEmpty()) {
                 add(
                     JUnit4TestBundle(
                         id = "main",

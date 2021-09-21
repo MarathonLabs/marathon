@@ -3,7 +3,9 @@ package com.malinskiy.marathon.cli.args
 import java.io.File
 
 fun environmentConfiguration(
-    androidSdk: File? = null
+    androidSdk: File? = null,
+    javaHome: File? = null,
 ) = EnvironmentConfiguration(
-    androidSdk = androidSdk
+    androidSdk = androidSdk,
+    javaHome = javaHome,
 )

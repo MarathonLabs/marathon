@@ -1,9 +1,10 @@
-package com.malinskiy.marathon.vendor.junit4
+package com.malinskiy.marathon.vendor.junit4.parsing
 
 import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.execution.TestParser
 import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.test.Test
+import com.malinskiy.marathon.vendor.junit4.Junit4TestBundleIdentifier
 import com.malinskiy.marathon.vendor.junit4.booter.Mode
 import com.malinskiy.marathon.vendor.junit4.configuration.Junit4Configuration
 import com.malinskiy.marathon.vendor.junit4.configuration.executor.ExecutorConfigurationAdapter

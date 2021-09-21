@@ -2,9 +2,8 @@ package com.malinskiy.marathon.cli.args.environment
 
 import com.malinskiy.marathon.cli.args.EnvironmentConfiguration
 import com.malinskiy.marathon.cli.args.environmentConfiguration
-import com.nhaarman.mockitokotlin2.whenever
 import com.nhaarman.mockitokotlin2.mock
-import org.amshove.kluent.shouldBe
+import com.nhaarman.mockitokotlin2.whenever
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test

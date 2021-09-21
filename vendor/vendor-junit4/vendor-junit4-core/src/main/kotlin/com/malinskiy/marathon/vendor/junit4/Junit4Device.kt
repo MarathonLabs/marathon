@@ -67,7 +67,7 @@ class Junit4Device(
                 LocalhostBooter(conf, controlPort, Mode.RUNNER)
             }
             else -> {
-                throw DeviceSetupException("Unsupported executor configuration")
+                throw DeviceSetupException("Unsupported executor configuration ${conf.executorConfiguration.javaClass.simpleName}")
             }
         }.apply {
             prepare()

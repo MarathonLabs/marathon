@@ -10,6 +10,11 @@ tasks.processResources.configure {
     dependsOn(rootProject.project("vendor:vendor-junit4:vendor-junit4-booter").tasks.getByName("shadowJar"))
 }
 
+tasks.processTestResources.configure {
+    from(rootProject.project("vendor:vendor-junit4:vendor-junit4-integration-tests").layout.buildDirectory.dir("libs").get().asFile)
+    dependsOn(rootProject.project("vendor:vendor-junit4:vendor-junit4-integration-tests").tasks.getByName("testJar"))
+}
+
 dependencies {
     implementation(Libraries.kotlinStdLib)
     implementation(Libraries.kotlinCoroutines)
@@ -21,6 +26,9 @@ dependencies {
     implementation(Libraries.asm)
     implementation(project(":core"))
     implementation(project(":vendor:vendor-junit4:vendor-junit4-booter-contract"))
+
+    testImplementation(TestLibraries.junit)
+    testImplementation(TestLibraries.kluent)
 }
 
 tasks.withType<KotlinCompile> {

@@ -114,26 +114,6 @@ class TestRunResultsListener(
         }
     }
 
-    private fun mergeParameterisedResults(results: MutableMap<TestIdentifier, JUnit4TestResult>): Map<TestIdentifier, JUnit4TestResult> {
-        val result = mutableMapOf<TestIdentifier, JUnit4TestResult>()
-        for (e in results) {
-            val test = e.key
-            if (test.testName.matches(""".+\[\d+]""".toRegex())) {
-                val realIdentifier = TestIdentifier(e.key.className, e.key.testName.split("[")[0])
-                val maybeExistingParameterizedResult = result[realIdentifier]
-                if (maybeExistingParameterizedResult == null) {
-                    result[realIdentifier] = e.value
-                } else {
-                    result[realIdentifier]?.status = maybeExistingParameterizedResult.status + e.value.status
-                }
-            } else {
-                result[test] = e.value
-            }
-        }
-
-        return result.toMap()
-    }
-
     private fun Map.Entry<TestIdentifier, JUnit4TestResult>.toTestResult(device: Device): TestResult {
         val testInstanceFromBatch = testBatch.tests.find { "${it.pkg}.${it.clazz}" == key.className && it.method == key.testName }
         val test = key.toTest()

@@ -42,6 +42,7 @@ class IsolatedTestExecutor : TestExecutor {
                 Paths.get(javaHome, "bin", "java")
             }
             val args = StringBuilder().apply {
+                append("-ea ")
                 append(javaOptions.joinToString(separator = "") { "$it " })
                 append("-cp ")
                 append(classpath)

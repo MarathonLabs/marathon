@@ -71,11 +71,16 @@ public class ListenerAdapter extends RunListener {
     @Override
     public void testFailure(Failure failure) throws Exception {
         super.testFailure(failure);
+        String failureMessage = failure.getMessage();
+        if (failureMessage == null) {
+            failureMessage = "No failure message provided";
+        }
+
         send(socket, Message.newBuilder()
             .setType(Message.Type.TEST_FAILURE)
             .setClassname(failure.getDescription().getClassName())
             .setMethod(failure.getDescription().getMethodName())
-            .setMessage(failure.getMessage())
+            .setMessage(failureMessage)
             .setStacktrace(failure.getTrace())
             .build()
         );

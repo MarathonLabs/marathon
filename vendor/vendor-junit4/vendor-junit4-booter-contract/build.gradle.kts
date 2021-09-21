@@ -58,6 +58,8 @@ tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile::class) {
     kotlinOptions.apiVersion = "1.4"
 }
 
+tasks.withType<org.gradle.jvm.tasks.Jar> { duplicatesStrategy = DuplicatesStrategy.INCLUDE }
+
 dependencies {
     implementation(kotlin("stdlib-jdk8", version = Versions.kotlin))
     implementation(Libraries.kotlinCoroutines)
