@@ -21,6 +21,7 @@ class TestExecutorService(private val executor: TestExecutor) : TestExecutorGrpc
     }
 
     override suspend fun terminate(request: Empty): Empty {
+        executor.terminate()
         exitProcess(0)
         return super.terminate(request)
     }

@@ -15,6 +15,10 @@ tasks.withType<KotlinCompile> {
     kotlinOptions.apiVersion = "1.4"
 }
 
+tasks.withType<Test> {
+    ignoreFailures = true
+}
+
 tasks.register<Jar>("testJar") {
     archiveFileName.set("junit4-integration-tests.jar")
     from(project.the<SourceSetContainer>()["test"].output)

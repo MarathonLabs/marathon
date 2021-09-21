@@ -19,6 +19,8 @@ import java.util.jar.Manifest
 import java.util.zip.ZipEntry
 
 class IsolatedTestExecutor : TestExecutor {
+    private var backgroundProcess: Process? = null
+
     override fun run(
         tests: MutableList<TestDescription>,
         javaHome: String?,
@@ -60,7 +62,7 @@ class IsolatedTestExecutor : TestExecutor {
                     }
                 }
 
-            val process = ProcessBuilder(javaBinary.toString(), *args.split(" ").toTypedArray())
+            backgroundProcess = ProcessBuilder(javaBinary.toString(), *args.split(" ").toTypedArray())
                 .apply {
                     environment()["OUTPUT"] = port.toString()
                     environment()["FILTER"] = testList.absolutePath
@@ -83,7 +85,14 @@ class IsolatedTestExecutor : TestExecutor {
                 inputStream.close()
             }
             socket.close()
-            process.waitFor()
+            backgroundProcess?.waitFor()
+        }
+    }
+
+    override fun terminate() {
+        backgroundProcess?.let {
+            it.destroy()
+            it.waitFor()
         }
     }
 

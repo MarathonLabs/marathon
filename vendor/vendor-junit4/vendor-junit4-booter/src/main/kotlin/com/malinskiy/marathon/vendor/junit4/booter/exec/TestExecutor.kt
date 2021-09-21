@@ -12,5 +12,7 @@ interface TestExecutor {
         classpathList: MutableList<String>,
         workdir: String
     ): Flow<TestEvent>
+
+    fun terminate()
 }
 

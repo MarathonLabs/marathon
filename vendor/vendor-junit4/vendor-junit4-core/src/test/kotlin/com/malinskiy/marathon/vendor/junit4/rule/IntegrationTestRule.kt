@@ -14,8 +14,6 @@ class IntegrationTestRule(private val temp: TemporaryFolder) : TestRule {
     override fun apply(base: Statement, description: Description): Statement {
         return object : Statement() {
             override fun evaluate() {
-                killAll()
-
                 val deps = listOf(
                     "/junit4-integration-tests.jar",
                     "/fixtures/junit4/junit-4.13.2.jar",
@@ -80,10 +78,13 @@ class IntegrationTestRule(private val temp: TemporaryFolder) : TestRule {
             }
 
             private fun killOnPort(port: Int) {
-                val pid = Runtime.getRuntime().exec("lsof -t -i :$port")
-                val output = pid.inputStream.bufferedReader().readText()
-                pid.waitFor()
-                Runtime.getRuntime().exec("kill ${output.trim()}").waitFor()
+                val listProcess = Runtime.getRuntime().exec("lsof -t -i :$port")
+                val output = listProcess.inputStream.bufferedReader().readText()
+                listProcess.waitFor()
+                val pid = output.trim()
+                if (pid.isNotEmpty()) {
+                    Runtime.getRuntime().exec("kill $pid").waitFor()
+                }
             }
         }
     }

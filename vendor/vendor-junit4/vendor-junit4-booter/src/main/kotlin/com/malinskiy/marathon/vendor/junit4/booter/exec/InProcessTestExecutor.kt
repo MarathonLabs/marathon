@@ -50,6 +50,8 @@ class InProcessTestExecutor : TestExecutor {
         }
     }
 
+    override fun terminate() = Unit
+
     private fun addCallback(callback: RunListener) {
         core.addListener(callback)
     }

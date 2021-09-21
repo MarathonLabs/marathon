@@ -11,6 +11,8 @@ import com.malinskiy.marathon.vendor.junit4.rule.IntegrationTestRule
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.runBlocking
 import org.amshove.kluent.shouldBeEqualTo
+import org.junit.After
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TemporaryFolder
@@ -23,10 +25,26 @@ class Junit4DeviceIntegrationTest {
     @get:Rule
     val integrationTestRule = IntegrationTestRule(temp)
 
+    private lateinit var testBundleIdentifier: Junit4TestBundleIdentifier
+    private lateinit var device: Junit4Device
+
+    @Before
+    fun setup() {
+        testBundleIdentifier = Junit4TestBundleIdentifier()
+        device = Junit4Device(integrationTestRule.configuration, SystemTimer(Clock.systemUTC()), testBundleIdentifier)
+
+        runBlocking {
+            device.prepare(integrationTestRule.configuration)
+        }
+    }
+
+    @After
+    fun teardown() {
+        device.dispose()
+    }
+
     @Test
     fun testSimpleTest() {
-        val testBundleIdentifier = Junit4TestBundleIdentifier()
-        val device = Junit4Device(integrationTestRule.configuration, SystemTimer(Clock.systemUTC()), testBundleIdentifier)
         runBlocking {
             val devicePoolId = DevicePoolId("test")
 
@@ -38,11 +56,10 @@ class Junit4DeviceIntegrationTest {
             val progressReporter = ProgressReporter(integrationTestRule.configuration).apply {
                 testCountExpectation(devicePoolId, 3)
             }
-            device.prepare(integrationTestRule.configuration)
+
             device.execute(integrationTestRule.configuration, devicePoolId, testBatch, deferred, progressReporter)
 
             val results = deferred.await()
-
             results.finished.size shouldBeEqualTo 3
             results.failed.size shouldBeEqualTo 2
             results.finished.any { it.test.method == "testSucceeds" && it.status == TestStatus.PASSED } shouldBeEqualTo true
