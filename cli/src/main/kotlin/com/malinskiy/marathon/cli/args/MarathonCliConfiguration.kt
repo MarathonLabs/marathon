@@ -14,12 +14,4 @@ class MarathonCliConfiguration(parser: ArgParser) {
     val bugsnagReporting: Boolean by parser
         .storing("--bugsnag", help = "Enable/Disable anonymous crash reporting. Enabled by default") { this.toBoolean() }
         .default(true)
-    val applicationClasspath: List<File>? by parser
-        .storing("--application-classpath", help = "JUnit 4 application classpath") {
-            this.split(":").filter { it.isNotBlank() }.map { File(it) }
-        }
-        .default(null)
-    val testApplicationClasspath: List<File>? by parser
-        .storing("--test-classpath", help = "JUnit 4 test classpath") { this.split(":").filter { it.isNotBlank() }.map { File(it) } }
-        .default(null)
 }

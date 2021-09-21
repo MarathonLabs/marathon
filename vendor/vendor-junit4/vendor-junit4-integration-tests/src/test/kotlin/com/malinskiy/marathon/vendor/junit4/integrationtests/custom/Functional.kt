@@ -7,8 +7,6 @@ import org.junit.runners.ParentRunner
 import org.junit.runners.model.Statement
 import org.junit.runners.model.TestClass
 import java.io.IOException
-import java.lang.annotation.Retention
-import java.lang.annotation.RetentionPolicy
 import java.util.Collections
 import java.util.Properties
 
@@ -91,7 +89,7 @@ class Functional(klass: Class<*>) : ParentRunner<Functional.Test>(klass) {
      * Annotation for the `public static final String` field that declares the properties file to use.
      * This annotation is required.
      */
-    @Retention(RetentionPolicy.RUNTIME)
+    @Retention(AnnotationRetention.RUNTIME)
     @Target(AnnotationTarget.ANNOTATION_CLASS, AnnotationTarget.CLASS)
     annotation class Properties(
         /**

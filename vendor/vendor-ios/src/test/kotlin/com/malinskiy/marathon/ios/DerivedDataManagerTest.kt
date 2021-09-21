@@ -6,8 +6,8 @@ import com.malinskiy.marathon.log.MarathonLogging
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.reset
 import com.nhaarman.mockitokotlin2.whenever
-import org.amshove.kluent.shouldEqual
-import org.amshove.kluent.shouldNotEqual
+import org.amshove.kluent.shouldBeEqualTo
+import org.amshove.kluent.shouldNotBeEqualTo
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.BeforeEach
@@ -93,7 +93,7 @@ class DerivedDataManagerTest {
 
         containerHost = container.containerIpAddress
         sshPort = container.getMappedPort(22)
-        sshPort shouldNotEqual 0
+        sshPort shouldNotBeEqualTo 0
     }
 
     @AfterEach
@@ -102,7 +102,7 @@ class DerivedDataManagerTest {
     }
 
     companion object {
-        val logger = MarathonLogging.logger(javaClass.simpleName)
+        val logger = MarathonLogging.logger {}
         val privateKey = File(javaClass.classLoader.getResource("fixtures/derived-data-manager/test_rsa").file)
 
         @BeforeAll
@@ -123,7 +123,7 @@ class DerivedDataManagerTest {
     fun `should determine products location`() {
         val manager = DerivedDataManager(configuration = configuration)
 
-        manager.productsDir shouldEqual derivedDataDir.resolve("Build/Products/")
+        manager.productsDir shouldBeEqualTo derivedDataDir.resolve("Build/Products/")
     }
 
     @Test
@@ -157,7 +157,7 @@ class DerivedDataManagerTest {
         val expectedUploadFiles =
             productsDir.walkTopDown().map { it.relativePathTo(productsDir) }.toSet()
 
-        uploadResults shouldEqual expectedUploadFiles
+        uploadResults shouldBeEqualTo expectedUploadFiles
 
         // Download
         val tempDir = createTempDir()
@@ -174,7 +174,7 @@ class DerivedDataManagerTest {
             productsDir.walkTopDown().map { it.relativePathTo(productsDir) }.toSet()
 
         // Compare
-        tempFiles shouldEqual expectedDownloadFiles
+        tempFiles shouldBeEqualTo expectedDownloadFiles
 
         tempDir.deleteRecursively()
     }

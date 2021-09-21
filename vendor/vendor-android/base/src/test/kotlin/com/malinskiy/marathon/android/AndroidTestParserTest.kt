@@ -3,7 +3,7 @@ package com.malinskiy.marathon.android
 import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.test.MetaProperty
 import kotlinx.coroutines.runBlocking
-import org.amshove.kluent.shouldEqual
+import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.Test
 import java.io.File
 import com.malinskiy.marathon.test.Test as MarathonTest
@@ -50,7 +50,7 @@ class AndroidTestParserTest {
         val extractedTests = runBlocking {
             parser.extract(configuration)
         }
-        extractedTests shouldEqual listOf(
+        extractedTests shouldBeEqualTo listOf(
             MarathonTest(
                 "com.example", "MainActivityTest", "testText",
                 listOf(

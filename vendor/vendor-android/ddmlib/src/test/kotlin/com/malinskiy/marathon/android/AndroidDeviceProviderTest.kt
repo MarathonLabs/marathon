@@ -6,7 +6,7 @@ import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.time.SystemTimer
 import ddmlibModule
 import kotlinx.coroutines.runBlocking
-import org.amshove.kluent.shouldEqual
+import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.Test
 import java.io.File
 import java.time.Clock
@@ -52,7 +52,7 @@ class AndroidDeviceProviderTest {
             provider.terminate()
         }
 
-        provider.subscribe().isClosedForReceive shouldEqual true
-        provider.subscribe().isClosedForSend shouldEqual true
+        provider.subscribe().isClosedForReceive shouldBeEqualTo true
+        provider.subscribe().isClosedForSend shouldBeEqualTo true
     }
 }

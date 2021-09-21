@@ -23,8 +23,6 @@ class ConfigFactory(private val mapper: ObjectMapper) {
     fun create(
         marathonfile: File,
         environmentReader: EnvironmentReader,
-        applicationClasspath: List<File>?,
-        testApplicationClasspath: List<File>?,
     ): Configuration {
         logger.info { "Checking $marathonfile config" }
 
@@ -46,8 +44,6 @@ class ConfigFactory(private val mapper: ObjectMapper) {
             is FileJUnit4Configuration -> {
                 fileVendorConfiguration.toJUnit4Configuration(
                     mapper,
-                    applicationClasspath,
-                    testApplicationClasspath,
                     environmentReader.read().javaHome
                 )
             }

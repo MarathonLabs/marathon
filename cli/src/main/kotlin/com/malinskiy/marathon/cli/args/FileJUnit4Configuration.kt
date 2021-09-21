@@ -22,8 +22,6 @@ class FileJUnit4Configuration(
 
     fun toJUnit4Configuration(
         mapper: ObjectMapper,
-        applicationClasspath: List<File>?,
-        testClasspath: List<File>?,
         javaHome: File?
     ): Junit4Configuration {
         val testBundles = mutableListOf<JUnit4TestBundle>()

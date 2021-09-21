@@ -16,7 +16,7 @@ tasks.withType<KotlinCompile> {
 }
 
 tasks.withType<Test> {
-    ignoreFailures = true
+    enabled = false
 }
 
 tasks.register<Jar>("testJar") {

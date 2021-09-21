@@ -41,8 +41,6 @@ fun main(args: Array<String>): Unit = mainBody(
             val configuration = ConfigFactory(mapper).create(
                 marathonfile = marathonfile,
                 environmentReader = SystemEnvironmentReader(),
-                applicationClasspath = applicationClasspath,
-                testApplicationClasspath = testApplicationClasspath
             )
 
             val application = marathonStartKoin(configuration)
