@@ -157,7 +157,10 @@ private fun ClassSource.toTest(child: ClassSource, methodName: String): Test {
 private fun MethodSource.toTest(): Test {
     val clazz = className.substringAfterLast(".")
     val pkg = className.substringBeforeLast(".")
-    return Test(pkg, clazz, methodName, emptyList())
+    val meta = javaMethod.declaredAnnotations.mapNotNull { it.annotationClass.qualifiedName?.let { name -> MetaProperty(name) } } +
+        javaClass.declaredAnnotations.mapNotNull { it.annotationClass.qualifiedName?.let { name -> MetaProperty(name) } }
+
+    return Test(pkg, clazz, methodName, meta)
 }
 
 private fun MethodSource.toParameterizedTest(parameterizedTest: TestIdentifier): Test {
