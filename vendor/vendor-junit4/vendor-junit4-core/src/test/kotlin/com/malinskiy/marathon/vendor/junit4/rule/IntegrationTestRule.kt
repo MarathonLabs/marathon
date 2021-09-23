@@ -8,7 +8,12 @@ import org.junit.rules.TestRule
 import org.junit.runner.Description
 import org.junit.runners.model.Statement
 
-class IntegrationTestRule(private val temp: TemporaryFolder) : TestRule {
+class IntegrationTestRule(
+    private val temp: TemporaryFolder,
+    private val javaOptions: List<String> = emptyList(),
+    private val debugBooter: Boolean = false,
+    private val debugExecutor: Boolean = false,
+) : TestRule {
     lateinit var configuration: Configuration
 
     override fun apply(base: Statement, description: Description): Statement {
@@ -35,9 +40,9 @@ class IntegrationTestRule(private val temp: TemporaryFolder) : TestRule {
                     testClasspath = deps,
                     testBundles = null,
                     testPackageRoot = "com.malinskiy.marathon.vendor.junit4.integrationtests",
-                    debugBooter = false,
+                    debugBooter = debugBooter,
                     forkEvery = 0,
-                    executorConfiguration = LocalExecutorConfiguration(parallelism = 1, debug = false)
+                    executorConfiguration = LocalExecutorConfiguration(parallelism = 1, debug = debugExecutor, javaOptions = javaOptions)
                 )
 
                 configuration = Configuration(

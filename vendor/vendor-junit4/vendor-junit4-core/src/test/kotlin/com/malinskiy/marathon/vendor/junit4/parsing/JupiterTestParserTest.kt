@@ -43,6 +43,13 @@ class JupiterTestParserTest(private val name: String, private val expected: List
                             "testAssumptionFails",
                             emptyList()
                         ),
+                        MarathonTest(
+                            "com.malinskiy.marathon.vendor.junit4.integrationtests",
+                            "SimpleTest",
+                            "testFailsWithNoMessage",
+                            emptyList()
+                        ),
+                        MarathonTest("com.malinskiy.marathon.vendor.junit4.integrationtests", "SimpleTest", "testIgnored", emptyList()),
                     )
                 ),
                 arrayOf(

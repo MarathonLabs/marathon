@@ -50,6 +50,7 @@ class TestExecutorClient(
                 if (executorConfiguration.debug) {
                     addJavaOptions("-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=1045")
                 }
+                addAllJavaOptions(executorConfiguration.javaOptions)
                 executorConfiguration.javaHome?.let {
                     javaHome = it.absolutePath
                 }

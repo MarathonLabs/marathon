@@ -54,7 +54,7 @@ class Junit4DeviceIntegrationTest {
             val testBatch = TestBatch(tests)
             val deferred = CompletableDeferred<TestBatchResults>()
             val progressReporter = ProgressReporter(integrationTestRule.configuration).apply {
-                testCountExpectation(devicePoolId, 3)
+                testCountExpectation(devicePoolId, 5)
             }
 
             device.execute(integrationTestRule.configuration, devicePoolId, testBatch, deferred, progressReporter)
@@ -68,6 +68,154 @@ class Junit4DeviceIntegrationTest {
 
             results.failed.any { it.test.method == "testFails" && it.status == TestStatus.FAILURE } shouldBeEqualTo true
             results.failed.any { it.test.method == "testFailsWithNoMessage" && it.status == TestStatus.FAILURE } shouldBeEqualTo true
+        }
+    }
+
+    @Test
+    fun testClassIgnoredTest() {
+        runBlocking {
+            val devicePoolId = DevicePoolId("test")
+
+            val testParser = RemoteJupiterTestParser(testBundleIdentifier)
+            val testList = testParser.extract(integrationTestRule.configuration)
+            val tests = testList.filter { it.pkg == "com.malinskiy.marathon.vendor.junit4.integrationtests" && it.clazz == "IgnoredTest" }
+            val testBatch = TestBatch(tests)
+            val deferred = CompletableDeferred<TestBatchResults>()
+            val progressReporter = ProgressReporter(integrationTestRule.configuration).apply {
+                testCountExpectation(devicePoolId, 1)
+            }
+
+            device.execute(integrationTestRule.configuration, devicePoolId, testBatch, deferred, progressReporter)
+
+            val results = deferred.await()
+            results.finished.size shouldBeEqualTo 1
+            results.failed.size shouldBeEqualTo 0
+            val test = results.finished.first().test
+            test.method shouldBeEqualTo "testIgnoredTest"
+            test.clazz shouldBeEqualTo "IgnoredTest"
+            test.pkg shouldBeEqualTo "com.malinskiy.marathon.vendor.junit4.integrationtests"
+        }
+    }
+
+    @Test
+    fun testParameterizedTest() {
+        runBlocking {
+            val devicePoolId = DevicePoolId("test")
+
+            val testParser = RemoteJupiterTestParser(testBundleIdentifier)
+            val testList = testParser.extract(integrationTestRule.configuration)
+            val tests =
+                testList.filter { it.pkg == "com.malinskiy.marathon.vendor.junit4.integrationtests" && it.clazz == "ParameterizedTest" }
+            val testBatch = TestBatch(tests)
+            val deferred = CompletableDeferred<TestBatchResults>()
+            val progressReporter = ProgressReporter(integrationTestRule.configuration).apply {
+                testCountExpectation(devicePoolId, 2)
+            }
+
+            device.execute(integrationTestRule.configuration, devicePoolId, testBatch, deferred, progressReporter)
+
+            val results = deferred.await()
+            results.finished.size shouldBeEqualTo 2
+            results.failed.size shouldBeEqualTo 0
+
+            results.finished.any { it.test.method == "testShouldCapitalize[a -> A]" && it.status == TestStatus.PASSED } shouldBeEqualTo true
+            results.finished.any { it.test.method == "testShouldCapitalize[b -> B]" && it.status == TestStatus.PASSED } shouldBeEqualTo true
+        }
+    }
+
+    @Test
+    fun testCustomParameterizedTest() {
+        runBlocking {
+            val devicePoolId = DevicePoolId("test")
+
+            val testParser = RemoteJupiterTestParser(testBundleIdentifier)
+            val testList = testParser.extract(integrationTestRule.configuration)
+            val tests =
+                testList.filter { it.pkg == "com.malinskiy.marathon.vendor.junit4.integrationtests" && it.clazz == "CustomParameterizedTest" }
+            val testBatch = TestBatch(tests)
+            val deferred = CompletableDeferred<TestBatchResults>()
+            val progressReporter = ProgressReporter(integrationTestRule.configuration).apply {
+                testCountExpectation(devicePoolId, 2)
+            }
+
+            device.execute(integrationTestRule.configuration, devicePoolId, testBatch, deferred, progressReporter)
+
+            val results = deferred.await()
+            results.finished.size shouldBeEqualTo 2
+            results.failed.size shouldBeEqualTo 0
+
+            results.finished.any { it.test.method == "testcase1 raw" && it.status == TestStatus.PASSED } shouldBeEqualTo true
+            results.finished.any { it.test.method == "testcase2 raw" && it.status == TestStatus.PASSED } shouldBeEqualTo true
+        }
+    }
+
+    @Test
+    fun testClassHierarchyExecution() {
+        runBlocking {
+            val devicePoolId = DevicePoolId("test")
+
+            val testParser = RemoteJupiterTestParser(testBundleIdentifier)
+            val testList = testParser.extract(integrationTestRule.configuration)
+            val tests = testList.filter { it.pkg == "com.malinskiy.marathon.vendor.junit4.integrationtests" && it.clazz == "ChildTest" }
+            val testBatch = TestBatch(tests)
+            val deferred = CompletableDeferred<TestBatchResults>()
+            val progressReporter = ProgressReporter(integrationTestRule.configuration).apply {
+                testCountExpectation(devicePoolId, 2)
+            }
+
+            device.execute(integrationTestRule.configuration, devicePoolId, testBatch, deferred, progressReporter)
+
+            val results = deferred.await()
+            results.finished.size shouldBeEqualTo 2
+            results.failed.size shouldBeEqualTo 0
+
+            results.finished.any { it.test.method == "testChildPassed" && it.status == TestStatus.PASSED } shouldBeEqualTo true
+            results.finished.any { it.test.method == "testPasses" && it.status == TestStatus.PASSED } shouldBeEqualTo true
+        }
+    }
+
+    @Test
+    fun testClassHierarchyWithAbstractParentExecution() {
+        runBlocking {
+            val devicePoolId = DevicePoolId("test")
+
+            val testParser = RemoteJupiterTestParser(testBundleIdentifier)
+            val testList = testParser.extract(integrationTestRule.configuration)
+            val tests =
+                testList.filter { it.pkg == "com.malinskiy.marathon.vendor.junit4.integrationtests" && it.clazz == "ChildFromAbstractTest" }
+            val testBatch = TestBatch(tests)
+            val deferred = CompletableDeferred<TestBatchResults>()
+            val progressReporter = ProgressReporter(integrationTestRule.configuration).apply {
+                testCountExpectation(devicePoolId, 2)
+            }
+
+            device.execute(integrationTestRule.configuration, devicePoolId, testBatch, deferred, progressReporter)
+
+            val results = deferred.await()
+            results.finished.size shouldBeEqualTo 2
+            results.failed.size shouldBeEqualTo 0
+
+            results.finished.any { it.test.method == "testParentDidSetup" && it.status == TestStatus.PASSED } shouldBeEqualTo true
+            results.finished.any { it.test.method == "testParent" && it.status == TestStatus.PASSED } shouldBeEqualTo true
+        }
+    }
+
+    @Test
+    fun testEmptyBatch() {
+        runBlocking {
+            val devicePoolId = DevicePoolId("test")
+
+            val testBatch = TestBatch(emptyList())
+            val deferred = CompletableDeferred<TestBatchResults>()
+            val progressReporter = ProgressReporter(integrationTestRule.configuration).apply {
+                testCountExpectation(devicePoolId, 1)
+            }
+
+            device.execute(integrationTestRule.configuration, devicePoolId, testBatch, deferred, progressReporter)
+
+            val results = deferred.await()
+            results.finished.size shouldBeEqualTo 0
+            results.failed.size shouldBeEqualTo 0
         }
     }
 }

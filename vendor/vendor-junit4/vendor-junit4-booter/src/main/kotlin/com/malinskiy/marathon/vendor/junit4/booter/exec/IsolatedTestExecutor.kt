@@ -43,13 +43,14 @@ class IsolatedTestExecutor : TestExecutor {
             } else {
                 Paths.get(javaHome, "bin", "java")
             }
-            val args = StringBuilder().apply {
-                append("-ea ")
-                append(javaOptions.joinToString(separator = "") { "$it " })
-                append("-cp ")
-                append(classpath)
-                append(" com.malinskiy.marathon.vendor.junit4.runner.Runner")
-            }.toString()
+
+            val args = mutableListOf<String>().apply {
+                add("-ea")
+                addAll(javaOptions)
+                add("-cp")
+                add(classpath)
+                add("com.malinskiy.marathon.vendor.junit4.runner.Runner")
+            }
 
             val testList = Files.createTempFile("marathon", "testlist").toFile()
                 .apply {
@@ -62,7 +63,7 @@ class IsolatedTestExecutor : TestExecutor {
                     }
                 }
 
-            backgroundProcess = ProcessBuilder(javaBinary.toString(), *args.split(" ").toTypedArray())
+            backgroundProcess = ProcessBuilder(javaBinary.toString(), *args.toTypedArray())
                 .apply {
                     environment()["OUTPUT"] = port.toString()
                     environment()["FILTER"] = testList.absolutePath

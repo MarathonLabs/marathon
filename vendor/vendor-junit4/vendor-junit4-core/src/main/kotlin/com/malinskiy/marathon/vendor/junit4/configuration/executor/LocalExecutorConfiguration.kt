@@ -1,5 +1,6 @@
 package com.malinskiy.marathon.vendor.junit4.configuration.executor
 
+import com.malinskiy.marathon.vendor.junit4.executor.ExecutionMode
 import java.io.File
 
 class LocalExecutorConfiguration(
@@ -8,4 +9,5 @@ class LocalExecutorConfiguration(
     override val javaOptions: List<String> = emptyList(),
     override val useArgfiles: Boolean = false,
     override val debug: Boolean = false,
+    override val mode: ExecutionMode = ExecutionMode.ISOLATED
 ) : ExecutorConfigurationAdapter()

@@ -6,6 +6,7 @@ import com.malinskiy.marathon.vendor.junit4.client.TestExecutorClient
 import com.malinskiy.marathon.vendor.junit4.configuration.Junit4Configuration
 import com.malinskiy.marathon.vendor.junit4.configuration.executor.ExecutorConfigurationAdapter
 import com.malinskiy.marathon.vendor.junit4.executor.Booter
+import com.malinskiy.marathon.vendor.junit4.executor.ExecutionMode
 import com.malinskiy.marathon.vendor.junit4.executor.listener.LineListener
 import io.grpc.ManagedChannelBuilder
 import kotlinx.coroutines.Dispatchers
@@ -46,7 +47,9 @@ class LocalhostBooter(
             }
             when (mode) {
                 Mode.RUNNER -> {
-                    append(executorConfiguration.javaOptions.joinToString(separator = "") { "$it " })
+                    if (conf.executorConfiguration.mode == ExecutionMode.INPROCESS) {
+                        append(executorConfiguration.javaOptions.joinToString(separator = "") { "$it " })
+                    }
                 }
                 Mode.DISCOVER -> {
                 }
@@ -99,7 +102,7 @@ class LocalhostBooter(
         }.apply {
             environment()["PORT"] = controlPort.toString()
             environment()["MODE"] = mode.toString()
-            environment()["EXEC_MODE"] = "ISOLATED"
+            environment()["EXEC_MODE"] = conf.executorConfiguration.mode.toString()
         }.start()
 
 
