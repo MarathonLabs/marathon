@@ -286,7 +286,7 @@ object ConfigFactorySpec : Spek({
         on("configuration without androidSdk value") {
             val file = File(ConfigFactorySpec::class.java.getResource("/fixture/config/sample_7.yaml").file)
 
-            it("should throw an exception when ANDROID_HOME_ENV is not set") {
+            it("should throw an exception when ANDROID_SDK_ROOT is not set") {
                 val create = { parser.create(file, mockEnvironmentReader(null)) }
 
                 create shouldNotThrow ConfigurationException::class
