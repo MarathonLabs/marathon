@@ -391,8 +391,10 @@ class AdamAndroidDevice(
     }
 
     override fun onLine(line: String) {
-        logcatListeners.forEach { listener ->
-            listener.onLine(line)
+        synchronized(logcatListeners) {
+            logcatListeners.forEach { listener ->
+                listener.onLine(line)
+            }
         }
     }
 }
