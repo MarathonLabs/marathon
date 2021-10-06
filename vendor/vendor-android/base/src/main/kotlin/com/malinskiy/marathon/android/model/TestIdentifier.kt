@@ -23,8 +23,8 @@ data class TestIdentifier(
     val testName: String
 ) {
     fun toTest(): Test {
-        val pkg = className.substringBeforeLast(".")
-        val className = className.substringAfterLast(".")
+        val pkg = className.substringBeforeLast(".", "")
+        val className = className.substringAfterLast(".", className)
         val methodName = testName
         return Test(pkg, className, methodName, emptyList())
     }

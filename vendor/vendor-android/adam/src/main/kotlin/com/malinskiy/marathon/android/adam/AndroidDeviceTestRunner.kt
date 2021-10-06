@@ -158,14 +158,20 @@ class AndroidDeviceTestRunner(private val device: AdamAndroidDevice, private val
         testBatch: TestBatch
     ): TestRunnerRequest {
         val tests = testBatch.tests.map {
-            if(it.method != "null") {
-                "${it.pkg}.${it.clazz}#${it.method.bashEscape()}"
+            val pkg = when {
+                it.pkg.isNotEmpty() -> "${it.pkg}."
+                else -> ""
+            }
+            val clazz = it.clazz
+            val method = it.method
+            if (it.method != "null") {
+                "${pkg}${clazz}#$method"
             } else {
                 /**
                  * Special case for tests without any methods
                  */
-                "${it.pkg}.${it.clazz}"
-            }
+                "$${pkg}${clazz}"
+            }.bashEscape()
         }
 
         logger.debug { "tests = ${tests.toList()}" }

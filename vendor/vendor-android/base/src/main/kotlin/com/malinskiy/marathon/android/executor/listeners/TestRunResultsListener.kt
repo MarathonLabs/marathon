@@ -162,7 +162,14 @@ class TestRunResultsListener(
     }
 
     private fun Test.identifier(): TestIdentifier {
-        return TestIdentifier("$pkg.$clazz", method)
+        val classname = StringBuilder().apply {
+            if (pkg.isNotEmpty()) {
+                append("${pkg}.")
+            }
+            append(clazz)
+        }.toString()
+
+        return TestIdentifier(classname, method)
     }
 
     private fun AndroidTestResult.isSuccessful(): Boolean =
