@@ -5,6 +5,7 @@ import com.malinskiy.marathon.android.configuration.AndroidLogConfigurator
 import com.malinskiy.marathon.android.configuration.DEFAULT_ALLURE_CONFIGURATION
 import com.malinskiy.marathon.android.configuration.FileSyncConfiguration
 import com.malinskiy.marathon.android.configuration.SerialStrategy
+import com.malinskiy.marathon.android.configuration.TestParserConfiguration
 import com.malinskiy.marathon.android.configuration.ThreadingConfiguration
 import com.malinskiy.marathon.android.configuration.TimeoutConfiguration
 import com.malinskiy.marathon.android.di.androidModule
@@ -47,6 +48,7 @@ data class AndroidConfiguration(
     val timeoutConfiguration: TimeoutConfiguration = TimeoutConfiguration(),
     val fileSyncConfiguration: FileSyncConfiguration = FileSyncConfiguration(),
     val threadingConfiguration: ThreadingConfiguration = ThreadingConfiguration(),
+    val testParserConfiguration: TestParserConfiguration = TestParserConfiguration.LocalTestParser
 ) : VendorConfiguration, KoinComponent {
 
     private val koinModules = listOf(androidModule) + implementationModules + module { single { this@AndroidConfiguration } }

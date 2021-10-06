@@ -1,6 +1,7 @@
 package com.malinskiy.marathon.cli.config
 
 import com.fasterxml.jackson.databind.module.SimpleModule
+import com.malinskiy.marathon.android.configuration.TestParserConfiguration
 import com.malinskiy.marathon.cli.args.FileVendorConfiguration
 import com.malinskiy.marathon.cli.config.deserialize.AnalyticsConfigurationDeserializer
 import com.malinskiy.marathon.cli.config.deserialize.BatchingStrategyDeserializer
@@ -18,6 +19,7 @@ import com.malinskiy.marathon.cli.config.deserialize.ScreenRecordingPolicyDeseri
 import com.malinskiy.marathon.cli.config.deserialize.ShardingStrategyDeserializer
 import com.malinskiy.marathon.cli.config.deserialize.SortingStrategyDeserializer
 import com.malinskiy.marathon.cli.config.deserialize.TestFilterDeserializer
+import com.malinskiy.marathon.cli.config.deserialize.TestParserConfigurationDeserializer
 import com.malinskiy.marathon.cli.config.time.InstantTimeProvider
 import com.malinskiy.marathon.execution.AnalyticsConfiguration
 import com.malinskiy.marathon.execution.TestFilter
@@ -62,5 +64,6 @@ class DeserializeModule(instantTimeProvider: InstantTimeProvider) : SimpleModule
         addDeserializer(TestFilter::class.java, TestFilterDeserializer())
         addDeserializer(FileVendorConfiguration::class.java, FileVendorConfigurationDeserializer())
         addDeserializer(ScreenRecordingPolicy::class.java, ScreenRecordingPolicyDeserializer())
+        addDeserializer(TestParserConfiguration::class.java, TestParserConfigurationDeserializer())
     }
 }

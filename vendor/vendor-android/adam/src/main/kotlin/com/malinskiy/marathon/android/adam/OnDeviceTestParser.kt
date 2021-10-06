@@ -16,6 +16,7 @@ import com.malinskiy.marathon.analytics.internal.pub.Track
 import com.malinskiy.marathon.android.AndroidAppInstaller
 import com.malinskiy.marathon.android.AndroidConfiguration
 import com.malinskiy.marathon.android.AndroidTestBundleIdentifier
+import com.malinskiy.marathon.android.configuration.TestParserConfiguration
 import com.malinskiy.marathon.android.model.AndroidTestBundle
 import com.malinskiy.marathon.android.model.TestIdentifier
 import com.malinskiy.marathon.device.DeviceProvider
@@ -65,11 +66,18 @@ class OnDeviceTestParser(private val testBundleIdentifier: AndroidTestBundleIden
             val androidTestBundle = AndroidTestBundle(bundle.application, bundle.testApplication)
             val instrumentationInfo = androidTestBundle.instrumentationInfo
 
+            val testParserConfiguration = vendorConfiguration.testParserConfiguration
+            val overrides: Map<String, String> = when {
+                testParserConfiguration is TestParserConfiguration.RemoteTestParser -> testParserConfiguration.instrumentationArgs
+                else -> emptyMap()
+            }
+
             val runnerRequest = TestRunnerRequest(
                 testPackage = instrumentationInfo.instrumentationPackage,
                 runnerClass = instrumentationInfo.testRunnerClass,
                 instrumentOptions = InstrumentOptions(
-                    log = true
+                    log = true,
+                    overrides = overrides
                 ),
             )
             val androidAppInstaller = AndroidAppInstaller(configuration)

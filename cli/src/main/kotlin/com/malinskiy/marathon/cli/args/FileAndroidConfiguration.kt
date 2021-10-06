@@ -11,6 +11,7 @@ import com.malinskiy.marathon.android.configuration.AllureConfiguration
 import com.malinskiy.marathon.android.configuration.DEFAULT_ALLURE_CONFIGURATION
 import com.malinskiy.marathon.android.configuration.FileSyncConfiguration
 import com.malinskiy.marathon.android.configuration.SerialStrategy
+import com.malinskiy.marathon.android.configuration.TestParserConfiguration
 import com.malinskiy.marathon.android.configuration.ThreadingConfiguration
 import com.malinskiy.marathon.android.configuration.TimeoutConfiguration
 import com.malinskiy.marathon.android.defaultInitTimeoutMillis
@@ -38,6 +39,7 @@ data class FileAndroidConfiguration(
     @JsonProperty("timeoutConfiguration") val timeoutConfiguration: TimeoutConfiguration = TimeoutConfiguration(),
     @JsonProperty("fileSyncConfiguration") val fileSyncConfiguration: FileSyncConfiguration = FileSyncConfiguration(),
     @JsonProperty("threadingConfiguration") val threadingConfiguration: ThreadingConfiguration = ThreadingConfiguration(),
+    @JsonProperty("testParserConfiguration") val testParserConfiguration: TestParserConfiguration = TestParserConfiguration.LocalTestParser,
 ) : FileVendorConfiguration {
 
     fun toAndroidConfiguration(environmentAndroidSdk: File?): AndroidConfiguration {
@@ -70,6 +72,7 @@ data class FileAndroidConfiguration(
             timeoutConfiguration = timeoutConfiguration,
             fileSyncConfiguration = fileSyncConfiguration,
             threadingConfiguration = threadingConfiguration,
+            testParserConfiguration = testParserConfiguration,
         )
     }
 }
