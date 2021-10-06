@@ -52,16 +52,20 @@ class ProgressReporter(private val configuration: Configuration) {
         }
     }
 
-    fun totalTests(poolId: DevicePoolId, size: Int) {
-        execute(poolId) { it.totalTests(size) }
+    fun testCountExpectation(poolId: DevicePoolId, size: Int) {
+        execute(poolId) { it.testCountExpectation(size) }
     }
 
     fun removeTests(poolId: DevicePoolId, count: Int) {
         execute(poolId) { it.removeTests(count) }
     }
 
-    fun addTests(poolId: DevicePoolId, count: Int) {
-        execute(poolId) { it.addTests(count) }
+    fun addTestDiscoveredDuringRuntime(poolId: DevicePoolId, test: Test) {
+        execute(poolId) { it.addTestDiscoveredDuringRuntime(test) }
+    }
+
+    fun addRetries(poolId: DevicePoolId, count: Int) {
+        execute(poolId) { it.addTestRetries(count) }
     }
 
     fun progress(): Float {

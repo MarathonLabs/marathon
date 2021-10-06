@@ -34,7 +34,7 @@ export default class TestItem extends Component {
                         </div>
                         <div className="card-info__content">{convertTime(data.duration_millis)}</div>
                         <div className="card-info__content">
-                            <a href={paths.fromTestToLogs(data.id)}>Log file</a>
+                            <a href={paths.fromTestToLogs(data.filename)}>Log file</a>
                         </div>
                     </div>
 
