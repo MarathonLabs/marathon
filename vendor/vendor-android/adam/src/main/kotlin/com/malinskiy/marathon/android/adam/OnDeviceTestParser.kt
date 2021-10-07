@@ -23,6 +23,7 @@ import com.malinskiy.marathon.device.DeviceProvider
 import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.execution.TestParser
 import com.malinskiy.marathon.log.MarathonLogging
+import com.malinskiy.marathon.test.MetaProperty
 import com.malinskiy.marathon.test.Test
 import com.malinskiy.marathon.time.SystemTimer
 import kotlinx.coroutines.InternalCoroutinesApi
@@ -95,15 +96,16 @@ class OnDeviceTestParser(private val testBundleIdentifier: AndroidTestBundleIden
                     for (event in events) {
                         when (event) {
                             is TestRunStartedEvent -> Unit
-                            is TestStarted -> {
-                                val test = TestIdentifier(event.id.className, event.id.testName).toTest()
-                                tests.add(test)
-                                testBundleIdentifier.put(test, androidTestBundle)
-                            }
+                            is TestStarted -> Unit
                             is TestFailed -> Unit
                             is TestAssumptionFailed -> Unit
                             is TestIgnored -> Unit
-                            is TestEnded -> Unit
+                            is TestEnded -> {
+                                val annotations = extractAnnotations(event)
+                                val test = TestIdentifier(event.id.className, event.id.testName).toTest(annotations)
+                                tests.add(test)
+                                testBundleIdentifier.put(test, androidTestBundle)
+                            }
                             is TestRunFailed -> Unit
                             is TestRunStopped -> Unit
                             is TestRunEnded -> Unit
@@ -112,6 +114,19 @@ class OnDeviceTestParser(private val testBundleIdentifier: AndroidTestBundleIden
                 }
             }
             tests
+        }
+    }
+
+    private fun extractAnnotations(event: TestEnded): List<MetaProperty> {
+        val v1 = event.metrics["com.malinskiy.adam.junit4.android.listener.TestAnnotationProducer.v1"]
+        return when {
+            v1 != null -> {
+                v1.removeSurrounding("[", "]").split(",")
+                    .toList().map {
+                        MetaProperty(name = it)
+                    }
+            }
+            else -> emptyList()
         }
     }
 }
