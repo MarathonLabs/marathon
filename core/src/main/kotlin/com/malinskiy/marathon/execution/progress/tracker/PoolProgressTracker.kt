@@ -3,11 +3,12 @@ package com.malinskiy.marathon.execution.progress.tracker
 import com.malinskiy.marathon.actor.StateMachine
 import com.malinskiy.marathon.device.DeviceInfo
 import com.malinskiy.marathon.test.Test
+import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicInteger
 
 class PoolProgressTracker {
 
-    private val tests = mutableMapOf<Test, StateMachine<ProgressTestState, ProgressEvent, Any>>()
+    private val tests = ConcurrentHashMap<Test, StateMachine<ProgressTestState, ProgressEvent, Any>>()
 
     private fun createState() = StateMachine.create<ProgressTestState, ProgressEvent, Any> {
         initialState(ProgressTestState.Started)
