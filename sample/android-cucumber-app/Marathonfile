@@ -1,0 +1,29 @@
+name: "android-cucumber-app tests"
+outputDir: "build/reports/marathon"
+isCodeCoverageEnabled: true
+testClassRegexes:
+  - ".*"
+retryStrategy:
+  type: "fixed-quota"
+  totalAllowedRetryQuota: 100
+  retryPerTestQuota: 2
+vendorConfiguration:
+  type: "Android"
+  applicationApk: "app/build/outputs/apk/debug/app-debug.apk"
+  testApplicationApk: "app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk"
+  autoGrantPermission: true
+  instrumentationArgs:
+    debug: "false"
+  applicationPmClear: true
+  testApplicationPmClear: true
+  vendor: ADAM
+  waitForDevicesTimeoutMillis: 60000
+  fileSyncConfiguration:
+    pull:
+    - relativePath: "Android/data/cucumber.cukeulator"
+      aggregationMode: TEST_RUN
+  testParserConfiguration:
+    type: remote
+#    instrumentationArgs:
+#      features: "features/operations/addition.feature"
+deviceInitializationTimeoutMillis: 180000

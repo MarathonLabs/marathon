@@ -1,5 +1,6 @@
 package com.malinskiy.marathon.android
 
+import com.malinskiy.marathon.extension.bashEscape
 import com.malinskiy.marathon.test.Test
 
 class RemoteFileManager(private val device: AndroidDevice) {
@@ -26,5 +27,6 @@ class RemoteFileManager(private val device: AndroidDevice) {
         return "$outputDir/$filename"
     }
 
-    private fun videoFileName(test: Test, testBatchId: String): String = "${test.pkg}.${test.clazz}-${test.method}-$testBatchId.mp4"
+    private fun videoFileName(test: Test, testBatchId: String): String =
+        "${test.pkg}.${test.clazz}-${test.method}-$testBatchId.mp4".bashEscape()
 }

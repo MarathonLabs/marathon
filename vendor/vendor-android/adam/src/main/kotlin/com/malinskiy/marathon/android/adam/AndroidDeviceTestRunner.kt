@@ -19,6 +19,7 @@ import com.malinskiy.marathon.android.executor.listeners.AndroidTestRunListener
 import com.malinskiy.marathon.android.extension.isIgnored
 import com.malinskiy.marathon.android.model.TestIdentifier
 import com.malinskiy.marathon.execution.Configuration
+import com.malinskiy.marathon.extension.bashEscape
 import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.test.Test
 import com.malinskiy.marathon.test.TestBatch
@@ -192,10 +193,6 @@ class AndroidDeviceTestRunner(private val device: AdamAndroidDevice, private val
             socketIdleTimeout = Long.MAX_VALUE
         )
     }
-}
-
-private fun String.bashEscape(): String {
-    return replace(" ", "\\ ")
 }
 
 private fun com.malinskiy.adam.request.testrunner.TestIdentifier.toMarathonTestIdentifier(): TestIdentifier {

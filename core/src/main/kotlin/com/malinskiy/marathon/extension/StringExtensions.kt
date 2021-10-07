@@ -15,6 +15,10 @@ fun String.md5(): BigInteger {
     return BigInteger(MD5.md5.digest(toByteArray(charset = Charsets.UTF_8)))
 }
 
+fun String.bashEscape(): String {
+    return replace(" ", "\\ ")
+}
+
 object MD5 {
     val md5: MessageDigest by lazy { MessageDigest.getInstance("MD5") }
 }
