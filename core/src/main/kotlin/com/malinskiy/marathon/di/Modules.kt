@@ -1,6 +1,6 @@
 package com.malinskiy.marathon.di
 
-import com.google.gson.Gson
+import com.google.gson.GsonBuilder
 import com.malinskiy.marathon.Marathon
 import com.malinskiy.marathon.analytics.TrackerFactory
 import com.malinskiy.marathon.analytics.external.AnalyticsFactory
@@ -8,11 +8,13 @@ import com.malinskiy.marathon.analytics.internal.pub.Track
 import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.execution.progress.ProgressReporter
 import com.malinskiy.marathon.io.FileManager
+import com.malinskiy.marathon.json.FileSerializer
 import com.malinskiy.marathon.time.SystemTimer
 import com.malinskiy.marathon.time.Timer
 import org.koin.core.KoinApplication
 import org.koin.core.context.startKoin
 import org.koin.dsl.module
+import java.io.File
 import java.time.Clock
 
 val analyticsModule = module {
@@ -23,7 +25,11 @@ val analyticsModule = module {
 
 val coreModule = module {
     single { FileManager(get<Configuration>().outputDir) }
-    single { Gson() }
+    single {
+        GsonBuilder()
+            .registerTypeAdapter(File::class.java, FileSerializer())
+            .create()
+    }
     single<Clock> { Clock.systemDefaultZone() }
     single<Timer> { SystemTimer(get()) }
     single { ProgressReporter(get()) }

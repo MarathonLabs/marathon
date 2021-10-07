@@ -36,8 +36,10 @@ class AndroidDeviceTestRunner(private val device: DdmlibAndroidDevice, private v
         val testBatch = TestBatch(rawTestBatch.tests - ignoredTests)
         val listenerAdapter = listener.toDdmlibTestListener()
         if (testBatch.tests.isEmpty()) {
+            listener.beforeTestRun()
             notifyIgnoredTest(ignoredTests, listenerAdapter)
             listener.testRunEnded(0, emptyMap())
+            listener.afterTestRun()
             return
         }
 
@@ -76,7 +78,7 @@ class AndroidDeviceTestRunner(private val device: DdmlibAndroidDevice, private v
                 logger.error(e) { errorMessage }
                 listener.testRunFailed(errorMessage)
             } finally {
-
+                listener.afterTestRun()
             }
         }
     }

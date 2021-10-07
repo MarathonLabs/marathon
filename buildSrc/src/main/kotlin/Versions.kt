@@ -23,7 +23,7 @@ object Versions {
     val espressoRules = "1.0.1"
     val espressoRunner = "1.0.1"
     val junit = "4.12"
-    val gson = "2.8.7"
+    val gson = "2.8.8"
     val apacheCommonsText = "1.9"
     val apacheCommonsIO = "2.9.0"
     val influxDbClient = "2.21"
