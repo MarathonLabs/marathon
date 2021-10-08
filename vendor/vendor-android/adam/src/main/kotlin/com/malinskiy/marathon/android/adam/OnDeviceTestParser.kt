@@ -118,12 +118,23 @@ class OnDeviceTestParser(private val testBundleIdentifier: AndroidTestBundleIden
     }
 
     private fun extractAnnotations(event: TestEnded): List<MetaProperty> {
-        val v1 = event.metrics["com.malinskiy.adam.junit4.android.listener.TestAnnotationProducer.v1"]
+        val v1 = event.metrics["com.malinskiy.adam.junit4.android.listener.TestAnnotationProducer.v2"]
         return when {
             v1 != null -> {
                 v1.removeSurrounding("[", "]").split(",")
-                    .toList().map {
-                        MetaProperty(name = it)
+                    .toList().map { serializedAnnotation ->
+                        val index = serializedAnnotation.indexOfFirst { it == '(' }
+                        val name = serializedAnnotation.substring(0 until index)
+                        val parameters = serializedAnnotation.substring(index).removeSurrounding("(", ")").split(":")
+                        val values = parameters.mapNotNull { parameter ->
+                            val split = parameter.split("=")
+                            if (split.size == 2) {
+                                Pair(split[0], split[1])
+                            } else {
+                                null
+                            }
+                        }.toMap()
+                        MetaProperty(name = name, values = values)
                     }
             }
             else -> emptyList()

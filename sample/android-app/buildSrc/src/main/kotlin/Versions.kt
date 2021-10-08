@@ -39,4 +39,6 @@ object TestLibraries {
     val allureKotlinCommon = "io.qameta.allure:allure-kotlin-commons:${Versions.allure}"
     val allureKotlinJunit4 = "io.qameta.allure:allure-kotlin-junit4:${Versions.allure}"
     val allureKotlinAndroid = "io.qameta.allure:allure-kotlin-android:${Versions.allure}"
+
+    val testOutputEnhancer = "com.malinskiy.adam:android-junit4-listener:0.3.4-SNAPSHOT"
 }

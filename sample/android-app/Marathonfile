@@ -16,6 +16,10 @@ vendorConfiguration:
   testApplicationPmClear: true
   vendor: ADAM
   waitForDevicesTimeoutMillis: 60000
+  testParserConfiguration:
+    type: "remote"
+    instrumentationArgs:
+      listener: "com.malinskiy.adam.junit4.android.listener.TestAnnotationProducer"
   allureConfiguration:
     enabled: true
 deviceInitializationTimeoutMillis: 180000
