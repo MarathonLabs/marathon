@@ -52,7 +52,11 @@ class PoolProgressTracker(private val configuration: Configuration) {
         }
     }
 
-    private fun updateStatus(test: Test, newStatus: ProgressEvent) = tests[test]?.transition(newStatus)
+    private fun updateStatus(test: Test, newStatus: ProgressEvent) {
+        synchronized(tests) {
+            tests[test]?.transition(newStatus)
+        }
+    }
 
     private val expectedTestCount = AtomicInteger(0)
     private val completed = AtomicInteger(0)
@@ -61,7 +65,9 @@ class PoolProgressTracker(private val configuration: Configuration) {
     private val retries = AtomicInteger(0)
 
     fun testStarted(test: Test) {
-        tests.computeIfAbsent(test) { _ -> createState() }
+        synchronized(tests) {
+            tests.computeIfAbsent(test) { _ -> createState() }
+        }
     }
 
     fun testFailed(test: Test) {
@@ -86,16 +92,18 @@ class PoolProgressTracker(private val configuration: Configuration) {
     }
 
     fun aggregateResult(): Boolean {
-        return if (tests.size == expectedTestCount.get()) {
-            tests.all {
-                when (it.value.state) {
-                    is ProgressTestState.Passed -> true
-                    is ProgressTestState.Ignored -> true
-                    else -> false
+        synchronized(tests) {
+            return if (tests.size == expectedTestCount.get()) {
+                tests.all {
+                    when (it.value.state) {
+                        is ProgressTestState.Passed -> true
+                        is ProgressTestState.Ignored -> true
+                        else -> false
+                    }
                 }
+            } else {
+                false
             }
-        } else {
-            false
         }
     }
 
