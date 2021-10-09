@@ -1288,7 +1288,7 @@ isCodeCoverageEnabled: true
 
 ```kotlin
 marathon {
-  isCodeCoverageEnabled = true
+  codeCoverageEnabled = true
 }
 ```
 
