@@ -89,7 +89,7 @@ class ProgressReporterTest {
          * 1 retry of test 2 is ignored
          */
         reporter.testStarted(poolId, deviceInfo, test2)
-        reporter.testIgnored(poolId, deviceInfo, test2)
+        reporter.testIgnored(poolId, test2)
         reporter.progress().shouldBeEqualTo(5 / 7f)
 
         /**
@@ -102,7 +102,7 @@ class ProgressReporterTest {
          * test 3 is ignored (assumption failure or just ignore)
          */
         reporter.testStarted(poolId, deviceInfo, test3)
-        reporter.testIgnored(poolId, deviceInfo, test3)
+        reporter.testIgnored(poolId, test3)
         val progress = reporter.progress()
         progress.shouldBeEqualTo(6 / 6f)
     }

@@ -1,6 +1,7 @@
 package com.malinskiy.marathon.android.configuration
 
 import com.fasterxml.jackson.annotation.JsonCreator
+import java.util.Locale
 
 enum class SerialStrategy {
     AUTOMATIC,
@@ -14,7 +15,7 @@ enum class SerialStrategy {
         @JsonCreator
         fun fromString(key: String?): SerialStrategy? {
             return key?.let {
-                valueOf(it.toUpperCase())
+                valueOf(it.uppercase(Locale.ENGLISH))
             }
         }
     }

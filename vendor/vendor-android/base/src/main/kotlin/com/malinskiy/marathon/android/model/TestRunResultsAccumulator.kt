@@ -26,6 +26,7 @@ class TestRunResultsAccumulator(private val timer: Timer) {
         private set
 
     private var statusCounts: Map<AndroidTestStatus, Int> = mutableMapOf()
+    private var expectedTestCount: Int = 0
 
     /**
      * Return the run failure error message, `null` if run did not fail.
@@ -82,6 +83,7 @@ class TestRunResultsAccumulator(private val timer: Timer) {
         name = runName
         isRunComplete = false
         runFailureMessage = null
+        expectedTestCount = testCount
     }
 
     fun testStarted(test: TestIdentifier) {

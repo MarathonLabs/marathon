@@ -186,7 +186,7 @@ class QueueActor(
             testResultReporter.retryTest(device, it)
         }
 
-        val (retryable, noRetries) = failed.partition { testResult ->
+        val (_, noRetries) = failed.partition { testResult ->
             retryList.map { retry -> retry.test }.contains(testResult.test)
         }
 

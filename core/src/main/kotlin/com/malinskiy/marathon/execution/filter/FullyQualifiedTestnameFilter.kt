@@ -9,6 +9,6 @@ class FullyQualifiedTestnameFilter(
     @JsonProperty("regex") regex: Regex? = null,
     @JsonProperty("values") values: List<String>? = null,
     @JsonProperty("file") file: File? = null,
-) : SingleValueTestFilter(regex, values, file, { test, values ->
-    (regex?.matches(test.toHumanReadableTestName()) ?: true) && (values?.contains(test.toHumanReadableTestName()) ?: true)
+) : SingleValueTestFilter(regex, values, file, { test, filterValues ->
+    (regex?.matches(test.toHumanReadableTestName()) ?: true) && (filterValues?.contains(test.toHumanReadableTestName()) ?: true)
 })

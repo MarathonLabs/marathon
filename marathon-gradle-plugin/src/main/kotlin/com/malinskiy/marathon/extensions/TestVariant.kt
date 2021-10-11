@@ -78,8 +78,11 @@ private fun extractTestApplication3_3_to_3_5(output: TestVariant): File {
 
     return when (testPackageAndroidArtifact) {
         is PackageAndroidArtifact -> {
-            assert(testPackageAndroidArtifact.apkNames.size == 1)
-            File(testPackageAndroidArtifact.outputDirectory.asFile.get(), testPackageAndroidArtifact.apkNames.first())
+            assert(testPackageAndroidArtifact.variantOutputs.get().size == 1)
+            File(
+                testPackageAndroidArtifact.outputDirectory.asFile.get(),
+                testPackageAndroidArtifact.variantOutputs.get().first().outputFileName.get()
+            )
         }
         is Zip -> {
             testPackageAndroidArtifact.destFile

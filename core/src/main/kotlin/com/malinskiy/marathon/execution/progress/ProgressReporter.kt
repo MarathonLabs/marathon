@@ -42,7 +42,7 @@ class ProgressReporter(private val configuration: Configuration) {
         println("${toPercent(progress(poolId))} | [${poolId.name}]-[${device.serialNumber}] ${test.toTestName()} ended")
     }
 
-    fun testIgnored(poolId: DevicePoolId, device: DeviceInfo, test: Test) {
+    fun testIgnored(poolId: DevicePoolId, test: Test) {
         execute(poolId) { it.testIgnored(test) }
     }
 
@@ -70,7 +70,7 @@ class ProgressReporter(private val configuration: Configuration) {
 
     fun progress(): Float {
         val size = reporters.size
-        return reporters.values.sumByDouble {
+        return reporters.values.sumOf {
             it.progress().toDouble()
         }.toFloat() / size
     }

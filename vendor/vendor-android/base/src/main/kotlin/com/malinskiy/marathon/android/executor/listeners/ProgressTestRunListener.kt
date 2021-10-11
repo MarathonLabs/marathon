@@ -39,6 +39,6 @@ class ProgressTestRunListener(
 
     override suspend fun testIgnored(test: TestIdentifier) {
         ignored[test] = true
-        progressTracker.testIgnored(poolId, device.toDeviceInfo(), test.toTest())
+        progressTracker.testIgnored(poolId, test.toTest())
     }
 }

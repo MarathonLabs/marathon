@@ -5,7 +5,6 @@ import com.malinskiy.marathon.analytics.internal.pub.Track
 import com.malinskiy.marathon.android.configuration.AggregationMode
 import com.malinskiy.marathon.android.configuration.FileSyncEntry
 import com.malinskiy.marathon.android.configuration.SerialStrategy
-import com.malinskiy.marathon.android.exception.InvalidSerialConfiguration
 import com.malinskiy.marathon.android.exception.TransferException
 import com.malinskiy.marathon.android.executor.listeners.CompositeTestRunListener
 import com.malinskiy.marathon.android.executor.listeners.DebugTestRunListener
@@ -157,9 +156,7 @@ abstract class BaseAndroidDevice(
             SerialStrategy.DDMS -> serialNumber
         }
 
-        return result.apply {
-            if (this == null) throw InvalidSerialConfiguration(serialStrategy)
-        }
+        return result
     }
 
     private suspend fun detectFeatures(): List<DeviceFeature> {

@@ -7,6 +7,6 @@ class TestPackageFilter(
     @JsonProperty("regex") regex: Regex? = null,
     @JsonProperty("values") values: List<String>? = null,
     @JsonProperty("file") file: File? = null,
-) : SingleValueTestFilter(regex, values, file, { test, values ->
-    (regex?.matches(test.pkg) ?: true) && (values?.contains(test.pkg) ?: true)
+) : SingleValueTestFilter(regex, values, file, { test, filterValues ->
+    (regex?.matches(test.pkg) ?: true) && (filterValues?.contains(test.pkg) ?: true)
 })

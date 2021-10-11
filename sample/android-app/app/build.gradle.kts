@@ -1,17 +1,16 @@
 plugins {
     id("com.android.application")
     id("kotlin-android")
-    id("kotlin-android-extensions")
     id("marathon") version "0.7.0-SNAPSHOT"
 }
 
 android {
-    buildToolsVersion("30.0.2")
-    compileSdkVersion(30)
+    buildToolsVersion = "30.0.3"
+    compileSdk = 30
 
     defaultConfig {
-        minSdkVersion(18)
-        targetSdkVersion(30)
+        minSdk = 18
+        targetSdk = 30
 
         applicationId = "com.example"
         versionCode = 1
@@ -36,6 +35,9 @@ marathon {
         put("debug", "false")
     }
     vendor = com.malinskiy.marathon.android.VendorType.ADAM
+    allureConfiguration {
+        enabled = true
+    }
 }
 
 dependencies {

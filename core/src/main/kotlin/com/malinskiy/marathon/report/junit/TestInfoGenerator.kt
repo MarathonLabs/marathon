@@ -9,7 +9,8 @@ import com.malinskiy.marathon.report.junit.model.StackTraceElement
 import com.malinskiy.marathon.report.junit.model.TestCaseData
 import com.malinskiy.marathon.report.junit.model.TestSuiteData
 import java.text.SimpleDateFormat
-import java.util.*
+import java.util.Locale
+import java.util.TimeZone
 
 private val FORMATTER = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.US).apply {
     timeZone = TimeZone.getTimeZone("UTC")
@@ -43,8 +44,8 @@ internal class JunitReportGenerator(private val testEvents: List<TestEvent>) {
             failures = testEvents.filter { isFailure(it.testResult) }.size,
             errors = 0,
             skipped = testEvents.filter { isSkipped(it.testResult) }.size,
-            time = testEvents.map { it.testResult.durationMillis() }.sum().toJUnitSeconds(),
-            timeStamp = FORMATTER.format(testEvents.maxBy { it.testResult.endTime }?.testResult?.endTime)
+            time = testEvents.sumOf { it.testResult.durationMillis() }.toJUnitSeconds(),
+            timeStamp = FORMATTER.format(testEvents.maxByOrNull { it.testResult.endTime }?.testResult?.endTime)
         )
 
     private fun toTestCase(testEvents: List<TestEvent>) =
