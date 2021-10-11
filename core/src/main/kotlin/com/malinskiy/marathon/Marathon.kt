@@ -82,8 +82,13 @@ class Marathon(
         val deviceProvider = loadDeviceProvider(configuration.vendorConfiguration)
 
         configurationValidator.validate(configuration)
-
-        val parsedTests = testParser.extract(configuration)
+        val parsedTests = when(configuration.shuffleRunOrder) {
+            true -> {
+                log.info("Shuffling test run order.")
+                testParser.extract(configuration).shuffled()
+            }
+            else -> testParser.extract(configuration)
+        }
         val tests = applyTestFilters(parsedTests)
         val shard = prepareTestShard(tests, analytics)
 

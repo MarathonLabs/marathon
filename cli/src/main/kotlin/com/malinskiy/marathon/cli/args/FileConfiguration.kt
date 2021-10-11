@@ -35,6 +35,7 @@ data class FileConfiguration(
 
     var testBatchTimeoutMillis: Long?,
     var testOutputTimeoutMillis: Long?,
+    var shuffleRunOrder: Boolean?,
     var debug: Boolean?,
 
     var vendorConfiguration: FileVendorConfiguration?,

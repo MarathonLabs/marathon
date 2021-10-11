@@ -14,3 +14,4 @@ flakinessStrategy:
   minSuccessRate: 0.7
   maxCount: 3
   timeLimit: "-P30D"
+shuffleRunOrder: true

@@ -62,6 +62,7 @@ class ConfigFactory(private val mapper: ObjectMapper) {
             excludeSerialRegexes = config.excludeSerialRegexes,
             testBatchTimeoutMillis = config.testBatchTimeoutMillis,
             testOutputTimeoutMillis = config.testOutputTimeoutMillis,
+            shuffleRunOrder = config.shuffleRunOrder,
             debug = config.debug,
             vendorConfiguration = vendorConfiguration as VendorConfiguration,
             analyticsTracking = config.analyticsTracking

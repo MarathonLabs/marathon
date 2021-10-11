@@ -43,6 +43,7 @@ data class Configuration constructor(
 
     val testBatchTimeoutMillis: Long,
     val testOutputTimeoutMillis: Long,
+    val shuffleRunOrder: Boolean,
     val debug: Boolean,
 
     val vendorConfiguration: VendorConfiguration,
@@ -75,6 +76,7 @@ data class Configuration constructor(
 
         testBatchTimeoutMillis: Long?,
         testOutputTimeoutMillis: Long?,
+        shuffleRunOrder: Boolean?,
         debug: Boolean?,
 
         vendorConfiguration: VendorConfiguration,
@@ -103,6 +105,7 @@ data class Configuration constructor(
                 excludeSerialRegexes = excludeSerialRegexes ?: emptyList(),
                 testBatchTimeoutMillis = testBatchTimeoutMillis ?: DEFAULT_EXECUTION_TIMEOUT_MILLIS,
                 testOutputTimeoutMillis = testOutputTimeoutMillis ?: DEFAULT_OUTPUT_TIMEOUT_MILLIS,
+                shuffleRunOrder = shuffleRunOrder ?: false,
                 debug = debug ?: true,
                 vendorConfiguration = vendorConfiguration,
                 analyticsTracking = analyticsTracking ?: false

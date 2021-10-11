@@ -340,6 +340,24 @@ object ConfigFactorySpec : Spek(
                 }
             }
 
+            on("configuration with no shuffleRunOrder") {
+                val file = File(ConfigFactorySpec::class.java.getResource("/fixture/config/sample_9.yaml").file)
+
+                it("should default to false") {
+                    val configuration = parser.create(file, mockEnvironmentReader())
+                    configuration.shuffleRunOrder shouldBe false
+                }
+            }
+
+            on("configuration with shuffleRunOrder") {
+                val file = File(ConfigFactorySpec::class.java.getResource("/fixture/config/sample_10.yaml").file)
+
+                it("should be true") {
+                    val configuration = parser.create(file, mockEnvironmentReader())
+                    configuration.shuffleRunOrder shouldBe true
+                }
+            }
+
             on("configuration time limits specified as Duration") {
                 val file =
                     File(ConfigFactorySpec::class.java.getResource("/fixture/config/sample_10.yaml").file)
