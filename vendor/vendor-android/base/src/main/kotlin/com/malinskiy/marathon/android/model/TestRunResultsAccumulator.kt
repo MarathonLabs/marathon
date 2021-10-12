@@ -1,7 +1,7 @@
 package com.malinskiy.marathon.android.model
 
 import com.malinskiy.marathon.log.MarathonLogging
-import java.util.*
+import com.malinskiy.marathon.time.Timer
 
 /**
  * Holds results from a single test run.
@@ -12,16 +12,16 @@ import java.util.*
  *
  * Not thread safe! The test* callbacks must be called in order
  */
-class TestRunResultsAccumulator {
+class TestRunResultsAccumulator(private val timer: Timer) {
 
     val logger = MarathonLogging.logger { }
 
     var name: String = "not started"
         private set
     val testResults = LinkedHashMap<TestIdentifier, AndroidTestResult>()
-    private val runMetrics = HashMap<String, String>()
+    val runMetrics = HashMap<String, String>()
     var isRunComplete = false
-    var isCountDirty = false
+    private var isCountDirty = false
     var elapsedTime: Long = 0
         private set
 
@@ -32,8 +32,6 @@ class TestRunResultsAccumulator {
      */
     var runFailureMessage: String? = null
         private set
-
-    var aggregateMetrics = false
 
     val completedTests: Set<TestIdentifier>
         get() {
@@ -87,7 +85,7 @@ class TestRunResultsAccumulator {
     }
 
     fun testStarted(test: TestIdentifier) {
-        testStarted(test, System.currentTimeMillis())
+        testStarted(test, timer.currentTimeMillis())
     }
 
     fun testStarted(test: TestIdentifier, startTime: Long) {
@@ -105,7 +103,7 @@ class TestRunResultsAccumulator {
         var r: AndroidTestResult? = testResults[test]
         if (r == null) {
             logger.debug { "received test event without test start for ${test.className}#${test.testName}" }
-            r = AndroidTestResult()
+            r = AndroidTestResult(startTime = timer.currentTimeMillis())
         }
         r.status = status
         r.stackTrace = trace
@@ -125,13 +123,13 @@ class TestRunResultsAccumulator {
     }
 
     fun testEnded(test: TestIdentifier, testMetrics: Map<String, String>) {
-        testEnded(test, System.currentTimeMillis(), testMetrics)
+        testEnded(test, timer.currentTimeMillis(), testMetrics)
     }
 
     fun testEnded(test: TestIdentifier, endTime: Long, testMetrics: Map<String, String>) {
         var result: AndroidTestResult? = testResults[test]
         if (result == null) {
-            result = AndroidTestResult()
+            result = AndroidTestResult(startTime = timer.currentTimeMillis())
         }
         if (result.status == AndroidTestStatus.INCOMPLETE) {
             result.status = AndroidTestStatus.PASSED
@@ -148,7 +146,7 @@ class TestRunResultsAccumulator {
 
     private fun fillEndTime() {
         testResults.values.filter { it.endTime == 0L }.forEach { it ->
-            it.endTime = System.currentTimeMillis()
+            it.endTime = timer.currentTimeMillis()
         }
     }
 
@@ -159,47 +157,9 @@ class TestRunResultsAccumulator {
     }
 
     fun testRunEnded(elapsedTime: Long, runMetrics: Map<String, String>) {
-        if (aggregateMetrics) {
-            for ((key, value) in runMetrics) {
-                combineValues(runMetrics[key], value)?.let {
-                    this.runMetrics[key] = it
-                }
-            }
-        } else {
-            this.runMetrics.putAll(runMetrics)
-        }
+        this.runMetrics.putAll(runMetrics)
         this.elapsedTime += elapsedTime
         isRunComplete = true
         fillEndTime()
-    }
-
-    /**
-     * Combine old and new metrics value
-     *
-     * @param existingValue
-     * @param newValue
-     * @return the combination of the two string as Long or Double value.
-     */
-    private fun combineValues(existingValue: String?, newValue: String): String? {
-        if (existingValue != null) {
-            try {
-                val existingLong = java.lang.Long.parseLong(existingValue)
-                val newLong = java.lang.Long.parseLong(newValue)
-                return java.lang.Long.toString(existingLong + newLong)
-            } catch (e: NumberFormatException) {
-                // not a long, skip to next
-            }
-
-            try {
-                val existingDouble = java.lang.Double.parseDouble(existingValue)
-                val newDouble = java.lang.Double.parseDouble(newValue)
-                return java.lang.Double.toString(existingDouble + newDouble)
-            } catch (e: NumberFormatException) {
-                // not a double either, fall through
-            }
-
-        }
-        // default to overriding existingValue
-        return newValue
     }
 }

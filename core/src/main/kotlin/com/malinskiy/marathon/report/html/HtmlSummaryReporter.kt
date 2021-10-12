@@ -6,10 +6,15 @@ import com.malinskiy.marathon.analytics.internal.sub.PoolSummary
 import com.malinskiy.marathon.analytics.internal.sub.Summary
 import com.malinskiy.marathon.device.DeviceFeature
 import com.malinskiy.marathon.device.DeviceInfo
+import com.malinskiy.marathon.device.DevicePoolId
 import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.execution.TestResult
 import com.malinskiy.marathon.execution.TestStatus
+import com.malinskiy.marathon.extension.escape
 import com.malinskiy.marathon.extension.relativePathTo
+import com.malinskiy.marathon.io.FileManager
+import com.malinskiy.marathon.io.FileType
+import com.malinskiy.marathon.io.FolderType
 import com.malinskiy.marathon.report.HtmlDevice
 import com.malinskiy.marathon.report.HtmlFullTest
 import com.malinskiy.marathon.report.HtmlIndex
@@ -22,11 +27,13 @@ import org.apache.commons.text.StringEscapeUtils
 import java.io.File
 import java.io.InputStream
 import java.text.SimpleDateFormat
-import java.util.*
+import java.util.Date
+import java.util.TimeZone
 import kotlin.math.roundToLong
 
 class HtmlSummaryReporter(
     private val gson: Gson,
+    private val fileManager: FileManager,
     private val rootOutput: File,
     private val configuration: Configuration
 ) : Reporter {
@@ -41,13 +48,11 @@ class HtmlSummaryReporter(
         val summary = executionReport.summary
         if (summary.pools.isEmpty()) return
 
-        val outputDir = File(rootOutput, "/html")
-        rootOutput.mkdirs()
-        outputDir.mkdirs()
-
         val htmlIndexJson = gson.toJson(summary.toHtmlIndex())
 
         val formattedDate = SimpleDateFormat("HH:mm:ss z, MMM d yyyy").apply { timeZone = TimeZone.getTimeZone("UTC") }.format(Date())
+
+        val outputDir = fileManager.createFolder(FolderType.HTML)
 
         val appJs = File(outputDir, "app.min.js")
         inputStreamFromResources("html-report/app.min.js").copyTo(appJs.outputStream())
@@ -90,10 +95,16 @@ class HtmlSummaryReporter(
             )
 
             pool.tests.map { it to File(File(poolsDir, pool.poolId.name), it.device.serialNumber).apply { mkdirs() } }
-                .map { (test, testDir) -> Triple(test, test.toHtmlFullTest(poolId = pool.poolId.name), testDir) }
+                .map { (test, testDir) ->
+                    Triple(
+                        test,
+                        test.toHtmlFullTest(poolId = pool.poolId.name, batchId = test.testBatchId),
+                        testDir
+                    )
+                }
                 .forEach { (test, htmlTest, testDir) ->
                     val testJson = gson.toJson(htmlTest)
-                    val testHtmlFile = File(testDir, "${htmlTest.id}.html")
+                    val testHtmlFile = File(testDir, "${htmlTest.id.escape().safePathLength()}.html")
 
                     testHtmlFile.writeText(
                         indexHtml
@@ -108,7 +119,7 @@ class HtmlSummaryReporter(
 
                     val testLogDetails = toHtmlTestLogDetails(pool.poolId.name, htmlTest)
                     val testLogJson = gson.toJson(testLogDetails)
-                    val testLogHtmlFile = File(logDir, "${htmlTest.id}.html")
+                    val testLogHtmlFile = File(logDir, "${htmlTest.id.escape().safePathLength()}.html")
 
                     testLogHtmlFile.writeText(
                         indexHtml
@@ -154,36 +165,40 @@ class HtmlSummaryReporter(
         modelName = model
     )
 
-    private fun TestResult.receiveScreenshotPath(poolId: String): String {
-        val screenshotRelativePath = "/screenshot/$poolId/${device.serialNumber}/${test.pkg}.${test.clazz}#${test.method}.gif"
+    private fun TestResult.receiveScreenshotPath(poolId: String, batchId: String): String {
+        val screenshotRelativePath =
+            fileManager.createFile(FileType.SCREENSHOT, DevicePoolId(poolId), device, test, batchId).relativePathTo(rootOutput)
         val screenshotFullPath = File(rootOutput, screenshotRelativePath)
         return when (device.deviceFeatures.contains(DeviceFeature.SCREENSHOT) && screenshotFullPath.exists()) {
-            true -> "../../../..${screenshotRelativePath.replace("#", "%23")}"
+            true -> "../../../../${screenshotRelativePath.replace("#", "%23")}"
             false -> ""
         }
     }
 
-    private fun TestResult.receiveVideoPath(poolId: String): String {
-        val videoRelativePath = "/video/$poolId/${device.serialNumber}/${test.pkg}.${test.clazz}#${test.method}.mp4"
+    private fun TestResult.receiveVideoPath(poolId: String, batchId: String): String {
+        val videoRelativePath =
+            fileManager.createFile(FileType.VIDEO, DevicePoolId(poolId), device, test, batchId).relativePathTo(rootOutput)
         val videoFullPath = File(rootOutput, videoRelativePath)
         return when (device.deviceFeatures.contains(DeviceFeature.VIDEO) && videoFullPath.exists()) {
-            true -> "../../../..${videoRelativePath.replace("#", "%23")}"
+            true -> "../../../../${videoRelativePath.replace("#", "%23")}"
             false -> ""
         }
     }
 
-    private fun TestResult.receiveLogPath(poolId: String): String {
-        val logRelativePath = "/logs/$poolId/${device.serialNumber}/${test.pkg}.${test.clazz}#${test.method}.log"
+    private fun TestResult.receiveLogPath(poolId: String, batchId: String): String {
+        val logRelativePath = fileManager.createFile(FileType.LOG, DevicePoolId(poolId), device, test, batchId).relativePathTo(rootOutput)
         val logFullPath = File(rootOutput, logRelativePath)
-        return when (device.deviceFeatures.contains(DeviceFeature.VIDEO) && logFullPath.exists()) {
-            true -> "../../../..${logRelativePath.replace("#", "%23")}"
-            false -> ""
+        return if (logFullPath.exists()) {
+            "../../../../${logRelativePath.replace("#", "%23")}"
+        } else {
+            ""
         }
     }
 
-    fun TestResult.toHtmlFullTest(poolId: String) = HtmlFullTest(
+    fun TestResult.toHtmlFullTest(poolId: String, batchId: String) = HtmlFullTest(
         poolId = poolId,
         id = "${test.pkg}.${test.clazz}.${test.method}",
+        filename = "${test.pkg}.${test.clazz}.${test.method}".escape().safePathLength() + ".html",
         packageName = test.pkg,
         className = test.clazz,
         name = test.method,
@@ -193,9 +208,9 @@ class HtmlSummaryReporter(
         diagnosticVideo = device.deviceFeatures.contains(DeviceFeature.VIDEO),
         diagnosticScreenshots = device.deviceFeatures.contains(DeviceFeature.SCREENSHOT),
         stacktrace = stacktrace,
-        screenshot = receiveScreenshotPath(poolId),
-        video = receiveVideoPath(poolId),
-        logFile = receiveLogPath(poolId)
+        screenshot = receiveScreenshotPath(poolId, batchId),
+        video = receiveVideoPath(poolId, batchId),
+        logFile = receiveLogPath(poolId, batchId)
     )
 
     fun TestStatus.toHtmlStatus() = when (this) {
@@ -208,9 +223,9 @@ class HtmlSummaryReporter(
     fun PoolSummary.toHtmlPoolSummary() = HtmlPoolSummary(
         id = poolId.name,
         tests = tests.map { it.toHtmlShortSuite() },
-        passedCount = passed,
-        failedCount = failed,
-        ignoredCount = ignored,
+        passedCount = passed.size,
+        failedCount = failed.size,
+        ignoredCount = ignored.size,
         durationMillis = durationMillis,
         devices = devices.map { it.toHtmlDevice() }
     )
@@ -218,9 +233,9 @@ class HtmlSummaryReporter(
 
     fun Summary.toHtmlIndex() = HtmlIndex(
         title = configuration.name,
-        totalFailed = pools.sumBy { it.failed },
-        totalIgnored = pools.sumBy { it.ignored },
-        totalPassed = pools.sumBy { it.passed },
+        totalFailed = pools.sumBy { it.failed.size },
+        totalIgnored = pools.sumBy { it.ignored.size },
+        totalPassed = pools.sumBy { it.passed.size },
         totalFlaky = pools.sumBy { it.flaky },
         totalDuration = totalDuration(pools),
         averageDuration = averageDuration(pools),
@@ -246,6 +261,7 @@ class HtmlSummaryReporter(
 
     fun TestResult.toHtmlShortSuite() = HtmlShortTest(
         id = "${test.pkg}.${test.clazz}.${test.method}",
+        fileName = "${test.pkg}.${test.clazz}.${test.method}".escape().safePathLength() + ".html",
         packageName = test.pkg,
         className = test.clazz,
         name = test.method,
@@ -262,8 +278,12 @@ class HtmlSummaryReporter(
         testId = fullTest.id,
         displayName = fullTest.name,
         deviceId = fullTest.deviceId,
-        logPath = "../../../../../logs/$poolId/${fullTest.deviceId}/${fullTest.packageName}.${fullTest.className}%23${fullTest.name}.log"
+        logPath = "../${fullTest.logFile}"
     )
+}
 
-
+private fun String.safePathLength(): String {
+    return if (length >= 128) {
+        substring(0 until 128)
+    } else this
 }

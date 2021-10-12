@@ -17,6 +17,9 @@ data class ScreenshotConfiguration(
     @JsonProperty("delayMs") val delayMs: Int = 500
 )
 
+/**
+ * See https://android.googlesource.com/platform/frameworks/av/+/master/cmds/screenrecord/screenrecord.cpp for a list of latest defaults
+ */
 data class VideoConfiguration(
     @JsonProperty("enabled") val enabled: Boolean = true,
     @JsonProperty("width") val width: Int = 720,
@@ -41,7 +44,14 @@ data class VideoConfiguration(
 
         if (bitrateMbps > 0) {
             sb.append("--bit-rate ")
-            sb.append(bitrateMbps * 1_000_000)
+            var bitrate = bitrateMbps * 1_000_000
+            /**
+             * screenrecord supports bitrate up to 200Mbps
+             */
+            if (bitrate > 200_000_000) {
+                bitrate = 200_000_000
+            }
+            sb.append(bitrate)
             sb.append(' ')
         }
 

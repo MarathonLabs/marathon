@@ -2,6 +2,17 @@
   {
     "package": "test",
     "class": "SimpleTest",
+    "method": "test1",
+    "deviceSerial": "serial-1",
+    "status": "INCOMPLETE",
+    "ignored": false,
+    "success": false,
+    "timestamp": 0,
+    "duration": 1
+  },
+  {
+    "package": "test",
+    "class": "SimpleTest",
     "method": "test2",
     "deviceSerial": "serial-2",
     "status": "PASSED",

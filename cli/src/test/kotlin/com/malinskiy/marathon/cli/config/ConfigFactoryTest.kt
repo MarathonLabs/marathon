@@ -11,12 +11,14 @@ import com.malinskiy.marathon.android.ScreenshotConfiguration
 import com.malinskiy.marathon.android.VideoConfiguration
 import com.malinskiy.marathon.android.configuration.AllureConfiguration
 import com.malinskiy.marathon.android.configuration.SerialStrategy
+import com.malinskiy.marathon.android.configuration.TimeoutConfiguration
 import com.malinskiy.marathon.cli.args.EnvironmentConfiguration
 import com.malinskiy.marathon.cli.args.environment.EnvironmentReader
 import com.malinskiy.marathon.cli.config.time.InstantTimeProvider
 import com.malinskiy.marathon.device.DeviceFeature
 import com.malinskiy.marathon.exceptions.ConfigurationException
 import com.malinskiy.marathon.execution.AnalyticsConfiguration
+import com.malinskiy.marathon.execution.AnnotationDataFilter
 import com.malinskiy.marathon.execution.AnnotationFilter
 import com.malinskiy.marathon.execution.CompositionFilter
 import com.malinskiy.marathon.execution.FullyQualifiedClassnameFilter
@@ -42,14 +44,14 @@ import com.malinskiy.marathon.execution.strategy.impl.sorting.ExecutionTimeSorti
 import com.malinskiy.marathon.execution.strategy.impl.sorting.NoSortingStrategy
 import com.malinskiy.marathon.execution.strategy.impl.sorting.SuccessRateSortingStrategy
 import com.malinskiy.marathon.ios.IOSConfiguration
+import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
 import ddmlibModule
-import org.amshove.kluent.`it returns`
+import org.amshove.kluent.`should be equal to`
 import org.amshove.kluent.`should be instance of`
-import org.amshove.kluent.mock
 import org.amshove.kluent.shouldBe
 import org.amshove.kluent.shouldBeEmpty
-import org.amshove.kluent.shouldContainAll
+import org.amshove.kluent.shouldContainSame
 import org.amshove.kluent.shouldEqual
 import org.amshove.kluent.shouldThrow
 import org.junit.jupiter.api.BeforeEach
@@ -70,8 +72,8 @@ class ConfigFactoryTest {
     lateinit var parser: ConfigFactory
 
     fun mockEnvironmentReader(path: String? = null): EnvironmentReader {
-        val environmentReader: EnvironmentReader = mock()
-        whenever(environmentReader.read()) `it returns` EnvironmentConfiguration(path?.let { File(it) })
+        val environmentReader = mock<EnvironmentReader>()
+        whenever(environmentReader.read()).thenReturn(EnvironmentConfiguration(path?.let { File(it) }))
         return environmentReader
     }
 
@@ -126,9 +128,11 @@ class ConfigFactoryTest {
         configuration.retryStrategy shouldEqual FixedQuotaRetryStrategy(100, 2)
         SimpleClassnameFilter(".*".toRegex()) shouldEqual SimpleClassnameFilter(".*".toRegex())
 
-        configuration.filteringConfiguration.allowlist shouldContainAll listOf(
+        configuration.filteringConfiguration.allowlist shouldContainSame listOf(
             SimpleClassnameFilter(".*".toRegex()),
+            SimpleClassnameFilter(values = listOf("SimpleTest")),
             FullyQualifiedClassnameFilter(".*".toRegex()),
+            FullyQualifiedClassnameFilter(file = File("filterfile")),
             TestMethodFilter(".*".toRegex()),
             CompositionFilter(
                 listOf(
@@ -138,11 +142,12 @@ class ConfigFactoryTest {
             )
         )
 
-        configuration.filteringConfiguration.blocklist shouldContainAll listOf(
+        configuration.filteringConfiguration.blocklist shouldContainSame listOf(
             TestPackageFilter(".*".toRegex()),
-            AnnotationFilter(".*".toRegex())
+            AnnotationFilter(".*".toRegex()),
+            AnnotationDataFilter(".*".toRegex(), ".*".toRegex())
         )
-        configuration.testClassRegexes.map { it.toString() } shouldContainAll listOf("^((?!Abstract).)*Test$")
+        configuration.testClassRegexes.map { it.toString() } shouldContainSame listOf("^((?!Abstract).)*Test$")
 
         // Regex doesn't have proper equals method. Need to check the patter itself
         configuration.includeSerialRegexes.joinToString(separator = "") { it.pattern } shouldEqual """emulator-500[2,4]""".toRegex().pattern
@@ -161,6 +166,7 @@ class ConfigFactoryTest {
             File("/local/android"),
             File("kotlin-buildscript/build/outputs/apk/debug/kotlin-buildscript-debug.apk"),
             File("kotlin-buildscript/build/outputs/apk/androidTest/debug/kotlin-buildscript-debug-androidTest.apk"),
+            null,
             listOf(ddmlibModule),
             true,
             mapOf("debug" to "false"),
@@ -218,21 +224,22 @@ class ConfigFactoryTest {
         configuration.filteringConfiguration.allowlist.shouldBeEmpty()
         configuration.filteringConfiguration.blocklist.shouldBeEmpty()
 
-        configuration.testClassRegexes.map { it.toString() } shouldContainAll listOf("^((?!Abstract).)*Test[s]*$")
+        configuration.testClassRegexes.map { it.toString() } shouldContainSame listOf("^((?!Abstract).)*Test[s]*$")
 
         configuration.includeSerialRegexes shouldEqual emptyList()
         configuration.excludeSerialRegexes shouldEqual emptyList()
         configuration.ignoreFailures shouldEqual false
         configuration.isCodeCoverageEnabled shouldEqual false
         configuration.fallbackToScreenshots shouldEqual false
-        configuration.testBatchTimeoutMillis shouldEqual 900_000
-        configuration.testOutputTimeoutMillis shouldEqual 60_000
+        configuration.testBatchTimeoutMillis shouldEqual 1800_000
+        configuration.testOutputTimeoutMillis shouldEqual 300_000
         configuration.debug shouldEqual true
         configuration.screenRecordingPolicy shouldEqual ScreenRecordingPolicy.ON_FAILURE
         configuration.vendorConfiguration shouldEqual AndroidConfiguration(
             File("/local/android"),
             File("kotlin-buildscript/build/outputs/apk/debug/kotlin-buildscript-debug.apk"),
             File("kotlin-buildscript/build/outputs/apk/androidTest/debug/kotlin-buildscript-debug-androidTest.apk"),
+            null,
             listOf(ddmlibModule),
             false,
             mapOf(),
@@ -292,6 +299,7 @@ class ConfigFactoryTest {
             environmentReader.read().androidSdk!!,
             File("kotlin-buildscript/build/outputs/apk/debug/kotlin-buildscript-debug.apk"),
             File("kotlin-buildscript/build/outputs/apk/androidTest/debug/kotlin-buildscript-debug-androidTest.apk"),
+            null,
             listOf(ddmlibModule),
             false,
             mapOf(),
@@ -347,5 +355,24 @@ class ConfigFactoryTest {
         configuration.flakinessStrategy `should be instance of` ProbabilityBasedFlakinessStrategy::class
         val flakinessStrategy = configuration.flakinessStrategy as ProbabilityBasedFlakinessStrategy
         flakinessStrategy.timeLimit shouldEqual referenceInstant.minus(Duration.ofDays(30))
+    }
+
+    @Test
+    fun `on configuration with timeout configuration in Android`() {
+        val file = File(ConfigFactoryTest::class.java.getResource("/fixture/config/sample_11.yaml").file)
+        val configuration = parser.create(file, mockEnvironmentReader())
+
+        val timeoutConfiguration = (configuration.vendorConfiguration as AndroidConfiguration).timeoutConfiguration
+        timeoutConfiguration `should be equal to` TimeoutConfiguration(
+            shell = Duration.ofSeconds(30),
+            listFiles = Duration.ofMinutes(1),
+            pushFile = Duration.ofHours(1),
+            pullFile = Duration.ofDays(1),
+            uninstall = Duration.ofSeconds(1),
+            install = Duration.parse("P1DT12H30M5S"),
+            screenrecorder = Duration.ofHours(1),
+            screencapturer = Duration.ofSeconds(1),
+            socketIdleTimeout = Duration.ofSeconds(45)
+        )
     }
 }

@@ -8,6 +8,7 @@ import java.util.concurrent.atomic.AtomicInteger
 class PoolProgressTracker(private val configuration: Configuration) {
 
     private val tests = mutableMapOf<Test, StateMachine<ProgressTestState, ProgressEvent, Any>>()
+    private val runtimeDiscoveredTests = mutableSetOf<Test>()
 
     private fun createState() = StateMachine.create<ProgressTestState, ProgressEvent, Any> {
         initialState(ProgressTestState.Started)
@@ -51,15 +52,22 @@ class PoolProgressTracker(private val configuration: Configuration) {
         }
     }
 
-    private fun updateStatus(test: Test, newStatus: ProgressEvent) = tests[test]?.transition(newStatus)
+    private fun updateStatus(test: Test, newStatus: ProgressEvent) {
+        synchronized(tests) {
+            tests[test]?.transition(newStatus)
+        }
+    }
 
-    private val totalTests = AtomicInteger(0)
+    private val expectedTestCount = AtomicInteger(0)
     private val completed = AtomicInteger(0)
     private val failed = AtomicInteger(0)
     private val ignored = AtomicInteger(0)
+    private val retries = AtomicInteger(0)
 
     fun testStarted(test: Test) {
-        tests.computeIfAbsent(test) { _ -> createState() }
+        synchronized(tests) {
+            tests.computeIfAbsent(test) { _ -> createState() }
+        }
     }
 
     fun testFailed(test: Test) {
@@ -83,30 +91,53 @@ class PoolProgressTracker(private val configuration: Configuration) {
         updateStatus(test, ProgressEvent.Ignored)
     }
 
-    fun aggregateResult(): Boolean = tests.all {
-        when (it.value.state) {
-            is ProgressTestState.Passed -> true
-            is ProgressTestState.Ignored -> true
-            else -> false
+    fun aggregateResult(): Boolean {
+        synchronized(tests) {
+            return if (tests.size == expectedTestCount.get()) {
+                tests.all {
+                    when (it.value.state) {
+                        is ProgressTestState.Passed -> true
+                        is ProgressTestState.Ignored -> true
+                        else -> false
+                    }
+                }
+            } else {
+                false
+            }
         }
     }
 
-    fun totalTests(size: Int) {
-        totalTests.set(size)
+    fun testCountExpectation(size: Int) {
+        expectedTestCount.set(size)
     }
 
     fun removeTests(count: Int) {
-        totalTests.updateAndGet {
+        expectedTestCount.updateAndGet {
             it - count
         }
     }
 
     fun progress(): Float {
-        return (completed.toFloat() + failed.toFloat() + ignored.toFloat()) / totalTests.toFloat()
+        return (completed.toFloat() + failed.toFloat() + ignored.toFloat()) / (expectedTestCount.toFloat() + retries.toFloat())
     }
 
-    fun addTests(count: Int) {
-        totalTests.updateAndGet {
+    /**
+     * This is for parameterized test discovery that can happen at runtime
+     * Unfortunately a runtime discovered tests retries it will go through discovery process again, so we have to collect these
+     */
+    fun addTestDiscoveredDuringRuntime(test: Test) {
+        synchronized(runtimeDiscoveredTests) {
+            val before = runtimeDiscoveredTests.size
+            runtimeDiscoveredTests.add(test)
+            val after = runtimeDiscoveredTests.size
+            expectedTestCount.updateAndGet {
+                it + (after - before)
+            }
+        }
+    }
+
+    fun addTestRetries(count: Int) {
+        retries.updateAndGet {
             it + count
         }
     }

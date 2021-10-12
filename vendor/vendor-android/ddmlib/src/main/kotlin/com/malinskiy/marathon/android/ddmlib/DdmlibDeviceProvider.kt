@@ -9,6 +9,7 @@ import com.malinskiy.marathon.actor.safeSend
 import com.malinskiy.marathon.actor.unboundedChannel
 import com.malinskiy.marathon.analytics.internal.pub.Track
 import com.malinskiy.marathon.android.AndroidConfiguration
+import com.malinskiy.marathon.android.AndroidTestBundleIdentifier
 import com.malinskiy.marathon.device.DeviceProvider
 import com.malinskiy.marathon.device.DeviceProvider.DeviceEvent.DeviceConnected
 import com.malinskiy.marathon.device.DeviceProvider.DeviceEvent.DeviceDisconnected
@@ -32,13 +33,14 @@ private const val DEFAULT_DDM_LIB_SLEEP_TIME = 500
 private const val DEFAULT_DDM_LIB_CREATE_BRIDGE_TIMEOUT = Long.MAX_VALUE
 
 class DdmlibDeviceProvider(
-    configuration: Configuration,
+    private val configuration: Configuration,
     private val track: Track,
     private val timer: Timer
 ) : DeviceProvider, CoroutineScope {
     private val logger = MarathonLogging.logger("AndroidDeviceProvider")
 
     private lateinit var adb: AndroidDebugBridge
+    private lateinit var testBundleIdentifier: AndroidTestBundleIdentifier
 
     private val channel: Channel<DeviceProvider.DeviceEvent> = unboundedChannel()
     private val devices: ConcurrentMap<String, DdmlibAndroidDevice> = ConcurrentHashMap()
@@ -52,10 +54,11 @@ class DdmlibDeviceProvider(
         if (vendorConfiguration !is AndroidConfiguration) {
             throw IllegalStateException("Invalid configuration $vendorConfiguration passed")
         }
+        testBundleIdentifier = vendorConfiguration.testBundleIdentifier() as AndroidTestBundleIdentifier
 
         logger.warn {
             "ddmlib Android vendor will be deprecated in 0.7.0 and is scheduled to be removed in 0.8.0.\n" +
-                "\tMore info: https://malinskiy.github.io/marathon/ven/android.html#vendor-module-selection"
+                "\tMore info: https://marathonlabs.github.io/marathon/ven/android.html#vendor-module-selection"
         }
 
         DdmPreferences.setTimeOut(DEFAULT_DDM_LIB_TIMEOUT)
@@ -74,7 +77,9 @@ class DdmlibDeviceProvider(
                         val maybeNewAndroidDevice =
                             DdmlibAndroidDevice(
                                 it,
+                                testBundleIdentifier,
                                 device.serialNumber,
+                                configuration,
                                 vendorConfiguration,
                                 track,
                                 timer,
@@ -101,7 +106,9 @@ class DdmlibDeviceProvider(
                         val maybeNewAndroidDevice =
                             DdmlibAndroidDevice(
                                 it,
+                                testBundleIdentifier,
                                 device.serialNumber,
+                                configuration,
                                 vendorConfiguration,
                                 track,
                                 timer,
@@ -163,6 +170,7 @@ class DdmlibDeviceProvider(
             getDevicesCountdown -= sleepTime
         }
         if (!adb.hasInitialDeviceList() || !adb.hasDevices()) {
+            terminate()
             throw NoDevicesException("No devices found.")
         }
     }

@@ -23,14 +23,14 @@ val jvmOptions = listOf(
 ).filter { it.isNotBlank() }
 
 application {
-    mainClassName = "com.malinskiy.marathon.cli.ApplicationViewKt"
+    mainClass.set("com.malinskiy.marathon.cli.ApplicationViewKt")
     applicationName = "marathon"
     applicationDefaultJvmArgs = jvmOptions
 }
 
 distributions {
     getByName("main") {
-        baseName = "marathon"
+        distributionBaseName.set("marathon")
     }
 }
 
@@ -50,7 +50,6 @@ dependencies {
     implementation(Libraries.kotlinCoroutines)
     implementation(Libraries.kotlinLogging)
     implementation(Libraries.kotlinReflect)
-    implementation(Libraries.slf4jAPI)
     implementation(Libraries.logbackClassic)
     implementation(Libraries.argParser)
     implementation(Libraries.jacksonDatabind)
@@ -59,10 +58,10 @@ dependencies {
     implementation(Libraries.jacksonYaml)
     implementation(Libraries.jacksonJSR310)
     implementation(Libraries.apacheCommonsText)
-    testCompile(TestLibraries.kluent)
-    testCompile(TestLibraries.mockitoKotlin)
+    testImplementation(TestLibraries.kluent)
+    testImplementation(TestLibraries.mockitoKotlin)
     testImplementation(TestLibraries.junit5)
-    testRuntime(TestLibraries.jupiterEngine)
+    testRuntimeOnly(TestLibraries.jupiterEngine)
 }
 
 Deployment.initialize(project)

@@ -34,6 +34,11 @@ filteringConfiguration:
   allowlist:
     - type: "simple-class-name"
       regex: ".*"
+    - type: "simple-class-name"
+      values:
+        - "SimpleTest"
+    - type: "fully-qualified-class-name"
+      file: "filterfile"
     - type: "fully-qualified-class-name"
       regex: ".*"
     - type: "method"
@@ -50,6 +55,9 @@ filteringConfiguration:
       regex: ".*"
     - type: "annotation"
       regex: ".*"
+    - type: "annotationData"
+      nameRegex: ".*"
+      valueRegex: ".*"
 testClassRegexes:
   - "^((?!Abstract).)*Test$"
 includeSerialRegexes:

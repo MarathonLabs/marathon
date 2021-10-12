@@ -4,16 +4,15 @@ import com.malinskiy.marathon.device.DeviceProvider
 import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.execution.policy.ScreenRecordingPolicy
 import com.malinskiy.marathon.execution.strategy.FlakinessStrategy
+import com.malinskiy.marathon.execution.strategy.RetryStrategy
 import com.malinskiy.marathon.execution.strategy.ShardingStrategy
 import com.malinskiy.marathon.test.Mocks
 import com.malinskiy.marathon.test.StubDeviceProvider
 import com.malinskiy.marathon.test.Test
 import com.malinskiy.marathon.test.TestVendorConfiguration
+import com.nhaarman.mockitokotlin2.any
+import com.nhaarman.mockitokotlin2.whenever
 import kotlinx.coroutines.channels.Channel
-import org.amshove.kluent.When
-import org.amshove.kluent.`it returns`
-import org.amshove.kluent.any
-import org.amshove.kluent.calling
 import java.nio.file.Files
 
 class ConfigurationFactory {
@@ -33,7 +32,7 @@ class ConfigurationFactory {
     var includeSerialRegexes: List<Regex>? = null
     var isCodeCoverageEnabled = null
     var poolingStrategy = null
-    var retryStrategy = null
+    var retryStrategy: RetryStrategy? = null
     var shardingStrategy: ShardingStrategy? = null
     var sortingStrategy = null
     var testClassRegexes = null
@@ -44,12 +43,12 @@ class ConfigurationFactory {
     var deviceInitializationTimeoutMillis: Long? = null
 
     fun tests(block: () -> List<Test>) {
-        val testParser = vendorConfiguration.testParser()!!
-        When calling testParser.extract(any()) `it returns` (block.invoke())
+        val testParser = vendorConfiguration.testParser()
+        whenever(testParser.extract(any())).thenReturn(block.invoke())
     }
 
     fun devices(f: suspend (Channel<DeviceProvider.DeviceEvent>) -> Unit) {
-        val stubDeviceProvider = vendorConfiguration.deviceProvider() as StubDeviceProvider
+        val stubDeviceProvider = vendorConfiguration.deviceProvider()
         stubDeviceProvider.providingLogic = f
     }
 

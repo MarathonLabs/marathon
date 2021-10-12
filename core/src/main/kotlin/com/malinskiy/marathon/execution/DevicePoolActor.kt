@@ -8,6 +8,7 @@ import com.malinskiy.marathon.device.Device
 import com.malinskiy.marathon.device.DeviceInfo
 import com.malinskiy.marathon.device.DevicePoolId
 import com.malinskiy.marathon.device.toDeviceInfo
+import com.malinskiy.marathon.execution.bundle.TestBundleIdentifier
 import com.malinskiy.marathon.execution.device.DeviceActor
 import com.malinskiy.marathon.execution.device.DeviceEvent
 import com.malinskiy.marathon.execution.progress.ProgressReporter
@@ -15,6 +16,7 @@ import com.malinskiy.marathon.execution.queue.QueueActor
 import com.malinskiy.marathon.execution.queue.QueueMessage
 import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.test.TestBatch
+import com.malinskiy.marathon.time.Timer
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.channels.SendChannel
@@ -27,8 +29,10 @@ class DevicePoolActor(
     shard: TestShard,
     private val progressReporter: ProgressReporter,
     track: Track,
+    timer: Timer,
     parent: Job,
-    context: CoroutineContext
+    context: CoroutineContext,
+    testBundleIdentifier: TestBundleIdentifier?,
 ) :
     Actor<DevicePoolMessage>(parent = parent, context = context) {
 
@@ -41,7 +45,7 @@ class DevicePoolActor(
             is DevicePoolMessage.FromScheduler.Terminate -> terminate()
             is DevicePoolMessage.FromDevice.IsReady -> deviceReady(msg)
             is DevicePoolMessage.FromDevice.CompletedTestBatch -> deviceCompleted(msg.device, msg.results)
-            is DevicePoolMessage.FromDevice.ReturnTestBatch -> deviceReturnedTestBatch(msg.device, msg.batch)
+            is DevicePoolMessage.FromDevice.ReturnTestBatch -> deviceReturnedTestBatch(msg.device, msg.batch, msg.reason)
             is DevicePoolMessage.FromQueue.Notify -> notifyDevices()
             is DevicePoolMessage.FromQueue.Terminated -> onQueueTerminated()
             is DevicePoolMessage.FromQueue.ExecuteBatch -> executeBatch(msg.device, msg.batch)
@@ -61,6 +65,8 @@ class DevicePoolActor(
         poolId,
         progressReporter,
         track,
+        timer,
+        testBundleIdentifier,
         poolJob,
         context
     )
@@ -81,8 +87,8 @@ class DevicePoolActor(
         terminate()
     }
 
-    private suspend fun deviceReturnedTestBatch(device: Device, batch: TestBatch) {
-        queue.send(QueueMessage.ReturnBatch(device.toDeviceInfo(), batch))
+    private suspend fun deviceReturnedTestBatch(device: Device, batch: TestBatch, reason: String) {
+        queue.send(QueueMessage.ReturnBatch(device.toDeviceInfo(), batch, reason))
     }
 
     private suspend fun deviceCompleted(device: Device, results: TestBatchResults) {

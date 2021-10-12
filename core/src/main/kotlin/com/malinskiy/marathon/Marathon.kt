@@ -11,17 +11,19 @@ import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.execution.Scheduler
 import com.malinskiy.marathon.execution.TestParser
 import com.malinskiy.marathon.execution.TestShard
+import com.malinskiy.marathon.execution.bundle.TestBundleIdentifier
 import com.malinskiy.marathon.execution.progress.ProgressReporter
 import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.test.Test
 import com.malinskiy.marathon.test.toTestName
+import com.malinskiy.marathon.time.Timer
 import com.malinskiy.marathon.usageanalytics.TrackActionType
 import com.malinskiy.marathon.usageanalytics.UsageAnalytics
 import com.malinskiy.marathon.usageanalytics.tracker.Event
 import com.malinskiy.marathon.vendor.VendorConfiguration
 import kotlinx.coroutines.runBlocking
 import org.koin.core.context.stopKoin
-import java.util.*
+import java.util.ServiceLoader
 import kotlin.coroutines.coroutineContext
 
 private val log = MarathonLogging.logger {}
@@ -31,7 +33,8 @@ class Marathon(
     private val tracker: TrackerInternal,
     private val analytics: Analytics,
     private val progressReporter: ProgressReporter,
-    private val track: Track
+    private val track: Track,
+    private val timer: Timer
 ) {
 
     private val configurationValidator = LogicalConfigurationValidator()
@@ -48,6 +51,10 @@ class Marathon(
 
         vendorDeviceProvider.initialize(configuration.vendorConfiguration)
         return vendorDeviceProvider
+    }
+
+    private fun loadTestBundleIdentifier(vendorConfiguration: VendorConfiguration): TestBundleIdentifier? {
+        return vendorConfiguration.testBundleIdentifier() ?: ServiceLoader.load(TestBundleIdentifier::class.java).firstOrNull()
     }
 
     private fun loadTestParser(vendorConfiguration: VendorConfiguration): TestParser {
@@ -79,8 +86,11 @@ class Marathon(
         configureLogging(configuration.vendorConfiguration)
         trackAnalytics(configuration)
 
+        logSystemInformation()
+
         val testParser = loadTestParser(configuration.vendorConfiguration)
         val deviceProvider = loadDeviceProvider(configuration.vendorConfiguration)
+        val testBundleIdentifier = loadTestBundleIdentifier(configuration.vendorConfiguration)
 
         configurationValidator.validate(configuration)
 
@@ -99,6 +109,8 @@ class Marathon(
             shard,
             progressReporter,
             track,
+            timer,
+            testBundleIdentifier,
             currentCoroutineContext
         )
 
@@ -119,6 +131,16 @@ class Marathon(
 
         stopKoin()
         return progressReporter.aggregateResult()
+    }
+
+    private fun logSystemInformation() {
+        log.info { "System Information:" }
+
+        val properties = System.getProperties()
+        val systemProperties = properties.filterKeys { it.toString().startsWith("java") || it.toString().startsWith("os") }
+        systemProperties.forEach {
+            log.info { "${it.key}: ${it.value}" }
+        }
     }
 
     private fun installShutdownHook(block: suspend () -> Unit): ShutdownHook {

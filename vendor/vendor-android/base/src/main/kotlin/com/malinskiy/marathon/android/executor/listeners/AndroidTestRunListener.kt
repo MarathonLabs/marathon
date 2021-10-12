@@ -3,6 +3,8 @@ package com.malinskiy.marathon.android.executor.listeners
 import com.malinskiy.marathon.android.model.TestIdentifier
 
 interface AndroidTestRunListener {
+    suspend fun beforeTestRun() {}
+
     suspend fun testRunStarted(runName: String, testCount: Int) {}
 
     suspend fun testStarted(test: TestIdentifier) {}
@@ -20,4 +22,6 @@ interface AndroidTestRunListener {
     suspend fun testRunStopped(elapsedTime: Long) {}
 
     suspend fun testRunEnded(elapsedTime: Long, runMetrics: Map<String, String>) {}
+
+    suspend fun afterTestRun() {}
 }

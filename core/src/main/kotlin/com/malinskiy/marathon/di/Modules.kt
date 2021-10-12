@@ -1,46 +1,48 @@
 package com.malinskiy.marathon.di
 
-import com.google.gson.Gson
+import com.google.gson.GsonBuilder
 import com.malinskiy.marathon.Marathon
 import com.malinskiy.marathon.analytics.TrackerFactory
-import com.malinskiy.marathon.analytics.external.Analytics
 import com.malinskiy.marathon.analytics.external.AnalyticsFactory
 import com.malinskiy.marathon.analytics.internal.pub.Track
-import com.malinskiy.marathon.analytics.internal.sub.TrackerInternal
 import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.execution.progress.ProgressReporter
 import com.malinskiy.marathon.io.FileManager
+import com.malinskiy.marathon.json.FileSerializer
 import com.malinskiy.marathon.time.SystemTimer
 import com.malinskiy.marathon.time.Timer
 import org.koin.core.KoinApplication
 import org.koin.core.context.startKoin
-import org.koin.core.definition.DefinitionFactory
 import org.koin.dsl.module
+import java.io.File
 import java.time.Clock
 
 val analyticsModule = module {
-    single<Track> { Track() }
-    single<TrackerInternal> { TrackerFactory(get(), get(), get(), get(), get()).create() }
-    single<Analytics> { AnalyticsFactory(get()).create() }
+    single { Track() }
+    single { TrackerFactory(get(), get(), get(), get(), get()).create() }
+    single { AnalyticsFactory(get()).create() }
 }
 
 val coreModule = module {
-    single<FileManager> { FileManager(get<Configuration>().outputDir) }
-    single<Gson> { Gson() }
+    single { FileManager(get<Configuration>().outputDir) }
+    single {
+        GsonBuilder()
+            .registerTypeAdapter(File::class.java, FileSerializer())
+            .create()
+    }
     single<Clock> { Clock.systemDefaultZone() }
     single<Timer> { SystemTimer(get()) }
-    single<ProgressReporter> { ProgressReporter(get()) }
-    single<Marathon> { Marathon(get(), get(), get(), get(), get()) }
-}
-
-fun KoinApplication.marathonConfiguration(configuration: Configuration): KoinApplication {
-    koin.rootScope.beanRegistry.saveDefinition(DefinitionFactory.createSingle { configuration })
-    return this
+    single { ProgressReporter(get()) }
+    single { Marathon(get(), get(), get(), get(), get(), get()) }
 }
 
 fun marathonStartKoin(configuration: Configuration): KoinApplication {
+    val configurationModule = module {
+        single { configuration }
+    }
+
     return startKoin {
-        marathonConfiguration(configuration)
+        modules(configurationModule)
         modules(coreModule)
         modules(analyticsModule)
         modules(configuration.vendorConfiguration.modules())

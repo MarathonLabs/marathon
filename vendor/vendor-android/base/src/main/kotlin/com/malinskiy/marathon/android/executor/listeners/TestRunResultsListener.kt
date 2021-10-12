@@ -5,11 +5,13 @@ import com.malinskiy.marathon.android.model.AndroidTestStatus
 import com.malinskiy.marathon.android.model.TestIdentifier
 import com.malinskiy.marathon.android.model.TestRunResultsAccumulator
 import com.malinskiy.marathon.device.Device
+import com.malinskiy.marathon.device.DevicePoolId
 import com.malinskiy.marathon.device.toDeviceInfo
 import com.malinskiy.marathon.execution.Attachment
 import com.malinskiy.marathon.execution.TestBatchResults
 import com.malinskiy.marathon.execution.TestResult
 import com.malinskiy.marathon.execution.TestStatus
+import com.malinskiy.marathon.execution.progress.ProgressReporter
 import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.report.attachment.AttachmentListener
 import com.malinskiy.marathon.report.attachment.AttachmentProvider
@@ -24,8 +26,10 @@ class TestRunResultsListener(
     private val device: Device,
     private val deferred: CompletableDeferred<TestBatchResults>,
     private val timer: Timer,
+    private val progressReporter: ProgressReporter,
+    private val poolId: DevicePoolId,
     attachmentProviders: List<AttachmentProvider>
-) : AbstractTestRunResultListener(), AttachmentListener {
+) : AbstractTestRunResultListener(timer), AttachmentListener {
 
     private val attachments: MutableMap<Test, MutableList<Attachment>> = mutableMapOf()
     private val creationTime = timer.currentTimeMillis()
@@ -47,7 +51,7 @@ class TestRunResultsListener(
 
     private val logger = MarathonLogging.logger("TestRunResultsListener")
 
-    override suspend fun handleTestRunResults(runResult: TestRunResultsAccumulator) {
+    override suspend fun afterTestRun() {
         val results = mergeParameterisedResults(runResult.testResults)
         val tests = testBatch.tests.associateBy { it.identifier() }
 
@@ -63,11 +67,17 @@ class TestRunResultsListener(
             results[it.test.identifier()]?.isSuccessful() ?: false
         }
 
-        val failed = nonNullTestResults.filterNot {
-            results[it.test.identifier()]?.isSuccessful() ?: false
+        val (reportedIncompleteTests, reportedNonNullTests) = nonNullTestResults.partition { it.status == TestStatus.INCOMPLETE }
+
+        val failed = reportedNonNullTests.filterNot {
+            val status = results[it.test.identifier()]
+            when {
+                status?.isSuccessful() == true -> true
+                else -> false
+            }
         }
 
-        val uncompleted = tests
+        val uncompleted = reportedIncompleteTests + tests
             .filterNot { expectedTest ->
                 results.containsKey(expectedTest.key)
             }
@@ -99,6 +109,7 @@ class TestRunResultsListener(
             TestResult(
                 it,
                 device.toDeviceInfo(),
+                testBatch.id,
                 TestStatus.INCOMPLETE,
                 lastCompletedTestEndTime,
                 timer.currentTimeMillis(),
@@ -118,6 +129,8 @@ class TestRunResultsListener(
                     result[realIdentifier] = e.value
                 } else {
                     result[realIdentifier]?.status = maybeExistingParameterizedResult.status + e.value.status
+                    //Needed for proper result aggregation
+                    progressReporter.addTestDiscoveredDuringRuntime(poolId, test.toTest())
                 }
             } else {
                 result[test] = e.value
@@ -134,6 +147,7 @@ class TestRunResultsListener(
         return TestResult(
             test = testInstanceFromBatch ?: test,
             device = device.toDeviceInfo(),
+            testBatchId = testBatch.id,
             status = value.status.toMarathonStatus(),
             startTime = value.startTime,
             endTime = value.endTime,

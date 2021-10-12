@@ -2,11 +2,11 @@ plugins {
     id("com.android.application")
     id("kotlin-android")
     id("kotlin-android-extensions")
-    id("marathon") version "0.6.1-SNAPSHOT"
+    id("marathon") version "0.7.0-SNAPSHOT"
 }
 
 android {
-    buildToolsVersion("29.0.2")
+    buildToolsVersion("30.0.2")
     compileSdkVersion(30)
 
     defaultConfig {
@@ -25,6 +25,9 @@ android {
             isMinifyEnabled = false
             proguardFiles("proguard-rules.pro")
         }
+        getByName("debug") {
+            isTestCoverageEnabled = true
+        }
     }
 }
 
@@ -32,6 +35,7 @@ marathon {
     instrumentationArgs {
         put("debug", "false")
     }
+    vendor = com.malinskiy.marathon.android.VendorType.ADAM
 }
 
 dependencies {

@@ -17,7 +17,7 @@ import org.testcontainers.containers.GenericContainer
 import java.io.File
 import java.nio.file.Files
 import java.nio.file.attribute.PosixFilePermissions
-import java.util.*
+import java.util.UUID
 
 class DerivedDataManagerTest {
     private val device: IOSDevice = mock()
@@ -101,13 +101,13 @@ class DerivedDataManagerTest {
         container.stop()
     }
 
-
     companion object {
         val logger = MarathonLogging.logger(javaClass.simpleName)
         val privateKey = File(javaClass.classLoader.getResource("fixtures/derived-data-manager/test_rsa").file)
 
         @BeforeAll
-        fun `setup perimissions`() {
+        @JvmStatic
+        fun `setup permissions`() {
             try {
                 Files.setPosixFilePermissions(
                     privateKey.toPath(),

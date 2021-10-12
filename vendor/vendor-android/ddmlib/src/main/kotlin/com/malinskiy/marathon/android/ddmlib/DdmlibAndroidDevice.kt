@@ -10,12 +10,11 @@ import com.android.ddmlib.SyncException
 import com.android.ddmlib.TimeoutException
 import com.android.ddmlib.logcat.LogCatMessage
 import com.android.ddmlib.logcat.LogCatReceiverTask
-import com.android.ddmlib.testrunner.ITestRunListener
-import com.android.ddmlib.testrunner.TestIdentifier
 import com.malinskiy.marathon.analytics.internal.pub.Track
 import com.malinskiy.marathon.android.ADB_SCREEN_RECORD_TIMEOUT_MILLIS
 import com.malinskiy.marathon.android.AndroidAppInstaller
 import com.malinskiy.marathon.android.AndroidConfiguration
+import com.malinskiy.marathon.android.AndroidTestBundleIdentifier
 import com.malinskiy.marathon.android.BaseAndroidDevice
 import com.malinskiy.marathon.android.VideoConfiguration
 import com.malinskiy.marathon.android.configuration.SerialStrategy
@@ -23,7 +22,6 @@ import com.malinskiy.marathon.android.ddmlib.shell.receiver.CollectingShellOutpu
 import com.malinskiy.marathon.android.ddmlib.sync.NoOpSyncProgressMonitor
 import com.malinskiy.marathon.android.exception.CommandRejectedException
 import com.malinskiy.marathon.android.exception.TransferException
-import com.malinskiy.marathon.android.executor.listeners.AndroidTestRunListener
 import com.malinskiy.marathon.android.executor.listeners.line.LineListener
 import com.malinskiy.marathon.device.DevicePoolId
 import com.malinskiy.marathon.device.NetworkState
@@ -36,7 +34,6 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.async
 import kotlinx.coroutines.newFixedThreadPoolContext
-import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withTimeout
 import java.awt.image.BufferedImage
@@ -51,12 +48,14 @@ import kotlin.coroutines.resumeWithException
 
 class DdmlibAndroidDevice(
     val ddmsDevice: IDevice,
+    val testBundleIdentifier: AndroidTestBundleIdentifier,
     adbSerial: String,
-    configuration: AndroidConfiguration,
+    configuration: Configuration,
+    androidConfiguration: AndroidConfiguration,
     track: Track,
     timer: Timer,
     serialStrategy: SerialStrategy
-) : BaseAndroidDevice(adbSerial, serialStrategy, configuration, track, timer) {
+) : BaseAndroidDevice(adbSerial, serialStrategy, configuration, androidConfiguration, track, timer) {
 
     override suspend fun setup() {
         super.setup()
@@ -201,9 +200,9 @@ class DdmlibAndroidDevice(
 
     override val coroutineContext: CoroutineContext = dispatcher
 
-    override suspend fun installPackage(absolutePath: String, reinstall: Boolean, optionalParams: String): String? {
+    override suspend fun installPackage(absolutePath: String, reinstall: Boolean, optionalParams: List<String>): String? {
         return try {
-            ddmsDevice.safeInstallPackage(absolutePath, reinstall, optionalParams)
+            ddmsDevice.safeInstallPackage(absolutePath, reinstall, *(optionalParams.filter { it.isNotBlank() }).toTypedArray())
         } catch (e: InstallException) {
             throw com.malinskiy.marathon.android.exception.InstallException(e)
         }
@@ -231,8 +230,7 @@ class DdmlibAndroidDevice(
 
         val deferredResult = async {
             val listener = createExecutionListeners(configuration, devicePoolId, testBatch, deferred, progressReporter)
-                .toDdmlibTestListener()
-            AndroidDeviceTestRunner(this@DdmlibAndroidDevice)
+            AndroidDeviceTestRunner(this@DdmlibAndroidDevice, testBundleIdentifier)
                 .execute(configuration, testBatch, listener)
         }
         deferredResult.await()
@@ -310,64 +308,3 @@ class DdmlibAndroidDevice(
         }
     }
 }
-
-private fun AndroidTestRunListener.toDdmlibTestListener(): ITestRunListener {
-    return object : ITestRunListener {
-        override fun testRunStarted(runName: String?, testCount: Int) {
-            runBlocking {
-                this@toDdmlibTestListener.testRunStarted(runName ?: "", testCount)
-            }
-        }
-
-        override fun testStarted(test: TestIdentifier) {
-            runBlocking {
-                this@toDdmlibTestListener.testStarted(test.toMarathonTestIdentifier())
-            }
-        }
-
-        override fun testAssumptionFailure(test: TestIdentifier, trace: String?) {
-            runBlocking {
-                this@toDdmlibTestListener.testAssumptionFailure(test.toMarathonTestIdentifier(), trace ?: "")
-            }
-        }
-
-        override fun testRunStopped(elapsedTime: Long) {
-            runBlocking {
-                this@toDdmlibTestListener.testRunStopped(elapsedTime)
-            }
-        }
-
-        override fun testFailed(test: TestIdentifier, trace: String?) {
-            runBlocking {
-                this@toDdmlibTestListener.testFailed(test.toMarathonTestIdentifier(), trace ?: "")
-            }
-        }
-
-        override fun testEnded(test: TestIdentifier, testMetrics: MutableMap<String, String>?) {
-            runBlocking {
-                this@toDdmlibTestListener.testEnded(test.toMarathonTestIdentifier(), testMetrics ?: emptyMap())
-            }
-        }
-
-        override fun testIgnored(test: TestIdentifier) {
-            runBlocking {
-                this@toDdmlibTestListener.testIgnored(test.toMarathonTestIdentifier())
-            }
-        }
-
-        override fun testRunFailed(errorMessage: String?) {
-            runBlocking {
-                this@toDdmlibTestListener.testRunFailed(errorMessage ?: "")
-            }
-        }
-
-        override fun testRunEnded(elapsedTime: Long, runMetrics: MutableMap<String, String>?) {
-            runBlocking {
-                this@toDdmlibTestListener.testRunEnded(elapsedTime, runMetrics ?: emptyMap())
-            }
-        }
-
-    }
-}
-
-private fun TestIdentifier.toMarathonTestIdentifier() = com.malinskiy.marathon.android.model.TestIdentifier(this.className, this.testName)

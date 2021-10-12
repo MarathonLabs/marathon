@@ -3,39 +3,30 @@ package com.malinskiy.marathon.ios.logparser
 import com.malinskiy.marathon.ios.logparser.formatter.PackageNameFormatter
 import com.malinskiy.marathon.ios.logparser.listener.TestRunListener
 import com.malinskiy.marathon.ios.logparser.parser.TestRunProgressParser
-import com.malinskiy.marathon.test.Test as MarathonTest
 import com.malinskiy.marathon.time.Timer
+import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.atLeastOnce
+import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.reset
 import com.nhaarman.mockitokotlin2.verify
-import org.amshove.kluent.Verify
-import org.amshove.kluent.When
-import org.amshove.kluent.any
-import org.amshove.kluent.called
-import org.amshove.kluent.calling
-import org.amshove.kluent.itAnswers
-import org.amshove.kluent.itReturns
-import org.amshove.kluent.mock
-import org.amshove.kluent.on
-import org.amshove.kluent.that
-import org.amshove.kluent.was
-import org.amshove.kluent.withFirstArg
+import com.nhaarman.mockitokotlin2.whenever
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import java.io.File
+import com.malinskiy.marathon.test.Test as MarathonTest
 
 class ProgressParserTest {
-    private val mockFormatter = mock(PackageNameFormatter::class)
-    private val mockListener = mock(TestRunListener::class)
-    private val mockTimer = mock(Timer::class)
+    private val mockFormatter = mock<PackageNameFormatter>()
+    private val mockListener = mock<TestRunListener>()
+    private val mockTimer = mock<Timer>()
     private val mockedTimeMillis = 1537187696000L
     private val progressParser = TestRunProgressParser(mockTimer, mockFormatter, listOf(mockListener))
 
     @BeforeEach
     fun `setup mocks`() {
         reset(mockTimer, mockFormatter, mockListener)
-        When calling mockTimer.currentTimeMillis() itReturns mockedTimeMillis
-        When calling mockFormatter.format(any()) itAnswers withFirstArg()
+        whenever(mockTimer.currentTimeMillis()).thenReturn(mockedTimeMillis)
+        whenever(mockFormatter.format(any())).thenAnswer { it.arguments.first() }
     }
 
     @Test
@@ -49,7 +40,7 @@ class ProgressParserTest {
         verify(
             mockFormatter,
             atLeastOnce()
-        ) that mockFormatter.format("sample_appUITests") was called
+        ).format("sample_appUITests")
     }
 
     @Test
@@ -60,19 +51,19 @@ class ProgressParserTest {
             progressParser.onLine(it)
         }
 
-        Verify on mockListener that mockListener.testStarted(
+        verify(mockListener).testStarted(
             MarathonTest(
                 "sample_appUITests",
                 "MoreTests",
                 "testPresentModal",
                 emptyList()
             )
-        ) was called
-        Verify on mockListener that mockListener.testPassed(
+        )
+        verify(mockListener).testPassed(
             MarathonTest("sample_appUITests", "MoreTests", "testPresentModal", emptyList()),
             mockedTimeMillis - 5315,
             mockedTimeMillis
-        ) was called
+        )
     }
 
     @Test
@@ -83,32 +74,32 @@ class ProgressParserTest {
             progressParser.onLine(it)
         }
 
-        Verify on mockListener that mockListener.testStarted(
+        verify(mockListener).testStarted(
             MarathonTest(
                 "sample_appUITests",
                 "FlakyTests",
                 "testTextFlaky1",
                 emptyList()
             )
-        ) was called
-        Verify on mockListener that mockListener.testStarted(
+        )
+        verify(mockListener).testStarted(
             MarathonTest(
                 "sample_appUITests",
                 "FlakyTests",
                 "testTextFlaky2",
                 emptyList()
             )
-        ) was called
+        )
 
-        Verify on mockListener that mockListener.testPassed(
+        verify(mockListener).testPassed(
             MarathonTest("sample_appUITests", "FlakyTests", "testTextFlaky1", emptyList()),
             mockedTimeMillis - 4415,
             mockedTimeMillis
-        ) was called
-        Verify on mockListener that mockListener.testPassed(
+        )
+        verify(mockListener).testPassed(
             MarathonTest("sample_appUITests", "FlakyTests", "testTextFlaky2", emptyList()),
             mockedTimeMillis - 4118,
             mockedTimeMillis
-        ) was called
+        )
     }
 }

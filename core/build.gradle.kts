@@ -49,7 +49,6 @@ dependencies {
     implementation(Libraries.kotlinStdLib)
     implementation(Libraries.kotlinCoroutines)
     implementation(Libraries.kotlinLogging)
-    implementation(Libraries.slf4jAPI)
     implementation(Libraries.logbackClassic)
     implementation(Libraries.influxDbClient)
     api(Libraries.koin)
@@ -61,7 +60,7 @@ dependencies {
     testImplementation(TestLibraries.testContainersInflux)
     testImplementation(TestLibraries.mockitoKotlin)
     testImplementation(TestLibraries.koin)
-    testRuntime(TestLibraries.jupiterEngine)
+    testRuntimeOnly(TestLibraries.jupiterEngine)
 }
 
 tasks.named<JacocoReport>("jacocoTestReport").configure {
