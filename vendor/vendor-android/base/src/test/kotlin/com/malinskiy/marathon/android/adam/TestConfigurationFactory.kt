@@ -1,9 +1,8 @@
 package com.malinskiy.marathon.android.adam
 
-import com.malinskiy.marathon.android.adam.di.adamModule
-import com.malinskiy.marathon.android.configuration.AllureConfiguration
 import com.malinskiy.marathon.config.Configuration
-import com.malinskiy.marathon.config.vendor.android.AndroidConfiguration
+import com.malinskiy.marathon.config.vendor.VendorConfiguration
+import com.malinskiy.marathon.config.vendor.android.AllureConfiguration
 import com.malinskiy.marathon.config.vendor.android.FileSyncConfiguration
 import java.io.File
 
@@ -38,11 +37,10 @@ object TestConfigurationFactory {
             testOutputTimeoutMillis = null,
             debug = false,
             screenRecordingPolicy = null,
-            vendorConfiguration = AndroidConfiguration(
+            vendorConfiguration = VendorConfiguration.AndroidConfiguration(
                 androidSdk = File(""),
                 applicationOutput = File(javaClass.classLoader.getResource("apk/app-debug.apk").file),
                 testApplicationOutput = File(javaClass.classLoader.getResource("apk/app-debug-androidTest.apk").file),
-                implementationModules = listOf(adamModule),
                 autoGrantPermission = autoGrantPermission,
                 installOptions = installOptions,
                 fileSyncConfiguration = fileSyncConfiguration,

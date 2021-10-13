@@ -3,6 +3,8 @@ package com.malinskiy.marathon.execution.queue
 import com.malinskiy.marathon.analytics.external.Analytics
 import com.malinskiy.marathon.analytics.internal.pub.Track
 import com.malinskiy.marathon.config.Configuration
+import com.malinskiy.marathon.config.strategy.BatchingStrategyConfiguration
+import com.malinskiy.marathon.config.vendor.VendorConfiguration
 import com.malinskiy.marathon.device.DevicePoolId
 import com.malinskiy.marathon.device.DeviceStub
 import com.malinskiy.marathon.device.toDeviceInfo
@@ -11,8 +13,6 @@ import com.malinskiy.marathon.execution.TestBatchResults
 import com.malinskiy.marathon.execution.TestResult
 import com.malinskiy.marathon.execution.TestShard
 import com.malinskiy.marathon.execution.TestStatus
-import com.malinskiy.marathon.execution.strategy.impl.batching.FixedSizeBatchingStrategy
-import com.malinskiy.marathon.test.TestVendorConfiguration
 import com.nhaarman.mockitokotlin2.KArgumentCaptor
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.argumentCaptor
@@ -177,7 +177,7 @@ class QueueActorTest {
             createQueueActor(
                 configuration = DEFAULT_CONFIGURATION.copy(
                     uncompletedTestRetryQuota = 0,
-                    batchingStrategy = FixedSizeBatchingStrategy(size = 1)
+                    batchingStrategy = BatchingStrategyConfiguration.FixedSizeBatchingStrategyConfiguration(size = 1)
                 ),
                 tests = listOf(TEST_1),
                 poolChannel = poolChannel,
@@ -201,7 +201,7 @@ class QueueActorTest {
             createQueueActor(
                 configuration = DEFAULT_CONFIGURATION.copy(
                     uncompletedTestRetryQuota = 1,
-                    batchingStrategy = FixedSizeBatchingStrategy(size = 1)
+                    batchingStrategy = BatchingStrategyConfiguration.FixedSizeBatchingStrategyConfiguration(size = 1)
                 ),
                 tests = listOf(TEST_1),
                 poolChannel = poolChannel,
@@ -289,10 +289,7 @@ private val DEFAULT_CONFIGURATION = Configuration(
     testOutputTimeoutMillis = null,
     debug = null,
     screenRecordingPolicy = null,
-    vendorConfiguration = TestVendorConfiguration(
-        testParser = mock(),
-        deviceProvider = mock()
-    ),
+    vendorConfiguration = VendorConfiguration.StubVendorConfiguration,
     analyticsTracking = false,
     deviceInitializationTimeoutMillis = null
 )

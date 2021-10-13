@@ -9,7 +9,7 @@ import com.malinskiy.marathon.android.executor.listeners.AndroidTestRunListener
 import com.malinskiy.marathon.android.model.AndroidTestBundle
 import com.malinskiy.marathon.android.model.TestIdentifier
 import com.malinskiy.marathon.config.Configuration
-import com.malinskiy.marathon.config.vendor.android.AndroidConfiguration
+import com.malinskiy.marathon.config.vendor.VendorConfiguration
 import com.malinskiy.marathon.config.vendor.android.SerialStrategy
 import com.malinskiy.marathon.test.MetaProperty
 import com.malinskiy.marathon.test.TestBatch
@@ -20,7 +20,6 @@ import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
 import com.nhaarman.mockitokotlin2.whenever
-import ddmlibModule
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Test
 import java.io.File
@@ -46,7 +45,7 @@ class AndroidDeviceTestRunnerTest {
 
     private fun verifyIgnored(annotationName: String) {
         val ddmsDevice = mock<IDevice>()
-        val androidConfiguration = mock<AndroidConfiguration>()
+        val androidConfiguration = mock<VendorConfiguration.AndroidConfiguration>()
         val testBundleIdentifier = mock<AndroidTestBundleIdentifier>()
         whenever(ddmsDevice.serialNumber).doReturn("testSerial")
         whenever(ddmsDevice.version).doReturn(AndroidVersion(26))
@@ -58,6 +57,11 @@ class AndroidDeviceTestRunnerTest {
             )
         )
         val output = File("")
+        val vendorConfiguration = VendorConfiguration.AndroidConfiguration(
+            File(""),
+            applicationOutput = File(""),
+            testApplicationOutput = apkFile,
+        )
         val configuration = Configuration(
             name = "",
             outputDir = output,
@@ -81,27 +85,21 @@ class AndroidDeviceTestRunnerTest {
             testOutputTimeoutMillis = null,
             debug = null,
             screenRecordingPolicy = null,
-            vendorConfiguration = AndroidConfiguration(
-                File(""),
-                applicationOutput = File(""),
-                testApplicationOutput = apkFile,
-                implementationModules = listOf(ddmlibModule)
-            ),
+            vendorConfiguration = vendorConfiguration,
             analyticsTracking = false,
             deviceInitializationTimeoutMillis = null
         )
 
-        val device =
-            DdmlibAndroidDevice(
-                ddmsDevice,
-                testBundleIdentifier,
-                "testSerial",
-                configuration,
-                androidConfiguration,
-                Track(),
-                SystemTimer(Clock.systemDefaultZone()),
-                SerialStrategy.AUTOMATIC
-            )
+        val device = DdmlibAndroidDevice(
+            ddmsDevice,
+            testBundleIdentifier,
+            "testSerial",
+            configuration,
+            androidConfiguration,
+            Track(),
+            SystemTimer(Clock.systemDefaultZone()),
+            SerialStrategy.AUTOMATIC
+        )
 
         val androidDeviceTestRunner = AndroidDeviceTestRunner(device, testBundleIdentifier)
 
@@ -126,7 +124,7 @@ class AndroidDeviceTestRunnerTest {
     @Test
     fun `should send runEnded if only ignored tests are executed`() {
         val ddmsDevice = mock<IDevice>()
-        val androidConfiguration = mock<AndroidConfiguration>()
+        val androidConfiguration = mock<VendorConfiguration.AndroidConfiguration>()
         val testBundleIdentifier = mock<AndroidTestBundleIdentifier>()
 
         whenever(ddmsDevice.serialNumber).doReturn("testSerial")
@@ -162,11 +160,10 @@ class AndroidDeviceTestRunnerTest {
             testOutputTimeoutMillis = null,
             debug = null,
             screenRecordingPolicy = null,
-            vendorConfiguration = AndroidConfiguration(
+            vendorConfiguration = VendorConfiguration.AndroidConfiguration(
                 File(""),
                 applicationOutput = File(""),
                 testApplicationOutput = apkFile,
-                implementationModules = listOf(ddmlibModule)
             ),
             analyticsTracking = false,
             deviceInitializationTimeoutMillis = null

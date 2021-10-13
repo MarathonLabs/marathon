@@ -10,10 +10,10 @@ import com.malinskiy.marathon.android.adam.TestDeviceFactory
 import com.malinskiy.marathon.android.adam.boot
 import com.malinskiy.marathon.android.adam.features
 import com.malinskiy.marathon.android.adam.shell
-import com.malinskiy.marathon.android.configuration.AggregationMode
-import com.malinskiy.marathon.android.configuration.FileSyncEntry
-import com.malinskiy.marathon.config.vendor.android.AndroidConfiguration
+import com.malinskiy.marathon.config.vendor.VendorConfiguration
+import com.malinskiy.marathon.config.vendor.android.AggregationMode
 import com.malinskiy.marathon.config.vendor.android.FileSyncConfiguration
+import com.malinskiy.marathon.config.vendor.android.FileSyncEntry
 import com.malinskiy.marathon.device.DevicePoolId
 import com.malinskiy.marathon.device.toDeviceInfo
 import com.malinskiy.marathon.io.FileManager
@@ -56,7 +56,7 @@ class FileSyncTestRunListenerTest {
         val device = TestDeviceFactory.create(client, configuration, mock())
         val poolId = DevicePoolId("testpool")
         val fileManager = mock<FileManager>()
-        val androidConfiguration = configuration.vendorConfiguration as AndroidConfiguration
+        val androidConfiguration = configuration.vendorConfiguration as VendorConfiguration.AndroidConfiguration
         val listener = FileSyncTestRunListener(poolId, device, androidConfiguration.fileSyncConfiguration, fileManager)
 
         runBlocking {

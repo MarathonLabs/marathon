@@ -9,13 +9,10 @@ import com.malinskiy.marathon.config.vendor.VendorConfiguration
 import com.malinskiy.marathon.device.DeviceFeature
 import com.malinskiy.marathon.device.DeviceInfo
 import com.malinskiy.marathon.device.DevicePoolId
-import com.malinskiy.marathon.device.DeviceProvider
 import com.malinskiy.marathon.device.NetworkState
 import com.malinskiy.marathon.device.OperatingSystem
-import com.malinskiy.marathon.execution.TestParser
 import com.malinskiy.marathon.execution.TestResult
 import com.malinskiy.marathon.execution.TestStatus
-import com.malinskiy.marathon.log.MarathonLogConfigurator
 import com.malinskiy.marathon.report.junit.JUnitReporter
 import com.malinskiy.marathon.report.junit.JUnitWriter
 import com.malinskiy.marathon.test.assert.shouldBeEqualToAsXML
@@ -207,11 +204,7 @@ fun getConfiguration() =
         testOutputTimeoutMillis = null,
         debug = null,
         screenRecordingPolicy = null,
-        vendorConfiguration = object : VendorConfiguration {
-            override fun testParser(): TestParser? = null
-            override fun deviceProvider(): DeviceProvider? = null
-            override fun logConfigurator(): MarathonLogConfigurator? = null
-        },
+        vendorConfiguration = VendorConfiguration.StubVendorConfiguration,
         analyticsTracking = false,
         deviceInitializationTimeoutMillis = null
     )

@@ -1,28 +1,28 @@
 package com.malinskiy.marathon.execution.filter
 
-import com.malinskiy.marathon.config.OPERATION
+import com.malinskiy.marathon.config.TestFilterConfiguration
 import com.malinskiy.marathon.execution.TestFilter
 import com.malinskiy.marathon.test.Test
 
 class CompositionFilter(
     private val filters: List<TestFilter>,
-    private val op: OPERATION
+    private val op: TestFilterConfiguration.CompositionFilterConfiguration.OPERATION
 ) : TestFilter {
 
     override fun filter(tests: List<Test>): List<Test> {
         return when (op) {
-            OPERATION.UNION -> filterWithUnionOperation(tests)
-            OPERATION.INTERSECTION -> filterWithIntersectionOperation(tests)
-            OPERATION.SUBTRACT -> filterWithSubtractOperation(tests)
+            TestFilterConfiguration.CompositionFilterConfiguration.OPERATION.UNION -> filterWithUnionOperation(tests)
+            TestFilterConfiguration.CompositionFilterConfiguration.OPERATION.INTERSECTION -> filterWithIntersectionOperation(tests)
+            TestFilterConfiguration.CompositionFilterConfiguration.OPERATION.SUBTRACT -> filterWithSubtractOperation(tests)
         }
     }
 
     override fun filterNot(tests: List<Test>): List<Test> {
         val filteredTests = filter(tests)
         return when (op) {
-            OPERATION.UNION -> tests.subtract(filteredTests).toList()
-            OPERATION.INTERSECTION -> tests.subtract(filteredTests).toList()
-            OPERATION.SUBTRACT -> tests.subtract(filteredTests).toList()
+            TestFilterConfiguration.CompositionFilterConfiguration.OPERATION.UNION -> tests.subtract(filteredTests).toList()
+            TestFilterConfiguration.CompositionFilterConfiguration.OPERATION.INTERSECTION -> tests.subtract(filteredTests).toList()
+            TestFilterConfiguration.CompositionFilterConfiguration.OPERATION.SUBTRACT -> tests.subtract(filteredTests).toList()
         }
     }
 

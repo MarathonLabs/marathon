@@ -1,9 +1,7 @@
 package com.malinskiy.marathon.execution.progress.tracker
 
 import com.malinskiy.marathon.config.Configuration
-import com.malinskiy.marathon.test.Mocks
-import com.malinskiy.marathon.test.StubDeviceProvider
-import com.malinskiy.marathon.test.TestVendorConfiguration
+import com.malinskiy.marathon.config.vendor.VendorConfiguration
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.Test
 import java.io.File
@@ -41,7 +39,7 @@ class PoolProgressTrackerTest {
             testOutputTimeoutMillis = null,
             debug = false,
             screenRecordingPolicy = null,
-            vendorConfiguration = TestVendorConfiguration(Mocks.TestParser.DEFAULT, StubDeviceProvider()),
+            vendorConfiguration = VendorConfiguration.StubVendorConfiguration,
             analyticsTracking = false,
             deviceInitializationTimeoutMillis = null
         )

@@ -11,12 +11,12 @@ import com.malinskiy.marathon.android.adam.boot
 import com.malinskiy.marathon.android.adam.features
 import com.malinskiy.marathon.android.adam.framebuffer
 import com.malinskiy.marathon.android.model.TestIdentifier
+import com.malinskiy.marathon.config.ScreenRecordingPolicy
 import com.malinskiy.marathon.config.vendor.android.ScreenshotConfiguration
 import com.malinskiy.marathon.device.DevicePoolId
 import com.malinskiy.marathon.device.toDeviceInfo
 import com.malinskiy.marathon.execution.Attachment
 import com.malinskiy.marathon.execution.AttachmentType
-import com.malinskiy.marathon.execution.policy.ScreenRecordingPolicy
 import com.malinskiy.marathon.io.FileManager
 import com.malinskiy.marathon.io.FileType
 import com.malinskiy.marathon.report.attachment.AttachmentListener
@@ -70,7 +70,7 @@ class ScreenCapturerTestRunListenerTest {
                 devicePoolId,
                 batch.id,
                 device,
-                com.malinskiy.marathon.execution.policy.ScreenRecordingPolicy.ON_FAILURE,
+                ScreenRecordingPolicy.ON_FAILURE,
                 ScreenshotConfiguration(),
                 Duration.ofMillis(300),
                 this
@@ -115,7 +115,7 @@ class ScreenCapturerTestRunListenerTest {
                 devicePoolId,
                 batch.id,
                 device,
-                com.malinskiy.marathon.execution.policy.ScreenRecordingPolicy.ON_FAILURE,
+                ScreenRecordingPolicy.ON_FAILURE,
                 ScreenshotConfiguration(),
                 Duration.ofMillis(300),
                 this

@@ -3,15 +3,13 @@ package com.malinskiy.marathon.execution.queue
 import com.malinskiy.marathon.analytics.external.Analytics
 import com.malinskiy.marathon.analytics.internal.pub.Track
 import com.malinskiy.marathon.config.Configuration
+import com.malinskiy.marathon.config.vendor.VendorConfiguration
 import com.malinskiy.marathon.createDeviceInfo
 import com.malinskiy.marathon.device.DevicePoolId
 import com.malinskiy.marathon.execution.TestResult
 import com.malinskiy.marathon.execution.TestShard
 import com.malinskiy.marathon.execution.TestStatus
 import com.malinskiy.marathon.generateTest
-import com.malinskiy.marathon.test.Mocks
-import com.malinskiy.marathon.test.StubDeviceProvider
-import com.malinskiy.marathon.test.TestVendorConfiguration
 import com.nhaarman.mockitokotlin2.inOrder
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.reset
@@ -52,7 +50,7 @@ class TestResultReporterTest {
         testOutputTimeoutMillis = null,
         debug = false,
         screenRecordingPolicy = null,
-        vendorConfiguration = TestVendorConfiguration(Mocks.TestParser.DEFAULT, StubDeviceProvider()),
+        vendorConfiguration = VendorConfiguration.StubVendorConfiguration,
         analyticsTracking = false,
         deviceInitializationTimeoutMillis = null
     )

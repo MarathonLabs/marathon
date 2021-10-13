@@ -2,6 +2,7 @@ package com.malinskiy.marathon.android
 
 import assertk.assertThat
 import assertk.assertions.isEqualTo
+import com.malinskiy.marathon.android.extension.toScreenRecorderCommand
 import com.malinskiy.marathon.config.vendor.android.VideoConfiguration
 import org.junit.jupiter.api.Test
 

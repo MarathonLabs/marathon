@@ -5,9 +5,6 @@ import com.malinskiy.marathon.analytics.external.NoOpMetricsProvider
 import com.malinskiy.marathon.config.AnalyticsConfiguration
 import com.malinskiy.marathon.config.Configuration
 import com.malinskiy.marathon.config.vendor.VendorConfiguration
-import com.malinskiy.marathon.device.DeviceProvider
-import com.malinskiy.marathon.execution.TestParser
-import com.malinskiy.marathon.log.MarathonLogConfigurator
 import org.amshove.kluent.shouldBeInstanceOf
 import org.junit.jupiter.api.Test
 import java.io.File
@@ -39,11 +36,7 @@ class MetricsProviderFactoryTest {
             testOutputTimeoutMillis = null,
             debug = null,
             screenRecordingPolicy = null,
-            vendorConfiguration = object : VendorConfiguration {
-                override fun testParser(): TestParser? = null
-                override fun deviceProvider(): DeviceProvider? = null
-                override fun logConfigurator(): MarathonLogConfigurator? = null
-            },
+            vendorConfiguration = VendorConfiguration.StubVendorConfiguration,
             analyticsTracking = false,
             deviceInitializationTimeoutMillis = null
         )
@@ -84,11 +77,7 @@ class MetricsProviderFactoryTest {
             testOutputTimeoutMillis = null,
             debug = null,
             screenRecordingPolicy = null,
-            vendorConfiguration = object : VendorConfiguration {
-                override fun testParser(): TestParser? = null
-                override fun deviceProvider(): DeviceProvider? = null
-                override fun logConfigurator(): MarathonLogConfigurator? = null
-            },
+            vendorConfiguration = VendorConfiguration.StubVendorConfiguration,
             analyticsTracking = false,
             deviceInitializationTimeoutMillis = null
         )

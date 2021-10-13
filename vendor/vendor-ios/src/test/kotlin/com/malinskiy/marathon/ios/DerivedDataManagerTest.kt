@@ -1,13 +1,14 @@
 package com.malinskiy.marathon.ios
 
 import com.malinskiy.marathon.config.Configuration
+import com.malinskiy.marathon.config.vendor.VendorConfiguration
 import com.malinskiy.marathon.extension.relativePathTo
 import com.malinskiy.marathon.log.MarathonLogging
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.reset
 import com.nhaarman.mockitokotlin2.whenever
-import org.amshove.kluent.shouldEqual
-import org.amshove.kluent.shouldNotEqual
+import org.amshove.kluent.shouldBeEqualTo
+import org.amshove.kluent.shouldNotBeEqualTo
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.BeforeEach
@@ -58,7 +59,7 @@ class DerivedDataManagerTest {
         testOutputTimeoutMillis = null,
         debug = false,
         screenRecordingPolicy = null,
-        vendorConfiguration = IOSConfiguration(
+        vendorConfiguration = VendorConfiguration.IOSConfiguration(
             derivedDataDir = derivedDataDir,
             xctestrunPath = xctestrunPath,
             remoteUsername = "root",
@@ -93,7 +94,7 @@ class DerivedDataManagerTest {
 
         containerHost = container.containerIpAddress
         sshPort = container.getMappedPort(22)
-        sshPort shouldNotEqual 0
+        sshPort shouldNotBeEqualTo 0
     }
 
     @AfterEach
@@ -123,7 +124,7 @@ class DerivedDataManagerTest {
     fun `should determine products location`() {
         val manager = DerivedDataManager(configuration = configuration)
 
-        manager.productsDir shouldEqual derivedDataDir.resolve("Build/Products/")
+        manager.productsDir shouldBeEqualTo derivedDataDir.resolve("Build/Products/")
     }
 
     @Test
@@ -157,7 +158,7 @@ class DerivedDataManagerTest {
         val expectedUploadFiles =
             productsDir.walkTopDown().map { it.relativePathTo(productsDir) }.toSet()
 
-        uploadResults shouldEqual expectedUploadFiles
+        uploadResults shouldBeEqualTo expectedUploadFiles
 
         // Download
         val tempDir = createTempDir()
@@ -174,7 +175,7 @@ class DerivedDataManagerTest {
             productsDir.walkTopDown().map { it.relativePathTo(productsDir) }.toSet()
 
         // Compare
-        tempFiles shouldEqual expectedDownloadFiles
+        tempFiles shouldBeEqualTo expectedDownloadFiles
 
         tempDir.deleteRecursively()
     }

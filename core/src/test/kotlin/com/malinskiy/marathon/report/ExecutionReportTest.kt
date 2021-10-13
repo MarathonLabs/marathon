@@ -9,13 +9,10 @@ import com.malinskiy.marathon.config.vendor.VendorConfiguration
 import com.malinskiy.marathon.device.DeviceFeature
 import com.malinskiy.marathon.device.DeviceInfo
 import com.malinskiy.marathon.device.DevicePoolId
-import com.malinskiy.marathon.device.DeviceProvider
 import com.malinskiy.marathon.device.NetworkState
 import com.malinskiy.marathon.device.OperatingSystem
-import com.malinskiy.marathon.execution.TestParser
 import com.malinskiy.marathon.execution.TestResult
 import com.malinskiy.marathon.execution.TestStatus
-import com.malinskiy.marathon.log.MarathonLogConfigurator
 import org.amshove.kluent.shouldBe
 import org.junit.jupiter.api.Test
 import java.io.File
@@ -47,11 +44,7 @@ class ExecutionReportTest {
         testOutputTimeoutMillis = null,
         debug = null,
         screenRecordingPolicy = null,
-        vendorConfiguration = object : VendorConfiguration {
-            override fun testParser(): TestParser? = null
-            override fun deviceProvider(): DeviceProvider? = null
-            override fun logConfigurator(): MarathonLogConfigurator? = null
-        },
+        vendorConfiguration = VendorConfiguration.StubVendorConfiguration,
         analyticsTracking = false,
         deviceInitializationTimeoutMillis = null
     )

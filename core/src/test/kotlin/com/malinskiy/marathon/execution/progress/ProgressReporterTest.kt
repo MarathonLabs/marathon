@@ -1,12 +1,10 @@
 package com.malinskiy.marathon.execution.progress
 
 import com.malinskiy.marathon.config.Configuration
+import com.malinskiy.marathon.config.vendor.VendorConfiguration
 import com.malinskiy.marathon.device.DevicePoolId
 import com.malinskiy.marathon.device.toDeviceInfo
-import com.malinskiy.marathon.test.Mocks
 import com.malinskiy.marathon.test.StubDevice
-import com.malinskiy.marathon.test.StubDeviceProvider
-import com.malinskiy.marathon.test.TestVendorConfiguration
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.Test
 import java.io.File
@@ -37,7 +35,7 @@ class ProgressReporterTest {
             testOutputTimeoutMillis = null,
             debug = false,
             screenRecordingPolicy = null,
-            vendorConfiguration = TestVendorConfiguration(Mocks.TestParser.DEFAULT, StubDeviceProvider()),
+            vendorConfiguration = VendorConfiguration.StubVendorConfiguration,
             analyticsTracking = false,
             deviceInitializationTimeoutMillis = null
         )

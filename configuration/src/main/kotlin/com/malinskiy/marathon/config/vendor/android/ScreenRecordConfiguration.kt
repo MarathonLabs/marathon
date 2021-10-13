@@ -1,5 +1,6 @@
 package com.malinskiy.marathon.config.vendor.android
 
+import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonProperty
 
 data class ScreenRecordConfiguration(
@@ -10,5 +11,15 @@ data class ScreenRecordConfiguration(
 
 enum class RecorderType {
     VIDEO,
-    SCREENSHOT,
+    SCREENSHOT;
+
+    companion object {
+        @JvmStatic
+        @JsonCreator
+        fun fromString(key: String?): RecorderType? {
+            return key?.let {
+                RecorderType.valueOf(it.toUpperCase())
+            }
+        }
+    }
 }

@@ -1,7 +1,9 @@
 package com.malinskiy.marathon.execution.filter
 
+import com.malinskiy.marathon.config.TestFilterConfiguration
+import com.malinskiy.marathon.extension.toTestFilter
 import com.malinskiy.marathon.test.MetaProperty
-import org.amshove.kluent.shouldEqual
+import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.Test
 import com.malinskiy.marathon.test.Test as MarathonTest
 
@@ -15,58 +17,58 @@ class CompositionFilterTest {
         horseTest
     )
 
-    private val union = CompositionFilter(
+    private val union = TestFilterConfiguration.CompositionFilterConfiguration(
         listOf(
-            SimpleClassnameFilter(".*Cat.*".toRegex()),
-            AnnotationFilter("com.example.BestAnimal".toRegex())
+            TestFilterConfiguration.SimpleClassnameFilterConfiguration(".*Cat.*".toRegex()),
+            TestFilterConfiguration.AnnotationFilterConfiguration("com.example.BestAnimal".toRegex())
         ),
-        CompositionFilter.OPERATION.UNION
-    )
+        TestFilterConfiguration.CompositionFilterConfiguration.OPERATION.UNION
+    ).toTestFilter()
 
-    private val intersection = CompositionFilter(
+    private val intersection = TestFilterConfiguration.CompositionFilterConfiguration(
         listOf(
-            SimpleClassnameFilter(".*Dog.*".toRegex()),
-            AnnotationFilter("com.example.BestAnimal".toRegex())
+            TestFilterConfiguration.SimpleClassnameFilterConfiguration(".*Dog.*".toRegex()),
+            TestFilterConfiguration.AnnotationFilterConfiguration("com.example.BestAnimal".toRegex())
         ),
-        CompositionFilter.OPERATION.INTERSECTION
-    )
+        TestFilterConfiguration.CompositionFilterConfiguration.OPERATION.INTERSECTION
+    ).toTestFilter()
 
-    private val composition = CompositionFilter(
+    private val composition = TestFilterConfiguration.CompositionFilterConfiguration(
         listOf(
-            SimpleClassnameFilter(".*Dog.*".toRegex()),
-            AnnotationFilter("com.example.BestAnimal".toRegex())
+            TestFilterConfiguration.SimpleClassnameFilterConfiguration(".*Dog.*".toRegex()),
+            TestFilterConfiguration.AnnotationFilterConfiguration("com.example.BestAnimal".toRegex())
         ),
-        CompositionFilter.OPERATION.SUBTRACT
-    )
+        TestFilterConfiguration.CompositionFilterConfiguration.OPERATION.SUBTRACT
+    ).toTestFilter()
 
     @Test
     fun shouldFilterUnion() {
-        union.filter(tests) shouldEqual listOf(catTest, dogTest)
+        union.filter(tests) shouldBeEqualTo listOf(catTest, dogTest)
     }
 
     @Test
     fun shouldFilterNotUnion() {
-        union.filterNot(tests) shouldEqual listOf(horseTest)
+        union.filterNot(tests) shouldBeEqualTo listOf(horseTest)
     }
 
     @Test
     fun shouldFilterIntersection() {
-        intersection.filter(tests) shouldEqual listOf(dogTest)
+        intersection.filter(tests) shouldBeEqualTo listOf(dogTest)
     }
 
     @Test
     fun shouldFilterNotIntersection() {
-        intersection.filterNot(tests) shouldEqual listOf(catTest, horseTest)
+        intersection.filterNot(tests) shouldBeEqualTo listOf(catTest, horseTest)
     }
 
     @Test
     fun shouldFilterComposition() {
-        composition.filter(tests) shouldEqual listOf(catTest, horseTest)
+        composition.filter(tests) shouldBeEqualTo listOf(catTest, horseTest)
     }
 
     @Test
     fun shouldFilterNotComposition() {
-        composition.filterNot(tests) shouldEqual listOf(dogTest)
+        composition.filterNot(tests) shouldBeEqualTo listOf(dogTest)
     }
 }
 

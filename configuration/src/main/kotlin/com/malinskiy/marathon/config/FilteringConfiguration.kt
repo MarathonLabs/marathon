@@ -26,6 +26,26 @@ sealed class TestFilterConfiguration {
             if (i > 1) throw ConfigurationException("Only one of [regex,values,file] can be specified for ${this::class.simpleName}")
             if (i == 0) throw ConfigurationException("At least one of [regex,values,file] should be specified for ${this::class.simpleName}")
         }
+
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (javaClass != other?.javaClass) return false
+
+            other as SimpleClassnameFilterConfiguration
+
+            if (!regex.toString().contentEquals(other.regex.toString())) return false
+            if (values != other.values) return false
+            if (file != other.file) return false
+
+            return true
+        }
+
+        override fun hashCode(): Int {
+            var result = regex?.hashCode() ?: 0
+            result = 31 * result + (values?.hashCode() ?: 0)
+            result = 31 * result + (file?.hashCode() ?: 0)
+            return result
+        }
     }
 
     data class FullyQualifiedClassnameFilterConfiguration(
@@ -41,6 +61,26 @@ sealed class TestFilterConfiguration {
 
             if (i > 1) throw ConfigurationException("Only one of [regex,values,file] can be specified for ${this::class.simpleName}")
             if (i == 0) throw ConfigurationException("At least one of [regex,values,file] should be specified for ${this::class.simpleName}")
+        }
+
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (javaClass != other?.javaClass) return false
+
+            other as FullyQualifiedClassnameFilterConfiguration
+
+            if (!regex.toString().contentEquals(other.regex.toString())) return false
+            if (values != other.values) return false
+            if (file != other.file) return false
+
+            return true
+        }
+
+        override fun hashCode(): Int {
+            var result = regex?.hashCode() ?: 0
+            result = 31 * result + (values?.hashCode() ?: 0)
+            result = 31 * result + (file?.hashCode() ?: 0)
+            return result
         }
     }
 
@@ -58,15 +98,40 @@ sealed class TestFilterConfiguration {
             if (i > 1) throw ConfigurationException("Only one of [regex,values,file] can be specified for ${this::class.simpleName}")
             if (i == 0) throw ConfigurationException("At least one of [regex,values,file] should be specified for ${this::class.simpleName}")
         }
+
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (javaClass != other?.javaClass) return false
+
+            other as TestPackageFilterConfiguration
+
+            if (!regex.toString().contentEquals(other.regex.toString())) return false
+            if (values != other.values) return false
+            if (file != other.file) return false
+
+            return true
+        }
+
+        override fun hashCode(): Int {
+            var result = regex?.hashCode() ?: 0
+            result = 31 * result + (values?.hashCode() ?: 0)
+            result = 31 * result + (file?.hashCode() ?: 0)
+            return result
+        }
     }
 
     data class AnnotationDataFilterConfiguration(
         @JsonProperty("nameRegex") val nameRegex: Regex,
         @JsonProperty("valueRegex") val valueRegex: Regex
     ) : TestFilterConfiguration() {
-        override fun validate() {
-            
+        override fun validate() {}
+
+        override fun equals(other: Any?): Boolean {
+            if (other !is AnnotationDataFilterConfiguration) return false
+            return (nameRegex.toString() + valueRegex.toString()).contentEquals((other.nameRegex.toString() + other.valueRegex.toString()))
         }
+
+        override fun hashCode(): Int = nameRegex.hashCode() + valueRegex.hashCode()
     }
 
     data class FullyQualifiedTestnameFilterConfiguration(
@@ -82,6 +147,26 @@ sealed class TestFilterConfiguration {
 
             if (i > 1) throw ConfigurationException("Only one of [regex,values,file] can be specified for ${this::class.simpleName}")
             if (i == 0) throw ConfigurationException("At least one of [regex,values,file] should be specified for ${this::class.simpleName}")
+        }
+
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (javaClass != other?.javaClass) return false
+
+            other as FullyQualifiedTestnameFilterConfiguration
+
+            if (!regex.toString().contentEquals(other.regex.toString())) return false
+            if (values != other.values) return false
+            if (file != other.file) return false
+
+            return true
+        }
+
+        override fun hashCode(): Int {
+            var result = regex?.hashCode() ?: 0
+            result = 31 * result + (values?.hashCode() ?: 0)
+            result = 31 * result + (file?.hashCode() ?: 0)
+            return result
         }
     }
 
@@ -110,6 +195,26 @@ sealed class TestFilterConfiguration {
             if (i > 1) throw ConfigurationException("Only one of [regex,values,file] can be specified for ${this::class.simpleName}")
             if (i == 0) throw ConfigurationException("At least one of [regex,values,file] should be specified for ${this::class.simpleName}")
         }
+
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (javaClass != other?.javaClass) return false
+
+            other as TestMethodFilterConfiguration
+
+            if (!regex.toString().contentEquals(other.regex.toString())) return false
+            if (values != other.values) return false
+            if (file != other.file) return false
+
+            return true
+        }
+
+        override fun hashCode(): Int {
+            var result = regex?.hashCode() ?: 0
+            result = 31 * result + (values?.hashCode() ?: 0)
+            result = 31 * result + (file?.hashCode() ?: 0)
+            return result
+        }
     }
 
     data class AnnotationFilterConfiguration(
@@ -126,6 +231,26 @@ sealed class TestFilterConfiguration {
             if (i > 1) throw ConfigurationException("Only one of [regex,values,file] can be specified for ${this::class.simpleName}")
             if (i == 0) throw ConfigurationException("At least one of [regex,values,file] should be specified for ${this::class.simpleName}")
         }
+
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (javaClass != other?.javaClass) return false
+
+            other as AnnotationFilterConfiguration
+
+            if (!regex.toString().contentEquals(other.regex.toString())) return false
+            if (values != other.values) return false
+            if (file != other.file) return false
+
+            return true
+        }
+
+        override fun hashCode(): Int {
+            var result = regex?.hashCode() ?: 0
+            result = 31 * result + (values?.hashCode() ?: 0)
+            result = 31 * result + (file?.hashCode() ?: 0)
+            return result
+        }
     }
 
     data class CompositionFilterConfiguration(
@@ -135,11 +260,23 @@ sealed class TestFilterConfiguration {
         override fun validate() {
             filters.forEach { it.validate() }
         }
-    }
-}
 
-enum class OPERATION {
-    UNION,
-    INTERSECTION,
-    SUBTRACT
+        enum class OPERATION {
+            UNION,
+            INTERSECTION,
+            SUBTRACT
+        }
+
+        override fun equals(other: Any?): Boolean {
+            if (other !is CompositionFilterConfiguration) return false
+            if (filters.count() != other.filters.count()) return false
+            if (op != other.op) return false
+            filters.forEach {
+                if (!other.filters.contains(it)) return false
+            }
+            return true
+        }
+
+        override fun hashCode(): Int = filters.hashCode() + op.hashCode()
+    }
 }

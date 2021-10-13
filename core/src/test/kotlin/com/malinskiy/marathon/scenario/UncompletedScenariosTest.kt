@@ -1,8 +1,8 @@
 package com.malinskiy.marathon.scenario
 
+import com.malinskiy.marathon.config.strategy.RetryStrategyConfiguration
 import com.malinskiy.marathon.device.DeviceProvider
 import com.malinskiy.marathon.execution.TestStatus
-import com.malinskiy.marathon.execution.strategy.impl.retry.fixedquota.FixedQuotaRetryStrategy
 import com.malinskiy.marathon.test.StubDevice
 import com.malinskiy.marathon.test.assert.shouldBeEqualToAsJson
 import com.malinskiy.marathon.test.setupMarathon
@@ -46,7 +46,7 @@ class UncompletedScenariosTest {
 
                 uncompletedTestRetryQuota = 100
 
-                vendorConfiguration.deviceProvider.context = context
+                deviceProvider.context = context
 
                 devices {
                     delay(1000)
@@ -89,7 +89,7 @@ class UncompletedScenariosTest {
 
                 uncompletedTestRetryQuota = 100
 
-                vendorConfiguration.deviceProvider.context = context
+                deviceProvider.context = context
 
                 devices {
                     delay(1000)
@@ -133,7 +133,7 @@ class UncompletedScenariosTest {
 
                 uncompletedTestRetryQuota = 3
 
-                vendorConfiguration.deviceProvider.context = context
+                deviceProvider.context = context
 
                 devices {
                     delay(1000)
@@ -173,9 +173,9 @@ class UncompletedScenariosTest {
                 }
 
                 uncompletedTestRetryQuota = 3
-                retryStrategy = FixedQuotaRetryStrategy(10, 3)
+                retryStrategy = RetryStrategyConfiguration.FixedQuotaRetryStrategyConfiguration(10, 3)
 
-                vendorConfiguration.deviceProvider.context = context
+                deviceProvider.context = context
 
                 devices {
                     delay(1000)
