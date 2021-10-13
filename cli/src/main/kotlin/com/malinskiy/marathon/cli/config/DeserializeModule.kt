@@ -3,34 +3,31 @@ package com.malinskiy.marathon.cli.config
 import com.fasterxml.jackson.databind.module.SimpleModule
 import com.malinskiy.marathon.cli.args.FileVendorConfiguration
 import com.malinskiy.marathon.cli.config.deserialize.AnalyticsConfigurationDeserializer
-import com.malinskiy.marathon.cli.config.deserialize.BatchingStrategyDeserializer
-import com.malinskiy.marathon.cli.config.deserialize.ExecutionTimeSortingStrategyDeserializer
+import com.malinskiy.marathon.cli.config.deserialize.BatchingStrategyConfigurationDeserializer
+import com.malinskiy.marathon.cli.config.deserialize.ExecutionTimeSortingStrategyConfigurationDeserializer
 import com.malinskiy.marathon.cli.config.deserialize.FileVendorConfigurationDeserializer
-import com.malinskiy.marathon.cli.config.deserialize.FixedSizeBatchingStrategyDeserializer
-import com.malinskiy.marathon.cli.config.deserialize.FlakinessStrategyDeserializer
+import com.malinskiy.marathon.cli.config.deserialize.FixedSizeBatchingStrategyConfigurationDeserializer
+import com.malinskiy.marathon.cli.config.deserialize.FlakinessStrategyConfigurationDeserializer
 import com.malinskiy.marathon.cli.config.deserialize.GraphiteConfigurationDeserializer
 import com.malinskiy.marathon.cli.config.deserialize.InfluxDbConfigurationDeserializer
-import com.malinskiy.marathon.cli.config.deserialize.PoolingStrategyDeserializer
-import com.malinskiy.marathon.cli.config.deserialize.ProbabilityBasedFlakinessStrategyDeserializer
+import com.malinskiy.marathon.cli.config.deserialize.PoolingStrategyConfigurationDeserializer
+import com.malinskiy.marathon.cli.config.deserialize.ProbabilityBasedFlakinessStrategyConfigurationDeserializer
 import com.malinskiy.marathon.cli.config.deserialize.RetentionPolicyConfigurationDeserializer
-import com.malinskiy.marathon.cli.config.deserialize.RetryStrategyDeserializer
+import com.malinskiy.marathon.cli.config.deserialize.RetryStrategyConfigurationDeserializer
 import com.malinskiy.marathon.cli.config.deserialize.ScreenRecordingPolicyDeserializer
-import com.malinskiy.marathon.cli.config.deserialize.ShardingStrategyDeserializer
-import com.malinskiy.marathon.cli.config.deserialize.SortingStrategyDeserializer
-import com.malinskiy.marathon.cli.config.deserialize.TestFilterDeserializer
+import com.malinskiy.marathon.cli.config.deserialize.ShardingStrategyConfigurationDeserializer
+import com.malinskiy.marathon.cli.config.deserialize.SortingStrategyConfigurationDeserializer
+import com.malinskiy.marathon.cli.config.deserialize.TestFilterConfigurationDeserializer
 import com.malinskiy.marathon.cli.config.time.InstantTimeProvider
-import com.malinskiy.marathon.execution.AnalyticsConfiguration
-import com.malinskiy.marathon.execution.TestFilter
-import com.malinskiy.marathon.execution.policy.ScreenRecordingPolicy
-import com.malinskiy.marathon.execution.strategy.BatchingStrategy
-import com.malinskiy.marathon.execution.strategy.FlakinessStrategy
-import com.malinskiy.marathon.execution.strategy.PoolingStrategy
-import com.malinskiy.marathon.execution.strategy.RetryStrategy
-import com.malinskiy.marathon.execution.strategy.ShardingStrategy
-import com.malinskiy.marathon.execution.strategy.SortingStrategy
-import com.malinskiy.marathon.execution.strategy.impl.batching.FixedSizeBatchingStrategy
-import com.malinskiy.marathon.execution.strategy.impl.flakiness.ProbabilityBasedFlakinessStrategy
-import com.malinskiy.marathon.execution.strategy.impl.sorting.ExecutionTimeSortingStrategy
+import com.malinskiy.marathon.config.AnalyticsConfiguration
+import com.malinskiy.marathon.config.ScreenRecordingPolicy
+import com.malinskiy.marathon.config.TestFilterConfiguration
+import com.malinskiy.marathon.config.strategy.BatchingStrategyConfiguration
+import com.malinskiy.marathon.config.strategy.FlakinessStrategyConfiguration
+import com.malinskiy.marathon.config.strategy.PoolingStrategyConfiguration
+import com.malinskiy.marathon.config.strategy.RetryStrategyConfiguration
+import com.malinskiy.marathon.config.strategy.ShardingStrategyConfiguration
+import com.malinskiy.marathon.config.strategy.SortingStrategyConfiguration
 
 class DeserializeModule(instantTimeProvider: InstantTimeProvider) : SimpleModule() {
     init {
@@ -41,25 +38,25 @@ class DeserializeModule(instantTimeProvider: InstantTimeProvider) : SimpleModule
             AnalyticsConfiguration.InfluxDbConfiguration.RetentionPolicyConfiguration::class.java,
             RetentionPolicyConfigurationDeserializer()
         )
-        addDeserializer(PoolingStrategy::class.java, PoolingStrategyDeserializer())
-        addDeserializer(ShardingStrategy::class.java, ShardingStrategyDeserializer())
-        addDeserializer(SortingStrategy::class.java, SortingStrategyDeserializer())
+        addDeserializer(PoolingStrategyConfiguration::class.java, PoolingStrategyConfigurationDeserializer())
+        addDeserializer(ShardingStrategyConfiguration::class.java, ShardingStrategyConfigurationDeserializer())
+        addDeserializer(SortingStrategyConfiguration::class.java, SortingStrategyConfigurationDeserializer())
         addDeserializer(
-            ExecutionTimeSortingStrategy::class.java,
-            ExecutionTimeSortingStrategyDeserializer(instantTimeProvider)
+            SortingStrategyConfiguration.ExecutionTimeSortingStrategyConfiguration::class.java,
+            ExecutionTimeSortingStrategyConfigurationDeserializer(instantTimeProvider)
         )
-        addDeserializer(BatchingStrategy::class.java, BatchingStrategyDeserializer())
-        addDeserializer(FlakinessStrategy::class.java, FlakinessStrategyDeserializer())
+        addDeserializer(BatchingStrategyConfiguration::class.java, BatchingStrategyConfigurationDeserializer())
+        addDeserializer(FlakinessStrategyConfiguration::class.java, FlakinessStrategyConfigurationDeserializer())
         addDeserializer(
-            ProbabilityBasedFlakinessStrategy::class.java,
-            ProbabilityBasedFlakinessStrategyDeserializer(instantTimeProvider)
+            FlakinessStrategyConfiguration.ProbabilityBasedFlakinessStrategyConfiguration::class.java,
+            ProbabilityBasedFlakinessStrategyConfigurationDeserializer(instantTimeProvider)
         )
         addDeserializer(
-            FixedSizeBatchingStrategy::class.java,
-            FixedSizeBatchingStrategyDeserializer(instantTimeProvider)
+            BatchingStrategyConfiguration.FixedSizeBatchingStrategyConfiguration::class.java,
+            FixedSizeBatchingStrategyConfigurationDeserializer(instantTimeProvider)
         )
-        addDeserializer(RetryStrategy::class.java, RetryStrategyDeserializer())
-        addDeserializer(TestFilter::class.java, TestFilterDeserializer())
+        addDeserializer(RetryStrategyConfiguration::class.java, RetryStrategyConfigurationDeserializer())
+        addDeserializer(TestFilterConfiguration::class.java, TestFilterConfigurationDeserializer())
         addDeserializer(FileVendorConfiguration::class.java, FileVendorConfigurationDeserializer())
         addDeserializer(ScreenRecordingPolicy::class.java, ScreenRecordingPolicyDeserializer())
     }

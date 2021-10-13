@@ -3,6 +3,7 @@ package com.malinskiy.marathon.android
 import assertk.assertThat
 import assertk.assertions.isEqualTo
 import assertk.assertions.isNull
+import com.malinskiy.marathon.config.vendor.android.ScreenRecordConfiguration
 import com.malinskiy.marathon.device.DeviceFeature
 import org.junit.jupiter.api.Test
 

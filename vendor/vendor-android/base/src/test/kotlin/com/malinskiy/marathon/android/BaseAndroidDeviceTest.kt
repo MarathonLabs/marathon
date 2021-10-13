@@ -14,6 +14,7 @@ import com.malinskiy.marathon.android.adam.features
 import com.malinskiy.marathon.android.configuration.AggregationMode
 import com.malinskiy.marathon.android.configuration.AllureConfiguration
 import com.malinskiy.marathon.android.configuration.FileSyncEntry
+import com.malinskiy.marathon.config.vendor.android.AndroidConfiguration
 import com.nhaarman.mockitokotlin2.mock
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Test

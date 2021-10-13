@@ -1,6 +1,5 @@
 package com.malinskiy.marathon.execution.filter
 
-import com.malinskiy.marathon.execution.TestPackageFilter
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.Test
 import com.malinskiy.marathon.test.Test as MarathonTest

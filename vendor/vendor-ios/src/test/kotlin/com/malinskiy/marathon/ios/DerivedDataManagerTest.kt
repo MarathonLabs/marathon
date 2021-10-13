@@ -1,6 +1,6 @@
 package com.malinskiy.marathon.ios
 
-import com.malinskiy.marathon.execution.Configuration
+import com.malinskiy.marathon.config.Configuration
 import com.malinskiy.marathon.extension.relativePathTo
 import com.malinskiy.marathon.log.MarathonLogging
 import com.nhaarman.mockitokotlin2.mock

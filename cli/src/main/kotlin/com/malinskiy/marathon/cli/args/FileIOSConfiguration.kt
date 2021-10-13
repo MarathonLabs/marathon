@@ -1,8 +1,8 @@
 package com.malinskiy.marathon.cli.args
 
 import com.fasterxml.jackson.annotation.JsonProperty
-import com.malinskiy.marathon.exceptions.ConfigurationException
-import com.malinskiy.marathon.ios.IOSConfiguration
+import com.malinskiy.marathon.config.exceptions.ConfigurationException
+import com.malinskiy.marathon.config.vendor.VendorConfiguration
 import java.io.File
 
 interface FileListProvider {
@@ -35,7 +35,7 @@ data class FileIOSConfiguration(
     fun toIOSConfiguration(
         marathonfileDir: File,
         sourceRootOverride: File? = null
-    ): IOSConfiguration {
+    ): VendorConfiguration.IOSConfiguration {
         // Any relative path specified in Marathonfile should be resolved against the directory Marathonfile is in
         val resolvedDerivedDataDir = marathonfileDir.resolve(derivedDataDir)
         val finalXCTestRunPath = xctestrunPath?.resolveAgainst(marathonfileDir)
@@ -53,7 +53,7 @@ data class FileIOSConfiguration(
         val optionalHideRunnerOutput = hideRunnerOutput ?: false
 
         return if (optionalSourceRoot == null) {
-            IOSConfiguration(
+            VendorConfiguration.IOSConfiguration(
                 derivedDataDir = resolvedDerivedDataDir,
                 xctestrunPath = finalXCTestRunPath,
                 remoteUsername = remoteUsername,
@@ -68,7 +68,7 @@ data class FileIOSConfiguration(
                 devicesFile = optionalDevices
             )
         } else {
-            IOSConfiguration(
+            VendorConfiguration.IOSConfiguration(
                 derivedDataDir = resolvedDerivedDataDir,
                 xctestrunPath = finalXCTestRunPath,
                 remoteUsername = remoteUsername,

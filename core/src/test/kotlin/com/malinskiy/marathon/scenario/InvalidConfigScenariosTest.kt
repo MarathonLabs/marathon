@@ -1,7 +1,7 @@
 package com.malinskiy.marathon.scenario
 
+import com.malinskiy.marathon.config.exceptions.ConfigurationException
 import com.malinskiy.marathon.device.DeviceProvider
-import com.malinskiy.marathon.exceptions.ConfigurationException
 import com.malinskiy.marathon.execution.TestStatus
 import com.malinskiy.marathon.execution.strategy.impl.flakiness.ProbabilityBasedFlakinessStrategy
 import com.malinskiy.marathon.execution.strategy.impl.sharding.CountShardingStrategy

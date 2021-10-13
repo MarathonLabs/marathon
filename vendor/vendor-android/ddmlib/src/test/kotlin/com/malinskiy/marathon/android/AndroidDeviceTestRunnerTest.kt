@@ -3,13 +3,14 @@ package com.malinskiy.marathon.android
 import com.android.ddmlib.IDevice
 import com.android.sdklib.AndroidVersion
 import com.malinskiy.marathon.analytics.internal.pub.Track
-import com.malinskiy.marathon.android.configuration.SerialStrategy
 import com.malinskiy.marathon.android.ddmlib.AndroidDeviceTestRunner
 import com.malinskiy.marathon.android.ddmlib.DdmlibAndroidDevice
 import com.malinskiy.marathon.android.executor.listeners.AndroidTestRunListener
 import com.malinskiy.marathon.android.model.AndroidTestBundle
 import com.malinskiy.marathon.android.model.TestIdentifier
-import com.malinskiy.marathon.execution.Configuration
+import com.malinskiy.marathon.config.Configuration
+import com.malinskiy.marathon.config.vendor.android.AndroidConfiguration
+import com.malinskiy.marathon.config.vendor.android.SerialStrategy
 import com.malinskiy.marathon.test.MetaProperty
 import com.malinskiy.marathon.test.TestBatch
 import com.malinskiy.marathon.time.SystemTimer

@@ -12,7 +12,8 @@ import com.android.ddmlib.testrunner.TestIdentifier
 import com.malinskiy.marathon.android.ADB_INSTALL_TIMEOUT_MINUTES
 import com.malinskiy.marathon.android.ADB_SCREEN_RECORD_TIMEOUT_MINUTES
 import com.malinskiy.marathon.android.ADB_SHORT_TIMEOUT_SECONDS
-import com.malinskiy.marathon.android.VideoConfiguration
+import com.malinskiy.marathon.android.extension.toScreenRecorderCommand
+import com.malinskiy.marathon.config.vendor.android.VideoConfiguration
 import com.malinskiy.marathon.test.Test
 import java.io.IOException
 import java.util.concurrent.TimeUnit

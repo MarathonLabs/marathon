@@ -2,12 +2,12 @@ package com.malinskiy.marathon.analytics.metrics
 
 import com.malinskiy.marathon.analytics.external.MetricsProviderFactory
 import com.malinskiy.marathon.analytics.external.NoOpMetricsProvider
+import com.malinskiy.marathon.config.AnalyticsConfiguration
+import com.malinskiy.marathon.config.Configuration
+import com.malinskiy.marathon.config.vendor.VendorConfiguration
 import com.malinskiy.marathon.device.DeviceProvider
-import com.malinskiy.marathon.execution.AnalyticsConfiguration
-import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.execution.TestParser
 import com.malinskiy.marathon.log.MarathonLogConfigurator
-import com.malinskiy.marathon.vendor.VendorConfiguration
 import org.amshove.kluent.shouldBeInstanceOf
 import org.junit.jupiter.api.Test
 import java.io.File

@@ -5,27 +5,26 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
 import com.fasterxml.jackson.dataformat.yaml.YAMLGenerator
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.KotlinModule
-import com.malinskiy.marathon.android.AndroidConfiguration
-import com.malinskiy.marathon.android.ScreenRecordConfiguration
-import com.malinskiy.marathon.android.ScreenshotConfiguration
-import com.malinskiy.marathon.android.VideoConfiguration
 import com.malinskiy.marathon.android.configuration.AllureConfiguration
-import com.malinskiy.marathon.android.configuration.SerialStrategy
-import com.malinskiy.marathon.android.configuration.TimeoutConfiguration
 import com.malinskiy.marathon.cli.args.EnvironmentConfiguration
 import com.malinskiy.marathon.cli.args.environment.EnvironmentReader
 import com.malinskiy.marathon.cli.config.time.InstantTimeProvider
+import com.malinskiy.marathon.config.AnalyticsConfiguration
+import com.malinskiy.marathon.config.exceptions.ConfigurationException
+import com.malinskiy.marathon.config.vendor.android.AndroidConfiguration
+import com.malinskiy.marathon.config.vendor.android.ScreenRecordConfiguration
+import com.malinskiy.marathon.config.vendor.android.ScreenshotConfiguration
+import com.malinskiy.marathon.config.vendor.android.SerialStrategy
+import com.malinskiy.marathon.config.vendor.android.TimeoutConfiguration
+import com.malinskiy.marathon.config.vendor.android.VideoConfiguration
 import com.malinskiy.marathon.device.DeviceFeature
-import com.malinskiy.marathon.exceptions.ConfigurationException
-import com.malinskiy.marathon.execution.AnalyticsConfiguration
-import com.malinskiy.marathon.execution.AnnotationDataFilter
-import com.malinskiy.marathon.execution.AnnotationFilter
-import com.malinskiy.marathon.execution.CompositionFilter
 import com.malinskiy.marathon.execution.FullyQualifiedClassnameFilter
-import com.malinskiy.marathon.execution.SimpleClassnameFilter
-import com.malinskiy.marathon.execution.TestMethodFilter
-import com.malinskiy.marathon.execution.TestPackageFilter
-import com.malinskiy.marathon.execution.policy.ScreenRecordingPolicy
+import com.malinskiy.marathon.execution.filter.AnnotationDataFilter
+import com.malinskiy.marathon.execution.filter.AnnotationFilter
+import com.malinskiy.marathon.execution.filter.CompositionFilter
+import com.malinskiy.marathon.execution.filter.SimpleClassnameFilter
+import com.malinskiy.marathon.execution.filter.TestMethodFilter
+import com.malinskiy.marathon.execution.filter.TestPackageFilter
 import com.malinskiy.marathon.execution.strategy.impl.batching.FixedSizeBatchingStrategy
 import com.malinskiy.marathon.execution.strategy.impl.batching.IsolateBatchingStrategy
 import com.malinskiy.marathon.execution.strategy.impl.flakiness.IgnoreFlakinessStrategy
@@ -159,7 +158,7 @@ class ConfigFactoryTest {
         configuration.testBatchTimeoutMillis shouldEqual 20_000
         configuration.testOutputTimeoutMillis shouldEqual 30_000
         configuration.debug shouldEqual true
-        configuration.screenRecordingPolicy shouldEqual ScreenRecordingPolicy.ON_ANY
+        configuration.screenRecordingPolicy shouldEqual com.malinskiy.marathon.execution.policy.ScreenRecordingPolicy.ON_ANY
 
         configuration.deviceInitializationTimeoutMillis shouldEqual 300_000
         configuration.vendorConfiguration shouldEqual AndroidConfiguration(
@@ -234,7 +233,7 @@ class ConfigFactoryTest {
         configuration.testBatchTimeoutMillis shouldEqual 1800_000
         configuration.testOutputTimeoutMillis shouldEqual 300_000
         configuration.debug shouldEqual true
-        configuration.screenRecordingPolicy shouldEqual ScreenRecordingPolicy.ON_FAILURE
+        configuration.screenRecordingPolicy shouldEqual com.malinskiy.marathon.execution.policy.ScreenRecordingPolicy.ON_FAILURE
         configuration.vendorConfiguration shouldEqual AndroidConfiguration(
             File("/local/android"),
             File("kotlin-buildscript/build/outputs/apk/debug/kotlin-buildscript-debug.apk"),

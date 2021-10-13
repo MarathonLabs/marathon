@@ -1,7 +1,7 @@
 package com.malinskiy.marathon.ios
 
 import com.malinskiy.marathon.analytics.internal.pub.Track
-import com.malinskiy.marathon.execution.Configuration
+import com.malinskiy.marathon.config.Configuration
 import com.malinskiy.marathon.time.SystemTimer
 import kotlinx.coroutines.runBlocking
 import org.amshove.kluent.shouldEqual

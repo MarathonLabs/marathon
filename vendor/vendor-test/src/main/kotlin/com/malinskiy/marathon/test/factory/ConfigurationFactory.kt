@@ -39,7 +39,7 @@ class ConfigurationFactory {
     var testBatchTimeoutMillis = null
     var testOutputTimeoutMillis = null
     var analyticsTracking = false
-    var screenRecordingPolicy: ScreenRecordingPolicy? = null
+    var screenRecordingPolicy: com.malinskiy.marathon.execution.policy.ScreenRecordingPolicy? = null
     var deviceInitializationTimeoutMillis: Long? = null
 
     fun tests(block: () -> List<Test>) {

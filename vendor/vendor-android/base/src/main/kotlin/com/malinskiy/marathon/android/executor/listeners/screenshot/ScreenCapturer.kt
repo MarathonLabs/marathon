@@ -1,9 +1,9 @@
 package com.malinskiy.marathon.android.executor.listeners.screenshot
 
 import com.malinskiy.marathon.android.AndroidDevice
-import com.malinskiy.marathon.android.ScreenshotConfiguration
 import com.malinskiy.marathon.android.exception.CommandRejectedException
 import com.malinskiy.marathon.android.model.Rotation
+import com.malinskiy.marathon.config.vendor.android.ScreenshotConfiguration
 import com.malinskiy.marathon.device.DevicePoolId
 import com.malinskiy.marathon.device.toDeviceInfo
 import com.malinskiy.marathon.io.FileManager

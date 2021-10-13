@@ -3,6 +3,7 @@ package com.malinskiy.marathon.android
 import com.android.sdklib.AndroidVersion
 import com.malinskiy.marathon.android.executor.listeners.line.LineListener
 import com.malinskiy.marathon.android.model.Rotation
+import com.malinskiy.marathon.config.vendor.android.VideoConfiguration
 import com.malinskiy.marathon.device.Device
 import java.awt.image.BufferedImage
 import java.time.Duration

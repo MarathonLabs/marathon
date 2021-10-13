@@ -12,13 +12,13 @@ import com.malinskiy.adam.request.testrunner.TestRunStartedEvent
 import com.malinskiy.adam.request.testrunner.TestRunStopped
 import com.malinskiy.adam.request.testrunner.TestRunnerRequest
 import com.malinskiy.adam.request.testrunner.TestStarted
-import com.malinskiy.marathon.android.AndroidConfiguration
 import com.malinskiy.marathon.android.AndroidTestBundleIdentifier
 import com.malinskiy.marathon.android.InstrumentationInfo
 import com.malinskiy.marathon.android.executor.listeners.AndroidTestRunListener
 import com.malinskiy.marathon.android.extension.isIgnored
 import com.malinskiy.marathon.android.model.TestIdentifier
-import com.malinskiy.marathon.execution.Configuration
+import com.malinskiy.marathon.config.Configuration
+import com.malinskiy.marathon.config.vendor.VendorConfiguration
 import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.test.Test
 import com.malinskiy.marathon.test.TestBatch
@@ -51,7 +51,7 @@ class AndroidDeviceTestRunner(private val device: AdamAndroidDevice, private val
             return
         }
 
-        val androidConfiguration = configuration.vendorConfiguration as AndroidConfiguration
+        val androidConfiguration = configuration.vendorConfiguration as VendorConfiguration.AndroidConfiguration
         val infoToTestMap: Map<InstrumentationInfo, Test> = testBatch.tests.associateBy {
             bundleIdentifier.identify(it).instrumentationInfo
         }
@@ -124,7 +124,7 @@ class AndroidDeviceTestRunner(private val device: AdamAndroidDevice, private val
         }
     }
 
-    private suspend fun clearData(androidConfiguration: AndroidConfiguration, info: InstrumentationInfo) {
+    private suspend fun clearData(androidConfiguration: VendorConfiguration.AndroidConfiguration, info: InstrumentationInfo) {
         if (androidConfiguration.applicationPmClear) {
             device.safeClearPackage(info.applicationPackage)?.trim()?.also {
                 logger.debug { "Package ${info.applicationPackage} cleared: $it" }
@@ -156,7 +156,7 @@ class AndroidDeviceTestRunner(private val device: AdamAndroidDevice, private val
 
     private fun prepareTestRunnerRequest(
         configuration: Configuration,
-        androidConfiguration: AndroidConfiguration,
+        androidConfiguration: VendorConfiguration.AndroidConfiguration,
         info: InstrumentationInfo,
         testBatch: TestBatch
     ): TestRunnerRequest {

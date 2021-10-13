@@ -5,15 +5,15 @@ import com.malinskiy.adam.server.junit5.AdbClient
 import com.malinskiy.adam.server.junit5.AdbServer
 import com.malinskiy.adam.server.junit5.AdbTest
 import com.malinskiy.adam.server.stub.AndroidDebugBridgeServer
-import com.malinskiy.marathon.android.AndroidConfiguration
 import com.malinskiy.marathon.android.adam.TestConfigurationFactory
 import com.malinskiy.marathon.android.adam.TestDeviceFactory
 import com.malinskiy.marathon.android.adam.boot
 import com.malinskiy.marathon.android.adam.features
 import com.malinskiy.marathon.android.adam.shell
 import com.malinskiy.marathon.android.configuration.AggregationMode
-import com.malinskiy.marathon.android.configuration.FileSyncConfiguration
 import com.malinskiy.marathon.android.configuration.FileSyncEntry
+import com.malinskiy.marathon.config.vendor.android.AndroidConfiguration
+import com.malinskiy.marathon.config.vendor.android.FileSyncConfiguration
 import com.malinskiy.marathon.device.DevicePoolId
 import com.malinskiy.marathon.device.toDeviceInfo
 import com.malinskiy.marathon.io.FileManager

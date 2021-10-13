@@ -1,6 +1,6 @@
 package com.malinskiy.marathon.execution.filter
 
-import com.malinskiy.marathon.exceptions.ConfigurationException
+import com.malinskiy.marathon.config.exceptions.ConfigurationException
 import com.malinskiy.marathon.generateTests
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldContainSame

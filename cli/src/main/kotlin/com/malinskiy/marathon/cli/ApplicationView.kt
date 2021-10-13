@@ -38,12 +38,12 @@ fun main(args: Array<String>): Unit = mainBody(
             mapper.registerModule(DeserializeModule(InstantTimeProviderImpl()))
                 .registerModule(KotlinModule())
                 .registerModule(JavaTimeModule())
-            val configuration = ConfigFactory(mapper).create(
+            val (configuration, vendor) = ConfigFactory(mapper).create(
                 marathonfile = marathonfile,
                 environmentReader = SystemEnvironmentReader()
             )
 
-            val application = marathonStartKoin(configuration)
+            val application = marathonStartKoin(configuration, vendor)
             val marathon: Marathon = application.koin.get()
 
             UsageAnalytics.enable = this.analyticsTracking

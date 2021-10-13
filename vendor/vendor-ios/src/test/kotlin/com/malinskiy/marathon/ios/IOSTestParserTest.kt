@@ -1,10 +1,10 @@
 package com.malinskiy.marathon.ios
 
-import com.malinskiy.marathon.execution.Configuration
-import com.malinskiy.marathon.test.Test as MarathonTest
+import com.malinskiy.marathon.config.Configuration
 import org.amshove.kluent.shouldContainSame
 import org.junit.jupiter.api.Test
 import java.io.File
+import com.malinskiy.marathon.test.Test as MarathonTest
 
 class IOSTestParserTest {
     private val parser = IOSTestParser()

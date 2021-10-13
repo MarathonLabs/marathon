@@ -1,13 +1,13 @@
-package com.malinskiy.marathon.execution
+package com.malinskiy.marathon.execution.filter
 
-import com.google.gson.annotations.SerializedName
+import com.malinskiy.marathon.config.OPERATION
+import com.malinskiy.marathon.execution.TestFilter
 import com.malinskiy.marathon.test.Test
 
 class CompositionFilter(
-    @SerializedName("filters") private val filters: List<TestFilter>,
-    @SerializedName("op") private val op: OPERATION
+    private val filters: List<TestFilter>,
+    private val op: OPERATION
 ) : TestFilter {
-    override fun validate() = filters.forEach { it.validate() }
 
     override fun filter(tests: List<Test>): List<Test> {
         return when (op) {
@@ -57,10 +57,4 @@ class CompositionFilter(
     }
 
     override fun hashCode(): Int = filters.hashCode() + op.hashCode()
-
-    enum class OPERATION {
-        UNION,
-        INTERSECTION,
-        SUBTRACT
-    }
 }

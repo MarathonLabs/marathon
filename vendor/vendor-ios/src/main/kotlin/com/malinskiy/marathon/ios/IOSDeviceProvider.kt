@@ -7,15 +7,15 @@ import com.fasterxml.jackson.module.kotlin.KotlinModule
 import com.google.gson.GsonBuilder
 import com.malinskiy.marathon.actor.unboundedChannel
 import com.malinskiy.marathon.analytics.internal.pub.Track
+import com.malinskiy.marathon.config.Configuration
+import com.malinskiy.marathon.config.vendor.VendorConfiguration
 import com.malinskiy.marathon.device.DeviceProvider
-import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.ios.device.LocalListSimulatorProvider
 import com.malinskiy.marathon.ios.device.SimulatorProvider
 import com.malinskiy.marathon.ios.simctl.model.SimctlDeviceList
 import com.malinskiy.marathon.ios.simctl.model.SimctlDeviceListDeserializer
 import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.time.Timer
-import com.malinskiy.marathon.vendor.VendorConfiguration
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.newFixedThreadPoolContext
@@ -24,6 +24,7 @@ import kotlin.coroutines.CoroutineContext
 
 class IOSDeviceProvider(
     configuration: Configuration,
+    private val vendorConfiguration: VendorConfiguration.IOSConfiguration,
     private val track: Track,
     private val timer: Timer
 ) : DeviceProvider, CoroutineScope {
@@ -38,11 +39,7 @@ class IOSDeviceProvider(
 
     override val deviceInitializationTimeoutMillis: Long = configuration.deviceInitializationTimeoutMillis
 
-    override suspend fun initialize(vendorConfiguration: VendorConfiguration) {
-        if (vendorConfiguration !is IOSConfiguration) {
-            throw IllegalStateException("Invalid configuration $vendorConfiguration")
-        }
-
+    override suspend fun initialize() {
         logger.debug("Initializing IOSDeviceProvider")
 
         val gson = GsonBuilder().registerTypeAdapter(SimctlDeviceList::class.java, SimctlDeviceListDeserializer())

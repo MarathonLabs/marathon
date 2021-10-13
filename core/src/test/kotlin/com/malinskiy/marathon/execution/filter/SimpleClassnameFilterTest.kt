@@ -1,7 +1,6 @@
 package com.malinskiy.marathon.execution.filter
 
-import com.malinskiy.marathon.exceptions.ConfigurationException
-import com.malinskiy.marathon.execution.SimpleClassnameFilter
+import com.malinskiy.marathon.config.exceptions.ConfigurationException
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldEqual
 import org.junit.jupiter.api.Test

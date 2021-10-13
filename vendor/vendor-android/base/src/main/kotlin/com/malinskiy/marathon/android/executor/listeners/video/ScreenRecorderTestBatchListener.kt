@@ -1,15 +1,15 @@
 package com.malinskiy.marathon.android.executor.listeners.video
 
 import com.malinskiy.marathon.android.AndroidDevice
-import com.malinskiy.marathon.android.VideoConfiguration
 import com.malinskiy.marathon.android.exception.TransferException
 import com.malinskiy.marathon.android.executor.listeners.NoOpTestRunListener
 import com.malinskiy.marathon.android.model.TestIdentifier
+import com.malinskiy.marathon.config.ScreenRecordingPolicy
+import com.malinskiy.marathon.config.vendor.android.VideoConfiguration
 import com.malinskiy.marathon.device.DevicePoolId
 import com.malinskiy.marathon.device.toDeviceInfo
 import com.malinskiy.marathon.execution.Attachment
 import com.malinskiy.marathon.execution.AttachmentType
-import com.malinskiy.marathon.execution.policy.ScreenRecordingPolicy
 import com.malinskiy.marathon.extension.withTimeoutOrNull
 import com.malinskiy.marathon.io.FileManager
 import com.malinskiy.marathon.io.FileType

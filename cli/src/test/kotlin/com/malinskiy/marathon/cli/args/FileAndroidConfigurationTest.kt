@@ -1,12 +1,12 @@
 package com.malinskiy.marathon.cli.args
 
-import com.malinskiy.marathon.android.ScreenRecordConfiguration
 import com.malinskiy.marathon.android.VendorType
 import com.malinskiy.marathon.android.configuration.AllureConfiguration
-import com.malinskiy.marathon.android.configuration.FileSyncConfiguration
-import com.malinskiy.marathon.android.configuration.SerialStrategy
-import com.malinskiy.marathon.android.configuration.TimeoutConfiguration
-import com.malinskiy.marathon.exceptions.ConfigurationException
+import com.malinskiy.marathon.config.exceptions.ConfigurationException
+import com.malinskiy.marathon.config.vendor.android.FileSyncConfiguration
+import com.malinskiy.marathon.config.vendor.android.ScreenRecordConfiguration
+import com.malinskiy.marathon.config.vendor.android.SerialStrategy
+import com.malinskiy.marathon.config.vendor.android.TimeoutConfiguration
 import org.amshove.kluent.shouldEqual
 import org.amshove.kluent.shouldThrow
 import org.junit.jupiter.api.Test

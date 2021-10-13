@@ -1,10 +1,10 @@
 package com.malinskiy.marathon.android.adam
 
-import com.malinskiy.marathon.android.AndroidConfiguration
 import com.malinskiy.marathon.android.adam.di.adamModule
 import com.malinskiy.marathon.android.configuration.AllureConfiguration
-import com.malinskiy.marathon.android.configuration.FileSyncConfiguration
-import com.malinskiy.marathon.execution.Configuration
+import com.malinskiy.marathon.config.Configuration
+import com.malinskiy.marathon.config.vendor.android.AndroidConfiguration
+import com.malinskiy.marathon.config.vendor.android.FileSyncConfiguration
 import java.io.File
 
 object TestConfigurationFactory {

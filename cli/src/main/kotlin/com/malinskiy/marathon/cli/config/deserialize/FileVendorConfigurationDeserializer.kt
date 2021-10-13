@@ -10,7 +10,7 @@ import com.fasterxml.jackson.module.kotlin.treeToValue
 import com.malinskiy.marathon.cli.args.FileAndroidConfiguration
 import com.malinskiy.marathon.cli.args.FileIOSConfiguration
 import com.malinskiy.marathon.cli.args.FileVendorConfiguration
-import com.malinskiy.marathon.exceptions.ConfigurationException
+import com.malinskiy.marathon.config.exceptions.ConfigurationException
 
 const val TYPE_ANDROID = "Android"
 const val TYPE_IOS = "iOS"

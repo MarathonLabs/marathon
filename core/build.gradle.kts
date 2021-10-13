@@ -34,6 +34,7 @@ buildConfig {
 }
 
 dependencies {
+    api(project(":configuration"))
     implementation(project(":report:html-report"))
     implementation(project(":report:execution-timeline"))
 

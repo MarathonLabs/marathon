@@ -2,10 +2,10 @@ package com.malinskiy.marathon.execution.queue
 
 import com.malinskiy.marathon.analytics.external.Analytics
 import com.malinskiy.marathon.analytics.internal.pub.Track
+import com.malinskiy.marathon.config.Configuration
 import com.malinskiy.marathon.device.DevicePoolId
 import com.malinskiy.marathon.device.DeviceStub
 import com.malinskiy.marathon.device.toDeviceInfo
-import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.execution.DevicePoolMessage.FromQueue
 import com.malinskiy.marathon.execution.TestBatchResults
 import com.malinskiy.marathon.execution.TestResult

@@ -13,8 +13,8 @@ import com.malinskiy.marathon.android.adam.installApk
 import com.malinskiy.marathon.android.adam.shell
 import com.malinskiy.marathon.android.adam.shellFail
 import com.malinskiy.marathon.android.configuration.AggregationMode
-import com.malinskiy.marathon.android.configuration.FileSyncConfiguration
 import com.malinskiy.marathon.android.configuration.FileSyncEntry
+import com.malinskiy.marathon.config.vendor.android.FileSyncConfiguration
 import com.malinskiy.marathon.exceptions.DeviceSetupException
 import com.nhaarman.mockitokotlin2.mock
 import kotlinx.coroutines.runBlocking

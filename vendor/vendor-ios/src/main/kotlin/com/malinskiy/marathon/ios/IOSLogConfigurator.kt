@@ -7,22 +7,20 @@ import ch.qos.logback.classic.PatternLayout
 import ch.qos.logback.classic.spi.ILoggingEvent
 import ch.qos.logback.core.ConsoleAppender
 import ch.qos.logback.core.encoder.LayoutWrappingEncoder
+import com.malinskiy.marathon.config.vendor.VendorConfiguration
 import com.malinskiy.marathon.log.MarathonLogConfigurator
 import com.malinskiy.marathon.report.timeline.TimelineSummaryProvider
-import com.malinskiy.marathon.vendor.VendorConfiguration
 import net.schmizz.sshj.DefaultConfig
 import net.schmizz.sshj.common.KeyType
 import net.schmizz.sshj.transport.kex.Curve25519SHA256
 import net.schmizz.sshj.transport.random.BouncyCastleRandom
 import org.slf4j.LoggerFactory
 
-class IOSLogConfigurator : MarathonLogConfigurator {
-    override fun configure(vendorConfiguration: VendorConfiguration) {
-        val iosConfiguration = vendorConfiguration as? IOSConfiguration
-
+class IOSLogConfigurator(private val vendorConfiguration: VendorConfiguration.IOSConfiguration) : MarathonLogConfigurator {
+    override fun configure() {
         val loggerContext = LoggerFactory.getILoggerFactory() as LoggerContext
 
-        val compactOutput = iosConfiguration?.compactOutput ?: false
+        val compactOutput = vendorConfiguration.compactOutput
         val layout = PatternLayout()
         layout.pattern = if (compactOutput) {
             "%highlight(%.-1level [%thread] <%logger{48}> %msg%n)"
@@ -30,7 +28,7 @@ class IOSLogConfigurator : MarathonLogConfigurator {
             "%highlight(%.-1level %d{HH:mm:ss.SSS} [%thread] <%logger{40}> %msg%n)"
         }
         layout.context = loggerContext
-        layout.start();
+        layout.start()
 
         val encoder = LayoutWrappingEncoder<ILoggingEvent>()
         encoder.context = loggerContext

@@ -1,8 +1,8 @@
 package com.malinskiy.marathon.execution.progress
 
+import com.malinskiy.marathon.config.Configuration
 import com.malinskiy.marathon.device.DevicePoolId
 import com.malinskiy.marathon.device.toDeviceInfo
-import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.test.Mocks
 import com.malinskiy.marathon.test.StubDevice
 import com.malinskiy.marathon.test.StubDeviceProvider

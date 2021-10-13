@@ -2,7 +2,8 @@ package com.malinskiy.marathon.ios
 
 import com.github.fracpete.processoutput4j.output.CollectingProcessOutput
 import com.github.fracpete.rsync4j.RSync
-import com.malinskiy.marathon.execution.Configuration
+import com.malinskiy.marathon.config.Configuration
+import com.malinskiy.marathon.config.vendor.VendorConfiguration
 import com.malinskiy.marathon.extension.relativePathTo
 import com.malinskiy.marathon.log.MarathonLogging
 import java.io.File
@@ -21,7 +22,8 @@ class DerivedDataManager(val configuration: Configuration) {
 
     private val logger = MarathonLogging.logger(javaClass.simpleName)
 
-    private val iosConfiguration: IOSConfiguration = configuration.vendorConfiguration as IOSConfiguration
+    private val iosConfiguration: VendorConfiguration.IOSConfiguration =
+        configuration.vendorConfiguration as VendorConfiguration.IOSConfiguration
 
     val productsDir: File
         get() = iosConfiguration.derivedDataDir.resolve(PRODUCTS_PATH)
@@ -114,13 +116,13 @@ class DerivedDataManager(val configuration: Configuration) {
 
     private fun getSshString(port: Int): String {
         return "ssh -o 'StrictHostKeyChecking no' -F /dev/null " +
-                "-i ${iosConfiguration.remotePrivateKey} " +
-                "-l ${iosConfiguration.remoteUsername} " +
-                "-p ${port.toString()} " +
-                when (configuration.debug && iosConfiguration.debugSsh) {
-                    true -> "-vvv"
-                    else -> ""
-                }
+            "-i ${iosConfiguration.remotePrivateKey} " +
+            "-l ${iosConfiguration.remoteUsername} " +
+            "-p ${port.toString()} " +
+            when (configuration.debug && iosConfiguration.debugSsh) {
+                true -> "-vvv"
+                else -> ""
+            }
     }
 }
 

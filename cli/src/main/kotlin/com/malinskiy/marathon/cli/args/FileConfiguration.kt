@@ -1,14 +1,14 @@
 package com.malinskiy.marathon.cli.args
 
-import com.malinskiy.marathon.execution.AnalyticsConfiguration
-import com.malinskiy.marathon.execution.FilteringConfiguration
-import com.malinskiy.marathon.execution.policy.ScreenRecordingPolicy
-import com.malinskiy.marathon.execution.strategy.BatchingStrategy
-import com.malinskiy.marathon.execution.strategy.FlakinessStrategy
-import com.malinskiy.marathon.execution.strategy.PoolingStrategy
-import com.malinskiy.marathon.execution.strategy.RetryStrategy
-import com.malinskiy.marathon.execution.strategy.ShardingStrategy
-import com.malinskiy.marathon.execution.strategy.SortingStrategy
+import com.malinskiy.marathon.config.AnalyticsConfiguration
+import com.malinskiy.marathon.config.FilteringConfiguration
+import com.malinskiy.marathon.config.ScreenRecordingPolicy
+import com.malinskiy.marathon.config.strategy.BatchingStrategyConfiguration
+import com.malinskiy.marathon.config.strategy.FlakinessStrategyConfiguration
+import com.malinskiy.marathon.config.strategy.PoolingStrategyConfiguration
+import com.malinskiy.marathon.config.strategy.RetryStrategyConfiguration
+import com.malinskiy.marathon.config.strategy.ShardingStrategyConfiguration
+import com.malinskiy.marathon.config.strategy.SortingStrategyConfiguration
 import java.io.File
 
 data class FileConfiguration(
@@ -16,12 +16,12 @@ data class FileConfiguration(
     var outputDir: File,
 
     var analyticsConfiguration: AnalyticsConfiguration?,
-    var poolingStrategy: PoolingStrategy?,
-    var shardingStrategy: ShardingStrategy?,
-    var sortingStrategy: SortingStrategy?,
-    var batchingStrategy: BatchingStrategy?,
-    var flakinessStrategy: FlakinessStrategy?,
-    var retryStrategy: RetryStrategy?,
+    var poolingStrategy: PoolingStrategyConfiguration?,
+    var shardingStrategy: ShardingStrategyConfiguration?,
+    var sortingStrategy: SortingStrategyConfiguration?,
+    var batchingStrategy: BatchingStrategyConfiguration?,
+    var flakinessStrategy: FlakinessStrategyConfiguration?,
+    var retryStrategy: RetryStrategyConfiguration?,
     var filteringConfiguration: FilteringConfiguration?,
 
     var ignoreFailures: Boolean?,

@@ -9,15 +9,14 @@ import com.malinskiy.adam.request.device.ListDevicesRequest
 import com.malinskiy.adam.request.misc.GetAdbServerVersionRequest
 import com.malinskiy.marathon.actor.unboundedChannel
 import com.malinskiy.marathon.analytics.internal.pub.Track
-import com.malinskiy.marathon.android.AndroidConfiguration
 import com.malinskiy.marathon.android.AndroidTestBundleIdentifier
 import com.malinskiy.marathon.android.exception.AdbStartException
+import com.malinskiy.marathon.config.Configuration
+import com.malinskiy.marathon.config.vendor.VendorConfiguration
 import com.malinskiy.marathon.device.DeviceProvider
 import com.malinskiy.marathon.exceptions.NoDevicesException
-import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.time.Timer
-import com.malinskiy.marathon.vendor.VendorConfiguration
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
@@ -40,7 +39,8 @@ private const val DEFAULT_WAIT_FOR_DEVICES_SLEEP_TIME = 500L
 
 class AdamDeviceProvider(
     val configuration: Configuration,
-    androidConfiguration: AndroidConfiguration,
+    private val testBundleIdentifier: AndroidTestBundleIdentifier,
+    private val vendorConfiguration: VendorConfiguration.AndroidConfiguration,
     private val track: Track,
     private val timer: Timer
 ) : DeviceProvider, CoroutineScope {
@@ -49,7 +49,7 @@ class AdamDeviceProvider(
 
     private val channel: Channel<DeviceProvider.DeviceEvent> = unboundedChannel()
     override val coroutineContext: CoroutineContext by lazy { newFixedThreadPoolContext(1, "DeviceMonitor") }
-    private val adbCommunicationContext: CoroutineContext by lazy { newFixedThreadPoolContext(androidConfiguration.threadingConfiguration.adbIoThreads, "AdbIOThreadPool") }
+    private val adbCommunicationContext: CoroutineContext by lazy { newFixedThreadPoolContext(vendorConfiguration.threadingConfiguration.adbIoThreads, "AdbIOThreadPool") }
     private val setupSupervisor = SupervisorJob()
     private var providerJob: Job? = null
 
@@ -58,22 +58,16 @@ class AdamDeviceProvider(
     private lateinit var client: AndroidDebugBridgeClient
     private lateinit var logcatManager: LogcatManager
     private lateinit var deviceEventsChannel: ReceiveChannel<List<Device>>
-    private lateinit var testBundleIdentifier: AndroidTestBundleIdentifier
     private val deviceEventsChannelMutex = Mutex()
     private val deviceStateTracker = DeviceStateTracker()
 
 
-    override suspend fun initialize(vendorConfiguration: VendorConfiguration) {
-        if (vendorConfiguration !is AndroidConfiguration) {
-            throw IllegalStateException("Invalid configuration $vendorConfiguration passed")
-        }
-
+    override suspend fun initialize() {
         client = AndroidDebugBridgeClientFactory().apply {
             coroutineContext = adbCommunicationContext
             idleTimeout = vendorConfiguration.timeoutConfiguration.socketIdleTimeout
         }.build()
         logcatManager = LogcatManager(client)
-        testBundleIdentifier = vendorConfiguration.testBundleIdentifier() as AndroidTestBundleIdentifier
 
         try {
             printAdbServerVersion()

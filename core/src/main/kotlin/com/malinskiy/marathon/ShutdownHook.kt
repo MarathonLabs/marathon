@@ -1,6 +1,6 @@
 package com.malinskiy.marathon
 
-import com.malinskiy.marathon.execution.Configuration
+import com.malinskiy.marathon.config.Configuration
 
 class ShutdownHook(
     configuration: Configuration,

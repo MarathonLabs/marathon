@@ -1,7 +1,7 @@
 package com.malinskiy.marathon.android
 
 import com.malinskiy.marathon.android.model.AndroidTestBundle
-import com.malinskiy.marathon.exceptions.ConfigurationException
+import com.malinskiy.marathon.config.exceptions.ConfigurationException
 import com.malinskiy.marathon.execution.bundle.TestBundleIdentifier
 import com.malinskiy.marathon.test.Test
 import com.malinskiy.marathon.test.toHumanReadableTestName

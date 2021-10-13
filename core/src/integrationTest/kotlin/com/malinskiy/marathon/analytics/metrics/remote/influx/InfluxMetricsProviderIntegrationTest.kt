@@ -4,7 +4,7 @@ import com.malinskiy.marathon.analytics.external.influx.InfluxDbProvider
 import com.malinskiy.marathon.analytics.external.influx.InfluxDbTracker
 import com.malinskiy.marathon.analytics.metrics.remote.BaseMetricsProviderIntegrationTest
 import com.malinskiy.marathon.analytics.metrics.remote.getTestEvents
-import com.malinskiy.marathon.execution.AnalyticsConfiguration
+import com.malinskiy.marathon.config.AnalyticsConfiguration
 import org.influxdb.InfluxDB
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll

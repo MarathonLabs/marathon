@@ -5,13 +5,13 @@ import com.malinskiy.adam.server.junit5.AdbClient
 import com.malinskiy.adam.server.junit5.AdbServer
 import com.malinskiy.adam.server.junit5.AdbTest
 import com.malinskiy.adam.server.stub.AndroidDebugBridgeServer
-import com.malinskiy.marathon.android.ScreenshotConfiguration
 import com.malinskiy.marathon.android.adam.TestConfigurationFactory
 import com.malinskiy.marathon.android.adam.TestDeviceFactory
 import com.malinskiy.marathon.android.adam.boot
 import com.malinskiy.marathon.android.adam.features
 import com.malinskiy.marathon.android.adam.framebuffer
 import com.malinskiy.marathon.android.model.TestIdentifier
+import com.malinskiy.marathon.config.vendor.android.ScreenshotConfiguration
 import com.malinskiy.marathon.device.DevicePoolId
 import com.malinskiy.marathon.device.toDeviceInfo
 import com.malinskiy.marathon.execution.Attachment
@@ -70,7 +70,7 @@ class ScreenCapturerTestRunListenerTest {
                 devicePoolId,
                 batch.id,
                 device,
-                ScreenRecordingPolicy.ON_FAILURE,
+                com.malinskiy.marathon.execution.policy.ScreenRecordingPolicy.ON_FAILURE,
                 ScreenshotConfiguration(),
                 Duration.ofMillis(300),
                 this
@@ -115,7 +115,7 @@ class ScreenCapturerTestRunListenerTest {
                 devicePoolId,
                 batch.id,
                 device,
-                ScreenRecordingPolicy.ON_FAILURE,
+                com.malinskiy.marathon.execution.policy.ScreenRecordingPolicy.ON_FAILURE,
                 ScreenshotConfiguration(),
                 Duration.ofMillis(300),
                 this

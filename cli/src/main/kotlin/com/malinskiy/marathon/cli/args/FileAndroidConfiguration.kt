@@ -1,22 +1,19 @@
 package com.malinskiy.marathon.cli.args
 
 import com.fasterxml.jackson.annotation.JsonProperty
-import com.malinskiy.marathon.android.AndroidConfiguration
-import com.malinskiy.marathon.android.DEFAULT_INSTALL_OPTIONS
-import com.malinskiy.marathon.android.DEFAULT_WAIT_FOR_DEVICES_TIMEOUT
-import com.malinskiy.marathon.android.ScreenRecordConfiguration
 import com.malinskiy.marathon.android.VendorType
-import com.malinskiy.marathon.android.adam.di.adamModule
-import com.malinskiy.marathon.android.configuration.AllureConfiguration
-import com.malinskiy.marathon.android.configuration.DEFAULT_ALLURE_CONFIGURATION
-import com.malinskiy.marathon.android.configuration.FileSyncConfiguration
-import com.malinskiy.marathon.android.configuration.SerialStrategy
-import com.malinskiy.marathon.android.configuration.ThreadingConfiguration
-import com.malinskiy.marathon.android.configuration.TimeoutConfiguration
-import com.malinskiy.marathon.android.defaultInitTimeoutMillis
-import com.malinskiy.marathon.android.model.AndroidTestBundle
-import com.malinskiy.marathon.exceptions.ConfigurationException
-import ddmlibModule
+import com.malinskiy.marathon.config.exceptions.ConfigurationException
+import com.malinskiy.marathon.config.vendor.DEFAULT_INIT_TIMEOUT_MILLIS
+import com.malinskiy.marathon.config.vendor.DEFAULT_INSTALL_OPTIONS
+import com.malinskiy.marathon.config.vendor.DEFAULT_WAIT_FOR_DEVICES_TIMEOUT
+import com.malinskiy.marathon.config.vendor.VendorConfiguration
+import com.malinskiy.marathon.config.vendor.android.AllureConfiguration
+import com.malinskiy.marathon.config.vendor.android.AndroidTestBundleConfiguration
+import com.malinskiy.marathon.config.vendor.android.FileSyncConfiguration
+import com.malinskiy.marathon.config.vendor.android.ScreenRecordConfiguration
+import com.malinskiy.marathon.config.vendor.android.SerialStrategy
+import com.malinskiy.marathon.config.vendor.android.ThreadingConfiguration
+import com.malinskiy.marathon.config.vendor.android.TimeoutConfiguration
 import java.io.File
 
 data class FileAndroidConfiguration(
@@ -24,7 +21,7 @@ data class FileAndroidConfiguration(
     @JsonProperty("androidSdk") val androidSdk: File?,
     @JsonProperty("applicationApk") val applicationOutput: File?,
     @JsonProperty("testApplicationApk") val testApplicationOutput: File?,
-    @JsonProperty("outputs") val outputs: List<AndroidTestBundle>?,
+    @JsonProperty("outputs") val outputs: List<AndroidTestBundleConfiguration>?,
     @JsonProperty("autoGrantPermission") val autoGrantPermission: Boolean?,
     @JsonProperty("instrumentationArgs") val instrumentationArgs: Map<String, String>?,
     @JsonProperty("applicationPmClear") val applicationPmClear: Boolean?,
@@ -40,17 +37,12 @@ data class FileAndroidConfiguration(
     @JsonProperty("threadingConfiguration") val threadingConfiguration: ThreadingConfiguration = ThreadingConfiguration(),
 ) : FileVendorConfiguration {
 
-    fun toAndroidConfiguration(environmentAndroidSdk: File?): AndroidConfiguration {
+    fun toAndroidConfiguration(environmentAndroidSdk: File?): VendorConfiguration.AndroidConfiguration {
         val finalAndroidSdk = androidSdk
             ?: environmentAndroidSdk
             ?: throw ConfigurationException("No android SDK path specified")
 
-        val implementationModules = when (vendor) {
-            VendorType.ADAM -> listOf(adamModule)
-            VendorType.DDMLIB -> listOf(ddmlibModule)
-        }
-
-        return AndroidConfiguration(
+        return VendorConfiguration.AndroidConfiguration(
             androidSdk = finalAndroidSdk,
             applicationOutput = applicationOutput,
             testApplicationOutput = testApplicationOutput,
@@ -59,14 +51,12 @@ data class FileAndroidConfiguration(
             instrumentationArgs = instrumentationArgs ?: emptyMap(),
             applicationPmClear = applicationPmClear ?: false,
             testApplicationPmClear = testApplicationPmClear ?: false,
-            adbInitTimeoutMillis = adbInitTimeoutMillis ?: defaultInitTimeoutMillis,
+            adbInitTimeoutMillis = adbInitTimeoutMillis ?: DEFAULT_INIT_TIMEOUT_MILLIS,
             installOptions = installOptions ?: DEFAULT_INSTALL_OPTIONS,
             serialStrategy = serialStrategy,
             screenRecordConfiguration = screenRecordConfiguration,
             waitForDevicesTimeoutMillis = waitForDevicesTimeoutMillis ?: DEFAULT_WAIT_FOR_DEVICES_TIMEOUT,
-            implementationModules = implementationModules,
-            allureConfiguration = allureConfiguration
-                ?: DEFAULT_ALLURE_CONFIGURATION,
+            allureConfiguration = allureConfiguration ?: AllureConfiguration(),
             timeoutConfiguration = timeoutConfiguration,
             fileSyncConfiguration = fileSyncConfiguration,
             threadingConfiguration = threadingConfiguration,

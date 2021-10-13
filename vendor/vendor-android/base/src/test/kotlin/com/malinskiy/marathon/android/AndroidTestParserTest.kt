@@ -1,6 +1,7 @@
 package com.malinskiy.marathon.android
 
-import com.malinskiy.marathon.execution.Configuration
+import com.malinskiy.marathon.config.Configuration
+import com.malinskiy.marathon.config.vendor.android.AndroidConfiguration
 import com.malinskiy.marathon.test.MetaProperty
 import org.amshove.kluent.shouldEqual
 import org.junit.jupiter.api.Test
