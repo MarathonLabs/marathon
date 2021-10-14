@@ -11,7 +11,7 @@ class AndroidTestParserTest {
     private val testBundleIdentifier = AndroidTestBundleIdentifier()
     private val apkFile = File(javaClass.classLoader.getResource("android_test_1.apk").file)
     private val vendorConfiguration = VendorConfiguration.AndroidConfiguration(
-        File(""),
+        androidSdk = File(""),
         applicationOutput = File(""),
         testApplicationOutput = apkFile,
     )

@@ -63,7 +63,7 @@ class DdmlibDeviceProvider(
             .build()
         AndroidDebugBridge.init(adbInitOptions)
 
-        val absolutePath = Paths.get(vendorConfiguration.androidSdk.absolutePath, "platform-tools", "adb").toFile().absolutePath
+        val absolutePath = Paths.get(vendorConfiguration.safeAndroidSdk().absolutePath, "platform-tools", "adb").toFile().absolutePath
 
         val listener = object : AndroidDebugBridge.IDeviceChangeListener {
             override fun deviceChanged(device: IDevice?, changeMask: Int) {

@@ -21,33 +21,14 @@ import com.malinskiy.marathon.test.Test as MarathonTest
 
 
 class ExecutionReportTest {
-    val configuration = Configuration(
+    val configuration = Configuration.Builder(
         name = "",
         outputDir = File("src/test/resources/output/"),
-        analyticsConfiguration = AnalyticsConfiguration.DisabledAnalytics,
-        poolingStrategy = null,
-        shardingStrategy = null,
-        sortingStrategy = null,
-        batchingStrategy = null,
-        flakinessStrategy = null,
-        retryStrategy = null,
-        filteringConfiguration = null,
-        ignoreFailures = null,
-        isCodeCoverageEnabled = null,
-        fallbackToScreenshots = null,
-        strictMode = null,
-        uncompletedTestRetryQuota = null,
-        testClassRegexes = null,
-        includeSerialRegexes = null,
-        excludeSerialRegexes = null,
-        testBatchTimeoutMillis = null,
-        testOutputTimeoutMillis = null,
-        debug = null,
-        screenRecordingPolicy = null,
         vendorConfiguration = VendorConfiguration.StubVendorConfiguration,
-        analyticsTracking = false,
-        deviceInitializationTimeoutMillis = null
-    )
+    ).apply {
+        analyticsConfiguration = AnalyticsConfiguration.DisabledAnalytics
+        analyticsTracking = false
+    }.build()
 
     private val reportWithoutRetries: ExecutionReport by lazy {
         val device = DeviceInfo(

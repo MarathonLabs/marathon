@@ -36,29 +36,9 @@ class DerivedDataManagerTest {
         File(javaClass.classLoader.getResource("sample-xcworkspace/derived-data").file)
     private val xctestrunPath =
         File(javaClass.classLoader.getResource("sample-xcworkspace/derived-data/Build/Products/UITesting_iphonesimulator11.2-x86_64.xctestrun").file)
-    private val configuration = Configuration(
+    private val configuration = Configuration.Builder(
         name = "",
         outputDir = File(""),
-        analyticsConfiguration = null,
-        poolingStrategy = null,
-        shardingStrategy = null,
-        sortingStrategy = null,
-        batchingStrategy = null,
-        flakinessStrategy = null,
-        retryStrategy = null,
-        filteringConfiguration = null,
-        ignoreFailures = null,
-        isCodeCoverageEnabled = null,
-        fallbackToScreenshots = null,
-        strictMode = null,
-        uncompletedTestRetryQuota = null,
-        testClassRegexes = null,
-        includeSerialRegexes = null,
-        excludeSerialRegexes = null,
-        testBatchTimeoutMillis = null,
-        testOutputTimeoutMillis = null,
-        debug = false,
-        screenRecordingPolicy = null,
         vendorConfiguration = VendorConfiguration.IOSConfiguration(
             derivedDataDir = derivedDataDir,
             xctestrunPath = xctestrunPath,
@@ -69,10 +49,11 @@ class DerivedDataManagerTest {
             sourceRoot = sourceRoot,
             debugSsh = false,
             alwaysEraseSimulators = true
-        ),
-        analyticsTracking = false,
-        deviceInitializationTimeoutMillis = null
-    )
+        )
+    ).apply {
+        debug = false
+        analyticsTracking = false
+    }.build()
 
     @BeforeEach
     fun `setup mocks`() {

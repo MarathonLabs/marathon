@@ -29,7 +29,7 @@ class DerivedDataManager(val configuration: Configuration) {
         get() = iosConfiguration.derivedDataDir.resolve(PRODUCTS_PATH)
 
     val xctestrunFile: File
-        get() = iosConfiguration.xctestrunPath
+        get() = iosConfiguration.safecxtestrunPath()
 
     init {
         if (configuration.debug) {

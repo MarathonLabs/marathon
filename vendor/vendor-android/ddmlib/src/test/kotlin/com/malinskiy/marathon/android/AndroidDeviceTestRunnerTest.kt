@@ -58,37 +58,15 @@ class AndroidDeviceTestRunnerTest {
         )
         val output = File("")
         val vendorConfiguration = VendorConfiguration.AndroidConfiguration(
-            File(""),
+            androidSdk = File(""),
             applicationOutput = File(""),
             testApplicationOutput = apkFile,
         )
-        val configuration = Configuration(
+        val configuration = Configuration.Builder(
             name = "",
             outputDir = output,
-            analyticsConfiguration = null,
-            poolingStrategy = null,
-            shardingStrategy = null,
-            sortingStrategy = null,
-            batchingStrategy = null,
-            flakinessStrategy = null,
-            retryStrategy = null,
-            filteringConfiguration = null,
-            ignoreFailures = null,
-            isCodeCoverageEnabled = null,
-            fallbackToScreenshots = null,
-            strictMode = null,
-            uncompletedTestRetryQuota = null,
-            testClassRegexes = null,
-            includeSerialRegexes = null,
-            excludeSerialRegexes = null,
-            testBatchTimeoutMillis = null,
-            testOutputTimeoutMillis = null,
-            debug = null,
-            screenRecordingPolicy = null,
             vendorConfiguration = vendorConfiguration,
-            analyticsTracking = false,
-            deviceInitializationTimeoutMillis = null
-        )
+        ).apply { analyticsTracking = false }.build()
 
         val device = DdmlibAndroidDevice(
             ddmsDevice,
@@ -137,37 +115,15 @@ class AndroidDeviceTestRunnerTest {
             )
         )
         val output = File("")
-        val configuration = Configuration(
+        val configuration = Configuration.Builder(
             name = "",
             outputDir = output,
-            analyticsConfiguration = null,
-            poolingStrategy = null,
-            shardingStrategy = null,
-            sortingStrategy = null,
-            batchingStrategy = null,
-            flakinessStrategy = null,
-            retryStrategy = null,
-            filteringConfiguration = null,
-            ignoreFailures = null,
-            isCodeCoverageEnabled = null,
-            fallbackToScreenshots = null,
-            strictMode = null,
-            uncompletedTestRetryQuota = null,
-            testClassRegexes = null,
-            includeSerialRegexes = null,
-            excludeSerialRegexes = null,
-            testBatchTimeoutMillis = null,
-            testOutputTimeoutMillis = null,
-            debug = null,
-            screenRecordingPolicy = null,
             vendorConfiguration = VendorConfiguration.AndroidConfiguration(
-                File(""),
+                androidSdk = File(""),
                 applicationOutput = File(""),
                 testApplicationOutput = apkFile,
             ),
-            analyticsTracking = false,
-            deviceInitializationTimeoutMillis = null
-        )
+        ).apply { analyticsTracking = false }.build()
 
         val device =
             DdmlibAndroidDevice(

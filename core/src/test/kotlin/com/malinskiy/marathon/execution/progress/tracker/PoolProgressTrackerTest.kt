@@ -16,33 +16,15 @@ class PoolProgressTrackerTest {
     )
 
     private fun createConfiguration(strictMode: Boolean): Configuration {
-        return Configuration(
+        return Configuration.Builder(
             name = "",
             outputDir = File(""),
-            analyticsConfiguration = null,
-            poolingStrategy = null,
-            shardingStrategy = null,
-            sortingStrategy = null,
-            batchingStrategy = null,
-            flakinessStrategy = null,
-            retryStrategy = null,
-            filteringConfiguration = null,
-            ignoreFailures = null,
-            isCodeCoverageEnabled = null,
-            fallbackToScreenshots = null,
-            strictMode = strictMode,
-            uncompletedTestRetryQuota = null,
-            testClassRegexes = null,
-            includeSerialRegexes = null,
-            excludeSerialRegexes = null,
-            testBatchTimeoutMillis = null,
-            testOutputTimeoutMillis = null,
-            debug = false,
-            screenRecordingPolicy = null,
             vendorConfiguration = VendorConfiguration.StubVendorConfiguration,
-            analyticsTracking = false,
-            deviceInitializationTimeoutMillis = null
-        )
+        ).apply {
+            this.strictMode = strictMode
+            debug = false
+            analyticsTracking = false
+        }.build()
     }
 
     @Test

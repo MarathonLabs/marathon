@@ -15,37 +15,15 @@ class AndroidDeviceProviderTest {
     @Test
     fun `terminate should close the channel`() {
         val vendorConfiguration = VendorConfiguration.AndroidConfiguration(
-            File(""),
+            androidSdk = File(""),
             applicationOutput = File(""),
             testApplicationOutput = File(""),
         )
-        val configuration = Configuration(
+        val configuration = Configuration.Builder(
             name = "",
             outputDir = File(""),
-            analyticsConfiguration = null,
-            poolingStrategy = null,
-            shardingStrategy = null,
-            sortingStrategy = null,
-            batchingStrategy = null,
-            flakinessStrategy = null,
-            retryStrategy = null,
-            filteringConfiguration = null,
-            ignoreFailures = null,
-            isCodeCoverageEnabled = null,
-            fallbackToScreenshots = null,
-            strictMode = null,
-            uncompletedTestRetryQuota = null,
-            testClassRegexes = null,
-            includeSerialRegexes = null,
-            excludeSerialRegexes = null,
-            testBatchTimeoutMillis = null,
-            testOutputTimeoutMillis = null,
-            debug = null,
-            screenRecordingPolicy = null,
             vendorConfiguration = vendorConfiguration,
-            analyticsTracking = false,
-            deviceInitializationTimeoutMillis = null
-        )
+        ).apply { analyticsTracking = false }.build()
         val provider = DdmlibDeviceProvider(
             configuration,
             AndroidTestBundleIdentifier(),

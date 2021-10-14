@@ -45,7 +45,6 @@ dependencies {
     implementation(project(":analytics:usage"))
     implementation(Libraries.gson)
     implementation(Libraries.jacksonAnnotations)
-    implementation(Libraries.apacheCommonsText)
     implementation(Libraries.apacheCommonsIO)
     implementation(Libraries.kotlinStdLib)
     implementation(Libraries.kotlinCoroutines)

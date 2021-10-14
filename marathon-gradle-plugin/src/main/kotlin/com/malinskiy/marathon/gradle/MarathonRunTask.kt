@@ -4,7 +4,6 @@ import com.android.build.gradle.api.BaseVariant
 import com.android.build.gradle.api.TestVariant
 import com.malinskiy.marathon.Marathon
 import com.malinskiy.marathon.android.AndroidVendor
-import com.malinskiy.marathon.android.VendorType
 import com.malinskiy.marathon.android.adam.di.adamModule
 import com.malinskiy.marathon.config.Configuration
 import com.malinskiy.marathon.config.vendor.DEFAULT_APPLICATION_PM_CLEAR
@@ -85,33 +84,34 @@ open class MarathonRunTask @Inject constructor(objects: ObjectFactory) : Default
 
         val (vendorConfiguration, modules) = createAndroid(extensionConfig, applicationApk, instrumentationApk)
 
-        val cnf = Configuration(
+        val cnf = Configuration.Builder(
             name = extensionConfig.name,
             outputDir = output,
-            analyticsConfiguration = extensionConfig.analyticsConfiguration?.toAnalyticsConfiguration(),
-            poolingStrategy = extensionConfig.poolingStrategy?.toStrategy(),
-            extensionConfig.shardingStrategy?.toStrategy(),
-            extensionConfig.sortingStrategy?.toStrategy(),
-            extensionConfig.batchingStrategy?.toStrategy(),
-            extensionConfig.flakinessStrategy?.toStrategy(),
-            extensionConfig.retryStrategy?.toStrategy(),
-            extensionConfig.filteringConfiguration?.toFilteringConfiguration(),
-            extensionConfig.ignoreFailures,
-            extensionConfig.isCodeCoverageEnabled,
-            extensionConfig.fallbackToScreenshots,
-            extensionConfig.strictMode,
-            extensionConfig.uncompletedTestRetryQuota,
-            extensionConfig.testClassRegexes?.map { it.toRegex() },
-            extensionConfig.includeSerialRegexes?.map { it.toRegex() },
-            extensionConfig.excludeSerialRegexes?.map { it.toRegex() },
-            extensionConfig.testBatchTimeoutMillis,
-            extensionConfig.testOutputTimeoutMillis,
-            extensionConfig.debug,
-            extensionConfig.screenRecordingPolicy,
-            vendorConfiguration = vendorConfiguration,
-            analyticsTracking = extensionConfig.analyticsTracking,
-            deviceInitializationTimeoutMillis = extensionConfig.deviceInitializationTimeoutMillis
-        )
+            vendorConfiguration = vendorConfiguration
+        ).apply {
+            extensionConfig.analyticsConfiguration?.toAnalyticsConfiguration()?.let { analyticsConfiguration = it }
+            extensionConfig.poolingStrategy?.toStrategy()?.let { poolingStrategy = it }
+            extensionConfig.shardingStrategy?.toStrategy()?.let { shardingStrategy = it }
+            extensionConfig.sortingStrategy?.toStrategy()?.let { sortingStrategy = it }
+            extensionConfig.batchingStrategy?.toStrategy()?.let { batchingStrategy = it }
+            extensionConfig.flakinessStrategy?.toStrategy()?.let { flakinessStrategy = it }
+            extensionConfig.retryStrategy?.toStrategy()?.let { retryStrategy = it }
+            extensionConfig.filteringConfiguration?.toFilteringConfiguration()?.let { filteringConfiguration = it }
+            extensionConfig.ignoreFailures?.let { ignoreFailures = it }
+            extensionConfig.isCodeCoverageEnabled?.let { isCodeCoverageEnabled = it }
+            extensionConfig.fallbackToScreenshots?.let { fallbackToScreenshots = it }
+            extensionConfig.strictMode?.let { strictMode = it }
+            extensionConfig.uncompletedTestRetryQuota?.let { uncompletedTestRetryQuota = it }
+            extensionConfig.testClassRegexes?.map { it.toRegex() }?.let { testClassRegexes = it }
+            extensionConfig.includeSerialRegexes?.map { it.toRegex() }?.let { includeSerialRegexes = it }
+            extensionConfig.excludeSerialRegexes?.map { it.toRegex() }?.let { excludeSerialRegexes = it }
+            extensionConfig.testBatchTimeoutMillis?.let { testBatchTimeoutMillis = it }
+            extensionConfig.testOutputTimeoutMillis?.let { testOutputTimeoutMillis = it }
+            extensionConfig.debug?.let { debug = it }
+            extensionConfig.screenRecordingPolicy?.let { screenRecordingPolicy = it }
+            extensionConfig.analyticsTracking?.let { analyticsTracking = it }
+            extensionConfig.deviceInitializationTimeoutMillis?.let { deviceInitializationTimeoutMillis = deviceInitializationTimeoutMillis }
+        }.build()
 
         val androidConfiguration = cnf.vendorConfiguration as? VendorConfiguration.AndroidConfiguration
 
@@ -152,9 +152,9 @@ open class MarathonRunTask @Inject constructor(objects: ObjectFactory) : Default
         val waitForDevicesTimeoutMillis = extension.waitForDevicesTimeoutMillis ?: DEFAULT_WAIT_FOR_DEVICES_TIMEOUT
         val allureConfiguration = extension.allureConfiguration ?: AllureConfiguration()
 
-        val implementationModules = when (extension.vendor ?: VendorType.DDMLIB) {
-            VendorType.DDMLIB -> listOf(ddmlibModule)
-            VendorType.ADAM -> listOf(adamModule)
+        val implementationModules = when (extension.vendor ?: VendorConfiguration.AndroidConfiguration.VendorType.DDMLIB) {
+            VendorConfiguration.AndroidConfiguration.VendorType.DDMLIB -> listOf(ddmlibModule)
+            VendorConfiguration.AndroidConfiguration.VendorType.ADAM -> listOf(adamModule)
         }
 
         val androidConfiguration = VendorConfiguration.AndroidConfiguration(

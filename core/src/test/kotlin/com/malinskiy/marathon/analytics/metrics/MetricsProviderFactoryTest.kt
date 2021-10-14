@@ -13,33 +13,14 @@ class MetricsProviderFactoryTest {
 
     @Test
     fun shouldReturnNoopProviderWhenDisabled() {
-        val configuration = Configuration(
+        val configuration = Configuration.Builder(
             name = "",
             outputDir = File(""),
-            analyticsConfiguration = AnalyticsConfiguration.DisabledAnalytics,
-            poolingStrategy = null,
-            shardingStrategy = null,
-            sortingStrategy = null,
-            batchingStrategy = null,
-            flakinessStrategy = null,
-            retryStrategy = null,
-            filteringConfiguration = null,
-            ignoreFailures = null,
-            isCodeCoverageEnabled = null,
-            fallbackToScreenshots = null,
-            strictMode = null,
-            uncompletedTestRetryQuota = null,
-            testClassRegexes = null,
-            includeSerialRegexes = null,
-            excludeSerialRegexes = null,
-            testBatchTimeoutMillis = null,
-            testOutputTimeoutMillis = null,
-            debug = null,
-            screenRecordingPolicy = null,
             vendorConfiguration = VendorConfiguration.StubVendorConfiguration,
-            analyticsTracking = false,
-            deviceInitializationTimeoutMillis = null
-        )
+        ).apply {
+            analyticsConfiguration = AnalyticsConfiguration.DisabledAnalytics
+            analyticsTracking = false
+        }.build()
         val factory = MetricsProviderFactory(configuration)
         val metricsProvider = factory.create()
         metricsProvider shouldBeInstanceOf NoOpMetricsProvider::class
@@ -54,33 +35,14 @@ class MetricsProviderFactoryTest {
             "db",
             AnalyticsConfiguration.InfluxDbConfiguration.RetentionPolicyConfiguration.default
         )
-        val configuration = Configuration(
+        val configuration = Configuration.Builder(
             name = "",
             outputDir = File(""),
-            analyticsConfiguration = analyticsConfiguration,
-            poolingStrategy = null,
-            shardingStrategy = null,
-            sortingStrategy = null,
-            batchingStrategy = null,
-            flakinessStrategy = null,
-            retryStrategy = null,
-            filteringConfiguration = null,
-            ignoreFailures = null,
-            isCodeCoverageEnabled = null,
-            fallbackToScreenshots = null,
-            strictMode = null,
-            uncompletedTestRetryQuota = null,
-            testClassRegexes = null,
-            includeSerialRegexes = null,
-            excludeSerialRegexes = null,
-            testBatchTimeoutMillis = null,
-            testOutputTimeoutMillis = null,
-            debug = null,
-            screenRecordingPolicy = null,
             vendorConfiguration = VendorConfiguration.StubVendorConfiguration,
-            analyticsTracking = false,
-            deviceInitializationTimeoutMillis = null
-        )
+        ).apply {
+            this.analyticsConfiguration = analyticsConfiguration
+            analyticsTracking = false
+        }.build()
         val factory = MetricsProviderFactory(configuration)
         val metricsProvider = factory.create()
         metricsProvider shouldBeInstanceOf NoOpMetricsProvider::class

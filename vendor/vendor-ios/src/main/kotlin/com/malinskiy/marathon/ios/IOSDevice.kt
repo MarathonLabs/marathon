@@ -160,7 +160,7 @@ class IOSDevice(
 
         logger.debug("Remote xctestrun = $remoteXctestrunFile")
 
-        val xctestrun = Xctestrun(iosConfiguration.xctestrunPath)
+        val xctestrun = Xctestrun(iosConfiguration.safecxtestrunPath())
         val packageNameFormatter = TestLogPackageNameFormatter(xctestrun.productModuleName, xctestrun.targetName)
 
         logger.debug("Tests = ${testBatch.tests.toList()}")

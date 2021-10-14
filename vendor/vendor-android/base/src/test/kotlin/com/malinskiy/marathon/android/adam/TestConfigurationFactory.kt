@@ -14,29 +14,9 @@ object TestConfigurationFactory {
         allureConfiguration: AllureConfiguration = AllureConfiguration(),
         isCodeCoverageEnabled: Boolean = false,
     ): Configuration {
-        return Configuration(
+        return Configuration.Builder(
             name = "",
             outputDir = File(""),
-            analyticsConfiguration = null,
-            poolingStrategy = null,
-            shardingStrategy = null,
-            sortingStrategy = null,
-            batchingStrategy = null,
-            flakinessStrategy = null,
-            retryStrategy = null,
-            filteringConfiguration = null,
-            ignoreFailures = null,
-            isCodeCoverageEnabled = isCodeCoverageEnabled,
-            fallbackToScreenshots = null,
-            strictMode = false,
-            uncompletedTestRetryQuota = null,
-            testClassRegexes = null,
-            includeSerialRegexes = null,
-            excludeSerialRegexes = null,
-            testBatchTimeoutMillis = null,
-            testOutputTimeoutMillis = null,
-            debug = false,
-            screenRecordingPolicy = null,
             vendorConfiguration = VendorConfiguration.AndroidConfiguration(
                 androidSdk = File(""),
                 applicationOutput = File(javaClass.classLoader.getResource("apk/app-debug.apk").file),
@@ -45,9 +25,12 @@ object TestConfigurationFactory {
                 installOptions = installOptions,
                 fileSyncConfiguration = fileSyncConfiguration,
                 allureConfiguration = allureConfiguration
-            ),
-            analyticsTracking = false,
-            deviceInitializationTimeoutMillis = null,
-        )
+            )
+        ).apply {
+            this.isCodeCoverageEnabled = isCodeCoverageEnabled
+            strictMode = false
+            debug = false
+            analyticsTracking = false
+        }.build()
     }
 }

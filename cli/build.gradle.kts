@@ -52,15 +52,6 @@ dependencies {
     implementation(Libraries.kotlinReflect)
     implementation(Libraries.logbackClassic)
     implementation(Libraries.argParser)
-    implementation(Libraries.jacksonDatabind)
-    implementation(Libraries.jacksonAnnotations)
-    implementation(Libraries.jacksonKotlin)
-    implementation(Libraries.jacksonYaml)
-    implementation(Libraries.jacksonJSR310)
-    implementation(Libraries.apacheCommonsText)
-    testImplementation(TestLibraries.kluent)
-    testImplementation(TestLibraries.mockitoKotlin)
-    testImplementation(TestLibraries.junit5)
     testRuntimeOnly(TestLibraries.jupiterEngine)
 }
 

@@ -24,7 +24,7 @@ class IOSTestParser(private val vendorConfiguration: VendorConfiguration.IOSConf
             throw IllegalArgumentException("Expected a directory at $vendorConfiguration.sourceRoot")
         }
 
-        val xctestrun = Xctestrun(vendorConfiguration.xctestrunPath)
+        val xctestrun = Xctestrun(vendorConfiguration.safecxtestrunPath())
         val targetName = xctestrun.targetName
 
         val swiftFilesWithTests = vendorConfiguration

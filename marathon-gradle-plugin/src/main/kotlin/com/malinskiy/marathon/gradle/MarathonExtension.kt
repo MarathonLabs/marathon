@@ -1,7 +1,7 @@
 package com.malinskiy.marathon.gradle
 
-import com.malinskiy.marathon.android.VendorType
 import com.malinskiy.marathon.config.ScreenRecordingPolicy
+import com.malinskiy.marathon.config.vendor.VendorConfiguration
 import com.malinskiy.marathon.config.vendor.android.AllureConfiguration
 import com.malinskiy.marathon.config.vendor.android.FileSyncConfiguration
 import com.malinskiy.marathon.config.vendor.android.ScreenRecordConfiguration
@@ -13,7 +13,7 @@ import org.gradle.api.Project
 open class MarathonExtension(project: Project) {
     var name: String = "Marathon"
 
-    var vendor: VendorType? = null
+    var vendor: VendorConfiguration.AndroidConfiguration.VendorType? = null
     var bugsnag: Boolean? = null
 
     var analyticsConfiguration: AnalyticsConfig? = null

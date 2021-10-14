@@ -181,33 +181,14 @@ fun createTestEvent(
 }
 
 fun getConfiguration() =
-    Configuration(
+    Configuration.Builder(
         name = "",
         outputDir = Files.createTempDirectory("test-run").toFile(),
-        analyticsConfiguration = AnalyticsConfiguration.DisabledAnalytics,
-        poolingStrategy = null,
-        shardingStrategy = null,
-        sortingStrategy = null,
-        batchingStrategy = null,
-        flakinessStrategy = null,
-        retryStrategy = null,
-        filteringConfiguration = null,
-        ignoreFailures = null,
-        isCodeCoverageEnabled = null,
-        fallbackToScreenshots = null,
-        strictMode = null,
-        uncompletedTestRetryQuota = null,
-        testClassRegexes = null,
-        includeSerialRegexes = null,
-        excludeSerialRegexes = null,
-        testBatchTimeoutMillis = null,
-        testOutputTimeoutMillis = null,
-        debug = null,
-        screenRecordingPolicy = null,
         vendorConfiguration = VendorConfiguration.StubVendorConfiguration,
-        analyticsTracking = false,
-        deviceInitializationTimeoutMillis = null
-    )
+    ).apply {
+        analyticsConfiguration = AnalyticsConfiguration.DisabledAnalytics
+        analyticsTracking = false
+    }.build()
 
 fun getDevice() =
     DeviceInfo(

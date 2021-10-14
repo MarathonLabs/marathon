@@ -266,30 +266,8 @@ private fun createQueueActor(
     Dispatchers.Unconfined
 )
 
-private val DEFAULT_CONFIGURATION = Configuration(
+private val DEFAULT_CONFIGURATION = Configuration.Builder(
     name = "",
     outputDir = File(""),
-    analyticsConfiguration = null,
-    poolingStrategy = null,
-    shardingStrategy = null,
-    sortingStrategy = null,
-    batchingStrategy = null,
-    flakinessStrategy = null,
-    retryStrategy = null,
-    filteringConfiguration = null,
-    ignoreFailures = null,
-    isCodeCoverageEnabled = null,
-    fallbackToScreenshots = null,
-    strictMode = null,
-    uncompletedTestRetryQuota = null,
-    testClassRegexes = null,
-    includeSerialRegexes = null,
-    excludeSerialRegexes = null,
-    testBatchTimeoutMillis = null,
-    testOutputTimeoutMillis = null,
-    debug = null,
-    screenRecordingPolicy = null,
     vendorConfiguration = VendorConfiguration.StubVendorConfiguration,
-    analyticsTracking = false,
-    deviceInitializationTimeoutMillis = null
-)
+).apply { analyticsTracking = false }.build()

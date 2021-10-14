@@ -9,8 +9,15 @@ plugins {
 
 dependencies {
     implementation(Libraries.jacksonAnnotations)
+    implementation(Libraries.jacksonDatabind)
+    implementation(Libraries.jacksonAnnotations)
+    implementation(Libraries.jacksonKotlin)
+    implementation(Libraries.jacksonYaml)
+    implementation(Libraries.jacksonJSR310)
+    api(Libraries.apacheCommonsText)
     testImplementation(TestLibraries.junit5)
     testImplementation(TestLibraries.kluent)
+    testImplementation(TestLibraries.mockitoKotlin)
     testRuntimeOnly(TestLibraries.jupiterEngine)
 }
 

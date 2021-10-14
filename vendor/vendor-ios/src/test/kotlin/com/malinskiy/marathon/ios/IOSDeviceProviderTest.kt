@@ -22,33 +22,13 @@ class IOSDeviceProviderTest {
         debugSsh = false,
         alwaysEraseSimulators = true
     )
-    private val configuration = Configuration(
+    private val configuration = Configuration.Builder(
         name = "",
         outputDir = File(""),
-        analyticsConfiguration = null,
-        poolingStrategy = null,
-        shardingStrategy = null,
-        sortingStrategy = null,
-        batchingStrategy = null,
-        flakinessStrategy = null,
-        retryStrategy = null,
-        filteringConfiguration = null,
-        ignoreFailures = null,
-        isCodeCoverageEnabled = null,
-        fallbackToScreenshots = null,
-        strictMode = null,
-        uncompletedTestRetryQuota = null,
-        testClassRegexes = null,
-        includeSerialRegexes = null,
-        excludeSerialRegexes = null,
-        testBatchTimeoutMillis = null,
-        testOutputTimeoutMillis = null,
-        debug = null,
-        screenRecordingPolicy = null,
         vendorConfiguration = vendorConfiguration,
-        analyticsTracking = false,
-        deviceInitializationTimeoutMillis = null
-    )
+    ).apply {
+        analyticsTracking = false
+    }.build()
     private val provider = IOSDeviceProvider(configuration, vendorConfiguration, Track(), SystemTimer(Clock.systemDefaultZone()))
 
     @Test
