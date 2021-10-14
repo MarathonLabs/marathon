@@ -6,6 +6,7 @@ import com.malinskiy.marathon.Marathon
 import com.malinskiy.marathon.android.AndroidVendor
 import com.malinskiy.marathon.android.adam.di.adamModule
 import com.malinskiy.marathon.config.Configuration
+import com.malinskiy.marathon.config.serialization.ConfigurationFactory
 import com.malinskiy.marathon.config.vendor.DEFAULT_APPLICATION_PM_CLEAR
 import com.malinskiy.marathon.config.vendor.DEFAULT_AUTO_GRANT_PERMISSION
 import com.malinskiy.marathon.config.vendor.DEFAULT_INIT_TIMEOUT_MILLIS
@@ -112,6 +113,11 @@ open class MarathonRunTask @Inject constructor(objects: ObjectFactory) : Default
             extensionConfig.analyticsTracking?.let { analyticsTracking = it }
             extensionConfig.deviceInitializationTimeoutMillis?.let { deviceInitializationTimeoutMillis = deviceInitializationTimeoutMillis }
         }.build()
+
+        val marathonfile = File(temporaryDir, "Marathonfile")
+        val configurationFactory = ConfigurationFactory(marathonfileDir = baseOutputDir)
+        val yaml = configurationFactory.serialize(cnf)
+        marathonfile.writeText(yaml)
 
         val androidConfiguration = cnf.vendorConfiguration as? VendorConfiguration.AndroidConfiguration
 
