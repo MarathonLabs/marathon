@@ -1,6 +1,8 @@
 package com.malinskiy.marathon.config
 
 import com.fasterxml.jackson.annotation.JsonProperty
+import com.fasterxml.jackson.annotation.JsonSubTypes
+import com.fasterxml.jackson.annotation.JsonTypeInfo
 import com.malinskiy.marathon.config.exceptions.ConfigurationException
 import java.io.File
 
@@ -9,9 +11,29 @@ data class FilteringConfiguration(
     @JsonProperty("blocklist", required = false) val blocklist: Collection<TestFilterConfiguration> = emptyList()
 )
 
+@JsonTypeInfo(
+    use = JsonTypeInfo.Id.NAME,
+    include = JsonTypeInfo.As.PROPERTY,
+    property = "type"
+)
+@JsonSubTypes(
+    JsonSubTypes.Type(value = TestFilterConfiguration.AnnotationDataFilterConfiguration::class, name = "annotationData"),
+    JsonSubTypes.Type(value = TestFilterConfiguration.AnnotationFilterConfiguration::class, name = "annotation"),
+    JsonSubTypes.Type(value = TestFilterConfiguration.CompositionFilterConfiguration::class, name = "composition"),
+    JsonSubTypes.Type(value = TestFilterConfiguration.FragmentationFilterConfiguration::class, name = "fragmentation"),
+    JsonSubTypes.Type(
+        value = TestFilterConfiguration.FullyQualifiedClassnameFilterConfiguration::class,
+        name = "fully-qualified-class-name"
+    ),
+    JsonSubTypes.Type(value = TestFilterConfiguration.FullyQualifiedTestnameFilterConfiguration::class, name = "fully-qualified-test-name"),
+    JsonSubTypes.Type(value = TestFilterConfiguration.SimpleClassnameFilterConfiguration::class, name = "simple-class-name"),
+    JsonSubTypes.Type(value = TestFilterConfiguration.TestMethodFilterConfiguration::class, name = "method"),
+    JsonSubTypes.Type(value = TestFilterConfiguration.TestPackageFilterConfiguration::class, name = "package"),
+    JsonSubTypes.Type(value = TestFilterConfiguration.TestPackageFilterConfiguration::class, name = "package"),
+)
 sealed class TestFilterConfiguration {
     abstract fun validate()
-    
+
     data class SimpleClassnameFilterConfiguration(
         @JsonProperty("regex") val regex: Regex? = null,
         @JsonProperty("values") val values: List<String>? = null,
@@ -171,7 +193,7 @@ sealed class TestFilterConfiguration {
     }
 
     data class FragmentationFilterConfiguration(
-        val index: Int, 
+        val index: Int,
         val count: Int,
     ) : TestFilterConfiguration() {
         override fun validate() {

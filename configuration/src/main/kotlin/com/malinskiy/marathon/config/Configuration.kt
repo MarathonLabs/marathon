@@ -76,6 +76,72 @@ data class Configuration private constructor(
             "deviceInitializationTimeoutMillis" to deviceInitializationTimeoutMillis.toString()
         )
 
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as Configuration
+
+        if (name != other.name) return false
+        if (outputDir != other.outputDir) return false
+        if (analyticsConfiguration != other.analyticsConfiguration) return false
+        if (poolingStrategy != other.poolingStrategy) return false
+        if (shardingStrategy != other.shardingStrategy) return false
+        if (sortingStrategy != other.sortingStrategy) return false
+        if (batchingStrategy != other.batchingStrategy) return false
+        if (flakinessStrategy != other.flakinessStrategy) return false
+        if (retryStrategy != other.retryStrategy) return false
+        if (filteringConfiguration != other.filteringConfiguration) return false
+        if (ignoreFailures != other.ignoreFailures) return false
+        if (isCodeCoverageEnabled != other.isCodeCoverageEnabled) return false
+        if (fallbackToScreenshots != other.fallbackToScreenshots) return false
+        if (strictMode != other.strictMode) return false
+        if (uncompletedTestRetryQuota != other.uncompletedTestRetryQuota) return false
+        //For testing we need to compare configuration instances. Unfortunately Regex equality is broken so need to map it to String
+        if (testClassRegexes.map { it.pattern } != other.testClassRegexes.map { it.pattern }) return false
+        if (includeSerialRegexes.map { it.pattern } != other.includeSerialRegexes.map { it.pattern }) return false
+        if (excludeSerialRegexes.map { it.pattern } != other.excludeSerialRegexes.map { it.pattern }) return false
+        if (testBatchTimeoutMillis != other.testBatchTimeoutMillis) return false
+        if (testOutputTimeoutMillis != other.testOutputTimeoutMillis) return false
+        if (debug != other.debug) return false
+        if (screenRecordingPolicy != other.screenRecordingPolicy) return false
+        if (vendorConfiguration != other.vendorConfiguration) return false
+        if (analyticsTracking != other.analyticsTracking) return false
+        if (deviceInitializationTimeoutMillis != other.deviceInitializationTimeoutMillis) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = name.hashCode()
+        result = 31 * result + outputDir.hashCode()
+        result = 31 * result + analyticsConfiguration.hashCode()
+        result = 31 * result + poolingStrategy.hashCode()
+        result = 31 * result + shardingStrategy.hashCode()
+        result = 31 * result + sortingStrategy.hashCode()
+        result = 31 * result + batchingStrategy.hashCode()
+        result = 31 * result + flakinessStrategy.hashCode()
+        result = 31 * result + retryStrategy.hashCode()
+        result = 31 * result + filteringConfiguration.hashCode()
+        result = 31 * result + ignoreFailures.hashCode()
+        result = 31 * result + isCodeCoverageEnabled.hashCode()
+        result = 31 * result + fallbackToScreenshots.hashCode()
+        result = 31 * result + strictMode.hashCode()
+        result = 31 * result + uncompletedTestRetryQuota
+        result = 31 * result + testClassRegexes.hashCode()
+        result = 31 * result + includeSerialRegexes.hashCode()
+        result = 31 * result + excludeSerialRegexes.hashCode()
+        result = 31 * result + testBatchTimeoutMillis.hashCode()
+        result = 31 * result + testOutputTimeoutMillis.hashCode()
+        result = 31 * result + debug.hashCode()
+        result = 31 * result + screenRecordingPolicy.hashCode()
+        result = 31 * result + vendorConfiguration.hashCode()
+        result = 31 * result + analyticsTracking.hashCode()
+        result = 31 * result + deviceInitializationTimeoutMillis.hashCode()
+        return result
+    }
+
+
     class Builder(
         val name: String,
         val outputDir: File,

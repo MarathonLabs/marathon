@@ -13,7 +13,7 @@ import com.malinskiy.marathon.config.environment.EnvironmentReader
 import com.malinskiy.marathon.config.exceptions.ConfigurationException
 import com.malinskiy.marathon.config.serialization.time.InstantTimeProvider
 import com.malinskiy.marathon.config.serialization.yaml.DerivedDataFileListProvider
-import com.malinskiy.marathon.config.serialization.yaml.DeserializeModule
+import com.malinskiy.marathon.config.serialization.yaml.SerializeModule
 import com.malinskiy.marathon.config.strategy.BatchingStrategyConfiguration
 import com.malinskiy.marathon.config.strategy.FlakinessStrategyConfiguration
 import com.malinskiy.marathon.config.strategy.PoolingStrategyConfiguration
@@ -54,6 +54,7 @@ class ConfigurationFactoryTest {
     }
 
     lateinit var parser: ConfigurationFactory
+    lateinit var mapper: ObjectMapper
 
     fun mockEnvironmentReader(path: String? = null): EnvironmentReader {
         val environmentReader = mock<EnvironmentReader>()
@@ -63,9 +64,9 @@ class ConfigurationFactoryTest {
 
     @BeforeEach
     fun `setup yaml mapper`() {
-        val mapper = ObjectMapper(YAMLFactory().disable(YAMLGenerator.Feature.USE_NATIVE_TYPE_ID))
+        mapper = ObjectMapper(YAMLFactory().disable(YAMLGenerator.Feature.USE_NATIVE_TYPE_ID))
         mapper.registerModule(
-            DeserializeModule(
+            SerializeModule(
                 mockInstantTimeProvider,
                 mockEnvironmentReader(),
                 mockMarathonFileDir,
@@ -83,7 +84,7 @@ class ConfigurationFactoryTest {
         val configuration = parser.parse(file)
 
         configuration.name shouldBeEqualTo "sample-app tests"
-        configuration.outputDir shouldBeEqualTo File("./marathon")
+        configuration.outputDir shouldBeEqualTo File(mockMarathonFileDir, "./marathon").canonicalFile
         configuration.analyticsConfiguration shouldBeEqualTo AnalyticsConfiguration.InfluxDbConfiguration(
             url = "http://influx.svc.cluster.local:8086",
             user = "root",
@@ -91,15 +92,13 @@ class ConfigurationFactoryTest {
             dbName = "marathon",
             retentionPolicyConfiguration = AnalyticsConfiguration.InfluxDbConfiguration.RetentionPolicyConfiguration.default
         )
-        configuration.poolingStrategy shouldBeEqualTo PoolingStrategyConfiguration.ComboPoolingStrategyConfiguration(
-            listOf(
-                PoolingStrategyConfiguration.OmniPoolingStrategyConfiguration,
-                PoolingStrategyConfiguration.ModelPoolingStrategyConfiguration,
-                PoolingStrategyConfiguration.OperatingSystemVersionPoolingStrategyConfiguration,
-                PoolingStrategyConfiguration.ManufacturerPoolingStrategyConfiguration,
-                PoolingStrategyConfiguration.AbiPoolingStrategyConfiguration
-            )
-        )
+        val poolingStrategyConfiguration = configuration.poolingStrategy as PoolingStrategyConfiguration.ComboPoolingStrategyConfiguration
+        poolingStrategyConfiguration.list[0] shouldBeInstanceOf PoolingStrategyConfiguration.OmniPoolingStrategyConfiguration::class
+        poolingStrategyConfiguration.list[1] shouldBeInstanceOf PoolingStrategyConfiguration.ModelPoolingStrategyConfiguration::class
+        poolingStrategyConfiguration.list[2] shouldBeInstanceOf PoolingStrategyConfiguration.OperatingSystemVersionPoolingStrategyConfiguration::class
+        poolingStrategyConfiguration.list[3] shouldBeInstanceOf PoolingStrategyConfiguration.ManufacturerPoolingStrategyConfiguration::class
+        poolingStrategyConfiguration.list[4] shouldBeInstanceOf PoolingStrategyConfiguration.AbiPoolingStrategyConfiguration::class
+
         configuration.shardingStrategy shouldBeEqualTo ShardingStrategyConfiguration.CountShardingStrategyConfiguration(5)
         configuration.sortingStrategy shouldBeEqualTo SortingStrategyConfiguration.SuccessRateSortingStrategyConfiguration(
             Instant.from(
@@ -126,7 +125,12 @@ class ConfigurationFactoryTest {
             TestFilterConfiguration.SimpleClassnameFilterConfiguration(".*".toRegex()),
             TestFilterConfiguration.SimpleClassnameFilterConfiguration(values = listOf("SimpleTest")),
             TestFilterConfiguration.FullyQualifiedClassnameFilterConfiguration(".*".toRegex()),
-            TestFilterConfiguration.FullyQualifiedClassnameFilterConfiguration(file = File("filterfile")),
+            TestFilterConfiguration.FullyQualifiedClassnameFilterConfiguration(
+                file = File(
+                    mockMarathonFileDir,
+                    "filterfile"
+                ).canonicalFile
+            ),
             TestFilterConfiguration.TestMethodFilterConfiguration(".*".toRegex()),
             TestFilterConfiguration.CompositionFilterConfiguration(
                 listOf(
@@ -159,8 +163,8 @@ class ConfigurationFactoryTest {
         configuration.vendorConfiguration shouldBeEqualTo VendorConfiguration.AndroidConfiguration(
             VendorConfiguration.AndroidConfiguration.VendorType.DDMLIB,
             File("/local/android"),
-            File("kotlin-buildscript/build/outputs/apk/debug/kotlin-buildscript-debug.apk"),
-            File("kotlin-buildscript/build/outputs/apk/androidTest/debug/kotlin-buildscript-debug-androidTest.apk"),
+            File(mockMarathonFileDir, "kotlin-buildscript/build/outputs/apk/debug/kotlin-buildscript-debug.apk"),
+            File(mockMarathonFileDir, "kotlin-buildscript/build/outputs/apk/androidTest/debug/kotlin-buildscript-debug-androidTest.apk"),
             null,
             true,
             mapOf("debug" to "false"),
@@ -205,7 +209,7 @@ class ConfigurationFactoryTest {
         val configuration = parser.parse(file)
 
         configuration.name shouldBeEqualTo "sample-app tests"
-        configuration.outputDir shouldBeEqualTo File("./marathon")
+        configuration.outputDir shouldBeEqualTo File(mockMarathonFileDir, "./marathon").canonicalFile
         configuration.analyticsConfiguration shouldBeEqualTo AnalyticsConfiguration.DisabledAnalytics
         configuration.poolingStrategy shouldBeEqualTo PoolingStrategyConfiguration.OmniPoolingStrategyConfiguration
         configuration.shardingStrategy shouldBeEqualTo ShardingStrategyConfiguration.ParallelShardingStrategyConfiguration
@@ -231,8 +235,8 @@ class ConfigurationFactoryTest {
         configuration.vendorConfiguration shouldBeEqualTo VendorConfiguration.AndroidConfiguration(
             VendorConfiguration.AndroidConfiguration.VendorType.DDMLIB,
             File("/local/android"),
-            File("kotlin-buildscript/build/outputs/apk/debug/kotlin-buildscript-debug.apk"),
-            File("kotlin-buildscript/build/outputs/apk/androidTest/debug/kotlin-buildscript-debug-androidTest.apk"),
+            File(mockMarathonFileDir, "kotlin-buildscript/build/outputs/apk/debug/kotlin-buildscript-debug.apk"),
+            File(mockMarathonFileDir, "kotlin-buildscript/build/outputs/apk/androidTest/debug/kotlin-buildscript-debug-androidTest.apk"),
             null,
             false,
             mapOf(),
@@ -250,19 +254,19 @@ class ConfigurationFactoryTest {
         val configuration = parser.parse(file)
 
         configuration.vendorConfiguration shouldBeEqualTo VendorConfiguration.IOSConfiguration(
-            derivedDataDir = file.parentFile.resolve("a"),
-            xctestrunPath = file.parentFile.resolve("a/Build/Products/UITesting_iphonesimulator11.0-x86_64.xctestrun"),
+            derivedDataDir = file.parentFile.resolve("a").canonicalFile,
+            xctestrunPath = file.parentFile.resolve("a/Build/Products/UITesting_iphonesimulator11.0-x86_64.xctestrun").canonicalFile,
             remoteUsername = "testuser",
-            remotePrivateKey = File("/home/testuser/.ssh/id_rsa"),
-            knownHostsPath = file.parentFile.resolve("known_hosts"),
+            remotePrivateKey = File("/home/testuser/.ssh/id_rsa").canonicalFile,
+            knownHostsPath = file.parentFile.resolve("known_hosts").canonicalFile,
             remoteRsyncPath = "/usr/local/bin/rsync",
             debugSsh = true,
             alwaysEraseSimulators = false,
             hideRunnerOutput = true,
             compactOutput = true,
             keepAliveIntervalMillis = 300000L,
-            devicesFile = file.parentFile.resolve("Testdevices"),
-            sourceRoot = file.parentFile.resolve("."),
+            devicesFile = file.parentFile.resolve("Testdevices").canonicalFile,
+            sourceRoot = file.parentFile.resolve(".").canonicalFile,
         )
     }
 
@@ -289,7 +293,7 @@ class ConfigurationFactoryTest {
         val environmentReader = mockEnvironmentReader("/android/home")
         val mapper = ObjectMapper(YAMLFactory().disable(YAMLGenerator.Feature.USE_NATIVE_TYPE_ID))
         mapper.registerModule(
-            DeserializeModule(
+            SerializeModule(
                 mockInstantTimeProvider,
                 environmentReader,
                 mockMarathonFileDir,
@@ -298,14 +302,14 @@ class ConfigurationFactoryTest {
         )
             .registerModule(KotlinModule())
             .registerModule(JavaTimeModule())
-        parser = ConfigurationFactory(marathonfileDir = mockMarathonFileDir, mapper = mapper)
+        parser = ConfigurationFactory(marathonfileDir = mockMarathonFileDir, mapper = mapper, environmentReader = environmentReader)
         val configuration = parser.parse(file)
 
         configuration.vendorConfiguration shouldBeEqualTo VendorConfiguration.AndroidConfiguration(
             VendorConfiguration.AndroidConfiguration.VendorType.DDMLIB,
             environmentReader.read().androidSdk!!,
-            File("kotlin-buildscript/build/outputs/apk/debug/kotlin-buildscript-debug.apk"),
-            File("kotlin-buildscript/build/outputs/apk/androidTest/debug/kotlin-buildscript-debug-androidTest.apk"),
+            File(mockMarathonFileDir, "kotlin-buildscript/build/outputs/apk/debug/kotlin-buildscript-debug.apk"),
+            File(mockMarathonFileDir, "kotlin-buildscript/build/outputs/apk/androidTest/debug/kotlin-buildscript-debug-androidTest.apk"),
             null,
             false,
             mapOf(),
@@ -320,6 +324,8 @@ class ConfigurationFactoryTest {
     @Test
     fun `on configuration without androidSdk value should throw an exception when ANDROID_HOME is not set`() {
         val file = File(ConfigurationFactoryTest::class.java.getResource("/fixture/config/sample_7.yaml").file)
+        parser =
+            ConfigurationFactory(marathonfileDir = mockMarathonFileDir, mapper = mapper, environmentReader = mockEnvironmentReader(null))
         assertThrows<ConfigurationException> {
             parser.parse(file)
         }

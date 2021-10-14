@@ -85,4 +85,4 @@ object DerivedDataFileListProvider : FileListProvider {
 
 
 // inverted [resolve] call allows to avoid too many if expressions
-private fun File.resolveAgainst(file: File): File = file.resolve(this)
+private fun File.resolveAgainst(file: File): File = file.resolve(this).canonicalFile

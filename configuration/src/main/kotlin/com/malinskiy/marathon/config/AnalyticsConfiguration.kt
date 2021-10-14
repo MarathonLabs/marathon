@@ -1,5 +1,17 @@
 package com.malinskiy.marathon.config
 
+import com.fasterxml.jackson.annotation.JsonSubTypes
+import com.fasterxml.jackson.annotation.JsonTypeInfo
+
+@JsonTypeInfo(
+    use = JsonTypeInfo.Id.NAME,
+    include = JsonTypeInfo.As.PROPERTY,
+    property = "type"
+)
+@JsonSubTypes(
+    JsonSubTypes.Type(value = AnalyticsConfiguration.DisabledAnalytics::class, name = "disabled"),
+    JsonSubTypes.Type(value = AnalyticsConfiguration.InfluxDbConfiguration::class, name = "influxdb"),
+)
 sealed class AnalyticsConfiguration {
     object DisabledAnalytics : AnalyticsConfiguration()
     data class InfluxDbConfiguration(
@@ -21,6 +33,7 @@ sealed class AnalyticsConfiguration {
             }
         }
     }
+
     data class GraphiteConfiguration(
         val host: String,
         val port: Int?,

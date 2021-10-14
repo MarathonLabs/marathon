@@ -12,7 +12,7 @@ import org.junit.jupiter.api.assertThrows
 import java.io.File
 
 class AndroidConfigurationTest {
-    private val mockMarathonFileDir = File("")
+    private val mockMarathonFileDir = File("/some/folder/with/marathonfile/")
     private val env: File = File.createTempFile("foo", "bar")
     private val sdk: File = File.createTempFile("android", "sdk")
 
@@ -89,7 +89,7 @@ class AndroidConfigurationTest {
         )
 
         val androidConfiguration = configurationFactory.parse(marathonfile).vendorConfiguration as VendorConfiguration.AndroidConfiguration
-        androidConfiguration.applicationOutput shouldBeEqualTo File("debug.apk")
+        androidConfiguration.applicationOutput shouldBeEqualTo File("/some/folder/with/marathonfile/debug.apk")
     }
 
     @Test
@@ -104,7 +104,7 @@ class AndroidConfigurationTest {
         )
 
         val androidConfiguration = configurationFactory.parse(marathonfile).vendorConfiguration as VendorConfiguration.AndroidConfiguration
-        androidConfiguration.testApplicationOutput shouldBeEqualTo File("foo/bar")
+        androidConfiguration.testApplicationOutput shouldBeEqualTo File("/some/folder/with/marathonfile/foo/bar")
     }
 
     @Test

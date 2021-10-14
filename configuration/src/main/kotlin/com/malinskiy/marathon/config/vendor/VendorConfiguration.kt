@@ -1,6 +1,8 @@
 package com.malinskiy.marathon.config.vendor
 
 import com.fasterxml.jackson.annotation.JsonProperty
+import com.fasterxml.jackson.annotation.JsonSubTypes
+import com.fasterxml.jackson.annotation.JsonTypeInfo
 import com.malinskiy.marathon.config.exceptions.ConfigurationException
 import com.malinskiy.marathon.config.vendor.android.AllureConfiguration
 import com.malinskiy.marathon.config.vendor.android.AndroidTestBundleConfiguration
@@ -18,6 +20,16 @@ const val DEFAULT_TEST_APPLICATION_PM_CLEAR = false
 const val DEFAULT_INSTALL_OPTIONS = ""
 const val DEFAULT_WAIT_FOR_DEVICES_TIMEOUT = 30000L
 
+@JsonTypeInfo(
+    use = JsonTypeInfo.Id.NAME,
+    include = JsonTypeInfo.As.PROPERTY,
+    property = "type"
+)
+@JsonSubTypes(
+    JsonSubTypes.Type(value = VendorConfiguration.AndroidConfiguration::class, name = "Android"),
+    JsonSubTypes.Type(value = VendorConfiguration.IOSConfiguration::class, name = "iOS"),
+    JsonSubTypes.Type(value = VendorConfiguration.StubVendorConfiguration::class, name = "stub"),
+)
 sealed class VendorConfiguration {
     data class AndroidConfiguration(
         @JsonProperty("vendor") val vendor: VendorType = VendorType.DDMLIB,
@@ -68,7 +80,7 @@ sealed class VendorConfiguration {
         fun safecxtestrunPath(): File =
             xctestrunPath ?: throw ConfigurationException("Unable to find an xctestrun file in derived data folder")
     }
-    
+
     //For testing purposes
     object StubVendorConfiguration : VendorConfiguration()
 }

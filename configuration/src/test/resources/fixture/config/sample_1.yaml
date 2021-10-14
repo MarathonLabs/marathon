@@ -1,17 +1,19 @@
 name: "sample-app tests"
 outputDir: "./marathon"
 analyticsConfiguration:
-  influx:
-    url: "http://influx.svc.cluster.local:8086"
-    user: "root"
-    password: "root"
-    dbName: "marathon"
+  type: "influxdb"
+  url: "http://influx.svc.cluster.local:8086"
+  user: "root"
+  password: "root"
+  dbName: "marathon"
 poolingStrategy:
-  - type: "omni"
-  - type: "device-model"
-  - type: "os-version"
-  - type: "manufacturer"
-  - type: "abi"
+  type: "combo"
+  list:
+    - type: "omni"
+    - type: "device-model"
+    - type: "os-version"
+    - type: "manufacturer"
+    - type: "abi"
 shardingStrategy:
   type: "count"
   count: 5
