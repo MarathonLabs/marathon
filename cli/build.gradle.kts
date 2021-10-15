@@ -86,3 +86,12 @@ junitPlatform {
 
 tasks.getByName("junitPlatformTest").outputs.upToDateWhen { false }
 tasks.getByName("test").outputs.upToDateWhen { false }
+
+/**
+ * Classpath is too long for commandline
+ */
+tasks.startScripts {
+    doLast {
+        windowsScript.writeText(windowsScript.readText().replace("set CLASSPATH=.*".toRegex(), "set CLASSPATH=.;%APP_HOME%/lib/*"))
+    }
+}
