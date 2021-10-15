@@ -2,9 +2,6 @@ package com.malinskiy.marathon.gradle
 
 import com.android.build.gradle.api.BaseVariant
 import com.android.build.gradle.api.TestVariant
-import com.malinskiy.marathon.Marathon
-import com.malinskiy.marathon.android.AndroidVendor
-import com.malinskiy.marathon.android.adam.di.adamModule
 import com.malinskiy.marathon.config.Configuration
 import com.malinskiy.marathon.config.serialization.ConfigurationFactory
 import com.malinskiy.marathon.config.vendor.DEFAULT_APPLICATION_PM_CLEAR
@@ -17,20 +14,12 @@ import com.malinskiy.marathon.config.vendor.android.AllureConfiguration
 import com.malinskiy.marathon.config.vendor.android.FileSyncConfiguration
 import com.malinskiy.marathon.config.vendor.android.ScreenRecordConfiguration
 import com.malinskiy.marathon.config.vendor.android.SerialStrategy
-import com.malinskiy.marathon.di.marathonStartKoin
-import com.malinskiy.marathon.exceptions.ExceptionsReporter
 import com.malinskiy.marathon.gradle.extensions.extractApplication
 import com.malinskiy.marathon.gradle.extensions.extractTestApplication
-import com.malinskiy.marathon.log.MarathonLogging
-import com.malinskiy.marathon.usageanalytics.TrackActionType
-import com.malinskiy.marathon.usageanalytics.UsageAnalytics
-import com.malinskiy.marathon.usageanalytics.tracker.Event
-import ddmlibModule
-import org.gradle.api.DefaultTask
-import org.gradle.api.GradleException
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.model.ObjectFactory
 import org.gradle.api.provider.Property
+import org.gradle.api.tasks.AbstractExecTask
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputDirectory
 import org.gradle.api.tasks.Internal
@@ -40,15 +29,11 @@ import org.gradle.api.tasks.PathSensitivity
 import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.VerificationTask
 import org.gradle.kotlin.dsl.property
-import org.koin.core.context.stopKoin
-import org.koin.core.module.Module
-import org.koin.dsl.module
 import java.io.File
 import javax.inject.Inject
 
-private val log = MarathonLogging.logger {}
-
-open class MarathonRunTask @Inject constructor(objects: ObjectFactory) : DefaultTask(), VerificationTask {
+open class MarathonRunTask @Inject constructor(objects: ObjectFactory) : AbstractExecTask<MarathonRunTask>(MarathonRunTask::class.java),
+    VerificationTask {
     @Input
     val flavorName: Property<String> = objects.property()
 
@@ -65,17 +50,12 @@ open class MarathonRunTask @Inject constructor(objects: ObjectFactory) : Default
     @Internal
     val marathonExtension: Property<MarathonExtension> = objects.property()
 
-    @Internal
-    val exceptionsTracker: Property<ExceptionsReporter> = objects.property()
-
     private var ignoreFailure: Boolean = false
 
     @OutputDirectory
     var fakeLockingOutput = File(project.rootProject.buildDir, "fake-marathon-locking-output")
 
-    @TaskAction
-    fun runMarathon() {
-        val tracker = exceptionsTracker.get()
+    override fun exec() {
         val extensionConfig = marathonExtension.get()
         val instrumentationApk = testVariant.get().extractTestApplication()
         val applicationApk = applicationVariant.get().extractApplication()
@@ -83,7 +63,7 @@ open class MarathonRunTask @Inject constructor(objects: ObjectFactory) : Default
         val baseOutputDir = extensionConfig.baseOutputDir?.let { File(it) } ?: File(project.buildDir, "reports/marathon")
         val output = File(baseOutputDir, flavorName.get())
 
-        val (vendorConfiguration, modules) = createAndroid(extensionConfig, applicationApk, instrumentationApk)
+        val vendorConfiguration = createAndroid(extensionConfig, applicationApk, instrumentationApk)
 
         val cnf = Configuration.Builder(
             name = extensionConfig.name,
@@ -114,39 +94,47 @@ open class MarathonRunTask @Inject constructor(objects: ObjectFactory) : Default
             extensionConfig.deviceInitializationTimeoutMillis?.let { deviceInitializationTimeoutMillis = deviceInitializationTimeoutMillis }
         }.build()
 
+        //Write a Marathonfile
         val marathonfile = File(temporaryDir, "Marathonfile")
         val configurationFactory = ConfigurationFactory(marathonfileDir = baseOutputDir)
         val yaml = configurationFactory.serialize(cnf)
         marathonfile.writeText(yaml)
 
-        val androidConfiguration = cnf.vendorConfiguration as? VendorConfiguration.AndroidConfiguration
+        setArgs(listOf("-m", marathonfile.canonicalPath))
 
-        log.info { "Run instrumentation tests ${androidConfiguration?.testApplicationOutput} for app ${androidConfiguration?.applicationOutput}" }
-        log.debug { "Output: ${cnf.outputDir}" }
-        log.debug { "Ignore failures: ${cnf.ignoreFailures}" }
+        super.exec()
+    }
 
-        UsageAnalytics.enable = cnf.analyticsTracking
-        UsageAnalytics.USAGE_TRACKER.trackEvent(Event(TrackActionType.RunType, "gradle"))
-        try {
-            val application = marathonStartKoin(cnf, modules)
-            val marathon: Marathon = application.koin.get()
+    @TaskAction
+    fun runMarathon() {
 
-            val success = marathon.run()
-            tracker.end()
-            val shouldReportFailure = !cnf.ignoreFailures
-            if (!success && shouldReportFailure) {
-                throw GradleException("Tests failed! See ${cnf.outputDir}/html/index.html")
-            }
-        } finally {
-            stopKoin()
-        }
+
+//        log.info { "Run instrumentation tests ${androidConfiguration?.testApplicationOutput} for app ${androidConfiguration?.applicationOutput}" }
+//        log.debug { "Output: ${cnf.outputDir}" }
+//        log.debug { "Ignore failures: ${cnf.ignoreFailures}" }
+
+//        UsageAnalytics.enable = cnf.analyticsTracking
+//        UsageAnalytics.USAGE_TRACKER.trackEvent(Event(TrackActionType.RunType, "gradle"))
+//        try {
+//            val application = marathonStartKoin(cnf, modules)
+//            val marathon: Marathon = application.koin.get()
+//
+//            val success = marathon.run()
+//            tracker.end()
+//            val shouldReportFailure = !cnf.ignoreFailures
+//            if (!success && shouldReportFailure) {
+//                throw GradleException("Tests failed! See ${cnf.outputDir}/html/index.html")
+//            }
+//        } finally {
+//            stopKoin()
+//        }
     }
 
     private fun createAndroid(
         extension: MarathonExtension,
         applicationApk: File?,
         instrumentationApk: File
-    ): Pair<VendorConfiguration.AndroidConfiguration, List<Module>> {
+    ): VendorConfiguration.AndroidConfiguration {
         val autoGrantPermission = extension.autoGrantPermission ?: DEFAULT_AUTO_GRANT_PERMISSION
         val instrumentationArgs = extension.instrumentationArgs
         val applicationPmClear = extension.applicationPmClear ?: DEFAULT_APPLICATION_PM_CLEAR
@@ -158,12 +146,8 @@ open class MarathonRunTask @Inject constructor(objects: ObjectFactory) : Default
         val waitForDevicesTimeoutMillis = extension.waitForDevicesTimeoutMillis ?: DEFAULT_WAIT_FOR_DEVICES_TIMEOUT
         val allureConfiguration = extension.allureConfiguration ?: AllureConfiguration()
 
-        val implementationModules = when (extension.vendor ?: VendorConfiguration.AndroidConfiguration.VendorType.DDMLIB) {
-            VendorConfiguration.AndroidConfiguration.VendorType.DDMLIB -> listOf(ddmlibModule)
-            VendorConfiguration.AndroidConfiguration.VendorType.ADAM -> listOf(adamModule)
-        }
-
-        val androidConfiguration = VendorConfiguration.AndroidConfiguration(
+        return VendorConfiguration.AndroidConfiguration(
+            vendor = extension.vendor ?: VendorConfiguration.AndroidConfiguration.VendorType.DDMLIB,
             androidSdk = sdk.get().asFile,
             applicationOutput = applicationApk,
             testApplicationOutput = instrumentationApk,
@@ -179,9 +163,6 @@ open class MarathonRunTask @Inject constructor(objects: ObjectFactory) : Default
             allureConfiguration = allureConfiguration,
             fileSyncConfiguration = extension.fileSyncConfiguration ?: FileSyncConfiguration(),
         )
-
-        val androidVendor = AndroidVendor + implementationModules + module { single { androidConfiguration } }
-        return Pair(androidConfiguration, androidVendor)
     }
 
     override fun getIgnoreFailures(): Boolean = ignoreFailure

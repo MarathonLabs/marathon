@@ -6,30 +6,27 @@ import com.android.build.gradle.LibraryExtension
 import com.android.build.gradle.LibraryPlugin
 import com.android.build.gradle.api.BaseVariantOutput
 import com.android.build.gradle.api.TestVariant
-import com.malinskiy.marathon.config.AppType
-import com.malinskiy.marathon.exceptions.ExceptionsReporter
-import com.malinskiy.marathon.exceptions.ExceptionsReporterFactory
 import com.malinskiy.marathon.gradle.extensions.executeGradleCompat
-import com.malinskiy.marathon.log.MarathonLogging
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.api.plugins.JavaBasePlugin
 import org.gradle.kotlin.dsl.closureOf
 import java.io.File
-
-private val log = MarathonLogging.logger {}
+import java.nio.file.Files
+import java.nio.file.Paths
+import java.nio.file.attribute.PosixFilePermission
+import java.util.zip.ZipFile
 
 class MarathonPlugin : Plugin<Project> {
 
     override fun apply(project: Project) {
-        log.info { "Applying marathon plugin" }
+//        log.info { "Applying marathon plugin" }
 
         val extension: MarathonExtension = project.extensions.create("marathon", MarathonExtension::class.java, project)
 
         project.afterEvaluate {
-            val exceptionsReporter = ExceptionsReporterFactory.get(extension.bugsnag != false)
-            exceptionsReporter.start(AppType.GRADLE_PLUGIN)
+            val cli = prepareDistribution(project)
 
             val appPlugin = project.plugins.findPlugin(AppPlugin::class.java)
             val libraryPlugin = project.plugins.findPlugin(LibraryPlugin::class.java)
@@ -54,11 +51,54 @@ class MarathonPlugin : Plugin<Project> {
             val conf = extensions.getByName("marathon") as? MarathonExtension ?: MarathonExtension(project)
 
             testedExtension!!.testVariants.all {
-                log.info { "Applying marathon for ${this.baseName}" }
-                val testTaskForVariant = createTask(this, project, conf, testedExtension.sdkDirectory, exceptionsReporter)
+//                log.info { "Applying marathon for ${this.baseName}" }
+                val testTaskForVariant = createTask(this, project, conf, testedExtension.sdkDirectory, cli)
                 marathonTask.dependsOn(testTaskForVariant)
             }
         }
+    }
+
+    private fun prepareDistribution(project: Project): File {
+        val buildDir = project.buildDir
+        val marathonBuildDir = File(buildDir, "marathon").apply { mkdirs() }
+
+        //Unzip marathon distribution
+        val marathonZip = File(marathonBuildDir, "marathon-cli.zip")
+        marathonZip.outputStream().buffered().use {
+            MarathonPlugin::class.java.getResourceAsStream("/marathon-cli.zip").copyTo(it)
+        }
+
+        marathonBuildDir.listFiles()?.forEach {
+            if (it.isDirectory) {
+                it.delete()
+            }
+        }
+        ZipFile(marathonZip).use { zip ->
+            zip.entries().asSequence().forEach { entry ->
+                zip.getInputStream(entry).use { input ->
+                    val filePath = marathonBuildDir.canonicalPath + File.separator + entry.name
+                    val file = File(filePath)
+                    if (!entry.isDirectory) {
+                        file.parentFile.mkdirs()
+                        file.outputStream().buffered().use {
+                            input.copyTo(it)
+                        }
+                    } else {
+                        file.mkdirs()
+                    }
+                }
+            }
+        }
+        marathonBuildDir.listFiles()?.forEach {
+            if (it.isDirectory) {
+                it.renameTo(File(it.parent, "cli"))
+            }
+        }
+
+        return Paths.get(marathonBuildDir.canonicalPath, "cli", "bin", "marathon").apply {
+            val permissions = Files.getPosixFilePermissions(this)
+            Files.setPosixFilePermissions(this, permissions + PosixFilePermission.OWNER_EXECUTE)
+        }.toFile()
     }
 
     companion object {
@@ -67,7 +107,7 @@ class MarathonPlugin : Plugin<Project> {
             project: Project,
             config: MarathonExtension,
             sdkDirectory: File,
-            exceptionsReporter: ExceptionsReporter
+            cli: File,
         ): MarathonRunTask {
             checkTestVariants(variant)
 
@@ -75,7 +115,7 @@ class MarathonPlugin : Plugin<Project> {
 
             variant.testedVariant.outputs.all {
                 val testedOutput = this
-                log.info { "Processing output $testedOutput" }
+//                log.info { "Processing output $testedOutput" }
 
                 checkTestedVariants(testedOutput)
                 marathonTask.configure(closureOf<MarathonRunTask> {
@@ -88,7 +128,6 @@ class MarathonPlugin : Plugin<Project> {
                     marathonExtension.set(config)
                     sdk.set(sdkDirectory)
                     outputs.upToDateWhen { false }
-                    exceptionsTracker.set(exceptionsReporter)
                     executeGradleCompat(
                         exec = {
                             dependsOn(variant.testedVariant.assembleProvider, variant.assembleProvider)
@@ -98,6 +137,7 @@ class MarathonPlugin : Plugin<Project> {
                             dependsOn(variant.testedVariant.assemble, variant.assemble)
                         }
                     )
+                    executable(cli.absolutePath)
                 })
             }
 

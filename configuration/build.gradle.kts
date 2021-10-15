@@ -9,7 +9,7 @@ plugins {
 
 dependencies {
     implementation(Libraries.jacksonAnnotations)
-    implementation(Libraries.jacksonDatabind)
+    api(Libraries.jacksonDatabind)
     implementation(Libraries.jacksonAnnotations)
     implementation(Libraries.jacksonKotlin)
     implementation(Libraries.jacksonYaml)

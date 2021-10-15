@@ -19,10 +19,19 @@ Deployment.initialize(project)
 dependencies {
     implementation(gradleApi())
     implementation(Libraries.kotlinLogging)
-    implementation(project(":core"))
-    implementation(project(":vendor:vendor-android:base"))
-    implementation(project(":vendor:vendor-android:adam"))
-    implementation(project(":vendor:vendor-android:ddmlib"))
+    implementation(project(":configuration"))
     implementation(BuildPlugins.androidGradle)
-    implementation(project(":analytics:usage"))
+}
+
+tasks.processResources.configure {
+    from(rootProject.project("cli").layout.buildDirectory.dir("distributions").get().asFile) {
+        rename {
+            if (it.endsWith(".zip") && it.contains("marathon")) {
+                "marathon-cli.zip"
+            } else {
+                it
+            }
+        }
+    }
+    dependsOn(rootProject.project("cli").tasks.getByName("distZip"))
 }
