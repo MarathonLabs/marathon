@@ -26,7 +26,6 @@ import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.PathSensitive
 import org.gradle.api.tasks.PathSensitivity
-import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.VerificationTask
 import org.gradle.kotlin.dsl.property
 import java.io.File
@@ -103,31 +102,6 @@ open class MarathonRunTask @Inject constructor(objects: ObjectFactory) : Abstrac
         setArgs(listOf("-m", marathonfile.canonicalPath))
 
         super.exec()
-    }
-
-    @TaskAction
-    fun runMarathon() {
-
-
-//        log.info { "Run instrumentation tests ${androidConfiguration?.testApplicationOutput} for app ${androidConfiguration?.applicationOutput}" }
-//        log.debug { "Output: ${cnf.outputDir}" }
-//        log.debug { "Ignore failures: ${cnf.ignoreFailures}" }
-
-//        UsageAnalytics.enable = cnf.analyticsTracking
-//        UsageAnalytics.USAGE_TRACKER.trackEvent(Event(TrackActionType.RunType, "gradle"))
-//        try {
-//            val application = marathonStartKoin(cnf, modules)
-//            val marathon: Marathon = application.koin.get()
-//
-//            val success = marathon.run()
-//            tracker.end()
-//            val shouldReportFailure = !cnf.ignoreFailures
-//            if (!success && shouldReportFailure) {
-//                throw GradleException("Tests failed! See ${cnf.outputDir}/html/index.html")
-//            }
-//        } finally {
-//            stopKoin()
-//        }
     }
 
     private fun createAndroid(

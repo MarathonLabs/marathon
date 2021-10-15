@@ -10,7 +10,9 @@ import com.malinskiy.marathon.gradle.extensions.executeGradleCompat
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.Task
+import org.gradle.api.logging.Logger
 import org.gradle.api.plugins.JavaBasePlugin
+import org.gradle.internal.os.OperatingSystem
 import org.gradle.kotlin.dsl.closureOf
 import java.io.File
 import java.nio.file.Files
@@ -21,8 +23,8 @@ import java.util.zip.ZipFile
 class MarathonPlugin : Plugin<Project> {
 
     override fun apply(project: Project) {
-//        log.info { "Applying marathon plugin" }
-
+        val logger = project.logger
+        logger.info("Applying marathon plugin")
         val extension: MarathonExtension = project.extensions.create("marathon", MarathonExtension::class.java, project)
 
         project.afterEvaluate {
@@ -51,8 +53,8 @@ class MarathonPlugin : Plugin<Project> {
             val conf = extensions.getByName("marathon") as? MarathonExtension ?: MarathonExtension(project)
 
             testedExtension!!.testVariants.all {
-//                log.info { "Applying marathon for ${this.baseName}" }
-                val testTaskForVariant = createTask(this, project, conf, testedExtension.sdkDirectory, cli)
+                logger.info("Applying marathon for ${this.baseName}")
+                val testTaskForVariant = createTask(logger, this, project, conf, testedExtension.sdkDirectory, cli)
                 marathonTask.dependsOn(testTaskForVariant)
             }
         }
@@ -73,6 +75,8 @@ class MarathonPlugin : Plugin<Project> {
                 it.delete()
             }
         }
+
+        File(marathonBuildDir, "cli").delete()
         ZipFile(marathonZip).use { zip ->
             zip.entries().asSequence().forEach { entry ->
                 zip.getInputStream(entry).use { input ->
@@ -95,14 +99,24 @@ class MarathonPlugin : Plugin<Project> {
             }
         }
 
-        return Paths.get(marathonBuildDir.canonicalPath, "cli", "bin", "marathon").apply {
-            val permissions = Files.getPosixFilePermissions(this)
-            Files.setPosixFilePermissions(this, permissions + PosixFilePermission.OWNER_EXECUTE)
-        }.toFile()
+        return when (OperatingSystem.current()) {
+            OperatingSystem.WINDOWS -> {
+                Paths.get(marathonBuildDir.canonicalPath, "cli", "bin", "marathon.bat").toFile()
+                //Do we need to change permissions on windows?
+            }
+            else -> {
+                val cliPath = Paths.get(marathonBuildDir.canonicalPath, "cli", "bin", "marathon")
+                cliPath.apply {
+                    val permissions = Files.getPosixFilePermissions(this)
+                    Files.setPosixFilePermissions(this, permissions + PosixFilePermission.OWNER_EXECUTE)
+                }.toFile()
+            }
+        }
     }
 
     companion object {
         private fun createTask(
+            logger: Logger,
             variant: TestVariant,
             project: Project,
             config: MarathonExtension,
@@ -115,7 +129,7 @@ class MarathonPlugin : Plugin<Project> {
 
             variant.testedVariant.outputs.all {
                 val testedOutput = this
-//                log.info { "Processing output $testedOutput" }
+                logger.info("Processing output $testedOutput")
 
                 checkTestedVariants(testedOutput)
                 marathonTask.configure(closureOf<MarathonRunTask> {
