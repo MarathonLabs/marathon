@@ -21,6 +21,7 @@ dependencies {
     implementation(Libraries.kotlinLogging)
     implementation(project(":configuration"))
     implementation(BuildPlugins.androidGradle)
+    implementation(Libraries.apacheCommonsCodec)
 }
 
 tasks.processResources.configure {

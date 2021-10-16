@@ -12,13 +12,8 @@ import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.api.logging.Logger
 import org.gradle.api.plugins.JavaBasePlugin
-import org.gradle.internal.os.OperatingSystem
 import org.gradle.kotlin.dsl.closureOf
 import java.io.File
-import java.nio.file.Files
-import java.nio.file.Paths
-import java.nio.file.attribute.PosixFilePermission
-import java.util.zip.ZipFile
 
 class MarathonPlugin : Plugin<Project> {
 
@@ -64,54 +59,7 @@ class MarathonPlugin : Plugin<Project> {
         val buildDir = project.buildDir
         val marathonBuildDir = File(buildDir, "marathon").apply { mkdirs() }
 
-        //Unzip marathon distribution
-        val marathonZip = File(marathonBuildDir, "marathon-cli.zip")
-        marathonZip.outputStream().buffered().use {
-            MarathonPlugin::class.java.getResourceAsStream("/marathon-cli.zip").copyTo(it)
-        }
-
-        marathonBuildDir.listFiles()?.forEach {
-            if (it.isDirectory) {
-                it.delete()
-            }
-        }
-
-        File(marathonBuildDir, "cli").delete()
-        ZipFile(marathonZip).use { zip ->
-            zip.entries().asSequence().forEach { entry ->
-                zip.getInputStream(entry).use { input ->
-                    val filePath = marathonBuildDir.canonicalPath + File.separator + entry.name
-                    val file = File(filePath)
-                    if (!entry.isDirectory) {
-                        file.parentFile.mkdirs()
-                        file.outputStream().buffered().use {
-                            input.copyTo(it)
-                        }
-                    } else {
-                        file.mkdirs()
-                    }
-                }
-            }
-        }
-        marathonBuildDir.listFiles()?.forEach {
-            if (it.isDirectory) {
-                it.renameTo(File(it.parent, "cli"))
-            }
-        }
-
-        return when (OperatingSystem.current()) {
-            OperatingSystem.WINDOWS -> {
-                Paths.get(marathonBuildDir.canonicalPath, "cli", "bin", "marathon.bat").toFile()
-                //Do we need to change permissions on windows?
-            }
-            else -> {
-                val cliPath = Paths.get(marathonBuildDir.canonicalPath, "cli", "bin", "marathon")
-                cliPath.apply {
-                    val permissions = Files.getPosixFilePermissions(this)
-                    Files.setPosixFilePermissions(this, permissions + PosixFilePermission.OWNER_EXECUTE)
-                }.toFile()
-            }
-        }
+        return DistributionInstaller().install(marathonBuildDir)
     }
 
     companion object {
