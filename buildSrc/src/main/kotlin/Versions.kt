@@ -5,7 +5,7 @@ object Versions {
     val coroutines = "1.4.3"
 
     val ddmlib = "27.1.2"
-    val adam = "0.3.1"
+    val adam = "0.3.2"
     val dexTestParser = "2.3.3"
     val kotlinLogging = "2.0.8"
     val logbackClassic = "1.2.3"
@@ -23,7 +23,7 @@ object Versions {
     val espressoRules = "1.0.1"
     val espressoRunner = "1.0.1"
     val junit = "4.12"
-    val gson = "2.8.7"
+    val gson = "2.8.8"
     val apacheCommonsText = "1.9"
     val apacheCommonsIO = "2.9.0"
     val influxDbClient = "2.21"

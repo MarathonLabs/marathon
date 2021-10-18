@@ -11,6 +11,7 @@ import com.malinskiy.marathon.android.ScreenRecordConfiguration
 import com.malinskiy.marathon.android.VendorType
 import com.malinskiy.marathon.android.adam.di.adamModule
 import com.malinskiy.marathon.android.configuration.DEFAULT_ALLURE_CONFIGURATION
+import com.malinskiy.marathon.android.configuration.FileSyncConfiguration
 import com.malinskiy.marathon.android.configuration.SerialStrategy
 import com.malinskiy.marathon.android.defaultInitTimeoutMillis
 import com.malinskiy.marathon.di.marathonStartKoin
@@ -166,7 +167,8 @@ open class MarathonRunTask @Inject constructor(objects: ObjectFactory) : Default
             screenRecordConfiguration = screenRecordConfiguration,
             serialStrategy = serialStrategy,
             waitForDevicesTimeoutMillis = waitForDevicesTimeoutMillis,
-            allureConfiguration = allureConfiguration
+            allureConfiguration = allureConfiguration,
+            fileSyncConfiguration = extension.fileSyncConfiguration ?: FileSyncConfiguration(),
         )
     }
 
