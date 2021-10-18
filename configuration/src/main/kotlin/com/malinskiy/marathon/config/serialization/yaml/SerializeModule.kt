@@ -18,9 +18,6 @@ class SerializeModule(
 ) :
     SimpleModule() {
     init {
-//        addDeserializer(AnalyticsConfiguration::class.java, AnalyticsConfigurationDeserializer())
-//        addSerializer(AnalyticsConfiguration::class.java, AnalyticsConfigurationSerializer())
-
         addDeserializer(AnalyticsConfiguration.InfluxDbConfiguration::class.java, InfluxDbConfigurationDeserializer())
         addDeserializer(AnalyticsConfiguration.GraphiteConfiguration::class.java, GraphiteConfigurationDeserializer())
         addDeserializer(
@@ -45,7 +42,6 @@ class SerializeModule(
         addSerializer(Regex::class.java, RegexSerializer())
 
         addDeserializer(File::class.java, FileDeserializer(marathonfileDir))
-//        addSerializer(VendorConfiguration::class.java, VendorConfigurationSerializer())
         addDeserializer(
             VendorConfiguration::class.java,
             VendorConfigurationDeserializer(marathonfileDir, environmentReader, fileListProvider)
