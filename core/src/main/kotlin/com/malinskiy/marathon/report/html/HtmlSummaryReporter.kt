@@ -132,7 +132,6 @@ class HtmlSummaryReporter(
         }
     }
 
-    fun inputStreamFromResources(path: String): InputStream = HtmlPoolSummary::class.java.classLoader.getResourceAsStream(path)
 
     fun generateLogcatHtml(logcatOutput: String): String = when (logcatOutput.isNotEmpty()) {
         false -> ""
@@ -287,3 +286,6 @@ private fun String.safePathLength(): String {
         substring(0 until 128)
     } else this
 }
+
+private fun inputStreamFromResources(path: String): InputStream =
+    HtmlSummaryReporter::class.java.classLoader.getResourceAsStream(path)
