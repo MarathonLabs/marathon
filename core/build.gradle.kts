@@ -34,6 +34,7 @@ buildConfig {
 }
 
 dependencies {
+    api(project(":configuration"))
     implementation(project(":report:html-report"))
     implementation(project(":report:execution-timeline"))
 
@@ -44,7 +45,6 @@ dependencies {
     implementation(project(":analytics:usage"))
     implementation(Libraries.gson)
     implementation(Libraries.jacksonAnnotations)
-    implementation(Libraries.apacheCommonsText)
     implementation(Libraries.apacheCommonsIO)
     implementation(Libraries.kotlinStdLib)
     implementation(Libraries.kotlinCoroutines)

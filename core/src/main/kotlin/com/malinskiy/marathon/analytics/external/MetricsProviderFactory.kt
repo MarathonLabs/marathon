@@ -4,9 +4,9 @@ import com.malinskiy.marathon.analytics.external.influx.InfluxDbProvider
 import com.malinskiy.marathon.analytics.metrics.remote.graphite.GraphiteDataSource
 import com.malinskiy.marathon.analytics.metrics.remote.graphite.QueryableGraphiteClient
 import com.malinskiy.marathon.analytics.metrics.remote.influx.InfluxDBDataSource
-import com.malinskiy.marathon.execution.AnalyticsConfiguration.GraphiteConfiguration
-import com.malinskiy.marathon.execution.AnalyticsConfiguration.InfluxDbConfiguration
-import com.malinskiy.marathon.execution.Configuration
+import com.malinskiy.marathon.config.AnalyticsConfiguration.GraphiteConfiguration
+import com.malinskiy.marathon.config.AnalyticsConfiguration.InfluxDbConfiguration
+import com.malinskiy.marathon.config.Configuration
 
 internal class MetricsProviderFactory(configuration: Configuration) {
     private val configuration = configuration.analyticsConfiguration

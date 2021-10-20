@@ -15,6 +15,7 @@ pluginManagement {
 
 rootProject.name = "marathon"
 include("core")
+include("configuration")
 include("vendor:vendor-android:base")
 include("vendor:vendor-android:ddmlib")
 include("vendor:vendor-android:adam")

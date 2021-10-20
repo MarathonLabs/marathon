@@ -35,7 +35,7 @@ marathon {
     instrumentationArgs {
         put("debug", "false")
     }
-    vendor = com.malinskiy.marathon.android.VendorType.ADAM
+    vendor = com.malinskiy.marathon.config.vendor.VendorConfiguration.AndroidConfiguration.VendorType.ADAM
 }
 
 dependencies {

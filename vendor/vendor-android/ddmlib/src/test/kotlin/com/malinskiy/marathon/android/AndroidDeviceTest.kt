@@ -3,9 +3,10 @@ package com.malinskiy.marathon.android
 import com.android.ddmlib.IDevice
 import com.android.sdklib.AndroidVersion
 import com.malinskiy.marathon.analytics.internal.pub.Track
-import com.malinskiy.marathon.android.configuration.SerialStrategy
 import com.malinskiy.marathon.android.ddmlib.DdmlibAndroidDevice
-import com.malinskiy.marathon.execution.Configuration
+import com.malinskiy.marathon.config.Configuration
+import com.malinskiy.marathon.config.vendor.VendorConfiguration
+import com.malinskiy.marathon.config.vendor.android.SerialStrategy
 import com.malinskiy.marathon.time.SystemTimer
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.reset
@@ -19,7 +20,7 @@ import java.time.Clock
 class AndroidDeviceTest {
     private val iDevice = mock<IDevice>()
     private val configuration = mock<Configuration>()
-    private val androidConfiguration = mock<AndroidConfiguration>()
+    private val androidConfiguration = mock<VendorConfiguration.AndroidConfiguration>()
     private val track = Track()
     private val timer = SystemTimer(Clock.systemDefaultZone())
 

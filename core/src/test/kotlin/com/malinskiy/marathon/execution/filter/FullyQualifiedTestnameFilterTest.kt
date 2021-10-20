@@ -1,5 +1,7 @@
 package com.malinskiy.marathon.execution.filter
 
+import com.malinskiy.marathon.config.TestFilterConfiguration
+import com.malinskiy.marathon.extension.toTestFilter
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.Test
 import com.malinskiy.marathon.test.Test as MarathonTest
@@ -10,7 +12,8 @@ class FullyQualifiedTestnameFilterTest {
     private val test3 = MarathonTest("com.sample", "Test3", "test3", emptyList())
     private val test4 = MarathonTest("", "Test4", "test1", emptyList())
 
-    private val filter = FullyQualifiedTestnameFilter("""com\.example\..*#test.*""".toRegex())
+    private val filter =
+        TestFilterConfiguration.FullyQualifiedTestnameFilterConfiguration("""com\.example\..*#test.*""".toRegex()).toTestFilter()
     val tests = listOf(
         test1,
         test2,
@@ -30,11 +33,11 @@ class FullyQualifiedTestnameFilterTest {
 
     @Test
     fun shouldFilterWithValues() {
-        FullyQualifiedTestnameFilter(
+        TestFilterConfiguration.FullyQualifiedTestnameFilterConfiguration(
             values = listOf(
                 "com.example.subpackage.Test2#test2",
                 "Test4#test1"
             )
-        ).filter(tests) shouldBeEqualTo listOf(test2, test4)
+        ).toTestFilter().filter(tests) shouldBeEqualTo listOf(test2, test4)
     }
 }

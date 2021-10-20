@@ -1,7 +1,7 @@
 package com.malinskiy.marathon.execution.progress.tracker
 
 import com.malinskiy.marathon.actor.StateMachine
-import com.malinskiy.marathon.execution.Configuration
+import com.malinskiy.marathon.config.Configuration
 import com.malinskiy.marathon.test.Test
 import java.util.concurrent.atomic.AtomicInteger
 

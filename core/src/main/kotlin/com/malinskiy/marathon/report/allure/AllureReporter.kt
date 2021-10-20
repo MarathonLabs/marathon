@@ -3,8 +3,8 @@ package com.malinskiy.marathon.report.allure
 import com.github.automatedowl.tools.AllureEnvironmentWriter.allureEnvironmentWriter
 import com.google.common.collect.ImmutableMap
 import com.malinskiy.marathon.analytics.internal.sub.ExecutionReport
+import com.malinskiy.marathon.config.Configuration
 import com.malinskiy.marathon.device.DeviceInfo
-import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.execution.TestResult
 import com.malinskiy.marathon.execution.TestStatus
 import com.malinskiy.marathon.report.Reporter
@@ -18,7 +18,7 @@ import io.qameta.allure.model.Status
 import io.qameta.allure.model.StatusDetails
 import io.qameta.allure.util.ResultsUtils
 import java.io.File
-import java.util.*
+import java.util.UUID
 import io.qameta.allure.Description as JavaDescription
 import io.qameta.allure.Epic as JavaEpic
 import io.qameta.allure.Feature as JavaFeature
