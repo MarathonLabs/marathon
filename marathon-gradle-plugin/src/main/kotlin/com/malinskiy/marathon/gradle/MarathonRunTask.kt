@@ -121,7 +121,7 @@ open class MarathonRunTask @Inject constructor(objects: ObjectFactory) : Abstrac
         val allureConfiguration = extension.allureConfiguration ?: AllureConfiguration()
 
         return VendorConfiguration.AndroidConfiguration(
-            vendor = extension.vendor ?: VendorConfiguration.AndroidConfiguration.VendorType.DDMLIB,
+            vendor = extension.vendor ?: VendorConfiguration.AndroidConfiguration.VendorType.ADAM,
             androidSdk = sdk.get().asFile,
             applicationOutput = applicationApk,
             testApplicationOutput = instrumentationApk,

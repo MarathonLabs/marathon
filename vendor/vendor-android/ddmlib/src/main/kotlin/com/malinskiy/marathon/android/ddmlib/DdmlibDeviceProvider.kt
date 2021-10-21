@@ -52,7 +52,7 @@ class DdmlibDeviceProvider(
 
     override suspend fun initialize() {
         logger.warn {
-            "ddmlib Android vendor will be deprecated in 0.7.0 and is scheduled to be removed in 0.8.0.\n" +
+            "ddmlib Android vendor is deprecated and will be removed in 0.8.0.\n" +
                 "\tMore info: https://marathonlabs.github.io/marathon/ven/android.html#vendor-module-selection"
         }
 

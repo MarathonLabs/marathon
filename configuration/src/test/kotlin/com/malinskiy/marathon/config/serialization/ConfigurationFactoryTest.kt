@@ -161,7 +161,7 @@ class ConfigurationFactoryTest {
 
         configuration.deviceInitializationTimeoutMillis shouldBeEqualTo 300_000
         configuration.vendorConfiguration shouldBeEqualTo VendorConfiguration.AndroidConfiguration(
-            VendorConfiguration.AndroidConfiguration.VendorType.DDMLIB,
+            VendorConfiguration.AndroidConfiguration.VendorType.ADAM,
             File("/local/android"),
             File(mockMarathonFileDir, "kotlin-buildscript/build/outputs/apk/debug/kotlin-buildscript-debug.apk"),
             File(mockMarathonFileDir, "kotlin-buildscript/build/outputs/apk/androidTest/debug/kotlin-buildscript-debug-androidTest.apk"),
@@ -233,7 +233,7 @@ class ConfigurationFactoryTest {
         configuration.debug shouldBeEqualTo true
         configuration.screenRecordingPolicy shouldBeEqualTo ScreenRecordingPolicy.ON_FAILURE
         configuration.vendorConfiguration shouldBeEqualTo VendorConfiguration.AndroidConfiguration(
-            VendorConfiguration.AndroidConfiguration.VendorType.DDMLIB,
+            VendorConfiguration.AndroidConfiguration.VendorType.ADAM,
             File("/local/android"),
             File(mockMarathonFileDir, "kotlin-buildscript/build/outputs/apk/debug/kotlin-buildscript-debug.apk"),
             File(mockMarathonFileDir, "kotlin-buildscript/build/outputs/apk/androidTest/debug/kotlin-buildscript-debug-androidTest.apk"),
@@ -306,7 +306,7 @@ class ConfigurationFactoryTest {
         val configuration = parser.parse(file)
 
         configuration.vendorConfiguration shouldBeEqualTo VendorConfiguration.AndroidConfiguration(
-            VendorConfiguration.AndroidConfiguration.VendorType.DDMLIB,
+            VendorConfiguration.AndroidConfiguration.VendorType.ADAM,
             environmentReader.read().androidSdk!!,
             File(mockMarathonFileDir, "kotlin-buildscript/build/outputs/apk/debug/kotlin-buildscript-debug.apk"),
             File(mockMarathonFileDir, "kotlin-buildscript/build/outputs/apk/androidTest/debug/kotlin-buildscript-debug-androidTest.apk"),
