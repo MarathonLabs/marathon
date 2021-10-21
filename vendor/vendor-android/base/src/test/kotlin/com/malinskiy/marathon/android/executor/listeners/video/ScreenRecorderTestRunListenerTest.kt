@@ -5,7 +5,6 @@ import com.malinskiy.adam.server.junit5.AdbClient
 import com.malinskiy.adam.server.junit5.AdbServer
 import com.malinskiy.adam.server.junit5.AdbTest
 import com.malinskiy.adam.server.stub.AndroidDebugBridgeServer
-import com.malinskiy.marathon.android.VideoConfiguration
 import com.malinskiy.marathon.android.adam.TestConfigurationFactory
 import com.malinskiy.marathon.android.adam.TestDeviceFactory
 import com.malinskiy.marathon.android.adam.boot
@@ -13,9 +12,10 @@ import com.malinskiy.marathon.android.adam.features
 import com.malinskiy.marathon.android.adam.pullFile
 import com.malinskiy.marathon.android.adam.shell
 import com.malinskiy.marathon.android.model.TestIdentifier
+import com.malinskiy.marathon.config.ScreenRecordingPolicy
+import com.malinskiy.marathon.config.vendor.android.VideoConfiguration
 import com.malinskiy.marathon.device.DevicePoolId
 import com.malinskiy.marathon.device.toDeviceInfo
-import com.malinskiy.marathon.execution.policy.ScreenRecordingPolicy
 import com.malinskiy.marathon.io.FileManager
 import com.malinskiy.marathon.io.FileType
 import com.malinskiy.marathon.report.attachment.AttachmentListener

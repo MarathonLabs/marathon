@@ -4,10 +4,10 @@ import com.google.gson.Gson
 import com.malinskiy.marathon.analytics.internal.sub.ExecutionReport
 import com.malinskiy.marathon.analytics.internal.sub.PoolSummary
 import com.malinskiy.marathon.analytics.internal.sub.Summary
+import com.malinskiy.marathon.config.Configuration
 import com.malinskiy.marathon.device.DeviceFeature
 import com.malinskiy.marathon.device.DeviceInfo
 import com.malinskiy.marathon.device.DevicePoolId
-import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.execution.TestResult
 import com.malinskiy.marathon.execution.TestStatus
 import com.malinskiy.marathon.extension.escape
@@ -132,7 +132,6 @@ class HtmlSummaryReporter(
         }
     }
 
-    fun inputStreamFromResources(path: String): InputStream = HtmlPoolSummary::class.java.classLoader.getResourceAsStream(path)
 
     fun generateLogcatHtml(logcatOutput: String): String = when (logcatOutput.isNotEmpty()) {
         false -> ""
@@ -287,3 +286,6 @@ private fun String.safePathLength(): String {
         substring(0 until 128)
     } else this
 }
+
+private fun inputStreamFromResources(path: String): InputStream =
+    HtmlSummaryReporter::class.java.classLoader.getResourceAsStream(path)

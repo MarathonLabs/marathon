@@ -1,7 +1,7 @@
 package com.malinskiy.marathon.android.executor.listeners.video
 
 import com.malinskiy.marathon.android.AndroidDevice
-import com.malinskiy.marathon.android.VideoConfiguration
+import com.malinskiy.marathon.config.vendor.android.VideoConfiguration
 import com.malinskiy.marathon.log.MarathonLogging
 import kotlinx.coroutines.CancellationException
 import kotlin.system.measureTimeMillis

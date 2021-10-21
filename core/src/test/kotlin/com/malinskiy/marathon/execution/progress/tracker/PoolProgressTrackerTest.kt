@@ -1,9 +1,7 @@
 package com.malinskiy.marathon.execution.progress.tracker
 
-import com.malinskiy.marathon.execution.Configuration
-import com.malinskiy.marathon.test.Mocks
-import com.malinskiy.marathon.test.StubDeviceProvider
-import com.malinskiy.marathon.test.TestVendorConfiguration
+import com.malinskiy.marathon.config.Configuration
+import com.malinskiy.marathon.config.vendor.VendorConfiguration
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.Test
 import java.io.File
@@ -18,33 +16,15 @@ class PoolProgressTrackerTest {
     )
 
     private fun createConfiguration(strictMode: Boolean): Configuration {
-        return Configuration(
+        return Configuration.Builder(
             name = "",
             outputDir = File(""),
-            analyticsConfiguration = null,
-            poolingStrategy = null,
-            shardingStrategy = null,
-            sortingStrategy = null,
-            batchingStrategy = null,
-            flakinessStrategy = null,
-            retryStrategy = null,
-            filteringConfiguration = null,
-            ignoreFailures = null,
-            isCodeCoverageEnabled = null,
-            fallbackToScreenshots = null,
-            strictMode = strictMode,
-            uncompletedTestRetryQuota = null,
-            testClassRegexes = null,
-            includeSerialRegexes = null,
-            excludeSerialRegexes = null,
-            testBatchTimeoutMillis = null,
-            testOutputTimeoutMillis = null,
-            debug = false,
-            screenRecordingPolicy = null,
-            vendorConfiguration = TestVendorConfiguration(Mocks.TestParser.DEFAULT, StubDeviceProvider()),
-            analyticsTracking = false,
-            deviceInitializationTimeoutMillis = null
-        )
+            vendorConfiguration = VendorConfiguration.StubVendorConfiguration,
+        ).apply {
+            this.strictMode = strictMode
+            debug = false
+            analyticsTracking = false
+        }.build()
     }
 
     @Test

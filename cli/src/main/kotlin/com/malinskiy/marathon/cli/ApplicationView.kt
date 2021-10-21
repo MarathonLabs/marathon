@@ -1,19 +1,16 @@
 package com.malinskiy.marathon.cli
 
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
-import com.fasterxml.jackson.dataformat.yaml.YAMLGenerator
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
-import com.fasterxml.jackson.module.kotlin.KotlinModule
 import com.malinskiy.marathon.Marathon
+import com.malinskiy.marathon.android.AndroidVendor
+import com.malinskiy.marathon.android.adam.di.adamModule
 import com.malinskiy.marathon.cli.args.MarathonCliConfiguration
-import com.malinskiy.marathon.cli.args.environment.SystemEnvironmentReader
-import com.malinskiy.marathon.cli.config.ConfigFactory
-import com.malinskiy.marathon.cli.config.DeserializeModule
-import com.malinskiy.marathon.cli.config.time.InstantTimeProviderImpl
 import com.malinskiy.marathon.config.AppType
+import com.malinskiy.marathon.config.exceptions.ConfigurationException
+import com.malinskiy.marathon.config.serialization.ConfigurationFactory
+import com.malinskiy.marathon.config.vendor.VendorConfiguration
 import com.malinskiy.marathon.di.marathonStartKoin
 import com.malinskiy.marathon.exceptions.ExceptionsReporterFactory
+import com.malinskiy.marathon.ios.IOSVendor
 import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.usageanalytics.TrackActionType
 import com.malinskiy.marathon.usageanalytics.UsageAnalytics
@@ -21,7 +18,9 @@ import com.malinskiy.marathon.usageanalytics.tracker.Event
 import com.xenomachina.argparser.ArgParser
 import com.xenomachina.argparser.SystemExitException
 import com.xenomachina.argparser.mainBody
+import ddmlibModule
 import org.koin.core.context.stopKoin
+import org.koin.dsl.module
 
 private val logger = MarathonLogging.logger {}
 
@@ -33,16 +32,29 @@ fun main(args: Array<String>): Unit = mainBody(
         val bugsnagExceptionsReporter = ExceptionsReporterFactory.get(bugsnagReporting)
         try {
             bugsnagExceptionsReporter.start(AppType.CLI)
-            val mapper = ObjectMapper(YAMLFactory().disable(YAMLGenerator.Feature.USE_NATIVE_TYPE_ID))
-            mapper.registerModule(DeserializeModule(InstantTimeProviderImpl()))
-                .registerModule(KotlinModule())
-                .registerModule(JavaTimeModule())
-            val configuration = ConfigFactory(mapper).create(
-                marathonfile = marathonfile,
-                environmentReader = SystemEnvironmentReader()
-            )
 
-            val application = marathonStartKoin(configuration)
+            logger.info { "Checking $marathonfile config" }
+            if (!marathonfile.isFile) {
+                logger.error { "No config ${marathonfile.absolutePath} present" }
+                throw ConfigurationException("No config ${marathonfile.absolutePath} present")
+            }
+
+            val configuration = ConfigurationFactory(marathonfileDir = marathonfile.canonicalFile.parentFile).parse(marathonfile)
+            val vendorConfiguration = configuration.vendorConfiguration
+            val modules = when (vendorConfiguration) {
+                is VendorConfiguration.IOSConfiguration -> {
+                    IOSVendor + module { single { vendorConfiguration } }
+                }
+                is VendorConfiguration.AndroidConfiguration -> {
+                    AndroidVendor + module { single { vendorConfiguration } } + when (vendorConfiguration.vendor) {
+                        VendorConfiguration.AndroidConfiguration.VendorType.ADAM -> listOf(adamModule)
+                        VendorConfiguration.AndroidConfiguration.VendorType.DDMLIB -> listOf(ddmlibModule)
+                    }
+                }
+                else -> throw ConfigurationException("No vendor config present in ${marathonfile.absolutePath}")
+            }
+
+            val application = marathonStartKoin(configuration, modules)
             val marathon: Marathon = application.koin.get()
 
             UsageAnalytics.enable = this.analyticsTracking

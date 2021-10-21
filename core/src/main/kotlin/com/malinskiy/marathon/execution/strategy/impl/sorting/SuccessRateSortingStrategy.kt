@@ -1,23 +1,18 @@
 package com.malinskiy.marathon.execution.strategy.impl.sorting
 
-import com.fasterxml.jackson.annotation.JsonProperty
 import com.malinskiy.marathon.analytics.external.MetricsProvider
+import com.malinskiy.marathon.config.strategy.SortingStrategyConfiguration
 import com.malinskiy.marathon.execution.strategy.SortingStrategy
 import com.malinskiy.marathon.test.Test
-import java.time.Instant
-import java.util.*
 
-class SuccessRateSortingStrategy(
-    @JsonProperty("timeLimit") private val timeLimit: Instant,
-    @JsonProperty("ascending") private val ascending: Boolean = false
-) : SortingStrategy {
+class SuccessRateSortingStrategy(private val cnf: SortingStrategyConfiguration.SuccessRateSortingStrategyConfiguration) : SortingStrategy {
     override fun process(metricsProvider: MetricsProvider): Comparator<Test> {
         val comparator = Comparator.comparingDouble<Test>
         {
-            metricsProvider.successRate(it, timeLimit)
+            metricsProvider.successRate(it, cnf.timeLimit)
         }
 
-        return when (ascending) {
+        return when (cnf.ascending) {
             true -> comparator
             false -> comparator.reversed()
         }
@@ -29,17 +24,15 @@ class SuccessRateSortingStrategy(
 
         other as SuccessRateSortingStrategy
 
-        if (timeLimit != other.timeLimit) return false
-        if (ascending != other.ascending) return false
+        if (cnf.timeLimit != other.cnf.timeLimit) return false
+        if (cnf.ascending != other.cnf.ascending) return false
 
         return true
     }
 
     override fun hashCode(): Int {
-        var result = timeLimit.hashCode()
-        result = 31 * result + ascending.hashCode()
+        var result = cnf.timeLimit.hashCode()
+        result = 31 * result + cnf.ascending.hashCode()
         return result
     }
-
-
 }

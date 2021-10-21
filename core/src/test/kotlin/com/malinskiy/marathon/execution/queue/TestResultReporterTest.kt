@@ -2,16 +2,14 @@ package com.malinskiy.marathon.execution.queue
 
 import com.malinskiy.marathon.analytics.external.Analytics
 import com.malinskiy.marathon.analytics.internal.pub.Track
+import com.malinskiy.marathon.config.Configuration
+import com.malinskiy.marathon.config.vendor.VendorConfiguration
 import com.malinskiy.marathon.createDeviceInfo
 import com.malinskiy.marathon.device.DevicePoolId
-import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.execution.TestResult
 import com.malinskiy.marathon.execution.TestShard
 import com.malinskiy.marathon.execution.TestStatus
 import com.malinskiy.marathon.generateTest
-import com.malinskiy.marathon.test.Mocks
-import com.malinskiy.marathon.test.StubDeviceProvider
-import com.malinskiy.marathon.test.TestVendorConfiguration
 import com.nhaarman.mockitokotlin2.inOrder
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.reset
@@ -29,33 +27,14 @@ class TestResultReporterTest {
         reset(track, analytics)
     }
 
-    private val defaultConfig = Configuration(
+    private val defaultConfig = Configuration.Builder(
         name = "",
         outputDir = File(""),
-        analyticsConfiguration = null,
-        poolingStrategy = null,
-        shardingStrategy = null,
-        sortingStrategy = null,
-        batchingStrategy = null,
-        flakinessStrategy = null,
-        retryStrategy = null,
-        filteringConfiguration = null,
-        ignoreFailures = null,
-        isCodeCoverageEnabled = null,
-        fallbackToScreenshots = null,
-        strictMode = null,
-        uncompletedTestRetryQuota = null,
-        testClassRegexes = null,
-        includeSerialRegexes = null,
-        excludeSerialRegexes = null,
-        testBatchTimeoutMillis = null,
-        testOutputTimeoutMillis = null,
-        debug = false,
-        screenRecordingPolicy = null,
-        vendorConfiguration = TestVendorConfiguration(Mocks.TestParser.DEFAULT, StubDeviceProvider()),
-        analyticsTracking = false,
-        deviceInitializationTimeoutMillis = null
-    )
+        vendorConfiguration = VendorConfiguration.StubVendorConfiguration,
+    ).apply {
+        debug = false
+        analyticsTracking = false
+    }.build()
     private val strictConfig = defaultConfig.copy(strictMode = true)
     val test = generateTest()
     private val poolId = DevicePoolId("test")

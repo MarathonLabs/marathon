@@ -1,7 +1,7 @@
 package com.malinskiy.marathon.ios.cmd.remote
 
 import org.amshove.kluent.shouldBeEmpty
-import org.amshove.kluent.shouldEqual
+import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.Test
 
 class SshjCommandOutputLineBufferTest {
@@ -24,7 +24,7 @@ class SshjCommandOutputLineBufferTest {
 
         buffer.flush()
 
-        lines.count() shouldEqual (incomingText1 + incomingText2).lineCount()
+        lines.count() shouldBeEqualTo (incomingText1 + incomingText2).lineCount()
     }
 
     @Test
@@ -33,7 +33,7 @@ class SshjCommandOutputLineBufferTest {
             .also { buffer.append(it.toByteArray()) }
         buffer.flush()
 
-        lines.count() shouldEqual incomingText.lineCount()
+        lines.count() shouldBeEqualTo incomingText.lineCount()
     }
 
     @Test
@@ -42,7 +42,7 @@ class SshjCommandOutputLineBufferTest {
             .also { buffer.append(it.toByteArray()) }
         buffer.drain()
 
-        lines.count() shouldEqual incomingText.lineCount() + 1
+        lines.count() shouldBeEqualTo incomingText.lineCount() + 1
     }
 
     @Test
@@ -51,7 +51,7 @@ class SshjCommandOutputLineBufferTest {
             .also { buffer.append(it.toByteArray()) }
         buffer.close()
 
-        lines.count() shouldEqual incomingText.lineCount() + 1
+        lines.count() shouldBeEqualTo incomingText.lineCount() + 1
     }
 }
 

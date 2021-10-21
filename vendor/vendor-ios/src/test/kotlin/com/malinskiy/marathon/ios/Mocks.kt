@@ -1,6 +1,7 @@
 package com.malinskiy.marathon.ios
 
 import com.google.gson.GsonBuilder
+import com.malinskiy.marathon.config.vendor.VendorConfiguration
 import com.malinskiy.marathon.ios.cmd.remote.CommandResult
 import com.malinskiy.marathon.ios.cmd.remote.CommandSession
 import com.malinskiy.marathon.ios.device.RemoteSimulator
@@ -37,7 +38,7 @@ class Mocks {
             val DEFAULT = com.malinskiy.marathon.ios.IOSDevice(
                 RemoteSimulator("localhost", "63D0962A-0A41-4BE9-A99E-E6220412BEB1", null),
                 1,
-                mock<IOSConfiguration>(),
+                mock<VendorConfiguration.IOSConfiguration>(),
                 gson,
                 mock(),
                 object : HealthChangeListener {

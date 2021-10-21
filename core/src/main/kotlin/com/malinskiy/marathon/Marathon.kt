@@ -3,16 +3,20 @@ package com.malinskiy.marathon
 import com.malinskiy.marathon.analytics.external.Analytics
 import com.malinskiy.marathon.analytics.internal.pub.Track
 import com.malinskiy.marathon.analytics.internal.sub.TrackerInternal
+import com.malinskiy.marathon.config.Configuration
 import com.malinskiy.marathon.config.LogicalConfigurationValidator
 import com.malinskiy.marathon.device.DeviceProvider
 import com.malinskiy.marathon.exceptions.NoDevicesException
 import com.malinskiy.marathon.exceptions.NoTestCasesFoundException
-import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.execution.Scheduler
 import com.malinskiy.marathon.execution.TestParser
 import com.malinskiy.marathon.execution.TestShard
 import com.malinskiy.marathon.execution.bundle.TestBundleIdentifier
 import com.malinskiy.marathon.execution.progress.ProgressReporter
+import com.malinskiy.marathon.extension.toFlakinessStrategy
+import com.malinskiy.marathon.extension.toShardingStrategy
+import com.malinskiy.marathon.extension.toTestFilter
+import com.malinskiy.marathon.log.MarathonLogConfigurator
 import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.test.Test
 import com.malinskiy.marathon.test.toTestName
@@ -20,50 +24,29 @@ import com.malinskiy.marathon.time.Timer
 import com.malinskiy.marathon.usageanalytics.TrackActionType
 import com.malinskiy.marathon.usageanalytics.UsageAnalytics
 import com.malinskiy.marathon.usageanalytics.tracker.Event
-import com.malinskiy.marathon.vendor.VendorConfiguration
 import kotlinx.coroutines.runBlocking
 import org.koin.core.context.stopKoin
-import java.util.ServiceLoader
 import kotlin.coroutines.coroutineContext
 
 private val log = MarathonLogging.logger {}
 
 class Marathon(
-    val configuration: Configuration,
+    private val configuration: Configuration,
+    private val deviceProvider: DeviceProvider,
+    private val testBundleIdentifier: TestBundleIdentifier,
+    private val testParser: TestParser,
+    private val logConfigurator: MarathonLogConfigurator,
     private val tracker: TrackerInternal,
     private val analytics: Analytics,
     private val progressReporter: ProgressReporter,
     private val track: Track,
     private val timer: Timer
 ) {
-
     private val configurationValidator = LogicalConfigurationValidator()
 
-    private fun configureLogging(vendorConfiguration: VendorConfiguration) {
+    private fun configureLogging() {
         MarathonLogging.debug = configuration.debug
-
-        vendorConfiguration.logConfigurator()?.configure(vendorConfiguration)
-    }
-
-    private suspend fun loadDeviceProvider(vendorConfiguration: VendorConfiguration): DeviceProvider {
-        val vendorDeviceProvider = vendorConfiguration.deviceProvider()
-            ?: ServiceLoader.load(DeviceProvider::class.java).first()
-
-        vendorDeviceProvider.initialize(configuration.vendorConfiguration)
-        return vendorDeviceProvider
-    }
-
-    private fun loadTestBundleIdentifier(vendorConfiguration: VendorConfiguration): TestBundleIdentifier? {
-        return vendorConfiguration.testBundleIdentifier() ?: ServiceLoader.load(TestBundleIdentifier::class.java).firstOrNull()
-    }
-
-    private fun loadTestParser(vendorConfiguration: VendorConfiguration): TestParser {
-        val vendorTestParser = vendorConfiguration.testParser()
-        if (vendorTestParser != null) {
-            return vendorTestParser
-        }
-        val loader = ServiceLoader.load(TestParser::class.java)
-        return loader.first()
+        logConfigurator.configure()
     }
 
     fun run() = runBlocking {
@@ -83,18 +66,15 @@ class Marathon(
     }
 
     suspend fun runAsync(): Boolean {
-        configureLogging(configuration.vendorConfiguration)
+        configureLogging()
         trackAnalytics(configuration)
 
         logSystemInformation()
 
-        val testParser = loadTestParser(configuration.vendorConfiguration)
-        val deviceProvider = loadDeviceProvider(configuration.vendorConfiguration)
-        val testBundleIdentifier = loadTestBundleIdentifier(configuration.vendorConfiguration)
-
+        deviceProvider.initialize()
         configurationValidator.validate(configuration)
 
-        val parsedTests = testParser.extract(configuration)
+        val parsedTests = testParser.extract()
         if (parsedTests.isEmpty()) throw NoTestCasesFoundException("No tests cases were found")
         val tests = applyTestFilters(parsedTests)
         val shard = prepareTestShard(tests, analytics)
@@ -163,16 +143,16 @@ class Marathon(
         var tests = parsedTests.filter { test ->
             configuration.testClassRegexes.all { it.matches(test.clazz) }
         }
-        configuration.filteringConfiguration.allowlist.forEach { tests = it.filter(tests) }
-        configuration.filteringConfiguration.blocklist.forEach { tests = it.filterNot(tests) }
+        configuration.filteringConfiguration.allowlist.forEach { tests = it.toTestFilter().filter(tests) }
+        configuration.filteringConfiguration.blocklist.forEach { tests = it.toTestFilter().filterNot(tests) }
         return tests
     }
 
     private fun prepareTestShard(tests: List<Test>, analytics: Analytics): TestShard {
-        val shardingStrategy = configuration.shardingStrategy
-        val flakinessShard = configuration.flakinessStrategy
+        val shardingStrategy = configuration.shardingStrategy.toShardingStrategy()
+        val flakinessStrategy = configuration.flakinessStrategy.toFlakinessStrategy()
         val shard = shardingStrategy.createShard(tests)
-        return flakinessShard.process(shard, analytics)
+        return flakinessStrategy.process(shard, analytics)
     }
 
     private fun trackAnalytics(configuration: Configuration) {

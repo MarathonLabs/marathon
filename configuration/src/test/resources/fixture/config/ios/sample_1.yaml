@@ -1,0 +1,9 @@
+name: "sample-app tests"
+outputDir: "./marathon"
+vendorConfiguration:
+  type: "iOS"
+  derivedDataDir: "a"
+  remoteUsername: "user"
+  remotePrivateKey: "key"
+  sourceRoot: "sourceRoot"
+  alwaysEraseSimulators: true

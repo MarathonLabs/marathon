@@ -1,13 +1,13 @@
 package com.malinskiy.marathon.ios
 
-import com.malinskiy.marathon.execution.Configuration
+import com.malinskiy.marathon.config.vendor.VendorConfiguration
 import com.malinskiy.marathon.execution.TestParser
 import com.malinskiy.marathon.ios.xctestrun.Xctestrun
 import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.test.Test
 import java.io.File
 
-class IOSTestParser : TestParser {
+class IOSTestParser(private val vendorConfiguration: VendorConfiguration.IOSConfiguration) : TestParser {
     private val swiftTestClassRegex = """class ([^:\s]+)\s*:\s*XCTestCase""".toRegex()
     private val swiftTestMethodRegex = """^.*func\s+(test[^(\s]*)\s*\(.*$""".toRegex()
 
@@ -19,15 +19,12 @@ class IOSTestParser : TestParser {
      *  specified in Marathonfile. When not specified, starts in working directory. Result excludes any tests
      *  marked as skipped in `xctestrun` file.
      */
-    override fun extract(configuration: Configuration): List<Test> {
-        val vendorConfiguration = configuration.vendorConfiguration as? IOSConfiguration
-            ?: throw IllegalStateException("Expected IOS configuration")
-
+    override fun extract(): List<Test> {
         if (!vendorConfiguration.sourceRoot.isDirectory) {
             throw IllegalArgumentException("Expected a directory at $vendorConfiguration.sourceRoot")
         }
 
-        val xctestrun = Xctestrun(vendorConfiguration.xctestrunPath)
+        val xctestrun = Xctestrun(vendorConfiguration.safecxtestrunPath())
         val targetName = xctestrun.targetName
 
         val swiftFilesWithTests = vendorConfiguration

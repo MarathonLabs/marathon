@@ -44,7 +44,7 @@ class DeviceFilteringScenarioTest {
                 excludeSerialRegexes = listOf("""emulator-5002""".toRegex())
                 includeSerialRegexes = emptyList()
 
-                vendorConfiguration.deviceProvider.context = context
+                deviceProvider.context = context
 
                 devices {
                     delay(1000)
@@ -92,7 +92,7 @@ class DeviceFilteringScenarioTest {
                 excludeSerialRegexes = emptyList()
                 includeSerialRegexes = listOf("""emulator-5002""".toRegex())
 
-                vendorConfiguration.deviceProvider.context = context
+                deviceProvider.context = context
 
                 devices {
                     delay(1000)
@@ -140,7 +140,7 @@ class DeviceFilteringScenarioTest {
                 excludeSerialRegexes = listOf("""emulator-5002""".toRegex())
                 includeSerialRegexes = listOf("""emulator-500[2,4]""".toRegex())
 
-                vendorConfiguration.deviceProvider.context = context
+                deviceProvider.context = context
 
                 devices {
                     delay(1000)

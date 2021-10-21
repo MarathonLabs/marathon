@@ -1,6 +1,6 @@
-package com.malinskiy.marathon.execution
+package com.malinskiy.marathon.execution.filter
 
-import com.malinskiy.marathon.exceptions.ConfigurationException
+import com.malinskiy.marathon.execution.TestFilter
 import com.malinskiy.marathon.test.Test
 import java.io.File
 
@@ -22,16 +22,6 @@ open class SingleValueTestFilter(
 
     private fun readValues(): List<String>? {
         return values ?: fileValuesCache
-    }
-
-    override fun validate() {
-        var i = 0
-        if (regex != null) i++
-        if (values != null) i++
-        if (file != null) i++
-
-        if (i > 1) throw ConfigurationException("Only one of [regex,values,file] can be specified for ${this::class.simpleName}")
-        if (i == 0) throw ConfigurationException("At least one of [regex,values,file] should be specified for ${this::class.simpleName}")
     }
 
     override fun filter(tests: List<Test>): List<Test> = with(tests) {
