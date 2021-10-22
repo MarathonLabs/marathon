@@ -3,21 +3,24 @@ package com.malinskiy.marathon.android
 import com.linkedin.dex.parser.DecodedValue
 import com.linkedin.dex.parser.DexParser
 import com.linkedin.dex.parser.TestAnnotation
+import com.malinskiy.marathon.android.extension.testBundlesCompat
 import com.malinskiy.marathon.android.model.AndroidTestBundle
-import com.malinskiy.marathon.execution.Configuration
+import com.malinskiy.marathon.config.vendor.VendorConfiguration
 import com.malinskiy.marathon.execution.TestParser
 import com.malinskiy.marathon.test.MetaProperty
 import com.malinskiy.marathon.test.Test
 
-class AndroidTestParser(private val testBundleIdentifier: AndroidTestBundleIdentifier) : TestParser {
-    override suspend fun extract(configuration: Configuration): List<Test> {
-        val androidConfiguration = configuration.vendorConfiguration as AndroidConfiguration
-        val testBundles = androidConfiguration.testBundlesCompat()
+class AndroidTestParser(
+    private val vendorConfiguration: VendorConfiguration.AndroidConfiguration,
+    private val testBundleIdentifier: AndroidTestBundleIdentifier
+) : TestParser {
+    override suspend fun extract(): List<Test> {
+        val testBundles = vendorConfiguration.testBundlesCompat()
         return testBundles.flatMap { bundle ->
             val tests = DexParser.findTestMethods(bundle.testApplication.absolutePath)
             return@flatMap tests.map {
                 val testName = it.testName
-                val annotations = it.annotations.map { it.toMetaProperty() }
+                val annotations = it.annotations.map { annotation -> annotation.toMetaProperty() }
                 val split = testName.split("#")
 
                 if (split.size != 2) throw IllegalStateException("Can't parse test $testName")
@@ -39,8 +42,7 @@ class AndroidTestParser(private val testBundleIdentifier: AndroidTestBundleIdent
 
 private fun TestAnnotation.toMetaProperty(): MetaProperty {
     val metaMap = values.mapValues {
-        val value = it.value
-        val realValue = when (value) {
+        val realValue = when (val value = it.value) {
             is DecodedValue.DecodedString -> value.value
             is DecodedValue.DecodedByte -> value.value
             is DecodedValue.DecodedShort -> value.value

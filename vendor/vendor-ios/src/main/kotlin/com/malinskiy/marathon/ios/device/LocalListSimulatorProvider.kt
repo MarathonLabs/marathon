@@ -4,9 +4,9 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.google.gson.Gson
 import com.malinskiy.marathon.analytics.internal.pub.Track
+import com.malinskiy.marathon.config.vendor.VendorConfiguration
 import com.malinskiy.marathon.device.DeviceProvider
 import com.malinskiy.marathon.ios.HealthChangeListener
-import com.malinskiy.marathon.ios.IOSConfiguration
 import com.malinskiy.marathon.ios.IOSDevice
 import com.malinskiy.marathon.ios.logparser.parser.DeviceFailureException
 import com.malinskiy.marathon.ios.logparser.parser.DeviceFailureReason
@@ -33,7 +33,7 @@ private const val MAX_CONNECTION_ATTEMPTS = 16
 class LocalListSimulatorProvider(
     override val coroutineContext: CoroutineContext,
     private val channel: Channel<DeviceProvider.DeviceEvent>,
-    private val configuration: IOSConfiguration,
+    private val configuration: VendorConfiguration.IOSConfiguration,
     yamlObjectMapper: ObjectMapper,
     private val gson: Gson,
     private val track: Track,
@@ -58,7 +58,7 @@ class LocalListSimulatorProvider(
 
     override suspend fun start() = withContext(coroutineContext) {
         logger.info("starts providing ${simulators.count()} simulator devices")
-        val jobs = simulators.map {
+        simulators.map {
             async(context = coroutineContext) {
                 createDevice(it, RemoteSimulatorConnectionCounter.putAndGet(it.udid))?.let { connect(it) }
             }

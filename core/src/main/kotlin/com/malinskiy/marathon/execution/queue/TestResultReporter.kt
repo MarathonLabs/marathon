@@ -3,9 +3,9 @@ package com.malinskiy.marathon.execution.queue
 import com.malinskiy.marathon.actor.StateMachine
 import com.malinskiy.marathon.analytics.external.Analytics
 import com.malinskiy.marathon.analytics.internal.pub.Track
+import com.malinskiy.marathon.config.Configuration
 import com.malinskiy.marathon.device.DeviceInfo
 import com.malinskiy.marathon.device.DevicePoolId
-import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.execution.TestResult
 import com.malinskiy.marathon.execution.TestShard
 import com.malinskiy.marathon.log.MarathonLogging

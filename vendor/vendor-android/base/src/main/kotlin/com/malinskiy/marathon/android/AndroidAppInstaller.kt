@@ -1,8 +1,10 @@
 package com.malinskiy.marathon.android
 
 import com.malinskiy.marathon.android.exception.InstallException
+import com.malinskiy.marathon.android.extension.testBundlesCompat
+import com.malinskiy.marathon.config.Configuration
+import com.malinskiy.marathon.config.vendor.VendorConfiguration
 import com.malinskiy.marathon.exceptions.DeviceSetupException
-import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.execution.withRetry
 import com.malinskiy.marathon.log.MarathonLogging
 import java.io.File
@@ -15,7 +17,7 @@ class AndroidAppInstaller(configuration: Configuration) {
     }
 
     private val logger = MarathonLogging.logger("AndroidAppInstaller")
-    private val androidConfiguration = configuration.vendorConfiguration as AndroidConfiguration
+    private val androidConfiguration = configuration.vendorConfiguration as VendorConfiguration.AndroidConfiguration
 
     /**
      * @throws DeviceSetupException if unable to prepare the device

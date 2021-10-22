@@ -38,7 +38,7 @@ class ProgressReportingListener(
     }
 
     private fun List<Test>.createUncompletedTestResults(received: Collection<TestResult>): Collection<TestResult> {
-        val lastCompletedTestEndTime = received.maxBy { it.endTime }?.endTime ?: timer.currentTimeMillis()
+        val lastCompletedTestEndTime = received.maxByOrNull { it.endTime }?.endTime ?: timer.currentTimeMillis()
         return map {
             TestResult(
                 it,

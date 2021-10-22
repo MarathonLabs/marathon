@@ -1,8 +1,8 @@
 package com.malinskiy.marathon.execution.progress
 
+import com.malinskiy.marathon.config.Configuration
 import com.malinskiy.marathon.device.DeviceInfo
 import com.malinskiy.marathon.device.DevicePoolId
-import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.execution.progress.tracker.PoolProgressTracker
 import com.malinskiy.marathon.test.Test
 import com.malinskiy.marathon.test.toTestName
@@ -42,7 +42,7 @@ class ProgressReporter(private val configuration: Configuration) {
         println("${toPercent(progress(poolId))} | [${poolId.name}]-[${device.serialNumber}] ${test.toTestName()} ended")
     }
 
-    fun testIgnored(poolId: DevicePoolId, device: DeviceInfo, test: Test) {
+    fun testIgnored(poolId: DevicePoolId, test: Test) {
         execute(poolId) { it.testIgnored(test) }
     }
 
@@ -70,7 +70,7 @@ class ProgressReporter(private val configuration: Configuration) {
 
     fun progress(): Float {
         val size = reporters.size
-        return reporters.values.sumByDouble {
+        return reporters.values.sumOf {
             it.progress().toDouble()
         }.toFloat() / size
     }

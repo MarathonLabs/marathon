@@ -1,12 +1,10 @@
 package com.malinskiy.marathon.execution.progress
 
+import com.malinskiy.marathon.config.Configuration
+import com.malinskiy.marathon.config.vendor.VendorConfiguration
 import com.malinskiy.marathon.device.DevicePoolId
 import com.malinskiy.marathon.device.toDeviceInfo
-import com.malinskiy.marathon.execution.Configuration
-import com.malinskiy.marathon.test.Mocks
 import com.malinskiy.marathon.test.StubDevice
-import com.malinskiy.marathon.test.StubDeviceProvider
-import com.malinskiy.marathon.test.TestVendorConfiguration
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.Test
 import java.io.File
@@ -14,33 +12,14 @@ import com.malinskiy.marathon.test.Test as MarathonTest
 
 class ProgressReporterTest {
     private val reporter = ProgressReporter(
-        Configuration(
+        Configuration.Builder(
             name = "",
             outputDir = File(""),
-            analyticsConfiguration = null,
-            poolingStrategy = null,
-            shardingStrategy = null,
-            sortingStrategy = null,
-            batchingStrategy = null,
-            flakinessStrategy = null,
-            retryStrategy = null,
-            filteringConfiguration = null,
-            ignoreFailures = null,
-            isCodeCoverageEnabled = null,
-            fallbackToScreenshots = null,
-            strictMode = null,
-            uncompletedTestRetryQuota = null,
-            testClassRegexes = null,
-            includeSerialRegexes = null,
-            excludeSerialRegexes = null,
-            testBatchTimeoutMillis = null,
-            testOutputTimeoutMillis = null,
-            debug = false,
-            screenRecordingPolicy = null,
-            vendorConfiguration = TestVendorConfiguration(Mocks.TestParser.DEFAULT, StubDeviceProvider()),
-            analyticsTracking = false,
-            deviceInitializationTimeoutMillis = null
-        )
+            vendorConfiguration = VendorConfiguration.StubVendorConfiguration,
+        ).apply {
+            debug = false
+            analyticsTracking = false
+        }.build()
     )
     private val deviceInfo = StubDevice().toDeviceInfo()
 
@@ -89,7 +68,7 @@ class ProgressReporterTest {
          * 1 retry of test 2 is ignored
          */
         reporter.testStarted(poolId, deviceInfo, test2)
-        reporter.testIgnored(poolId, deviceInfo, test2)
+        reporter.testIgnored(poolId, test2)
         reporter.progress().shouldBeEqualTo(5 / 7f)
 
         /**
@@ -102,7 +81,7 @@ class ProgressReporterTest {
          * test 3 is ignored (assumption failure or just ignore)
          */
         reporter.testStarted(poolId, deviceInfo, test3)
-        reporter.testIgnored(poolId, deviceInfo, test3)
+        reporter.testIgnored(poolId, test3)
         val progress = reporter.progress()
         progress.shouldBeEqualTo(6 / 6f)
     }

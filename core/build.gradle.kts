@@ -8,7 +8,7 @@ plugins {
     id("org.jetbrains.dokka")
     id("org.junit.platform.gradle.plugin")
     jacoco
-    id("de.fuerstenau.buildconfig") version "1.1.8"
+    id("com.github.gmazzo.buildconfig") version "3.0.3"
 }
 
 sourceSets {
@@ -27,13 +27,20 @@ sourceSets {
 }
 
 buildConfig {
-    appName = project.name
-    version = Versions.marathon
-    buildConfigField("String", "BUGSNAG_TOKEN", System.getenv("BUGSNAG_TOKEN"))
-    buildConfigField("String", "RELEASE_MODE", Deployment.releaseMode)
+    buildConfigField("String", "NAME", "\"${project.name}\"")
+    buildConfigField("String", "VERSION", provider<String> { "\"${Versions.marathon}\"" })
+    buildConfigField("String", "BUGSNAG_TOKEN", provider {
+        val token = System.getenv("BUGSNAG_TOKEN") ?: ""
+        "\"$token\""
+    })
+    buildConfigField("String", "RELEASE_MODE", provider {
+        val releaseMode = Deployment.releaseMode ?: ""
+        "\"$releaseMode\""
+    })
 }
 
 dependencies {
+    api(project(":configuration"))
     implementation(project(":report:html-report"))
     implementation(project(":report:execution-timeline"))
 
@@ -44,7 +51,6 @@ dependencies {
     implementation(project(":analytics:usage"))
     implementation(Libraries.gson)
     implementation(Libraries.jacksonAnnotations)
-    implementation(Libraries.apacheCommonsText)
     implementation(Libraries.apacheCommonsIO)
     implementation(Libraries.kotlinStdLib)
     implementation(Libraries.kotlinCoroutines)
@@ -60,6 +66,7 @@ dependencies {
     testImplementation(TestLibraries.testContainersInflux)
     testImplementation(TestLibraries.mockitoKotlin)
     testImplementation(TestLibraries.koin)
+    testImplementation(TestLibraries.xmlUnit)
     testRuntimeOnly(TestLibraries.jupiterEngine)
 }
 
@@ -97,5 +104,5 @@ Deployment.initialize(project)
 
 tasks.withType<KotlinCompile> {
     kotlinOptions.jvmTarget = "1.8"
-    kotlinOptions.apiVersion = "1.4"
+    kotlinOptions.apiVersion = "1.5"
 }

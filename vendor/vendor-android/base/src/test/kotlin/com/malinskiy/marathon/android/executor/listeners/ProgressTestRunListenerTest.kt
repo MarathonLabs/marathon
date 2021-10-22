@@ -9,10 +9,10 @@ import com.malinskiy.marathon.android.adam.TestConfigurationFactory
 import com.malinskiy.marathon.android.adam.TestDeviceFactory
 import com.malinskiy.marathon.android.adam.boot
 import com.malinskiy.marathon.android.adam.features
-import com.malinskiy.marathon.android.configuration.AggregationMode
-import com.malinskiy.marathon.android.configuration.FileSyncConfiguration
-import com.malinskiy.marathon.android.configuration.FileSyncEntry
 import com.malinskiy.marathon.android.model.TestIdentifier
+import com.malinskiy.marathon.config.vendor.android.AggregationMode
+import com.malinskiy.marathon.config.vendor.android.FileSyncConfiguration
+import com.malinskiy.marathon.config.vendor.android.FileSyncEntry
 import com.malinskiy.marathon.device.DevicePoolId
 import com.malinskiy.marathon.device.toDeviceInfo
 import com.malinskiy.marathon.execution.progress.ProgressReporter
@@ -74,13 +74,13 @@ class ProgressTestRunListenerTest {
             listener.testStarted(test2)
             listener.testAssumptionFailure(test2, "trace")
             verify(progressReporter, times(1)).testStarted(poolId, device.toDeviceInfo(), test2.toTest())
-            verify(progressReporter, times(1)).testIgnored(poolId, device.toDeviceInfo(), test2.toTest())
+            verify(progressReporter, times(1)).testIgnored(poolId, test2.toTest())
             reset(progressReporter)
 
             listener.testStarted(test3)
             listener.testIgnored(test3)
             verify(progressReporter, times(1)).testStarted(poolId, device.toDeviceInfo(), test3.toTest())
-            verify(progressReporter, times(1)).testIgnored(poolId, device.toDeviceInfo(), test3.toTest())
+            verify(progressReporter, times(1)).testIgnored(poolId, test3.toTest())
             reset(progressReporter)
         }
     }

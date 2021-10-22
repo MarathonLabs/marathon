@@ -101,7 +101,7 @@ class TestRunResultsListener(
         val lastCompletedTestEndTime = testRunResult
             .testResults
             .values
-            .maxBy { it.endTime }
+            .maxByOrNull { it.endTime }
             ?.endTime
             ?: creationTime
 

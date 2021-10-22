@@ -12,9 +12,9 @@ import com.malinskiy.marathon.android.adam.TestDeviceFactory
 import com.malinskiy.marathon.android.adam.boot
 import com.malinskiy.marathon.android.adam.features
 import com.malinskiy.marathon.android.adam.shell
-import com.malinskiy.marathon.android.configuration.AggregationMode
-import com.malinskiy.marathon.android.configuration.FileSyncConfiguration
-import com.malinskiy.marathon.android.configuration.FileSyncEntry
+import com.malinskiy.marathon.config.vendor.android.AggregationMode
+import com.malinskiy.marathon.config.vendor.android.FileSyncConfiguration
+import com.malinskiy.marathon.config.vendor.android.FileSyncEntry
 import com.nhaarman.mockitokotlin2.mock
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Test

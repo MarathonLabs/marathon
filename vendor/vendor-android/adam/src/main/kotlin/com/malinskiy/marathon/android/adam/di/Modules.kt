@@ -11,7 +11,7 @@ import com.malinskiy.marathon.execution.TestParser
 import org.koin.dsl.module
 
 val adamModule = module {
-    single<DeviceProvider?> { AdamDeviceProvider(get(), get(), get(), get()) }
+    single<DeviceProvider> { AdamDeviceProvider(get(), get(), get(), get(), get()) }
     single<TestParser?>(override = true) {
         val configuration = get<Configuration>()
         val androidConfiguration = configuration.vendorConfiguration as? AndroidConfiguration

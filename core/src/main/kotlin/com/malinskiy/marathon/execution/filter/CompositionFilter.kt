@@ -1,28 +1,28 @@
-package com.malinskiy.marathon.execution
+package com.malinskiy.marathon.execution.filter
 
-import com.google.gson.annotations.SerializedName
+import com.malinskiy.marathon.config.TestFilterConfiguration
+import com.malinskiy.marathon.execution.TestFilter
 import com.malinskiy.marathon.test.Test
 
 class CompositionFilter(
-    @SerializedName("filters") private val filters: List<TestFilter>,
-    @SerializedName("op") private val op: OPERATION
+    private val filters: List<TestFilter>,
+    private val op: TestFilterConfiguration.CompositionFilterConfiguration.OPERATION
 ) : TestFilter {
-    override fun validate() = filters.forEach { it.validate() }
 
     override fun filter(tests: List<Test>): List<Test> {
         return when (op) {
-            OPERATION.UNION -> filterWithUnionOperation(tests)
-            OPERATION.INTERSECTION -> filterWithIntersectionOperation(tests)
-            OPERATION.SUBTRACT -> filterWithSubtractOperation(tests)
+            TestFilterConfiguration.CompositionFilterConfiguration.OPERATION.UNION -> filterWithUnionOperation(tests)
+            TestFilterConfiguration.CompositionFilterConfiguration.OPERATION.INTERSECTION -> filterWithIntersectionOperation(tests)
+            TestFilterConfiguration.CompositionFilterConfiguration.OPERATION.SUBTRACT -> filterWithSubtractOperation(tests)
         }
     }
 
     override fun filterNot(tests: List<Test>): List<Test> {
         val filteredTests = filter(tests)
         return when (op) {
-            OPERATION.UNION -> tests.subtract(filteredTests).toList()
-            OPERATION.INTERSECTION -> tests.subtract(filteredTests).toList()
-            OPERATION.SUBTRACT -> tests.subtract(filteredTests).toList()
+            TestFilterConfiguration.CompositionFilterConfiguration.OPERATION.UNION -> tests.subtract(filteredTests).toList()
+            TestFilterConfiguration.CompositionFilterConfiguration.OPERATION.INTERSECTION -> tests.subtract(filteredTests).toList()
+            TestFilterConfiguration.CompositionFilterConfiguration.OPERATION.SUBTRACT -> tests.subtract(filteredTests).toList()
         }
     }
 
@@ -57,10 +57,4 @@ class CompositionFilter(
     }
 
     override fun hashCode(): Int = filters.hashCode() + op.hashCode()
-
-    enum class OPERATION {
-        UNION,
-        INTERSECTION,
-        SUBTRACT
-    }
 }

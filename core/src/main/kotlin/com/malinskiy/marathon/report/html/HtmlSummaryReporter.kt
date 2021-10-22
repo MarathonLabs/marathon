@@ -4,10 +4,10 @@ import com.google.gson.Gson
 import com.malinskiy.marathon.analytics.internal.sub.ExecutionReport
 import com.malinskiy.marathon.analytics.internal.sub.PoolSummary
 import com.malinskiy.marathon.analytics.internal.sub.Summary
+import com.malinskiy.marathon.config.Configuration
 import com.malinskiy.marathon.device.DeviceFeature
 import com.malinskiy.marathon.device.DeviceInfo
 import com.malinskiy.marathon.device.DevicePoolId
-import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.execution.TestResult
 import com.malinskiy.marathon.execution.TestStatus
 import com.malinskiy.marathon.extension.escape
@@ -132,7 +132,6 @@ class HtmlSummaryReporter(
         }
     }
 
-    fun inputStreamFromResources(path: String): InputStream = HtmlPoolSummary::class.java.classLoader.getResourceAsStream(path)
 
     fun generateLogcatHtml(logcatOutput: String): String = when (logcatOutput.isNotEmpty()) {
         false -> ""
@@ -140,8 +139,8 @@ class HtmlSummaryReporter(
             .lines()
             .map { line -> """<div class="log__${cssClassForLogcatLine(line)}">${StringEscapeUtils.escapeXml11(line)}</div>""" }
             .fold(StringBuilder("""<div class="content"><div class="card log">""")) { stringBuilder, line ->
-                stringBuilder.appendln(line)
-            }.appendln("""</div></div>""").toString()
+                stringBuilder.appendLine(line)
+            }.appendLine("""</div></div>""").toString()
     }
 
     fun cssClassForLogcatLine(logcatLine: String): String {
@@ -233,10 +232,10 @@ class HtmlSummaryReporter(
 
     fun Summary.toHtmlIndex() = HtmlIndex(
         title = configuration.name,
-        totalFailed = pools.sumBy { it.failed.size },
-        totalIgnored = pools.sumBy { it.ignored.size },
-        totalPassed = pools.sumBy { it.passed.size },
-        totalFlaky = pools.sumBy { it.flaky },
+        totalFailed = pools.sumOf { it.failed.size },
+        totalIgnored = pools.sumOf { it.ignored.size },
+        totalPassed = pools.sumOf { it.passed.size },
+        totalFlaky = pools.sumOf { it.flaky },
         totalDuration = totalDuration(pools),
         averageDuration = averageDuration(pools),
         maxDuration = maxDuration(pools),
@@ -245,18 +244,18 @@ class HtmlSummaryReporter(
     )
 
     fun totalDuration(poolSummaries: List<PoolSummary>): Long {
-        return poolSummaries.flatMap { it.tests }.sumByDouble { it.durationMillis() * 1.0 }.toLong()
+        return poolSummaries.flatMap { it.tests }.sumOf { it.durationMillis().toDouble() * 1.0 }.toLong()
     }
 
     fun averageDuration(poolSummaries: List<PoolSummary>) = durationPerPool(poolSummaries).average().roundToLong()
 
-    fun minDuration(poolSummaries: List<PoolSummary>) = durationPerPool(poolSummaries).min() ?: 0
+    fun minDuration(poolSummaries: List<PoolSummary>) = durationPerPool(poolSummaries).minOrNull() ?: 0
 
     private fun durationPerPool(poolSummaries: List<PoolSummary>) =
         poolSummaries.map { it.tests }
-            .map { it.sumByDouble { it.durationMillis() * 1.0 } }.map { it.toLong() }
+            .map { it.sumOf { it.durationMillis().toDouble() * 1.0 } }.map { it.toLong() }
 
-    fun maxDuration(poolSummaries: List<PoolSummary>) = durationPerPool(poolSummaries).max() ?: 0
+    fun maxDuration(poolSummaries: List<PoolSummary>) = durationPerPool(poolSummaries).maxOrNull() ?: 0
 
 
     fun TestResult.toHtmlShortSuite() = HtmlShortTest(
@@ -287,3 +286,6 @@ private fun String.safePathLength(): String {
         substring(0 until 128)
     } else this
 }
+
+private fun inputStreamFromResources(path: String): InputStream =
+    HtmlSummaryReporter::class.java.classLoader.getResourceAsStream(path)

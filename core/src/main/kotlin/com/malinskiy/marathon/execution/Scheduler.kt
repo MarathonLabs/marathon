@@ -2,6 +2,7 @@ package com.malinskiy.marathon.execution
 
 import com.malinskiy.marathon.analytics.external.Analytics
 import com.malinskiy.marathon.analytics.internal.pub.Track
+import com.malinskiy.marathon.config.Configuration
 import com.malinskiy.marathon.device.Device
 import com.malinskiy.marathon.device.DevicePoolId
 import com.malinskiy.marathon.device.DeviceProvider
@@ -12,6 +13,7 @@ import com.malinskiy.marathon.execution.DevicePoolMessage.FromScheduler.AddDevic
 import com.malinskiy.marathon.execution.DevicePoolMessage.FromScheduler.RemoveDevice
 import com.malinskiy.marathon.execution.bundle.TestBundleIdentifier
 import com.malinskiy.marathon.execution.progress.ProgressReporter
+import com.malinskiy.marathon.extension.toPoolingStrategy
 import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.time.Timer
 import kotlinx.coroutines.CoroutineScope
@@ -45,7 +47,7 @@ class Scheduler(
 
     private val job = Job()
     private val pools = ConcurrentHashMap<DevicePoolId, SendChannel<FromScheduler>>()
-    private val poolingStrategy = configuration.poolingStrategy
+    private val poolingStrategy = configuration.poolingStrategy.toPoolingStrategy()
 
     private val logger = MarathonLogging.logger("Scheduler")
 

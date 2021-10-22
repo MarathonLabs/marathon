@@ -16,7 +16,7 @@ buildscript {
 
 
 plugins {
-    id("io.gitlab.arturbosch.detekt") version "1.17.1"
+    id("io.gitlab.arturbosch.detekt") version "1.18.1"
     id("com.github.ben-manes.versions") version "0.39.0"
 }
 
@@ -55,6 +55,18 @@ allprojects {
         mavenLocal()
         mavenCentral()
         google()
+    }
+
+    configurations.all {
+        resolutionStrategy {
+            eachDependency {
+                if (requested.group == "org.jetbrains.kotlin"
+                    && (requested.name.startsWith("kotlin-stdlib") || requested.name.startsWith("kotlin-reflect"))
+                ) {
+                    useVersion(Versions.kotlin)
+                }
+            }
+        }
     }
 
     configurations.all {
