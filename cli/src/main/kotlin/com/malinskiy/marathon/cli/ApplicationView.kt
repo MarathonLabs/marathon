@@ -1,6 +1,5 @@
 package com.malinskiy.marathon.cli
 
-import com.malinskiy.marathon.BuildConfig
 import com.malinskiy.marathon.Marathon
 import com.malinskiy.marathon.android.AndroidVendor
 import com.malinskiy.marathon.android.adam.di.adamModule

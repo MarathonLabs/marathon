@@ -74,13 +74,13 @@ class ProgressTestRunListenerTest {
             listener.testStarted(test2)
             listener.testAssumptionFailure(test2, "trace")
             verify(progressReporter, times(1)).testStarted(poolId, device.toDeviceInfo(), test2.toTest())
-            verify(progressReporter, times(1)).testIgnored(poolId, device.toDeviceInfo(), test2.toTest())
+            verify(progressReporter, times(1)).testIgnored(poolId, test2.toTest())
             reset(progressReporter)
 
             listener.testStarted(test3)
             listener.testIgnored(test3)
             verify(progressReporter, times(1)).testStarted(poolId, device.toDeviceInfo(), test3.toTest())
-            verify(progressReporter, times(1)).testIgnored(poolId, device.toDeviceInfo(), test3.toTest())
+            verify(progressReporter, times(1)).testIgnored(poolId, test3.toTest())
             reset(progressReporter)
         }
     }

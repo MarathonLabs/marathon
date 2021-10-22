@@ -34,11 +34,11 @@ class ScreenCapturer(
 
     suspend fun start(test: Test) {
         var outputStream: FileImageOutputStream? = null
-        val writer: GifSequenceWriter? = null
+        var writer: GifSequenceWriter? = null
         try {
-            val outputStream =
+            outputStream =
                 FileImageOutputStream(fileManager.createFile(FileType.SCREENSHOT, poolId, device.toDeviceInfo(), test, testBatchId))
-            val writer = GifSequenceWriter(outputStream, TYPE_INT_ARGB, configuration.delayMs, true)
+            writer = GifSequenceWriter(outputStream, TYPE_INT_ARGB, configuration.delayMs, true)
             var targetRotation = detectCurrentDeviceOrientation()
             while (coroutineContext.isActive) {
                 val capturingTimeMillis = measureTimeMillis {

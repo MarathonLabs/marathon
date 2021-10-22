@@ -17,7 +17,8 @@ import com.malinskiy.marathon.report.junit.serialize.JUnitReportSerializer
 import java.io.File
 import java.nio.file.Paths
 import java.text.SimpleDateFormat
-import java.util.*
+import java.util.Locale
+import java.util.TimeZone
 
 private val FORMATTER = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.US).apply {
     timeZone = TimeZone.getTimeZone("UTC")
@@ -40,7 +41,7 @@ internal class JUnitReporter(private val outputDir: File) : Reporter {
                     errors = 0,
                     skipped = poolSummary.ignored.size,
                     time = results.map { it.durationMillis() }.sum().toJUnitSeconds(),
-                    timestamp = FORMATTER.format(results.maxBy { it.endTime }?.endTime),
+                    timestamp = FORMATTER.format(results.maxByOrNull { it.endTime }?.endTime),
                     testcase = createTestCases(poolSummary),
                 )
 

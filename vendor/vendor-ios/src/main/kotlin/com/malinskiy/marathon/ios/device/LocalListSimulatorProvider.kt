@@ -58,7 +58,7 @@ class LocalListSimulatorProvider(
 
     override suspend fun start() = withContext(coroutineContext) {
         logger.info("starts providing ${simulators.count()} simulator devices")
-        val jobs = simulators.map {
+        simulators.map {
             async(context = coroutineContext) {
                 createDevice(it, RemoteSimulatorConnectionCounter.putAndGet(it.udid))?.let { connect(it) }
             }

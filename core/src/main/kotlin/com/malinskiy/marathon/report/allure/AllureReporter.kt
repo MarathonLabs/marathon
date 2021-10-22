@@ -18,6 +18,7 @@ import io.qameta.allure.model.Status
 import io.qameta.allure.model.StatusDetails
 import io.qameta.allure.util.ResultsUtils
 import java.io.File
+import java.util.Locale
 import java.util.UUID
 import io.qameta.allure.Description as JavaDescription
 import io.qameta.allure.Epic as JavaEpic
@@ -76,7 +77,8 @@ class AllureReporter(val configuration: Configuration, private val outputDirecto
 
         val allureAttachments: List<Attachment> = testResult.attachments.map {
             Attachment()
-                .setName(it.type.name.toLowerCase().capitalize())
+                .setName(it.type.name.lowercase(Locale.ENGLISH)
+                             .replaceFirstChar { cher -> if (cher.isLowerCase()) cher.titlecase(Locale.ENGLISH) else cher.toString() })
                 .setSource(it.file.absolutePath)
                 .setType(it.type.toMimeType())
         }
@@ -89,13 +91,15 @@ class AllureReporter(val configuration: Configuration, private val outputDirecto
             .setStart(testResult.startTime)
             .setStop(testResult.endTime)
             .setAttachments(allureAttachments)
-            .setParameters()
+            .setParameters(emptyList())
             .setLabels(
-                ResultsUtils.createHostLabel().setValue(device.serialNumber),
-                ResultsUtils.createPackageLabel(test.pkg),
-                ResultsUtils.createTestClassLabel(test.clazz),
-                ResultsUtils.createTestMethodLabel(test.method),
-                ResultsUtils.createSuiteLabel(suite)
+                mutableListOf(
+                    ResultsUtils.createHostLabel().setValue(device.serialNumber),
+                    ResultsUtils.createPackageLabel(test.pkg),
+                    ResultsUtils.createTestClassLabel(test.clazz),
+                    ResultsUtils.createTestMethodLabel(test.method),
+                    ResultsUtils.createSuiteLabel(suite)
+                )
             )
 
         testResult.stacktrace?.let {
