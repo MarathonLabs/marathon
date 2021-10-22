@@ -32,7 +32,7 @@ const val DEFAULT_WAIT_FOR_DEVICES_TIMEOUT = 30000L
 )
 sealed class VendorConfiguration {
     data class AndroidConfiguration(
-        @JsonProperty("vendor") val vendor: VendorType = VendorType.DDMLIB,
+        @JsonProperty("vendor") val vendor: VendorType = VendorType.ADAM,
         @JsonProperty("androidSdk") val androidSdk: File?,
         @JsonProperty("applicationApk") val applicationOutput: File?,
         @JsonProperty("testApplicationApk") val testApplicationOutput: File?,
