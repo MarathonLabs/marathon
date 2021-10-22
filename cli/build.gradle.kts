@@ -6,7 +6,7 @@ plugins {
     id("org.jetbrains.kotlin.jvm")
     id("org.jetbrains.dokka")
     id("org.junit.platform.gradle.plugin")
-    id("de.fuerstenau.buildconfig") version "1.1.8"
+    id("com.github.gmazzo.buildconfig") version "3.0.3"
 }
 
 val enableJDB = false
@@ -36,7 +36,7 @@ distributions {
 
 tasks.withType<KotlinCompile> {
     kotlinOptions.jvmTarget = "1.8"
-    kotlinOptions.apiVersion = "1.4"
+    kotlinOptions.apiVersion = "1.5"
 }
 
 dependencies {
@@ -58,8 +58,8 @@ dependencies {
 Deployment.initialize(project)
 
 buildConfig {
-    appName = project.name
-    version = Versions.marathon
+    buildConfigField("String", "NAME", "\"${project.name}\"")
+    buildConfigField("String", "VERSION", provider { "\"${Versions.marathon}\"" })
 }
 
 sourceSets["main"].java {

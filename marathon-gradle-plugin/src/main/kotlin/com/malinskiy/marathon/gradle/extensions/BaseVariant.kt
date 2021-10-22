@@ -5,6 +5,7 @@ import com.android.build.gradle.api.ApplicationVariant
 import com.android.build.gradle.api.BaseVariant
 import com.android.build.gradle.api.LibraryVariant
 import com.android.build.gradle.api.LibraryVariantOutput
+import com.android.build.gradle.tasks.PackageAndroidArtifact
 import java.io.File
 
 fun BaseVariant.extractApplication(): File? =
@@ -31,9 +32,12 @@ private fun extractApplication3_3_plus(output: BaseVariant): File? {
     }
 
     return applicationProvider?.let {
-        val apppackageAndroidArtifact = applicationProvider.get()
-        assert(apppackageAndroidArtifact.apkNames.size == 1)
-        File(apppackageAndroidArtifact.outputDirectory.asFile.get(), apppackageAndroidArtifact.apkNames.first())
+        val apppackageAndroidArtifact: PackageAndroidArtifact = applicationProvider.get()
+        assert(apppackageAndroidArtifact.variantOutputs.get().size == 1)
+        File(
+            apppackageAndroidArtifact.outputDirectory.asFile.get(),
+            apppackageAndroidArtifact.variantOutputs.get().first().outputFileName.get()
+        )
     }
 }
 

@@ -8,7 +8,7 @@ plugins {
     id("org.jetbrains.dokka")
     id("org.junit.platform.gradle.plugin")
     jacoco
-    id("de.fuerstenau.buildconfig") version "1.1.8"
+    id("com.github.gmazzo.buildconfig") version "3.0.3"
 }
 
 sourceSets {
@@ -27,10 +27,10 @@ sourceSets {
 }
 
 buildConfig {
-    appName = project.name
-    version = Versions.marathon
-    buildConfigField("String", "BUGSNAG_TOKEN", System.getenv("BUGSNAG_TOKEN"))
-    buildConfigField("String", "RELEASE_MODE", Deployment.releaseMode)
+    buildConfigField("String", "NAME", "\"${project.name}\"")
+    buildConfigField("String", "VERSION", provider<String> { "\"${Versions.marathon}\"" })
+    buildConfigField("String", "BUGSNAG_TOKEN", System.getenv("BUGSNAG_TOKEN") ?: "\"\"")
+    buildConfigField("String", "RELEASE_MODE", Deployment.releaseMode ?: "\"\"")
 }
 
 dependencies {
@@ -98,5 +98,5 @@ Deployment.initialize(project)
 
 tasks.withType<KotlinCompile> {
     kotlinOptions.jvmTarget = "1.8"
-    kotlinOptions.apiVersion = "1.4"
+    kotlinOptions.apiVersion = "1.5"
 }

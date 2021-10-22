@@ -1,5 +1,5 @@
 import org.gradle.api.Project
-import org.gradle.api.plugins.JavaPluginConvention
+import org.gradle.api.plugins.JavaPluginExtension
 import org.gradle.api.publish.PublishingExtension
 import org.gradle.api.publish.maven.MavenPom
 import org.gradle.api.publish.maven.MavenPublication
@@ -60,7 +60,7 @@ object Deployment {
 
         project.plugins.apply("maven-publish")
 
-        val javaPlugin = project.the(JavaPluginConvention::class)
+        val javaPlugin = project.the(JavaPluginExtension::class)
 
         val sourcesJar by project.tasks.creating(org.gradle.api.tasks.bundling.Jar::class) {
             archiveClassifier.set("sources")

@@ -17,6 +17,7 @@ class DeviceStateTracker {
                     updates.add(Pair(serial, TrackingUpdate.DISCONNECTED))
                     devices.remove(serial)
                 }
+                else -> Unit
             }
         }
 
@@ -39,7 +40,7 @@ class DeviceStateTracker {
 
         return when {
             previousState != DeviceState.DEVICE -> processNewDevice(newState, serial)
-            previousState == DeviceState.DEVICE && newState != DeviceState.DEVICE -> return TrackingUpdate.DISCONNECTED
+            newState != DeviceState.DEVICE -> return TrackingUpdate.DISCONNECTED
             else -> TrackingUpdate.NOTHING_TO_DO
         }
     }

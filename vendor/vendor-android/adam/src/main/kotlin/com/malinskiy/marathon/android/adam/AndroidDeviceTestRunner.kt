@@ -24,7 +24,6 @@ import com.malinskiy.marathon.test.Test
 import com.malinskiy.marathon.test.TestBatch
 import com.malinskiy.marathon.test.toTestName
 import kotlinx.coroutines.channels.ReceiveChannel
-import kotlinx.coroutines.channels.receiveOrNull
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.withTimeoutOrNull
 import java.io.IOException
@@ -69,7 +68,7 @@ class AndroidDeviceTestRunner(private val device: AdamAndroidDevice, private val
 
                     while (!localChannel.isClosedForReceive && isActive) {
                         val update: List<TestEvent>? = withTimeoutOrNull(configuration.testOutputTimeoutMillis) {
-                            localChannel.receiveOrNull() ?: emptyList()
+                            localChannel.receiveCatching().getOrNull() ?: emptyList()
                         }
                         if (update == null) {
                             listener.testRunFailed(ERROR_STUCK)
