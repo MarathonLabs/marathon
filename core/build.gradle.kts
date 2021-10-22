@@ -29,8 +29,14 @@ sourceSets {
 buildConfig {
     buildConfigField("String", "NAME", "\"${project.name}\"")
     buildConfigField("String", "VERSION", provider<String> { "\"${Versions.marathon}\"" })
-    buildConfigField("String", "BUGSNAG_TOKEN", System.getenv("BUGSNAG_TOKEN") ?: "\"\"")
-    buildConfigField("String", "RELEASE_MODE", Deployment.releaseMode ?: "\"\"")
+    buildConfigField("String", "BUGSNAG_TOKEN", provider {
+        val token = System.getenv("BUGSNAG_TOKEN") ?: ""
+        "\"$token\""
+    })
+    buildConfigField("String", "RELEASE_MODE", provider {
+        val releaseMode = Deployment.releaseMode ?: ""
+        "\"$releaseMode\""
+    })
 }
 
 dependencies {
