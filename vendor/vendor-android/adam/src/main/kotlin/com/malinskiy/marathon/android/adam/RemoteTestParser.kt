@@ -14,13 +14,14 @@ import com.malinskiy.adam.request.testrunner.TestRunnerRequest
 import com.malinskiy.adam.request.testrunner.TestStarted
 import com.malinskiy.marathon.analytics.internal.pub.Track
 import com.malinskiy.marathon.android.AndroidAppInstaller
-import com.malinskiy.marathon.android.AndroidConfiguration
 import com.malinskiy.marathon.android.AndroidTestBundleIdentifier
-import com.malinskiy.marathon.android.configuration.TestParserConfiguration
+import com.malinskiy.marathon.android.extension.testBundlesCompat
 import com.malinskiy.marathon.android.model.AndroidTestBundle
 import com.malinskiy.marathon.android.model.TestIdentifier
+import com.malinskiy.marathon.config.Configuration
+import com.malinskiy.marathon.config.vendor.VendorConfiguration
+import com.malinskiy.marathon.config.vendor.android.TestParserConfiguration
 import com.malinskiy.marathon.device.DeviceProvider
-import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.execution.TestParser
 import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.test.MetaProperty
@@ -31,15 +32,19 @@ import kotlinx.coroutines.NonCancellable.isActive
 import kotlinx.coroutines.withTimeoutOrNull
 import java.time.Clock
 
-class OnDeviceTestParser(private val testBundleIdentifier: AndroidTestBundleIdentifier) : TestParser {
+class RemoteTestParser(
+    private val configuration: Configuration,
+    private val testBundleIdentifier: AndroidTestBundleIdentifier,
+    private val vendorConfiguration: VendorConfiguration.AndroidConfiguration
+) : TestParser {
     private val logger = MarathonLogging.logger {}
 
-    override suspend fun extract(configuration: Configuration): List<Test> {
-        val vendorConfiguration = configuration.vendorConfiguration as AndroidConfiguration
+    override suspend fun extract(): List<Test> {
         val testBundles = vendorConfiguration.testBundlesCompat()
 
-        val provider = AdamDeviceProvider(configuration, vendorConfiguration, Track(), SystemTimer(Clock.systemDefaultZone()))
-        provider.initialize(vendorConfiguration)
+        val provider =
+            AdamDeviceProvider(configuration, testBundleIdentifier, vendorConfiguration, Track(), SystemTimer(Clock.systemDefaultZone()))
+        provider.initialize()
         val channel = provider.subscribe()
 
         try {
@@ -60,7 +65,7 @@ class OnDeviceTestParser(private val testBundleIdentifier: AndroidTestBundleIden
     private suspend fun parseTests(
         device: AdamAndroidDevice,
         configuration: Configuration,
-        vendorConfiguration: AndroidConfiguration,
+        vendorConfiguration: VendorConfiguration.AndroidConfiguration,
         testBundles: List<AndroidTestBundle>
     ): List<Test> {
         return testBundles.flatMap { bundle ->
@@ -69,7 +74,7 @@ class OnDeviceTestParser(private val testBundleIdentifier: AndroidTestBundleIden
 
             val testParserConfiguration = vendorConfiguration.testParserConfiguration
             val overrides: Map<String, String> = when {
-                testParserConfiguration is TestParserConfiguration.RemoteTestParser -> testParserConfiguration.instrumentationArgs
+                testParserConfiguration is TestParserConfiguration.RemoteTestParserConfiguration -> testParserConfiguration.instrumentationArgs
                 else -> emptyMap()
             }
 
@@ -88,7 +93,7 @@ class OnDeviceTestParser(private val testBundleIdentifier: AndroidTestBundleIden
             val tests = mutableListOf<Test>()
             while (!channel.isClosedForReceive && isActive) {
                 val events: List<TestEvent>? = withTimeoutOrNull(configuration.testOutputTimeoutMillis) {
-                    channel.receiveOrNull() ?: emptyList()
+                    channel.receiveCatching().getOrNull() ?: emptyList()
                 }
                 if (events == null) {
                     throw RuntimeException("Unable to parse test list using ${device.serialNumber}")
@@ -118,10 +123,10 @@ class OnDeviceTestParser(private val testBundleIdentifier: AndroidTestBundleIden
     }
 
     private fun extractAnnotations(event: TestEnded): List<MetaProperty> {
-        val v1 = event.metrics["com.malinskiy.adam.junit4.android.listener.TestAnnotationProducer.v2"]
+        val v2 = event.metrics["com.malinskiy.adam.junit4.android.listener.TestAnnotationProducer.v2"]
         return when {
-            v1 != null -> {
-                v1.removeSurrounding("[", "]").split(",")
+            v2 != null -> {
+                v2.removeSurrounding("[", "]").split(",").map { it.trim() }
                     .toList().map { serializedAnnotation ->
                         val index = serializedAnnotation.indexOfFirst { it == '(' }
                         val name = serializedAnnotation.substring(0 until index)

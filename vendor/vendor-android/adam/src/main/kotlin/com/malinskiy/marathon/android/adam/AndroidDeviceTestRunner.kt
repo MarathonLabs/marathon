@@ -128,7 +128,7 @@ class AndroidDeviceTestRunner(private val device: AdamAndroidDevice, private val
         if (androidConfiguration.applicationPmClear) {
             device.safeClearPackage(info.applicationPackage)?.trim()?.also {
                 logger.debug { "Package ${info.applicationPackage} cleared: $it" }
-            }import com.malinskiy.marathon.android.configuration.TestParserConfiguration
+            }
         }
         if (androidConfiguration.testApplicationPmClear) {
             device.safeClearPackage(info.instrumentationPackage)?.trim()?.also {
@@ -173,7 +173,7 @@ class AndroidDeviceTestRunner(private val device: AdamAndroidDevice, private val
                 /**
                  * Special case for tests without any methods
                  */
-                "$${pkg}${clazz}"
+                "${pkg}${clazz}"
             }.bashEscape()
         }
 

@@ -10,7 +10,7 @@ import com.malinskiy.marathon.execution.TestParser
 import com.malinskiy.marathon.test.MetaProperty
 import com.malinskiy.marathon.test.Test
 
-class AndroidTestParser(
+class LocalTestParser(
     private val vendorConfiguration: VendorConfiguration.AndroidConfiguration,
     private val testBundleIdentifier: AndroidTestBundleIdentifier
 ) : TestParser {

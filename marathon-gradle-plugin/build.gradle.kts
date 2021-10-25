@@ -34,5 +34,6 @@ tasks.processResources.configure {
             }
         }
     }
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     dependsOn(rootProject.project("cli").tasks.getByName("distZip"))
 }

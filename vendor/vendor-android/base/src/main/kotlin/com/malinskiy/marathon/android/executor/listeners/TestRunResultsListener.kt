@@ -60,7 +60,13 @@ class TestRunResultsListener(
         }
 
         val nonNullTestResults = testResults.filter {
-            it.test.method != "null"
+            /**
+             * If we have a result with null method, then we ignore it unless explicitly requested to
+             *
+             * An example of null method response is @BeforeClass failure
+             * An example of null method request is an ignored test class with remote parser
+             */
+            it.test.method != "null" || testBatch.tests.contains(it.test)
         }
 
         val finished = nonNullTestResults.filter {
