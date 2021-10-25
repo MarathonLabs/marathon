@@ -6,6 +6,7 @@ import com.malinskiy.marathon.config.vendor.android.AllureConfiguration
 import com.malinskiy.marathon.config.vendor.android.FileSyncConfiguration
 import com.malinskiy.marathon.config.vendor.android.ScreenRecordConfiguration
 import com.malinskiy.marathon.config.vendor.android.SerialStrategy
+import com.malinskiy.marathon.config.vendor.android.TestParserConfiguration
 import com.malinskiy.marathon.config.vendor.android.TimeoutConfiguration
 import groovy.lang.Closure
 import org.gradle.api.Project
@@ -60,6 +61,8 @@ open class MarathonExtension(project: Project) {
     var allureConfiguration: AllureConfiguration? = null
     var timeoutConfiguration: TimeoutConfiguration? = null
     var fileSyncConfiguration: FileSyncConfiguration? = null
+
+    var testParserConfiguration: TestParserConfiguration? = null
 
     //Android specific for now
     var autoGrantPermission: Boolean? = null

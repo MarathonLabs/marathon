@@ -89,6 +89,7 @@ class RemoteTestParser(
             val androidAppInstaller = AndroidAppInstaller(configuration)
             androidAppInstaller.prepareInstallation(device)
             val channel = device.executeTestRequest(runnerRequest)
+            var observedAnnotations = false
 
             val tests = mutableListOf<Test>()
             while (!channel.isClosedForReceive && isActive) {
@@ -107,6 +108,9 @@ class RemoteTestParser(
                             is TestIgnored -> Unit
                             is TestEnded -> {
                                 val annotations = extractAnnotations(event)
+                                if (annotations.isNotEmpty()) {
+                                    observedAnnotations = true
+                                }
                                 val test = TestIdentifier(event.id.className, event.id.testName).toTest(annotations)
                                 tests.add(test)
                                 testBundleIdentifier.put(test, androidTestBundle)
@@ -118,6 +122,14 @@ class RemoteTestParser(
                     }
                 }
             }
+
+            if (!observedAnnotations) {
+                logger.warn {
+                    "Bundle ${bundle.id} did not report any test annotations. Remote test parser requires additional setup, " +
+                        "see https://marathonlabs.github.io/marathon/ven/android.html#test-parser"
+                }
+            }
+
             tests
         }
     }
