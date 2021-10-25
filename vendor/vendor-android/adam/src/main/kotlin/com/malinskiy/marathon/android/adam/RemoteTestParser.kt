@@ -23,10 +23,12 @@ import com.malinskiy.marathon.config.vendor.VendorConfiguration
 import com.malinskiy.marathon.config.vendor.android.TestParserConfiguration
 import com.malinskiy.marathon.device.DeviceProvider
 import com.malinskiy.marathon.execution.TestParser
+import com.malinskiy.marathon.execution.withRetry
 import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.test.MetaProperty
 import com.malinskiy.marathon.test.Test
 import com.malinskiy.marathon.time.SystemTimer
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.NonCancellable.isActive
 import kotlinx.coroutines.withTimeoutOrNull
@@ -42,22 +44,36 @@ class RemoteTestParser(
     override suspend fun extract(): List<Test> {
         val testBundles = vendorConfiguration.testBundlesCompat()
 
-        val provider =
-            AdamDeviceProvider(configuration, testBundleIdentifier, vendorConfiguration, Track(), SystemTimer(Clock.systemDefaultZone()))
-        provider.initialize()
-        val channel = provider.subscribe()
+        return withRetry(10, 0) {
+            val provider =
+                AdamDeviceProvider(
+                    configuration,
+                    testBundleIdentifier,
+                    vendorConfiguration,
+                    Track(),
+                    SystemTimer(Clock.systemDefaultZone())
+                )
+            provider.initialize()
+            val channel = provider.subscribe()
 
-        try {
-            for (update in channel) {
-                if (update is DeviceProvider.DeviceEvent.DeviceConnected) {
-                    val device = update.device as AdamAndroidDevice
-                    return parseTests(device, configuration, vendorConfiguration, testBundles)
+            try {
+                for (update in channel) {
+                    if (update is DeviceProvider.DeviceEvent.DeviceConnected) {
+                        val device = update.device as AdamAndroidDevice
+                        return@withRetry parseTests(device, configuration, vendorConfiguration, testBundles)
+                    }
                 }
+                throw RuntimeException("failed to parse")
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                logger.debug { "Remote parsing failed. Retrying" }
+                logger.debug { e.message }
+                throw e
+            } finally {
+                channel.close()
+                provider.terminate()
             }
-            throw RuntimeException("failed to parse")
-        } finally {
-            channel.close()
-            provider.terminate()
         }
     }
 
