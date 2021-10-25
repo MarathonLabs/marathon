@@ -141,7 +141,7 @@ class RemoteTestParser(
 
             if (!observedAnnotations) {
                 logger.warn {
-                    "Bundle ${bundle.id} did not report any test annotations. Remote test parser requires additional setup, " +
+                    "Bundle ${bundle.id} did not report any test annotations. If you need test annotations retrieval, remote test parser requires additional setup " +
                         "see https://marathonlabs.github.io/marathon/ven/android.html#test-parser"
                 }
             }
