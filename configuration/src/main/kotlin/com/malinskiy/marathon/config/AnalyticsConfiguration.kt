@@ -11,6 +11,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo
 @JsonSubTypes(
     JsonSubTypes.Type(value = AnalyticsConfiguration.DisabledAnalytics::class, name = "disabled"),
     JsonSubTypes.Type(value = AnalyticsConfiguration.InfluxDbConfiguration::class, name = "influxdb"),
+    JsonSubTypes.Type(value = AnalyticsConfiguration.GraphiteConfiguration::class, name = "graphite"),
 )
 sealed class AnalyticsConfiguration {
     object DisabledAnalytics : AnalyticsConfiguration()
