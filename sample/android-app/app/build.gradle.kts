@@ -31,10 +31,6 @@ android {
 }
 
 marathon {
-    instrumentationArgs {
-        put("debug", "false")
-    }
-    vendor = com.malinskiy.marathon.config.vendor.VendorConfiguration.AndroidConfiguration.VendorType.ADAM
     allureConfiguration {
         enabled = true
     }
@@ -45,6 +41,7 @@ dependencies {
     implementation(Libraries.constraintLayout)
     implementation(Libraries.kotlinStdLib)
 
+    androidTestImplementation(TestLibraries.testOutputEnhancer)
     androidTestImplementation(TestLibraries.testRunner)
     androidTestImplementation(TestLibraries.testRules)
     androidTestImplementation(TestLibraries.extJunit)

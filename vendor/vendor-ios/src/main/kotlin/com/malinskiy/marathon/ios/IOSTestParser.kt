@@ -19,7 +19,7 @@ class IOSTestParser(private val vendorConfiguration: VendorConfiguration.IOSConf
      *  specified in Marathonfile. When not specified, starts in working directory. Result excludes any tests
      *  marked as skipped in `xctestrun` file.
      */
-    override fun extract(): List<Test> {
+    override suspend fun extract(): List<Test> {
         if (!vendorConfiguration.sourceRoot.isDirectory) {
             throw IllegalArgumentException("Expected a directory at $vendorConfiguration.sourceRoot")
         }

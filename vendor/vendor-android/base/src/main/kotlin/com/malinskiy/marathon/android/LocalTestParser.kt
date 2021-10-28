@@ -10,11 +10,11 @@ import com.malinskiy.marathon.execution.TestParser
 import com.malinskiy.marathon.test.MetaProperty
 import com.malinskiy.marathon.test.Test
 
-class AndroidTestParser(
+class LocalTestParser(
     private val vendorConfiguration: VendorConfiguration.AndroidConfiguration,
     private val testBundleIdentifier: AndroidTestBundleIdentifier
 ) : TestParser {
-    override fun extract(): List<Test> {
+    override suspend fun extract(): List<Test> {
         val testBundles = vendorConfiguration.testBundlesCompat()
         return testBundles.flatMap { bundle ->
             val tests = DexParser.findTestMethods(bundle.testApplication.absolutePath)

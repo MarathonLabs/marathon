@@ -46,7 +46,7 @@ class ConfigurationFactory(val testParser: TestParser, val deviceProvider: StubD
     var screenRecordingPolicy: ScreenRecordingPolicy = ScreenRecordingPolicy.ON_ANY
     var deviceInitializationTimeoutMillis = 60_000L
 
-    fun tests(block: () -> List<Test>) {
+    suspend fun tests(block: () -> List<Test>) {
         whenever(testParser.extract()).thenReturn(block.invoke())
     }
 

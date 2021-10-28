@@ -42,8 +42,9 @@ class ProgressReporter(private val configuration: Configuration) {
         println("${toPercent(progress(poolId))} | [${poolId.name}]-[${device.serialNumber}] ${test.toTestName()} ended")
     }
 
-    fun testIgnored(poolId: DevicePoolId, test: Test) {
+    fun testIgnored(poolId: DevicePoolId, device: DeviceInfo, test: Test) {
         execute(poolId) { it.testIgnored(test) }
+        println("${toPercent(progress(poolId))} | [${poolId.name}]-[${device.serialNumber}] ${test.toTestName()} ignored")
     }
 
     fun aggregateResult(): Boolean {

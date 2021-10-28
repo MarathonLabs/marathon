@@ -2,6 +2,7 @@ package com.malinskiy.marathon.android
 
 import com.malinskiy.marathon.config.vendor.VendorConfiguration
 import com.malinskiy.marathon.test.MetaProperty
+import kotlinx.coroutines.runBlocking
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.Test
 import java.io.File
@@ -15,11 +16,13 @@ class AndroidTestParserTest {
         applicationOutput = File(""),
         testApplicationOutput = apkFile,
     )
-    private val parser = AndroidTestParser(vendorConfiguration, testBundleIdentifier)
+    private val parser = LocalTestParser(vendorConfiguration, testBundleIdentifier)
 
     @Test
     fun `should return proper list of test methods`() {
-        val extractedTests = parser.extract()
+        val extractedTests = runBlocking {
+            parser.extract()
+        }
         extractedTests shouldBeEqualTo listOf(
             MarathonTest(
                 "com.example", "MainActivityTest", "testText",

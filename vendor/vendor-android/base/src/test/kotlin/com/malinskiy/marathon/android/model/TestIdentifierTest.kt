@@ -15,4 +15,14 @@ class TestIdentifierTest {
         assertThat(id.className).isEqualTo("com.example.Class")
         assertThat(id.testName).isEqualTo("method")
     }
+
+    @Test
+    fun testNoPackage() {
+        val id = TestIdentifier("Class under test", "method")
+        assertThat(id.toTest())
+            .isEqualTo(MarathonTest("", "Class under test", "method", emptyList()))
+
+        assertThat(id.className).isEqualTo("Class under test")
+        assertThat(id.testName).isEqualTo("method")
+    }
 }

@@ -19,6 +19,7 @@ import com.malinskiy.marathon.android.extension.isIgnored
 import com.malinskiy.marathon.android.model.TestIdentifier
 import com.malinskiy.marathon.config.Configuration
 import com.malinskiy.marathon.config.vendor.VendorConfiguration
+import com.malinskiy.marathon.extension.bashEscape
 import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.test.Test
 import com.malinskiy.marathon.test.TestBatch
@@ -160,7 +161,20 @@ class AndroidDeviceTestRunner(private val device: AdamAndroidDevice, private val
         testBatch: TestBatch
     ): TestRunnerRequest {
         val tests = testBatch.tests.map {
-            "${it.pkg}.${it.clazz}#${it.method}"
+            val pkg = when {
+                it.pkg.isNotEmpty() -> "${it.pkg}."
+                else -> ""
+            }
+            val clazz = it.clazz
+            val method = it.method
+            if (it.method != "null") {
+                "${pkg}${clazz}#$method"
+            } else {
+                /**
+                 * Special case for tests without any methods
+                 */
+                "${pkg}${clazz}"
+            }.bashEscape()
         }
 
         logger.debug { "tests = ${tests.toList()}" }

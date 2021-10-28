@@ -13,7 +13,7 @@ object Versions {
     val appCompat = "1.2.0"
     val constraintLayout = "2.0.4"
     val allure = "2.1.2"
-
+    val adam = "0.4.2"
 }
 
 object BuildPlugins {
@@ -39,4 +39,6 @@ object TestLibraries {
     val allureKotlinCommon = "io.qameta.allure:allure-kotlin-commons:${Versions.allure}"
     val allureKotlinJunit4 = "io.qameta.allure:allure-kotlin-junit4:${Versions.allure}"
     val allureKotlinAndroid = "io.qameta.allure:allure-kotlin-android:${Versions.allure}"
+
+    val testOutputEnhancer = "com.malinskiy.adam:android-junit4-test-annotation-producer:${Versions.adam}"
 }
