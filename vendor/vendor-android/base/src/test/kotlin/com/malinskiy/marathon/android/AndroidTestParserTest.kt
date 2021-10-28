@@ -21,7 +21,7 @@ class AndroidTestParserTest {
     @Test
     fun `should return proper list of test methods`() {
         val extractedTests = runBlocking {
-            parser.extract(configuration)
+            parser.extract()
         }
         extractedTests shouldBeEqualTo listOf(
             MarathonTest(
