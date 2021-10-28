@@ -30,7 +30,7 @@ class IOSTestParserTest {
     @Test
     fun `should return accurate list of tests`() {
         val extractedTests = runBlocking {
-            parser.extract(configuration)
+            parser.extract()
         }
 
         extractedTests shouldContainSame listOf(
