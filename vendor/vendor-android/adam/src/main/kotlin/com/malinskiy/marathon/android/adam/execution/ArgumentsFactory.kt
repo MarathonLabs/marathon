@@ -63,7 +63,7 @@ class ArgumentsFactory(private val device: AdamAndroidDevice) {
             }
         }
 
-        if (configuration.gRPC) {
+        if (configuration.grpc) {
             if (device.isLocalEmulator()) {
                 val consolePort = device.adbSerial.substringAfter("emulator-").trim().toIntOrNull()
                 if (consolePort == null) {

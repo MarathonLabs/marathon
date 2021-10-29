@@ -126,7 +126,8 @@ Below you will find a list of currently supported configuration parameters and e
 additional parameters might not be supported by all vendor modules. If you find that something doesn't work - please submit an issue for a
 vendor module at fault.
 
-* TOC {:toc}
+* TOC
+* {:toc}
 
 # General parameters
 
