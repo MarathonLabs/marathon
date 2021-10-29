@@ -2,12 +2,9 @@ package com.malinskiy.marathon.analytics.metrics
 
 import com.malinskiy.marathon.analytics.external.MetricsProviderFactory
 import com.malinskiy.marathon.analytics.external.NoOpMetricsProvider
-import com.malinskiy.marathon.device.DeviceProvider
-import com.malinskiy.marathon.execution.AnalyticsConfiguration
-import com.malinskiy.marathon.execution.Configuration
-import com.malinskiy.marathon.execution.TestParser
-import com.malinskiy.marathon.log.MarathonLogConfigurator
-import com.malinskiy.marathon.vendor.VendorConfiguration
+import com.malinskiy.marathon.config.AnalyticsConfiguration
+import com.malinskiy.marathon.config.Configuration
+import com.malinskiy.marathon.config.vendor.VendorConfiguration
 import org.amshove.kluent.shouldBeInstanceOf
 import org.junit.jupiter.api.Test
 import java.io.File
@@ -16,37 +13,14 @@ class MetricsProviderFactoryTest {
 
     @Test
     fun shouldReturnNoopProviderWhenDisabled() {
-        val configuration = Configuration(
+        val configuration = Configuration.Builder(
             name = "",
             outputDir = File(""),
-            analyticsConfiguration = AnalyticsConfiguration.DisabledAnalytics,
-            poolingStrategy = null,
-            shardingStrategy = null,
-            sortingStrategy = null,
-            batchingStrategy = null,
-            flakinessStrategy = null,
-            retryStrategy = null,
-            filteringConfiguration = null,
-            ignoreFailures = null,
-            isCodeCoverageEnabled = null,
-            fallbackToScreenshots = null,
-            strictMode = null,
-            uncompletedTestRetryQuota = null,
-            testClassRegexes = null,
-            includeSerialRegexes = null,
-            excludeSerialRegexes = null,
-            testBatchTimeoutMillis = null,
-            testOutputTimeoutMillis = null,
-            debug = null,
-            screenRecordingPolicy = null,
-            vendorConfiguration = object : VendorConfiguration {
-                override fun testParser(): TestParser? = null
-                override fun deviceProvider(): DeviceProvider? = null
-                override fun logConfigurator(): MarathonLogConfigurator? = null
-            },
-            analyticsTracking = false,
-            deviceInitializationTimeoutMillis = null
-        )
+            vendorConfiguration = VendorConfiguration.StubVendorConfiguration,
+        ).apply {
+            analyticsConfiguration = AnalyticsConfiguration.DisabledAnalytics
+            analyticsTracking = false
+        }.build()
         val factory = MetricsProviderFactory(configuration)
         val metricsProvider = factory.create()
         metricsProvider shouldBeInstanceOf NoOpMetricsProvider::class
@@ -61,37 +35,14 @@ class MetricsProviderFactoryTest {
             "db",
             AnalyticsConfiguration.InfluxDbConfiguration.RetentionPolicyConfiguration.default
         )
-        val configuration = Configuration(
+        val configuration = Configuration.Builder(
             name = "",
             outputDir = File(""),
-            analyticsConfiguration = analyticsConfiguration,
-            poolingStrategy = null,
-            shardingStrategy = null,
-            sortingStrategy = null,
-            batchingStrategy = null,
-            flakinessStrategy = null,
-            retryStrategy = null,
-            filteringConfiguration = null,
-            ignoreFailures = null,
-            isCodeCoverageEnabled = null,
-            fallbackToScreenshots = null,
-            strictMode = null,
-            uncompletedTestRetryQuota = null,
-            testClassRegexes = null,
-            includeSerialRegexes = null,
-            excludeSerialRegexes = null,
-            testBatchTimeoutMillis = null,
-            testOutputTimeoutMillis = null,
-            debug = null,
-            screenRecordingPolicy = null,
-            vendorConfiguration = object : VendorConfiguration {
-                override fun testParser(): TestParser? = null
-                override fun deviceProvider(): DeviceProvider? = null
-                override fun logConfigurator(): MarathonLogConfigurator? = null
-            },
-            analyticsTracking = false,
-            deviceInitializationTimeoutMillis = null
-        )
+            vendorConfiguration = VendorConfiguration.StubVendorConfiguration,
+        ).apply {
+            this.analyticsConfiguration = analyticsConfiguration
+            analyticsTracking = false
+        }.build()
         val factory = MetricsProviderFactory(configuration)
         val metricsProvider = factory.create()
         metricsProvider shouldBeInstanceOf NoOpMetricsProvider::class

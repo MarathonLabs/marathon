@@ -3,16 +3,16 @@ package com.malinskiy.marathon.android.adam.execution
 import com.malinskiy.adam.android.contract.TestRunnerContract
 import com.malinskiy.adam.request.forwarding.RemoteTcpPortSpec
 import com.malinskiy.marathon.android.adam.AdamAndroidDevice
-import com.malinskiy.marathon.android.configuration.AndroidConfiguration
-import com.malinskiy.marathon.android.configuration.TestAccessConfiguration
-import com.malinskiy.marathon.execution.Configuration
+import com.malinskiy.marathon.config.Configuration
+import com.malinskiy.marathon.config.vendor.VendorConfiguration
+import com.malinskiy.marathon.config.vendor.android.TestAccessConfiguration
 import com.malinskiy.marathon.log.MarathonLogging
 
 class ArgumentsFactory(private val device: AdamAndroidDevice) {
     private val logger = MarathonLogging.logger("ArgumentsFactory")
 
 
-    fun generate(configuration: Configuration, androidConfiguration: AndroidConfiguration): Map<String, String> {
+    fun generate(configuration: Configuration, androidConfiguration: VendorConfiguration.AndroidConfiguration): Map<String, String> {
         return mutableMapOf<String, String>().apply {
             putAll(androidConfiguration.instrumentationArgs)
             putAll(generateTestAccessArgs(androidConfiguration.testAccessConfiguration))

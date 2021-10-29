@@ -4,7 +4,7 @@ import com.malinskiy.marathon.analytics.external.MetricsProviderImpl
 import com.malinskiy.marathon.analytics.external.influx.InfluxDbProvider
 import com.malinskiy.marathon.analytics.external.influx.InfluxDbTracker
 import com.malinskiy.marathon.analytics.metrics.remote.getTestEvents
-import com.malinskiy.marathon.execution.AnalyticsConfiguration
+import com.malinskiy.marathon.config.AnalyticsConfiguration
 import com.malinskiy.marathon.generateTest
 import org.amshove.kluent.shouldEqualTo
 import org.influxdb.InfluxDB

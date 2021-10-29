@@ -5,6 +5,7 @@ plugins {
     id("org.jetbrains.kotlin.jvm")
     id("org.jetbrains.dokka")
     id("org.junit.platform.gradle.plugin")
+    jacoco
 }
 
 dependencies {
@@ -25,13 +26,15 @@ dependencies {
     testImplementation(TestLibraries.junit5)
     testRuntimeOnly(TestLibraries.jupiterEngine)
     testImplementation(TestLibraries.koin)
+    testImplementation(TestLibraries.adamServerStubJunit5)
+    testImplementation(project(":vendor:vendor-android:adam"))
 }
 
 Deployment.initialize(project)
 
 tasks.withType<KotlinCompile> {
     kotlinOptions.jvmTarget = "1.8"
-    kotlinOptions.apiVersion = "1.4"
+    kotlinOptions.apiVersion = "1.5"
 }
 
 tasks.withType<Test>().all {

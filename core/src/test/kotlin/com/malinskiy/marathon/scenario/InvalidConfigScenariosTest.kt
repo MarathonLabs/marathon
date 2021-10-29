@@ -1,10 +1,10 @@
 package com.malinskiy.marathon.scenario
 
+import com.malinskiy.marathon.config.exceptions.ConfigurationException
+import com.malinskiy.marathon.config.strategy.FlakinessStrategyConfiguration
+import com.malinskiy.marathon.config.strategy.ShardingStrategyConfiguration
 import com.malinskiy.marathon.device.DeviceProvider
-import com.malinskiy.marathon.exceptions.ConfigurationException
 import com.malinskiy.marathon.execution.TestStatus
-import com.malinskiy.marathon.execution.strategy.impl.flakiness.ProbabilityBasedFlakinessStrategy
-import com.malinskiy.marathon.execution.strategy.impl.sharding.CountShardingStrategy
 import com.malinskiy.marathon.test.StubDevice
 import com.malinskiy.marathon.test.setupMarathon
 import kotlinx.coroutines.GlobalScope
@@ -44,10 +44,10 @@ class InvalidConfigScenariosTest {
                     listOf(test)
                 }
 
-                flakinessStrategy = ProbabilityBasedFlakinessStrategy(.2, 2, Instant.now())
-                shardingStrategy = CountShardingStrategy(2)
+                flakinessStrategy = FlakinessStrategyConfiguration.ProbabilityBasedFlakinessStrategyConfiguration(.2, 2, Instant.now())
+                shardingStrategy = ShardingStrategyConfiguration.CountShardingStrategyConfiguration(2)
 
-                vendorConfiguration.deviceProvider.context = context
+                deviceProvider.context = context
 
                 devices {
                     delay(1000)

@@ -1,0 +1,12 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="android-cucumber-app" type="JetRunConfigurationType">
+    <option name="MAIN_CLASS_NAME" value="com.malinskiy.marathon.cli.ApplicationViewKt" />
+    <module name="marathon.cli.main" />
+    <shortenClasspath name="NONE" />
+    <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/sample/android-cucumber-app" />
+    <method v="2">
+      <option name="Gradle.BeforeRunTask" enabled="false" tasks=":app:assembleDebug :app:assembleDebugAndroidTest" externalProjectPath="$PROJECT_DIR$/sample/android-cucumber-app" vmOptions="" scriptParameters="" />
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>

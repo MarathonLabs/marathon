@@ -4,10 +4,12 @@ import com.malinskiy.marathon.actor.Actor
 import com.malinskiy.marathon.actor.safeSend
 import com.malinskiy.marathon.analytics.external.Analytics
 import com.malinskiy.marathon.analytics.internal.pub.Track
+import com.malinskiy.marathon.config.Configuration
 import com.malinskiy.marathon.device.Device
 import com.malinskiy.marathon.device.DeviceInfo
 import com.malinskiy.marathon.device.DevicePoolId
 import com.malinskiy.marathon.device.toDeviceInfo
+import com.malinskiy.marathon.execution.bundle.TestBundleIdentifier
 import com.malinskiy.marathon.execution.device.DeviceActor
 import com.malinskiy.marathon.execution.device.DeviceEvent
 import com.malinskiy.marathon.execution.progress.ProgressReporter
@@ -30,7 +32,8 @@ class DevicePoolActor(
     track: Track,
     timer: Timer,
     parent: Job,
-    context: CoroutineContext
+    context: CoroutineContext,
+    testBundleIdentifier: TestBundleIdentifier?,
 ) :
     Actor<DevicePoolMessage>(parent = parent, context = context) {
 
@@ -64,6 +67,7 @@ class DevicePoolActor(
         progressReporter,
         track,
         timer,
+        testBundleIdentifier,
         poolJob,
         context
     )

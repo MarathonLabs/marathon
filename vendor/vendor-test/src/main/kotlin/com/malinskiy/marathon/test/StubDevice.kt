@@ -1,5 +1,6 @@
 package com.malinskiy.marathon.test
 
+import com.malinskiy.marathon.config.Configuration
 import com.malinskiy.marathon.device.Device
 import com.malinskiy.marathon.device.DeviceFeature
 import com.malinskiy.marathon.device.DevicePoolId
@@ -7,7 +8,6 @@ import com.malinskiy.marathon.device.NetworkState
 import com.malinskiy.marathon.device.OperatingSystem
 import com.malinskiy.marathon.device.toDeviceInfo
 import com.malinskiy.marathon.exceptions.TestBatchExecutionException
-import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.execution.TestBatchResults
 import com.malinskiy.marathon.execution.TestResult
 import com.malinskiy.marathon.execution.TestStatus
@@ -30,7 +30,7 @@ class StubDevice(
     val crashWithTestBatchException: Boolean = false
 ) : Device {
 
-    val logger = MarathonLogging.logger(StubDevice::class.java.simpleName)
+    private val logger = MarathonLogging.logger(StubDevice::class.java.simpleName)
 
     lateinit var executionResults: Map<Test, Array<TestStatus>>
     var executionIndexMap: MutableMap<Test, Int> = mutableMapOf()
@@ -53,7 +53,7 @@ class StubDevice(
             val i = executionIndexMap.getOrDefault(it, 0)
             val result = executionResults[it]!![i]
             executionIndexMap[it] = i + 1
-            val testResult = TestResult(it, toDeviceInfo(), result, timeCounter, timeCounter + 1, null)
+            val testResult = TestResult(it, toDeviceInfo(), testBatch.id, result, timeCounter, timeCounter + 1, null)
             timeCounter += 1
             testResult
         }

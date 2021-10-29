@@ -12,27 +12,27 @@ import com.malinskiy.adam.request.testrunner.TestRunStartedEvent
 import com.malinskiy.adam.request.testrunner.TestRunStopped
 import com.malinskiy.adam.request.testrunner.TestRunnerRequest
 import com.malinskiy.adam.request.testrunner.TestStarted
-import com.malinskiy.marathon.android.ApkParser
+import com.malinskiy.marathon.android.AndroidTestBundleIdentifier
 import com.malinskiy.marathon.android.InstrumentationInfo
 import com.malinskiy.marathon.android.adam.execution.ArgumentsFactory
-import com.malinskiy.marathon.android.configuration.AndroidConfiguration
 import com.malinskiy.marathon.android.executor.listeners.AndroidTestRunListener
 import com.malinskiy.marathon.android.extension.isIgnored
 import com.malinskiy.marathon.android.model.TestIdentifier
-import com.malinskiy.marathon.execution.Configuration
+import com.malinskiy.marathon.config.Configuration
+import com.malinskiy.marathon.config.vendor.VendorConfiguration
+import com.malinskiy.marathon.extension.bashEscape
 import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.test.Test
 import com.malinskiy.marathon.test.TestBatch
 import com.malinskiy.marathon.test.toTestName
 import kotlinx.coroutines.channels.ReceiveChannel
-import kotlinx.coroutines.channels.receiveOrNull
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.withTimeoutOrNull
 import java.io.IOException
 
 const val ERROR_STUCK = "Test got stuck. You can increase the timeout in settings if it's too strict"
 
-class AndroidDeviceTestRunner(private val device: AdamAndroidDevice) {
+class AndroidDeviceTestRunner(private val device: AdamAndroidDevice, private val bundleIdentifier: AndroidTestBundleIdentifier) {
     private val logger = MarathonLogging.logger("AndroidDeviceTestRunner")
     private val argumentsFactory = ArgumentsFactory(device)
 
@@ -45,16 +45,24 @@ class AndroidDeviceTestRunner(private val device: AdamAndroidDevice) {
 
         val ignoredTests = rawTestBatch.tests.filter { test -> test.isIgnored() }
         val testBatch = TestBatch(rawTestBatch.tests - ignoredTests, rawTestBatch.id)
+        if (testBatch.tests.isEmpty()) {
+            listener.beforeTestRun()
+            notifyIgnoredTest(ignoredTests, listener)
+            listener.testRunEnded(0, emptyMap())
+            listener.afterTestRun()
+            return
+        }
 
-        val androidConfiguration = configuration.vendorConfiguration as AndroidConfiguration
-        val info = ApkParser().parseInstrumentationInfo(androidConfiguration.testApplicationOutput)
-        val runnerRequest = prepareTestRunnerRequest(configuration, androidConfiguration, info, testBatch)
-
-        var channel: ReceiveChannel<List<TestEvent>>? = null
-        try {
-            withTimeoutOrNull(configuration.testBatchTimeoutMillis) {
-                notifyIgnoredTest(ignoredTests, listener)
-                if (testBatch.tests.isNotEmpty()) {
+        val androidConfiguration = configuration.vendorConfiguration as VendorConfiguration.AndroidConfiguration
+        val infoToTestMap: Map<InstrumentationInfo, Test> = testBatch.tests.associateBy {
+            bundleIdentifier.identify(it).instrumentationInfo
+        }
+        infoToTestMap.keys.forEach { info ->
+            val runnerRequest = prepareTestRunnerRequest(configuration, androidConfiguration, info, testBatch)
+            var channel: ReceiveChannel<List<TestEvent>>? = null
+            try {
+                withTimeoutOrNull(configuration.testBatchTimeoutMillis) {
+                    notifyIgnoredTest(ignoredTests, listener)
                     clearData(androidConfiguration, info)
                     listener.beforeTestRun()
 
@@ -64,7 +72,7 @@ class AndroidDeviceTestRunner(private val device: AdamAndroidDevice) {
 
                     while (!localChannel.isClosedForReceive && isActive) {
                         val update: List<TestEvent>? = withTimeoutOrNull(configuration.testOutputTimeoutMillis) {
-                            localChannel.receiveOrNull() ?: emptyList()
+                            localChannel.receiveCatching().getOrNull() ?: emptyList()
                         }
                         if (update == null) {
                             listener.testRunFailed(ERROR_STUCK)
@@ -75,17 +83,16 @@ class AndroidDeviceTestRunner(private val device: AdamAndroidDevice) {
                     }
 
                     logger.debug { "Execution finished" }
-                } else {
-                    listener.testRunEnded(0, emptyMap())
-                }
-                Unit
-            } ?: listener.testRunFailed(ERROR_STUCK)
-        } catch (e: IOException) {
-            val errorMessage = "adb error while running tests ${testBatch.tests.map { it.toTestName() }}"
-            logger.error(e) { errorMessage }
-            listener.testRunFailed(errorMessage)
-        } finally {
-            channel?.cancel(null)
+                    Unit
+                } ?: listener.testRunFailed(ERROR_STUCK)
+            } catch (e: IOException) {
+                val errorMessage = "adb error while running tests ${testBatch.tests.map { it.toTestName() }}"
+                logger.error(e) { errorMessage }
+                listener.testRunFailed(errorMessage)
+            } finally {
+                listener.afterTestRun()
+                channel?.cancel(null)
+            }
         }
     }
 
@@ -120,7 +127,7 @@ class AndroidDeviceTestRunner(private val device: AdamAndroidDevice) {
         }
     }
 
-    private suspend fun clearData(androidConfiguration: AndroidConfiguration, info: InstrumentationInfo) {
+    private suspend fun clearData(androidConfiguration: VendorConfiguration.AndroidConfiguration, info: InstrumentationInfo) {
         if (androidConfiguration.applicationPmClear) {
             device.safeClearPackage(info.applicationPackage)?.trim()?.also {
                 logger.debug { "Package ${info.applicationPackage} cleared: $it" }
@@ -152,12 +159,25 @@ class AndroidDeviceTestRunner(private val device: AdamAndroidDevice) {
 
     private fun prepareTestRunnerRequest(
         configuration: Configuration,
-        androidConfiguration: AndroidConfiguration,
+        androidConfiguration: VendorConfiguration.AndroidConfiguration,
         info: InstrumentationInfo,
         testBatch: TestBatch
     ): TestRunnerRequest {
         val tests = testBatch.tests.map {
-            "${it.pkg}.${it.clazz}#${it.method}"
+            val pkg = when {
+                it.pkg.isNotEmpty() -> "${it.pkg}."
+                else -> ""
+            }
+            val clazz = it.clazz
+            val method = it.method
+            if (it.method != "null") {
+                "${pkg}${clazz}#$method"
+            } else {
+                /**
+                 * Special case for tests without any methods
+                 */
+                "${pkg}${clazz}"
+            }.bashEscape()
         }
 
         logger.debug { "tests = ${tests.toList()}" }

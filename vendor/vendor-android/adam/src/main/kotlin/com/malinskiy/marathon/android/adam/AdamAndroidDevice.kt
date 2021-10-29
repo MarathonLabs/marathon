@@ -27,22 +27,25 @@ import com.malinskiy.adam.request.sync.AndroidFileType
 import com.malinskiy.adam.request.sync.ListFilesRequest
 import com.malinskiy.adam.request.sync.compat.CompatPullFileRequest
 import com.malinskiy.adam.request.sync.compat.CompatPushFileRequest
+import com.malinskiy.adam.request.sync.compat.CompatStatFileRequest
 import com.malinskiy.adam.request.testrunner.TestEvent
 import com.malinskiy.adam.request.testrunner.TestRunnerRequest
 import com.malinskiy.marathon.analytics.internal.pub.Track
 import com.malinskiy.marathon.android.AndroidAppInstaller
+import com.malinskiy.marathon.android.AndroidTestBundleIdentifier
 import com.malinskiy.marathon.android.BaseAndroidDevice
-import com.malinskiy.marathon.android.VideoConfiguration
-import com.malinskiy.marathon.android.configuration.AndroidConfiguration
-import com.malinskiy.marathon.android.configuration.SerialStrategy
 import com.malinskiy.marathon.android.exception.CommandRejectedException
 import com.malinskiy.marathon.android.exception.InstallException
 import com.malinskiy.marathon.android.exception.TransferException
 import com.malinskiy.marathon.android.executor.listeners.line.LineListener
+import com.malinskiy.marathon.android.extension.toScreenRecorderCommand
+import com.malinskiy.marathon.config.Configuration
+import com.malinskiy.marathon.config.vendor.VendorConfiguration
+import com.malinskiy.marathon.config.vendor.android.SerialStrategy
+import com.malinskiy.marathon.config.vendor.android.VideoConfiguration
 import com.malinskiy.marathon.device.DevicePoolId
 import com.malinskiy.marathon.device.NetworkState
 import com.malinskiy.marathon.exceptions.DeviceLostException
-import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.execution.TestBatchResults
 import com.malinskiy.marathon.execution.progress.ProgressReporter
 import com.malinskiy.marathon.extension.withTimeout
@@ -67,9 +70,10 @@ class AdamAndroidDevice(
     internal val client: AndroidDebugBridgeClient,
     private val deviceStateTracker: DeviceStateTracker,
     private val logcatManager: LogcatManager,
+    private val testBundleIdentifier: AndroidTestBundleIdentifier,
     adbSerial: String,
     configuration: Configuration,
-    androidConfiguration: AndroidConfiguration,
+    androidConfiguration: VendorConfiguration.AndroidConfiguration,
     track: Track,
     timer: Timer,
     serialStrategy: SerialStrategy
@@ -80,6 +84,7 @@ class AdamAndroidDevice(
      */
     private val imageScreenCaptureAdapter = BufferedImageScreenCaptureAdapter()
     private lateinit var supportedFeatures: List<Feature>
+
     val portForwardingRules = mutableMapOf<String, ReversePortForwardingRule>()
 
     override suspend fun setup() {
@@ -132,18 +137,23 @@ class AdamAndroidDevice(
             val local = File(localFilePath)
 
             measureFileTransfer(local) {
-                val channel = client.execute(
-                    CompatPullFileRequest(remoteFilePath, local, supportedFeatures, coroutineScope = this),
-                    serial = adbSerial
-                )
-                for (update in channel) {
-                    progress = update
+                val stat = client.execute(CompatStatFileRequest(remoteFilePath, supportedFeatures), serialNumber)
+                if (stat.exists()) {
+                    val channel = client.execute(
+                        CompatPullFileRequest(remoteFilePath, local, supportedFeatures, coroutineScope = this, size = stat.size().toLong()),
+                        serial = adbSerial
+                    )
+                    for (update in channel) {
+                        progress = update
+                    }
+                } else {
+                    throw TransferException("Couldn't pull file $remoteFilePath from device $serialNumber because it doesn't exist")
                 }
             }
         } catch (e: PullFailedException) {
-            throw TransferException("Couldn't pull file $remoteFilePath from device $serialNumber")
+            throw TransferException("Couldn't pull file $remoteFilePath from device $serialNumber", e)
         } catch (e: UnsupportedSyncProtocolException) {
-            throw TransferException("Device $serialNumber does not support sync: file transfer")
+            throw TransferException("Device $serialNumber does not support sync: file transfer", e)
         }
 
         if (progress != 1.0) {
@@ -237,7 +247,7 @@ class AdamAndroidDevice(
         }
     }
 
-    override suspend fun installPackage(absolutePath: String, reinstall: Boolean, optionalParams: String): String? {
+    override suspend fun installPackage(absolutePath: String, reinstall: Boolean, optionalParams: List<String>): String? {
         val file = File(absolutePath)
         val remotePath = "/data/local/tmp/${file.name}"
 
@@ -254,7 +264,7 @@ class AdamAndroidDevice(
                 InstallRemotePackageRequest(
                     remotePath,
                     reinstall = reinstall,
-                    extraArgs = optionalParams.split(" ").toList() + " "
+                    extraArgs = optionalParams.filter { it.isNotBlank() }
                 ), serial = adbSerial
             )
         } ?: throw InstallException("Timeout transferring $absolutePath")
@@ -337,7 +347,7 @@ class AdamAndroidDevice(
             async(coroutineContext) {
                 supervisorScope {
                     val listener = createExecutionListeners(configuration, devicePoolId, testBatch, deferred, progressReporter)
-                    AndroidDeviceTestRunner(this@AdamAndroidDevice).execute(configuration, testBatch, listener)
+                    AndroidDeviceTestRunner(this@AdamAndroidDevice, testBundleIdentifier).execute(configuration, testBatch, listener)
                 }
             }.await()
         } catch (e: RequestRejectedException) {
@@ -397,8 +407,10 @@ class AdamAndroidDevice(
     }
 
     override fun onLine(line: String) {
-        logcatListeners.forEach { listener ->
-            listener.onLine(line)
+        synchronized(logcatListeners) {
+            logcatListeners.forEach { listener ->
+                listener.onLine(line)
+            }
         }
     }
 

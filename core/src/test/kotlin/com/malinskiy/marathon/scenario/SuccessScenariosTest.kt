@@ -39,7 +39,7 @@ class SuccessScenariosTest {
                     listOf(test)
                 }
 
-                vendorConfiguration.deviceProvider.context = context
+                deviceProvider.context = context
 
                 devices {
                     delay(1000)

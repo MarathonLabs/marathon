@@ -2,9 +2,10 @@ package com.malinskiy.marathon.android.executor.listeners
 
 import com.malinskiy.marathon.android.model.TestIdentifier
 import com.malinskiy.marathon.android.model.TestRunResultsAccumulator
+import com.malinskiy.marathon.time.Timer
 
-abstract class AbstractTestRunResultListener : NoOpTestRunListener() {
-    private val runResult = TestRunResultsAccumulator()
+abstract class AbstractTestRunResultListener(timer: Timer) : NoOpTestRunListener() {
+    protected val runResult = TestRunResultsAccumulator(timer)
 
     override suspend fun testRunStarted(runName: String, testCount: Int) {
         runResult.testRunStarted(runName, testCount)
@@ -32,18 +33,13 @@ abstract class AbstractTestRunResultListener : NoOpTestRunListener() {
 
     override suspend fun testRunFailed(errorMessage: String) {
         runResult.testRunFailed(errorMessage)
-        handleTestRunResults(runResult)
     }
 
     override suspend fun testRunStopped(elapsedTime: Long) {
         runResult.testRunStopped(elapsedTime)
-        handleTestRunResults(runResult)
     }
 
     override suspend fun testRunEnded(elapsedTime: Long, runMetrics: Map<String, String>) {
         runResult.testRunEnded(elapsedTime, runMetrics)
-        handleTestRunResults(runResult)
     }
-
-    abstract suspend fun handleTestRunResults(runResult: TestRunResultsAccumulator)
 }

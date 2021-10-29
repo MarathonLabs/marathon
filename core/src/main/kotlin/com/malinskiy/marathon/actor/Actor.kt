@@ -5,6 +5,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.ObsoleteCoroutinesApi
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.channels.ChannelResult
 import kotlinx.coroutines.channels.SendChannel
 import kotlinx.coroutines.channels.actor
 import kotlinx.coroutines.selects.SelectClause2
@@ -34,8 +35,7 @@ abstract class Actor<in T>(
     @ExperimentalCoroutinesApi
     override val isClosedForSend: Boolean
         get() = delegate.isClosedForSend
-    @ExperimentalCoroutinesApi
-    override val isFull: Boolean = false
+
     override val onSend: SelectClause2<T, SendChannel<T>>
         get() = delegate.onSend
 
@@ -50,6 +50,8 @@ abstract class Actor<in T>(
     }
 
     override fun offer(element: T): Boolean = delegate.offer(element)
+
+    override fun trySend(element: T): ChannelResult<Unit> = delegate.trySend(element)
 
     override suspend fun send(element: T) = delegate.send(element)
 }

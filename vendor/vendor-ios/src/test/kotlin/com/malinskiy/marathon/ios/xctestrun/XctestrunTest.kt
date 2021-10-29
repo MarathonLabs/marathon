@@ -1,6 +1,6 @@
 package com.malinskiy.marathon.ios.xctestrun
 
-import org.amshove.kluent.shouldEqual
+import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldHaveKey
 import org.amshove.kluent.shouldNotHaveKey
 import org.junit.jupiter.api.Test
@@ -14,8 +14,8 @@ class XctestrunTest {
 
     @Test
     fun `parsing should return correct property values`() {
-        xctestrun.targetName shouldEqual "sample-appUITests"
-        xctestrun.isUITestBundle shouldEqual true
+        xctestrun.targetName shouldBeEqualTo "sample-appUITests"
+        xctestrun.isUITestBundle shouldBeEqualTo true
     }
 
     @Test
@@ -24,9 +24,9 @@ class XctestrunTest {
         val test2 = MarathonTest("sample-appUITests", "StoryboardTests", "testDisabledButton", listOf())
         val test3 = MarathonTest("sample-appUITests", "StoryboardTests", "testLabel", listOf())
 
-        xctestrun.isSkipped(test1) shouldEqual true
-        xctestrun.isSkipped(test2) shouldEqual true
-        xctestrun.isSkipped(test3) shouldEqual false
+        xctestrun.isSkipped(test1) shouldBeEqualTo true
+        xctestrun.isSkipped(test2) shouldBeEqualTo true
+        xctestrun.isSkipped(test3) shouldBeEqualTo false
     }
 
     @Test
@@ -35,7 +35,7 @@ class XctestrunTest {
             File(javaClass.classLoader.getResource("fixtures/xctestrun/UITesting_iphonesimulator11.2-x86_64-reordered.xctestrun").file)
         val reordered = Xctestrun(reorderedFile)
 
-        reordered shouldEqual xctestrun
+        reordered shouldBeEqualTo xctestrun
     }
 
     @Test
@@ -46,14 +46,14 @@ class XctestrunTest {
             )
         )
 
-        other shouldEqual xctestrun
+        other shouldBeEqualTo xctestrun
     }
 
     @Test
     fun `a valid instance should be equal to its clone`() {
         val clone = xctestrun.clone()
 
-        clone shouldEqual xctestrun
+        clone shouldBeEqualTo xctestrun
     }
 
     @Test
@@ -61,7 +61,7 @@ class XctestrunTest {
         xctestrun.environment("SPEK_DEBUG", "YES")
 
         xctestrun.environmentVariables shouldHaveKey "SPEK_DEBUG"
-        xctestrun.environmentVariables["SPEK_DEBUG"] shouldEqual "YES"
+        xctestrun.environmentVariables["SPEK_DEBUG"] shouldBeEqualTo "YES"
     }
 
     @Test
@@ -69,7 +69,7 @@ class XctestrunTest {
         xctestrun.testingEnvironment("SPEK_DEBUG", "YES")
 
         xctestrun.testingEnvironmentVariables shouldHaveKey "SPEK_DEBUG"
-        xctestrun.testingEnvironmentVariables["SPEK_DEBUG"] shouldEqual "YES"
+        xctestrun.testingEnvironmentVariables["SPEK_DEBUG"] shouldBeEqualTo "YES"
     }
 
     @Test
@@ -88,6 +88,6 @@ class XctestrunTest {
         val updatedFile =
             File(javaClass.classLoader.getResource("fixtures/xctestrun/UITesting_iphonesimulator12.1-x86_64.xctestrun").file)
         val xctestrun = Xctestrun(updatedFile)
-        xctestrun.targetName shouldEqual "sample-appUITests"
+        xctestrun.targetName shouldBeEqualTo "sample-appUITests"
     }
 }

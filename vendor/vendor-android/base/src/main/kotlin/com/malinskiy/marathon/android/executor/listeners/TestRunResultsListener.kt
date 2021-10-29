@@ -5,11 +5,13 @@ import com.malinskiy.marathon.android.model.AndroidTestStatus
 import com.malinskiy.marathon.android.model.TestIdentifier
 import com.malinskiy.marathon.android.model.TestRunResultsAccumulator
 import com.malinskiy.marathon.device.Device
+import com.malinskiy.marathon.device.DevicePoolId
 import com.malinskiy.marathon.device.toDeviceInfo
 import com.malinskiy.marathon.execution.Attachment
 import com.malinskiy.marathon.execution.TestBatchResults
 import com.malinskiy.marathon.execution.TestResult
 import com.malinskiy.marathon.execution.TestStatus
+import com.malinskiy.marathon.execution.progress.ProgressReporter
 import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.report.attachment.AttachmentListener
 import com.malinskiy.marathon.report.attachment.AttachmentProvider
@@ -24,8 +26,10 @@ class TestRunResultsListener(
     private val device: Device,
     private val deferred: CompletableDeferred<TestBatchResults>,
     private val timer: Timer,
+    private val progressReporter: ProgressReporter,
+    private val poolId: DevicePoolId,
     attachmentProviders: List<AttachmentProvider>
-) : AbstractTestRunResultListener(), AttachmentListener {
+) : AbstractTestRunResultListener(timer), AttachmentListener {
 
     private val attachments: MutableMap<Test, MutableList<Attachment>> = mutableMapOf()
     private val creationTime = timer.currentTimeMillis()
@@ -47,7 +51,7 @@ class TestRunResultsListener(
 
     private val logger = MarathonLogging.logger("TestRunResultsListener")
 
-    override suspend fun handleTestRunResults(runResult: TestRunResultsAccumulator) {
+    override suspend fun afterTestRun() {
         val results = mergeParameterisedResults(runResult.testResults)
         val tests = testBatch.tests.associateBy { it.identifier() }
 
@@ -56,7 +60,13 @@ class TestRunResultsListener(
         }
 
         val nonNullTestResults = testResults.filter {
-            it.test.method != "null"
+            /**
+             * If we have a result with null method, then we ignore it unless explicitly requested to
+             *
+             * An example of null method response is @BeforeClass failure
+             * An example of null method request is an ignored test class with remote parser
+             */
+            it.test.method != "null" || testBatch.tests.contains(it.test)
         }
 
         val finished = nonNullTestResults.filter {
@@ -97,7 +107,7 @@ class TestRunResultsListener(
         val lastCompletedTestEndTime = testRunResult
             .testResults
             .values
-            .maxBy { it.endTime }
+            .maxByOrNull { it.endTime }
             ?.endTime
             ?: creationTime
 
@@ -105,6 +115,7 @@ class TestRunResultsListener(
             TestResult(
                 it,
                 device.toDeviceInfo(),
+                testBatch.id,
                 TestStatus.INCOMPLETE,
                 lastCompletedTestEndTime,
                 timer.currentTimeMillis(),
@@ -114,6 +125,11 @@ class TestRunResultsListener(
     }
 
     private fun mergeParameterisedResults(results: MutableMap<TestIdentifier, AndroidTestResult>): Map<TestIdentifier, AndroidTestResult> {
+        /**
+         * If we explicitly requested parameterized tests - skip merging
+         */
+        if (testBatch.tests.any { it.method.contains('[') && it.method.contains(']') }) return results
+
         val result = mutableMapOf<TestIdentifier, AndroidTestResult>()
         for (e in results) {
             val test = e.key
@@ -124,6 +140,8 @@ class TestRunResultsListener(
                     result[realIdentifier] = e.value
                 } else {
                     result[realIdentifier]?.status = maybeExistingParameterizedResult.status + e.value.status
+                    //Needed for proper result aggregation
+                    progressReporter.addTestDiscoveredDuringRuntime(poolId, test.toTest())
                 }
             } else {
                 result[test] = e.value
@@ -140,6 +158,7 @@ class TestRunResultsListener(
         return TestResult(
             test = testInstanceFromBatch ?: test,
             device = device.toDeviceInfo(),
+            testBatchId = testBatch.id,
             status = value.status.toMarathonStatus(),
             startTime = value.startTime,
             endTime = value.endTime,
@@ -149,7 +168,14 @@ class TestRunResultsListener(
     }
 
     private fun Test.identifier(): TestIdentifier {
-        return TestIdentifier("$pkg.$clazz", method)
+        val classname = StringBuilder().apply {
+            if (pkg.isNotEmpty()) {
+                append("${pkg}.")
+            }
+            append(clazz)
+        }.toString()
+
+        return TestIdentifier(classname, method)
     }
 
     private fun AndroidTestResult.isSuccessful(): Boolean =

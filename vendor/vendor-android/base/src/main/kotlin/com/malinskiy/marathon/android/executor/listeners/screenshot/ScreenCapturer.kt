@@ -1,9 +1,9 @@
 package com.malinskiy.marathon.android.executor.listeners.screenshot
 
 import com.malinskiy.marathon.android.AndroidDevice
-import com.malinskiy.marathon.android.ScreenshotConfiguration
 import com.malinskiy.marathon.android.exception.CommandRejectedException
 import com.malinskiy.marathon.android.model.Rotation
+import com.malinskiy.marathon.config.vendor.android.ScreenshotConfiguration
 import com.malinskiy.marathon.device.DevicePoolId
 import com.malinskiy.marathon.device.toDeviceInfo
 import com.malinskiy.marathon.io.FileManager
@@ -26,6 +26,7 @@ import kotlin.system.measureTimeMillis
 class ScreenCapturer(
     val device: AndroidDevice,
     private val poolId: DevicePoolId,
+    private val testBatchId: String,
     private val fileManager: FileManager,
     private val configuration: ScreenshotConfiguration,
     private val timeout: Duration
@@ -33,10 +34,11 @@ class ScreenCapturer(
 
     suspend fun start(test: Test) {
         var outputStream: FileImageOutputStream? = null
-        val writer: GifSequenceWriter? = null
+        var writer: GifSequenceWriter? = null
         try {
-            val outputStream = FileImageOutputStream(fileManager.createFile(FileType.SCREENSHOT, poolId, device.toDeviceInfo(), test))
-            val writer = GifSequenceWriter(outputStream, TYPE_INT_ARGB, configuration.delayMs, true)
+            outputStream =
+                FileImageOutputStream(fileManager.createFile(FileType.SCREENSHOT, poolId, device.toDeviceInfo(), test, testBatchId))
+            writer = GifSequenceWriter(outputStream, TYPE_INT_ARGB, configuration.delayMs, true)
             var targetRotation = detectCurrentDeviceOrientation()
             while (coroutineContext.isActive) {
                 val capturingTimeMillis = measureTimeMillis {

@@ -2,60 +2,39 @@ package com.malinskiy.marathon.execution.queue
 
 import com.malinskiy.marathon.analytics.external.Analytics
 import com.malinskiy.marathon.analytics.internal.pub.Track
+import com.malinskiy.marathon.config.Configuration
+import com.malinskiy.marathon.config.vendor.VendorConfiguration
 import com.malinskiy.marathon.createDeviceInfo
 import com.malinskiy.marathon.device.DevicePoolId
-import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.execution.TestResult
 import com.malinskiy.marathon.execution.TestShard
 import com.malinskiy.marathon.execution.TestStatus
 import com.malinskiy.marathon.generateTest
-import com.malinskiy.marathon.test.Mocks
-import com.malinskiy.marathon.test.StubDeviceProvider
-import com.malinskiy.marathon.test.TestVendorConfiguration
 import com.nhaarman.mockitokotlin2.inOrder
+import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.reset
 import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
-import org.amshove.kluent.mock
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import java.io.File
 
 class TestResultReporterTest {
-    private val track: Track = mock()
-    private val analytics = mock(Analytics::class)
+    private val track = mock<Track>()
+    private val analytics = mock<Analytics>()
 
     @BeforeEach
     fun `setup mocks`() {
         reset(track, analytics)
     }
 
-    private val defaultConfig = Configuration(
+    private val defaultConfig = Configuration.Builder(
         name = "",
         outputDir = File(""),
-        analyticsConfiguration = null,
-        poolingStrategy = null,
-        shardingStrategy = null,
-        sortingStrategy = null,
-        batchingStrategy = null,
-        flakinessStrategy = null,
-        retryStrategy = null,
-        filteringConfiguration = null,
-        ignoreFailures = null,
-        isCodeCoverageEnabled = null,
-        fallbackToScreenshots = null,
-        strictMode = null,
-        uncompletedTestRetryQuota = null,
-        testClassRegexes = null,
-        includeSerialRegexes = null,
-        excludeSerialRegexes = null,
-        testBatchTimeoutMillis = null,
-        testOutputTimeoutMillis = null,
-        debug = false,
-        screenRecordingPolicy = null,
-        vendorConfiguration = TestVendorConfiguration(Mocks.TestParser.DEFAULT, StubDeviceProvider()),
-        analyticsTracking = false,
-        deviceInitializationTimeoutMillis = null
-    )
+        vendorConfiguration = VendorConfiguration.StubVendorConfiguration,
+    ).apply {
+        debug = false
+        analyticsTracking = false
+    }.build()
     private val strictConfig = defaultConfig.copy(strictMode = true)
     val test = generateTest()
     private val poolId = DevicePoolId("test")
@@ -82,9 +61,9 @@ class TestResultReporterTest {
     fun `default config, success - failure - failure, should report success`() {
         val filter = filterDefault()
 
-        val r1 = TestResult(test, deviceInfo, TestStatus.PASSED, 0, 1)
-        val r2 = TestResult(test, deviceInfo, TestStatus.FAILURE, 2, 3)
-        val r3 = TestResult(test, deviceInfo, TestStatus.FAILURE, 4, 5)
+        val r1 = TestResult(test, deviceInfo, "stub-batch", TestStatus.PASSED, 0, 1)
+        val r2 = TestResult(test, deviceInfo, "stub-batch", TestStatus.FAILURE, 2, 3)
+        val r3 = TestResult(test, deviceInfo, "stub-batch", TestStatus.FAILURE, 4, 5)
 
         filter.testFinished(deviceInfo, r1)
         filter.testFailed(deviceInfo, r2)
@@ -102,9 +81,9 @@ class TestResultReporterTest {
     fun `default config, failure - failure - success, should report success`() {
         val filter = filterDefault()
 
-        val r1 = TestResult(test, deviceInfo, TestStatus.FAILURE, 0, 1)
-        val r2 = TestResult(test, deviceInfo, TestStatus.FAILURE, 2, 3)
-        val r3 = TestResult(test, deviceInfo, TestStatus.PASSED, 4, 5)
+        val r1 = TestResult(test, deviceInfo, "stub-batch", TestStatus.FAILURE, 0, 1)
+        val r2 = TestResult(test, deviceInfo, "stub-batch", TestStatus.FAILURE, 2, 3)
+        val r3 = TestResult(test, deviceInfo, "stub-batch", TestStatus.PASSED, 4, 5)
 
         filter.testFailed(deviceInfo, r1)
         filter.testFailed(deviceInfo, r2)
@@ -122,9 +101,9 @@ class TestResultReporterTest {
     fun `strict config, success - failure - failure, should report failure`() {
         val filter = filterStrict()
 
-        val r1 = TestResult(test, deviceInfo, TestStatus.PASSED, 0, 1)
-        val r2 = TestResult(test, deviceInfo, TestStatus.FAILURE, 2, 3)
-        val r3 = TestResult(test, deviceInfo, TestStatus.FAILURE, 4, 5)
+        val r1 = TestResult(test, deviceInfo, "stub-batch", TestStatus.PASSED, 0, 1)
+        val r2 = TestResult(test, deviceInfo, "stub-batch", TestStatus.FAILURE, 2, 3)
+        val r3 = TestResult(test, deviceInfo, "stub-batch", TestStatus.FAILURE, 4, 5)
 
         filter.testFinished(deviceInfo, r1)
         filter.testFailed(deviceInfo, r2)
@@ -142,9 +121,9 @@ class TestResultReporterTest {
     fun `strict config, failure - success - success, should report failure`() {
         val filter = filterStrict()
 
-        val r1 = TestResult(test, deviceInfo, TestStatus.FAILURE, 0, 1)
-        val r2 = TestResult(test, deviceInfo, TestStatus.PASSED, 2, 3)
-        val r3 = TestResult(test, deviceInfo, TestStatus.PASSED, 4, 5)
+        val r1 = TestResult(test, deviceInfo, "stub-batch", TestStatus.FAILURE, 0, 1)
+        val r2 = TestResult(test, deviceInfo, "stub-batch", TestStatus.PASSED, 2, 3)
+        val r3 = TestResult(test, deviceInfo, "stub-batch", TestStatus.PASSED, 4, 5)
 
         filter.testFailed(deviceInfo, r1)
         filter.testFinished(deviceInfo, r2)

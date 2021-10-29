@@ -47,7 +47,7 @@ class DisconnectingScenariosTest {
                     listOf(test1, test2)
                 }
 
-                vendorConfiguration.deviceProvider.context = context
+                deviceProvider.context = context
 
                 devices {
                     delay(1000)

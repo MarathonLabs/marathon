@@ -9,16 +9,15 @@ import com.malinskiy.marathon.analytics.internal.pub.Track
 import com.malinskiy.marathon.analytics.internal.sub.DelegatingTrackerInternal
 import com.malinskiy.marathon.analytics.internal.sub.ExecutionReportGenerator
 import com.malinskiy.marathon.analytics.internal.sub.TrackerInternal
-import com.malinskiy.marathon.execution.AnalyticsConfiguration.GraphiteConfiguration
-import com.malinskiy.marathon.execution.AnalyticsConfiguration.InfluxDbConfiguration
-import com.malinskiy.marathon.execution.Configuration
+import com.malinskiy.marathon.config.AnalyticsConfiguration.GraphiteConfiguration
+import com.malinskiy.marathon.config.AnalyticsConfiguration.InfluxDbConfiguration
+import com.malinskiy.marathon.config.Configuration
 import com.malinskiy.marathon.io.FileManager
 import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.report.allure.AllureReporter
 import com.malinskiy.marathon.report.device.DeviceInfoJsonReporter
 import com.malinskiy.marathon.report.html.HtmlSummaryReporter
 import com.malinskiy.marathon.report.junit.JUnitReporter
-import com.malinskiy.marathon.report.junit.JUnitWriter
 import com.malinskiy.marathon.report.raw.RawJsonReporter
 import com.malinskiy.marathon.report.stdout.StdoutReporter
 import com.malinskiy.marathon.report.test.TestJsonReporter
@@ -75,12 +74,12 @@ internal class TrackerFactory(
         return ExecutionReportGenerator(
             listOf(
                 DeviceInfoJsonReporter(fileManager, gson),
-                JUnitReporter(JUnitWriter(configuration.outputDir)),
+                JUnitReporter(configuration.outputDir),
                 TimelineReporter(TimelineSummaryProvider(), gson, configuration.outputDir),
                 RawJsonReporter(fileManager, gson),
                 TestJsonReporter(fileManager, gson),
                 AllureReporter(configuration, File(configuration.outputDir, "allure-results")),
-                HtmlSummaryReporter(gson, configuration.outputDir, configuration),
+                HtmlSummaryReporter(gson, fileManager, configuration.outputDir, configuration),
                 StdoutReporter(timer)
             )
         )

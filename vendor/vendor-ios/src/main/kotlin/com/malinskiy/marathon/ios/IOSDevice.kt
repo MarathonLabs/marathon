@@ -3,13 +3,14 @@ package com.malinskiy.marathon.ios
 
 import com.google.gson.Gson
 import com.malinskiy.marathon.analytics.internal.pub.Track
+import com.malinskiy.marathon.config.Configuration
+import com.malinskiy.marathon.config.vendor.VendorConfiguration
 import com.malinskiy.marathon.device.Device
 import com.malinskiy.marathon.device.DeviceFeature
 import com.malinskiy.marathon.device.DevicePoolId
 import com.malinskiy.marathon.device.NetworkState
 import com.malinskiy.marathon.device.OperatingSystem
 import com.malinskiy.marathon.exceptions.DeviceLostException
-import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.execution.TestBatchResults
 import com.malinskiy.marathon.execution.progress.ProgressReporter
 import com.malinskiy.marathon.io.FileManager
@@ -47,7 +48,7 @@ import kotlin.coroutines.CoroutineContext
 class IOSDevice(
     val simulator: RemoteSimulator,
     connectionAttempt: Int,
-    configuration: IOSConfiguration,
+    configuration: VendorConfiguration.IOSConfiguration,
     val gson: Gson,
     private val track: Track,
     private val healthChangeListener: HealthChangeListener,
@@ -137,7 +138,7 @@ class IOSDevice(
         deferred: CompletableDeferred<TestBatchResults>,
         progressReporter: ProgressReporter
     ) = withContext(coroutineContext + CoroutineName("execute")) {
-        val iosConfiguration = configuration.vendorConfiguration as IOSConfiguration
+        val iosConfiguration = configuration.vendorConfiguration as VendorConfiguration.IOSConfiguration
         val fileManager = FileManager(configuration.outputDir)
 
         if (iosConfiguration.alwaysEraseSimulators) {
@@ -159,7 +160,7 @@ class IOSDevice(
 
         logger.debug("Remote xctestrun = $remoteXctestrunFile")
 
-        val xctestrun = Xctestrun(iosConfiguration.xctestrunPath)
+        val xctestrun = Xctestrun(iosConfiguration.safecxtestrunPath())
         val packageNameFormatter = TestLogPackageNameFormatter(xctestrun.productModuleName, xctestrun.targetName)
 
         logger.debug("Tests = ${testBatch.tests.toList()}")
@@ -245,7 +246,7 @@ class IOSDevice(
 
     private var derivedDataManager: DerivedDataManager? = null
     override suspend fun prepare(configuration: Configuration) = withContext(coroutineContext + CoroutineName("prepare")) {
-        val iosConfiguration = configuration.vendorConfiguration as IOSConfiguration
+        val iosConfiguration = configuration.vendorConfiguration as VendorConfiguration.IOSConfiguration
 
         track.trackDevicePreparing(this@IOSDevice) {
             RemoteFileManager.createRemoteDirectory(this@IOSDevice)

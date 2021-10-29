@@ -1,6 +1,5 @@
 buildscript {
     repositories {
-        jcenter()
         mavenCentral()
         google()
     }
@@ -23,7 +22,6 @@ allprojects {
     repositories {
         mavenLocal()
         maven { url = uri("$rootDir/../build/repository") }
-        jcenter()
         mavenCentral()
         google()
         mavenLocal()

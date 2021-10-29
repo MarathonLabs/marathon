@@ -1,6 +1,6 @@
 package com.malinskiy.marathon.analytics.external.influx
 
-import com.malinskiy.marathon.execution.AnalyticsConfiguration
+import com.malinskiy.marathon.config.AnalyticsConfiguration
 import okhttp3.OkHttpClient
 import org.influxdb.InfluxDB
 import org.influxdb.InfluxDBFactory

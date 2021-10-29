@@ -13,18 +13,19 @@ import com.android.ddmlib.logcat.LogCatReceiverTask
 import com.malinskiy.marathon.analytics.internal.pub.Track
 import com.malinskiy.marathon.android.ADB_SCREEN_RECORD_TIMEOUT_MILLIS
 import com.malinskiy.marathon.android.AndroidAppInstaller
+import com.malinskiy.marathon.android.AndroidTestBundleIdentifier
 import com.malinskiy.marathon.android.BaseAndroidDevice
-import com.malinskiy.marathon.android.VideoConfiguration
-import com.malinskiy.marathon.android.configuration.AndroidConfiguration
-import com.malinskiy.marathon.android.configuration.SerialStrategy
 import com.malinskiy.marathon.android.ddmlib.shell.receiver.CollectingShellOutputReceiver
 import com.malinskiy.marathon.android.ddmlib.sync.NoOpSyncProgressMonitor
 import com.malinskiy.marathon.android.exception.CommandRejectedException
 import com.malinskiy.marathon.android.exception.TransferException
 import com.malinskiy.marathon.android.executor.listeners.line.LineListener
+import com.malinskiy.marathon.config.Configuration
+import com.malinskiy.marathon.config.vendor.VendorConfiguration
+import com.malinskiy.marathon.config.vendor.android.SerialStrategy
+import com.malinskiy.marathon.config.vendor.android.VideoConfiguration
 import com.malinskiy.marathon.device.DevicePoolId
 import com.malinskiy.marathon.device.NetworkState
-import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.execution.TestBatchResults
 import com.malinskiy.marathon.execution.progress.ProgressReporter
 import com.malinskiy.marathon.test.TestBatch
@@ -47,9 +48,10 @@ import kotlin.coroutines.resumeWithException
 
 class DdmlibAndroidDevice(
     val ddmsDevice: IDevice,
+    val testBundleIdentifier: AndroidTestBundleIdentifier,
     adbSerial: String,
     configuration: Configuration,
-    androidConfiguration: AndroidConfiguration,
+    androidConfiguration: VendorConfiguration.AndroidConfiguration,
     track: Track,
     timer: Timer,
     serialStrategy: SerialStrategy
@@ -198,9 +200,9 @@ class DdmlibAndroidDevice(
 
     override val coroutineContext: CoroutineContext = dispatcher
 
-    override suspend fun installPackage(absolutePath: String, reinstall: Boolean, optionalParams: String): String? {
+    override suspend fun installPackage(absolutePath: String, reinstall: Boolean, optionalParams: List<String>): String? {
         return try {
-            ddmsDevice.safeInstallPackage(absolutePath, reinstall, optionalParams)
+            ddmsDevice.safeInstallPackage(absolutePath, reinstall, *(optionalParams.filter { it.isNotBlank() }).toTypedArray())
         } catch (e: InstallException) {
             throw com.malinskiy.marathon.android.exception.InstallException(e)
         }
@@ -228,7 +230,7 @@ class DdmlibAndroidDevice(
 
         val deferredResult = async {
             val listener = createExecutionListeners(configuration, devicePoolId, testBatch, deferred, progressReporter)
-            AndroidDeviceTestRunner(this@DdmlibAndroidDevice)
+            AndroidDeviceTestRunner(this@DdmlibAndroidDevice, testBundleIdentifier)
                 .execute(configuration, testBatch, listener)
         }
         deferredResult.await()

@@ -6,13 +6,13 @@ import com.android.ddmlib.TimeoutException
 import com.android.ddmlib.testrunner.ITestRunListener
 import com.android.ddmlib.testrunner.RemoteAndroidTestRunner
 import com.android.ddmlib.testrunner.TestIdentifier
-import com.malinskiy.marathon.android.ApkParser
+import com.malinskiy.marathon.android.AndroidTestBundleIdentifier
 import com.malinskiy.marathon.android.InstrumentationInfo
-import com.malinskiy.marathon.android.configuration.AndroidConfiguration
 import com.malinskiy.marathon.android.executor.listeners.AndroidTestRunListener
 import com.malinskiy.marathon.android.extension.isIgnored
+import com.malinskiy.marathon.config.Configuration
+import com.malinskiy.marathon.config.vendor.VendorConfiguration
 import com.malinskiy.marathon.exceptions.DeviceLostException
-import com.malinskiy.marathon.execution.Configuration
 import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.test.Test
 import com.malinskiy.marathon.test.TestBatch
@@ -23,7 +23,7 @@ import java.util.concurrent.TimeUnit
 
 const val ERROR_STUCK = "Test got stuck. You can increase the timeout in settings if it's too strict"
 
-class AndroidDeviceTestRunner(private val device: DdmlibAndroidDevice) {
+class AndroidDeviceTestRunner(private val device: DdmlibAndroidDevice, private val bundleIdentifier: AndroidTestBundleIdentifier) {
     private val logger = MarathonLogging.logger("AndroidDeviceTestRunner")
 
     suspend fun execute(
@@ -35,39 +35,51 @@ class AndroidDeviceTestRunner(private val device: DdmlibAndroidDevice) {
         val ignoredTests = rawTestBatch.tests.filter { test -> test.isIgnored() }
         val testBatch = TestBatch(rawTestBatch.tests - ignoredTests)
         val listenerAdapter = listener.toDdmlibTestListener()
-
-        val androidConfiguration = configuration.vendorConfiguration as AndroidConfiguration
-        val info = ApkParser().parseInstrumentationInfo(androidConfiguration.testApplicationOutput)
-        val runner = prepareTestRunner(configuration, androidConfiguration, info, testBatch)
-
-        try {
+        if (testBatch.tests.isEmpty()) {
+            listener.beforeTestRun()
             notifyIgnoredTest(ignoredTests, listenerAdapter)
-            if (testBatch.tests.isNotEmpty()) {
-                clearData(androidConfiguration, info)
-                listener.beforeTestRun()
-                runner.run(listenerAdapter)
-            } else {
-                listener.testRunEnded(0, emptyMap())
-            }
-        } catch (e: ShellCommandUnresponsiveException) {
-            logger.warn(ERROR_STUCK)
-            listener.testRunFailed(ERROR_STUCK)
-        } catch (e: TimeoutException) {
-            logger.warn(ERROR_STUCK)
-            listener.testRunFailed(ERROR_STUCK)
-        } catch (e: AdbCommandRejectedException) {
-            val errorMessage = "adb error while running tests ${testBatch.tests.map { it.toTestName() }}"
-            logger.error(e) { errorMessage }
-            listener.testRunFailed(errorMessage)
-            if (e.isDeviceOffline) {
-                throw DeviceLostException(e)
-            }
-        } catch (e: IOException) {
-            val errorMessage = "adb error while running tests ${testBatch.tests.map { it.toTestName() }}"
-            logger.error(e) { errorMessage }
-            listener.testRunFailed(errorMessage)
-        } finally {
+            listener.testRunEnded(0, emptyMap())
+            listener.afterTestRun()
+            return
+        }
 
+        val androidConfiguration = configuration.vendorConfiguration as VendorConfiguration.AndroidConfiguration
+        val infoToTestMap: Map<InstrumentationInfo, Test> = testBatch.tests.associateBy {
+            bundleIdentifier.identify(it).instrumentationInfo
+        }
+
+        infoToTestMap.keys.forEach { info ->
+            val runner = prepareTestRunner(configuration, androidConfiguration, info, testBatch)
+
+            try {
+                notifyIgnoredTest(ignoredTests, listenerAdapter)
+                if (testBatch.tests.isNotEmpty()) {
+                    clearData(androidConfiguration, info)
+                    listener.beforeTestRun()
+                    runner.run(listenerAdapter)
+                } else {
+                    listener.testRunEnded(0, emptyMap())
+                }
+            } catch (e: ShellCommandUnresponsiveException) {
+                logger.warn(ERROR_STUCK)
+                listener.testRunFailed(ERROR_STUCK)
+            } catch (e: TimeoutException) {
+                logger.warn(ERROR_STUCK)
+                listener.testRunFailed(ERROR_STUCK)
+            } catch (e: AdbCommandRejectedException) {
+                val errorMessage = "adb error while running tests ${testBatch.tests.map { it.toTestName() }}"
+                logger.error(e) { errorMessage }
+                listener.testRunFailed(errorMessage)
+                if (e.isDeviceOffline) {
+                    throw DeviceLostException(e)
+                }
+            } catch (e: IOException) {
+                val errorMessage = "adb error while running tests ${testBatch.tests.map { it.toTestName() }}"
+                logger.error(e) { errorMessage }
+                listener.testRunFailed(errorMessage)
+            } finally {
+                listener.afterTestRun()
+            }
         }
     }
 
@@ -80,7 +92,7 @@ class AndroidDeviceTestRunner(private val device: DdmlibAndroidDevice) {
         }
     }
 
-    private suspend fun clearData(androidConfiguration: AndroidConfiguration, info: InstrumentationInfo) {
+    private suspend fun clearData(androidConfiguration: VendorConfiguration.AndroidConfiguration, info: InstrumentationInfo) {
         if (androidConfiguration.applicationPmClear) {
             device.ddmsDevice.safeClearPackage(info.applicationPackage)?.also {
                 logger.debug { "Package ${info.applicationPackage} cleared: $it" }
@@ -112,7 +124,7 @@ class AndroidDeviceTestRunner(private val device: DdmlibAndroidDevice) {
 
     private fun prepareTestRunner(
         configuration: Configuration,
-        androidConfiguration: AndroidConfiguration,
+        androidConfiguration: VendorConfiguration.AndroidConfiguration,
         info: InstrumentationInfo,
         testBatch: TestBatch
     ): RemoteAndroidTestRunner {
@@ -130,7 +142,7 @@ class AndroidDeviceTestRunner(private val device: DdmlibAndroidDevice) {
         runner.setMaxTimeout(configuration.testBatchTimeoutMillis, TimeUnit.MILLISECONDS)
         runner.setClassNames(tests)
 
-        androidConfiguration.instrumentationArgs.forEach { key, value ->
+        androidConfiguration.instrumentationArgs.forEach { (key, value) ->
             runner.addInstrumentationArg(key, value)
         }
 

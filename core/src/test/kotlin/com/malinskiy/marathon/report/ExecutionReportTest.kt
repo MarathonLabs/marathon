@@ -3,19 +3,16 @@ package com.malinskiy.marathon.report
 import com.malinskiy.marathon.analytics.internal.sub.DeviceConnectedEvent
 import com.malinskiy.marathon.analytics.internal.sub.ExecutionReport
 import com.malinskiy.marathon.analytics.internal.sub.TestEvent
+import com.malinskiy.marathon.config.AnalyticsConfiguration
+import com.malinskiy.marathon.config.Configuration
+import com.malinskiy.marathon.config.vendor.VendorConfiguration
 import com.malinskiy.marathon.device.DeviceFeature
 import com.malinskiy.marathon.device.DeviceInfo
 import com.malinskiy.marathon.device.DevicePoolId
-import com.malinskiy.marathon.device.DeviceProvider
 import com.malinskiy.marathon.device.NetworkState
 import com.malinskiy.marathon.device.OperatingSystem
-import com.malinskiy.marathon.execution.AnalyticsConfiguration
-import com.malinskiy.marathon.execution.Configuration
-import com.malinskiy.marathon.execution.TestParser
 import com.malinskiy.marathon.execution.TestResult
 import com.malinskiy.marathon.execution.TestStatus
-import com.malinskiy.marathon.log.MarathonLogConfigurator
-import com.malinskiy.marathon.vendor.VendorConfiguration
 import org.amshove.kluent.shouldBe
 import org.junit.jupiter.api.Test
 import java.io.File
@@ -24,37 +21,14 @@ import com.malinskiy.marathon.test.Test as MarathonTest
 
 
 class ExecutionReportTest {
-    val configuration = Configuration(
+    val configuration = Configuration.Builder(
         name = "",
         outputDir = File("src/test/resources/output/"),
-        analyticsConfiguration = AnalyticsConfiguration.DisabledAnalytics,
-        poolingStrategy = null,
-        shardingStrategy = null,
-        sortingStrategy = null,
-        batchingStrategy = null,
-        flakinessStrategy = null,
-        retryStrategy = null,
-        filteringConfiguration = null,
-        ignoreFailures = null,
-        isCodeCoverageEnabled = null,
-        fallbackToScreenshots = null,
-        strictMode = null,
-        uncompletedTestRetryQuota = null,
-        testClassRegexes = null,
-        includeSerialRegexes = null,
-        excludeSerialRegexes = null,
-        testBatchTimeoutMillis = null,
-        testOutputTimeoutMillis = null,
-        debug = null,
-        screenRecordingPolicy = null,
-        vendorConfiguration = object : VendorConfiguration {
-            override fun testParser(): TestParser? = null
-            override fun deviceProvider(): DeviceProvider? = null
-            override fun logConfigurator(): MarathonLogConfigurator? = null
-        },
-        analyticsTracking = false,
-        deviceInitializationTimeoutMillis = null
-    )
+        vendorConfiguration = VendorConfiguration.StubVendorConfiguration,
+    ).apply {
+        analyticsConfiguration = AnalyticsConfiguration.DisabledAnalytics
+        analyticsTracking = false
+    }.build()
 
     private val reportWithoutRetries: ExecutionReport by lazy {
         val device = DeviceInfo(
@@ -115,6 +89,7 @@ class ExecutionReportTest {
             TestResult(
                 MarathonTest("com", "example", methodName, emptyList()),
                 deviceInfo,
+                "stub-batch",
                 status,
                 0,
                 100

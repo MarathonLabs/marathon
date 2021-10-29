@@ -5,10 +5,11 @@ jobs:
     runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v1
-      - name: Set up JDK 1.8
-        uses: actions/setup-java@v1
+      - name: Set up JDK 11
+        uses: actions/setup-java@v2
         with:
-          java-version: 1.8
+          distribution: 'temurin'
+          java-version: '11'
       - name: test
         run: |
           chmod 0600 $GITHUB_WORKSPACE/vendor/vendor-ios/src/test/resources/fixtures/derived-data-manager/test_rsa
@@ -26,10 +27,11 @@ jobs:
     if: ${{ github.ref == 'refs/heads/develop' }}
     steps:
       - uses: actions/checkout@v1
-      - name: Set up JDK 1.8
-        uses: actions/setup-java@v1
+      - name: Set up JDK 11
+        uses: actions/setup-java@v2
         with:
-          java-version: 1.8
+          distribution: 'temurin'
+          java-version: '11'
       - name: deliver maven
         run: |
           bash .buildsystem/deploy-sonatype.sh
@@ -51,10 +53,11 @@ jobs:
     if: ${{ startsWith(github.ref, 'refs/tags/') }}
     steps:
       - uses: actions/checkout@v1
-      - name: Set up JDK 1.8
-        uses: actions/setup-java@v1
+      - name: Set up JDK 11
+        uses: actions/setup-java@v2
         with:
-          java-version: 1.8
+          distribution: 'temurin'
+          java-version: '11'
       - uses: little-core-labs/get-git-tag@v3.0.2
         if: ${{ startsWith(github.ref, 'refs/tags/') }}
       - name: deliver maven
@@ -74,3 +77,16 @@ jobs:
           files: cli/build/distributions/marathon-*.zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  notify:
+    needs: cd-release
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@master
+      - name: Send Telegram Release message
+        uses: appleboy/telegram-action@master
+        with:
+          to: ${{ secrets.TELEGRAM_TO }}
+          token: ${{ secrets.TELEGRAM_TOKEN }}
+          message: |
+            New Marathon version has been submitted to Maven central and will be available soon https://github.com/MarathonLabs/marathon/releases/
+

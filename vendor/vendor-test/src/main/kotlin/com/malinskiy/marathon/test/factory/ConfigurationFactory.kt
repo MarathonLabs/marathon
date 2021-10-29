@@ -1,85 +1,83 @@
 package com.malinskiy.marathon.test.factory
 
+import com.malinskiy.marathon.config.AnalyticsConfiguration
+import com.malinskiy.marathon.config.Configuration
+import com.malinskiy.marathon.config.FilteringConfiguration
+import com.malinskiy.marathon.config.ScreenRecordingPolicy
+import com.malinskiy.marathon.config.strategy.BatchingStrategyConfiguration
+import com.malinskiy.marathon.config.strategy.FlakinessStrategyConfiguration
+import com.malinskiy.marathon.config.strategy.PoolingStrategyConfiguration
+import com.malinskiy.marathon.config.strategy.RetryStrategyConfiguration
+import com.malinskiy.marathon.config.strategy.ShardingStrategyConfiguration
+import com.malinskiy.marathon.config.strategy.SortingStrategyConfiguration
+import com.malinskiy.marathon.config.vendor.VendorConfiguration
 import com.malinskiy.marathon.device.DeviceProvider
-import com.malinskiy.marathon.execution.Configuration
-import com.malinskiy.marathon.execution.policy.ScreenRecordingPolicy
-import com.malinskiy.marathon.execution.strategy.FlakinessStrategy
-import com.malinskiy.marathon.execution.strategy.RetryStrategy
-import com.malinskiy.marathon.execution.strategy.ShardingStrategy
-import com.malinskiy.marathon.test.Mocks
+import com.malinskiy.marathon.execution.TestParser
 import com.malinskiy.marathon.test.StubDeviceProvider
 import com.malinskiy.marathon.test.Test
-import com.malinskiy.marathon.test.TestVendorConfiguration
+import com.nhaarman.mockitokotlin2.whenever
 import kotlinx.coroutines.channels.Channel
-import org.amshove.kluent.When
-import org.amshove.kluent.`it returns`
-import org.amshove.kluent.any
-import org.amshove.kluent.calling
 import java.nio.file.Files
 
-class ConfigurationFactory {
+class ConfigurationFactory(val testParser: TestParser, val deviceProvider: StubDeviceProvider) {
     var name = "DEFAULT_TEST_CONFIG"
     var outputDir = Files.createTempDirectory("test-run").toFile()
-    var vendorConfiguration = TestVendorConfiguration(Mocks.TestParser.DEFAULT, StubDeviceProvider())
-    var debug = null
-    var batchingStrategy = null
-    var analyticsConfiguration = null
-    var excludeSerialRegexes: List<Regex>? = null
-    var fallbackToScreenshots = null
-    var strictMode = null
-    var uncompletedTestRetryQuota: Int? = null
-    var filteringConfiguration = null
-    var flakinessStrategy: FlakinessStrategy? = null
-    var ignoreFailures = null
-    var includeSerialRegexes: List<Regex>? = null
-    var isCodeCoverageEnabled = null
-    var poolingStrategy = null
-    var retryStrategy: RetryStrategy? = null
-    var shardingStrategy: ShardingStrategy? = null
-    var sortingStrategy = null
-    var testClassRegexes = null
-    var testBatchTimeoutMillis = null
-    var testOutputTimeoutMillis = null
+    var vendorConfiguration = VendorConfiguration.StubVendorConfiguration
+    var debug = true
+    var batchingStrategy: BatchingStrategyConfiguration = BatchingStrategyConfiguration.IsolateBatchingStrategyConfiguration
+    var analyticsConfiguration: AnalyticsConfiguration = AnalyticsConfiguration.DisabledAnalytics
+    var excludeSerialRegexes: List<Regex> = emptyList()
+    var fallbackToScreenshots: Boolean = false
+    var strictMode: Boolean = false
+    var uncompletedTestRetryQuota: Int = Int.MAX_VALUE
+    var filteringConfiguration: FilteringConfiguration = FilteringConfiguration()
+    var flakinessStrategy: FlakinessStrategyConfiguration = FlakinessStrategyConfiguration.IgnoreFlakinessStrategyConfiguration
+    var ignoreFailures: Boolean = false
+    var includeSerialRegexes: List<Regex> = emptyList()
+    var isCodeCoverageEnabled: Boolean = false
+    var poolingStrategy: PoolingStrategyConfiguration = PoolingStrategyConfiguration.OmniPoolingStrategyConfiguration
+    var retryStrategy: RetryStrategyConfiguration = RetryStrategyConfiguration.NoRetryStrategyConfiguration
+    var shardingStrategy: ShardingStrategyConfiguration = ShardingStrategyConfiguration.ParallelShardingStrategyConfiguration
+    var sortingStrategy: SortingStrategyConfiguration = SortingStrategyConfiguration.NoSortingStrategyConfiguration
+    var testClassRegexes = listOf(Regex("^((?!Abstract).)*Test[s]*$"))
+    var testBatchTimeoutMillis = 180_000L
+    var testOutputTimeoutMillis = 60_000L
     var analyticsTracking = false
-    var screenRecordingPolicy: ScreenRecordingPolicy? = null
-    var deviceInitializationTimeoutMillis: Long? = null
+    var screenRecordingPolicy: ScreenRecordingPolicy = ScreenRecordingPolicy.ON_ANY
+    var deviceInitializationTimeoutMillis = 60_000L
 
-    fun tests(block: () -> List<Test>) {
-        val testParser = vendorConfiguration.testParser()!!
-        When calling testParser.extract(any()) `it returns` (block.invoke())
+    suspend fun tests(block: () -> List<Test>) {
+        whenever(testParser.extract()).thenReturn(block.invoke())
     }
 
     fun devices(f: suspend (Channel<DeviceProvider.DeviceEvent>) -> Unit) {
-        val stubDeviceProvider = vendorConfiguration.deviceProvider() as StubDeviceProvider
-        stubDeviceProvider.providingLogic = f
+        deviceProvider.providingLogic = f
     }
 
-    fun build(): Configuration =
-        Configuration(
-            name,
-            outputDir,
-            analyticsConfiguration,
-            poolingStrategy,
-            shardingStrategy,
-            sortingStrategy,
-            batchingStrategy,
-            flakinessStrategy,
-            retryStrategy,
-            filteringConfiguration,
-            ignoreFailures,
-            isCodeCoverageEnabled,
-            fallbackToScreenshots,
-            strictMode,
-            uncompletedTestRetryQuota,
-            testClassRegexes,
-            includeSerialRegexes,
-            excludeSerialRegexes,
-            testBatchTimeoutMillis,
-            testOutputTimeoutMillis,
-            debug,
-            screenRecordingPolicy,
-            vendorConfiguration,
-            analyticsTracking,
-            deviceInitializationTimeoutMillis
-        )
+    fun build(): Configuration = Configuration.Builder(
+        name, outputDir, vendorConfiguration
+    ).apply {
+        analyticsConfiguration = this@ConfigurationFactory.analyticsConfiguration
+        poolingStrategy = this@ConfigurationFactory.poolingStrategy
+        shardingStrategy = this@ConfigurationFactory.shardingStrategy
+        sortingStrategy = this@ConfigurationFactory.sortingStrategy
+        batchingStrategy = this@ConfigurationFactory.batchingStrategy
+        flakinessStrategy = this@ConfigurationFactory.flakinessStrategy
+        retryStrategy = this@ConfigurationFactory.retryStrategy
+        filteringConfiguration = this@ConfigurationFactory.filteringConfiguration
+        ignoreFailures = this@ConfigurationFactory.ignoreFailures
+        isCodeCoverageEnabled = this@ConfigurationFactory.isCodeCoverageEnabled
+        fallbackToScreenshots = this@ConfigurationFactory.fallbackToScreenshots
+        strictMode = this@ConfigurationFactory.strictMode
+        uncompletedTestRetryQuota = this@ConfigurationFactory.uncompletedTestRetryQuota
+        testClassRegexes = this@ConfigurationFactory.testClassRegexes
+        includeSerialRegexes = this@ConfigurationFactory.includeSerialRegexes
+        excludeSerialRegexes = this@ConfigurationFactory.excludeSerialRegexes
+        testBatchTimeoutMillis = this@ConfigurationFactory.testBatchTimeoutMillis
+        testOutputTimeoutMillis = this@ConfigurationFactory.testOutputTimeoutMillis
+        debug = this@ConfigurationFactory.debug
+        screenRecordingPolicy = this@ConfigurationFactory.screenRecordingPolicy
+        analyticsTracking = this@ConfigurationFactory.analyticsTracking
+        deviceInitializationTimeoutMillis = this@ConfigurationFactory.deviceInitializationTimeoutMillis
+    }.build()
 }

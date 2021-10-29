@@ -4,7 +4,7 @@ module.exports = {
     fromTestToPool: (poolId) => `../../${poolId}.html`,
     fromTestToIndex: '../../../index.html',
     fromLogsToIndex: '../../../../index.html',
-    fromTestToLogs: (testId) => `./logs/${testId}.html`,
+    fromTestToLogs: (filename) => `./logs/${filename}`,
     fromLogsToTest: (testId) => `../${testId}.html`,
     fromLogsToPool: (poolId) => `../../../${poolId}.html`
 };
