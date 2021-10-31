@@ -24,5 +24,7 @@ object MD5 {
 }
 
 fun String.escape(): String {
-    return replace(regex = "[^a-zA-Z0-9\\.\\#]".toRegex(), "-")
+    return replace(regex = escapeRegex, "-")
 }
+
+val escapeRegex = "[^a-zA-Z0-9\\.\\#]".toRegex()

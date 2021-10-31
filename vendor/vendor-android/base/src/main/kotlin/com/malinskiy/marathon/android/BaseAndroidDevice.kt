@@ -137,7 +137,7 @@ abstract class BaseAndroidDevice(
     /**
      * We can only do this after the device finished booting
      */
-    private suspend fun detectRealSerialNumber(): String {
+    protected open suspend fun detectRealSerialNumber(): String {
         val marathonSerialProp: String = getProperty("marathon.serialno") ?: ""
         val serialProp: String = getProperty("ro.boot.serialno") ?: ""
         val hostName: String = getProperty("net.hostname") ?: ""

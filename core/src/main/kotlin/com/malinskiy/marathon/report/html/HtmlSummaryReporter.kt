@@ -94,7 +94,7 @@ class HtmlSummaryReporter(
                     .replace("\${date}", formattedDate)
             )
 
-            pool.tests.map { it to File(File(poolsDir, pool.poolId.name), it.device.serialNumber).apply { mkdirs() } }
+            pool.tests.map { it to File(File(poolsDir, pool.poolId.name), it.device.safeSerialNumber).apply { mkdirs() } }
                 .map { (test, testDir) ->
                     Triple(
                         test,
@@ -160,7 +160,7 @@ class HtmlSummaryReporter(
     fun DeviceInfo.toHtmlDevice() = HtmlDevice(
         apiLevel = operatingSystem.version,
         isTablet = false,
-        serial = serialNumber,
+        serial = safeSerialNumber,
         modelName = model
     )
 
@@ -203,7 +203,7 @@ class HtmlSummaryReporter(
         name = test.method,
         durationMillis = durationMillis(),
         status = status.toHtmlStatus(),
-        deviceId = this.device.serialNumber,
+        deviceId = this.device.safeSerialNumber,
         diagnosticVideo = device.deviceFeatures.contains(DeviceFeature.VIDEO),
         diagnosticScreenshots = device.deviceFeatures.contains(DeviceFeature.SCREENSHOT),
         stacktrace = stacktrace,
@@ -266,7 +266,7 @@ class HtmlSummaryReporter(
         name = test.method,
         durationMillis = durationMillis(),
         status = status.toHtmlStatus(),
-        deviceId = this.device.serialNumber
+        deviceId = this.device.safeSerialNumber
     )
 
     fun toHtmlTestLogDetails(

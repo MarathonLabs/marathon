@@ -11,6 +11,7 @@ import com.malinskiy.marathon.analytics.internal.pub.Track
 import com.malinskiy.marathon.android.AndroidTestBundleIdentifier
 import com.malinskiy.marathon.config.Configuration
 import com.malinskiy.marathon.config.vendor.VendorConfiguration
+import com.malinskiy.marathon.config.vendor.android.AdbEndpoint
 import com.malinskiy.marathon.device.DeviceProvider
 import com.malinskiy.marathon.device.DeviceProvider.DeviceEvent.DeviceConnected
 import com.malinskiy.marathon.device.DeviceProvider.DeviceEvent.DeviceDisconnected
@@ -56,9 +57,18 @@ class DdmlibDeviceProvider(
                 "\tMore info: https://marathonlabs.github.io/marathon/ven/android.html#vendor-module-selection"
         }
 
+        /**
+         * Ddmlib supports only customizing port on the localhost server
+         */
+        if (vendorConfiguration.adbServers.size != 1 || vendorConfiguration.adbServers.first().host != AdbEndpoint().host) {
+            throw RuntimeException("ddmlib Android vendor supports only local adb server")
+        }
+
         DdmPreferences.setTimeOut(DEFAULT_DDM_LIB_TIMEOUT)
+        val endpoint = vendorConfiguration.adbServers.first()
+
         val adbInitOptions = AdbInitOptions.Builder()
-            .enableUserManagedAdbMode(5037)
+            .enableUserManagedAdbMode(endpoint.port)
             .setClientSupportEnabled(false)
             .build()
         AndroidDebugBridge.init(adbInitOptions)

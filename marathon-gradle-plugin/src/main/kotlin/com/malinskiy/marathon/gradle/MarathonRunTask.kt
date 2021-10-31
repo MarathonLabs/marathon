@@ -10,6 +10,7 @@ import com.malinskiy.marathon.config.vendor.DEFAULT_INIT_TIMEOUT_MILLIS
 import com.malinskiy.marathon.config.vendor.DEFAULT_INSTALL_OPTIONS
 import com.malinskiy.marathon.config.vendor.DEFAULT_WAIT_FOR_DEVICES_TIMEOUT
 import com.malinskiy.marathon.config.vendor.VendorConfiguration
+import com.malinskiy.marathon.config.vendor.android.AdbEndpoint
 import com.malinskiy.marathon.config.vendor.android.AllureConfiguration
 import com.malinskiy.marathon.config.vendor.android.FileSyncConfiguration
 import com.malinskiy.marathon.config.vendor.android.ScreenRecordConfiguration
@@ -139,7 +140,8 @@ open class MarathonRunTask @Inject constructor(objects: ObjectFactory) : Abstrac
             allureConfiguration = allureConfiguration,
             fileSyncConfiguration = extension.fileSyncConfiguration ?: FileSyncConfiguration(),
             testParserConfiguration = extension.testParserConfiguration ?: TestParserConfiguration.LocalTestParserConfiguration,
-            testAccessConfiguration = extension.testAccessConfiguration ?: TestAccessConfiguration()
+            testAccessConfiguration = extension.testAccessConfiguration ?: TestAccessConfiguration(),
+            adbServers = extension.adbServers ?: listOf(AdbEndpoint())
         )
     }
 

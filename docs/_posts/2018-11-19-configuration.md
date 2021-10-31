@@ -116,9 +116,7 @@ marathon {
 }
 ```
 
-### File paths in configuration
-
-When specifying relative host file paths in the configuration they will be resolved relative to the directory of the Marathonfile, e.g. if
+When specifying **relative host file** paths in the configuration they will be resolved relative to the directory of the Marathonfile, e.g. if
 you have `/home/user/app/Marathonfile` with `baseOutputDir = "./output"` then the actual path to the output directory will
 be `/home/user/app/output`.
 
@@ -127,7 +125,7 @@ additional parameters might not be supported by all vendor modules. If you find 
 vendor module at fault.
 
 * TOC
-* {:toc}
+{:toc}
 
 # General parameters
 

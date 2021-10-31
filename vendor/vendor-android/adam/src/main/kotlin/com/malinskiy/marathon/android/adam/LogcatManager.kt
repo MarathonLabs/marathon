@@ -1,6 +1,5 @@
 package com.malinskiy.marathon.android.adam
 
-import com.malinskiy.adam.AndroidDebugBridgeClient
 import com.malinskiy.adam.request.logcat.ChanneledLogcatRequest
 import com.malinskiy.adam.request.logcat.LogcatReadMode
 import com.malinskiy.marathon.android.adam.log.LogCatMessageParser
@@ -12,7 +11,7 @@ import kotlinx.coroutines.supervisorScope
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.coroutines.CoroutineContext
 
-class LogcatManager(private val client: AndroidDebugBridgeClient) : CoroutineScope {
+class LogcatManager : CoroutineScope {
     private val dispatcher = newFixedThreadPoolContext(4, "LogcatManager")
     override val coroutineContext: CoroutineContext
         get() = dispatcher
@@ -26,7 +25,7 @@ class LogcatManager(private val client: AndroidDebugBridgeClient) : CoroutineSco
     fun subscribe(device: AdamAndroidDevice) {
         devices[device] = launch {
             supervisorScope {
-                val logcatChannel = client.execute(
+                val logcatChannel = device.client.execute(
                     ChanneledLogcatRequest(
                         modes = listOf(LogcatReadMode.long)
                     ), serial = device.adbSerial, scope = this
