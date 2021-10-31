@@ -44,7 +44,7 @@ class GraphiteTracker(
     private fun getBaseMetricName(test: Test, device: DeviceInfo): String {
         val testName = test.toSafeTestName().replaceDots()
         val testPackage = test.pkg.replaceDots()
-        return "tests.$testName.$testPackage.${test.clazz}.${test.method}.${device.serialNumber}"
+        return "tests.$testName.$testPackage.${test.clazz}.${test.method}.${device.safeSerialNumber}"
     }
 
     private fun String.replaceDots() = replace(".", "--")

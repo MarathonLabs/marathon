@@ -90,10 +90,10 @@ class AdamAndroidDevice(
     override val serialNumber: String
         get() = when {
             booted -> realSerialNumber
-            else -> "${client.host}:${client.port}:$adbSerial"
+            else -> "${client.host.hostAddress}:${client.port}:$adbSerial"
         }
 
-    override suspend fun detectRealSerialNumber() = "${client.host}:${client.port}:${super.detectRealSerialNumber()}"
+    override suspend fun detectRealSerialNumber() = "${client.host.hostAddress}:${client.port}:${super.detectRealSerialNumber()}"
 
     override suspend fun setup() {
         withContext(coroutineContext) {
@@ -107,7 +107,7 @@ class AdamAndroidDevice(
     }
 
     private val dispatcher by lazy {
-        newFixedThreadPoolContext(2, "AndroidDevice - execution - ${client.host}:${client.port}:${adbSerial}")
+        newFixedThreadPoolContext(2, "AndroidDevice - execution - ${client.host.hostAddress}:${client.port}:${adbSerial}")
     }
     override val coroutineContext: CoroutineContext = dispatcher
 
