@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo
 import com.malinskiy.marathon.config.exceptions.ConfigurationException
+import com.malinskiy.marathon.config.vendor.android.AdbEndpoint
 import com.malinskiy.marathon.config.vendor.android.AllureConfiguration
 import com.malinskiy.marathon.config.vendor.android.AndroidTestBundleConfiguration
 import com.malinskiy.marathon.config.vendor.android.FileSyncConfiguration
@@ -54,6 +55,7 @@ sealed class VendorConfiguration {
         @JsonProperty("threadingConfiguration") val threadingConfiguration: ThreadingConfiguration = ThreadingConfiguration(),
         @JsonProperty("testParserConfiguration") val testParserConfiguration: TestParserConfiguration = TestParserConfiguration.LocalTestParserConfiguration,
         @JsonProperty("testAccessConfiguration") val testAccessConfiguration: TestAccessConfiguration = TestAccessConfiguration(),
+        @JsonProperty("adbServers") val adbServers: List<AdbEndpoint> = listOf(AdbEndpoint())
     ) : VendorConfiguration() {
         fun safeAndroidSdk(): File = androidSdk ?: throw ConfigurationException("No android SDK path specified")
 

@@ -2,6 +2,7 @@ package com.malinskiy.marathon.gradle
 
 import com.malinskiy.marathon.config.ScreenRecordingPolicy
 import com.malinskiy.marathon.config.vendor.VendorConfiguration
+import com.malinskiy.marathon.config.vendor.android.AdbEndpoint
 import com.malinskiy.marathon.config.vendor.android.AllureConfiguration
 import com.malinskiy.marathon.config.vendor.android.FileSyncConfiguration
 import com.malinskiy.marathon.config.vendor.android.ScreenRecordConfiguration
@@ -70,6 +71,8 @@ open class MarathonExtension(project: Project) {
     var instrumentationArgs: MutableMap<String, String> = mutableMapOf()
 
     var testAccessConfiguration: TestAccessConfiguration? = null
+
+    var adbServers: List<AdbEndpoint>? = null
 
     //Kotlin way
     fun analytics(block: AnalyticsConfig.() -> Unit) {

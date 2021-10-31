@@ -87,6 +87,14 @@ class AdamAndroidDevice(
 
     val portForwardingRules = mutableMapOf<String, ReversePortForwardingRule>()
 
+    override val serialNumber: String
+        get() = when {
+            booted -> realSerialNumber
+            else -> "${client.host}:${client.port}:$adbSerial"
+        }
+
+    override suspend fun detectRealSerialNumber() = "${client.host}:${client.port}:${super.detectRealSerialNumber()}"
+
     override suspend fun setup() {
         withContext(coroutineContext) {
             super.setup()
@@ -99,7 +107,7 @@ class AdamAndroidDevice(
     }
 
     private val dispatcher by lazy {
-        newFixedThreadPoolContext(2, "AndroidDevice - execution - $adbSerial")
+        newFixedThreadPoolContext(2, "AndroidDevice - execution - ${client.host}:${client.port}:${adbSerial}")
     }
     override val coroutineContext: CoroutineContext = dispatcher
 
@@ -137,7 +145,7 @@ class AdamAndroidDevice(
             val local = File(localFilePath)
 
             measureFileTransfer(local) {
-                val stat = client.execute(CompatStatFileRequest(remoteFilePath, supportedFeatures), serialNumber)
+                val stat = client.execute(CompatStatFileRequest(remoteFilePath, supportedFeatures), adbSerial)
                 if (stat.exists()) {
                     val channel = client.execute(
                         CompatPullFileRequest(remoteFilePath, local, supportedFeatures, coroutineScope = this, size = stat.size().toLong()),
@@ -279,7 +287,7 @@ class AdamAndroidDevice(
                 client.execute(ScreenCaptureRequest(imageScreenCaptureAdapter), serial = adbSerial)
             }
         } catch (e: UnsupportedImageProtocolException) {
-            logger.warn(e) { "Unable to retrieve screenshot from device $adbSerial" }
+            logger.warn(e) { "Unable to retrieve screenshot from device $serialNumber" }
             null
         }
     }
