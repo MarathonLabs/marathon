@@ -22,5 +22,5 @@ sealed class BatchingStrategyConfiguration {
         val lastMileLength: Int = 0
     ) : BatchingStrategyConfiguration()
 
-    object IsolateBatchingStrategyConfiguration : BatchingStrategyConfiguration() 
+    object IsolateBatchingStrategyConfiguration : BatchingStrategyConfiguration()
 }

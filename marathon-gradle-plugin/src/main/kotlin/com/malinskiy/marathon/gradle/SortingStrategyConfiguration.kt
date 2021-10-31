@@ -43,7 +43,10 @@ class SuccessRateSortingStrategyConfiguration {
 }
 
 fun SortingStrategyConfiguration.toStrategy(): com.malinskiy.marathon.config.strategy.SortingStrategyConfiguration = executionTime?.let {
-    com.malinskiy.marathon.config.strategy.SortingStrategyConfiguration.ExecutionTimeSortingStrategyConfiguration(it.percentile, it.timeLimit)
+    com.malinskiy.marathon.config.strategy.SortingStrategyConfiguration.ExecutionTimeSortingStrategyConfiguration(
+        it.percentile,
+        it.timeLimit
+    )
 } ?: successRate?.let {
     com.malinskiy.marathon.config.strategy.SortingStrategyConfiguration.SuccessRateSortingStrategyConfiguration(it.limit, it.ascending)
 } ?: com.malinskiy.marathon.config.strategy.SortingStrategyConfiguration.NoSortingStrategyConfiguration

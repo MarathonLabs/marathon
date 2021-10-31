@@ -34,6 +34,7 @@ brew install malinskiy/tap/marathon
 ```
 
 ## Gradle
+
 Marathon gradle plugin is published to [MavenCentral][2]. Then apply the plugin
 
 {% tabs gradle %} {% tab gradle .gradle %}

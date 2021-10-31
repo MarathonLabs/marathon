@@ -52,7 +52,7 @@ fun AndroidTestBundleConfiguration.toAndroidTestBundle() = AndroidTestBundle(app
 
 fun VendorConfiguration.AndroidConfiguration.testBundlesCompat(): List<AndroidTestBundle> {
     return mutableListOf<AndroidTestBundle>().apply {
-        outputs?.let { addAll(it.map{ bundleConfiguration -> bundleConfiguration.toAndroidTestBundle()}) }
+        outputs?.let { addAll(it.map { bundleConfiguration -> bundleConfiguration.toAndroidTestBundle() }) }
         testApplicationOutput?.let { it ->
             add(
                 AndroidTestBundle(

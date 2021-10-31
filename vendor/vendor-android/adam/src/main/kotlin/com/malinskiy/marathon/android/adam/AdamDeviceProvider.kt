@@ -49,7 +49,12 @@ class AdamDeviceProvider(
 
     private val channel: Channel<DeviceProvider.DeviceEvent> = unboundedChannel()
     override val coroutineContext: CoroutineContext by lazy { newFixedThreadPoolContext(1, "DeviceMonitor") }
-    private val adbCommunicationContext: CoroutineContext by lazy { newFixedThreadPoolContext(vendorConfiguration.threadingConfiguration.adbIoThreads, "AdbIOThreadPool") }
+    private val adbCommunicationContext: CoroutineContext by lazy {
+        newFixedThreadPoolContext(
+            vendorConfiguration.threadingConfiguration.adbIoThreads,
+            "AdbIOThreadPool"
+        )
+    }
     private val setupSupervisor = SupervisorJob()
     private var providerJob: Job? = null
 
@@ -87,33 +92,33 @@ class AdamDeviceProvider(
         } ?: throw NoDevicesException("No devices found")
 
         providerJob = launch {
-                /**
-                 * This allows us to survive `adb kill-server`
-                 */
-                while (isActive) {
-                    deviceEventsChannelMutex.withLock {
-                        deviceEventsChannel = client.execute(AsyncDeviceMonitorRequest(), this)
-                    }
-                    for (currentDeviceList in deviceEventsChannel) {
-                        deviceStateTracker.update(currentDeviceList).forEach { update ->
-                            val serial = update.first
-                            val state = update.second
-                            when (state) {
-                                TrackingUpdate.CONNECTED -> {
-                                    val device =
-                                        AdamAndroidDevice(
-                                            client,
-                                            deviceStateTracker,
-                                            logcatManager,
-                                            testBundleIdentifier,
-                                            serial,
-                                            configuration,
-                                            vendorConfiguration,
-                                            track,
-                                            timer,
-                                            vendorConfiguration.serialStrategy
-                                        )
-                                    track.trackProviderDevicePreparing(device) {
+            /**
+             * This allows us to survive `adb kill-server`
+             */
+            while (isActive) {
+                deviceEventsChannelMutex.withLock {
+                    deviceEventsChannel = client.execute(AsyncDeviceMonitorRequest(), this)
+                }
+                for (currentDeviceList in deviceEventsChannel) {
+                    deviceStateTracker.update(currentDeviceList).forEach { update ->
+                        val serial = update.first
+                        val state = update.second
+                        when (state) {
+                            TrackingUpdate.CONNECTED -> {
+                                val device =
+                                    AdamAndroidDevice(
+                                        client,
+                                        deviceStateTracker,
+                                        logcatManager,
+                                        testBundleIdentifier,
+                                        serial,
+                                        configuration,
+                                        vendorConfiguration,
+                                        track,
+                                        timer,
+                                        vendorConfiguration.serialStrategy
+                                    )
+                                track.trackProviderDevicePreparing(device) {
                                     val job = launch(setupSupervisor) {
                                         device.setup()
                                         channel.send(DeviceProvider.DeviceEvent.DeviceConnected(device))

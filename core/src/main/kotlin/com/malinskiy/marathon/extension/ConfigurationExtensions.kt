@@ -81,7 +81,7 @@ fun PoolingStrategyConfiguration.toPoolingStrategy(): PoolingStrategy {
 }
 
 fun SortingStrategyConfiguration.toSortingStrategy(): SortingStrategy {
-    return when(this) {
+    return when (this) {
         is SortingStrategyConfiguration.ExecutionTimeSortingStrategyConfiguration -> ExecutionTimeSortingStrategy(this)
         SortingStrategyConfiguration.NoSortingStrategyConfiguration -> NoSortingStrategy()
         is SortingStrategyConfiguration.SuccessRateSortingStrategyConfiguration -> SuccessRateSortingStrategy(this)
@@ -89,14 +89,14 @@ fun SortingStrategyConfiguration.toSortingStrategy(): SortingStrategy {
 }
 
 fun RetryStrategyConfiguration.toRetryStrategy(): RetryStrategy {
-    return when(this) {
+    return when (this) {
         is RetryStrategyConfiguration.FixedQuotaRetryStrategyConfiguration -> FixedQuotaRetryStrategy(this)
         RetryStrategyConfiguration.NoRetryStrategyConfiguration -> NoRetryStrategy()
     }
 }
 
 fun BatchingStrategyConfiguration.toBatchingStrategy(): BatchingStrategy {
-    return when(this) {
+    return when (this) {
         is BatchingStrategyConfiguration.FixedSizeBatchingStrategyConfiguration -> FixedSizeBatchingStrategy(this)
         BatchingStrategyConfiguration.IsolateBatchingStrategyConfiguration -> IsolateBatchingStrategy()
     }

@@ -177,15 +177,15 @@ class JUnitReporterTest {
         assertThat(actual, isValidJunitXml)
     }
 
-fun getConfiguration() =
-    Configuration.Builder(
-        name = "",
-        outputDir = File(temporaryFolder, "test-run").apply { deleteRecursively(); mkdirs() },
-        vendorConfiguration = VendorConfiguration.StubVendorConfiguration,
-    ).apply {
-        analyticsConfiguration = AnalyticsConfiguration.DisabledAnalytics
-        analyticsTracking = false
-    }.build()
+    fun getConfiguration() =
+        Configuration.Builder(
+            name = "",
+            outputDir = File(temporaryFolder, "test-run").apply { deleteRecursively(); mkdirs() },
+            vendorConfiguration = VendorConfiguration.StubVendorConfiguration,
+        ).apply {
+            analyticsConfiguration = AnalyticsConfiguration.DisabledAnalytics
+            analyticsTracking = false
+        }.build()
 
     companion object {
         val isValidJunitXml = ValidationMatcher(Input.fromURI(javaClass.getResource("/junit/junit-10.xsd").toURI()))

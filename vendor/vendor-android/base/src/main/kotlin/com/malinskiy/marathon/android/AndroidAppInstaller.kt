@@ -36,7 +36,7 @@ class AndroidAppInstaller(configuration: Configuration) {
             logger.debug { "Prepare installation finished for ${device.serialNumber}" }
         }
     }
-    
+
     /**
      * @throws DeviceSetupException if unable to reinstall (even with retries)
      */

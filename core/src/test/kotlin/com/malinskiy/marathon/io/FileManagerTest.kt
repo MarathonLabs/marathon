@@ -25,8 +25,8 @@ class FileManagerTest {
             manufacturer = "unknown",
             networkState = NetworkState.CONNECTED,
             deviceFeatures = listOf(DeviceFeature.SCREENSHOT, DeviceFeature.VIDEO),
-                healthy = true
-            )
+            healthy = true
+        )
         val shortNameTest = com.malinskiy.marathon.test.Test(
             "com.example",
             "Clazz",

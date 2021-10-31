@@ -12,9 +12,9 @@ class AndroidTestBundle(
 ) : TestBundle() {
     override val id: String
         get() = testApplication.absolutePath
-    
+
     val instrumentationInfo: InstrumentationInfo by lazy { apkParser.parseInstrumentationInfo(testApplication) }
-    
+
     companion object {
         val apkParser = ApkParser()
     }

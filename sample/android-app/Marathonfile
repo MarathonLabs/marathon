@@ -15,12 +15,18 @@ vendorConfiguration:
   applicationPmClear: true
   testApplicationPmClear: true
   waitForDevicesTimeoutMillis: 60000
+  # See https://marathonlabs.github.io/marathon/ven/android.html#test-parser before copy-pasting this
   testParserConfiguration:
     type: "remote"
     instrumentationArgs:
       listener: "com.malinskiy.adam.junit4.android.listener.TestAnnotationProducer"
   allureConfiguration:
     enabled: true
+  # See https://marathonlabs.github.io/marathon/ven/android.html#test-access-configuration before copy-pasting this
+  testAccessConfiguration:
+    adb: true
+    grpc: true
+    console: true
 deviceInitializationTimeoutMillis: 180000
 uncompletedTestRetryQuota: 3
 debug: true

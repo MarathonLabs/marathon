@@ -223,6 +223,14 @@ abstract class BaseAndroidDevice(
 
         return booted
     }
+    
+    fun isLocalEmulator() = adbSerial.startsWith("emulator-")
+
+    protected suspend fun AndroidDevice.isEmulator(): Boolean = when {
+        getProperty("ro.kernel.qemu")?.isNotBlank() ?: false -> true
+        getProperty("service.adb.transport") == "goldfish" -> true
+        else -> false
+    }
 
     protected fun createExecutionListeners(
         configuration: Configuration,

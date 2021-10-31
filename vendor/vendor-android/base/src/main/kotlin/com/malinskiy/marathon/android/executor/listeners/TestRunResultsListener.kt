@@ -128,8 +128,8 @@ class TestRunResultsListener(
         /**
          * If we explicitly requested parameterized tests - skip merging
          */
-        if(testBatch.tests.any { it.method.contains('[') && it.method.contains(']') }) return results
-        
+        if (testBatch.tests.any { it.method.contains('[') && it.method.contains(']') }) return results
+
         val result = mutableMapOf<TestIdentifier, AndroidTestResult>()
         for (e in results) {
             val test = e.key

@@ -15,7 +15,10 @@ import java.time.Instant
 
 class FixedSizeBatchingStrategyConfigurationDeserializer(private val instantTimeProvider: InstantTimeProvider) :
     StdDeserializer<BatchingStrategyConfiguration.FixedSizeBatchingStrategyConfiguration>(BatchingStrategyConfiguration.FixedSizeBatchingStrategyConfiguration::class.java) {
-    override fun deserialize(p: JsonParser?, ctxt: DeserializationContext?): BatchingStrategyConfiguration.FixedSizeBatchingStrategyConfiguration {
+    override fun deserialize(
+        p: JsonParser?,
+        ctxt: DeserializationContext?
+    ): BatchingStrategyConfiguration.FixedSizeBatchingStrategyConfiguration {
         val codec = p?.codec as ObjectMapper
         val node: JsonNode = codec.readTree(p) ?: throw ConfigurationException("Invalid sorting strategy")
 
@@ -32,7 +35,13 @@ class FixedSizeBatchingStrategyConfigurationDeserializer(private val instantTime
                 ?: codec.treeToValueOrNull(timeLimitValue, Duration::class.java)?.addToInstant(instantTimeProvider.referenceTime())
         }
 
-        return BatchingStrategyConfiguration.FixedSizeBatchingStrategyConfiguration(size, durationMillis, percentile, instant, lastMileLength ?: 0)
+        return BatchingStrategyConfiguration.FixedSizeBatchingStrategyConfiguration(
+            size,
+            durationMillis,
+            percentile,
+            instant,
+            lastMileLength ?: 0
+        )
     }
 }
 

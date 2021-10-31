@@ -11,11 +11,16 @@ import com.malinskiy.adam.exception.UnsupportedSyncProtocolException
 import com.malinskiy.adam.request.Feature
 import com.malinskiy.adam.request.device.DeviceState
 import com.malinskiy.adam.request.device.FetchDeviceFeaturesRequest
+import com.malinskiy.adam.request.forwarding.LocalTcpPortSpec
+import com.malinskiy.adam.request.forwarding.RemoteTcpPortSpec
 import com.malinskiy.adam.request.framebuffer.BufferedImageScreenCaptureAdapter
 import com.malinskiy.adam.request.framebuffer.ScreenCaptureRequest
 import com.malinskiy.adam.request.pkg.InstallRemotePackageRequest
 import com.malinskiy.adam.request.pkg.UninstallRemotePackageRequest
 import com.malinskiy.adam.request.prop.GetPropRequest
+import com.malinskiy.adam.request.reverse.RemoveReversePortForwardRequest
+import com.malinskiy.adam.request.reverse.ReversePortForwardRequest
+import com.malinskiy.adam.request.reverse.ReversePortForwardingRule
 import com.malinskiy.adam.request.shell.v1.ShellCommandRequest
 import com.malinskiy.adam.request.sync.AndroidFile
 import com.malinskiy.adam.request.sync.AndroidFileType
@@ -43,6 +48,7 @@ import com.malinskiy.marathon.device.NetworkState
 import com.malinskiy.marathon.exceptions.DeviceLostException
 import com.malinskiy.marathon.execution.TestBatchResults
 import com.malinskiy.marathon.execution.progress.ProgressReporter
+import com.malinskiy.marathon.extension.withTimeout
 import com.malinskiy.marathon.extension.withTimeoutOrNull
 import com.malinskiy.marathon.test.TestBatch
 import com.malinskiy.marathon.time.Timer
@@ -51,6 +57,7 @@ import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.async
 import kotlinx.coroutines.channels.ReceiveChannel
 import kotlinx.coroutines.newFixedThreadPoolContext
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.supervisorScope
 import kotlinx.coroutines.withContext
 import java.awt.image.BufferedImage
@@ -60,7 +67,7 @@ import kotlin.coroutines.CoroutineContext
 import kotlin.system.measureTimeMillis
 
 class AdamAndroidDevice(
-    private val client: AndroidDebugBridgeClient,
+    internal val client: AndroidDebugBridgeClient,
     private val deviceStateTracker: DeviceStateTracker,
     private val logcatManager: LogcatManager,
     private val testBundleIdentifier: AndroidTestBundleIdentifier,
@@ -78,6 +85,8 @@ class AdamAndroidDevice(
     private val imageScreenCaptureAdapter = BufferedImageScreenCaptureAdapter()
     private lateinit var supportedFeatures: List<Feature>
 
+    val portForwardingRules = mutableMapOf<String, ReversePortForwardingRule>()
+
     override suspend fun setup() {
         withContext(coroutineContext) {
             super.setup()
@@ -85,6 +94,7 @@ class AdamAndroidDevice(
             fetchProps()
             supportedFeatures = client.execute(FetchDeviceFeaturesRequest(adbSerial))
             logcatManager.subscribe(this@AdamAndroidDevice)
+            setupTestAccess()
         }
     }
 
@@ -366,6 +376,11 @@ class AdamAndroidDevice(
     override fun dispose() {
         dispatcher.close()
         logcatManager.unsubscribe(this)
+        runBlocking {
+            portForwardingRules.forEach { (_, rule) ->
+                client.execute(RemoveReversePortForwardRequest(rule.localSpec), adbSerial)
+            }
+        }
     }
 
     fun executeTestRequest(runnerRequest: TestRunnerRequest): ReceiveChannel<List<TestEvent>> {
@@ -396,6 +411,24 @@ class AdamAndroidDevice(
             logcatListeners.forEach { listener ->
                 listener.onLine(line)
             }
+        }
+    }
+
+    private suspend fun setupTestAccess() {
+        val accessConfiguration = androidConfiguration.testAccessConfiguration
+
+        if (accessConfiguration.adb && !isLocalEmulator()) {
+            reversePortForward(
+                "adb",
+                ReversePortForwardingRule(adbSerial, RemoteTcpPortSpec(client.port), LocalTcpPortSpec(client.port))
+            )
+        }
+    }
+
+    private suspend fun reversePortForward(name: String, rule: ReversePortForwardingRule) {
+        withTimeout(androidConfiguration.timeoutConfiguration.portForward) {
+            client.execute(ReversePortForwardRequest(rule.localSpec, rule.remoteSpec), adbSerial)
+            portForwardingRules[name] = rule
         }
     }
 }

@@ -8,15 +8,15 @@ class LogicalConfigurationValidator : ConfigurationValidator {
     override fun validate(configuration: Configuration) {
         when {
             configuration.flakinessStrategy !is FlakinessStrategyConfiguration.IgnoreFlakinessStrategyConfiguration &&
-                    configuration.shardingStrategy !is ShardingStrategyConfiguration.ParallelShardingStrategyConfiguration -> {
+                configuration.shardingStrategy !is ShardingStrategyConfiguration.ParallelShardingStrategyConfiguration -> {
                 throw ConfigurationException(
                     "Configuration is invalid: " +
-                            "can't use complex sharding and complex flakiness strategy at the same time. " +
-                            "See: https://github.com/MarathonLabs/marathon/issues/197"
+                        "can't use complex sharding and complex flakiness strategy at the same time. " +
+                        "See: https://github.com/MarathonLabs/marathon/issues/197"
                 )
             }
         }
-        
+
         configuration.filteringConfiguration.allowlist.forEach { it.validate() }
         configuration.filteringConfiguration.blocklist.forEach { it.validate() }
     }

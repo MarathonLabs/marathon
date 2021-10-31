@@ -80,7 +80,7 @@ jobs:
   notify:
     needs: cd-release
     runs-on: ubuntu-latest
-    steps:      
+    steps:
       - uses: actions/checkout@master
       - name: Send Telegram Release message
         uses: appleboy/telegram-action@master

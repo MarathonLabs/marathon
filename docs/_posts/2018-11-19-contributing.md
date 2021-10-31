@@ -51,11 +51,13 @@ codebase. Default configurations for IntelliJ use CLI version of marathon.
 
 ### CLI
 
-While working on an issue it's much faster to use CLI distribution which you can build using the ```:cli:installDist``` task in gradle.
-This task builds marathon binary with all of its dependencies. The output binary can be found at ```cli/build/install/marathon/bin/marathon```.
-If you use this output frequently consider changing your path ```export PATH=$PATH:$MARATHON_CHECKOUT_DIR/cli/build/install/marathon/bin/marathon```.
+While working on an issue it's much faster to use CLI distribution which you can build using the ```:cli:installDist``` task in gradle. This
+task builds marathon binary with all of its dependencies. The output binary can be found at ```cli/build/install/marathon/bin/marathon```.
+If you use this output frequently consider changing your
+path ```export PATH=$PATH:$MARATHON_CHECKOUT_DIR/cli/build/install/marathon/bin/marathon```.
 
 If you want to create a distributable zip:
+
 ```bash
 $ ./gradlew :cli:distZip
 $ ls cli/build/distributions
@@ -105,9 +107,14 @@ vendor-test, this is a fake implementation that we're using for integration test
 We're available for any questions or proposals on [Slack][6]. Feel free to join!
 
 [1]: https://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html
+
 [2]: https://www.jetbrains.com/idea/download/
+
 [3]: https://desktop.github.com/
+
 [4]: https://github.com/MarathonLabs/marathon/issues
+
 [5]: https://github.com/MarathonLabs/marathon/projects/1
+
 [6]: https://bit.ly/2LLghaW
 [7]: {% post_url 2018-11-19-samples %}

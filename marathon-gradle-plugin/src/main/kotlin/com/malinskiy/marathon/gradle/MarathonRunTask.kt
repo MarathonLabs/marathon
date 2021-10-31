@@ -14,6 +14,7 @@ import com.malinskiy.marathon.config.vendor.android.AllureConfiguration
 import com.malinskiy.marathon.config.vendor.android.FileSyncConfiguration
 import com.malinskiy.marathon.config.vendor.android.ScreenRecordConfiguration
 import com.malinskiy.marathon.config.vendor.android.SerialStrategy
+import com.malinskiy.marathon.config.vendor.android.TestAccessConfiguration
 import com.malinskiy.marathon.config.vendor.android.TestParserConfiguration
 import com.malinskiy.marathon.gradle.extensions.extractApplication
 import com.malinskiy.marathon.gradle.extensions.extractTestApplication
@@ -138,6 +139,7 @@ open class MarathonRunTask @Inject constructor(objects: ObjectFactory) : Abstrac
             allureConfiguration = allureConfiguration,
             fileSyncConfiguration = extension.fileSyncConfiguration ?: FileSyncConfiguration(),
             testParserConfiguration = extension.testParserConfiguration ?: TestParserConfiguration.LocalTestParserConfiguration,
+            testAccessConfiguration = extension.testAccessConfiguration ?: TestAccessConfiguration()
         )
     }
 

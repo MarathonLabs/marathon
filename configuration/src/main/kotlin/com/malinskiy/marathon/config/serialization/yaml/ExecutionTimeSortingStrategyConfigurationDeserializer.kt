@@ -15,7 +15,10 @@ import java.time.Instant
 
 class ExecutionTimeSortingStrategyConfigurationDeserializer(private val instantTimeProvider: InstantTimeProvider) :
     StdDeserializer<SortingStrategyConfiguration.ExecutionTimeSortingStrategyConfiguration>(SortingStrategyConfiguration.ExecutionTimeSortingStrategyConfiguration::class.java) {
-    override fun deserialize(p: JsonParser?, ctxt: DeserializationContext?): SortingStrategyConfiguration.ExecutionTimeSortingStrategyConfiguration {
+    override fun deserialize(
+        p: JsonParser?,
+        ctxt: DeserializationContext?
+    ): SortingStrategyConfiguration.ExecutionTimeSortingStrategyConfiguration {
         val codec = p?.codec as ObjectMapper
         val node: JsonNode = codec.readTree(p) ?: throw ConfigurationException("Invalid sorting strategy")
 

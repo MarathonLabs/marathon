@@ -6,6 +6,7 @@ import com.malinskiy.marathon.config.vendor.android.AllureConfiguration
 import com.malinskiy.marathon.config.vendor.android.FileSyncConfiguration
 import com.malinskiy.marathon.config.vendor.android.ScreenRecordConfiguration
 import com.malinskiy.marathon.config.vendor.android.SerialStrategy
+import com.malinskiy.marathon.config.vendor.android.TestAccessConfiguration
 import com.malinskiy.marathon.config.vendor.android.TestParserConfiguration
 import com.malinskiy.marathon.config.vendor.android.TimeoutConfiguration
 import groovy.lang.Closure
@@ -67,6 +68,8 @@ open class MarathonExtension(project: Project) {
     //Android specific for now
     var autoGrantPermission: Boolean? = null
     var instrumentationArgs: MutableMap<String, String> = mutableMapOf()
+
+    var testAccessConfiguration: TestAccessConfiguration? = null
 
     //Kotlin way
     fun analytics(block: AnalyticsConfig.() -> Unit) {

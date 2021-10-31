@@ -48,7 +48,7 @@ class FragmentationFilterTest {
 
         fragment0 shouldContainSame fragment1 + fragment2
     }
-    
+
     @Test
     fun testThrowsException() {
         assertThrows<ConfigurationException> { TestFilterConfiguration.FragmentationFilterConfiguration(-1, 3).validate() }

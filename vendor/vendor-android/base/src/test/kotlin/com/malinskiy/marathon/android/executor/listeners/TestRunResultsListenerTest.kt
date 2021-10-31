@@ -584,7 +584,7 @@ class TestRunResultsListenerTest {
             )
             assertThat(result.failed).isEmpty()
             assertThat(result.uncompleted).isEmpty()
-            
+
             /**
              * Due to the need for consistency first parameterized test does not end up being reported to remove the need to remove the
              * parent test

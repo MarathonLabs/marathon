@@ -44,12 +44,13 @@ data class ExecutionReport(
             .toSet()
 
         val failed = tests
-            .filter { it.status != TestStatus.PASSED
-                && it.status != TestStatus.IGNORED
-                && it.status != TestStatus.ASSUMPTION_FAILURE
+            .filter {
+                it.status != TestStatus.PASSED
+                    && it.status != TestStatus.IGNORED
+                    && it.status != TestStatus.ASSUMPTION_FAILURE
             }.map { it.test.toTestName() }
             .toSet()
-        
+
         val duration = tests.map { it.durationMillis() }.sum()
 
         val rawTests = poolTestEvents
@@ -76,7 +77,7 @@ data class ExecutionReport(
         val retries = tests.map { result: TestResult ->
             Pair(result, poolTestEvents.filter { it.testResult.test == result.test && it.testResult !== result })
         }.toMap()
-        
+
         return PoolSummary(
             poolId = poolId,
             tests = tests,
