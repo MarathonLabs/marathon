@@ -127,7 +127,7 @@ additional parameters might not be supported by all vendor modules. If you find 
 vendor module at fault.
 
 * TOC
-* {:toc}
+{:toc}
 
 # General parameters
 
