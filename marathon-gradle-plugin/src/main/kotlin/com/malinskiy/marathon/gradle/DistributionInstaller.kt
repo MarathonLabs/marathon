@@ -9,16 +9,15 @@ import java.nio.file.attribute.PosixFilePermission
 import java.util.zip.ZipFile
 
 class DistributionInstaller {
-    fun install(marathonBuildDir: File): File {
+    fun install(marathonBuildDir: File): Pair<File, File> {
         val marathonZip = copyFromResources(marathonBuildDir)
         unzip(marathonZip, marathonBuildDir)
-        return getPlatformScript(marathonBuildDir)
+        return Pair(marathonBuildDir, getPlatformScript(marathonBuildDir))
     }
 
     private fun getPlatformScript(marathonBuildDir: File) = when (OperatingSystem.current()) {
         OperatingSystem.WINDOWS -> {
             Paths.get(marathonBuildDir.canonicalPath, "cli", "bin", "marathon.bat").toFile()
-            //Do we need to change permissions on windows?
         }
         else -> {
             val cliPath = Paths.get(marathonBuildDir.canonicalPath, "cli", "bin", "marathon")
@@ -40,41 +39,32 @@ class DistributionInstaller {
     }
 
     private fun unzip(marathonZip: File, marathonBuildDir: File) {
-        val expectedVersion: String = marathonZip.inputStream().buffered().use { DigestUtils.md5Hex(it) }
-        val versionFile = File(marathonBuildDir, "version")
-        val version: String? = when {
-            versionFile.exists() -> versionFile.readText()
-            else -> null
-        }
-        if (expectedVersion != version) {
-            marathonBuildDir.listFiles()?.forEach {
-                if (it.isDirectory) {
-                    it.delete()
-                }
+        marathonBuildDir.listFiles()?.forEach {
+            if (it.isDirectory) {
+                it.deleteRecursively()
             }
-            File(marathonBuildDir, "cli").delete()
-            ZipFile(marathonZip).use { zip ->
-                zip.entries().asSequence().forEach { entry ->
-                    zip.getInputStream(entry).use { input ->
-                        val filePath = marathonBuildDir.canonicalPath + File.separator + entry.name
-                        val file = File(filePath)
-                        if (!entry.isDirectory) {
-                            file.parentFile.mkdirs()
-                            file.outputStream().buffered().use {
-                                input.copyTo(it)
-                            }
-                        } else {
-                            file.mkdirs()
+        }
+        File(marathonBuildDir, "cli").delete()
+        ZipFile(marathonZip).use { zip ->
+            zip.entries().asSequence().forEach { entry ->
+                zip.getInputStream(entry).use { input ->
+                    val filePath = marathonBuildDir.canonicalPath + File.separator + entry.name
+                    val file = File(filePath)
+                    if (!entry.isDirectory) {
+                        file.parentFile.mkdirs()
+                        file.outputStream().buffered().use {
+                            input.copyTo(it)
                         }
+                    } else {
+                        file.mkdirs()
                     }
                 }
             }
-            marathonBuildDir.listFiles()?.forEach {
-                if (it.isDirectory) {
-                    it.renameTo(File(it.parent, "cli"))
-                }
+        }
+        marathonBuildDir.listFiles()?.forEach {
+            if (it.isDirectory) {
+                it.renameTo(File(it.parent, "cli"))
             }
-            File(marathonBuildDir, "version").writeText(expectedVersion)
         }
     }
 

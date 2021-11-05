@@ -1,7 +1,5 @@
 package com.malinskiy.marathon.gradle
 
-import com.android.build.gradle.api.BaseVariant
-import com.android.build.gradle.api.TestVariant
 import com.malinskiy.marathon.config.Configuration
 import com.malinskiy.marathon.config.serialization.ConfigurationFactory
 import com.malinskiy.marathon.config.vendor.DEFAULT_APPLICATION_PM_CLEAR
@@ -12,6 +10,7 @@ import com.malinskiy.marathon.config.vendor.DEFAULT_WAIT_FOR_DEVICES_TIMEOUT
 import com.malinskiy.marathon.config.vendor.VendorConfiguration
 import com.malinskiy.marathon.config.vendor.android.AdbEndpoint
 import com.malinskiy.marathon.config.vendor.android.AllureConfiguration
+import com.malinskiy.marathon.config.vendor.android.AndroidTestBundleConfiguration
 import com.malinskiy.marathon.config.vendor.android.FileSyncConfiguration
 import com.malinskiy.marathon.config.vendor.android.ScreenRecordConfiguration
 import com.malinskiy.marathon.config.vendor.android.SerialStrategy
@@ -21,6 +20,7 @@ import com.malinskiy.marathon.gradle.extensions.extractApplication
 import com.malinskiy.marathon.gradle.extensions.extractTestApplication
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.model.ObjectFactory
+import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.AbstractExecTask
 import org.gradle.api.tasks.Input
@@ -30,6 +30,7 @@ import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.PathSensitive
 import org.gradle.api.tasks.PathSensitivity
 import org.gradle.api.tasks.VerificationTask
+import org.gradle.kotlin.dsl.listProperty
 import org.gradle.kotlin.dsl.property
 import java.io.File
 import javax.inject.Inject
@@ -40,10 +41,7 @@ open class MarathonRunTask @Inject constructor(objects: ObjectFactory) : Abstrac
     val flavorName: Property<String> = objects.property()
 
     @Internal
-    val applicationVariant: Property<BaseVariant> = objects.property()
-
-    @Internal
-    val testVariant: Property<TestVariant> = objects.property()
+    val applicationBundles: ListProperty<GradleAndroidTestBundle> = objects.listProperty()
 
     @InputDirectory
     @PathSensitive(PathSensitivity.NAME_ONLY)
@@ -59,13 +57,9 @@ open class MarathonRunTask @Inject constructor(objects: ObjectFactory) : Abstrac
 
     override fun exec() {
         val extensionConfig = marathonExtension.get()
-        val instrumentationApk = testVariant.get().extractTestApplication()
-        val applicationApk = applicationVariant.get().extractApplication()
-
         val baseOutputDir = extensionConfig.baseOutputDir?.let { File(it) } ?: File(project.buildDir, "reports/marathon")
         val output = File(baseOutputDir, flavorName.get())
-
-        val vendorConfiguration = createAndroid(extensionConfig, applicationApk, instrumentationApk)
+        val vendorConfiguration = createAndroid(extensionConfig, applicationBundles.get())
 
         val cnf = Configuration.Builder(
             name = extensionConfig.name,
@@ -109,8 +103,7 @@ open class MarathonRunTask @Inject constructor(objects: ObjectFactory) : Abstrac
 
     private fun createAndroid(
         extension: MarathonExtension,
-        applicationApk: File?,
-        instrumentationApk: File
+        bundles: List<GradleAndroidTestBundle>,
     ): VendorConfiguration.AndroidConfiguration {
         val autoGrantPermission = extension.autoGrantPermission ?: DEFAULT_AUTO_GRANT_PERMISSION
         val instrumentationArgs = extension.instrumentationArgs
@@ -123,11 +116,19 @@ open class MarathonRunTask @Inject constructor(objects: ObjectFactory) : Abstrac
         val waitForDevicesTimeoutMillis = extension.waitForDevicesTimeoutMillis ?: DEFAULT_WAIT_FOR_DEVICES_TIMEOUT
         val allureConfiguration = extension.allureConfiguration ?: AllureConfiguration()
 
+        val outputs = bundles.map {
+            AndroidTestBundleConfiguration(
+                application = it.application?.extractApplication(),
+                testApplication = it.testApplication.extractTestApplication()
+            )
+        }
+
         return VendorConfiguration.AndroidConfiguration(
             vendor = extension.vendor ?: VendorConfiguration.AndroidConfiguration.VendorType.ADAM,
             androidSdk = sdk.get().asFile,
-            applicationOutput = applicationApk,
-            testApplicationOutput = instrumentationApk,
+            applicationOutput = null,
+            testApplicationOutput = null,
+            outputs = outputs,
             autoGrantPermission = autoGrantPermission,
             instrumentationArgs = instrumentationArgs,
             applicationPmClear = applicationPmClear,
