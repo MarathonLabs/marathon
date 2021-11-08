@@ -30,9 +30,13 @@ import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.PathSensitive
 import org.gradle.api.tasks.PathSensitivity
 import org.gradle.api.tasks.VerificationTask
+import org.gradle.internal.os.OperatingSystem
 import org.gradle.kotlin.dsl.listProperty
 import org.gradle.kotlin.dsl.property
 import java.io.File
+import java.nio.file.Files
+import java.nio.file.Paths
+import java.nio.file.attribute.PosixFilePermission
 import javax.inject.Inject
 
 open class MarathonRunTask @Inject constructor(objects: ObjectFactory) : AbstractExecTask<MarathonRunTask>(MarathonRunTask::class.java),
@@ -96,8 +100,9 @@ open class MarathonRunTask @Inject constructor(objects: ObjectFactory) : Abstrac
         val yaml = configurationFactory.serialize(cnf)
         marathonfile.writeText(yaml)
 
+        setExecutable(getPlatformScript(Paths.get(project.rootProject.buildDir.canonicalPath, "marathon").toFile()))
         setArgs(listOf("-m", marathonfile.canonicalPath))
-
+        
         super.exec()
     }
 
@@ -150,5 +155,18 @@ open class MarathonRunTask @Inject constructor(objects: ObjectFactory) : Abstrac
 
     override fun setIgnoreFailures(ignoreFailures: Boolean) {
         ignoreFailure = ignoreFailures
+    }
+
+    private fun getPlatformScript(marathonBuildDir: File) = when (OperatingSystem.current()) {
+        OperatingSystem.WINDOWS -> {
+            Paths.get(marathonBuildDir.canonicalPath, "cli", "bin", "marathon.bat").toFile()
+        }
+        else -> {
+            val cliPath = Paths.get(marathonBuildDir.canonicalPath, "cli", "bin", "marathon")
+            cliPath.apply {
+                val permissions = Files.getPosixFilePermissions(this)
+                Files.setPosixFilePermissions(this, permissions + PosixFilePermission.OWNER_EXECUTE)
+            }.toFile()
+        }
     }
 }

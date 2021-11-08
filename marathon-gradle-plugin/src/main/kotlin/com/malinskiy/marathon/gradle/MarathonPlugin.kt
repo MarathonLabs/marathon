@@ -13,11 +13,14 @@ import org.gradle.api.Task
 import org.gradle.api.logging.Logger
 import org.gradle.api.plugins.BasePlugin
 import org.gradle.api.plugins.JavaBasePlugin
+import org.gradle.internal.os.OperatingSystem
 import org.gradle.kotlin.dsl.closureOf
 import org.gradle.kotlin.dsl.get
 import org.gradle.kotlin.dsl.getByName
 import java.io.File
+import java.nio.file.Files
 import java.nio.file.Paths
+import java.nio.file.attribute.PosixFilePermission
 
 class MarathonPlugin : Plugin<Project> {
 
@@ -61,8 +64,7 @@ class MarathonPlugin : Plugin<Project> {
             testedExtension!!.testVariants.all {
                 logger.info("Applying marathon for ${this.baseName}")
                 val testTaskForVariant = createTask(
-                    logger, this, project, conf, testedExtension.sdkDirectory,
-                    Paths.get(rootProject.buildDir.canonicalPath, "marathon", "cli", "bin", "marathon").toFile()
+                    logger, this, project, conf, testedExtension.sdkDirectory
                 )
                 testTaskForVariant.dependsOn(unpackMarathonTask)
                 marathonTask.dependsOn(testTaskForVariant)
@@ -85,7 +87,6 @@ class MarathonPlugin : Plugin<Project> {
             project: Project,
             config: MarathonExtension,
             sdkDirectory: File,
-            cli: File,
         ): MarathonRunTask {
             checkTestVariants(variant)
 
@@ -114,7 +115,6 @@ class MarathonPlugin : Plugin<Project> {
                             dependsOn(variant.testedVariant.assemble, variant.assemble)
                         }
                     )
-                    executable(cli)
                 })
             }
 

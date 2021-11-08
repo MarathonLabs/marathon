@@ -1,31 +1,13 @@
 package com.malinskiy.marathon.gradle
 
 import org.apache.commons.codec.digest.DigestUtils
-import org.gradle.internal.os.OperatingSystem
 import java.io.File
-import java.nio.file.Files
-import java.nio.file.Paths
-import java.nio.file.attribute.PosixFilePermission
 import java.util.zip.ZipFile
 
 class DistributionInstaller {
-    fun install(marathonBuildDir: File): Pair<File, File> {
+    fun install(marathonBuildDir: File) {
         val marathonZip = copyFromResources(marathonBuildDir)
         unzip(marathonZip, marathonBuildDir)
-        return Pair(marathonBuildDir, getPlatformScript(marathonBuildDir))
-    }
-
-    private fun getPlatformScript(marathonBuildDir: File) = when (OperatingSystem.current()) {
-        OperatingSystem.WINDOWS -> {
-            Paths.get(marathonBuildDir.canonicalPath, "cli", "bin", "marathon.bat").toFile()
-        }
-        else -> {
-            val cliPath = Paths.get(marathonBuildDir.canonicalPath, "cli", "bin", "marathon")
-            cliPath.apply {
-                val permissions = Files.getPosixFilePermissions(this)
-                Files.setPosixFilePermissions(this, permissions + PosixFilePermission.OWNER_EXECUTE)
-            }.toFile()
-        }
     }
 
     private fun copyFromResources(marathonBuildDir: File): File {
