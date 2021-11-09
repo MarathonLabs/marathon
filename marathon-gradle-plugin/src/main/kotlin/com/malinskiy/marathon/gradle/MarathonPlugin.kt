@@ -13,14 +13,10 @@ import org.gradle.api.Task
 import org.gradle.api.logging.Logger
 import org.gradle.api.plugins.BasePlugin
 import org.gradle.api.plugins.JavaBasePlugin
-import org.gradle.internal.os.OperatingSystem
 import org.gradle.kotlin.dsl.closureOf
 import org.gradle.kotlin.dsl.get
 import org.gradle.kotlin.dsl.getByName
 import java.io.File
-import java.nio.file.Files
-import java.nio.file.Paths
-import java.nio.file.attribute.PosixFilePermission
 
 class MarathonPlugin : Plugin<Project> {
 
@@ -30,14 +26,12 @@ class MarathonPlugin : Plugin<Project> {
         project.extensions.create("marathon", MarathonExtension::class.java, project)
 
         val rootProject = project.rootProject
-        synchronized(rootProject) {
-            if (rootProject.extensions.findByName("marathon") == null) {
-                applyRoot(rootProject)
-            }
+        if (rootProject.extensions.findByName("marathon") == null) {
+            applyRoot(rootProject)
         }
         val unpackMarathonTask = rootProject.tasks.getByName(MarathonUnpackTask.NAME, MarathonUnpackTask::class)
         val marathonCleanTask = rootProject.tasks[MarathonCleanTask.NAME]
-        
+
         project.afterEvaluate {
             val appPlugin = project.plugins.findPlugin(AppPlugin::class.java)
             val libraryPlugin = project.plugins.findPlugin(LibraryPlugin::class.java)
