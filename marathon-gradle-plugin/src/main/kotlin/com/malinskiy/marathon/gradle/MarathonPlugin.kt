@@ -11,8 +11,11 @@ import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.api.logging.Logger
+import org.gradle.api.plugins.BasePlugin
 import org.gradle.api.plugins.JavaBasePlugin
 import org.gradle.kotlin.dsl.closureOf
+import org.gradle.kotlin.dsl.get
+import org.gradle.kotlin.dsl.getByName
 import java.io.File
 
 class MarathonPlugin : Plugin<Project> {
@@ -20,11 +23,16 @@ class MarathonPlugin : Plugin<Project> {
     override fun apply(project: Project) {
         val logger = project.logger
         logger.info("Applying marathon plugin")
-        val extension: MarathonExtension = project.extensions.create("marathon", MarathonExtension::class.java, project)
+        project.extensions.create("marathon", MarathonExtension::class.java, project)
+
+        val rootProject = project.rootProject
+        if (rootProject.extensions.findByName("marathon") == null) {
+            applyRoot(rootProject)
+        }
+        val unpackMarathonTask = rootProject.tasks.getByName(MarathonUnpackTask.NAME, MarathonUnpackTask::class)
+        val marathonCleanTask = rootProject.tasks[MarathonCleanTask.NAME]
 
         project.afterEvaluate {
-            val cli = prepareDistribution(project)
-
             val appPlugin = project.plugins.findPlugin(AppPlugin::class.java)
             val libraryPlugin = project.plugins.findPlugin(LibraryPlugin::class.java)
 
@@ -49,17 +57,21 @@ class MarathonPlugin : Plugin<Project> {
 
             testedExtension!!.testVariants.all {
                 logger.info("Applying marathon for ${this.baseName}")
-                val testTaskForVariant = createTask(logger, this, project, conf, testedExtension.sdkDirectory, cli)
+                val testTaskForVariant = createTask(
+                    logger, this, project, conf, testedExtension.sdkDirectory
+                )
+                testTaskForVariant.dependsOn(unpackMarathonTask)
                 marathonTask.dependsOn(testTaskForVariant)
             }
+
+            project.tasks[BasePlugin.CLEAN_TASK_NAME].dependsOn(marathonCleanTask)
         }
     }
 
-    private fun prepareDistribution(project: Project): File {
-        val buildDir = project.buildDir
-        val marathonBuildDir = File(buildDir, "marathon").apply { mkdirs() }
-
-        return DistributionInstaller().install(marathonBuildDir)
+    private fun applyRoot(rootProject: Project) {
+        rootProject.extensions.create("marathon", MarathonExtension::class.java, rootProject)
+        rootProject.tasks.create(MarathonUnpackTask.NAME, MarathonUnpackTask::class.java)
+        rootProject.tasks.create(MarathonCleanTask.NAME, MarathonCleanTask::class.java)
     }
 
     companion object {
@@ -69,7 +81,6 @@ class MarathonPlugin : Plugin<Project> {
             project: Project,
             config: MarathonExtension,
             sdkDirectory: File,
-            cli: File,
         ): MarathonRunTask {
             checkTestVariants(variant)
 
@@ -85,8 +96,7 @@ class MarathonPlugin : Plugin<Project> {
                     description = "Runs instrumentation tests on all the connected devices for '${variant.name}' " +
                         "variation and generates a report with screenshots"
                     flavorName.set(variant.name)
-                    applicationVariant.set(variant.testedVariant)
-                    testVariant.set(variant)
+                    applicationBundles.set(listOf(GradleAndroidTestBundle(application = variant.testedVariant, testApplication = variant)))
                     marathonExtension.set(config)
                     sdk.set(sdkDirectory)
                     outputs.upToDateWhen { false }
@@ -99,7 +109,6 @@ class MarathonPlugin : Plugin<Project> {
                             dependsOn(variant.testedVariant.assemble, variant.assemble)
                         }
                     )
-                    executable(cli.absolutePath)
                 })
             }
 
