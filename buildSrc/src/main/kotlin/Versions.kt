@@ -14,6 +14,7 @@ object Versions {
 
     val junitGradle = "1.2.0"
     val androidGradleVersion = "4.2.0"
+    val gradlePluginPublish = "0.17.0"
 
     val junit5 = "5.8.1"
     val kluent = "1.68"
