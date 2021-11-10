@@ -2,6 +2,7 @@ plugins {
     `java-gradle-plugin`
     `kotlin-dsl`
     id("org.jetbrains.dokka")
+    id("com.gradle.plugin-publish") version Versions.gradlePluginPublish
 }
 
 
@@ -9,9 +10,17 @@ gradlePlugin {
     (plugins) {
         create("marathon-gradle-plugin") {
             id = "marathon"
+            displayName = "Gradle plugin for Marathon test runner"
+            description = "Marathon is a fast and platform-independent test runner focused on performance and stability"
             implementationClass = "com.malinskiy.marathon.gradle.MarathonPlugin"
         }
     }
+}
+
+pluginBundle {
+    website = "https://marathonlabs.github.io/marathon/"
+    vcsUrl = "https://github.com/MarathonLabs/marathon"
+    tags = listOf("marathon", "test", "runner", "android")
 }
 
 Deployment.initialize(project)
