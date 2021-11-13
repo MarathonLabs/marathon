@@ -35,7 +35,7 @@ class MetricsProviderImpl(private val remoteDataStore: RemoteDataSource) : Metri
             successRateMeasurements[key] = runCatching {
                 fetchSuccessRateData(limit)
             }.onFailure {
-                logger.warn { "Cannot fetch success rate from database" }
+                logger.warn(it) { "Cannot fetch success rate from database" }
             }.fold({ list ->
                        MeasurementValues(list.associateBy({ it.testName }, { it.mean }))
                    }, {
@@ -67,7 +67,7 @@ class MetricsProviderImpl(private val remoteDataStore: RemoteDataSource) : Metri
             executionTimeMeasurements[key] = runCatching {
                 fetchExecutionTime(percentile, limit)
             }.onFailure {
-                logger.warn { "Cannot fetch execution time from database" }
+                logger.warn(it) { "Cannot fetch execution time from database" }
             }.fold({ list ->
                        logger.warn { list }
                        MeasurementValues(list.associateBy({ it.testName }, { it.percentile }))

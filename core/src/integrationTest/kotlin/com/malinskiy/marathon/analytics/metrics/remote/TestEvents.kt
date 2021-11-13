@@ -8,71 +8,80 @@ import com.malinskiy.marathon.device.toDeviceInfo
 import com.malinskiy.marathon.execution.TestResult
 import com.malinskiy.marathon.execution.TestStatus
 import com.malinskiy.marathon.generateTest
+import com.malinskiy.marathon.test.Test
 import java.time.Instant
 import java.time.temporal.ChronoUnit
 import java.util.UUID
 
-val test = generateTest()
-
-fun getTestEvents(): List<TestEvent> {
+fun getTestEvents(test: Test = generateTest()): List<TestEvent> {
     val instant = Instant.now()
     val deviceInfo = DeviceStub().toDeviceInfo()
     return listOf(
         creteTestEvent(
+            test = test,
             device = deviceInfo,
             duration = 1_000,
             status = TestStatus.PASSED,
             whenWasSent = instant.minus(1, ChronoUnit.MINUTES)
         ),
         creteTestEvent(
+            test = test,
             device = deviceInfo,
             duration = 2_000,
             status = TestStatus.PASSED,
             whenWasSent = instant.minus(10, ChronoUnit.MINUTES)
         ),
         creteTestEvent(
+            test = test,
             device = deviceInfo,
             duration = 3_000,
             status = TestStatus.PASSED,
             whenWasSent = instant.minus(20, ChronoUnit.MINUTES)
         ),
         creteTestEvent(
+            test = test,
             device = deviceInfo,
             duration = 4_000,
             status = TestStatus.PASSED,
             whenWasSent = instant.minus(30, ChronoUnit.MINUTES)
         ),
         creteTestEvent(
+            test = test,
             device = deviceInfo,
             duration = 5_000,
             status = TestStatus.PASSED,
             whenWasSent = instant.minus(40, ChronoUnit.MINUTES)
         ),
         creteTestEvent(
+            test = test,
             device = deviceInfo,
             duration = 6_000,
             status = TestStatus.FAILURE,
             whenWasSent = instant.minus(60, ChronoUnit.MINUTES)
         ),
         creteTestEvent(
+            test = test,
             device = deviceInfo,
             duration = 7_000,
             status = TestStatus.FAILURE,
             whenWasSent = instant.minus(70, ChronoUnit.MINUTES)
         ),
         creteTestEvent(
+            test = test,
             device = deviceInfo,
             duration = 8_000,
             status = TestStatus.FAILURE,
             whenWasSent = instant.minus(80, ChronoUnit.MINUTES)
         ),
         creteTestEvent(
+            test = test,
             device = deviceInfo,
             duration = 9_000,
             status = TestStatus.FAILURE,
             whenWasSent = instant.minus(90, ChronoUnit.MINUTES)
         ),
         creteTestEvent(
+            test = test,
             device = deviceInfo,
             duration = 10_000,
             status = TestStatus.FAILURE,
@@ -81,7 +90,7 @@ fun getTestEvents(): List<TestEvent> {
     )
 }
 
-private fun creteTestEvent(device: DeviceInfo, duration: Long, status: TestStatus, whenWasSent: Instant) = TestEvent(
+private fun creteTestEvent(test: Test, device: DeviceInfo, duration: Long, status: TestStatus, whenWasSent: Instant) = TestEvent(
     whenWasSent,
     DevicePoolId("omni"),
     device,

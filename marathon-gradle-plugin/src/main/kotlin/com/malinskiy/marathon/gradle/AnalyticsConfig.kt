@@ -2,10 +2,13 @@ package com.malinskiy.marathon.gradle
 
 import com.malinskiy.marathon.config.AnalyticsConfiguration
 import groovy.lang.Closure
+import org.gradle.api.Action
+import org.gradle.kotlin.dsl.invoke
 
 class AnalyticsConfig {
     var influx: InfluxConfig? = null
     var graphite: GraphiteConfig? = null
+    var influx2: Influx2Config = Influx2Config()
 
     fun influx(closure: Closure<*>) {
         influx = InfluxConfig()
@@ -26,6 +29,10 @@ class AnalyticsConfig {
     fun graphite(block: GraphiteConfig.() -> Unit) {
         graphite = GraphiteConfig().also(block)
     }
+
+    fun influx2(block: Action<Influx2Config>) {
+        block.invoke(influx2)
+    }
 }
 
 class InfluxConfig {
@@ -34,6 +41,19 @@ class InfluxConfig {
     var password: String = ""
     var dbName: String = ""
     var retentionPolicy: RetentionPolicy? = null
+}
+
+class Influx2Config {
+    var url: String = ""
+    var token: String = ""
+    var organization: String = ""
+    var bucket: String = ""
+    var retentionPolicy: Influx2RetentionPolicy? = null
+}
+
+class Influx2RetentionPolicy {
+    var everySeconds: Int = 604800
+    var shardGroupDurationSeconds: Long = 0L
 }
 
 class RetentionPolicy {
@@ -54,6 +74,14 @@ fun AnalyticsConfig.toAnalyticsConfiguration(): AnalyticsConfiguration {
     val influx = this.influx
     val graphite = this.graphite
     return when {
+        influx2 != null -> AnalyticsConfiguration.InfluxDb2Configuration(
+            url = influx2.url,
+            token = influx2.token,
+            organization = influx2.organization,
+            bucket = influx2.bucket,
+            retentionPolicyConfiguration = influx2.retentionPolicy?.toRetentionPolicy()
+                ?: AnalyticsConfiguration.InfluxDb2Configuration.RetentionPolicyConfiguration.default
+        )
         influx != null -> AnalyticsConfiguration.InfluxDbConfiguration(
             dbName = influx.dbName,
             user = influx.user,
@@ -69,6 +97,13 @@ fun AnalyticsConfig.toAnalyticsConfiguration(): AnalyticsConfiguration {
         )
         else -> AnalyticsConfiguration.DisabledAnalytics
     }
+}
+
+private fun Influx2RetentionPolicy.toRetentionPolicy(): AnalyticsConfiguration.InfluxDb2Configuration.RetentionPolicyConfiguration {
+    return AnalyticsConfiguration.InfluxDb2Configuration.RetentionPolicyConfiguration(
+        everySeconds = everySeconds,
+        shardGroupDurationSeconds = shardGroupDurationSeconds,
+    )
 }
 
 private fun RetentionPolicy.toRetentionPolicy(): AnalyticsConfiguration.InfluxDbConfiguration.RetentionPolicyConfiguration {

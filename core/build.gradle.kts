@@ -57,6 +57,7 @@ dependencies {
     implementation(Libraries.kotlinLogging)
     implementation(Libraries.logbackClassic)
     implementation(Libraries.influxDbClient)
+    implementation(Libraries.influxDb2Client)
     api(Libraries.koin)
     api(Libraries.bugsnag)
     testImplementation(project(":vendor:vendor-test"))
