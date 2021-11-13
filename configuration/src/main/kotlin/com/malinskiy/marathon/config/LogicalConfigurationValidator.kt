@@ -19,15 +19,5 @@ class LogicalConfigurationValidator : ConfigurationValidator {
 
         configuration.filteringConfiguration.allowlist.forEach { it.validate() }
         configuration.filteringConfiguration.blocklist.forEach { it.validate() }
-
-        if (configuration.analyticsConfiguration is AnalyticsConfiguration.InfluxDb2Configuration) {
-            val influx2cnf = configuration.analyticsConfiguration
-            if (influx2cnf.user == null && influx2cnf.password == null && influx2cnf.token == null) {
-                throw ConfigurationException(
-                    "Configuration is invalid: " +
-                        "influxdb2 authentication requires either a username + password or a token"
-                )
-            }
-        }
     }
 }
