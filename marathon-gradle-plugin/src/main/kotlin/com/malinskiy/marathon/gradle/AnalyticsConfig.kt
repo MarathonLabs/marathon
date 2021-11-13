@@ -52,7 +52,7 @@ class Influx2Config {
 }
 
 class Influx2RetentionPolicy {
-    var everySeconds: Int = 604800
+    var everySeconds: Int = 86400 * 30
     var shardGroupDurationSeconds: Long = 0L
 }
 
