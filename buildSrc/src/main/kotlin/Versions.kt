@@ -13,7 +13,7 @@ object Versions {
     val bugsnag = "3.6.3"
 
     val junitGradle = "1.2.0"
-    val androidGradleVersion = "4.2.0"
+    val androidGradleVersion = "7.0.3"
     val gradlePluginPublish = "0.17.0"
 
     val junit5 = "5.8.1"

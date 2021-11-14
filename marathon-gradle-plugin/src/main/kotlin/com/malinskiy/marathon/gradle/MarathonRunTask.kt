@@ -1,5 +1,6 @@
 package com.malinskiy.marathon.gradle
 
+import com.android.build.api.variant.BuiltArtifacts
 import com.malinskiy.marathon.config.Configuration
 import com.malinskiy.marathon.config.serialization.ConfigurationFactory
 import com.malinskiy.marathon.config.vendor.DEFAULT_APPLICATION_PM_CLEAR
@@ -16,8 +17,6 @@ import com.malinskiy.marathon.config.vendor.android.ScreenRecordConfiguration
 import com.malinskiy.marathon.config.vendor.android.SerialStrategy
 import com.malinskiy.marathon.config.vendor.android.TestAccessConfiguration
 import com.malinskiy.marathon.config.vendor.android.TestParserConfiguration
-import com.malinskiy.marathon.gradle.extensions.extractApplication
-import com.malinskiy.marathon.gradle.extensions.extractTestApplication
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.model.ObjectFactory
 import org.gradle.api.provider.ListProperty
@@ -122,9 +121,33 @@ open class MarathonRunTask @Inject constructor(objects: ObjectFactory) : Abstrac
         val allureConfiguration = extension.allureConfiguration ?: AllureConfiguration()
 
         val outputs = bundles.map {
+            val application = if (it.artifactLoader != null && it.apkFolder != null) {
+                val artifactLoader = it.artifactLoader.get()
+                val artifacts: BuiltArtifacts =
+                    artifactLoader.load(it.apkFolder.get()) ?: throw RuntimeException("No application artifact found")
+                when {
+                    artifacts.elements.size > 1 -> throw UnsupportedOperationException(
+                        "The Marathon plugin does not support abi splits for app APKs, " +
+                            "but supports testing via a universal APK. "
+                            + "Add the flag \"universalApk true\" in the android.splits.abi configuration."
+                    )
+                    artifacts.elements.isEmpty() -> throw UnsupportedOperationException("No artifacts for variant $flavorName")
+                }
+                File(artifacts.elements.first().outputFile)
+            } else null
+
+            val testArtifactsLoader = it.testArtifactLoader.get()
+            val testArtifacts =
+                testArtifactsLoader.load(it.testApkFolder.get()) ?: throw RuntimeException("No test artifacts for variant $flavorName")
+            when {
+                testArtifacts.elements.size > 1 -> throw UnsupportedOperationException("The Marathon plugin does not support abi/density splits for test APKs")
+                testArtifacts.elements.isEmpty() -> throw UnsupportedOperationException("No test artifacts for variant $flavorName")
+            }
+            val testApplication = File(testArtifacts.elements.first().outputFile)
+
             AndroidTestBundleConfiguration(
-                application = it.application?.extractApplication(),
-                testApplication = it.testApplication.extractTestApplication()
+                application = application,
+                testApplication = testApplication,
             )
         }
 
