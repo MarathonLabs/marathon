@@ -1,30 +1,18 @@
 package com.malinskiy.marathon.gradle
 
 import com.malinskiy.marathon.config.AnalyticsConfiguration
-import groovy.lang.Closure
+import org.gradle.api.Action
 
 class AnalyticsConfig {
     var influx: InfluxConfig? = null
     var graphite: GraphiteConfig? = null
 
-    fun influx(closure: Closure<*>) {
-        influx = InfluxConfig()
-        closure.delegate = influx
-        closure.call()
+    fun influx(action: Action<InfluxConfig>) {
+        influx = InfluxConfig().also { action.execute(it) }
     }
 
-    fun influx(block: InfluxConfig.() -> Unit) {
-        influx = InfluxConfig().also(block)
-    }
-
-    fun graphite(closure: Closure<*>) {
-        graphite = GraphiteConfig()
-        closure.delegate = graphite
-        closure.call()
-    }
-
-    fun graphite(block: GraphiteConfig.() -> Unit) {
-        graphite = GraphiteConfig().also(block)
+    fun graphite(action: Action<GraphiteConfig>) {
+        graphite = GraphiteConfig().also { action.execute(it) }
     }
 }
 
