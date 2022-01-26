@@ -65,6 +65,7 @@ class AllureReporter(val configuration: Configuration, private val outputDirecto
     private fun createTestResult(uuid: String, device: DeviceInfo, testResult: TestResult): io.qameta.allure.model.TestResult {
         val test = testResult.test
         val fullName = test.toSimpleSafeTestName()
+        val testMethodName = test.method
         val suite = "${test.pkg}.${test.clazz}"
 
         val status: Status = when (testResult.status) {
@@ -86,6 +87,7 @@ class AllureReporter(val configuration: Configuration, private val outputDirecto
         val allureTestResult = io.qameta.allure.model.TestResult()
             .setUuid(uuid)
             .setFullName(fullName)
+            .setName(testMethodName)
             .setHistoryId(getHistoryId(test))
             .setStatus(status)
             .setStart(testResult.startTime)
