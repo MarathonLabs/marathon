@@ -16,6 +16,7 @@ import com.malinskiy.marathon.config.vendor.android.ScreenRecordConfiguration
 import com.malinskiy.marathon.config.vendor.android.SerialStrategy
 import com.malinskiy.marathon.config.vendor.android.TestAccessConfiguration
 import com.malinskiy.marathon.config.vendor.android.TestParserConfiguration
+import com.malinskiy.marathon.config.vendor.android.TimeoutConfiguration
 import com.malinskiy.marathon.gradle.extensions.extractApplication
 import com.malinskiy.marathon.gradle.extensions.extractTestApplication
 import org.gradle.api.file.DirectoryProperty
@@ -147,6 +148,7 @@ open class MarathonRunTask @Inject constructor(objects: ObjectFactory) : Abstrac
             fileSyncConfiguration = extension.fileSyncConfiguration ?: FileSyncConfiguration(),
             testParserConfiguration = extension.testParserConfiguration ?: TestParserConfiguration.LocalTestParserConfiguration,
             testAccessConfiguration = extension.testAccessConfiguration ?: TestAccessConfiguration(),
+            timeoutConfiguration = extension.timeoutConfiguration ?: TimeoutConfiguration(),
             adbServers = extension.adbServers ?: listOf(AdbEndpoint())
         )
     }
