@@ -89,7 +89,7 @@ class FileManager(private val output: File) {
         return fileName
     }
 
-    private fun createFilename(device: DeviceInfo, fileType: FileType): String = "${device.serialNumber}.${fileType.suffix}"
+    private fun createFilename(device: DeviceInfo, fileType: FileType): String = "${device.safeSerialNumber}.${fileType.suffix}"
 
     companion object {
         const val MAX_PATH = 255
