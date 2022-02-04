@@ -6,7 +6,6 @@ import com.malinskiy.marathon.android.RemoteFileManager
 import com.malinskiy.marathon.android.executor.listeners.AndroidTestRunListener
 import com.malinskiy.marathon.config.vendor.android.AggregationMode
 import com.malinskiy.marathon.config.vendor.android.FileSyncConfiguration
-import com.malinskiy.marathon.config.vendor.android.FileSyncEntry
 import com.malinskiy.marathon.config.vendor.android.PathRoot
 import com.malinskiy.marathon.device.DevicePoolId
 import com.malinskiy.marathon.device.toDeviceInfo
@@ -30,60 +29,76 @@ class FileSyncTestRunListener(
         applicationPackage = info?.applicationPackage
 
         configuration.pull.forEach { entry ->
-            val path = getRemotePullableFullPath(entry)
-            if (path != null) {
-                device.fileManager.removeRemotePath(path, recursive = true)
-                device.fileManager.createRemoteDirectory(path)
+            when (entry.pathRoot) {
+                PathRoot.EXTERNAL_STORAGE -> {
+                    val path = getExternalFolderPath(device, entry.relativePath)
+                    device.fileManager.removeRemotePath(path, recursive = true)
+                    device.fileManager.createRemoteDirectory(path)
+                }
+                PathRoot.APP_DATA -> {
+                    applicationPackage?.let {
+                        val (from, to) = getScopedFolderPaths(entry.relativePath, RemoteFileManager.TMP_PATH, it)
+                        device.fileManager.removeRemotePath(to, recursive = true)
+                        device.fileManager.createRemoteDirectory(to)
+
+                        /**
+                         * Scoped storage requires run-as
+                         */
+                        device.safeExecuteShellCommand("run-as $applicationPackage rm -R $from")
+                        device.safeExecuteShellCommand("run-as $applicationPackage mkdir $from")
+                    }
+                }
             }
         }
+    }
+
+    private fun getExternalFolderPath(device: AndroidDevice, relativePath: String): String {
+        val externalStorageMount = device.externalStorageMount.removeSuffix("/")
+        val relativePath = relativePath.removePrefix("/")
+        return "$externalStorageMount/$relativePath"
     }
 
     override suspend fun afterTestRun() {
         super.afterTestRun()
         configuration.pull.forEach { entry ->
-            val path = getRemotePullableFullPath(entry)
-            if (path == null) {
-                logger.warn { "Unable to pull $entry: application package is unknown" }
-            } else {
-                val localFolder = when (entry.aggregationMode) {
-                    AggregationMode.DEVICE_AND_POOL -> fileManager.createFolder(FolderType.DEVICE_FILES, pool, device.toDeviceInfo())
-                    AggregationMode.DEVICE -> fileManager.createFolder(FolderType.DEVICE_FILES, device.toDeviceInfo())
-                    AggregationMode.POOL -> fileManager.createFolder(FolderType.DEVICE_FILES, pool)
-                    AggregationMode.TEST_RUN -> fileManager.createFolder(FolderType.DEVICE_FILES)
-                }
+            val localFolder = when (entry.aggregationMode) {
+                AggregationMode.DEVICE_AND_POOL -> fileManager.createFolder(FolderType.DEVICE_FILES, pool, device.toDeviceInfo())
+                AggregationMode.DEVICE -> fileManager.createFolder(FolderType.DEVICE_FILES, device.toDeviceInfo())
+                AggregationMode.POOL -> fileManager.createFolder(FolderType.DEVICE_FILES, pool)
+                AggregationMode.TEST_RUN -> fileManager.createFolder(FolderType.DEVICE_FILES)
+            }
 
-                val basename = entry.relativePath.removeSuffix("/").substringAfterLast('/')
-                val subfolder = File(localFolder, basename).apply { mkdirs() }
-                logger.debug { "Pulling into ${subfolder.absolutePath}" }
-                device.safePullFolder(path, subfolder.absolutePath)
+            val basename = entry.relativePath.removeSuffix("/").substringAfterLast('/')
+            val subfolder = File(localFolder, basename).apply { mkdirs() }
+            logger.debug { "Pulling into ${subfolder.absolutePath}" }
+            when (entry.pathRoot) {
+                PathRoot.EXTERNAL_STORAGE -> {
+                    val path = getExternalFolderPath(device, entry.relativePath)
+                    device.safePullFolder(path, subfolder.absolutePath)
+                }
+                PathRoot.APP_DATA -> {
+                    applicationPackage?.let {
+                        val (from, to) = getScopedFolderPaths(entry.relativePath, RemoteFileManager.TMP_PATH, it)
+                        moveScopedFolder(from, to, it)
+                        device.safePullFolder(to, subfolder.absolutePath)
+                    } ?: logger.warn { "Unable to pull $entry: application package is unknown" }
+                }
             }
         }
         applicationPackage = null
     }
 
-    private suspend fun getRemotePullableFullPath(entry: FileSyncEntry): String? {
-        return when (entry.pathRoot) {
-            PathRoot.EXTERNAL_STORAGE -> {
-                val externalStorageMount = device.externalStorageMount.removeSuffix("/")
-                val relativePath = entry.relativePath.removePrefix("/")
-                "$externalStorageMount/$relativePath"
-            }
-            PathRoot.APP_DATA -> {
-                applicationPackage?.let {
-                    moveScopedFolder(entry.relativePath, RemoteFileManager.TMP_PATH, it)
-                }
-            }
-        }
+    private fun getScopedFolderPaths(src: String, dst: String, pkg: String): Pair<String, String> {
+        val source = src.removePrefix("/")
+        val to = "${dst.removeSuffix("/")}/$source"
+        val from = "/data/data/$pkg/$source"
+        return Pair(from, to)
     }
 
     /**
      * Depends on tar for folder moving
      */
-    private suspend fun moveScopedFolder(src: String, dst: String, pkg: String): String {
-        val source = src.removePrefix("/")
-        val destination = "${dst.removeSuffix("/")}/$source"
-        device.safeExecuteShellCommand("mkdir -p $destination")
-        device.safeExecuteShellCommand("run-as $pkg sh -c 'cd /data/data/$pkg/$source && tar cf - .' | tar xvf - -C $destination && run-as $pkg rm -R /data/data/$pkg/$source")
-        return destination
+    private suspend fun moveScopedFolder(from: String, to: String, pkg: String) {
+        device.safeExecuteShellCommand("run-as $pkg sh -c 'cd $from && tar cf - .' | tar xvf - -C $to && run-as $pkg rm -R $from")
     }
 }

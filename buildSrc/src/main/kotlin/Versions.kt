@@ -43,7 +43,7 @@ object Versions {
     val jansi = "2.3.4"
     val scalr = "4.2"
     val allureJava = "2.15.0"
-    val allureKotlin = "2.2.6"
+    val allureKotlin = "2.3.0"
     val allureEnvironment = "1.0.0"
     val mockitoKotlin = "2.2.0"
     val googleAnalitycsWrapper = "2.0.0"

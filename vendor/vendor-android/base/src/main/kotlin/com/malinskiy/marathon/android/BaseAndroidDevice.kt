@@ -102,7 +102,7 @@ abstract class BaseAndroidDevice(
             androidConfiguration.fileSyncConfiguration.pull.add(
                 FileSyncEntry(
                     relativePath = androidConfiguration.allureConfiguration.relativeResultsDirectory,
-                    pathRoot = PathRoot.APP_DATA,
+                    pathRoot = androidConfiguration.allureConfiguration.pathRoot,
                     aggregationMode = AggregationMode.TEST_RUN,
                 )
             )
