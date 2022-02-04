@@ -74,4 +74,20 @@ class FileManagerTest {
         val fqtnLimit = filenameLimit - "-${batchId}.log".length
         file.name shouldBeEqualTo "${longNamedParameterizedTest.toTestName().escape().take(fqtnLimit)}-${batchId}.log"
     }
+
+    @Test
+    fun testDeviceSerialEscaping() {
+        val file = fileManager.createFile(
+            FileType.LOG, poolId, DeviceInfo(
+                operatingSystem = OperatingSystem("23"),
+                serialNumber = "127.0.0.1:5037:emulator-5554",
+                model = "Android SDK built for x86",
+                manufacturer = "unknown",
+                networkState = NetworkState.CONNECTED,
+                deviceFeatures = listOf(DeviceFeature.SCREENSHOT, DeviceFeature.VIDEO),
+                healthy = true
+            )
+        )
+        file.name shouldBeEqualTo "127.0.0.1-5037-emulator-5554.log"
+    }
 }
