@@ -1,20 +1,14 @@
 package com.malinskiy.marathon.gradle
 
-import groovy.lang.Closure
+import org.gradle.api.Action
 import java.time.Instant
 import java.time.temporal.ChronoUnit
 
 class FlakinessStrategyConfiguration {
     var probabilityBased: ProbabilityBasedFlakinessStrategyConfiguration? = null
 
-    fun probabilityBased(block: ProbabilityBasedFlakinessStrategyConfiguration.() -> Unit) {
-        probabilityBased = ProbabilityBasedFlakinessStrategyConfiguration().also(block)
-    }
-
-    fun probabilityBased(closure: Closure<*>) {
-        probabilityBased = ProbabilityBasedFlakinessStrategyConfiguration()
-        closure.delegate = probabilityBased
-        closure.call()
+    fun probabilityBased(action: Action<ProbabilityBasedFlakinessStrategyConfiguration>) {
+        probabilityBased = ProbabilityBasedFlakinessStrategyConfiguration().also { action.execute(it) }
     }
 }
 

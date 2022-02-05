@@ -44,6 +44,9 @@ marathon {
     allureConfiguration {
         enabled = true
     }
+    analytics {
+
+    }
 }
 
 dependencies {
