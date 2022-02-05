@@ -12,6 +12,6 @@ package com.malinskiy.marathon.config.vendor.android
  */
 data class AllureConfiguration(
     var enabled: Boolean = false,
-    var relativeResultsDirectory: String = "/files/allure-results",
+    var relativeResultsDirectory: String = "/allure-results",
     val pathRoot: PathRoot = PathRoot.APP_DATA,
 )

@@ -10,7 +10,6 @@ import com.malinskiy.marathon.android.adam.TestDeviceFactory
 import com.malinskiy.marathon.android.adam.boot
 import com.malinskiy.marathon.android.adam.features
 import com.malinskiy.marathon.android.model.TestIdentifier
-import com.malinskiy.marathon.config.vendor.android.AggregationMode
 import com.malinskiy.marathon.config.vendor.android.FileSyncConfiguration
 import com.malinskiy.marathon.config.vendor.android.FileSyncEntry
 import com.malinskiy.marathon.device.DevicePoolId
@@ -35,11 +34,8 @@ class ProgressTestRunListenerTest {
     fun testDefault() {
         val configuration = TestConfigurationFactory.create(
             fileSyncConfiguration = FileSyncConfiguration(
-                mutableListOf(
-                    FileSyncEntry(
-                        "screenshots",
-                        AggregationMode.DEVICE
-                    )
+                mutableSetOf(
+                    FileSyncEntry("screenshots")
                 )
             )
         )

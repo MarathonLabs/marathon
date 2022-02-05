@@ -15,7 +15,6 @@ import com.malinskiy.marathon.android.adam.boot
 import com.malinskiy.marathon.android.adam.features
 import com.malinskiy.marathon.android.model.TestIdentifier
 import com.malinskiy.marathon.android.model.TestRunResultsAccumulatorTest
-import com.malinskiy.marathon.config.vendor.android.AggregationMode
 import com.malinskiy.marathon.config.vendor.android.FileSyncConfiguration
 import com.malinskiy.marathon.config.vendor.android.FileSyncEntry
 import com.malinskiy.marathon.device.DevicePoolId
@@ -57,11 +56,8 @@ class TestRunResultsListenerTest {
 
         val configuration = TestConfigurationFactory.create(
             fileSyncConfiguration = FileSyncConfiguration(
-                mutableListOf(
-                    FileSyncEntry(
-                        "screenshots",
-                        AggregationMode.DEVICE
-                    )
+                mutableSetOf(
+                    FileSyncEntry("screenshots")
                 )
             )
         )
@@ -132,11 +128,8 @@ class TestRunResultsListenerTest {
         val batch = TestBatch(listOf(test1.toTest()), id)
         val configuration = TestConfigurationFactory.create(
             fileSyncConfiguration = FileSyncConfiguration(
-                mutableListOf(
-                    FileSyncEntry(
-                        "screenshots",
-                        AggregationMode.DEVICE
-                    )
+                mutableSetOf(
+                    FileSyncEntry("screenshots")
                 )
             )
         )
@@ -176,11 +169,8 @@ class TestRunResultsListenerTest {
         val batch = TestBatch(listOf(parameterizedTestId.toTest()), id)
         val configuration = TestConfigurationFactory.create(
             fileSyncConfiguration = FileSyncConfiguration(
-                mutableListOf(
-                    FileSyncEntry(
-                        "screenshots",
-                        AggregationMode.DEVICE
-                    )
+                mutableSetOf(
+                    FileSyncEntry("screenshots")
                 )
             )
         )
@@ -230,11 +220,8 @@ class TestRunResultsListenerTest {
         val batch = TestBatch(listOf(parameterizedTestId.toTest()), id)
         val configuration = TestConfigurationFactory.create(
             fileSyncConfiguration = FileSyncConfiguration(
-                mutableListOf(
-                    FileSyncEntry(
-                        "screenshots",
-                        AggregationMode.DEVICE
-                    )
+                mutableSetOf(
+                    FileSyncEntry("screenshots")
                 )
             )
         )
@@ -273,11 +260,8 @@ class TestRunResultsListenerTest {
         val batch = TestBatch(listOf(test1.toTest(), test2.toTest()))
         val configuration = TestConfigurationFactory.create(
             fileSyncConfiguration = FileSyncConfiguration(
-                mutableListOf(
-                    FileSyncEntry(
-                        "screenshots",
-                        AggregationMode.DEVICE
-                    )
+                mutableSetOf(
+                    FileSyncEntry("screenshots")
                 )
             )
         )
@@ -322,11 +306,8 @@ class TestRunResultsListenerTest {
         val batch = TestBatch(listOf(parameterizedTestId.toTest()), id)
         val configuration = TestConfigurationFactory.create(
             fileSyncConfiguration = FileSyncConfiguration(
-                mutableListOf(
-                    FileSyncEntry(
-                        "screenshots",
-                        AggregationMode.DEVICE
-                    )
+                mutableSetOf(
+                    FileSyncEntry("screenshots")
                 )
             )
         )
@@ -376,11 +357,8 @@ class TestRunResultsListenerTest {
         val batch = TestBatch(listOf(parameterizedTestId.toTest()), id)
         val configuration = TestConfigurationFactory.create(
             fileSyncConfiguration = FileSyncConfiguration(
-                mutableListOf(
-                    FileSyncEntry(
-                        "screenshots",
-                        AggregationMode.DEVICE
-                    )
+                mutableSetOf(
+                    FileSyncEntry("screenshots")
                 )
             )
         )
@@ -430,11 +408,8 @@ class TestRunResultsListenerTest {
         val batch = TestBatch(listOf(parameterizedTestId.toTest()), id)
         val configuration = TestConfigurationFactory.create(
             fileSyncConfiguration = FileSyncConfiguration(
-                mutableListOf(
-                    FileSyncEntry(
-                        "screenshots",
-                        AggregationMode.DEVICE
-                    )
+                mutableSetOf(
+                    FileSyncEntry("screenshots")
                 )
             )
         )
@@ -482,11 +457,8 @@ class TestRunResultsListenerTest {
         val batch = TestBatch(listOf(parameterizedTestId.toTest()), id)
         val configuration = TestConfigurationFactory.create(
             fileSyncConfiguration = FileSyncConfiguration(
-                mutableListOf(
-                    FileSyncEntry(
-                        "screenshots",
-                        AggregationMode.DEVICE
-                    )
+                mutableSetOf(
+                    FileSyncEntry("screenshots")
                 )
             )
         )
@@ -537,11 +509,8 @@ class TestRunResultsListenerTest {
         val batch = TestBatch(listOf(parameterizedTestId.toTest()), id)
         val configuration = TestConfigurationFactory.create(
             fileSyncConfiguration = FileSyncConfiguration(
-                mutableListOf(
-                    FileSyncEntry(
-                        "screenshots",
-                        AggregationMode.DEVICE
-                    )
+                mutableSetOf(
+                    FileSyncEntry("screenshots")
                 )
             )
         )
