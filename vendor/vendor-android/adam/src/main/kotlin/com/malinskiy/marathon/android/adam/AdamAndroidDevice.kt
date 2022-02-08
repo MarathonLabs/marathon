@@ -283,8 +283,15 @@ class AdamAndroidDevice(
 
     override suspend fun getScreenshot(timeout: Duration): BufferedImage? {
         return try {
+            logger.debug { "Trying to capture screenshot" }
             withTimeoutOrNull(timeout) {
                 client.execute(ScreenCaptureRequest(imageScreenCaptureAdapter), serial = adbSerial)
+            }.also {
+                if (it != null) {
+                    logger.debug { "Received screenshot ${it.width}x${it.height}" }
+                } else {
+                    logger.debug { "Could not retrieve screenshot: timeout reached" }
+                }
             }
         } catch (e: UnsupportedImageProtocolException) {
             logger.warn(e) { "Unable to retrieve screenshot from device $serialNumber" }

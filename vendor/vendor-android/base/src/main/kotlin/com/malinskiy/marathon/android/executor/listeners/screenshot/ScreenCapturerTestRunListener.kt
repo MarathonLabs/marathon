@@ -55,6 +55,7 @@ class ScreenCapturerTestRunListener(
         logger.debug { "Starting recording for ${toTest.toSimpleSafeTestName()}" }
 
         val supervisor = SupervisorJob()
+        supervisor.invokeOnCompletion { cause: Throwable? -> logger.debug(cause) { "Screen capture supervisor has completed" } }
         supervisorJob = supervisor
         async(supervisor) {
             screenCapturer.start(toTest)
@@ -71,6 +72,7 @@ class ScreenCapturerTestRunListener(
         lastTestIdentifier = null
         logger.debug { "Finished recording for ${toTest.toSimpleSafeTestName()}" }
         supervisorJob?.cancelAndJoin()
+        logger.debug { "Screen capturing has finished" }
         if (!hasFailed && screenRecordingPolicy == ScreenRecordingPolicy.ON_FAILURE) {
             supervisorJob?.invokeOnCompletion {
                 fileManager.createFile(FileType.SCREENSHOT, pool, device.toDeviceInfo(), toTest, testBatchId).delete()
