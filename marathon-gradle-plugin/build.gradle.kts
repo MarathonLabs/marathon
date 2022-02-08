@@ -1,3 +1,5 @@
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
 plugins {
     `java-gradle-plugin`
     `kotlin-dsl`
@@ -45,4 +47,9 @@ tasks.processResources.configure {
     }
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     dependsOn(rootProject.project("cli").tasks.getByName("distZip"))
+}
+
+tasks.withType<KotlinCompile> {
+    kotlinOptions.jvmTarget = "1.8"
+    kotlinOptions.apiVersion = "1.5"
 }
