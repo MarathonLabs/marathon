@@ -17,9 +17,9 @@ import com.malinskiy.marathon.report.attachment.AttachmentProvider
 import com.malinskiy.marathon.test.toSimpleSafeTestName
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.async
 import kotlinx.coroutines.cancelAndJoin
+import kotlinx.coroutines.supervisorScope
 import java.time.Duration
 
 class ScreenCapturerTestRunListener(
@@ -40,7 +40,7 @@ class ScreenCapturerTestRunListener(
         attachmentListeners.add(listener)
     }
 
-    private var supervisorJob: Job? = null
+    private var captureJob: Job? = null
     private var hasFailed: Boolean = false
     private val screenCapturer = ScreenCapturer(device, pool, testBatchId, fileManager, screenshotConfiguration, timeout)
     private val logger = MarathonLogging.logger(ScreenCapturerTestRunListener::class.java.simpleName)
@@ -54,11 +54,10 @@ class ScreenCapturerTestRunListener(
         lastTestIdentifier = test
         logger.debug { "Starting recording for ${toTest.toSimpleSafeTestName()}" }
 
-        val supervisor = SupervisorJob()
-        supervisor.invokeOnCompletion { cause: Throwable? -> logger.debug(cause) { "Screen capture supervisor has completed" } }
-        supervisorJob = supervisor
-        async(supervisor) {
-            screenCapturer.start(toTest)
+        captureJob = supervisorScope {
+            async {
+                screenCapturer.start(toTest)
+            }
         }
     }
 
@@ -71,10 +70,10 @@ class ScreenCapturerTestRunListener(
         val toTest = test.toTest()
         lastTestIdentifier = null
         logger.debug { "Finished recording for ${toTest.toSimpleSafeTestName()}" }
-        supervisorJob?.cancelAndJoin()
+        captureJob?.cancelAndJoin()
         logger.debug { "Screen capturing has finished" }
         if (!hasFailed && screenRecordingPolicy == ScreenRecordingPolicy.ON_FAILURE) {
-            supervisorJob?.invokeOnCompletion {
+            captureJob?.invokeOnCompletion {
                 fileManager.createFile(FileType.SCREENSHOT, pool, device.toDeviceInfo(), toTest, testBatchId).delete()
             }
         } else {
@@ -91,7 +90,7 @@ class ScreenCapturerTestRunListener(
         /**
          * We might not observe the testEnded event, but the testRunFailed will always be reported
          */
-        supervisorJob?.cancelAndJoin()
+        captureJob?.cancelAndJoin()
         lastTestIdentifier?.let { id ->
             val existingRecording = fileManager.createFile(FileType.SCREENSHOT, pool, device.toDeviceInfo(), id.toTest(), testBatchId)
             if (existingRecording.length() > 0) {
