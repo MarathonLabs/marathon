@@ -6,7 +6,7 @@ data class ShortTest(
     var filename: String,
     var class_name: String,
     var name: String,
-    var duration_millis: Long,
+    var duration_millis: Number,
     var status: Status,
     var deviceId: String
 )

@@ -1,7 +1,7 @@
 object Versions {
     val marathon = System.getenv("GIT_TAG_NAME") ?: "0.7.0"
 
-    val kotlin = "1.5.21"
+    val kotlin = "1.6.10"
     val coroutines = "1.5.2"
 
     val ddmlib = "30.0.2"

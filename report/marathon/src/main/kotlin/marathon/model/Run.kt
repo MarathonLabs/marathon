@@ -6,9 +6,9 @@ data class Run(
     var totalFlaky: Int,
     var totalIgnored: Int,
     var totalPassed: Int,
-    var totalDuration: Long,
-    var averageDuration: Long,
-    var maxDuration: Long,
-    var minDuration: Long,
+    var totalDuration: Number,
+    var averageDuration: Number,
+    var maxDuration: Number,
+    var minDuration: Number,
     var pools: Array<PoolSummary>
 )

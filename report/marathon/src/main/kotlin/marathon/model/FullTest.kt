@@ -7,7 +7,7 @@ data class FullTest(
     var name: String,
     var id: String = "$package_name$class_name$name",
     var filename: String,
-    var duration_millis: Long,
+    var duration_millis: Number,
     var status: Status,
     var stacktrace: String?,
     var deviceId: String,

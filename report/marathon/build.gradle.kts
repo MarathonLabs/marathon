@@ -1,3 +1,4 @@
+import org.jetbrains.kotlin.gradle.plugin.KotlinJsCompilerType
 import org.jetbrains.kotlin.gradle.targets.js.webpack.KotlinWebpackConfig.Mode
 
 plugins {
@@ -5,7 +6,7 @@ plugins {
 }
 
 kotlin {
-    js() {
+    js(KotlinJsCompilerType.IR) {
         binaries.executable()
         browser {
             commonWebpackConfig {
@@ -16,12 +17,14 @@ kotlin {
     }
 }
 
-val wrapperVersion = "17.0.2-pre.298-kotlin-1.6.10"
+val react = "17.0.2"
+val wrapperVersion = "pre.290-kotlin-1.6.10"
+val reactDom = "6.2.1"
 dependencies {
-    implementation("org.jetbrains.kotlin-wrappers:kotlin-react-dom:$wrapperVersion")
-    implementation("org.jetbrains.kotlin-wrappers:kotlin-react:$wrapperVersion")
-//    implementation("org.jetbrains.kotlin-wrappers:kotlin-redux:4.1.2-pre.290-kotlin-1.6.10")
-//    implementation("org.jetbrains.kotlin-wrappers:kotlin-react-redux:7.2.6-pre.290-kotlin-1.6.10")
+    implementation("org.jetbrains.kotlin-wrappers:kotlin-react-dom:$react-$wrapperVersion")
+    implementation("org.jetbrains.kotlin-wrappers:kotlin-react:$react-$wrapperVersion")
+    implementation("org.jetbrains.kotlin-wrappers:kotlin-react-router-dom:$reactDom-$wrapperVersion")
+    implementation("org.jetbrains.kotlin-wrappers:kotlin-redux:4.1.2-$wrapperVersion")
+    implementation("org.jetbrains.kotlin-wrappers:kotlin-react-redux:7.2.6-$wrapperVersion")
 //    implementation("org.jetbrains.kotlin-wrappers:kotlin-styled:5.3.3-pre.290-kotlin-1.6.10")
-//    implementation("org.jetbrains.kotlin-wrappers:kotlin-react-router-dom:6.2.1-pre.290-kotlin-1.6.10")
 }
