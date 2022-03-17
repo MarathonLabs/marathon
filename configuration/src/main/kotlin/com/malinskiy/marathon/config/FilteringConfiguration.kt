@@ -302,7 +302,7 @@ sealed class TestFilterConfiguration {
         override fun hashCode(): Int = filters.hashCode() + op.hashCode()
     }
 
-    class AllureFilterConfiguration : TestFilterConfiguration() {
+    object AllureFilterConfiguration : TestFilterConfiguration() {
         override fun validate() {
         }
 
