@@ -15,6 +15,7 @@ import com.malinskiy.marathon.config.vendor.VendorConfiguration
 import com.malinskiy.marathon.config.vendor.android.AggregationMode
 import com.malinskiy.marathon.config.vendor.android.AllureConfiguration
 import com.malinskiy.marathon.config.vendor.android.FileSyncEntry
+import com.malinskiy.marathon.config.vendor.android.PathRoot
 import com.nhaarman.mockitokotlin2.mock
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Test
@@ -45,7 +46,7 @@ class BaseAndroidDeviceTest {
             device.setup()
 
             assertThat((configuration.vendorConfiguration as VendorConfiguration.AndroidConfiguration).fileSyncConfiguration.pull).containsOnly(
-                FileSyncEntry("/allure-results", AggregationMode.TEST_RUN)
+                FileSyncEntry("/allure-results", aggregationMode = AggregationMode.TEST_RUN, pathRoot = PathRoot.APP_DATA)
             )
         }
     }
@@ -68,7 +69,7 @@ class BaseAndroidDeviceTest {
             device.setup()
 
             assertThat((configuration.vendorConfiguration as VendorConfiguration.AndroidConfiguration).fileSyncConfiguration.pull).containsOnly(
-                FileSyncEntry("coverage", AggregationMode.POOL)
+                FileSyncEntry("coverage", pathRoot = PathRoot.APP_DATA, aggregationMode = AggregationMode.POOL)
             )
         }
     }
