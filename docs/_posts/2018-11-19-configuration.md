@@ -196,6 +196,50 @@ mitigating flakiness.
 
 By default no analytics backend is expected which means that each test will be treated as a completely new test.
 
+## [InfluxDB v2][7]
+
+Assuming you've done the setup for InfluxDB v2 you need to provide:
+
+- url
+- token - Token for authentication
+- organization - Organization is the name of the organization you wish to write/read from
+- bucket - Destination bucket to write/read from
+- retention policy
+
+Bucket is quite useful in case you have multiple configurations of tests/devices and you don't want metrics from one configuration to
+affect the other one, e.g. regular and end-to-end tests.
+
+{% tabs analytics-influxdb2 %} {% tab analytics-influxdb2 Marathonfile %}
+
+```yaml
+analyticsConfiguration:
+  type: "influxdb2"
+  url: "http://influx2.svc.cluster.local:8086"
+  token: "my-super-secret-token"
+  organization: "starlabs"
+  bucket: "marathon"
+  retentionPolicyConfiguration:
+    everySeconds: 604800  # Duration in seconds for how long data will be kept in the database. 0 means infinite. minimum: 0
+    shardGroupDurationSeconds: 0 # Shard duration measured in seconds
+```
+
+{% endtab %} {% tab analytics-influxdb2 Gradle Kotlin %}
+
+```kotlin
+marathon {
+  analytics {
+    influx {
+      url = "http://influx2.svc.cluster.local:8086"
+      token = "my-super-secret-token"
+      organization = "starlabs"
+      bucket = "marathon"
+    }
+  }
+}
+```
+
+{% endtab %} {% endtabs %}
+
 ## [InfluxDB][1]
 
 Assuming you've done the setup for InfluxDB you need to provide:
@@ -1554,3 +1598,4 @@ See relevant vendor module page, e.g. [Android][3] or [iOS][4]
 [4]: {% post_url 2018-11-19-ios %}
 [5]: https://github.com/MarathonLabs/marathon/blob/develop/cli/src/main/kotlin/com/malinskiy/marathon/cli/config/ConfigFactory.kt
 [6]: https://source.android.com/devices/tech/test_infra/tradefed/architecture/advanced/sharding
+[7]: https://docs.influxdata.com/influxdb/v2.0/
