@@ -2,6 +2,7 @@ package com.malinskiy.marathon.analytics.metrics.remote
 
 import com.malinskiy.marathon.analytics.external.MetricsProvider
 import com.malinskiy.marathon.analytics.external.MetricsProviderImpl
+import com.malinskiy.marathon.generateTest
 import org.amshove.kluent.shouldBeInRange
 import org.amshove.kluent.shouldEqualTo
 import org.junit.jupiter.api.BeforeEach
@@ -12,6 +13,7 @@ import java.time.temporal.ChronoUnit
 abstract class BaseMetricsProviderIntegrationTest {
 
     private lateinit var metricsProvider: MetricsProvider
+    private val test = generateTest()
 
     protected abstract fun createRemoteDataSource(): RemoteDataSource
 
