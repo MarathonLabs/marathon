@@ -15,6 +15,7 @@ import com.malinskiy.marathon.android.adam.shellFail
 import com.malinskiy.marathon.config.vendor.android.AggregationMode
 import com.malinskiy.marathon.config.vendor.android.FileSyncConfiguration
 import com.malinskiy.marathon.config.vendor.android.FileSyncEntry
+import com.malinskiy.marathon.config.vendor.android.PathRoot
 import com.malinskiy.marathon.exceptions.DeviceSetupException
 import com.nhaarman.mockitokotlin2.mock
 import kotlinx.coroutines.runBlocking
@@ -38,10 +39,11 @@ class AndroidAppInstallerTest {
     fun testCleanInstallation() {
         val configuration = TestConfigurationFactory.create(
             fileSyncConfiguration = FileSyncConfiguration(
-                mutableListOf(
+                mutableSetOf(
                     FileSyncEntry(
-                        "screenshots",
-                        AggregationMode.DEVICE
+                        relativePath = "screenshots",
+                        aggregationMode = AggregationMode.DEVICE,
+                        pathRoot = PathRoot.EXTERNAL_STORAGE,
                     )
                 )
             )
@@ -73,7 +75,7 @@ class AndroidAppInstallerTest {
     fun testCleanInstallationWithAutograntPermissions() {
         val configuration = TestConfigurationFactory.create(
             autoGrantPermission = true,
-            fileSyncConfiguration = FileSyncConfiguration(mutableListOf(FileSyncEntry("screenshots", AggregationMode.DEVICE)))
+            fileSyncConfiguration = FileSyncConfiguration(mutableSetOf(FileSyncEntry("screenshots")))
         )
         val installer = AndroidAppInstaller(configuration)
         val device = TestDeviceFactory.create(client, configuration, mock())
@@ -102,7 +104,7 @@ class AndroidAppInstallerTest {
     fun testReinstallWithExtraArguments() {
         val configuration = TestConfigurationFactory.create(
             installOptions = "-custom",
-            fileSyncConfiguration = FileSyncConfiguration(mutableListOf(FileSyncEntry("screenshots", AggregationMode.DEVICE)))
+            fileSyncConfiguration = FileSyncConfiguration(mutableSetOf(FileSyncEntry("screenshots")))
         )
         val installer = AndroidAppInstaller(configuration)
         val device = TestDeviceFactory.create(client, configuration, mock())
@@ -133,10 +135,9 @@ class AndroidAppInstallerTest {
     fun testInstallException() {
         val configuration = TestConfigurationFactory.create(
             fileSyncConfiguration = FileSyncConfiguration(
-                mutableListOf(
+                mutableSetOf(
                     FileSyncEntry(
                         "screenshots",
-                        AggregationMode.DEVICE
                     )
                 )
             )
@@ -171,10 +172,9 @@ class AndroidAppInstallerTest {
     fun testPmListException() {
         val configuration = TestConfigurationFactory.create(
             fileSyncConfiguration = FileSyncConfiguration(
-                mutableListOf(
+                mutableSetOf(
                     FileSyncEntry(
-                        "screenshots",
-                        AggregationMode.DEVICE
+                        "screenshots"
                     )
                 )
             )

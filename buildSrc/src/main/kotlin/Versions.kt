@@ -29,6 +29,7 @@ object Versions {
     val apacheCommonsIO = "2.11.0"
     val apacheCommonsCodec = "1.15"
     val influxDbClient = "2.22"
+    val influxDb2Client = "3.4.0"
     val argParser = "2.0.7"
     val jacksonDatabind = "2.13.1"
     val jacksonKotlin = jacksonDatabind
@@ -80,6 +81,7 @@ object Libraries {
     val apacheCommonsIO = "commons-io:commons-io:${Versions.apacheCommonsIO}"
     val apacheCommonsCodec = "commons-codec:commons-codec:${Versions.apacheCommonsCodec}"
     val influxDbClient = "org.influxdb:influxdb-java:${Versions.influxDbClient}"
+    val influxDb2Client = "com.influxdb:influxdb-client-java:${Versions.influxDb2Client}"
     val argParser = "com.xenomachina:kotlin-argparser:${Versions.argParser}"
     val jacksonDatabind = "com.fasterxml.jackson.core:jackson-databind:${Versions.jacksonDatabind}"
     val jacksonAnnotations = "com.fasterxml.jackson.core:jackson-annotations:${Versions.jacksonDatabind}"
