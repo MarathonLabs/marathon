@@ -6,6 +6,7 @@ can [add it in a PR!](https://github.com/MarathonLabs/marathon/edit/develop/ADOP
 * [Agoda](https://github.com/agoda-com) uses marathon to speed up its CI process of running thousands of UI tests every hour to ensure its
   iOS and Android application quality.
 * [ASOS](https://www.asos.com)
+* [Bolt](https://github.com/bolteu)
 * [Revolut](https://github.com/revolut-mobile)
 * [Nexign](https://nexign.com)
 * [Wink](https://wink.ru)
