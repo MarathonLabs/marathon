@@ -1,6 +1,8 @@
 package marathon.routing
 
-import marathon.component.home.HomeFunctional
+import marathon.component.home.home
+import marathon.component.pool.pool
+import marathon.component.test.test
 import react.FC
 import react.Props
 import react.createElement
@@ -14,12 +16,7 @@ val Application = FC<Props> {
         Routes {
             Route {
                 index = true
-                element = createElement { HomeFunctional() }
-//                element = createElement {
-//                    div {
-//                        +"blablalah"
-//                    }
-//                }
+                element = home()
             }
             Route {
                 path = ""
@@ -29,23 +26,14 @@ val Application = FC<Props> {
                     }
                 }
             }
-//            Route {
-//                path = "/pools"
-//
-//                val testRunData = document.getElementById("test-run")?.innerHTML ?: error("No embedded test data found")
-//                val testRun = JSON.parse<Run>(testRunData)
-//                element = Pool.create {
-//                    pool = testRun.pools.first()
-//                }
-//            }
-//            Route {
-//                path = "/test"
-//                val testRunData = document.getElementById("test-run")?.innerHTML ?: error("No embedded test data found")
-//                val testRun = JSON.parse<Run>(testRunData)
-//                element = Test.create {
-//                    test = testRun.pools.first().tests.first()
-//                }
-//            }
+            Route {
+                path = "/pool/:id"
+                element = pool()
+            }
+            Route {
+                path = "/device/:device/test/:id"
+                element = test()
+            }
 //            Route {
 //                path = "/pools/:id/device/:device-id/test/:test-id"
 //            }

@@ -3,16 +3,33 @@
 package marathon.component.test
 
 import marathon.extensions.format
+import marathon.model.ShortTest
 import marathon.model.Status
+import marathon.reducers.AppState
+import react.ChildrenBuilder
 import react.FC
+import react.Props
+import react.ReactElement
+import react.create
 import react.dom.html.ReactHTML.div
 import react.dom.html.ReactHTML.span
+import react.redux.useSelector
 import react.router.dom.NavLink
-import kotlin.time.Duration
+import react.router.useParams
+import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.ExperimentalTime
 
-val Test = FC<TestProps> { props ->
-    val test = props.test
+val TestView = FC<Props> {
+    val params = useParams()
+    val deviceId = params["device"] ?: error("No device specified")
+    val testId = params["id"] ?: error("No test id specified")
+
+    val test: ShortTest = useSelector { state: AppState ->
+        state.run.pools.find { it.devices.any { it.serial == deviceId } }
+            ?.tests
+            ?.find { it.id == testId }
+            ?: error("Test $testId not found for device $deviceId")
+    }
 
     div {
         val testClass = buildString {
@@ -70,7 +87,7 @@ val Test = FC<TestProps> { props ->
 
                     div {
                         className = "card-info__content"
-                        +Duration.milliseconds(test.duration_millis.toLong()).format()
+                        +test.duration_millis.toLong().milliseconds.format()
                     }
 
                     div {
@@ -100,4 +117,8 @@ val Test = FC<TestProps> { props ->
             }
         }
     }
+}
+
+fun ChildrenBuilder.test(): ReactElement {
+    return TestView.create()
 }

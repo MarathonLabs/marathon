@@ -3,6 +3,7 @@ import org.jetbrains.kotlin.gradle.targets.js.webpack.KotlinWebpackConfig.Mode
 
 plugins {
     kotlin("js")
+    kotlin("plugin.serialization") version Versions.kotlin
 }
 
 kotlin {
@@ -26,5 +27,6 @@ dependencies {
     implementation("org.jetbrains.kotlin-wrappers:kotlin-react-router-dom:$reactDom-$wrapperVersion")
     implementation("org.jetbrains.kotlin-wrappers:kotlin-redux:4.1.2-$wrapperVersion")
     implementation("org.jetbrains.kotlin-wrappers:kotlin-react-redux:7.2.6-$wrapperVersion")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.3.2")
 //    implementation("org.jetbrains.kotlin-wrappers:kotlin-styled:5.3.3-pre.290-kotlin-1.6.10")
 }

@@ -4,21 +4,24 @@ package marathon.component.pool
 
 import marathon.component.stat.Stat
 import marathon.extensions.format
+import marathon.model.PoolSummary
 import marathon.model.Status
+import react.ChildrenBuilder
 import react.FC
+import react.create
 import react.dom.html.ReactHTML.div
 import react.key
 import react.router.dom.NavLink
-import kotlin.time.Duration
+import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.ExperimentalTime
 
-val PoolSummary = FC<PoolProps>(displayName = "Pool summary") { props ->
+val PoolSummaryView = FC<PoolProps>(displayName = "Pool summary") { props ->
     div {
         key = props.pool.id
         className = "suite-item card"
 
         NavLink {
-            to = "/pools"
+            to = "/pool/${props.pool.id}"
             className = "title-common with-arrow"
             +"Pool ${props.pool.id}"
         }
@@ -46,7 +49,7 @@ val PoolSummary = FC<PoolProps>(displayName = "Pool summary") { props ->
 
             Stat {
                 title = "Duration"
-                value = Duration.milliseconds(props.pool.duration_millis.toLong()).format()
+                value = props.pool.duration_millis.milliseconds.format()
             }
 
             Stat {
@@ -55,4 +58,10 @@ val PoolSummary = FC<PoolProps>(displayName = "Pool summary") { props ->
             }
         }
     }
+}
+
+fun ChildrenBuilder.poolSummary(pool: PoolSummary) {
+    child(PoolSummaryView.create() {
+        this.pool = pool
+    })
 }
