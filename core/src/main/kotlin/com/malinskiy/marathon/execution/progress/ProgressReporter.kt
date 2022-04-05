@@ -1,9 +1,11 @@
 package com.malinskiy.marathon.execution.progress
 
+import com.malinskiy.marathon.config.BuildManagementConfiguration
 import com.malinskiy.marathon.config.Configuration
 import com.malinskiy.marathon.device.DeviceInfo
 import com.malinskiy.marathon.device.DevicePoolId
 import com.malinskiy.marathon.execution.progress.tracker.PoolProgressTracker
+import com.malinskiy.marathon.integration.buildmanagement.Teamcity
 import com.malinskiy.marathon.test.Test
 import com.malinskiy.marathon.test.toTestName
 import java.util.concurrent.ConcurrentHashMap
@@ -13,6 +15,10 @@ const val HUNDRED_PERCENT_IN_FLOAT: Float = 100.0f
 
 class ProgressReporter(private val configuration: Configuration) {
     private val reporters = ConcurrentHashMap<DevicePoolId, PoolProgressTracker>()
+    private val buildManagement = when(configuration.buildManagementConfiguration) {
+        BuildManagementConfiguration.NoBuildManagementConfiguration -> Teamcity
+        BuildManagementConfiguration.TeamCityConfiguration -> null
+    }
 
     private inline fun <T> execute(poolId: DevicePoolId, f: (PoolProgressTracker) -> T): T {
         val reporter = reporters[poolId] ?: PoolProgressTracker(configuration)
@@ -29,22 +35,30 @@ class ProgressReporter(private val configuration: Configuration) {
 
     fun testStarted(poolId: DevicePoolId, device: DeviceInfo, test: Test) {
         execute(poolId) { it.testStarted(test) }
-        println("${toPercent(progress(poolId))} | [${poolId.name}]-[${device.serialNumber}] ${test.toTestName()} started")
+        val message = "${toPercent(progress(poolId))} | [${poolId.name}]-[${device.serialNumber}] ${test.toTestName()} started"
+        println(message)
+        buildManagement?.setBuildMessage(message)
     }
 
     fun testFailed(poolId: DevicePoolId, device: DeviceInfo, test: Test) {
         execute(poolId) { it.testFailed(test) }
-        println("${toPercent(progress(poolId))} | [${poolId.name}]-[${device.serialNumber}] ${test.toTestName()} failed")
+        val message = "${toPercent(progress(poolId))} | [${poolId.name}]-[${device.serialNumber}] ${test.toTestName()} failed"
+        println(message)
+        buildManagement?.setBuildMessage(message)
     }
 
     fun testPassed(poolId: DevicePoolId, device: DeviceInfo, test: Test) {
         execute(poolId) { it.testPassed(test) }
-        println("${toPercent(progress(poolId))} | [${poolId.name}]-[${device.serialNumber}] ${test.toTestName()} ended")
+        val message = "${toPercent(progress(poolId))} | [${poolId.name}]-[${device.serialNumber}] ${test.toTestName()} ended"
+        println(message)
+        buildManagement?.setBuildMessage(message)
     }
 
     fun testIgnored(poolId: DevicePoolId, device: DeviceInfo, test: Test) {
         execute(poolId) { it.testIgnored(test) }
-        println("${toPercent(progress(poolId))} | [${poolId.name}]-[${device.serialNumber}] ${test.toTestName()} ignored")
+        val message = "${toPercent(progress(poolId))} | [${poolId.name}]-[${device.serialNumber}] ${test.toTestName()} ignored"
+        println(message)
+        buildManagement?.setBuildMessage(message)
     }
 
     fun aggregateResult(): Boolean {
