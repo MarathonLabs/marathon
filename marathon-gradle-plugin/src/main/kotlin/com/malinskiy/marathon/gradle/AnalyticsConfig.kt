@@ -1,7 +1,9 @@
 package com.malinskiy.marathon.gradle
 
 import com.malinskiy.marathon.config.AnalyticsConfiguration
+import groovy.lang.Closure
 import org.gradle.api.Action
+import org.gradle.util.internal.ConfigureUtil
 
 class AnalyticsConfig {
     var influx: InfluxConfig? = null
@@ -12,13 +14,19 @@ class AnalyticsConfig {
         influx = InfluxConfig().also { action.execute(it) }
     }
 
+    fun influx(closure: Closure<InfluxConfig>) = influx(ConfigureUtil.configureUsing(closure))
+
     fun graphite(action: Action<GraphiteConfig>) {
         graphite = GraphiteConfig().also { action.execute(it) }
     }
 
+    fun graphite(closure: Closure<GraphiteConfig>) = graphite(ConfigureUtil.configureUsing(closure))
+
     fun influx2(action: Action<Influx2Config>) {
         influx2 = Influx2Config().also { action.execute(it) }
     }
+
+    fun influx2(closure: Closure<Influx2Config>) = influx2(ConfigureUtil.configureUsing(closure))
 }
 
 class InfluxConfig {
