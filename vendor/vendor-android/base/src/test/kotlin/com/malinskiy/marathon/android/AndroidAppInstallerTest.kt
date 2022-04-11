@@ -199,4 +199,36 @@ class AndroidAppInstallerTest {
             assertThrows<DeviceSetupException> { installer.prepareInstallation(device) }
         }
     }
+
+    @Test
+    fun testInstallationWithSpecialCharactersInPath() {
+        val apk = File(javaClass.classLoader.getResource("apk/app-debug.apk").file).copyTo(File(temp, "().apk"))
+        val testApk = File(javaClass.classLoader.getResource("apk/app-debug-androidTest.apk").file).copyTo(File(temp, "()-androidTest.apk"))
+
+        val configuration = TestConfigurationFactory.create(
+            applicationOutput = apk,
+            testApplicationOutput = testApk,
+        )
+        val installer = AndroidAppInstaller(configuration)
+        val device = TestDeviceFactory.create(client, configuration, mock())
+
+        runBlocking {
+            server.multipleSessions {
+                serial("emulator-5554") {
+                    boot()
+
+                    shell("pm list packages", "")
+                    installApk(temp, "/data/local/tmp/--.apk", "511", "122fc3b5d69b262db9b84dfc00e8f1d4", "-r")
+
+                    shell("pm list packages", "package:com.example")
+                    installApk(temp, "/data/local/tmp/---androidTest.apk", "511", "8d103498247b3711817a9f18624dede7", "-r")
+
+                }
+                features("emulator-5554")
+            }
+
+            device.setup()
+            installer.prepareInstallation(device)
+        }
+    }
 }

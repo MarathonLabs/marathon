@@ -21,7 +21,6 @@ import com.malinskiy.marathon.android.model.TestIdentifier
 import com.malinskiy.marathon.config.Configuration
 import com.malinskiy.marathon.config.vendor.VendorConfiguration
 import com.malinskiy.marathon.config.vendor.android.PathRoot
-import com.malinskiy.marathon.extension.bashEscape
 import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.test.Test
 import com.malinskiy.marathon.test.TestBatch
@@ -212,4 +211,11 @@ class AndroidDeviceTestRunner(private val device: AdamAndroidDevice, private val
 
 private fun com.malinskiy.adam.request.testrunner.TestIdentifier.toMarathonTestIdentifier(): TestIdentifier {
     return TestIdentifier(this.className, this.testName)
+}
+
+/**
+ * Not really a full escape, handling just one edge case of spaces in the test name
+ */
+private fun String.bashEscape(): String {
+    return replace(" ", "\\ ")
 }
