@@ -8,9 +8,7 @@ open class RetryStrategyConfiguration {
     var fixedQuota: FixedQuotaRetryStrategyConfiguration? = null
 
     fun fixedQuota(action: Action<FixedQuotaRetryStrategyConfiguration>) {
-        val configuration = FixedQuotaRetryStrategyConfiguration()
-        action.execute(configuration)
-        fixedQuota = configuration
+        fixedQuota = FixedQuotaRetryStrategyConfiguration().also { action.execute(it) }
     }
 
     fun fixedQuota(closure: Closure<FixedQuotaRetryStrategyConfiguration>) = fixedQuota(ConfigureUtil.configureUsing(closure))
