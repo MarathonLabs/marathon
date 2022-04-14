@@ -21,11 +21,12 @@ import kotlin.time.ExperimentalTime
 
 val TestView = FC<Props> {
     val params = useParams()
+    val poolId = params["pool"] ?: error("No pool specified")
     val deviceId = params["device"] ?: error("No device specified")
-    val testId = params["id"] ?: error("No test id specified")
+    val testId = params["test"] ?: error("No test id specified")
 
     val test: ShortTest = useSelector { state: AppState ->
-        state.run.pools.find { it.devices.any { it.serial == deviceId } }
+        state.run.pools.find { it.id == poolId }
             ?.tests
             ?.find { it.id == testId }
             ?: error("Test $testId not found for device $deviceId")
@@ -45,14 +46,20 @@ val TestView = FC<Props> {
             className = "content margin-top-20"
 
             div {
-                className = "title-common vertical-aligned-content"
+                className = "title-common"
+
                 NavLink {
                     to = "/"
-                    +"Pools list"
+                    className = "with-arrow"
+                    +"Pools"
                 }
+
+                +" "
+
                 NavLink {
-                    to = "/pools"
-                    +"Pool //TODO"
+                    to = "/pool/${poolId}"
+                    className = "with-arrow"
+                    +"Pool $poolId"
                 }
             }
 

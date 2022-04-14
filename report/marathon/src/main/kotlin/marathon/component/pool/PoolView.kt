@@ -9,7 +9,6 @@ import react.FC
 import react.Props
 import react.ReactElement
 import react.create
-import react.dom.html.ReactHTML.a
 import react.dom.html.ReactHTML.div
 import react.dom.html.ReactHTML.span
 import react.key
@@ -20,7 +19,7 @@ import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.ExperimentalTime
 
 val PoolView = FC<Props> {
-    val id = useParams()["id"] ?: error("Unknown pool id")
+    val id = useParams()["pool"] ?: error("Unknown pool id")
     val pool = useSelector { state: AppState -> state.run.pools.find { it.id == id } } ?: error("Pool $id not found")
 
     div {
@@ -28,12 +27,13 @@ val PoolView = FC<Props> {
         div {
             className = "title-common"
 
-            a {
-                href = "toIndex"
-                +"Pools list"
+            NavLink {
+                to = "/"
+                className = "with-arrow"
+                +"Pools"
             }
 
-            +"Pool ${pool.id}"
+            +" Pool ${pool.id}"
         }
 
         div {
@@ -56,7 +56,7 @@ val PoolView = FC<Props> {
                 pool.tests.forEachIndexed { index, test ->
                     NavLink {
                         key = index.toString()
-                        to = "/device/${test.deviceId}/test/${test.id}"
+                        to = "/pool/${pool.id}/device/${test.deviceId}/test/${test.id}"
                         className = "list__item row full justify-between ${test.status}"
 
                         div {

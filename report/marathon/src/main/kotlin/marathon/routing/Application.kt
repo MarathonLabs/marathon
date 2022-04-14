@@ -27,18 +27,15 @@ val Application = FC<Props> {
                 }
             }
             Route {
-                path = "/pool/:id"
+                path = "/pool/:pool"
                 element = pool()
             }
             Route {
-                path = "/device/:device/test/:id"
+                path = "/pool/:pool/device/:device/test/:test"
                 element = test()
             }
 //            Route {
-//                path = "/pools/:id/device/:device-id/test/:test-id"
-//            }
-//            Route {
-//                path = "/pools/:id/device/:device-id/test/:test-id/log"
+//                path = "/pool/:pool/device/:device/test/:test/log"
 //            }
         }
     }
