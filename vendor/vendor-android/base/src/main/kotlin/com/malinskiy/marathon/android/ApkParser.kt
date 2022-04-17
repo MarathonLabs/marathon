@@ -65,4 +65,42 @@ class ApkParser {
             apkInputStream?.close()
         }
     }
+
+    fun parseAppPackageName(apk: File): String {
+        var apkInputStream: InputStream? = null
+        try {
+            val zip = ZipFile(apk)
+            val entry = zip.getEntry("AndroidManifest.xml")
+            apkInputStream = zip.getInputStream(entry)
+
+            val parser = AXMLParser(apkInputStream)
+            var eventType = parser.type
+
+            var appPackage: String? = null
+            while (eventType != AXMLParser.END_DOCUMENT) {
+                if (eventType == AXMLParser.START_TAG) {
+                    val parserName = parser.name
+                    val isManifest = "manifest" == parserName
+                    if (isManifest) {
+                        for (i in 0 until parser.attributeCount) {
+                            if ("package" == parser.getAttributeName(i)) {
+                                appPackage = parser.getAttributeValueString(i)
+                                break
+                            }
+                        }
+                    }
+                }
+                eventType = parser.next()
+            }
+
+            checkNotNull(appPackage) { "Could not find application package." }
+
+            return appPackage
+        } catch (e: IOException) {
+            throw RuntimeException("Unable to parse test app AndroidManifest.xml.", e)
+        } finally {
+            apkInputStream?.close()
+        }
+    }
+
 }

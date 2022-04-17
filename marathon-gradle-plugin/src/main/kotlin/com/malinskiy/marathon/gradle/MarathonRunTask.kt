@@ -125,7 +125,8 @@ open class MarathonRunTask @Inject constructor(objects: ObjectFactory) : Abstrac
         val outputs = bundles.map {
             AndroidTestBundleConfiguration(
                 application = it.application?.extractApplication(),
-                testApplication = it.testApplication.extractTestApplication()
+                testApplication = it.testApplication.extractTestApplication(),
+                extraApplications = emptyList()
             )
         }
 
@@ -134,6 +135,7 @@ open class MarathonRunTask @Inject constructor(objects: ObjectFactory) : Abstrac
             androidSdk = sdk.get().asFile,
             applicationOutput = null,
             testApplicationOutput = null,
+            extraApplicationsOutput = null,
             outputs = outputs,
             autoGrantPermission = autoGrantPermission,
             instrumentationArgs = instrumentationArgs,

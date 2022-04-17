@@ -31,6 +31,15 @@ class AndroidAppInstaller(configuration: Configuration) {
             bundle.application?.let {
                 reinstall(device, applicationInfo.applicationPackage, it)
             }
+
+            bundle.extraApplications?.let { extraApplications ->
+                extraApplications.forEach { extraApplication ->
+                    logger.debug { "Installing extra application to ${device.serialNumber}" }
+                    val extraApplicationPackage = ApkParser().parseAppPackageName(extraApplication)
+                    reinstall(device, extraApplicationPackage, extraApplication)
+                }
+            }
+
             logger.debug { "Installing instrumentation package to ${device.serialNumber}" }
             reinstall(device, applicationInfo.instrumentationPackage, bundle.testApplication)
             logger.debug { "Prepare installation finished for ${device.serialNumber}" }
