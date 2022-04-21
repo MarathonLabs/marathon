@@ -106,11 +106,11 @@ class Marathon(
             scheduler.execute()
         }
 
-        onFinish(analytics, deviceProvider)
+        val result = onFinish(analytics, deviceProvider)
         hook.uninstall()
 
         stopKoin()
-        return progressReporter.aggregateResult()
+        return result
     }
 
     private fun logSystemInformation() {
@@ -133,10 +133,11 @@ class Marathon(
         return shutdownHook
     }
 
-    private suspend fun onFinish(analytics: Analytics, deviceProvider: DeviceProvider) {
+    private suspend fun onFinish(analytics: Analytics, deviceProvider: DeviceProvider): Boolean {
         analytics.close()
         deviceProvider.terminate()
         tracker.close()
+        return progressReporter.aggregateResult()
     }
 
     private fun applyTestFilters(parsedTests: List<Test>): List<Test> {
