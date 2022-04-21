@@ -20,6 +20,11 @@ vendorConfiguration:
     type: "remote"
     instrumentationArgs:
       listener: "com.malinskiy.adam.junit4.android.listener.TestAnnotationProducer"
+  fileSyncConfiguration:
+    pull:
+    - relativePath: "files/allure-results"
+      pathRoot: APP_DATA
+      aggregationMode: TEST_RUN
   allureConfiguration:
     enabled: true
   # See https://marathonlabs.github.io/marathon/ven/android.html#test-access-configuration before copy-pasting this
