@@ -179,6 +179,34 @@ class LogCatListenerTest {
         }
     }
 
+    @Test
+    fun testRunnerCrash() {
+        val configuration = TestConfigurationFactory.create()
+        val device = TestDeviceFactory.create(client, configuration, mock())
+        val poolId = DevicePoolId("testpool")
+        val batch = TestBatch(listOf(test0.toTest()))
+        val logWriter = mock<LogWriter>()
+        val listener = LogCatListener(device, poolId, batch.id, logWriter)
+
+        runBlocking {
+            server.multipleSessions {
+                serial("emulator-5554") {
+                    boot()
+                }
+                features("emulator-5554")
+            }
+
+            device.setup()
+
+            listener.beforeTestRun()
+            listener.testRunStarted("Run", 1)
+            listener.onLine("Important crash-related information")
+            listener.afterTestRun()
+
+            verify(logWriter, times(1)).saveLogs(poolId, batch.id, device.toDeviceInfo(), listOf("Important crash-related information\n"))
+        }
+    }
+
     companion object {
         val test0 = TestIdentifier("com.example.Class", "method0")
         val test1 = TestIdentifier("com.example.Class", "method1")
