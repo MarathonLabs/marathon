@@ -11,6 +11,8 @@ import com.malinskiy.marathon.test.toTestName
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.Test
 import java.io.File
+import java.nio.file.Paths
+import kotlin.io.path.absolutePathString
 
 class FileManagerTest {
     private val output = Files.createTempDir()
@@ -89,5 +91,22 @@ class FileManagerTest {
             )
         )
         file.name shouldBeEqualTo "127.0.0.1-5037-emulator-5554.log"
+    }
+
+    @Test
+    fun testTooLongOutputFolder() {
+        val test = com.malinskiy.marathon.test.Test(
+            pkg = "com.xxyyzzxxyy.android.abcdefgh.abcdefghi",
+            clazz = "PackageNameTest",
+            method = "useAppContext",
+            metaProperties = emptyList()
+        )
+
+        val tempDir = Files.createTempDir()
+        val proposedPath = Paths.get(tempDir.absolutePath, FileType.LOG.name, poolId.name, deviceInfo.safeSerialNumber)
+        val additionalPathCharacters = FileManager.MAX_PATH - proposedPath.absolutePathString().length
+        val limitedOutputDirectory = File(tempDir, "x".repeat(additionalPathCharacters))
+        val limitedFileManager = FileManager(limitedOutputDirectory)
+        val file = limitedFileManager.createFile(FileType.LOG, poolId, deviceInfo, test, batchId)
     }
 }

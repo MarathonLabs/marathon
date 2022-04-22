@@ -2,6 +2,7 @@ package com.malinskiy.marathon.execution.progress.tracker
 
 import com.malinskiy.marathon.actor.StateMachine
 import com.malinskiy.marathon.config.Configuration
+import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.test.Test
 import java.util.concurrent.atomic.AtomicInteger
 
@@ -9,6 +10,7 @@ class PoolProgressTracker(private val configuration: Configuration) {
 
     private val tests = mutableMapOf<Test, StateMachine<ProgressTestState, ProgressEvent, Any>>()
     private val runtimeDiscoveredTests = mutableSetOf<Test>()
+    private val logger = MarathonLogging.logger {}
 
     private fun createState() = StateMachine.create<ProgressTestState, ProgressEvent, Any> {
         initialState(ProgressTestState.Started)
@@ -93,7 +95,9 @@ class PoolProgressTracker(private val configuration: Configuration) {
 
     fun aggregateResult(): Boolean {
         synchronized(tests) {
-            return if (tests.size == expectedTestCount.get()) {
+            val expected = expectedTestCount.get()
+            val actual = tests.size
+            return if (actual == expected) {
                 tests.all {
                     when (it.value.state) {
                         is ProgressTestState.Passed -> true
@@ -102,6 +106,7 @@ class PoolProgressTracker(private val configuration: Configuration) {
                     }
                 }
             } else {
+                logger.error { "Expected to run $expected tests but received results for only $actual" }
                 false
             }
         }
