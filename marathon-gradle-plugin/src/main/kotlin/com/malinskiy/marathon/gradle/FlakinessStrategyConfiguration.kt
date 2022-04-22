@@ -1,6 +1,8 @@
 package com.malinskiy.marathon.gradle
 
+import groovy.lang.Closure
 import org.gradle.api.Action
+import org.gradle.util.internal.ConfigureUtil
 import java.time.Instant
 import java.time.temporal.ChronoUnit
 
@@ -10,6 +12,9 @@ class FlakinessStrategyConfiguration {
     fun probabilityBased(action: Action<ProbabilityBasedFlakinessStrategyConfiguration>) {
         probabilityBased = ProbabilityBasedFlakinessStrategyConfiguration().also { action.execute(it) }
     }
+
+    fun probabilityBased(closure: Closure<ProbabilityBasedFlakinessStrategyConfiguration>) =
+        probabilityBased(ConfigureUtil.configureUsing(closure))
 }
 
 private const val DEFAULT_MIN_SUCCESS_RATE = 0.8

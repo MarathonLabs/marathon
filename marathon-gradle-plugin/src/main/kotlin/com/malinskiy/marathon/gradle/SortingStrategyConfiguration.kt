@@ -1,6 +1,8 @@
 package com.malinskiy.marathon.gradle
 
+import groovy.lang.Closure
 import org.gradle.api.Action
+import org.gradle.util.internal.ConfigureUtil
 import java.time.Instant
 import java.time.temporal.ChronoUnit
 
@@ -12,9 +14,13 @@ class SortingStrategyConfiguration {
         executionTime = ExecutionTimeSortingStrategyConfiguration().also { action.execute(it) }
     }
 
+    fun executionTime(closure: Closure<ExecutionTimeSortingStrategyConfiguration>) = executionTime(ConfigureUtil.configureUsing(closure))
+
     fun successRate(action: Action<SuccessRateSortingStrategyConfiguration>) {
         successRate = SuccessRateSortingStrategyConfiguration().also { action.execute(it) }
     }
+
+    fun successRate(closure: Closure<SuccessRateSortingStrategyConfiguration>) = successRate(ConfigureUtil.configureUsing(closure))
 }
 
 private const val DEFAULT_PERCENTILE = 90.0
