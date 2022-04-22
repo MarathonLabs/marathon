@@ -6,12 +6,13 @@ import com.malinskiy.marathon.test.Test
 import io.qameta.allure.kotlin.util.ResultsUtils.ALLURE_ID_LABEL_NAME
 import io.qameta.allure.testfilter.FileTestPlanSupplier
 import io.qameta.allure.testfilter.TestPlan
+import io.qameta.allure.testfilter.TestPlanSupplier
 import io.qameta.allure.testfilter.TestPlanV1_0
 
 
-class AllureTestFilter(val cnf: TestFilterConfiguration.AllureFilterConfiguration) : TestFilter {
+class AllureTestFilter(val cnf: TestFilterConfiguration.AllureFilterConfiguration, val testPlanSupplier: TestPlanSupplier = FileTestPlanSupplier()) : TestFilter {
     private val testPlan: TestPlan? by lazy {
-        val optional = FileTestPlanSupplier().supply()
+        val optional = testPlanSupplier.supply()
         if (optional.isPresent) {
             optional.get()
         } else {
