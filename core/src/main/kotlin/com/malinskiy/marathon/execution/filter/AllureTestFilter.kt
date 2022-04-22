@@ -10,7 +10,7 @@ import io.qameta.allure.testfilter.TestPlanSupplier
 import io.qameta.allure.testfilter.TestPlanV1_0
 
 
-class AllureTestFilter(val cnf: TestFilterConfiguration.AllureFilterConfiguration, val testPlanSupplier: TestPlanSupplier = FileTestPlanSupplier()) : TestFilter {
+class AllureTestFilter(val cnf: TestFilterConfiguration.AllureFilterConfiguration, private val testPlanSupplier: TestPlanSupplier = FileTestPlanSupplier()) : TestFilter {
     private val testPlan: TestPlan? by lazy {
         val optional = testPlanSupplier.supply()
         if (optional.isPresent) {
@@ -33,7 +33,7 @@ class AllureTestFilter(val cnf: TestFilterConfiguration.AllureFilterConfiguratio
     }
 
     override fun filterNot(tests: List<Test>): List<Test> {
-        return if (testPlan == null && testPlan is TestPlanV1_0) {
+        return if (testPlan != null && testPlan is TestPlanV1_0) {
             val plan = testPlan as TestPlanV1_0
             tests.filterNot { test ->
                 val allureId: String? = test.metaProperties.find { it.name == ALLURE_ID_LABEL_NAME }?.values?.get("value") as? String

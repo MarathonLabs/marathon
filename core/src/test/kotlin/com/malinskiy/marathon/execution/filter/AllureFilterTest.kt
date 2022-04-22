@@ -27,13 +27,28 @@ class AllureFilterTest {
     }
 
     private val filter = AllureTestFilter(TestFilterConfiguration.AllureFilterConfiguration, testPlanSupplier)
+    private val nullTestPlanFilter = AllureTestFilter(TestFilterConfiguration.AllureFilterConfiguration)
     val test1 = stubTest(TestData("io.qameta.allure.AllureId", "1", "test1"))
     val test2 = stubTest(TestData("io.qameta.allure.AllureId", "2", "test2"))
     val test3 = stubTest(TestData("io.qameta.allure.AllureId", "3", "test3"))
 
     @Test
-    fun test() {
+    fun testFilter() {
         filter.filter(listOf(test1, test2, test3)) shouldBeEqualTo listOf(test1, test2)
+    }
+
+    @Test
+    fun testNotFilter() {
+        filter.filterNot(listOf(test1, test2, test3)) shouldBeEqualTo listOf(test3)
+    }
+    @Test
+    fun testFilterNullTestPlan() {
+        nullTestPlanFilter.filter(listOf(test1, test2, test3)) shouldBeEqualTo listOf(test1, test2, test3)
+    }
+
+    @Test
+    fun tesNotFilterNullTestPlan() {
+        nullTestPlanFilter.filterNot(listOf(test1, test2, test3)) shouldBeEqualTo emptyList()
     }
 
     private class TestData(
