@@ -8,6 +8,6 @@ import org.junit.jupiter.api.Test
 class AllureConfigurationTest {
     @Test
     fun testDefault() {
-        assertThat(AllureConfiguration().relativeResultsDirectory).isEqualTo("/allure-results")
+        assertThat(AllureConfiguration().relativeResultsDirectory).isEqualTo("/files/allure-results")
     }
 }

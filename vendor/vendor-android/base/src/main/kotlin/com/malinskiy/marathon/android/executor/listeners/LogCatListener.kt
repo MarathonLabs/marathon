@@ -1,6 +1,7 @@
 package com.malinskiy.marathon.android.executor.listeners
 
 import com.malinskiy.marathon.android.AndroidDevice
+import com.malinskiy.marathon.android.InstrumentationInfo
 import com.malinskiy.marathon.android.executor.listeners.line.LineListener
 import com.malinskiy.marathon.android.model.TestIdentifier
 import com.malinskiy.marathon.device.DevicePoolId
@@ -29,28 +30,31 @@ class LogCatListener(
         stringBuffer.appendLine(line)
     }
 
-    override suspend fun testRunStarted(runName: String, testCount: Int) {
+    override suspend fun beforeTestRun(info: InstrumentationInfo?) {
         device.addLogcatListener(this)
     }
-
+    
     override suspend fun testStarted(test: TestIdentifier) {
-        super.testStarted(test)
         stringBuffer.reset()
     }
 
     override suspend fun testEnded(test: TestIdentifier, testMetrics: Map<String, String>) {
-        val file = logWriter.saveLogs(test.toTest(), devicePoolId, testBatchId, device.toDeviceInfo(), listOf(stringBuffer.toString()))
-        attachmentListeners.forEach { it.onAttachment(test.toTest(), Attachment(file, AttachmentType.LOG)) }
+        val log = stringBuffer.toString()
+        stringBuffer.reset()
+        if(log.isNotEmpty()) {
+            val file = logWriter.saveLogs(test.toTest(), devicePoolId, testBatchId, device.toDeviceInfo(), listOf(log))
+            attachmentListeners.forEach { it.onAttachment(test.toTest(), Attachment(file, AttachmentType.LOG)) }
+        }
     }
 
-    override suspend fun testRunEnded(elapsedTime: Long, runMetrics: Map<String, String>) {
+    override suspend fun afterTestRun() {
         device.removeLogcatListener(this)
+        val log = stringBuffer.toString()
+        if(log.isNotEmpty()) {
+            logWriter.saveLogs(devicePoolId, testBatchId, device.toDeviceInfo(), listOf(log))
+        }
     }
-
-    override suspend fun testRunFailed(errorMessage: String) {
-        device.removeLogcatListener(this)
-    }
-
+    
     private fun StringBuffer.reset() {
         delete(0, length)
     }

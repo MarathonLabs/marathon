@@ -1,6 +1,8 @@
 package com.malinskiy.marathon.gradle
 
+import groovy.lang.Closure
 import org.gradle.api.Action
+import org.gradle.util.internal.ConfigureUtil
 
 class ShardingStrategyConfiguration {
     var countSharding: CountShardingStrategyConfiguration? = null
@@ -8,6 +10,8 @@ class ShardingStrategyConfiguration {
     fun countSharding(action: Action<CountShardingStrategyConfiguration>) {
         countSharding = CountShardingStrategyConfiguration().also { action.execute(it) }
     }
+
+    fun countSharding(closure: Closure<CountShardingStrategyConfiguration>) = countSharding(ConfigureUtil.configureUsing(closure))
 }
 
 class CountShardingStrategyConfiguration {

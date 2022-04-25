@@ -81,10 +81,16 @@ class FileManager(private val output: File) {
     private fun createFilename(test: Test, fileType: FileType, limit: Int, testBatchId: String? = null): String {
         val testSuffix = "${testBatchId?.let { "-$it" } ?: ""}.${fileType.suffix}"
         val rawTestName = test.toTestName().escape()
-        val testName = rawTestName.take(limit - testSuffix.length)
+        val testName = when {
+            limit - testSuffix.length >= 0 -> rawTestName.take(limit - testSuffix.length)
+            else -> ""
+        }
         val fileName = "$testName$testSuffix"
         if (rawTestName.length > testName.length) {
-            log.error { "File name length cannot exceed $limit characters and has been trimmed to $fileName and can create a conflict. This happened because the combination of file path, test class name, and test name is too long." }
+            when {
+                limit >= 0 -> log.error { "File name length cannot exceed $limit characters and has been trimmed to $fileName and can create a conflict. This happened because the combination of file path, test class name, and test name is too long." }
+                else -> log.error { "Base path for writing a file ${rawTestName}$testSuffix is already maxed out and is ${-limit} characters more than the allowed limit of ${MAX_PATH}." }
+            }
         }
         return fileName
     }
