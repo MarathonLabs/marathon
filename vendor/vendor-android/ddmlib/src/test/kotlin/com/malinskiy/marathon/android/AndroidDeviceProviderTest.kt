@@ -18,6 +18,7 @@ class AndroidDeviceProviderTest {
             androidSdk = File(""),
             applicationOutput = File(""),
             testApplicationOutput = File(""),
+            extraApplicationsOutput = emptyList()
         )
         val configuration = Configuration.Builder(
             name = "",

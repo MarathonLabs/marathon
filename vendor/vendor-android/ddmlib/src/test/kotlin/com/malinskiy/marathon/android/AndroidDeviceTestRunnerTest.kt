@@ -53,7 +53,8 @@ class AndroidDeviceTestRunnerTest {
         whenever(testBundleIdentifier.identify(MarathonTest("test", "test", "test", emptyList()))).doReturn(
             AndroidTestBundle(
                 null,
-                apkFile
+                apkFile,
+                null
             )
         )
         val output = File("")
@@ -61,6 +62,7 @@ class AndroidDeviceTestRunnerTest {
             androidSdk = File(""),
             applicationOutput = File(""),
             testApplicationOutput = apkFile,
+            extraApplicationsOutput = emptyList()
         )
         val configuration = Configuration.Builder(
             name = "",
@@ -111,7 +113,8 @@ class AndroidDeviceTestRunnerTest {
         whenever(testBundleIdentifier.identify(MarathonTest("ignored", "ignored", "ignored", emptyList()))).thenReturn(
             AndroidTestBundle(
                 null,
-                apkFile
+                apkFile,
+                null
             )
         )
         val output = File("")
@@ -122,6 +125,7 @@ class AndroidDeviceTestRunnerTest {
                 androidSdk = File(""),
                 applicationOutput = File(""),
                 testApplicationOutput = apkFile,
+                extraApplicationsOutput = emptyList()
             ),
         ).apply { analyticsTracking = false }.build()
 

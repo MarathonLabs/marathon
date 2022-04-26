@@ -85,7 +85,7 @@ class RemoteTestParser(
         testBundles: List<AndroidTestBundle>
     ): List<Test> {
         return testBundles.flatMap { bundle ->
-            val androidTestBundle = AndroidTestBundle(bundle.application, bundle.testApplication)
+            val androidTestBundle = AndroidTestBundle(bundle.application, bundle.testApplication, bundle.extraApplications)
             val instrumentationInfo = androidTestBundle.instrumentationInfo
 
             val testParserConfiguration = vendorConfiguration.testParserConfiguration
