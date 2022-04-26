@@ -12,6 +12,7 @@ import com.malinskiy.marathon.config.vendor.android.TestParserConfiguration
 import com.malinskiy.marathon.config.vendor.android.TimeoutConfiguration
 import org.gradle.api.Action
 import org.gradle.api.Project
+import java.io.File
 
 open class MarathonExtension(project: Project) {
     /**
@@ -385,6 +386,11 @@ open class MarathonExtension(project: Project) {
      */
     var adbServers: List<AdbEndpoint>? = null
 
+    /**
+     * Install extra apk before running the tests if required, e.g. test-butler.apk
+     */
+    var extraApplications: List<File>? = null
+    
     /**
      * Configuration of analytics backend to be used for storing and retrieving test metrics. This plays a major part in optimising
      * performance and mitigating flakiness.
