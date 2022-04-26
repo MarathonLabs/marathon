@@ -43,6 +43,7 @@ object Versions {
     val jupiterEngine = junit5
     val jansi = "2.4.0"
     val scalr = "4.2"
+    val allureTestFilter = "2.17.2"
     val allureJava = "2.17.2"
     val allureKotlin = "2.4.0"
     val allureEnvironment = "1.0.0"
@@ -96,6 +97,7 @@ object Libraries {
     val allure = "io.qameta.allure:allure-java-commons:${Versions.allureJava}"
     val allureEnvironment = "com.github.automatedowl:allure-environment-writer:${Versions.allureEnvironment}"
     val allureKotlinCommons = "io.qameta.allure:allure-kotlin-commons:${Versions.allureKotlin}"
+    val allureTestFilter = "io.qameta.allure:allure-test-filter:${Versions.allureTestFilter}"
     val koin = "io.insert-koin:koin-core:${Versions.koin}"
     val bugsnag = "com.bugsnag:bugsnag:${Versions.bugsnag}"
 }

@@ -996,6 +996,7 @@ First allowlist is applied, then the blocklist. Each accepts a *TestFilter*:
 | "package"                         | `TestPackageFilterConfiguration`                | Filters tests by using only test package, e.g. `com.example`                               |
 | "method"                          | `TestMethodFilterConfiguration`                 | Filters tests by using only test method, e.g. `myComplicatedTest`                          |
 | "annotation"                      | `AnnotationFilterConfiguration`                 | Filters tests by using only test annotation name, e.g. `androidx.test.filters.LargeTest`   |
+| "allure"                          | `AllureFilterConfiguration`                     | Filters tests by using allure-test-filter, see [8]                                         |
 
 All the filters can be used in allowlist and in blocklist block as well, for example the following will run only smoke tests:
 
@@ -1120,6 +1121,11 @@ Inside the `testing/myfilterfile` you should supply the same values, each on a s
 ```
 com.example.ScaryTest
 com.example.subpackage.FlakyTest
+```
+
+Using the allure platform test filter:
+```yaml
+- type: "allure"
 ```
 
 ### Composition filtering
@@ -1599,3 +1605,4 @@ See relevant vendor module page, e.g. [Android][3] or [iOS][4]
 [5]: https://github.com/MarathonLabs/marathon/blob/develop/cli/src/main/kotlin/com/malinskiy/marathon/cli/config/ConfigFactory.kt
 [6]: https://source.android.com/devices/tech/test_infra/tradefed/architecture/advanced/sharding
 [7]: https://docs.influxdata.com/influxdb/v2.0/
+[8]: https://github.com/allure-framework/allure-java/tree/master/allure-test-filter
