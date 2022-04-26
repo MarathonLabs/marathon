@@ -9,7 +9,7 @@ import com.malinskiy.marathon.execution.TestResult
 import com.malinskiy.marathon.execution.TestStatus
 import com.malinskiy.marathon.report.Reporter
 import com.malinskiy.marathon.test.Test
-import com.malinskiy.marathon.test.toSimpleSafeTestName
+import com.malinskiy.marathon.test.toSafeTestName
 import io.qameta.allure.AllureLifecycle
 import io.qameta.allure.FileSystemResultsWriter
 import io.qameta.allure.model.Attachment
@@ -64,7 +64,7 @@ class AllureReporter(val configuration: Configuration, private val outputDirecto
 
     private fun createTestResult(uuid: String, device: DeviceInfo, testResult: TestResult): io.qameta.allure.model.TestResult {
         val test = testResult.test
-        val fullName = test.toSimpleSafeTestName()
+        val fullName = test.toSafeTestName()
         val testMethodName = test.method
         val suite = "${test.pkg}.${test.clazz}"
 
@@ -98,7 +98,7 @@ class AllureReporter(val configuration: Configuration, private val outputDirecto
                 mutableListOf(
                     ResultsUtils.createHostLabel().setValue(device.serialNumber),
                     ResultsUtils.createPackageLabel(test.pkg),
-                    ResultsUtils.createTestClassLabel(test.clazz),
+                    ResultsUtils.createTestClassLabel(suite),
                     ResultsUtils.createTestMethodLabel(test.method),
                     ResultsUtils.createSuiteLabel(suite)
                 )
