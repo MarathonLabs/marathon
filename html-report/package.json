@@ -21,7 +21,7 @@
     "cssnano": "^4.1.10",
     "elasticlunr": "^0.9.5",
     "extract-text-webpack-plugin": "^2.1.0",
-    "postcss": "^5.0.19",
+    "postcss": "^7.0.36",
     "postcss-cli": "^7.1.0",
     "postcss-import": "^12.0.1",
     "postcss-inline-svg": "^1.3.2",
