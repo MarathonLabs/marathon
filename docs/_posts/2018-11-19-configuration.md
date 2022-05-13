@@ -1124,9 +1124,31 @@ com.example.subpackage.FlakyTest
 ```
 
 Using the allure platform test filter:
+{% tabs allure-test-filter %} {% tab allure-test-filter Marathonfile %}
 ```yaml
 - type: "allure"
 ```
+{% endtab %} {% tab allure-test-filter Gradle Kotlin %}
+```kotlin
+marathon {
+  filteringConfiguration {
+    allowlist {
+      add(TestFilterConfiguration.AllureFilterConfiguration)
+    }
+  }
+}
+```
+{% endtab %} {% tab allure-test-filter Gradle %}
+```kotlin
+marathon {
+  filteringConfiguration {
+    allowlist {
+      allureTestFilter = true
+    }
+  }
+}
+```
+{% endtab %} {% endtabs %}
 
 ### Composition filtering
 
