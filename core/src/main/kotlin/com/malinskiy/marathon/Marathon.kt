@@ -33,7 +33,7 @@ private val log = MarathonLogging.logger {}
 class Marathon(
     private val configuration: Configuration,
     private val deviceProvider: DeviceProvider,
-    private val testBundleIdentifier: TestBundleIdentifier,
+    private val testBundleIdentifier: TestBundleIdentifier?,
     private val testParser: TestParser,
     private val logConfigurator: MarathonLogConfigurator,
     private val tracker: TrackerInternal,
