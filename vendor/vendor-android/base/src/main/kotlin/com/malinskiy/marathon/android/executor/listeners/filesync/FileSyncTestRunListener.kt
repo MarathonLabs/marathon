@@ -50,6 +50,28 @@ class FileSyncTestRunListener(
                 }
             }
         }
+
+        if (configuration.push.isNotEmpty()) {
+            val remoteResourcesFolderPath = RemoteFileManager.TMP_PATH.plus("/resources")
+            device.fileManager.removeRemotePath(remoteResourcesFolderPath, recursive = true)
+            device.fileManager.createRemoteDirectory(remoteResourcesFolderPath)
+            configuration.push.forEach { entry ->
+                val entryFile = File(entry.relativePath)
+                if (entryFile.isDirectory) {
+                    entryFile.walkTopDown().forEach { file ->
+                        if (!file.isDirectory) {
+                            val remotePath = "${remoteResourcesFolderPath}/${file.path.replace(Regex(".*${entryFile.name}/"), "")}"
+                            logger.debug { "Pushing file $file into $remotePath" }
+                            device.pushFile(file.path, remotePath, true)
+                        }
+                    }
+                } else {
+                    val remotePath = remoteResourcesFolderPath.plus("/${entryFile.name}")
+                    logger.debug { "Pushing file $entryFile into $remotePath" }
+                    device.pushFile(entryFile.path, remotePath, true)
+                }
+            }
+        }
     }
 
     private fun getExternalFolderPath(device: AndroidDevice, relativePath: String): String {

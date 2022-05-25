@@ -1,7 +1,8 @@
 package com.malinskiy.marathon.config.vendor.android
 
 data class FileSyncConfiguration(
-    val pull: MutableSet<FileSyncEntry> = mutableSetOf()
+    val pull: MutableSet<FileSyncEntry> = mutableSetOf(),
+    val push: MutableSet<FileSyncEntry> = mutableSetOf()
 )
 
 data class FileSyncEntry(
