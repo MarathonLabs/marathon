@@ -121,6 +121,6 @@ class FileSyncTestRunListener(
      * Depends on tar for folder moving
      */
     private suspend fun moveScopedFolder(from: String, to: String, pkg: String) {
-        device.safeExecuteShellCommand("run-as $pkg sh -c 'cd $from && tar cf - .' | tar xvf - -C $to && run-as $pkg rm -R $from")
+        device.safeExecuteShellCommand("mkdir -p $to && run-as $pkg sh -c 'cd $from && tar cf - .' | tar xvf - -C $to && run-as $pkg rm -R $from")
     }
 }

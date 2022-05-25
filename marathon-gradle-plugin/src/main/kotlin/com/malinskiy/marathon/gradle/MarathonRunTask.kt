@@ -19,6 +19,7 @@ import com.malinskiy.marathon.config.vendor.android.TestParserConfiguration
 import com.malinskiy.marathon.config.vendor.android.TimeoutConfiguration
 import com.malinskiy.marathon.gradle.extensions.extractApplication
 import com.malinskiy.marathon.gradle.extensions.extractTestApplication
+import org.gradle.api.InvalidUserDataException
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.model.ObjectFactory
 import org.gradle.api.provider.ListProperty
@@ -122,10 +123,20 @@ open class MarathonRunTask @Inject constructor(objects: ObjectFactory) : Abstrac
         val waitForDevicesTimeoutMillis = extension.waitForDevicesTimeoutMillis ?: DEFAULT_WAIT_FOR_DEVICES_TIMEOUT
         val allureConfiguration = extension.allureConfiguration ?: AllureConfiguration()
 
+        extension.extraApplications?.let {
+            it.forEach { apk ->
+                when {
+                    !apk.exists() -> throw InvalidUserDataException("extraApplication $apk doesn't exist")
+                    !apk.isFile -> throw InvalidUserDataException("extraApplication $apk is not a normal file")
+                }
+            }
+        }
+
         val outputs = bundles.map {
             AndroidTestBundleConfiguration(
                 application = it.application?.extractApplication(),
-                testApplication = it.testApplication.extractTestApplication()
+                testApplication = it.testApplication.extractTestApplication(),
+                extraApplications = extension.extraApplications,
             )
         }
 
@@ -134,6 +145,7 @@ open class MarathonRunTask @Inject constructor(objects: ObjectFactory) : Abstrac
             androidSdk = sdk.get().asFile,
             applicationOutput = null,
             testApplicationOutput = null,
+            extraApplicationsOutput = null,
             outputs = outputs,
             autoGrantPermission = autoGrantPermission,
             instrumentationArgs = instrumentationArgs,

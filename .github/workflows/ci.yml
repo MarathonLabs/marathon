@@ -39,6 +39,7 @@ jobs:
           SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
           SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
           GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
+          BUGSNAG_TOKEN: ${{ secrets.BUGSNAG_TOKEN }}
       - name: deliver cli
         run: |
           ./gradlew :cli:publishDistZipPublicationToGitHubRepository -PreleaseMode=SNAPSHOT
@@ -47,6 +48,7 @@ jobs:
           GH_MAVEN_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
           SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
           GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
+          BUGSNAG_TOKEN: ${{ secrets.BUGSNAG_TOKEN }}
   cd-release:
     runs-on: ubuntu-20.04
     needs: ci
@@ -67,10 +69,13 @@ jobs:
           SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
           SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
           GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
+          BUGSNAG_TOKEN: ${{ secrets.BUGSNAG_TOKEN }}
       - name: assemble cli
         run: |
           ./gradlew :cli:assembleDist -PreleaseMode=RELEASE
           rm -f cli/build/distributions/marathon-*-SNAPSHOT.zip || true
+        env:
+          BUGSNAG_TOKEN: ${{ secrets.BUGSNAG_TOKEN }}
       - name: deliver cli
         uses: softprops/action-gh-release@v1
         with:
