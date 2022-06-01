@@ -986,6 +986,8 @@ marathon {
 
 In order to indicate to marathon which tests you want to execute you can use the allowlist and blocklist parameters.
 
+Keep in mind that test filtering works after a list of tests expected to run has been determined using [test class regular expression][9].
+
 First allowlist is applied, then the blocklist. Each accepts a *TestFilter*:
 
 | YAML type                         | Gradle class                                    | Description                                                                                |
@@ -1628,3 +1630,4 @@ See relevant vendor module page, e.g. [Android][3] or [iOS][4]
 [6]: https://source.android.com/devices/tech/test_infra/tradefed/architecture/advanced/sharding
 [7]: https://docs.influxdata.com/influxdb/v2.0/
 [8]: https://github.com/allure-framework/allure-java/tree/master/allure-test-filter
+[9]: {% post_url 2018-11-19-configuration %}#test-class-regular-expression
