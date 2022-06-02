@@ -525,7 +525,7 @@ Sharding is a mechanism that allows the marathon to affect the tests scheduled f
 
 ### Parallel sharding
 
-Executes each test in parallel on all the available devices in pool. This is the default behaviour.
+Executes each test using available devices. This is the default behaviour.
 
 {% tabs sharding-parallel %} {% tab sharding-parallel Marathonfile %}
 
