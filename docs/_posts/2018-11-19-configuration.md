@@ -525,7 +525,7 @@ Sharding is a mechanism that allows the marathon to affect the tests scheduled f
 
 ### Parallel sharding
 
-Executes each test in parallel on all the available devices in pool. This is the default behaviour.
+Executes each test using available devices. This is the default behaviour.
 
 {% tabs sharding-parallel %} {% tab sharding-parallel Marathonfile %}
 
@@ -986,6 +986,8 @@ marathon {
 
 In order to indicate to marathon which tests you want to execute you can use the allowlist and blocklist parameters.
 
+Keep in mind that test filtering works after a list of tests expected to run has been determined using [test class regular expression][9].
+
 First allowlist is applied, then the blocklist. Each accepts a *TestFilter*:
 
 | YAML type                         | Gradle class                                    | Description                                                                                |
@@ -1001,19 +1003,21 @@ First allowlist is applied, then the blocklist. Each accepts a *TestFilter*:
 All the filters can be used in allowlist and in blocklist block as well, for example the following will run only smoke tests:
 
 ```yaml
-allowlist:
-  - type: "annotation"
-    values:
-      - "com.example.SmokeTest"
+filteringConfiguration:
+  allowlist:
+    - type: "annotation"
+      values:
+        - "com.example.SmokeTest"
 ```
 
 And the next snippet will execute everything, but the smoke tests:
 
 ```yaml
-blocklist:
-  - type: "annotation"
-    values:
-      - "com.example.SmokeTest"
+filteringConfiguration:
+  blocklist:
+    - type: "annotation"
+      values:
+        - "com.example.SmokeTest"
 ```
 
 ### Filter parameters
@@ -1029,9 +1033,10 @@ Each of the above filters expects **only one** of the following parameters:
 An example of `regex` filtering is executing any test for a particular package, e.g. for package: `com.example` and it's subpackages:
 
 ```yaml
-allowlist:
-  - type: "package"
-    regex: "com\.example.*"
+filteringConfiguration:
+  allowlist:
+    - type: "package"
+      regex: "com\.example.*"
 ```
 
 ### Values filtering
@@ -1039,11 +1044,12 @@ allowlist:
 You could also specify each package separately via values:
 
 ```yaml
-allowlist:
-  - type: "package"
-    values:
-      - "com.example"
-      - "com.example.subpackage"
+filteringConfiguration:
+  allowlist:
+    - type: "package"
+      values:
+        - "com.example"
+        - "com.example.subpackage"
 ```
 
 ### Values file filtering
@@ -1051,9 +1057,10 @@ allowlist:
 Or you can supply these packages via a file (be careful with the relative paths: they will be relative to the workdir of the process):
 
 ```yaml
-allowlist:
-  - type: "package"
-    file: "testing/myfilterfile"
+filteringConfiguration:
+  allowlist:
+    - type: "package"
+      file: "testing/myfilterfile"
 ```
 
 Inside the `testing/myfilterfile` you should supply the values, each on a separate line:
@@ -1070,11 +1077,12 @@ A common scenario is to execute a list of tests. You can do this via the FQTN fi
 {% tabs run-specific-tests %} {% tab run-specific-tests Marathonfile %}
 
 ```yaml
-allowlist:
-  - type: "fully-qualified-test-name"
-    values:
-      - "com.example.ElaborateTest#testMethod"
-      - "com.example.subpackage.OtherTest#testSomethingElse"
+filteringConfiguration:
+  allowlist:
+    - type: "fully-qualified-test-name"
+      values:
+        - "com.example.ElaborateTest#testMethod"
+        - "com.example.subpackage.OtherTest#testSomethingElse"
 ```
 
 {% endtab %} {% tab run-specific-tests Gradle Kotlin %}
@@ -1103,17 +1111,21 @@ marathon {
 If you want to execute tests `ScaryTest` and `FlakyTest` for any package using the *class name* filter:
 
 ```yaml
-- type: "simple-class-name"
-  values:
-    - "ScaryTest"
-    - "FlakyTest" 
+filteringConfiguration:
+  allowlist:
+  - type: "simple-class-name"
+    values:
+      - "ScaryTest"
+      - "FlakyTest" 
 ```
 
 In case you want to separate the filtering configuration from the *Marathonfile* you can supply a reference to an external file:
 
 ```yaml
-- type: "simple-class-name"
-  file: testing/myfilterfile
+filteringConfiguration:
+  allowlist:
+  - type: "simple-class-name"
+    file: testing/myfilterfile
 ```
 
 Inside the `testing/myfilterfile` you should supply the same values, each on a separate line, e.g. *fully qualified class name* filter:
@@ -1126,7 +1138,9 @@ com.example.subpackage.FlakyTest
 Using the allure platform test filter:
 {% tabs allure-test-filter %} {% tab allure-test-filter Marathonfile %}
 ```yaml
-- type: "allure"
+filteringConfiguration:
+  allowlist:
+  - type: "allure"
 ```
 {% endtab %} {% tab allure-test-filter Gradle Kotlin %}
 ```kotlin
@@ -1628,3 +1642,4 @@ See relevant vendor module page, e.g. [Android][3] or [iOS][4]
 [6]: https://source.android.com/devices/tech/test_infra/tradefed/architecture/advanced/sharding
 [7]: https://docs.influxdata.com/influxdb/v2.0/
 [8]: https://github.com/allure-framework/allure-java/tree/master/allure-test-filter
+[9]: {% post_url 2018-11-19-configuration %}#test-class-regular-expression
