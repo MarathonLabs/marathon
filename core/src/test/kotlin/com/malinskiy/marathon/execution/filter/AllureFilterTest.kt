@@ -40,16 +40,18 @@ class AllureFilterTest {
     fun testFilterByAllureId() {
         filter.filter(listOf(testFilteredByAllureIdJava, test3)) shouldBeEqualTo listOf(testFilteredByAllureIdJava)
         filter.filter(listOf(testFilteredByAllureIdKotlin, test3)) shouldBeEqualTo listOf(testFilteredByAllureIdKotlin)
+        filter.filterNot(listOf(testFilteredByAllureIdJava, test3)) shouldBeEqualTo listOf(test3)
+        filter.filterNot(listOf(testFilteredByAllureIdKotlin, test3)) shouldBeEqualTo listOf(test3)
     }
-
     @Test
     fun testFilterByTestName() {
         filter.filter(listOf(testFilteredByName, test3)) shouldBeEqualTo listOf(testFilteredByName)
+        filter.filterNot(listOf(testFilteredByName, test3)) shouldBeEqualTo listOf(test3)
     }
-
     @Test
     fun testNotFiltered() {
         filter.filter(listOf(testNotFiltered, test3)) shouldBeEqualTo emptyList()
+        filter.filterNot(listOf(testNotFiltered, test3)) shouldBeEqualTo listOf(testNotFiltered, test3)
     }
     @Test
     fun testFilter() {
