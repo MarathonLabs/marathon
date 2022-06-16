@@ -31,21 +31,25 @@ class AllureFilterTest {
     val test1 = stubTest(TestData("io.qameta.allure.AllureId", "1", "test1"))
     val test2 = stubTest(TestData("io.qameta.allure.AllureId", "2", "test2"))
     val test3 = stubTest(TestData("io.qameta.allure.AllureId", "3", "test3"))
-    val testFilteredByAllureId = stubTest(TestData("io.qameta.allure.AllureId", "1", "customName"))
-    val testFilteredByAllureId2 = stubTest(TestData("io.qameta.allure.kotlin.AllureId", "1", "customName"))
+    val testFilteredByAllureIdJava = stubTest(TestData("io.qameta.allure.AllureId", "1", "customName"))
+    val testFilteredByAllureIdKotlin = stubTest(TestData("io.qameta.allure.kotlin.AllureId", "1", "customName"))
     val testFilteredByName = stubTest(TestData("non.default.package.AllureId", "-2", "test2"))
     val testNotFiltered = stubTest(TestData("com.test.AllureId", "-2", "test3"))
 
     @Test
     fun testFilterByAllureId() {
-        filter.filter(listOf(testFilteredByAllureId)) shouldBeEqualTo listOf(testFilteredByAllureId)
-        filter.filter(listOf(testFilteredByAllureId2)) shouldBeEqualTo listOf(testFilteredByAllureId2)
+        filter.filter(listOf(testFilteredByAllureIdJava, test3)) shouldBeEqualTo listOf(testFilteredByAllureIdJava)
+        filter.filter(listOf(testFilteredByAllureIdKotlin, test3)) shouldBeEqualTo listOf(testFilteredByAllureIdKotlin)
     }
 
     @Test
     fun testFilterByTestName() {
-        filter.filter(listOf(testFilteredByName)) shouldBeEqualTo listOf(testFilteredByName)
-        filter.filter(listOf(testNotFiltered)) shouldBeEqualTo emptyList()
+        filter.filter(listOf(testFilteredByName, test3)) shouldBeEqualTo listOf(testFilteredByName)
+    }
+
+    @Test
+    fun testNotFiltered() {
+        filter.filter(listOf(testNotFiltered, test3)) shouldBeEqualTo emptyList()
     }
     @Test
     fun testFilter() {
