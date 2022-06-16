@@ -9,7 +9,7 @@ import io.qameta.allure.testfilter.TestPlan
 import io.qameta.allure.testfilter.TestPlanSupplier
 import io.qameta.allure.testfilter.TestPlanV1_0
 
-
+val ALLURE_ID_ANNOTATIONS = setOf("io.qameta.allure.AllureId", "io.qameta.allure.kotlin.AllureId")
 class AllureTestFilter(val cnf: TestFilterConfiguration.AllureFilterConfiguration, private val testPlanSupplier: TestPlanSupplier = FileTestPlanSupplier()) : TestFilter {
     private val testPlan: TestPlan? by lazy {
         val optional = testPlanSupplier.supply()
@@ -24,7 +24,7 @@ class AllureTestFilter(val cnf: TestFilterConfiguration.AllureFilterConfiguratio
         return if (testPlan != null && testPlan is TestPlanV1_0) {
             val plan = testPlan as TestPlanV1_0
             tests.filter { test ->
-                val allureId: String? = test.metaProperties.find { it.name == ALLURE_ID_LABEL_NAME }?.values?.get("value") as? String
+                val allureId: String? = test.metaProperties.find { ALLURE_ID_ANNOTATIONS.contains(it.name) }?.values?.get("value") as? String
                 plan.isSelected(allureId, test.toAllureName())
             }
         } else {
