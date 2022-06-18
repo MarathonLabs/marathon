@@ -12,12 +12,12 @@ import java.nio.file.Path
 import java.nio.file.Paths.get
 
 @Suppress("TooManyFunctions")
-class FileManager(private val output: File) {
+class FileManager(private val maxPath: Int, private val output: File) {
     val log = MarathonLogging.logger("FileManager")
 
     fun createFile(fileType: FileType, pool: DevicePoolId, device: DeviceInfo, test: Test, testBatchId: String? = null): File {
         val directory = createDirectory(fileType, pool, device)
-        val filename = createFilename(test, fileType, MAX_PATH - (directory.toAbsolutePath().toString().length + 1), testBatchId)
+        val filename = createFilename(test, fileType, maxPath - (directory.toAbsolutePath().toString().length + 1), testBatchId)
         return createFile(directory, filename)
     }
 
@@ -66,9 +66,9 @@ class FileManager(private val output: File) {
 
     private fun createFile(directory: Path, filename: String): File {
         val maybeTooLongPath = File(directory.toFile(), filename)
-        return if (maybeTooLongPath.absolutePath.length > MAX_PATH) {
-            val trimmed = maybeTooLongPath.absolutePath.substring(0 until MAX_PATH)
-            log.error { "File path length cannot exceed $MAX_PATH characters and has been trimmed to $trimmed and can create a conflict. This happened because the combination of file path, test class name, and test name is too long." }
+        return if (maybeTooLongPath.absolutePath.length > maxPath) {
+            val trimmed = maybeTooLongPath.absolutePath.substring(0 until maxPath)
+            log.error { "File path length cannot exceed $maxPath characters and has been trimmed to $trimmed and can create a conflict. This happened because the combination of file path, test class name, and test name is too long." }
             File(trimmed)
         } else {
             maybeTooLongPath
@@ -89,15 +89,11 @@ class FileManager(private val output: File) {
         if (rawTestName.length > testName.length) {
             when {
                 limit >= 0 -> log.error { "File name length cannot exceed $limit characters and has been trimmed to $fileName and can create a conflict. This happened because the combination of file path, test class name, and test name is too long." }
-                else -> log.error { "Base path for writing a file ${rawTestName}$testSuffix is already maxed out and is ${-limit} characters more than the allowed limit of ${MAX_PATH}." }
+                else -> log.error { "Base path for writing a file ${rawTestName}$testSuffix is already maxed out and is ${-limit} characters more than the allowed limit of ${maxPath}." }
             }
         }
         return fileName
     }
 
     private fun createFilename(device: DeviceInfo, fileType: FileType): String = "${device.safeSerialNumber}.${fileType.suffix}"
-
-    companion object {
-        const val MAX_PATH = 255
-    }
 }

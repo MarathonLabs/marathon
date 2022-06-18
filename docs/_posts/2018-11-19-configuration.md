@@ -14,6 +14,8 @@ Below is an example of Marathonfile (without the vendor module configuration:
 ```yaml
 name: "sample-app tests"
 outputDir: "./marathon"
+outputConfiguration:
+  maxPath: 1024
 analyticsConfiguration:
   type: "influxdb"
   url: "http://influx.svc.cluster.local:8086"
@@ -54,6 +56,9 @@ using Kotlin DSL:
 marathon {
   name = "sample-app tests"
   baseOutputDir = "./marathon"
+  outputConfiguration {
+    maxPath = 1024
+  }
   analytics {
     influx {
       url = "http://influx.svc.cluster.local:8086"
@@ -1624,6 +1629,42 @@ marathon {
 ```kotlin
 marathon {
   screenRecordingPolicy = ScreenRecordingPolicy.ON_ANY
+}
+```
+
+{% endtab %} {% endtabs %}
+
+## Output configuration
+
+### Max file path
+By default, the max file path for any output file is capped at 255 characters due to some of OSs limitations. This is the reason why some
+test runs have lots of "File path length cannot exceed" messages in the log. Since there is currently no API to programmatically 
+establish this limit it's user's responsibility to set it up to larger value if OS supports this and the user desires it.
+
+{% tabs max-path %} {% tab max-path Marathonfile %}
+
+```yaml
+outputConfiguration:
+  maxPath: 1024
+```
+
+{% endtab %} {% tab max-path Gradle %}
+
+```kotlin
+marathon {
+  outputConfiguration {
+    maxPath = 1024
+  }
+}
+```
+
+{% endtab %} {% tab max-path Gradle Kotlin %}
+
+```kotlin
+marathon {
+  outputConfiguration {
+    maxPath = 1024
+  }
 }
 ```
 
