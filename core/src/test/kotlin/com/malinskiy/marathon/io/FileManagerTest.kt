@@ -16,9 +16,10 @@ import kotlin.io.path.absolutePathString
 
 class FileManagerTest {
     private val output = Files.createTempDir()
-    private val fileManager = FileManager(output)
+    private val fileManager = FileManager(MAX_PATH, output)
 
     private companion object {
+        val MAX_PATH = 255
         val poolId = DevicePoolId("testPoolId")
         val deviceInfo = DeviceInfo(
             operatingSystem = OperatingSystem("23"),
@@ -104,9 +105,9 @@ class FileManagerTest {
 
         val tempDir = Files.createTempDir()
         val proposedPath = Paths.get(tempDir.absolutePath, FileType.LOG.name, poolId.name, deviceInfo.safeSerialNumber)
-        val additionalPathCharacters = FileManager.MAX_PATH - proposedPath.absolutePathString().length
+        val additionalPathCharacters = MAX_PATH - proposedPath.absolutePathString().length
         val limitedOutputDirectory = File(tempDir, "x".repeat(additionalPathCharacters))
-        val limitedFileManager = FileManager(limitedOutputDirectory)
+        val limitedFileManager = FileManager(MAX_PATH, limitedOutputDirectory)
         val file = limitedFileManager.createFile(FileType.LOG, poolId, deviceInfo, test, batchId)
-    }
+    } 
 }

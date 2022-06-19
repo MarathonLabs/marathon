@@ -18,6 +18,8 @@ private const val DEFAULT_DEVICE_INITIALIZATION_TIMEOUT_MILLIS = 180_000L
 data class Configuration private constructor(
     val name: String,
     val outputDir: File,
+    
+    val outputConfiguration: OutputConfiguration,
 
     val analyticsConfiguration: AnalyticsConfiguration,
     val poolingStrategy: PoolingStrategyConfiguration,
@@ -53,6 +55,7 @@ data class Configuration private constructor(
         mapOf<String, String>(
             "name" to name,
             "outputDir" to outputDir.absolutePath,
+            "outputConfiguration" to outputConfiguration.toString(),
             "analyticsConfiguration" to analyticsConfiguration.toString(),
             "pooling" to poolingStrategy.toString(),
             "sharding" to shardingStrategy.toString(),
@@ -84,6 +87,7 @@ data class Configuration private constructor(
 
         if (name != other.name) return false
         if (outputDir != other.outputDir) return false
+        if (outputConfiguration != other.outputConfiguration) return false
         if (analyticsConfiguration != other.analyticsConfiguration) return false
         if (poolingStrategy != other.poolingStrategy) return false
         if (shardingStrategy != other.shardingStrategy) return false
@@ -115,6 +119,7 @@ data class Configuration private constructor(
     override fun hashCode(): Int {
         var result = name.hashCode()
         result = 31 * result + outputDir.hashCode()
+        result = 31 * result + outputConfiguration.hashCode()
         result = 31 * result + analyticsConfiguration.hashCode()
         result = 31 * result + poolingStrategy.hashCode()
         result = 31 * result + shardingStrategy.hashCode()
@@ -175,10 +180,13 @@ data class Configuration private constructor(
         var analyticsTracking: Boolean = false
         var deviceInitializationTimeoutMillis: Long = DEFAULT_DEVICE_INITIALIZATION_TIMEOUT_MILLIS
 
+        var outputConfiguration = OutputConfiguration()
+        
         fun build(): Configuration {
             return Configuration(
                 name = name,
                 outputDir = outputDir,
+                outputConfiguration = outputConfiguration,
                 analyticsConfiguration = analyticsConfiguration,
                 poolingStrategy = poolingStrategy,
                 shardingStrategy = shardingStrategy,

@@ -13,6 +13,7 @@ import com.malinskiy.marathon.config.Configuration
 
 internal class MetricsProviderFactory(configuration: Configuration) {
     private val configuration = configuration.analyticsConfiguration
+    private val debug = configuration.debug
 
     fun create(): MetricsProvider {
         return when (configuration) {
@@ -25,7 +26,7 @@ internal class MetricsProviderFactory(configuration: Configuration) {
 
     private fun createInfluxDBMetricsProvider(configuration: InfluxDbConfiguration, fallback: MetricsProvider): MetricsProvider {
         return try {
-            val db = InfluxDbProvider(configuration).createDb()
+            val db = InfluxDbProvider(configuration, debug).createDb()
             val dataSource = InfluxDBDataSource(db, configuration.dbName, configuration.retentionPolicyConfiguration.name)
             MetricsProviderImpl(dataSource)
         } catch (e: Exception) {
@@ -35,7 +36,7 @@ internal class MetricsProviderFactory(configuration: Configuration) {
 
     private fun createInfluxDB2MetricsProvider(configuration: InfluxDb2Configuration, fallback: MetricsProvider): MetricsProvider {
         return try {
-            val db = InfluxDb2Provider(configuration).createDb()
+            val db = InfluxDb2Provider(configuration, debug).createDb()
             val dataSource = InfluxDB2DataSource(db, configuration.bucket)
             MetricsProviderImpl(dataSource)
         } catch (e: Exception) {
