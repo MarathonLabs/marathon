@@ -12,7 +12,7 @@ import java.util.concurrent.TimeUnit
 
 const val TIMEOUT_SEC = 60L
 
-class InfluxDb2Provider(configuration: AnalyticsConfiguration.InfluxDb2Configuration) {
+class InfluxDb2Provider(configuration: AnalyticsConfiguration.InfluxDb2Configuration, private val debug: Boolean = false) {
     private val logger = MarathonLogging.logger {}
 
     private val url = configuration.url
@@ -33,7 +33,11 @@ class InfluxDb2Provider(configuration: AnalyticsConfiguration.InfluxDb2Configura
             org(org)
             bucket(bucket)
             okHttpClient(okHttpBuilder)
-            logLevel(LogLevel.BASIC)
+            if(debug) {
+                logLevel(LogLevel.BASIC)
+            } else {
+                logLevel(LogLevel.NONE)
+            }
         }.build()
 
         val influxDBClient = InfluxDBClientFactory.create(options)
