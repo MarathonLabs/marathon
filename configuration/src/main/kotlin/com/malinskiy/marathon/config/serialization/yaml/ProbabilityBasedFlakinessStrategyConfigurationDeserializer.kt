@@ -28,7 +28,7 @@ class ProbabilityBasedFlakinessStrategyConfigurationDeserializer(private val ins
             ?: throw ConfigurationException("Missing time limit value")
         val instant = codec.treeToValueOrNull(timeLimitValue, Instant::class.java)
             ?: codec.treeToValueOrNull(timeLimitValue, Duration::class.java)?.addToInstant(instantTimeProvider.referenceTime())
-            ?: throw ConfigurationException("bbb")
+            ?: throw ConfigurationException("Unable to deserialize $timeLimitValue into Instant")
 
         return ProbabilityBasedFlakinessStrategyConfiguration(
             minSuccessRate = minSuccessRate,
