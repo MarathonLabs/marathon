@@ -76,7 +76,11 @@ object Deployment {
             publications {
                 create(DEFAULT_PUBLICATION_NAME, MavenPublication::class.java) {
                     Deployment.customizePom(project, pom)
-                    from(project.components["java"])
+                    if(project.components.names.contains("shadow")) {
+                        from(project.components["shadow"])
+                    } else {
+                        from(project.components["java"])
+                    }
                     artifact(sourcesJar)
                     artifact(javadocJar)
                 }
