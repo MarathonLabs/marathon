@@ -67,8 +67,7 @@ class RemoteTestParser(
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {
-                logger.debug { "Remote parsing failed. Retrying" }
-                logger.debug { e.message }
+                logger.debug(e) { "Remote parsing failed. Retrying" }
                 throw e
             } finally {
                 channel.close()
