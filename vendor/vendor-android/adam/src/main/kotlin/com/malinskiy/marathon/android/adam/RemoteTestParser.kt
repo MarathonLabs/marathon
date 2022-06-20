@@ -153,8 +153,12 @@ class RemoteTestParser(
         val v2 = event.metrics["com.malinskiy.adam.junit4.android.listener.TestAnnotationProducer.v2"]
         return when {
             v2 != null -> {
-                v2.removeSurrounding("[", "]").split(",").map { it.trim() }
-                    .toList().map { serializedAnnotation ->
+                v2.removeSurrounding("[", "]")
+                    .split(",")
+                    .map { it.trim() }
+                    .filter { !it.isNullOrEmpty() }
+                    .toList()
+                    .map { serializedAnnotation ->
                         val index = serializedAnnotation.indexOfFirst { it == '(' }
                         val name = serializedAnnotation.substring(0 until index)
                         val parameters = serializedAnnotation.substring(index).removeSurrounding("(", ")").split(":")
