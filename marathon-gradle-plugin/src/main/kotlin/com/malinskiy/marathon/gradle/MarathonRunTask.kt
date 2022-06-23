@@ -94,6 +94,7 @@ open class MarathonRunTask @Inject constructor(objects: ObjectFactory) : Abstrac
             extensionConfig.screenRecordingPolicy?.let { screenRecordingPolicy = it }
             extensionConfig.analyticsTracking?.let { analyticsTracking = it }
             extensionConfig.deviceInitializationTimeoutMillis?.let { deviceInitializationTimeoutMillis = deviceInitializationTimeoutMillis }
+            extensionConfig.outputConfiguration?.toStrategy()?.let { outputConfiguration = it }
         }.build()
 
         //Write a Marathonfile
