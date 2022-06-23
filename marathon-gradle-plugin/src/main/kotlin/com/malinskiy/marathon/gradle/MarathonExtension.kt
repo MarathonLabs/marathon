@@ -10,8 +10,10 @@ import com.malinskiy.marathon.config.vendor.android.SerialStrategy
 import com.malinskiy.marathon.config.vendor.android.TestAccessConfiguration
 import com.malinskiy.marathon.config.vendor.android.TestParserConfiguration
 import com.malinskiy.marathon.config.vendor.android.TimeoutConfiguration
+import groovy.lang.Closure
 import org.gradle.api.Action
 import org.gradle.api.Project
+import org.gradle.util.internal.ConfigureUtil
 import java.io.File
 
 open class MarathonExtension(project: Project) {
@@ -146,6 +148,13 @@ open class MarathonExtension(project: Project) {
      *
      */
     var baseOutputDir: String? = null
+
+    
+    var outputConfiguration: OutputConfiguration? = null
+    fun outputConfiguration(action: Action<OutputConfiguration>) {
+        outputConfiguration = OutputConfiguration().also { action.execute(it) }
+    }
+    fun outputConfiguration(closure: Closure<OutputConfiguration>) = outputConfiguration(ConfigureUtil.configureUsing(closure))
 
     /**
      * By default, the build fails if some tests failed. If you want to the build to succeed even if some tests failed use *true*.

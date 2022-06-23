@@ -34,7 +34,10 @@ class MarathonFactory {
         val configuration = configurationFactory.build()
 
         val coreTestModule = module {
-            single { FileManager(get<Configuration>().outputDir) }
+            single {
+                val configuration = get<Configuration>()
+                FileManager(configuration.outputConfiguration.maxPath, configuration.outputDir)
+            }
             single { Gson() }
             single<Clock> { Clock.systemDefaultZone() }
             single { timer ?: SystemTimer(get()) }
