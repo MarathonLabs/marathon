@@ -62,7 +62,7 @@ internal class TrackerFactory(
 
     private fun createInfluxDbTracker(config: InfluxDbConfiguration): InfluxDbTracker? {
         val db = try {
-            InfluxDbProvider(config).createDb()
+            InfluxDbProvider(config, configuration.debug).createDb()
         } catch (e: Exception) {
             log.warn(e) { "Failed to reach InfluxDB at ${config.url}" }
             null
@@ -72,7 +72,7 @@ internal class TrackerFactory(
 
     private fun createInfluxDb2Tracker(config: InfluxDb2Configuration): InfluxDb2Tracker? {
         val db = try {
-            InfluxDb2Provider(config).createDb()
+            InfluxDb2Provider(config, configuration.debug).createDb()
         } catch (e: Exception) {
             log.warn(e) { "Failed to reach InfluxDB at ${config.url}" }
             null

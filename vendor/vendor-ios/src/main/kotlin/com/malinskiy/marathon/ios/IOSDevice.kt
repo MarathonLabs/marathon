@@ -139,7 +139,7 @@ class IOSDevice(
         progressReporter: ProgressReporter
     ) = withContext(coroutineContext + CoroutineName("execute")) {
         val iosConfiguration = configuration.vendorConfiguration as VendorConfiguration.IOSConfiguration
-        val fileManager = FileManager(configuration.outputDir)
+        val fileManager = FileManager(configuration.outputConfiguration.maxPath, configuration.outputDir)
 
         if (iosConfiguration.alwaysEraseSimulators) {
             hostCommandExecutor.execOrNull(

@@ -8,7 +8,7 @@ import java.util.concurrent.TimeUnit
 
 const val TIMEOUT_SEC = 60L
 
-class InfluxDbProvider(configuration: AnalyticsConfiguration.InfluxDbConfiguration) {
+class InfluxDbProvider(configuration: AnalyticsConfiguration.InfluxDbConfiguration, private val debug: Boolean = false) {
 
     private val url = configuration.url
     private val user = configuration.user
@@ -27,7 +27,12 @@ class InfluxDbProvider(configuration: AnalyticsConfiguration.InfluxDbConfigurati
         } else {
             InfluxDBFactory.connect(url, okHttpBuilder)
         }
-        influxDb.setLogLevel(InfluxDB.LogLevel.BASIC)
+        
+        if(debug) {
+            influxDb.setLogLevel(InfluxDB.LogLevel.BASIC)
+        } else {
+            influxDb.setLogLevel(InfluxDB.LogLevel.NONE)
+        }
 
         val rpName = retentionPolicyConfiguration.name
         if (!influxDb.databaseExists(dbName)) {
