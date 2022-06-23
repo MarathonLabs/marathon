@@ -60,21 +60,48 @@ class ScreenCapturer(
 
     private fun detectCurrentDeviceOrientation() = device.initialRotation
 
+    /**
+     * Field to detect dynamic screen rotations
+     */
+    private var firstFrameWidth: Int? = null
+    private var firstFrameHeight: Int? = null
+
     private suspend fun getScreenshot(targetOrientation: Rotation): RenderedImage? {
         return try {
-            val screenshot = device.getScreenshot(timeout)?.let {
+            val screenshot = device.getScreenshot(timeout)?.let { image ->
+                if (firstFrameWidth == null) firstFrameWidth = image.width
+                if (firstFrameHeight == null) firstFrameHeight = image.height
+
                 /**
                  * using initial device rotation during the device discovery,
                  * dumpsys input takes too long to retrieve this in realtime
+                 *
+                 * need to account for the first frame orientation as well
                  */
-                when (targetOrientation) {
-                    Rotation.ROTATION_0 -> it
-                    Rotation.ROTATION_180 -> Scalr.rotate(it, Scalr.Rotation.CW_180).also { org -> org.flush() }
-                    Rotation.ROTATION_270 -> Scalr.rotate(it, Scalr.Rotation.CW_270).also { org -> org.flush() }
-                    Rotation.ROTATION_90 -> Scalr.rotate(it, Scalr.Rotation.CW_90).also { org -> org.flush() }
-                }
-            } ?: return null
 
+                var rotation = when (targetOrientation) {
+                    Rotation.ROTATION_0 -> null
+                    Rotation.ROTATION_180 -> Scalr.Rotation.CW_180
+                    Rotation.ROTATION_270 -> Scalr.Rotation.CW_270
+                    Rotation.ROTATION_90 -> Scalr.Rotation.CW_90
+                }
+                if(image.width == firstFrameHeight && image.height == firstFrameWidth) {
+                    /**
+                     * Runtime display rotation. No idea which direction, so just rotate by Pi/2 
+                     */
+                    rotation = when(rotation) {
+                        Scalr.Rotation.CW_90 -> Scalr.Rotation.CW_180
+                        Scalr.Rotation.CW_180 -> Scalr.Rotation.CW_270
+                        Scalr.Rotation.CW_270 -> null
+                        else -> Scalr.Rotation.CW_90
+                    }
+                }
+
+                rotation?.let {
+                    Scalr.rotate(image, it).also { org -> org.flush() }
+                } ?: image
+            } ?: return null
+            
             if (screenshot.width < screenshot.height) {
                 Scalr.resize(screenshot, Scalr.Method.SPEED, Scalr.Mode.AUTOMATIC, configuration.width, configuration.height)
             } else {

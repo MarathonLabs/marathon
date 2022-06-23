@@ -11,12 +11,15 @@ import com.malinskiy.marathon.test.toTestName
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.Test
 import java.io.File
+import java.nio.file.Paths
+import kotlin.io.path.absolutePathString
 
 class FileManagerTest {
     private val output = Files.createTempDir()
-    private val fileManager = FileManager(output)
+    private val fileManager = FileManager(MAX_PATH, output)
 
     private companion object {
+        val MAX_PATH = 255
         val poolId = DevicePoolId("testPoolId")
         val deviceInfo = DeviceInfo(
             operatingSystem = OperatingSystem("23"),
@@ -74,4 +77,37 @@ class FileManagerTest {
         val fqtnLimit = filenameLimit - "-${batchId}.log".length
         file.name shouldBeEqualTo "${longNamedParameterizedTest.toTestName().escape().take(fqtnLimit)}-${batchId}.log"
     }
+
+    @Test
+    fun testDeviceSerialEscaping() {
+        val file = fileManager.createFile(
+            FileType.LOG, poolId, DeviceInfo(
+                operatingSystem = OperatingSystem("23"),
+                serialNumber = "127.0.0.1:5037:emulator-5554",
+                model = "Android SDK built for x86",
+                manufacturer = "unknown",
+                networkState = NetworkState.CONNECTED,
+                deviceFeatures = listOf(DeviceFeature.SCREENSHOT, DeviceFeature.VIDEO),
+                healthy = true
+            )
+        )
+        file.name shouldBeEqualTo "127.0.0.1-5037-emulator-5554.log"
+    }
+
+    @Test
+    fun testTooLongOutputFolder() {
+        val test = com.malinskiy.marathon.test.Test(
+            pkg = "com.xxyyzzxxyy.android.abcdefgh.abcdefghi",
+            clazz = "PackageNameTest",
+            method = "useAppContext",
+            metaProperties = emptyList()
+        )
+
+        val tempDir = Files.createTempDir()
+        val proposedPath = Paths.get(tempDir.absolutePath, FileType.LOG.name, poolId.name, deviceInfo.safeSerialNumber)
+        val additionalPathCharacters = MAX_PATH - proposedPath.absolutePathString().length
+        val limitedOutputDirectory = File(tempDir, "x".repeat(additionalPathCharacters))
+        val limitedFileManager = FileManager(MAX_PATH, limitedOutputDirectory)
+        val file = limitedFileManager.createFile(FileType.LOG, poolId, deviceInfo, test, batchId)
+    } 
 }

@@ -1,5 +1,6 @@
 package com.malinskiy.marathon.android.executor.listeners
 
+import com.malinskiy.marathon.android.InstrumentationInfo
 import com.malinskiy.marathon.android.model.TestIdentifier
 
 class CompositeTestRunListener(private val listeners: List<AndroidTestRunListener>) : AndroidTestRunListener {
@@ -7,8 +8,8 @@ class CompositeTestRunListener(private val listeners: List<AndroidTestRunListene
         listeners.forEach(f)
     }
 
-    override suspend fun beforeTestRun() {
-        execute { it.beforeTestRun() }
+    override suspend fun beforeTestRun(info: InstrumentationInfo?) {
+        execute { it.beforeTestRun(info) }
     }
 
     override suspend fun testRunStarted(runName: String, testCount: Int) {

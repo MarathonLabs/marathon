@@ -44,5 +44,6 @@ class RemoteFileManager(private val device: AndroidDevice) {
 
     companion object {
         const val MAX_FILENAME = 255
+        const val TMP_PATH = "/data/local/tmp"
     }
 }

@@ -34,6 +34,7 @@ import com.malinskiy.marathon.analytics.internal.pub.Track
 import com.malinskiy.marathon.android.AndroidAppInstaller
 import com.malinskiy.marathon.android.AndroidTestBundleIdentifier
 import com.malinskiy.marathon.android.BaseAndroidDevice
+import com.malinskiy.marathon.android.RemoteFileManager
 import com.malinskiy.marathon.android.exception.CommandRejectedException
 import com.malinskiy.marathon.android.exception.InstallException
 import com.malinskiy.marathon.android.exception.TransferException
@@ -48,6 +49,7 @@ import com.malinskiy.marathon.device.NetworkState
 import com.malinskiy.marathon.exceptions.DeviceLostException
 import com.malinskiy.marathon.execution.TestBatchResults
 import com.malinskiy.marathon.execution.progress.ProgressReporter
+import com.malinskiy.marathon.extension.escape
 import com.malinskiy.marathon.extension.withTimeout
 import com.malinskiy.marathon.extension.withTimeoutOrNull
 import com.malinskiy.marathon.test.TestBatch
@@ -257,7 +259,9 @@ class AdamAndroidDevice(
 
     override suspend fun installPackage(absolutePath: String, reinstall: Boolean, optionalParams: List<String>): String? {
         val file = File(absolutePath)
-        val remotePath = "/data/local/tmp/${file.name}"
+        //Very simple escaping for the name of the file
+        val fileName = file.name.escape()
+        val remotePath = "${RemoteFileManager.TMP_PATH}/$fileName"
 
         try {
             withTimeoutOrNull(androidConfiguration.timeoutConfiguration.pushFile) {

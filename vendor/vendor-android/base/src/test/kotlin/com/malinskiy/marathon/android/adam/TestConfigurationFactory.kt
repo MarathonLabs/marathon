@@ -13,14 +13,18 @@ object TestConfigurationFactory {
         fileSyncConfiguration: FileSyncConfiguration = FileSyncConfiguration(),
         allureConfiguration: AllureConfiguration = AllureConfiguration(),
         isCodeCoverageEnabled: Boolean = false,
+        applicationOutput: File? = File(javaClass.classLoader.getResource("apk/app-debug.apk").file),
+        testApplicationOutput: File? = File(javaClass.classLoader.getResource("apk/app-debug-androidTest.apk").file),
+        extraApplicationsOutput: List<File>? = emptyList(),
     ): Configuration {
         return Configuration.Builder(
             name = "",
             outputDir = File(""),
             vendorConfiguration = VendorConfiguration.AndroidConfiguration(
                 androidSdk = File(""),
-                applicationOutput = File(javaClass.classLoader.getResource("apk/app-debug.apk").file),
-                testApplicationOutput = File(javaClass.classLoader.getResource("apk/app-debug-androidTest.apk").file),
+                applicationOutput = applicationOutput,
+                testApplicationOutput = testApplicationOutput,
+                extraApplicationsOutput = extraApplicationsOutput,
                 autoGrantPermission = autoGrantPermission,
                 installOptions = installOptions,
                 fileSyncConfiguration = fileSyncConfiguration,

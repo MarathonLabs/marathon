@@ -67,8 +67,7 @@ class RemoteTestParser(
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {
-                logger.debug { "Remote parsing failed. Retrying" }
-                logger.debug { e.message }
+                logger.debug(e) { "Remote parsing failed. Retrying" }
                 throw e
             } finally {
                 channel.close()
@@ -85,7 +84,7 @@ class RemoteTestParser(
         testBundles: List<AndroidTestBundle>
     ): List<Test> {
         return testBundles.flatMap { bundle ->
-            val androidTestBundle = AndroidTestBundle(bundle.application, bundle.testApplication)
+            val androidTestBundle = AndroidTestBundle(bundle.application, bundle.testApplication, bundle.extraApplications)
             val instrumentationInfo = androidTestBundle.instrumentationInfo
 
             val testParserConfiguration = vendorConfiguration.testParserConfiguration
@@ -154,8 +153,12 @@ class RemoteTestParser(
         val v2 = event.metrics["com.malinskiy.adam.junit4.android.listener.TestAnnotationProducer.v2"]
         return when {
             v2 != null -> {
-                v2.removeSurrounding("[", "]").split(",").map { it.trim() }
-                    .toList().map { serializedAnnotation ->
+                v2.removeSurrounding("[", "]")
+                    .split(",")
+                    .map { it.trim() }
+                    .filter { !it.isNullOrEmpty() }
+                    .toList()
+                    .map { serializedAnnotation ->
                         val index = serializedAnnotation.indexOfFirst { it == '(' }
                         val name = serializedAnnotation.substring(0 until index)
                         val parameters = serializedAnnotation.substring(index).removeSurrounding("(", ")").split(":")

@@ -12,7 +12,6 @@ import com.malinskiy.marathon.android.adam.TestDeviceFactory
 import com.malinskiy.marathon.android.adam.boot
 import com.malinskiy.marathon.android.adam.features
 import com.malinskiy.marathon.android.adam.shell
-import com.malinskiy.marathon.config.vendor.android.AggregationMode
 import com.malinskiy.marathon.config.vendor.android.FileSyncConfiguration
 import com.malinskiy.marathon.config.vendor.android.FileSyncEntry
 import com.nhaarman.mockitokotlin2.mock
@@ -31,10 +30,9 @@ class RemoteFileManagerTest {
     fun testCreateRemoteDirectory() {
         val configuration = TestConfigurationFactory.create(
             fileSyncConfiguration = FileSyncConfiguration(
-                mutableListOf(
+                mutableSetOf(
                     FileSyncEntry(
-                        "screenshots",
-                        AggregationMode.DEVICE
+                        "screenshots"
                     )
                 )
             )
@@ -63,10 +61,9 @@ class RemoteFileManagerTest {
     fun testRemoveRemoteDirectory() {
         val configuration = TestConfigurationFactory.create(
             fileSyncConfiguration = FileSyncConfiguration(
-                mutableListOf(
+                mutableSetOf(
                     FileSyncEntry(
-                        "screenshots",
-                        AggregationMode.DEVICE
+                        "screenshots"
                     )
                 )
             )
@@ -93,10 +90,9 @@ class RemoteFileManagerTest {
     fun testRemoveRemotePath() {
         val configuration = TestConfigurationFactory.create(
             fileSyncConfiguration = FileSyncConfiguration(
-                mutableListOf(
+                mutableSetOf(
                     FileSyncEntry(
-                        "screenshots",
-                        AggregationMode.DEVICE
+                        "screenshots"
                     )
                 )
             )
@@ -125,10 +121,9 @@ class RemoteFileManagerTest {
     fun testRemoteVideo() {
         val configuration = TestConfigurationFactory.create(
             fileSyncConfiguration = FileSyncConfiguration(
-                mutableListOf(
+                mutableSetOf(
                     FileSyncEntry(
-                        "screenshots",
-                        AggregationMode.DEVICE
+                        "screenshots"
                     )
                 )
             )
@@ -154,10 +149,9 @@ class RemoteFileManagerTest {
     fun testRemoteVideoWithLongFileName() {
         val configuration = TestConfigurationFactory.create(
             fileSyncConfiguration = FileSyncConfiguration(
-                mutableListOf(
+                mutableSetOf(
                     FileSyncEntry(
-                        "screenshots",
-                        AggregationMode.DEVICE
+                        "screenshots"
                     )
                 )
             )

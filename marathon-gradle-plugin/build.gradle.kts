@@ -1,8 +1,11 @@
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
 plugins {
     `java-gradle-plugin`
     `kotlin-dsl`
     id("org.jetbrains.dokka")
     id("com.gradle.plugin-publish") version Versions.gradlePluginPublish
+    id("com.github.johnrengelman.shadow") version Versions.gradlePluginShadow
 }
 
 
@@ -26,23 +29,41 @@ pluginBundle {
 Deployment.initialize(project)
 
 dependencies {
-    implementation(gradleApi())
-    implementation(Libraries.kotlinLogging)
+    shadow(gradleApi())
+    shadow(localGroovy())
+    
+    shadow(Libraries.kotlinLogging)
     implementation(project(":configuration"))
-    implementation(BuildPlugins.androidGradle)
-    implementation(Libraries.apacheCommonsCodec)
+    shadow(BuildPlugins.androidGradle)
+    shadow(Libraries.apacheCommonsCodec)
+}
+
+// needed to prevent inclusion of gradle-api into shadow JAR
+afterEvaluate {
+    configurations["api"].dependencies.remove(dependencies.gradleApi())
 }
 
 tasks.processResources.configure {
-    from(rootProject.project("cli").layout.buildDirectory.dir("distributions").get().asFile) {
+    val zipTask: Task = rootProject.project("cli").tasks.getByName("distZip")
+    from(zipTask) {
         rename {
-            if (it.endsWith(".zip") && it.contains("marathon")) {
-                "marathon-cli.zip"
-            } else {
-                it
-            }
+            "marathon-cli.zip"
         }
     }
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-    dependsOn(rootProject.project("cli").tasks.getByName("distZip"))
+    dependsOn(zipTask)
+}
+
+tasks.shadowJar {
+    isZip64 = true
+    relocate(
+        "com.fasterxml.jackson",
+        "com.malinskiy.marathon.shadow.com.fasterxml.jackson"
+    )
+    archiveClassifier.set("")
+}
+
+tasks.withType<KotlinCompile> {
+    kotlinOptions.jvmTarget = "1.8"
+    kotlinOptions.apiVersion = "1.5"
 }

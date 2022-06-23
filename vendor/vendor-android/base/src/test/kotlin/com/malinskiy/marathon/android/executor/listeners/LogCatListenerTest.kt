@@ -10,7 +10,6 @@ import com.malinskiy.marathon.android.adam.TestDeviceFactory
 import com.malinskiy.marathon.android.adam.boot
 import com.malinskiy.marathon.android.adam.features
 import com.malinskiy.marathon.android.model.TestIdentifier
-import com.malinskiy.marathon.config.vendor.android.AggregationMode
 import com.malinskiy.marathon.config.vendor.android.FileSyncConfiguration
 import com.malinskiy.marathon.config.vendor.android.FileSyncEntry
 import com.malinskiy.marathon.device.DevicePoolId
@@ -44,11 +43,8 @@ class LogCatListenerTest {
     fun testDefault() {
         val configuration = TestConfigurationFactory.create(
             fileSyncConfiguration = FileSyncConfiguration(
-                mutableListOf(
-                    FileSyncEntry(
-                        "screenshots",
-                        AggregationMode.DEVICE
-                    )
+                mutableSetOf(
+                    FileSyncEntry("screenshots")
                 )
             )
         )
@@ -90,11 +86,8 @@ class LogCatListenerTest {
     fun testRunFailed() {
         val configuration = TestConfigurationFactory.create(
             fileSyncConfiguration = FileSyncConfiguration(
-                mutableListOf(
-                    FileSyncEntry(
-                        "screenshots",
-                        AggregationMode.DEVICE
-                    )
+                mutableSetOf(
+                    FileSyncEntry("screenshots")
                 )
             )
         )
@@ -136,11 +129,8 @@ class LogCatListenerTest {
     fun testBatchTestIsolation() {
         val configuration = TestConfigurationFactory.create(
             fileSyncConfiguration = FileSyncConfiguration(
-                mutableListOf(
-                    FileSyncEntry(
-                        "screenshots",
-                        AggregationMode.DEVICE
-                    )
+                mutableSetOf(
+                    FileSyncEntry("screenshots")
                 )
             )
         )
@@ -186,6 +176,34 @@ class LogCatListenerTest {
 
             verify(attachmentListener, times(1)).onAttachment(test0.toTest(), Attachment(logFile1, AttachmentType.LOG))
             verify(attachmentListener, times(1)).onAttachment(test1.toTest(), Attachment(logFile2, AttachmentType.LOG))
+        }
+    }
+
+    @Test
+    fun testRunnerCrash() {
+        val configuration = TestConfigurationFactory.create()
+        val device = TestDeviceFactory.create(client, configuration, mock())
+        val poolId = DevicePoolId("testpool")
+        val batch = TestBatch(listOf(test0.toTest()))
+        val logWriter = mock<LogWriter>()
+        val listener = LogCatListener(device, poolId, batch.id, logWriter)
+
+        runBlocking {
+            server.multipleSessions {
+                serial("emulator-5554") {
+                    boot()
+                }
+                features("emulator-5554")
+            }
+
+            device.setup()
+
+            listener.beforeTestRun()
+            listener.testRunStarted("Run", 1)
+            listener.onLine("Important crash-related information")
+            listener.afterTestRun()
+
+            verify(logWriter, times(1)).saveLogs(poolId, batch.id, device.toDeviceInfo(), listOf("Important crash-related information\n"))
         }
     }
 

@@ -1,19 +1,17 @@
 package com.malinskiy.marathon.gradle
 
 import groovy.lang.Closure
+import org.gradle.api.Action
+import org.gradle.util.internal.ConfigureUtil
 
 open class RetryStrategyConfiguration {
     var fixedQuota: FixedQuotaRetryStrategyConfiguration? = null
 
-    fun fixedQuota(block: FixedQuotaRetryStrategyConfiguration.() -> Unit) {
-        fixedQuota = FixedQuotaRetryStrategyConfiguration().also(block)
+    fun fixedQuota(action: Action<FixedQuotaRetryStrategyConfiguration>) {
+        fixedQuota = FixedQuotaRetryStrategyConfiguration().also { action.execute(it) }
     }
 
-    fun fixedQuota(closure: Closure<*>) {
-        fixedQuota = FixedQuotaRetryStrategyConfiguration()
-        closure.delegate = fixedQuota
-        closure.call()
-    }
+    fun fixedQuota(closure: Closure<FixedQuotaRetryStrategyConfiguration>) = fixedQuota(ConfigureUtil.configureUsing(closure))
 }
 
 private const val DEFAULT_TOTAL_ALLOWED_RETRY_QUOTA = 200

@@ -18,6 +18,7 @@ import com.malinskiy.marathon.config.ScreenRecordingPolicy
 import com.malinskiy.marathon.config.vendor.VendorConfiguration
 import com.malinskiy.marathon.config.vendor.android.AggregationMode
 import com.malinskiy.marathon.config.vendor.android.FileSyncEntry
+import com.malinskiy.marathon.config.vendor.android.PathRoot
 import com.malinskiy.marathon.config.vendor.android.SerialStrategy
 import com.malinskiy.marathon.device.DeviceFeature
 import com.malinskiy.marathon.device.DevicePoolId
@@ -100,8 +101,9 @@ abstract class BaseAndroidDevice(
         if (androidConfiguration.allureConfiguration.enabled) {
             androidConfiguration.fileSyncConfiguration.pull.add(
                 FileSyncEntry(
-                    androidConfiguration.allureConfiguration.relativeResultsDirectory,
-                    AggregationMode.TEST_RUN
+                    relativePath = androidConfiguration.allureConfiguration.relativeResultsDirectory,
+                    pathRoot = androidConfiguration.allureConfiguration.pathRoot,
+                    aggregationMode = AggregationMode.TEST_RUN,
                 )
             )
         }
@@ -109,8 +111,9 @@ abstract class BaseAndroidDevice(
         if (configuration.isCodeCoverageEnabled) {
             androidConfiguration.fileSyncConfiguration.pull.add(
                 FileSyncEntry(
-                    "coverage",
-                    AggregationMode.POOL
+                    relativePath = "coverage",
+                    pathRoot = PathRoot.APP_DATA,
+                    aggregationMode = AggregationMode.POOL
                 )
             )
         }
@@ -239,7 +242,7 @@ abstract class BaseAndroidDevice(
         deferred: CompletableDeferred<TestBatchResults>,
         progressReporter: ProgressReporter
     ): CompositeTestRunListener {
-        val fileManager = FileManager(configuration.outputDir)
+        val fileManager = FileManager(configuration.outputConfiguration.maxPath, configuration.outputDir)
         val attachmentProviders = mutableListOf<AttachmentProvider>()
 
         val features = this.deviceFeatures

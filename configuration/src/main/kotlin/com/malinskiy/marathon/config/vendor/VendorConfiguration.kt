@@ -39,6 +39,7 @@ sealed class VendorConfiguration {
         @JsonProperty("androidSdk") val androidSdk: File?,
         @JsonProperty("applicationApk") val applicationOutput: File?,
         @JsonProperty("testApplicationApk") val testApplicationOutput: File?,
+        @JsonProperty("extraApplicationsApk") val extraApplicationsOutput: List<File>?,
         @JsonProperty("outputs") val outputs: List<AndroidTestBundleConfiguration>? = null,
         @JsonProperty("autoGrantPermission") val autoGrantPermission: Boolean = DEFAULT_AUTO_GRANT_PERMISSION,
         @JsonProperty("instrumentationArgs") val instrumentationArgs: Map<String, String> = emptyMap(),

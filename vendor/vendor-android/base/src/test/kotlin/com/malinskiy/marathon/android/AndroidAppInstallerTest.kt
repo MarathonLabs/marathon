@@ -15,6 +15,7 @@ import com.malinskiy.marathon.android.adam.shellFail
 import com.malinskiy.marathon.config.vendor.android.AggregationMode
 import com.malinskiy.marathon.config.vendor.android.FileSyncConfiguration
 import com.malinskiy.marathon.config.vendor.android.FileSyncEntry
+import com.malinskiy.marathon.config.vendor.android.PathRoot
 import com.malinskiy.marathon.exceptions.DeviceSetupException
 import com.nhaarman.mockitokotlin2.mock
 import kotlinx.coroutines.runBlocking
@@ -38,10 +39,11 @@ class AndroidAppInstallerTest {
     fun testCleanInstallation() {
         val configuration = TestConfigurationFactory.create(
             fileSyncConfiguration = FileSyncConfiguration(
-                mutableListOf(
+                mutableSetOf(
                     FileSyncEntry(
-                        "screenshots",
-                        AggregationMode.DEVICE
+                        relativePath = "screenshots",
+                        aggregationMode = AggregationMode.DEVICE,
+                        pathRoot = PathRoot.EXTERNAL_STORAGE,
                     )
                 )
             )
@@ -73,7 +75,7 @@ class AndroidAppInstallerTest {
     fun testCleanInstallationWithAutograntPermissions() {
         val configuration = TestConfigurationFactory.create(
             autoGrantPermission = true,
-            fileSyncConfiguration = FileSyncConfiguration(mutableListOf(FileSyncEntry("screenshots", AggregationMode.DEVICE)))
+            fileSyncConfiguration = FileSyncConfiguration(mutableSetOf(FileSyncEntry("screenshots")))
         )
         val installer = AndroidAppInstaller(configuration)
         val device = TestDeviceFactory.create(client, configuration, mock())
@@ -102,7 +104,7 @@ class AndroidAppInstallerTest {
     fun testReinstallWithExtraArguments() {
         val configuration = TestConfigurationFactory.create(
             installOptions = "-custom",
-            fileSyncConfiguration = FileSyncConfiguration(mutableListOf(FileSyncEntry("screenshots", AggregationMode.DEVICE)))
+            fileSyncConfiguration = FileSyncConfiguration(mutableSetOf(FileSyncEntry("screenshots")))
         )
         val installer = AndroidAppInstaller(configuration)
         val device = TestDeviceFactory.create(client, configuration, mock())
@@ -133,10 +135,9 @@ class AndroidAppInstallerTest {
     fun testInstallException() {
         val configuration = TestConfigurationFactory.create(
             fileSyncConfiguration = FileSyncConfiguration(
-                mutableListOf(
+                mutableSetOf(
                     FileSyncEntry(
                         "screenshots",
-                        AggregationMode.DEVICE
                     )
                 )
             )
@@ -171,10 +172,9 @@ class AndroidAppInstallerTest {
     fun testPmListException() {
         val configuration = TestConfigurationFactory.create(
             fileSyncConfiguration = FileSyncConfiguration(
-                mutableListOf(
+                mutableSetOf(
                     FileSyncEntry(
-                        "screenshots",
-                        AggregationMode.DEVICE
+                        "screenshots"
                     )
                 )
             )
@@ -197,6 +197,38 @@ class AndroidAppInstallerTest {
             device.setup()
 
             assertThrows<DeviceSetupException> { installer.prepareInstallation(device) }
+        }
+    }
+
+    @Test
+    fun testInstallationWithSpecialCharactersInPath() {
+        val apk = File(javaClass.classLoader.getResource("apk/app-debug.apk").file).copyTo(File(temp, "().apk"))
+        val testApk = File(javaClass.classLoader.getResource("apk/app-debug-androidTest.apk").file).copyTo(File(temp, "()-androidTest.apk"))
+
+        val configuration = TestConfigurationFactory.create(
+            applicationOutput = apk,
+            testApplicationOutput = testApk,
+        )
+        val installer = AndroidAppInstaller(configuration)
+        val device = TestDeviceFactory.create(client, configuration, mock())
+
+        runBlocking {
+            server.multipleSessions {
+                serial("emulator-5554") {
+                    boot()
+
+                    shell("pm list packages", "")
+                    installApk(temp, "/data/local/tmp/--.apk", "511", "122fc3b5d69b262db9b84dfc00e8f1d4", "-r")
+
+                    shell("pm list packages", "package:com.example")
+                    installApk(temp, "/data/local/tmp/---androidTest.apk", "511", "8d103498247b3711817a9f18624dede7", "-r")
+
+                }
+                features("emulator-5554")
+            }
+
+            device.setup()
+            installer.prepareInstallation(device)
         }
     }
 }

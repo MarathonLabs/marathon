@@ -28,6 +28,7 @@ import kotlinx.coroutines.channels.SendChannel
 import java.util.PriorityQueue
 import java.util.Queue
 import kotlin.coroutines.CoroutineContext
+import kotlin.math.max
 
 class QueueActor(
     private val configuration: Configuration,
@@ -166,7 +167,13 @@ class QueueActor(
             it.forEach {
                 val oldSize = queue.size
                 queue.removeAll(listOf(it.test))
-                val diff = oldSize - queue.size
+                /**
+                 * Important edge case:
+                 * 1. Multiple runs of test X scheduled via flaky tests
+                 * 2. One run of test X finishes and removes other non started flaky retries
+                 * 3. Another parallel run of test X finishes and should be counted towards reducing the expected tests
+                 */
+                val diff = max(oldSize - queue.size, 1)
                 testResultReporter.removeTest(it.test, diff)
                 progressReporter.removeTests(poolId, diff)
             }

@@ -14,6 +14,8 @@ Below is an example of Marathonfile (without the vendor module configuration:
 ```yaml
 name: "sample-app tests"
 outputDir: "./marathon"
+outputConfiguration:
+  maxPath: 1024
 analyticsConfiguration:
   type: "influxdb"
   url: "http://influx.svc.cluster.local:8086"
@@ -54,6 +56,9 @@ using Kotlin DSL:
 marathon {
   name = "sample-app tests"
   baseOutputDir = "./marathon"
+  outputConfiguration {
+    maxPath = 1024
+  }
   analytics {
     influx {
       url = "http://influx.svc.cluster.local:8086"
@@ -195,6 +200,50 @@ mitigating flakiness.
 ## Disabled analytics
 
 By default no analytics backend is expected which means that each test will be treated as a completely new test.
+
+## [InfluxDB v2][7]
+
+Assuming you've done the setup for InfluxDB v2 you need to provide:
+
+- url
+- token - Token for authentication
+- organization - Organization is the name of the organization you wish to write/read from
+- bucket - Destination bucket to write/read from
+- retention policy
+
+Bucket is quite useful in case you have multiple configurations of tests/devices and you don't want metrics from one configuration to
+affect the other one, e.g. regular and end-to-end tests.
+
+{% tabs analytics-influxdb2 %} {% tab analytics-influxdb2 Marathonfile %}
+
+```yaml
+analyticsConfiguration:
+  type: "influxdb2"
+  url: "http://influx2.svc.cluster.local:8086"
+  token: "my-super-secret-token"
+  organization: "starlabs"
+  bucket: "marathon"
+  retentionPolicyConfiguration:
+    everySeconds: 604800  # Duration in seconds for how long data will be kept in the database. 0 means infinite. minimum: 0
+    shardGroupDurationSeconds: 0 # Shard duration measured in seconds
+```
+
+{% endtab %} {% tab analytics-influxdb2 Gradle Kotlin %}
+
+```kotlin
+marathon {
+  analytics {
+    influx {
+      url = "http://influx2.svc.cluster.local:8086"
+      token = "my-super-secret-token"
+      organization = "starlabs"
+      bucket = "marathon"
+    }
+  }
+}
+```
+
+{% endtab %} {% endtabs %}
 
 ## [InfluxDB][1]
 
@@ -481,7 +530,7 @@ Sharding is a mechanism that allows the marathon to affect the tests scheduled f
 
 ### Parallel sharding
 
-Executes each test in parallel on all the available devices in pool. This is the default behaviour.
+Executes each test using available devices. This is the default behaviour.
 
 {% tabs sharding-parallel %} {% tab sharding-parallel Marathonfile %}
 
@@ -942,6 +991,8 @@ marathon {
 
 In order to indicate to marathon which tests you want to execute you can use the allowlist and blocklist parameters.
 
+Keep in mind that test filtering works after a list of tests expected to run has been determined using [test class regular expression][9].
+
 First allowlist is applied, then the blocklist. Each accepts a *TestFilter*:
 
 | YAML type                         | Gradle class                                    | Description                                                                                |
@@ -952,23 +1003,26 @@ First allowlist is applied, then the blocklist. Each accepts a *TestFilter*:
 | "package"                         | `TestPackageFilterConfiguration`                | Filters tests by using only test package, e.g. `com.example`                               |
 | "method"                          | `TestMethodFilterConfiguration`                 | Filters tests by using only test method, e.g. `myComplicatedTest`                          |
 | "annotation"                      | `AnnotationFilterConfiguration`                 | Filters tests by using only test annotation name, e.g. `androidx.test.filters.LargeTest`   |
+| "allure"                          | `AllureFilterConfiguration`                     | Filters tests by using allure-test-filter, see [8]                                         |
 
 All the filters can be used in allowlist and in blocklist block as well, for example the following will run only smoke tests:
 
 ```yaml
-allowlist:
-  - type: "annotation"
-    values:
-      - "com.example.SmokeTest"
+filteringConfiguration:
+  allowlist:
+    - type: "annotation"
+      values:
+        - "com.example.SmokeTest"
 ```
 
 And the next snippet will execute everything, but the smoke tests:
 
 ```yaml
-blocklist:
-  - type: "annotation"
-    values:
-      - "com.example.SmokeTest"
+filteringConfiguration:
+  blocklist:
+    - type: "annotation"
+      values:
+        - "com.example.SmokeTest"
 ```
 
 ### Filter parameters
@@ -984,9 +1038,10 @@ Each of the above filters expects **only one** of the following parameters:
 An example of `regex` filtering is executing any test for a particular package, e.g. for package: `com.example` and it's subpackages:
 
 ```yaml
-allowlist:
-  - type: "package"
-    regex: "com\.example.*"
+filteringConfiguration:
+  allowlist:
+    - type: "package"
+      regex: "com\.example.*"
 ```
 
 ### Values filtering
@@ -994,11 +1049,12 @@ allowlist:
 You could also specify each package separately via values:
 
 ```yaml
-allowlist:
-  - type: "package"
-    values:
-      - "com.example"
-      - "com.example.subpackage"
+filteringConfiguration:
+  allowlist:
+    - type: "package"
+      values:
+        - "com.example"
+        - "com.example.subpackage"
 ```
 
 ### Values file filtering
@@ -1006,9 +1062,10 @@ allowlist:
 Or you can supply these packages via a file (be careful with the relative paths: they will be relative to the workdir of the process):
 
 ```yaml
-allowlist:
-  - type: "package"
-    file: "testing/myfilterfile"
+filteringConfiguration:
+  allowlist:
+    - type: "package"
+      file: "testing/myfilterfile"
 ```
 
 Inside the `testing/myfilterfile` you should supply the values, each on a separate line:
@@ -1025,11 +1082,12 @@ A common scenario is to execute a list of tests. You can do this via the FQTN fi
 {% tabs run-specific-tests %} {% tab run-specific-tests Marathonfile %}
 
 ```yaml
-allowlist:
-  - type: "fully-qualified-test-name"
-    values:
-      - "com.example.ElaborateTest#testMethod"
-      - "com.example.subpackage.OtherTest#testSomethingElse"
+filteringConfiguration:
+  allowlist:
+    - type: "fully-qualified-test-name"
+      values:
+        - "com.example.ElaborateTest#testMethod"
+        - "com.example.subpackage.OtherTest#testSomethingElse"
 ```
 
 {% endtab %} {% tab run-specific-tests Gradle Kotlin %}
@@ -1058,17 +1116,21 @@ marathon {
 If you want to execute tests `ScaryTest` and `FlakyTest` for any package using the *class name* filter:
 
 ```yaml
-- type: "simple-class-name"
-  values:
-    - "ScaryTest"
-    - "FlakyTest" 
+filteringConfiguration:
+  allowlist:
+  - type: "simple-class-name"
+    values:
+      - "ScaryTest"
+      - "FlakyTest" 
 ```
 
 In case you want to separate the filtering configuration from the *Marathonfile* you can supply a reference to an external file:
 
 ```yaml
-- type: "simple-class-name"
-  file: testing/myfilterfile
+filteringConfiguration:
+  allowlist:
+  - type: "simple-class-name"
+    file: testing/myfilterfile
 ```
 
 Inside the `testing/myfilterfile` you should supply the same values, each on a separate line, e.g. *fully qualified class name* filter:
@@ -1077,6 +1139,35 @@ Inside the `testing/myfilterfile` you should supply the same values, each on a s
 com.example.ScaryTest
 com.example.subpackage.FlakyTest
 ```
+
+Using the allure platform test filter:
+{% tabs allure-test-filter %} {% tab allure-test-filter Marathonfile %}
+```yaml
+filteringConfiguration:
+  allowlist:
+  - type: "allure"
+```
+{% endtab %} {% tab allure-test-filter Gradle Kotlin %}
+```kotlin
+marathon {
+  filteringConfiguration {
+    allowlist {
+      add(TestFilterConfiguration.AllureFilterConfiguration)
+    }
+  }
+}
+```
+{% endtab %} {% tab allure-test-filter Gradle %}
+```kotlin
+marathon {
+  filteringConfiguration {
+    allowlist {
+      allureTestFilter = true
+    }
+  }
+}
+```
+{% endtab %} {% endtabs %}
 
 ### Composition filtering
 
@@ -1543,6 +1634,42 @@ marathon {
 
 {% endtab %} {% endtabs %}
 
+## Output configuration
+
+### Max file path
+By default, the max file path for any output file is capped at 255 characters due to some of OSs limitations. This is the reason why some
+test runs have lots of "File path length cannot exceed" messages in the log. Since there is currently no API to programmatically 
+establish this limit it's user's responsibility to set it up to larger value if OS supports this and the user desires it.
+
+{% tabs max-path %} {% tab max-path Marathonfile %}
+
+```yaml
+outputConfiguration:
+  maxPath: 1024
+```
+
+{% endtab %} {% tab max-path Gradle %}
+
+```kotlin
+marathon {
+  outputConfiguration {
+    maxPath = 1024
+  }
+}
+```
+
+{% endtab %} {% tab max-path Gradle Kotlin %}
+
+```kotlin
+marathon {
+  outputConfiguration {
+    maxPath = 1024
+  }
+}
+```
+
+{% endtab %} {% endtabs %}
+
 # Vendor configuration
 
 See relevant vendor module page, e.g. [Android][3] or [iOS][4]
@@ -1554,3 +1681,6 @@ See relevant vendor module page, e.g. [Android][3] or [iOS][4]
 [4]: {% post_url 2018-11-19-ios %}
 [5]: https://github.com/MarathonLabs/marathon/blob/develop/cli/src/main/kotlin/com/malinskiy/marathon/cli/config/ConfigFactory.kt
 [6]: https://source.android.com/devices/tech/test_infra/tradefed/architecture/advanced/sharding
+[7]: https://docs.influxdata.com/influxdb/v2.0/
+[8]: https://github.com/allure-framework/allure-java/tree/master/allure-test-filter
+[9]: {% post_url 2018-11-19-configuration %}#test-class-regular-expression

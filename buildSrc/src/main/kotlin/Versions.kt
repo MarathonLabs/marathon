@@ -1,22 +1,23 @@
 object Versions {
-    val marathon = System.getenv("GIT_TAG_NAME") ?: "0.7.0"
+    val marathon = System.getenv("GIT_TAG_NAME") ?: "0.7.2"
 
     val kotlin = "1.5.21"
     val coroutines = "1.5.2"
 
     val ddmlib = "30.0.3"
-    val adam = "0.4.3"
+    val adam = "0.4.5"
     val dexTestParser = "2.3.3"
-    val kotlinLogging = "2.0.11"
-    val logbackClassic = "1.2.7"
+    val kotlinLogging = "2.1.21"
+    val logbackClassic = "1.2.10"
     val axmlParser = "1.0"
     val bugsnag = "3.6.3"
 
     val junitGradle = "1.2.0"
     val androidGradleVersion = "7.0.3"
-    val gradlePluginPublish = "0.17.0"
+    val gradlePluginPublish = "0.20.0"
+    val gradlePluginShadow = "7.1.2"
 
-    val junit5 = "5.8.1"
+    val junit5 = "5.8.2"
     val kluent = "1.68"
 
     val kakao = "3.0.2"
@@ -29,28 +30,30 @@ object Versions {
     val apacheCommonsIO = "2.11.0"
     val apacheCommonsCodec = "1.15"
     val influxDbClient = "2.22"
+    val influxDb2Client = "3.4.0"
     val argParser = "2.0.7"
-    val jacksonDatabind = "2.13.0"
+    val jacksonDatabind = "2.13.1"
     val jacksonKotlin = jacksonDatabind
     val jacksonYaml = jacksonDatabind
     val jacksonJSR310 = jacksonDatabind
     val ddPlist = "1.23"
     val guava = "31.0.1-jre"
-    val rsync4j = "3.2.3-7"
+    val rsync4j = "3.2.3-8"
     val sshj = "0.32.0"
-    val testContainers = "1.16.2"
+    val testContainers = "1.16.3"
     val jupiterEngine = junit5
     val jansi = "2.4.0"
     val scalr = "4.2"
-    val allureJava = "2.16.1"
-    val allureKotlin = "2.2.7"
+    val allureTestFilter = "2.17.2"
+    val allureJava = "2.17.2"
+    val allureKotlin = "2.4.0"
     val allureEnvironment = "1.0.0"
     val mockitoKotlin = "2.2.0"
     val googleAnalitycsWrapper = "2.0.0"
     val dokka = "1.5.0"
-    val koin = "3.1.3"
+    val koin = "3.1.5"
     val jsonAssert = "1.5.0"
-    val xmlUnit = "2.8.3"
+    val xmlUnit = "2.9.0"
     val assertk = "0.19"
 }
 
@@ -79,6 +82,7 @@ object Libraries {
     val apacheCommonsIO = "commons-io:commons-io:${Versions.apacheCommonsIO}"
     val apacheCommonsCodec = "commons-codec:commons-codec:${Versions.apacheCommonsCodec}"
     val influxDbClient = "org.influxdb:influxdb-java:${Versions.influxDbClient}"
+    val influxDb2Client = "com.influxdb:influxdb-client-java:${Versions.influxDb2Client}"
     val argParser = "com.xenomachina:kotlin-argparser:${Versions.argParser}"
     val jacksonDatabind = "com.fasterxml.jackson.core:jackson-databind:${Versions.jacksonDatabind}"
     val jacksonAnnotations = "com.fasterxml.jackson.core:jackson-annotations:${Versions.jacksonDatabind}"
@@ -94,6 +98,7 @@ object Libraries {
     val allure = "io.qameta.allure:allure-java-commons:${Versions.allureJava}"
     val allureEnvironment = "com.github.automatedowl:allure-environment-writer:${Versions.allureEnvironment}"
     val allureKotlinCommons = "io.qameta.allure:allure-kotlin-commons:${Versions.allureKotlin}"
+    val allureTestFilter = "io.qameta.allure:allure-test-filter:${Versions.allureTestFilter}"
     val koin = "io.insert-koin:koin-core:${Versions.koin}"
     val bugsnag = "com.bugsnag:bugsnag:${Versions.bugsnag}"
 }

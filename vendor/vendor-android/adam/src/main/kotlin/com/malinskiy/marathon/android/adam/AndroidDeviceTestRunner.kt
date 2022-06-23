@@ -20,7 +20,7 @@ import com.malinskiy.marathon.android.extension.isIgnored
 import com.malinskiy.marathon.android.model.TestIdentifier
 import com.malinskiy.marathon.config.Configuration
 import com.malinskiy.marathon.config.vendor.VendorConfiguration
-import com.malinskiy.marathon.extension.bashEscape
+import com.malinskiy.marathon.config.vendor.android.PathRoot
 import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.test.Test
 import com.malinskiy.marathon.test.TestBatch
@@ -58,13 +58,15 @@ class AndroidDeviceTestRunner(private val device: AdamAndroidDevice, private val
             bundleIdentifier.identify(it).instrumentationInfo
         }
         infoToTestMap.keys.forEach { info ->
-            val runnerRequest = prepareTestRunnerRequest(configuration, androidConfiguration, info, testBatch)
+            val coverageFilename = "coverage-${testBatch.id}.ec"
+            val coverageFile = "/data/data/${info.applicationPackage}/coverage/$coverageFilename"
+            val runnerRequest = prepareTestRunnerRequest(configuration, androidConfiguration, info, testBatch, coverageFile)
             var channel: ReceiveChannel<List<TestEvent>>? = null
             try {
                 withTimeoutOrNull(configuration.testBatchTimeoutMillis) {
                     notifyIgnoredTest(ignoredTests, listener)
-                    clearData(androidConfiguration, info)
-                    listener.beforeTestRun()
+                    clearData(configuration, androidConfiguration, info)
+                    listener.beforeTestRun(info)
 
                     logger.debug { "Running ${String(runnerRequest.serialize())}" }
                     val localChannel = device.executeTestRequest(runnerRequest)
@@ -127,7 +129,11 @@ class AndroidDeviceTestRunner(private val device: AdamAndroidDevice, private val
         }
     }
 
-    private suspend fun clearData(androidConfiguration: VendorConfiguration.AndroidConfiguration, info: InstrumentationInfo) {
+    private suspend fun clearData(
+        configuration: Configuration,
+        androidConfiguration: VendorConfiguration.AndroidConfiguration,
+        info: InstrumentationInfo
+    ) {
         if (androidConfiguration.applicationPmClear) {
             device.safeClearPackage(info.applicationPackage)?.trim()?.also {
                 logger.debug { "Package ${info.applicationPackage} cleared: $it" }
@@ -138,7 +144,7 @@ class AndroidDeviceTestRunner(private val device: AdamAndroidDevice, private val
                 logger.debug { "Package ${info.instrumentationPackage} cleared: $it" }
             }
         }
-        if (androidConfiguration.fileSyncConfiguration.pull.isNotEmpty()) {
+        if (androidConfiguration.fileSyncConfiguration.pull.any { it.pathRoot == PathRoot.EXTERNAL_STORAGE }) {
             when {
                 device.version.isGreaterOrEqualThan(30) -> {
                     val command = "appops set --uid ${info.applicationPackage} MANAGE_EXTERNAL_STORAGE allow"
@@ -155,13 +161,17 @@ class AndroidDeviceTestRunner(private val device: AdamAndroidDevice, private val
                 }
             }
         }
+        if (configuration.isCodeCoverageEnabled) {
+            device.safeExecuteShellCommand("run-as ${info.applicationPackage} mkdir /data/data/${info.applicationPackage}/coverage")
+        }
     }
 
     private fun prepareTestRunnerRequest(
         configuration: Configuration,
         androidConfiguration: VendorConfiguration.AndroidConfiguration,
         info: InstrumentationInfo,
-        testBatch: TestBatch
+        testBatch: TestBatch,
+        coverageFile: String
     ): TestRunnerRequest {
         val tests = testBatch.tests.map {
             val pkg = when {
@@ -189,7 +199,7 @@ class AndroidDeviceTestRunner(private val device: AdamAndroidDevice, private val
             noWindowAnimations = true,
             instrumentOptions = InstrumentOptions(
                 clazz = tests,
-                coverageFile = if (configuration.isCodeCoverageEnabled) "${device.externalStorageMount}/coverage/coverage-${testBatch.id}.ec" else null,
+                coverageFile = if (configuration.isCodeCoverageEnabled) coverageFile else null,
                 overrides = overrides
             ),
             socketIdleTimeout = Long.MAX_VALUE
@@ -201,4 +211,11 @@ class AndroidDeviceTestRunner(private val device: AdamAndroidDevice, private val
 
 private fun com.malinskiy.adam.request.testrunner.TestIdentifier.toMarathonTestIdentifier(): TestIdentifier {
     return TestIdentifier(this.className, this.testName)
+}
+
+/**
+ * Not really a full escape, handling just one edge case of spaces in the test name
+ */
+private fun String.bashEscape(): String {
+    return replace(" ", "\\ ")
 }

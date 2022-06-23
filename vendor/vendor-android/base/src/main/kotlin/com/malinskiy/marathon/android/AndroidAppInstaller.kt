@@ -25,12 +25,22 @@ class AndroidAppInstaller(configuration: Configuration) {
     suspend fun prepareInstallation(device: AndroidDevice) {
         val testBundles = androidConfiguration.testBundlesCompat()
         testBundles.forEach { bundle ->
-            val applicationInfo = ApkParser().parseInstrumentationInfo(bundle.testApplication)
+            val apkParser = ApkParser()
+            val applicationInfo = apkParser.parseInstrumentationInfo(bundle.testApplication)
 
             logger.debug { "Installing application output to ${device.serialNumber}" }
             bundle.application?.let {
                 reinstall(device, applicationInfo.applicationPackage, it)
             }
+
+            bundle.extraApplications?.let { extraApplications ->
+                extraApplications.forEach { extraApplication ->
+                    logger.debug { "Installing extra application to ${device.serialNumber}" }
+                    val extraApplicationPackage = apkParser.parseAppPackageName(extraApplication)
+                    reinstall(device, extraApplicationPackage, extraApplication)
+                }
+            }
+
             logger.debug { "Installing instrumentation package to ${device.serialNumber}" }
             reinstall(device, applicationInfo.instrumentationPackage, bundle.testApplication)
             logger.debug { "Prepare installation finished for ${device.serialNumber}" }

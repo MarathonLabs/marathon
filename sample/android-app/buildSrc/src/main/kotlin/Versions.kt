@@ -12,7 +12,7 @@ object Versions {
     val junit = "4.13.2"
     val appCompat = "1.2.0"
     val constraintLayout = "2.0.4"
-    val allure = "2.1.2"
+    val allure = "2.4.0"
     val adam = "0.4.3"
 }
 

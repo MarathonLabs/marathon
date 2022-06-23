@@ -45,11 +45,8 @@ class FileSyncTestRunListenerTest {
     fun testDefault(mode: AggregationMode) {
         val configuration = TestConfigurationFactory.create(
             fileSyncConfiguration = FileSyncConfiguration(
-                mutableListOf(
-                    FileSyncEntry(
-                        "screenshots",
-                        mode
-                    )
+                mutableSetOf(
+                    FileSyncEntry("screenshots", aggregationMode = mode)
                 )
             )
         )
@@ -74,7 +71,7 @@ class FileSyncTestRunListenerTest {
             device.setup()
 
             listener.beforeTestRun()
-            listener.testRunEnded(1000, mapOf())
+            listener.afterTestRun()
 
             when (mode) {
                 AggregationMode.DEVICE_AND_POOL -> verify(fileManager, times(1)).createFolder(
