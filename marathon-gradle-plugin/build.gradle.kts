@@ -5,6 +5,7 @@ plugins {
     `kotlin-dsl`
     id("org.jetbrains.dokka")
     id("com.gradle.plugin-publish") version Versions.gradlePluginPublish
+    id("com.github.johnrengelman.shadow") version Versions.gradlePluginShadow
 }
 
 
@@ -28,11 +29,18 @@ pluginBundle {
 Deployment.initialize(project)
 
 dependencies {
-    implementation(gradleApi())
-    implementation(Libraries.kotlinLogging)
+    shadow(gradleApi())
+    shadow(localGroovy())
+    
+    shadow(Libraries.kotlinLogging)
     implementation(project(":configuration"))
-    implementation(BuildPlugins.androidGradle)
-    implementation(Libraries.apacheCommonsCodec)
+    shadow(BuildPlugins.androidGradle)
+    shadow(Libraries.apacheCommonsCodec)
+}
+
+// needed to prevent inclusion of gradle-api into shadow JAR
+afterEvaluate {
+    configurations["api"].dependencies.remove(dependencies.gradleApi())
 }
 
 tasks.processResources.configure {
@@ -44,6 +52,15 @@ tasks.processResources.configure {
     }
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     dependsOn(zipTask)
+}
+
+tasks.shadowJar {
+    isZip64 = true
+    relocate(
+        "com.fasterxml.jackson",
+        "com.malinskiy.marathon.shadow.com.fasterxml.jackson"
+    )
+    archiveClassifier.set("")
 }
 
 tasks.withType<KotlinCompile> {

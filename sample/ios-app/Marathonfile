@@ -2,9 +2,7 @@ name: "sample-ios-app tests"
 outputDir: "derived-data/Marathon"
 testClassRegexes: ["^((?!Abstract).)*Tests$"]
 poolingStrategy:
-  - type: "device-model"
-  - type: "os-version"
-  - type: "omni"
+  type: "omni"
 batchingStrategy:
   type: "fixed-size"
   size: 5

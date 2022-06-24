@@ -1,22 +1,23 @@
 package com.malinskiy.marathon.gradle
 
-import com.android.build.gradle.AppExtension
+import com.android.build.api.artifact.SingleArtifact
+import com.android.build.api.component.AndroidTest
+import com.android.build.api.variant.ApplicationAndroidComponentsExtension
+import com.android.build.api.variant.BuiltArtifactsLoader
+import com.android.build.api.variant.LibraryAndroidComponentsExtension
 import com.android.build.gradle.AppPlugin
-import com.android.build.gradle.LibraryExtension
 import com.android.build.gradle.LibraryPlugin
-import com.android.build.gradle.api.BaseVariantOutput
-import com.android.build.gradle.api.TestVariant
-import com.malinskiy.marathon.gradle.extensions.executeGradleCompat
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.Task
+import org.gradle.api.file.Directory
 import org.gradle.api.logging.Logger
 import org.gradle.api.plugins.BasePlugin
 import org.gradle.api.plugins.JavaBasePlugin
+import org.gradle.api.provider.Provider
 import org.gradle.kotlin.dsl.closureOf
 import org.gradle.kotlin.dsl.get
 import org.gradle.kotlin.dsl.getByName
-import java.io.File
 
 class MarathonPlugin : Plugin<Project> {
 
@@ -45,23 +46,70 @@ class MarathonPlugin : Plugin<Project> {
                 description = "Runs all the instrumentation test variations on all the connected devices"
             })
 
-            val appExtension = extensions.findByType(AppExtension::class.java)
-            val libraryExtension = extensions.findByType(LibraryExtension::class.java)
-
-            if (appExtension == null && libraryExtension == null) {
-                throw IllegalStateException("No TestedExtension is found")
-            }
-            val testedExtension = appExtension ?: libraryExtension
-
+            val appExtension = extensions.findByType(ApplicationAndroidComponentsExtension::class.java)
+            val libraryExtension = extensions.findByType(LibraryAndroidComponentsExtension::class.java)
             val conf = extensions.getByName("marathon") as? MarathonExtension ?: MarathonExtension(project)
 
-            testedExtension!!.testVariants.all {
-                logger.info("Applying marathon for ${this.baseName}")
-                val testTaskForVariant = createTask(
-                    logger, this, project, conf, testedExtension.sdkDirectory
-                )
-                testTaskForVariant.dependsOn(unpackMarathonTask)
-                marathonTask.dependsOn(testTaskForVariant)
+            when {
+                appExtension != null -> {
+                    val sdkDirectory: Provider<Directory> = appExtension.sdkComponents.sdkDirectory
+                    appExtension.onVariants { applicationVariant ->
+                        val androidTest = applicationVariant.androidTest
+                        if (androidTest != null) {
+                            logger.info("Applying marathon for ${applicationVariant.name}")
+
+                            val apkFolder: Provider<Directory> = applicationVariant.artifacts.get(SingleArtifact.APK)
+                            val artifactsLoader = applicationVariant.artifacts.getBuiltArtifactsLoader()
+
+                            val testApkFolder: Provider<Directory> = androidTest.artifacts.get(SingleArtifact.APK)
+                            val testArtifactsLoader = androidTest.artifacts.getBuiltArtifactsLoader()
+
+                            val bundles = listOf(
+                                GradleAndroidTestBundle(
+                                    apkFolder = project.objects.directoryProperty().apply { set(apkFolder) },
+                                    artifactLoader = project.objects.property(BuiltArtifactsLoader::class.java)
+                                        .apply { set(artifactsLoader) },
+                                    testApkFolder = project.objects.directoryProperty().apply { set(testApkFolder) },
+                                    testArtifactLoader = project.objects.property(BuiltArtifactsLoader::class.java)
+                                        .apply { set(testArtifactsLoader) },
+                                )
+                            )
+
+                            val testTaskForVariant = createTask(
+                                logger, androidTest, bundles, project, conf, sdkDirectory
+                            )
+                            testTaskForVariant.dependsOn(unpackMarathonTask, apkFolder, testApkFolder)
+                            marathonTask.dependsOn(testTaskForVariant)
+                        }
+                    }
+                }
+                libraryExtension != null -> {
+                    val sdkDirectory: Provider<Directory> = libraryExtension.sdkComponents.sdkDirectory
+                    libraryExtension.onVariants { libraryVariant ->
+                        val androidTest = libraryVariant.androidTest
+                        if (androidTest != null) {
+                            logger.info("Applying marathon for ${libraryVariant.name}")
+
+                            val testApkFolder: Provider<Directory> = androidTest.artifacts.get(SingleArtifact.APK)
+                            val testArtifactsLoader = androidTest.artifacts.getBuiltArtifactsLoader()
+
+                            val bundles = listOf(
+                                GradleAndroidTestBundle(
+                                    testApkFolder = project.objects.directoryProperty().apply { set(testApkFolder) },
+                                    testArtifactLoader = project.objects.property(BuiltArtifactsLoader::class.java)
+                                        .apply { set(testArtifactsLoader) },
+                                )
+                            )
+
+                            val testTaskForVariant = createTask(
+                                logger, androidTest, bundles, project, conf, sdkDirectory
+                            )
+                            testTaskForVariant.dependsOn(unpackMarathonTask, testApkFolder)
+                            marathonTask.dependsOn(testTaskForVariant)
+                        }
+                    }
+                }
+                else -> throw IllegalStateException("No AndroidComponentsExtensions is found")
             }
 
             project.tasks[BasePlugin.CLEAN_TASK_NAME].dependsOn(marathonCleanTask)
@@ -77,66 +125,25 @@ class MarathonPlugin : Plugin<Project> {
     companion object {
         private fun createTask(
             logger: Logger,
-            variant: TestVariant,
+            variant: AndroidTest,
+            bundles: List<GradleAndroidTestBundle>,
             project: Project,
             config: MarathonExtension,
-            sdkDirectory: File,
+            sdkDirectory: Provider<Directory>,
         ): MarathonRunTask {
-            checkTestVariants(variant)
-
             val marathonTask = project.tasks.create("$TASK_PREFIX${variant.name.capitalize()}", MarathonRunTask::class.java)
-
-            variant.testedVariant.outputs.all {
-                val testedOutput = this
-                logger.info("Processing output $testedOutput")
-
-                checkTestedVariants(testedOutput)
-                marathonTask.configure(closureOf<MarathonRunTask> {
-                    group = JavaBasePlugin.VERIFICATION_GROUP
-                    description = "Runs instrumentation tests on all the connected devices for '${variant.name}' " +
-                        "variation and generates a report with screenshots"
-                    flavorName.set(variant.name)
-                    applicationBundles.set(listOf(GradleAndroidTestBundle(application = variant.testedVariant, testApplication = variant)))
-                    marathonExtension.set(config)
-                    sdk.set(sdkDirectory)
-                    outputs.upToDateWhen { false }
-                    executeGradleCompat(
-                        exec = {
-                            dependsOn(variant.testedVariant.assembleProvider, variant.assembleProvider)
-                        },
-                        fallbacks = listOf {
-                            @Suppress("DEPRECATION")
-                            dependsOn(variant.testedVariant.assemble, variant.assemble)
-                        }
-                    )
-                })
-            }
+            marathonTask.configure(closureOf<MarathonRunTask> {
+                group = JavaBasePlugin.VERIFICATION_GROUP
+                description = "Runs instrumentation tests on all the connected devices for '${variant.name}' " +
+                    "variation and generates a report with screenshots"
+                flavorName.set(variant.name)
+                applicationBundles.set(bundles)
+                marathonExtension.set(config)
+                sdk.set(sdkDirectory)
+                outputs.upToDateWhen { false }
+            })
 
             return marathonTask
-        }
-
-        private fun checkTestVariants(testVariant: TestVariant) {
-            if (testVariant.outputs.size > 1) {
-                throw UnsupportedOperationException("The Marathon plugin does not support abi/density splits for test APKs")
-            }
-
-        }
-
-        /**
-         * Checks that if the base variant contains more than one outputs (and has therefore splits), it is the universal APK.
-         * Otherwise, we can test the single output. This is a workaround until Fork supports test & app splits properly.
-         *
-         * @param baseVariant the tested variant
-         */
-        private fun checkTestedVariants(baseVariantOutput: BaseVariantOutput) {
-            if (baseVariantOutput.outputs.size > 1) {
-                throw UnsupportedOperationException(
-                    "The Marathon plugin does not support abi splits for app APKs, " +
-                        "but supports testing via a universal APK. "
-                        + "Add the flag \"universalApk true\" in the android.splits.abi configuration."
-                )
-            }
-
         }
 
         /**

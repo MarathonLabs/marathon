@@ -134,6 +134,14 @@ class DdmlibAndroidDevice(
         }
     }
 
+    override suspend fun pushFolder(localFolderPath: String, remoteFolderPath: String) {
+        try {
+            ddmsDevice.syncService.push(arrayOf(localFolderPath), remoteFolderPath, NoOpSyncProgressMonitor())
+        } catch (e: SyncException) {
+            throw TransferException(e)
+        }
+    }
+
     override suspend fun executeShellCommand(command: String, errorMessage: String): String? {
         try {
             val outputReceiver = SimpleOutputReceiver()
