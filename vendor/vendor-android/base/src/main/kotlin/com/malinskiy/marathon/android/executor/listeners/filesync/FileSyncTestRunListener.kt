@@ -5,6 +5,7 @@ import com.malinskiy.marathon.android.InstrumentationInfo
 import com.malinskiy.marathon.android.RemoteFileManager
 import com.malinskiy.marathon.android.executor.listeners.AndroidTestRunListener
 import com.malinskiy.marathon.config.vendor.android.AggregationMode
+import com.malinskiy.marathon.config.vendor.android.FilePushEntry
 import com.malinskiy.marathon.config.vendor.android.FileSyncConfiguration
 import com.malinskiy.marathon.config.vendor.android.PathRoot
 import com.malinskiy.marathon.device.DevicePoolId
@@ -35,6 +36,13 @@ class FileSyncTestRunListener(
                     device.fileManager.removeRemotePath(path, recursive = true)
                     device.fileManager.createRemoteDirectory(path)
                 }
+
+                PathRoot.LOCAL_TMP -> {
+                    val path = getTempFolderPath(entry.relativePath)
+                    device.fileManager.removeRemotePath(path, recursive = true)
+                    device.fileManager.createRemoteDirectory(path)
+                }
+
                 PathRoot.APP_DATA -> {
                     applicationPackage?.let {
                         val (from, to) = getScopedFolderPaths(entry.relativePath, RemoteFileManager.TMP_PATH, it)
@@ -50,13 +58,43 @@ class FileSyncTestRunListener(
                 }
             }
         }
+
+        if (configuration.push.isNotEmpty()) {
+            configuration.push.forEach { entry ->
+                val entryFile = File(entry.path)
+                when (entry.pathRoot) {
+                    PathRoot.EXTERNAL_STORAGE -> {
+                        val remotePath = getExternalFolderPath(device, entryFile.name)
+                        push(entry, entryFile, remotePath)
+                    }
+
+                    PathRoot.LOCAL_TMP -> {
+                        val remotePath = getTempFolderPath(entryFile.name)
+                        push(entry, entryFile, remotePath)
+                    }
+
+                    PathRoot.APP_DATA -> logger.error { "Pushing files to app storage is not supported" }
+                }
+            }
+        }
     }
 
-    private fun getExternalFolderPath(device: AndroidDevice, relativePath: String): String {
-        val externalStorageMount = device.externalStorageMount.removeSuffix("/")
-        val relativePath = relativePath.removePrefix("/")
-        return "$externalStorageMount/$relativePath"
+    private suspend fun push(entry: FilePushEntry, local: File, remotePath: String) {
+        if (local.isDirectory) {
+            logger.debug { "Pushing folder $local into $remotePath" }
+            device.pushFolder(entry.path, remotePath)
+        } else {
+            val remotePath = remotePath
+            logger.debug { "Pushing file $local into $remotePath" }
+            device.pushFile(local.path, remotePath, true)
+        }
     }
+
+    private fun sanitizeRemotePath(base: String, relative: String) = "${base.removeSuffix("/")}/${relative.removePrefix("/")}"
+    private fun getExternalFolderPath(device: AndroidDevice, relativePath: String) =
+        sanitizeRemotePath(device.externalStorageMount, relativePath)
+
+    private fun getTempFolderPath(relativePath: String) = sanitizeRemotePath(RemoteFileManager.TMP_PATH, relativePath)
 
     override suspend fun afterTestRun() {
         super.afterTestRun()
@@ -76,6 +114,12 @@ class FileSyncTestRunListener(
                     val path = getExternalFolderPath(device, entry.relativePath)
                     device.safePullFolder(path, subfolder.absolutePath)
                 }
+
+                PathRoot.LOCAL_TMP -> {
+                    val path = getTempFolderPath(entry.relativePath)
+                    device.safePullFolder(path, subfolder.absolutePath)
+                }
+
                 PathRoot.APP_DATA -> {
                     applicationPackage?.let {
                         val (from, to) = getScopedFolderPaths(entry.relativePath, RemoteFileManager.TMP_PATH, it)
@@ -85,6 +129,23 @@ class FileSyncTestRunListener(
                 }
             }
         }
+        if (configuration.push.isNotEmpty()) {
+            configuration.push.forEach { entry ->
+                val entryFile = File(entry.path)
+                when (entry.pathRoot) {
+                    PathRoot.EXTERNAL_STORAGE -> device.fileManager.removeRemotePath(
+                        getExternalFolderPath(device, entryFile.name),
+                        recursive = true
+                    )
+
+                    PathRoot.LOCAL_TMP ->
+                        device.fileManager.removeRemotePath(getTempFolderPath(entryFile.name), recursive = true)
+
+                    PathRoot.APP_DATA -> Unit
+                }
+            }
+        }
+
         applicationPackage = null
     }
 

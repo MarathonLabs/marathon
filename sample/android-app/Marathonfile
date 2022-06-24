@@ -25,6 +25,9 @@ vendorConfiguration:
     - relativePath: "files/allure-results"
       pathRoot: APP_DATA
       aggregationMode: TEST_RUN
+    push:
+    - path: "fixtures/external-file"
+    - path: "fixtures/external-folder"
   allureConfiguration:
     enabled: true
   # See https://marathonlabs.github.io/marathon/ven/android.html#test-access-configuration before copy-pasting this

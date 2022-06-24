@@ -7,6 +7,7 @@ data class TimeoutConfiguration(
     var shell: Duration = Duration.ofSeconds(20),
     var listFiles: Duration = shell,
     var pushFile: Duration = Duration.ofSeconds(60),
+    var pushFolder: Duration = Duration.ofSeconds(60),
     var pullFile: Duration = Duration.ofSeconds(30),
     var uninstall: Duration = shell,
     var install: Duration = shell,
