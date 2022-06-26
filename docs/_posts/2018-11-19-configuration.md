@@ -722,6 +722,42 @@ marathon {
 
 {% endtab %} {% endtabs %}
 
+### Random order sorting
+
+Sort tests in random order. This strategy may be useful to detect dependencies between tests.
+
+
+{% tabs sorting-random-order %} {% tab sorting-random-order Marathonfile %}
+
+```yaml
+sortingStrategy:
+  type: "random-order"
+```
+
+{% endtab %} {% tab sorting-random-order Gradle %}
+
+```kotlin
+marathon {
+  sortingStrategy {
+    randomOrder {
+    }
+  }
+}
+```
+
+{% endtab %} {% tab sorting-random-order Gradle Kotlin %}
+
+```kotlin
+marathon {
+  sortingStrategy {
+    randomOrder {
+    }
+  }
+}
+
+```
+{% endtab %} {% endtabs %}
+
 ## Batching strategy
 
 Batching mechanism allows you to trade off stability for performance. A group of tests executed using one single run is called a batch. Most
