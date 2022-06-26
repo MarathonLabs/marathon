@@ -40,6 +40,7 @@ import com.malinskiy.marathon.execution.strategy.impl.sharding.CountShardingStra
 import com.malinskiy.marathon.execution.strategy.impl.sharding.ParallelShardingStrategy
 import com.malinskiy.marathon.execution.strategy.impl.sorting.ExecutionTimeSortingStrategy
 import com.malinskiy.marathon.execution.strategy.impl.sorting.NoSortingStrategy
+import com.malinskiy.marathon.execution.strategy.impl.sorting.RandomOrderSortingStrategy
 import com.malinskiy.marathon.execution.strategy.impl.sorting.SuccessRateSortingStrategy
 
 fun ShardingStrategyConfiguration.toShardingStrategy(): ShardingStrategy {
@@ -86,6 +87,7 @@ fun SortingStrategyConfiguration.toSortingStrategy(): SortingStrategy {
     return when (this) {
         is SortingStrategyConfiguration.ExecutionTimeSortingStrategyConfiguration -> ExecutionTimeSortingStrategy(this)
         SortingStrategyConfiguration.NoSortingStrategyConfiguration -> NoSortingStrategy()
+        SortingStrategyConfiguration.RandomOrderStrategyConfiguration -> RandomOrderSortingStrategy()
         is SortingStrategyConfiguration.SuccessRateSortingStrategyConfiguration -> SuccessRateSortingStrategy(this)
     }
 }
