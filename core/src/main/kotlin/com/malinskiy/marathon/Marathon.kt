@@ -5,6 +5,7 @@ import com.malinskiy.marathon.analytics.internal.pub.Track
 import com.malinskiy.marathon.analytics.internal.sub.TrackerInternal
 import com.malinskiy.marathon.config.Configuration
 import com.malinskiy.marathon.config.LogicalConfigurationValidator
+import com.malinskiy.marathon.config.vendor.VendorConfiguration
 import com.malinskiy.marathon.device.DeviceProvider
 import com.malinskiy.marathon.exceptions.NoDevicesException
 import com.malinskiy.marathon.exceptions.NoTestCasesFoundException
@@ -146,7 +147,9 @@ class Marathon(
         }
         configuration.filteringConfiguration.allowlist.forEach { tests = it.toTestFilter().filter(tests) }
         configuration.filteringConfiguration.blocklist.forEach { tests = it.toTestFilter().filterNot(tests) }
-        return tests
+        val iosConfig = configuration.vendorConfiguration as? VendorConfiguration.IOSConfiguration
+
+        return tests.filter { it.tags.contains(iosConfig?.xcTestRunnerTag) }
     }
 
     private fun prepareTestShard(tests: List<Test>, analytics: Analytics): TestShard {

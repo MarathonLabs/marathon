@@ -79,6 +79,7 @@ sealed class VendorConfiguration {
         @JsonProperty("hideRunnerOutput") val hideRunnerOutput: Boolean = false,
         @JsonProperty("compactOutput") val compactOutput: Boolean = false,
         @JsonProperty("keepAliveIntervalMillis") val keepAliveIntervalMillis: Long = 0L,
+        @JsonProperty("xcTestRunnerTag") val xcTestRunnerTag: String? = null,
         @JsonProperty("devices") val devicesFile: File? = null,
     ) : VendorConfiguration() {
         /**

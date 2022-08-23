@@ -5,7 +5,7 @@ poolingStrategy:
   type: "omni"
 batchingStrategy:
   type: "fixed-size"
-  size: 5
+  size: 1
 debug: true
 filteringConfiguration:
   allowlist:
@@ -18,3 +18,4 @@ vendorConfiguration:
   knownHostsPath: ${HOME}/.ssh/known_hosts
   remoteUsername: ${USER}
   remotePrivateKey: ${HOME}/.ssh/marathon
+  xcTestRunnerTag: "Flowers"
