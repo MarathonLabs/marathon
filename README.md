@@ -13,7 +13,7 @@ Cross-platform test runner written for Android and iOS projects
 
 Please check the official [documentation](https://marathonlabs.github.io/marathon/) for installation, configuration and more
 
-## [iOS Only] Added Support for XCtest UI Test Functions (with Tags)
+## [iOS Only] Added Support to consume tags for test functions under XCTestCase Subclasses
 You can now tag to your iOS UITests just like you would add tag to your feature file (if you are using [Cucumberish](https://cocoapods.org/pods/Cucumberish) or [XCTGherkin](https://cocoapods.org/pods/XCTest-Gherkin))
 _(Multiline tag support is not yet there. Pls make sure that tag is added just above the func signature)_
 > How to tag your UITests. See Sample below.
