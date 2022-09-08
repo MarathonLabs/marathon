@@ -13,7 +13,7 @@ object Versions {
     val appCompat = "1.2.0"
     val constraintLayout = "2.0.4"
     val allure = "2.4.0"
-    val adam = "0.4.3"
+    val adam = "0.4.5"
 }
 
 object BuildPlugins {
