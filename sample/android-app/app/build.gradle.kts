@@ -80,5 +80,5 @@ dependencies {
     androidTestImplementation(TestLibraries.allureKotlinModel)
     androidTestImplementation(TestLibraries.allureKotlinJunit4)
     androidTestImplementation(TestLibraries.allureKotlinAndroid)
-    androidTestImplementation("com.malinskiy.adam:androidx-screencapture:0.4.5-SNAPSHOT") //Local build only, not published officially yet
+    androidTestImplementation(TestLibraries.adamScreencapture)
 }
