@@ -8,6 +8,7 @@ import com.malinskiy.marathon.config.vendor.DEFAULT_AUTO_GRANT_PERMISSION
 import com.malinskiy.marathon.config.vendor.DEFAULT_INIT_TIMEOUT_MILLIS
 import com.malinskiy.marathon.config.vendor.DEFAULT_INSTALL_OPTIONS
 import com.malinskiy.marathon.config.vendor.DEFAULT_WAIT_FOR_DEVICES_TIMEOUT
+import com.malinskiy.marathon.config.vendor.DEFAULT_DISABLE_WINDOW_ANIMATION
 import com.malinskiy.marathon.config.vendor.VendorConfiguration
 import com.malinskiy.marathon.config.vendor.android.AdbEndpoint
 import com.malinskiy.marathon.config.vendor.android.AllureConfiguration
@@ -122,8 +123,10 @@ open class MarathonRunTask @Inject constructor(objects: ObjectFactory) : Abstrac
         val serialStrategy = extension.serialStrategy ?: SerialStrategy.AUTOMATIC
         val waitForDevicesTimeoutMillis = extension.waitForDevicesTimeoutMillis ?: DEFAULT_WAIT_FOR_DEVICES_TIMEOUT
         val allureConfiguration = extension.allureConfiguration ?: AllureConfiguration()
+        val disableWindowAnimation = extension.disableWindowAnimation ?: DEFAULT_DISABLE_WINDOW_ANIMATION
 
-        extension.extraApplications?.let {
+
+            extension.extraApplications?.let {
             it.forEach { apk ->
                 when {
                     !apk.exists() -> throw InvalidUserDataException("extraApplication $apk doesn't exist")
@@ -185,7 +188,8 @@ open class MarathonRunTask @Inject constructor(objects: ObjectFactory) : Abstrac
             testParserConfiguration = extension.testParserConfiguration ?: TestParserConfiguration.LocalTestParserConfiguration,
             testAccessConfiguration = extension.testAccessConfiguration ?: TestAccessConfiguration(),
             timeoutConfiguration = extension.timeoutConfiguration ?: TimeoutConfiguration(),
-            adbServers = extension.adbServers ?: listOf(AdbEndpoint())
+            adbServers = extension.adbServers ?: listOf(AdbEndpoint()),
+            disableWindowAnimation = disableWindowAnimation,
         )
     }
 

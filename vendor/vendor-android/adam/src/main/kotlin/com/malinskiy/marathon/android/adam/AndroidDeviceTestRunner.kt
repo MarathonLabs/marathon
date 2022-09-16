@@ -196,7 +196,7 @@ class AndroidDeviceTestRunner(private val device: AdamAndroidDevice, private val
         val request = TestRunnerRequest(
             testPackage = info.instrumentationPackage,
             runnerClass = info.testRunnerClass,
-            noWindowAnimations = true,
+            noWindowAnimations = androidConfiguration.disableWindowAnimation,
             instrumentOptions = InstrumentOptions(
                 clazz = tests,
                 coverageFile = if (configuration.isCodeCoverageEnabled) coverageFile else null,
