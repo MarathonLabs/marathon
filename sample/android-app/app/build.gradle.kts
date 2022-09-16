@@ -48,6 +48,7 @@ marathon {
         enabled = true
     }
     applicationPmClear = true
+    disableWindowAnimation = false
     testApplicationPmClear = true
     autoGrantPermission = true
     isCodeCoverageEnabled = true
