@@ -79,6 +79,10 @@ class Marathon(
         val tests = applyTestFilters(parsedTests)
         val shard = prepareTestShard(tests, analytics)
 
+        log.info("\n\n\n **** Marathon File Params **** \n")
+        log.info("${configuration}")
+        log.info("\n\n\n")
+
         log.info("Scheduling ${tests.size} tests")
         log.debug(tests.joinToString(", ") { it.toTestName() })
         val currentCoroutineContext = coroutineContext

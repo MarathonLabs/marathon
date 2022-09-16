@@ -269,6 +269,7 @@ class ConfigurationFactoryTest {
             keepAliveIntervalMillis = 300000L,
             devicesFile = file.parentFile.resolve("Testdevices").canonicalFile,
             sourceRoot = file.parentFile.resolve(".").canonicalFile,
+            xcResultBundlePath = file.parentFile.resolve("a/resultBundlePath").canonicalFile,
         )
     }
 

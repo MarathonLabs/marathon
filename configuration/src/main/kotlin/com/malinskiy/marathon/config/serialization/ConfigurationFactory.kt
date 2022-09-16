@@ -55,6 +55,7 @@ class ConfigurationFactory(
                 is VendorConfiguration.IOSConfiguration -> {
                     // Any relative path specified in Marathonfile should be resolved against the directory Marathonfile is in
                     val resolvedDerivedDataDir = marathonfileDir.resolve(configuration.vendorConfiguration.derivedDataDir)
+                    val resolvedResultBundlePath = marathonfileDir.resolve(configuration.vendorConfiguration.xcResultBundlePath)
                     val finalXCTestRunPath = configuration.vendorConfiguration.xctestrunPath?.resolveAgainst(marathonfileDir)
                         ?: fileListProvider
                             .fileList(resolvedDerivedDataDir)
@@ -71,6 +72,7 @@ class ConfigurationFactory(
                         sourceRoot = optionalSourceRoot,
                         devicesFile = optionalDevices,
                         knownHostsPath = optionalKnownHostsPath,
+                        xcResultBundlePath = resolvedResultBundlePath
                     )
                 }
                 VendorConfiguration.StubVendorConfiguration -> configuration.vendorConfiguration

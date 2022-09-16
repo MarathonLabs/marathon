@@ -176,6 +176,9 @@ class IOSDevice(
             timer
         )
 
+        val timestamp = System.currentTimeMillis().toString()
+        val resultBundlePath: String = "${iosConfiguration.xcResultBundlePath}_"  + timestamp
+
         val command =
             listOf(
                 "cd '$remoteDir';",
@@ -183,6 +186,7 @@ class IOSDevice(
                 "xcodebuild test-without-building",
                 "-xctestrun ${remoteXctestrunFile.path}",
                 testBatch.toXcodebuildArguments(),
+                "-resultBundlePath $resultBundlePath",
                 "-destination 'platform=iOS simulator,id=$udid' ;",
                 "exit"
             )
