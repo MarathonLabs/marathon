@@ -13,7 +13,7 @@ object Versions {
     val appCompat = "1.2.0"
     val constraintLayout = "2.0.4"
     val allure = "2.4.0"
-    val adam = "0.4.3"
+    val adam = "0.4.6"
 }
 
 object BuildPlugins {
@@ -31,6 +31,7 @@ object Libraries {
 object TestLibraries {
     val kakao = "io.github.kakaocup:kakao:${Versions.kakao}"
     val adamJunit4 = "com.malinskiy.adam:android-junit4:${Versions.adam}"
+    val adamScreencapture = "com.malinskiy.adam:androidx-screencapture:${Versions.adam}"
     val testRunner = "androidx.test:runner:${Versions.espressoRunner}"
     val testRules = "androidx.test:rules:${Versions.espressoRules}"
     val extJunit = "androidx.test.ext:junit:${Versions.testJunit}"

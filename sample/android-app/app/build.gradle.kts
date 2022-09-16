@@ -38,7 +38,7 @@ android {
             proguardFiles("proguard-rules.pro")
         }
         getByName("debug") {
-            isTestCoverageEnabled = true
+            isTestCoverageEnabled = false
         }
     }
 }
@@ -80,4 +80,5 @@ dependencies {
     androidTestImplementation(TestLibraries.allureKotlinModel)
     androidTestImplementation(TestLibraries.allureKotlinJunit4)
     androidTestImplementation(TestLibraries.allureKotlinAndroid)
+    androidTestImplementation(TestLibraries.adamScreencapture)
 }

@@ -7,6 +7,5 @@ enum class FileType(val dir: String, val suffix: String) {
     LOG("logs", "log"),
     DEVICE_INFO("devices", "json"),
     VIDEO("video", "mp4"),
-    SCREENSHOT("screenshot", "gif")
-
+    SCREENSHOT("screenshot", "gif"),
 }
