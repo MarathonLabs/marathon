@@ -399,6 +399,11 @@ open class MarathonExtension(project: Project) {
      * Install extra apk before running the tests if required, e.g. test-butler.apk
      */
     var extraApplications: List<File>? = null
+
+    /**
+     * By default, instrumentation uses --no-window-animation flag. Use this option if you want to enable window animations
+     */
+    var disableWindowAnimation: Boolean? = null
     
     /**
      * Configuration of analytics backend to be used for storing and retrieving test metrics. This plays a major part in optimising

@@ -2,6 +2,7 @@
   <configuration default="false" name="android-app" type="JetRunConfigurationType">
     <option name="MAIN_CLASS_NAME" value="com.malinskiy.marathon.cli.ApplicationViewKt" />
     <module name="marathon.cli.main" />
+    <shortenClasspath name="NONE" />
     <option name="WORKING_DIRECTORY" value="sample/android-app" />
     <method v="2">
       <option name="Gradle.BeforeRunTask" enabled="false" tasks="publishAllPublicationsToLocalRepository" externalProjectPath="$PROJECT_DIR$" vmOptions="" scriptParameters="" />
