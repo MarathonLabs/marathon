@@ -189,6 +189,7 @@ open class MarathonRunTask @Inject constructor(objects: ObjectFactory) : Abstrac
             testAccessConfiguration = extension.testAccessConfiguration ?: TestAccessConfiguration(),
             timeoutConfiguration = extension.timeoutConfiguration ?: TimeoutConfiguration(),
             adbServers = extension.adbServers ?: listOf(AdbEndpoint()),
+            disableWindowAnimation = disableWindowAnimation,
         )
     }
 
