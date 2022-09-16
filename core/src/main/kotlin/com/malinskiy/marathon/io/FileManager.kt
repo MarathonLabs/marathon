@@ -10,6 +10,7 @@ import java.io.File
 import java.nio.file.Files.createDirectories
 import java.nio.file.Path
 import java.nio.file.Paths.get
+import java.util.UUID
 
 @Suppress("TooManyFunctions")
 class FileManager(private val maxPath: Int, private val output: File) {
@@ -30,6 +31,20 @@ class FileManager(private val maxPath: Int, private val output: File) {
     fun createFile(fileType: FileType, pool: DevicePoolId, device: DeviceInfo): File {
         val directory = createDirectory(fileType, pool)
         val filename = createFilename(device, fileType)
+        return createFile(directory, filename)
+    }
+
+    fun createScreenshotFile(extension: String, pool: DevicePoolId, device: DeviceInfo, test: Test, testBatchId: String): File {
+        val directory = createDirectory(FileType.SCREENSHOT, pool, device)
+        val filename =
+            createFilename(
+                test,
+                FileType.SCREENSHOT,
+                maxPath - (directory.toAbsolutePath().toString().length + 1),
+                testBatchId = null,
+                extension,
+                UUID.randomUUID().toString()
+            )
         return createFile(directory, filename)
     }
 
@@ -75,11 +90,36 @@ class FileManager(private val maxPath: Int, private val output: File) {
         }
     }
 
-    private fun createFilename(fileType: FileType, testBatchId: String): String =
-        "$testBatchId.${fileType.suffix}"
+    private fun createFilename(fileType: FileType, testBatchId: String): String {
+        return StringBuilder().apply {
+            append(testBatchId)
+            if (fileType.suffix.isNotEmpty()) {
+                append(".$testBatchId")
+            }
+        }.toString()
+    }
 
-    private fun createFilename(test: Test, fileType: FileType, limit: Int, testBatchId: String? = null): String {
-        val testSuffix = "${testBatchId?.let { "-$it" } ?: ""}.${fileType.suffix}"
+    private fun createFilename(
+        test: Test,
+        fileType: FileType,
+        limit: Int,
+        testBatchId: String? = null,
+        overrideExtension: String? = null,
+        id: String? = null,
+    ): String {
+        val testSuffix = StringBuilder().apply {
+            if (testBatchId != null) {
+                append("-$testBatchId")
+            }
+            if (id != null) {
+                append("-$id")
+            }
+            if (overrideExtension != null) {
+                append(".${overrideExtension}")
+            } else if (fileType.suffix.isNotEmpty()) {
+                append(".${fileType.suffix}")
+            }
+        }.toString()
         val rawTestName = test.toTestName().escape()
         val testName = when {
             limit - testSuffix.length >= 0 -> rawTestName.take(limit - testSuffix.length)
@@ -95,5 +135,12 @@ class FileManager(private val maxPath: Int, private val output: File) {
         return fileName
     }
 
-    private fun createFilename(device: DeviceInfo, fileType: FileType): String = "${device.safeSerialNumber}.${fileType.suffix}"
+    private fun createFilename(device: DeviceInfo, fileType: FileType): String {
+        return StringBuilder().apply {
+            append(device.safeSerialNumber)
+            if (fileType.suffix.isNotEmpty()) {
+                append(".${fileType.suffix}")
+            }
+        }.toString()
+    }
 }

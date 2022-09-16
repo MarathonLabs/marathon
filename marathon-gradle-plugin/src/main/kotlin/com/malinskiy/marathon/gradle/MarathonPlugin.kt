@@ -1,7 +1,7 @@
 package com.malinskiy.marathon.gradle
 
 import com.android.build.api.artifact.SingleArtifact
-import com.android.build.api.component.AndroidTest
+import com.android.build.api.variant.AndroidTest
 import com.android.build.api.variant.ApplicationAndroidComponentsExtension
 import com.android.build.api.variant.BuiltArtifactsLoader
 import com.android.build.api.variant.LibraryAndroidComponentsExtension

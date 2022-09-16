@@ -81,7 +81,7 @@ class AllureReporter(val configuration: Configuration, private val outputDirecto
                 .setName(it.type.name.lowercase(Locale.ENGLISH)
                              .replaceFirstChar { cher -> if (cher.isLowerCase()) cher.titlecase(Locale.ENGLISH) else cher.toString() })
                 .setSource(it.file.absolutePath)
-                .setType(it.type.toMimeType())
+                .setType(it.type.mimeType)
         }
 
         val allureTestResult = io.qameta.allure.model.TestResult()

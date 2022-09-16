@@ -16,7 +16,7 @@ buildscript {
 
 
 plugins {
-    id("io.gitlab.arturbosch.detekt") version "1.20.0"
+    id("io.gitlab.arturbosch.detekt") version "1.21.0"
     id("com.github.ben-manes.versions") version "0.42.0"
 }
 

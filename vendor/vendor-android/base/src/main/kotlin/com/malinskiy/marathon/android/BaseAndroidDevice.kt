@@ -10,6 +10,7 @@ import com.malinskiy.marathon.android.executor.listeners.NoOpTestRunListener
 import com.malinskiy.marathon.android.executor.listeners.ProgressTestRunListener
 import com.malinskiy.marathon.android.executor.listeners.TestRunResultsListener
 import com.malinskiy.marathon.android.executor.listeners.filesync.FileSyncTestRunListener
+import com.malinskiy.marathon.android.executor.listeners.screenshot.AdamScreenCaptureTestRunListener
 import com.malinskiy.marathon.android.executor.listeners.screenshot.ScreenCapturerTestRunListener
 import com.malinskiy.marathon.android.executor.listeners.video.ScreenRecorderTestBatchListener
 import com.malinskiy.marathon.android.model.Rotation
@@ -259,6 +260,9 @@ abstract class BaseAndroidDevice(
         val fileSyncTestRunListener =
             FileSyncTestRunListener(devicePoolId, this, this@BaseAndroidDevice.androidConfiguration.fileSyncConfiguration, fileManager)
 
+        val adamScreenCaptureTestRunListener = AdamScreenCaptureTestRunListener(devicePoolId, this, fileManager, testBatch.id)
+        attachmentProviders.add(adamScreenCaptureTestRunListener)
+        
         return CompositeTestRunListener(
             listOf(
                 recorderListener,
@@ -266,6 +270,7 @@ abstract class BaseAndroidDevice(
                 TestRunResultsListener(testBatch, this, deferred, timer, progressReporter, devicePoolId, attachmentProviders),
                 DebugTestRunListener(this),
                 ProgressTestRunListener(this, devicePoolId, progressReporter),
+                adamScreenCaptureTestRunListener,
                 fileSyncTestRunListener
             )
         )

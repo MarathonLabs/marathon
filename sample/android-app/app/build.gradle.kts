@@ -38,7 +38,7 @@ android {
             proguardFiles("proguard-rules.pro")
         }
         getByName("debug") {
-            isTestCoverageEnabled = true
+            isTestCoverageEnabled = false
         }
     }
 }
@@ -48,6 +48,7 @@ marathon {
         enabled = true
     }
     applicationPmClear = true
+    disableWindowAnimation = false
     testApplicationPmClear = true
     autoGrantPermission = true
     isCodeCoverageEnabled = true
@@ -80,4 +81,5 @@ dependencies {
     androidTestImplementation(TestLibraries.allureKotlinModel)
     androidTestImplementation(TestLibraries.allureKotlinJunit4)
     androidTestImplementation(TestLibraries.allureKotlinAndroid)
+    androidTestImplementation(TestLibraries.adamScreencapture)
 }
