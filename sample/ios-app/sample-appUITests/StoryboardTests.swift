@@ -12,21 +12,7 @@ class StoryboardTests: XCTestCase {
 
     private var app: XCUIApplication!
 
-    override func setUp() {
-        super.setUp()
-        
-        continueAfterFailure = false
-
-        app = XCUIApplication()
-        app.launch()
-    }
-
-    override func tearDown() {
-        app = nil
-
-        super.tearDown()
-    }
-
+    // @Flowers @apple @mock-batch-1
     func testButton() {
         let button = app.buttons.firstMatch
         XCTAssertTrue(button.waitForExistence())
@@ -44,6 +30,7 @@ class StoryboardTests: XCTestCase {
         XCTAssertTrue(button.isHittable)
     }
 
+    // @Flowers @mock-batch-1 @apple
     func testLabel() {
         let button = app.buttons.firstMatch
         button.waitForExistence()
@@ -61,6 +48,20 @@ class StoryboardTests: XCTestCase {
         let label = app.staticTexts.firstMatch
         XCTAssertEqual(label.label, "Label")
     }
+    override func setUp() {
+            super.setUp()
+
+            continueAfterFailure = false
+
+            app = XCUIApplication()
+            app.launch()
+        }
+
+        override func tearDown() {
+            app = nil
+
+            super.tearDown()
+        }
 }
 
 private let standardTimeout: TimeInterval = 30.0

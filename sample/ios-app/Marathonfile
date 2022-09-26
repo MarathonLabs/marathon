@@ -19,3 +19,4 @@ vendorConfiguration:
   remoteUsername: ${USER}
   remotePrivateKey: ${HOME}/.ssh/marathon
   xcResultBundlePath: "derived-data/resultBundlePath"
+  xcTestRunnerTag: "Flowers"

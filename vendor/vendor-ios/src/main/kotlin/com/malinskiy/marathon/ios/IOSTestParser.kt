@@ -10,6 +10,7 @@ import java.io.File
 class IOSTestParser(private val vendorConfiguration: VendorConfiguration.IOSConfiguration) : TestParser {
     private val swiftTestClassRegex = """class ([^:\s]+)\s*:\s*XCTestCase""".toRegex()
     private val swiftTestMethodRegex = """^.*func\s+(test[^(\s]*)\s*\(.*$""".toRegex()
+    private val swiftTagRegex = """@([^:\s]+)\w*""".toRegex()
 
     private val logger = MarathonLogging.logger(IOSTestParser::class.java.simpleName)
 
@@ -20,6 +21,11 @@ class IOSTestParser(private val vendorConfiguration: VendorConfiguration.IOSConf
      *  marked as skipped in `xctestrun` file.
      */
     override suspend fun extract(): List<Test> {
+
+        if (vendorConfiguration.xcTestRunnerTag.isNullOrEmpty()) {
+            logger.warn { "[iOS] Did not find `xcTestRunnerTag` in iOS Vendor Config. This will result in running all tests" }
+        }
+
         if (!vendorConfiguration.sourceRoot.isDirectory) {
             throw IllegalArgumentException("Expected a directory at $vendorConfiguration.sourceRoot")
         }
@@ -35,7 +41,8 @@ class IOSTestParser(private val vendorConfiguration: VendorConfiguration.IOSConf
         val implementedTests = mutableListOf<Test>()
         for (file in swiftFilesWithTests) {
             var testClassName: String? = null
-            for (line in file.readLines()) {
+
+            for ((index, line) in file.readLines().withIndex()) {
                 val className = line.firstMatchOrNull(swiftTestClassRegex)
                 val methodName = line.firstMatchOrNull(swiftTestMethodRegex)
 
@@ -44,7 +51,10 @@ class IOSTestParser(private val vendorConfiguration: VendorConfiguration.IOSConf
                 }
 
                 if (testClassName != null && methodName != null) {
-                    implementedTests.add(Test(targetName, testClassName, methodName, emptyList()))
+                    // Find & Update Tags here
+                    val tagLine = file.readLines()[index - 1]
+                    val tags = swiftTagRegex.findAll(tagLine).map { it.groupValues[1] }.toList()
+                    implementedTests.add(Test(targetName, testClassName, methodName, emptyList(), tags))
                 }
             }
         }
