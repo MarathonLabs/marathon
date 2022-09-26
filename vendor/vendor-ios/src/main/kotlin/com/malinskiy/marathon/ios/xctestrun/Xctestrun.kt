@@ -24,41 +24,53 @@ class Xctestrun(inputStream: InputStream) {
         ?: throw IllegalArgumentException("could not parse xctestrun")
 
     // testable target properties
-
+/*
     private val target = PropertyListKey.TargetName(
         propertyList.keys.firstOrNull { it != PropertyListKey.__xctestrun_metadata__.toKeyString() }
             ?: throw IllegalArgumentException("xctestrun file does not define any testable targets")
+    )
+*/
+
+    private val targetMap: Map<String, *> = (
+        ((((((propertyList.valueForKeypath("TestConfigurations") as? Array<Any>)?.first()) as Map<*, *>)
+            .filterKeys { it == "TestTargets" } )).values.first() as? Array<Any>)?.first() as Map<String, *>
     )
 
     /**
      * Test target identifier. Used in test names specified with -onlyTesting: option passed to xcodebuild
      */
-    val targetName = target.toKeyString()
+//    val targetName = target.toKeyString()
+    val targetName = targetMap.getValue("BlueprintName") as String
 
     /**
      * Testable product module name. Appears in testing logs as a test identifier prefix.
      */
-    val productModuleName = propertyList.valueForKeypath(target, PropertyListKey.ProductModuleName) as String
+//    val productModuleName = propertyList.valueForKeypath(target, PropertyListKey.ProductModuleName) as String
+    val productModuleName = targetMap.getValue("ProductModuleName") as String
 
     /**
      * @see <a href="x-man-page://5/xcodebuild.xctestrun">xcodebuild.xctestrun(5)</a>
      */
-    val isUITestBundle = propertyList.valueForKeypath(target, PropertyListKey.IsUITestBundle) as Boolean
+//    val isUITestBundle = propertyList.valueForKeypath(target, PropertyListKey.IsUITestBundle) as Boolean
+    val isUITestBundle = targetMap.getValue("IsUITestBundle") as Boolean
 
     /**
      * @see <a href="x-man-page://5/xcodebuild.xctestrun">xcodebuild.xctestrun(5)</a>
      */
-    val environmentVariables = propertyList.valueForKeypath(target, PropertyListKey.EnvironmentVariables) as PropertyListMap
+//    val environmentVariables = propertyList.valueForKeypath(target, PropertyListKey.EnvironmentVariables) as PropertyListMap
+    val environmentVariables = targetMap.getValue("EnvironmentVariables") as PropertyListMap
 
     /**
      * @see <a href="x-man-page://5/xcodebuild.xctestrun">xcodebuild.xctestrun(5)</a>
      */
-    val testingEnvironmentVariables = propertyList.valueForKeypath(target, PropertyListKey.TestingEnvironmentVariables) as PropertyListMap
+//    val testingEnvironmentVariables = propertyList.valueForKeypath(target, PropertyListKey.TestingEnvironmentVariables) as PropertyListMap
+    val testingEnvironmentVariables = targetMap.getValue("TestingEnvironmentVariables") as PropertyListMap
 
     /**
      * @see <a href="x-man-page://5/xcodebuild.xctestrun">xcodebuild.xctestrun(5)</a>
      */
-    private val skipTestIdentifiers = propertyList.valueForKeypath(target, PropertyListKey.SkipTestIdentifiers) as Array<Any>
+//    private val skipTestIdentifiers = propertyList.valueForKeypath(target, PropertyListKey.SkipTestIdentifiers) as Array<Any>
+    private val skipTestIdentifiers = targetMap.getValue("SkipTestIdentifiers") as Array<Any>
 
     /**
      * Returns `true` if specified test should be excluded from the test run.
