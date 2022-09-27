@@ -83,6 +83,7 @@ sealed class VendorConfiguration {
         @JsonProperty("keepAliveIntervalMillis") val keepAliveIntervalMillis: Long = 0L,
         @JsonProperty("xcResultBundlePath") val xcResultBundlePath: File,
         @JsonProperty("xcTestRunnerTag") val xcTestRunnerTag: String? = null,
+        @JsonProperty("xcTestPlan") val xcTestPlan: String? = null,
         @JsonProperty("devices") val devicesFile: File? = null,
     ) : VendorConfiguration() {
         /**

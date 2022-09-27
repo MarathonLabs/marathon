@@ -56,11 +56,22 @@ class ConfigurationFactory(
                     // Any relative path specified in Marathonfile should be resolved against the directory Marathonfile is in
                     val resolvedDerivedDataDir = marathonfileDir.resolve(configuration.vendorConfiguration.derivedDataDir)
                     val resolvedResultBundlePath = marathonfileDir.resolve(configuration.vendorConfiguration.xcResultBundlePath)
-                    val finalXCTestRunPath = configuration.vendorConfiguration.xctestrunPath?.resolveAgainst(marathonfileDir)
-                        ?: fileListProvider
+
+                    // Adding support for Test Plan
+                    val testPlanName = configuration.vendorConfiguration.xcTestPlan
+
+                    var finalXCTestRunPath = if(!testPlanName.isNullOrEmpty()) {
+                        fileListProvider
                             .fileList(resolvedDerivedDataDir)
-                            .firstOrNull { it.extension == "xctestrun" }
-                        ?: throw ConfigurationException("Unable to find an xctestrun file in derived data folder")
+                            .firstOrNull { it.extension == "xctestrun" && it.name.contains("$testPlanName") } ?: throw ConfigurationException("Unable to find matching TestPlan. Please recheck if testplan is enabled")
+                    } else {
+                        configuration.vendorConfiguration.xctestrunPath?.resolveAgainst(marathonfileDir)
+                            ?: fileListProvider
+                                .fileList(resolvedDerivedDataDir)
+                                .firstOrNull { it.extension == "xctestrun" }
+                            ?: throw ConfigurationException("Unable to find an xctestrun file in derived data folder")
+                    }
+
                     val optionalSourceRoot = configuration.vendorConfiguration.sourceRoot.resolveAgainst(marathonfileDir)
                     val optionalDevices = configuration.vendorConfiguration.devicesFile?.resolveAgainst(marathonfileDir)
                         ?: marathonfileDir.resolve("Marathondevices")
