@@ -5,12 +5,12 @@ poolingStrategy:
   type: "omni"
 batchingStrategy:
   type: "fixed-size"
-  size: 5
+  size: 2
 debug: true
-filteringConfiguration:
-  allowlist:
-    - type: "simple-class-name"
-      regex: "StoryboardTests"
+#filteringConfiguration:
+#  allowlist:
+#    - type: "simple-class-name"
+#      regex: "StoryboardTests"
 vendorConfiguration:
   type: "iOS"
   derivedDataDir: "derived-data"
@@ -20,3 +20,4 @@ vendorConfiguration:
   remotePrivateKey: ${HOME}/.ssh/marathon
   xcResultBundlePath: "derived-data/resultBundlePath"
   xcTestRunnerTag: "Flowers"
+  xcTestPlan: "UITesting"

@@ -1,0 +1,34 @@
+{
+  "configurations" : [
+    {
+      "id" : "F89CABE9-488A-423F-9C0B-ABBA5860F98F",
+      "name" : "Configuration 1",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "codeCoverage" : false,
+    "targetForVariableExpansion" : {
+      "containerPath" : "container:sample-app.xcodeproj",
+      "identifier" : "1271DC9521351C6D002B8D3E",
+      "name" : "sample-app"
+    }
+  },
+  "testTargets" : [
+    {
+      "skippedTests" : [
+        "MoreTests\/testDismissModal()",
+        "SkippedSuite",
+        "StoryboardTests\/testDisabledButton()"
+      ],
+      "target" : {
+        "containerPath" : "container:sample-app.xcodeproj",
+        "identifier" : "1271DCB421351C6D002B8D3E",
+        "name" : "sample-appUITests"
+      }
+    }
+  ],
+  "version" : 1
+}

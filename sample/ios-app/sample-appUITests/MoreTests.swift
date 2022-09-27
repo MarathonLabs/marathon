@@ -27,6 +27,7 @@ class MoreTests: XCTestCase {
         super.tearDown()
     }
 
+    // @Flowers
     func testPresentModal() {
         let button = app.buttons.element(boundBy: 1)
         button.waitForExistence()
@@ -38,6 +39,7 @@ class MoreTests: XCTestCase {
     }
 
 
+    // @Flowers
     func testDismissModal() {
         let button = app.buttons.element(boundBy: 1)
         button.tap()

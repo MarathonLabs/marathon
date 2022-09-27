@@ -36,6 +36,7 @@ class SlowTests: XCTestCase {
         super.tearDown()
     }
     
+    // @Flowers
     func testTextSlow() {
         sleep(5)
         let button = app.buttons.firstMatch
@@ -47,6 +48,7 @@ class SlowTests: XCTestCase {
         XCTAssertEqual(label.label, "Label")
     }
     
+    // @Flowers
     func testTextSlow1() {
         sleep(5)
         let button = app.buttons.firstMatch
