@@ -1,5 +1,6 @@
 package com.malinskiy.marathon.android
 
+import com.malinskiy.marathon.android.exception.DeviceNotSupportedException
 import com.malinskiy.marathon.android.exception.InstallException
 import com.malinskiy.marathon.android.extension.testBundlesCompat
 import com.malinskiy.marathon.config.Configuration
@@ -30,7 +31,15 @@ class AndroidAppInstaller(configuration: Configuration) {
 
             logger.debug { "Installing application output to ${device.serialNumber}" }
             bundle.application?.let {
-                reinstall(device, applicationInfo.applicationPackage, it)
+                if (bundle.partialApks.isNullOrEmpty()) {
+                    if (device.apiLevel < 21) {
+                        throw DeviceNotSupportedException("Device api level should be more then 20")
+                    }
+                    reinstall(device, applicationInfo.applicationPackage, it)
+                } else {
+                    val apkFileList = listOf(bundle.application) + bundle.partialApks
+                    reinstallSplit(device, applicationInfo.applicationPackage, apkFileList)
+                }
             }
 
             bundle.extraApplications?.let { extraApplications ->
@@ -66,6 +75,28 @@ class AndroidAppInstaller(configuration: Configuration) {
                 }
             } catch (e: InstallException) {
                 logger.error(e) { "Error while installing $appPackage, ${appApk.absolutePath} on ${device.serialNumber}" }
+                throw DeviceSetupException("Error while installing $appPackage on ${device.serialNumber}", e)
+            }
+        }
+    }
+
+    /**
+     * @throws DeviceSetupException if unable to reinstall (even with retries)
+     */
+    private suspend fun reinstallSplit(device: AndroidDevice, appPackage: String, appApkList: List<File>) {
+        withRetry(attempts = MAX_RETIRES, delayTime = 1000) {
+            try {
+                if (installed(device, appPackage)) {
+                    logger.info("Uninstalling $appPackage from ${device.serialNumber}")
+                    val uninstallMessage = device.safeUninstallPackage(appPackage)?.trim()
+                    uninstallMessage?.let { logger.debug { it } }
+                }
+                val absolutePaths = appApkList.map { it.absolutePath }
+                logger.info("Installing $appPackage, ${absolutePaths.joinToString()} to ${device.serialNumber}")
+                device.installSplitPackages(absolutePaths, true, optionalParams(device))
+            } catch (e: InstallException) {
+                val absolutePaths = appApkList.map { it.absolutePath }
+                logger.error(e) { "Error while installing $appPackage, ${absolutePaths.joinToString()} on ${device.serialNumber}" }
                 throw DeviceSetupException("Error while installing $appPackage on ${device.serialNumber}", e)
             }
         }

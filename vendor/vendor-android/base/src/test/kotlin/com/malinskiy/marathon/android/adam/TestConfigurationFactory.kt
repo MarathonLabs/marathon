@@ -15,6 +15,7 @@ object TestConfigurationFactory {
         isCodeCoverageEnabled: Boolean = false,
         applicationOutput: File? = File(javaClass.classLoader.getResource("apk/app-debug.apk").file),
         testApplicationOutput: File? = File(javaClass.classLoader.getResource("apk/app-debug-androidTest.apk").file),
+        partialApks: List<File>? = emptyList(),
         extraApplicationsOutput: List<File>? = emptyList(),
     ): Configuration {
         return Configuration.Builder(
@@ -24,6 +25,7 @@ object TestConfigurationFactory {
                 androidSdk = File(""),
                 applicationOutput = applicationOutput,
                 testApplicationOutput = testApplicationOutput,
+                partialApks = partialApks,
                 extraApplicationsOutput = extraApplicationsOutput,
                 autoGrantPermission = autoGrantPermission,
                 installOptions = installOptions,

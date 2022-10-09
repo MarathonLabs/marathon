@@ -164,6 +164,7 @@ open class MarathonRunTask @Inject constructor(objects: ObjectFactory) : Abstrac
                 application = application,
                 testApplication = testApplication,
                 extraApplications = extension.extraApplications,
+                partialApks = extension.partialApks
             )
         }
 
@@ -173,6 +174,7 @@ open class MarathonRunTask @Inject constructor(objects: ObjectFactory) : Abstrac
             applicationOutput = null,
             testApplicationOutput = null,
             extraApplicationsOutput = null,
+            partialApks = null,
             outputs = outputs,
             autoGrantPermission = autoGrantPermission,
             instrumentationArgs = instrumentationArgs,

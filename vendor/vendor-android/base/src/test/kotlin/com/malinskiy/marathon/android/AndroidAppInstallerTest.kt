@@ -72,6 +72,46 @@ class AndroidAppInstallerTest {
     }
 
     @Test
+    fun testCleanSplitInstallation() {
+        val configuration = TestConfigurationFactory.create(
+            partialApks = listOf(
+                File(javaClass.classLoader.getResource("apk/app-debug.apk").file)
+            ),
+            fileSyncConfiguration = FileSyncConfiguration(
+                mutableSetOf(
+                    FileSyncEntry(
+                        relativePath = "screenshots",
+                        aggregationMode = AggregationMode.DEVICE,
+                        pathRoot = PathRoot.EXTERNAL_STORAGE,
+                    )
+                )
+            )
+        )
+        val installer = AndroidAppInstaller(configuration)
+        val device = TestDeviceFactory.create(client, configuration, mock())
+
+        runBlocking {
+            server.multipleSessions {
+                serial("emulator-5554") {
+                    boot()
+
+                    shell("pm list packages", "")
+                    installApk(temp, "/data/local/tmp/app-debug.apk", "511", "122fc3b5d69b262db9b84dfc00e8f1d4", "-r")
+
+                    // TODO
+                    shell("pm list packages", "package:com.example")
+                    installApk(temp, "/data/local/tmp/app-debug-androidTest.apk", "511", "8d103498247b3711817a9f18624dede7", "-r")
+
+                }
+                features("emulator-5554")
+            }
+
+            device.setup()
+            installer.prepareInstallation(device)
+        }
+    }
+
+    @Test
     fun testCleanInstallationWithAutograntPermissions() {
         val configuration = TestConfigurationFactory.create(
             autoGrantPermission = true,
