@@ -24,6 +24,7 @@ import com.malinskiy.marathon.config.vendor.android.PathRoot
 import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.test.Test
 import com.malinskiy.marathon.test.TestBatch
+import com.malinskiy.marathon.test.toHumanReadableClassName
 import com.malinskiy.marathon.test.toTestName
 import kotlinx.coroutines.channels.ReceiveChannel
 import kotlinx.coroutines.isActive
@@ -122,7 +123,7 @@ class AndroidDeviceTestRunner(private val device: AdamAndroidDevice, private val
 
     private suspend fun notifyIgnoredTest(ignoredTests: List<Test>, listeners: AndroidTestRunListener) {
         ignoredTests.forEach {
-            val identifier = TestIdentifier("${it.pkg}.${it.clazz}", it.method)
+            val identifier = TestIdentifier(it.toHumanReadableClassName(), it.method)
             listeners.testStarted(identifier)
             listeners.testIgnored(identifier)
             listeners.testEnded(identifier, hashMapOf())
@@ -174,19 +175,14 @@ class AndroidDeviceTestRunner(private val device: AdamAndroidDevice, private val
         coverageFile: String
     ): TestRunnerRequest {
         val tests = testBatch.tests.map {
-            val pkg = when {
-                it.pkg.isNotEmpty() -> "${it.pkg}."
-                else -> ""
-            }
-            val clazz = it.clazz
             val method = it.method
             if (it.method != "null") {
-                "${pkg}${clazz}#$method"
+                "${it.toHumanReadableClassName()}#$method"
             } else {
                 /**
                  * Special case for tests without any methods
                  */
-                "${pkg}${clazz}"
+                it.toHumanReadableClassName()
             }.bashEscape()
         }
 

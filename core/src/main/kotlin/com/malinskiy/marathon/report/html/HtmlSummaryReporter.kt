@@ -23,6 +23,7 @@ import com.malinskiy.marathon.report.HtmlShortTest
 import com.malinskiy.marathon.report.HtmlTestLogDetails
 import com.malinskiy.marathon.report.Reporter
 import com.malinskiy.marathon.report.Status
+import com.malinskiy.marathon.test.toHumanReadableClassName
 import org.apache.commons.text.StringEscapeUtils
 import java.io.File
 import java.io.InputStream
@@ -196,8 +197,8 @@ class HtmlSummaryReporter(
 
     fun TestResult.toHtmlFullTest(poolId: String, batchId: String) = HtmlFullTest(
         poolId = poolId,
-        id = "${test.pkg}.${test.clazz}.${test.method}",
-        filename = "${test.pkg}.${test.clazz}.${test.method}".escape().safePathLength() + ".html",
+        id = "${test.toHumanReadableClassName()}.${test.method}",
+        filename = "${test.toHumanReadableClassName()}.${test.method}".escape().safePathLength() + ".html",
         packageName = test.pkg,
         className = test.clazz,
         name = test.method,
@@ -259,8 +260,8 @@ class HtmlSummaryReporter(
 
 
     fun TestResult.toHtmlShortSuite() = HtmlShortTest(
-        id = "${test.pkg}.${test.clazz}.${test.method}",
-        fileName = "${test.pkg}.${test.clazz}.${test.method}".escape().safePathLength() + ".html",
+        id = "${test.toHumanReadableClassName()}.${test.method}",
+        fileName = "${test.toHumanReadableClassName()}.${test.method}".escape().safePathLength() + ".html",
         packageName = test.pkg,
         className = test.clazz,
         name = test.method,

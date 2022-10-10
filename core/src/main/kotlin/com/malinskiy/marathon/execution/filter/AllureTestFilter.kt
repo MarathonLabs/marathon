@@ -47,5 +47,13 @@ class AllureTestFilter(val cnf: TestFilterConfiguration.AllureFilterConfiguratio
 }
 
 private fun Test.toAllureName(): String {
-    return "$pkg.$clazz.$method"
+    return StringBuilder().apply { 
+        if(pkg.isNotBlank()) {
+            append(pkg)
+        }
+        append('.')
+        append(clazz)
+        append('.')
+        append(method)
+    }.toString()
 }

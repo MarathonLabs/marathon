@@ -3,6 +3,7 @@ package com.malinskiy.marathon.android
 import com.malinskiy.marathon.extension.escape
 import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.test.Test
+import com.malinskiy.marathon.test.toHumanReadableClassName
 
 class RemoteFileManager(private val device: AndroidDevice) {
     private val log = MarathonLogging.logger {}
@@ -30,10 +31,10 @@ class RemoteFileManager(private val device: AndroidDevice) {
     }
 
     private fun videoFileName(test: Test, testBatchId: String): String {
-        "${test.pkg}.${test.clazz}-${test.method}-$testBatchId.mp4"
+        "${test.toHumanReadableClassName()}-${test.method}-$testBatchId.mp4"
 
         val testSuffix = "-$testBatchId.mp4"
-        val rawTestName = "${test.pkg}.${test.clazz}-${test.method}".escape()
+        val rawTestName = "${test.toHumanReadableClassName()}-${test.method}".escape()
         val testName = rawTestName.take(MAX_FILENAME - testSuffix.length)
         val fileName = "$testName$testSuffix"
         if (rawTestName.length > testName.length) {

@@ -5,6 +5,7 @@ import com.malinskiy.marathon.device.DevicePoolId
 import com.malinskiy.marathon.extension.escape
 import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.test.Test
+import com.malinskiy.marathon.test.toHumanReadableTestName
 import com.malinskiy.marathon.test.toTestName
 import java.io.File
 import java.nio.file.Files.createDirectories
@@ -120,7 +121,7 @@ class FileManager(private val maxPath: Int, private val output: File) {
                 append(".${fileType.suffix}")
             }
         }.toString()
-        val rawTestName = test.toTestName().escape()
+        val rawTestName = test.toHumanReadableTestName().escape()
         val testName = when {
             limit - testSuffix.length >= 0 -> rawTestName.take(limit - testSuffix.length)
             else -> ""
