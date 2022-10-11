@@ -3,6 +3,7 @@ package com.malinskiy.marathon.execution.filter
 import com.malinskiy.marathon.config.TestFilterConfiguration
 import com.malinskiy.marathon.execution.TestFilter
 import com.malinskiy.marathon.test.Test
+import com.malinskiy.marathon.test.toTestName
 import io.qameta.allure.testfilter.FileTestPlanSupplier
 import io.qameta.allure.testfilter.TestPlan
 import io.qameta.allure.testfilter.TestPlanSupplier
@@ -46,14 +47,4 @@ class AllureTestFilter(val cnf: TestFilterConfiguration.AllureFilterConfiguratio
     }
 }
 
-private fun Test.toAllureName(): String {
-    return StringBuilder().apply { 
-        if(pkg.isNotBlank()) {
-            append(pkg)
-        }
-        append('.')
-        append(clazz)
-        append('.')
-        append(method)
-    }.toString()
-}
+private fun Test.toAllureName() = toTestName(packageSeparator = '.', methodSeparator = '.')

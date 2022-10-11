@@ -22,9 +22,9 @@ data class Test(
     }
 }
 
-fun Test.toTestName(classSeparator: Char = '.', methodSeparator: Char = '#'): String {
+fun Test.toTestName(packageSeparator: Char = '.', methodSeparator: Char = '#'): String {
     return StringBuilder().apply {
-        append(toClassName(classSeparator))
+        append(toClassName(packageSeparator))
         append(methodSeparator)
         append(method)
     }.toString()
