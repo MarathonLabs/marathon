@@ -17,7 +17,7 @@ import com.malinskiy.marathon.report.attachment.AttachmentListener
 import com.malinskiy.marathon.report.attachment.AttachmentProvider
 import com.malinskiy.marathon.test.Test
 import com.malinskiy.marathon.test.TestBatch
-import com.malinskiy.marathon.test.toHumanReadableClassName
+import com.malinskiy.marathon.test.toClassName
 import com.malinskiy.marathon.test.toTestName
 import com.malinskiy.marathon.time.Timer
 import kotlinx.coroutines.CompletableDeferred
@@ -153,7 +153,7 @@ class TestRunResultsListener(
     }
 
     private fun Map.Entry<TestIdentifier, AndroidTestResult>.toTestResult(device: Device): TestResult {
-        val testInstanceFromBatch = testBatch.tests.find { it.toHumanReadableClassName() == key.className && it.method == key.testName }
+        val testInstanceFromBatch = testBatch.tests.find { it.toClassName() == key.className && it.method == key.testName }
         val test = key.toTest()
         val attachments = attachments[test] ?: emptyList()
         return TestResult(

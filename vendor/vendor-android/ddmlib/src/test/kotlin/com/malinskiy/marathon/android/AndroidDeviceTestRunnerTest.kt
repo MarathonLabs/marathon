@@ -13,7 +13,7 @@ import com.malinskiy.marathon.config.vendor.VendorConfiguration
 import com.malinskiy.marathon.config.vendor.android.SerialStrategy
 import com.malinskiy.marathon.test.MetaProperty
 import com.malinskiy.marathon.test.TestBatch
-import com.malinskiy.marathon.test.toHumanReadableClassName
+import com.malinskiy.marathon.test.toClassName
 import com.malinskiy.marathon.time.SystemTimer
 import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.eq
@@ -163,4 +163,4 @@ class AndroidDeviceTestRunnerTest {
 }
 
 private fun com.malinskiy.marathon.test.Test.toMarathonTestIdentifier() =
-    TestIdentifier(toHumanReadableClassName(), method)
+    TestIdentifier(toClassName(), method)

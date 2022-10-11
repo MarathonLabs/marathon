@@ -14,8 +14,7 @@ import com.malinskiy.marathon.report.junit.model.Skipped
 import com.malinskiy.marathon.report.junit.model.TestCase
 import com.malinskiy.marathon.report.junit.model.TestSuite
 import com.malinskiy.marathon.report.junit.serialize.JUnitReportSerializer
-import com.malinskiy.marathon.test.toHumanReadableClassName
-import com.malinskiy.marathon.test.toHumanReadableTestName
+import com.malinskiy.marathon.test.toClassName
 import java.io.File
 import java.nio.file.Paths
 import java.text.SimpleDateFormat
@@ -90,7 +89,7 @@ internal class JUnitReporter(private val outputDir: File) : Reporter {
 
             result.add(
                 TestCase(
-                    classname = it.test.toHumanReadableClassName(),
+                    classname = it.test.toClassName(),
                     name = it.test.method,
                     time = it.durationMillis().toJUnitSeconds(),
                     skipped = if (isSkipped(it)) Skipped(description = it.stacktrace ?: "") else null,

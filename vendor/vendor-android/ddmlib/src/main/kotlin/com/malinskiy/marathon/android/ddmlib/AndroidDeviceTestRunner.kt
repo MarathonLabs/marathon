@@ -16,7 +16,7 @@ import com.malinskiy.marathon.exceptions.DeviceLostException
 import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.test.Test
 import com.malinskiy.marathon.test.TestBatch
-import com.malinskiy.marathon.test.toHumanReadableClassName
+import com.malinskiy.marathon.test.toClassName
 import com.malinskiy.marathon.test.toTestName
 import kotlinx.coroutines.runBlocking
 import java.io.IOException
@@ -133,7 +133,7 @@ class AndroidDeviceTestRunner(private val device: DdmlibAndroidDevice, private v
         val runner = RemoteAndroidTestRunner(info.instrumentationPackage, info.testRunnerClass, device.ddmsDevice)
 
         val tests = testBatch.tests.map {
-            "${it.toHumanReadableClassName()}#${it.method}"
+            "${it.toClassName()}#${it.method}"
         }.toTypedArray()
 
         logger.debug { "tests = ${tests.toList()}" }
@@ -212,4 +212,4 @@ class AndroidDeviceTestRunner(private val device: DdmlibAndroidDevice, private v
         com.malinskiy.marathon.android.model.TestIdentifier(this.className, this.testName)
 }
 
-internal fun Test.toTestIdentifier(): TestIdentifier = TestIdentifier(toHumanReadableClassName(), method)
+internal fun Test.toTestIdentifier(): TestIdentifier = TestIdentifier(toClassName(), method)
