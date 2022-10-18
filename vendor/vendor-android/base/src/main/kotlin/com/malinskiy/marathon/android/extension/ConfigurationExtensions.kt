@@ -48,7 +48,7 @@ fun VideoConfiguration.toScreenRecorderCommand(remoteFilePath: String): String {
     return sb.toString()
 }
 
-fun AndroidTestBundleConfiguration.toAndroidTestBundle() = AndroidTestBundle(application, testApplication, extraApplications, splitApks)
+fun AndroidTestBundleConfiguration.toAndroidTestBundle() = AndroidTestBundle(application, testApplication, extraApplications, null)
 
 fun VendorConfiguration.AndroidConfiguration.testBundlesCompat(): List<AndroidTestBundle> {
     return mutableListOf<AndroidTestBundle>().apply {
