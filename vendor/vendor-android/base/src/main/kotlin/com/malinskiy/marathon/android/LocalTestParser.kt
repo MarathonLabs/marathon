@@ -33,7 +33,7 @@ class LocalTestParser(
                 val className = packageAndClassName.substring(lastDotIndex + 1 until packageAndClassName.length)
 
                 val test = Test(packageName, className, methodName, annotations)
-                testBundleIdentifier.put(test, AndroidTestBundle(bundle.application, bundle.testApplication, bundle.extraApplications, bundle.partialApks))
+                testBundleIdentifier.put(test, AndroidTestBundle(bundle.application, bundle.testApplication, bundle.extraApplications, bundle.splitApks))
                 test
             }
         }

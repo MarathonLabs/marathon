@@ -30,16 +30,13 @@ class AndroidAppInstaller(configuration: Configuration) {
             val applicationInfo = apkParser.parseInstrumentationInfo(bundle.testApplication)
 
             logger.debug { "Installing application output to ${device.serialNumber}" }
-            bundle.application?.let {
-                if (bundle.partialApks.isNullOrEmpty()) {
+            bundle.application?.let { applicationApk ->
+                if (bundle.splitApks.isNullOrEmpty()) {
                     if (device.apiLevel < 21) {
                         throw DeviceNotSupportedException("Device api level should be more then 20")
                     }
-                    reinstall(device, applicationInfo.applicationPackage, it)
-                } else {
-                    val apkFileList = listOf(bundle.application) + bundle.partialApks
-                    reinstallSplit(device, applicationInfo.applicationPackage, apkFileList)
                 }
+                reinstall(device, applicationInfo.applicationPackage, applicationApk, bundle.splitApks ?: emptyList())
             }
 
             bundle.extraApplications?.let { extraApplications ->
@@ -59,7 +56,13 @@ class AndroidAppInstaller(configuration: Configuration) {
     /**
      * @throws DeviceSetupException if unable to reinstall (even with retries)
      */
-    private suspend fun reinstall(device: AndroidDevice, appPackage: String, appApk: File) {
+    private suspend fun reinstall(device: AndroidDevice, appPackage: String, applicationApk: File, splitApks: List<File> = emptyList()) {
+        val absolutePaths = if (splitApks.isNotEmpty()) {
+            listOf(applicationApk, *splitApks.toTypedArray()).map { splitApk -> splitApk.absolutePath }
+        } else {
+            listOf<String>(applicationApk.absolutePath)
+        }
+
         withRetry(attempts = MAX_RETIRES, delayTime = 1000) {
             try {
                 if (installed(device, appPackage)) {
@@ -67,35 +70,17 @@ class AndroidAppInstaller(configuration: Configuration) {
                     val uninstallMessage = device.safeUninstallPackage(appPackage)?.trim()
                     uninstallMessage?.let { logger.debug { it } }
                 }
-                logger.info("Installing $appPackage, ${appApk.absolutePath} to ${device.serialNumber}")
-                val installMessage = device.installPackage(appApk.absolutePath, true, optionalParams(device))?.trim()
+                logger.info("Installing $appPackage, ${absolutePaths.joinToString()} to ${device.serialNumber}")
+
+                val installMessage = when {
+                    splitApks.isEmpty() -> device.installPackage(applicationApk.absolutePath, true, optionalParams(device))?.trim()
+                    else -> device.installSplitPackages(absolutePaths, true, optionalParams(device))
+                }
                 installMessage?.let { logger.debug { it } }
                 if (installMessage == null || !installMessage.contains("Success")) {
                     throw InstallException(installMessage ?: "")
                 }
             } catch (e: InstallException) {
-                logger.error(e) { "Error while installing $appPackage, ${appApk.absolutePath} on ${device.serialNumber}" }
-                throw DeviceSetupException("Error while installing $appPackage on ${device.serialNumber}", e)
-            }
-        }
-    }
-
-    /**
-     * @throws DeviceSetupException if unable to reinstall (even with retries)
-     */
-    private suspend fun reinstallSplit(device: AndroidDevice, appPackage: String, appApkList: List<File>) {
-        withRetry(attempts = MAX_RETIRES, delayTime = 1000) {
-            try {
-                if (installed(device, appPackage)) {
-                    logger.info("Uninstalling $appPackage from ${device.serialNumber}")
-                    val uninstallMessage = device.safeUninstallPackage(appPackage)?.trim()
-                    uninstallMessage?.let { logger.debug { it } }
-                }
-                val absolutePaths = appApkList.map { it.absolutePath }
-                logger.info("Installing $appPackage, ${absolutePaths.joinToString()} to ${device.serialNumber}")
-                device.installSplitPackages(absolutePaths, true, optionalParams(device))
-            } catch (e: InstallException) {
-                val absolutePaths = appApkList.map { it.absolutePath }
                 logger.error(e) { "Error while installing $appPackage, ${absolutePaths.joinToString()} on ${device.serialNumber}" }
                 throw DeviceSetupException("Error while installing $appPackage on ${device.serialNumber}", e)
             }
