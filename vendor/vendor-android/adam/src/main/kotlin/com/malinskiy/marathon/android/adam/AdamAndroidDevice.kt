@@ -299,7 +299,7 @@ class AdamAndroidDevice(
     }
 
     override suspend fun installSplitPackages(absolutePaths: List<String>, reinstall: Boolean, optionalParams: List<String>): String? {
-        val result = withTimeoutOrNull(androidConfiguration.timeoutConfiguration.install) {
+        return withTimeoutOrNull(androidConfiguration.timeoutConfiguration.install) {
             val files = absolutePaths.map { File(it) }
             client.execute(
                 InstallSplitPackageRequest(
@@ -311,7 +311,6 @@ class AdamAndroidDevice(
                 ), serial = adbSerial
             )
         } ?: throw InstallException("Timeout transferring absolutePath")
-        return result
     }
 
     override suspend fun getScreenshot(timeout: Duration): BufferedImage? {

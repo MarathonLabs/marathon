@@ -10,6 +10,7 @@ import com.malinskiy.marathon.android.adam.TestDeviceFactory
 import com.malinskiy.marathon.android.adam.boot
 import com.malinskiy.marathon.android.adam.features
 import com.malinskiy.marathon.android.adam.installApk
+import com.malinskiy.marathon.android.adam.installSplitApk
 import com.malinskiy.marathon.android.adam.shell
 import com.malinskiy.marathon.android.adam.shellFail
 import com.malinskiy.marathon.config.vendor.android.AggregationMode
@@ -73,19 +74,13 @@ class AndroidAppInstallerTest {
 
     @Test
     fun testCleanSplitInstallation() {
+        val applicationApk = File(javaClass.classLoader.getResource("apk/base-en.apk").file)
+        val splitApk = File(javaClass.classLoader.getResource("apk/standalone-hdpi.apk").file)
         val configuration = TestConfigurationFactory.create(
-            partialApks = listOf(
-                File(javaClass.classLoader.getResource("apk/app-debug.apk").file)
+            applicationOutput = applicationApk,
+            splitApks = listOf(
+                splitApk,
             ),
-            fileSyncConfiguration = FileSyncConfiguration(
-                mutableSetOf(
-                    FileSyncEntry(
-                        relativePath = "screenshots",
-                        aggregationMode = AggregationMode.DEVICE,
-                        pathRoot = PathRoot.EXTERNAL_STORAGE,
-                    )
-                )
-            )
         )
         val installer = AndroidAppInstaller(configuration)
         val device = TestDeviceFactory.create(client, configuration, mock())
@@ -96,12 +91,9 @@ class AndroidAppInstallerTest {
                     boot()
 
                     shell("pm list packages", "")
-                    installApk(temp, "/data/local/tmp/app-debug.apk", "511", "122fc3b5d69b262db9b84dfc00e8f1d4", "-r")
+                    installSplitApk(files = listOf(applicationApk, splitApk))
 
-                    // TODO
-                    shell("pm list packages", "package:com.example")
                     installApk(temp, "/data/local/tmp/app-debug-androidTest.apk", "511", "8d103498247b3711817a9f18624dede7", "-r")
-
                 }
                 features("emulator-5554")
             }
