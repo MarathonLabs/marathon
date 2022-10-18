@@ -142,10 +142,10 @@ open class MarathonRunTask @Inject constructor(objects: ObjectFactory) : Abstrac
                     artifactLoader.load(it.apkFolder.get()) ?: throw RuntimeException("No application artifact found")
                 when {
                     artifacts.elements.size > 1 -> throw UnsupportedOperationException(
-                        "The Marathon plugin does not support abi splits for app APKs, " +
-                            "but supports testing via a universal APK. "
-                            + "Add the flag \"universalApk true\" in the android.splits.abi configuration."
-                    )
+                            "The Marathon plugin does not support abi splits for app APKs, " +
+                                "but supports testing via a universal APK. "
+                                + "Add the flag \"universalApk true\" in the android.splits.abi configuration."
+                        )
                     artifacts.elements.isEmpty() -> throw UnsupportedOperationException("No artifacts for variant $flavorName")
                 }
                 File(artifacts.elements.first().outputFile)
@@ -164,7 +164,7 @@ open class MarathonRunTask @Inject constructor(objects: ObjectFactory) : Abstrac
                 application = application,
                 testApplication = testApplication,
                 extraApplications = extension.extraApplications,
-                partialApks = extension.partialApks
+                splitApks = null
             )
         }
 
@@ -174,7 +174,7 @@ open class MarathonRunTask @Inject constructor(objects: ObjectFactory) : Abstrac
             applicationOutput = null,
             testApplicationOutput = null,
             extraApplicationsOutput = null,
-            partialApks = null,
+            splitApks = null,
             outputs = outputs,
             autoGrantPermission = autoGrantPermission,
             instrumentationArgs = instrumentationArgs,

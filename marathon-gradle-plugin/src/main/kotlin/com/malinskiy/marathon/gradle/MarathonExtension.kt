@@ -401,11 +401,6 @@ open class MarathonExtension(project: Project) {
     var extraApplications: List<File>? = null
 
     /**
-     * Split apk's and apk for dynamic feature
-     */
-    var partialApks: List<File>? = null
-
-    /**
      * By default, instrumentation uses --no-window-animation flag. Use this option if you want to enable window animations
      */
     var disableWindowAnimation: Boolean? = null
