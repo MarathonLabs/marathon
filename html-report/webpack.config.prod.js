@@ -1,10 +1,10 @@
-const UglifyJSPlugin = require('uglifyjs-webpack-plugin');
 const path = require('path');
 var CopyWebpackPlugin = require('copy-webpack-plugin');
 
 
 module.exports = function() {
   return {
+    mode: 'production',
     entry: './src/index.js',
     output: {
       path: path.join(__dirname, 'build'),
@@ -22,9 +22,12 @@ module.exports = function() {
         }
       ]
     },
+    optimization: {
+      minimize: true,
+    },
     plugins: [
-      new UglifyJSPlugin(),
-      new CopyWebpackPlugin([
+      new CopyWebpackPlugin({
+        patterns: [
         {
           from: 'layout/index.html',
           to: './'
@@ -37,7 +40,7 @@ module.exports = function() {
           from: 'layout/log-entry.html',
           to: './'
         }
-      ])
+      ]}),
     ]
   };
 }

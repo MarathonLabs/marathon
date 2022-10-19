@@ -1,8 +1,9 @@
 {
   "presets":[
-    "latest", "react"
+    "@babel/preset-env",
+    "@babel/preset-react"
   ],
   "plugins": [
-    "transform-class-properties"
+    "@babel/proposal-class-properties"
   ]
 }
