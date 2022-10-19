@@ -163,7 +163,8 @@ open class MarathonRunTask @Inject constructor(objects: ObjectFactory) : Abstrac
             AndroidTestBundleConfiguration(
                 application = application,
                 testApplication = testApplication,
-                extraApplications = extension.extraApplications
+                extraApplications = extension.extraApplications,
+                splitApks = null
             )
         }
 
