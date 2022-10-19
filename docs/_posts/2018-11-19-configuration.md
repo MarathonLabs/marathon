@@ -1710,6 +1710,47 @@ marathon {
 
 See relevant vendor module page, e.g. [Android][3] or [iOS][4]
 
+# Dynamic configuration
+
+
+## Marathonfile
+Marathon supports envvar interpolation in the Marathonfile: every occurance of `${X}` in the Marathonfile will be replaced with the value of
+envvar `X`, for example:
+
+{% tabs dynamic-configuration-yaml %} {% tab dynamic-configuration-yaml Marathonfile %}
+
+```yaml
+outputConfiguration:
+  maxPath: ${MARATHON_MAX_PATH}
+```
+
+{% endtab %} {% endtabs %}
+
+## Gradle
+
+You can also provide dynamic configuration for gradle configuration using programming language syntax, for example:
+{% tabs dynamic-configuration-gradle %} {% tab dynamic-configuration-gradle Gradle %}
+
+```kotlin
+marathon {
+  outputConfiguration {
+    maxPath = System.properties['maxpath'] as int
+  }
+}
+```
+
+{% endtab %} {% tab dynamic-configuration-gradle Gradle Kotlin %}
+
+```kotlin
+marathon {
+  outputConfiguration {
+    maxPath = someWayOfRetrievingTheParameter()
+  }
+}
+```
+
+{% endtab %} {% endtabs %}
+
 [1]: https://www.influxdata.com/
 
 [2]: https://graphiteapp.org/
