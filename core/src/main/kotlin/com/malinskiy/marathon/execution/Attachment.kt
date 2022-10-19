@@ -4,14 +4,11 @@ import java.io.File
 
 data class Attachment(val file: File, val type: AttachmentType)
 
-enum class AttachmentType {
-    SCREENSHOT,
-    VIDEO,
-    LOG;
-
-    fun toMimeType() = when (this) {
-        SCREENSHOT -> "image/gif"
-        VIDEO -> "video/mp4"
-        LOG -> "text/txt"
-    }
+enum class AttachmentType(val mimeType: String) {
+    SCREENSHOT_GIF("image/gif"),
+    SCREENSHOT_JPEG("image/jpeg"),
+    SCREENSHOT_PNG("image/png"),
+    SCREENSHOT_WEBP("image/webp"),
+    VIDEO("video/mp4"),
+    LOG("text/txt");
 }

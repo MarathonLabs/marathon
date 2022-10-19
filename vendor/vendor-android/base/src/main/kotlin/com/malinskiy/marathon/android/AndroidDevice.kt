@@ -57,7 +57,7 @@ interface AndroidDevice : Device {
      */
     suspend fun pullFolder(remoteFolderPath: String, localFolderPath: String)
     suspend fun safePullFolder(remoteFolderPath: String, localFolderPath: String)
-
+    suspend fun pushFolder(localFolderPath: String, remoteFolderPath: String)
     /**
      * @throws com.malinskiy.marathon.android.exception.InstallException in case of failure to push the apk
      */

@@ -1,7 +1,10 @@
+import com.malinskiy.marathon.config.vendor.android.TestAccessConfiguration
+import com.malinskiy.marathon.config.vendor.android.TestParserConfiguration
+
 plugins {
     id("com.android.application")
     id("kotlin-android")
-    id("marathon") version "0.7.2-SNAPSHOT"
+    id("marathon") version "0.7.3-SNAPSHOT"
 }
 
 android {
@@ -35,7 +38,7 @@ android {
             proguardFiles("proguard-rules.pro")
         }
         getByName("debug") {
-            isTestCoverageEnabled = true
+            isTestCoverageEnabled = false
         }
     }
 }
@@ -44,8 +47,21 @@ marathon {
     allureConfiguration {
         enabled = true
     }
-    analytics {
-
+    applicationPmClear = true
+    disableWindowAnimation = false
+    testApplicationPmClear = true
+    autoGrantPermission = true
+    isCodeCoverageEnabled = true
+    testParserConfiguration = TestParserConfiguration.RemoteTestParserConfiguration(
+        mapOf("listener" to "com.malinskiy.adam.junit4.android.listener.TestAnnotationProducer")
+    )
+    uncompletedTestRetryQuota = 3
+    testAccessConfiguration = TestAccessConfiguration(adb = true, grpc = true, console = true)
+    fileSyncConfiguration {
+        allureConfiguration {
+            enabled = true
+            relativeResultsDirectory = "files/allure-results"
+        }
     }
 }
 
@@ -65,4 +81,5 @@ dependencies {
     androidTestImplementation(TestLibraries.allureKotlinModel)
     androidTestImplementation(TestLibraries.allureKotlinJunit4)
     androidTestImplementation(TestLibraries.allureKotlinAndroid)
+    androidTestImplementation(TestLibraries.adamScreencapture)
 }

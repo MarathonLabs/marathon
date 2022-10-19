@@ -18,6 +18,7 @@ import java.io.File
 
 const val DEFAULT_INIT_TIMEOUT_MILLIS = 30_000
 const val DEFAULT_AUTO_GRANT_PERMISSION = false
+const val DEFAULT_DISABLE_WINDOW_ANIMATION = true
 const val DEFAULT_APPLICATION_PM_CLEAR = false
 const val DEFAULT_TEST_APPLICATION_PM_CLEAR = false
 const val DEFAULT_INSTALL_OPTIONS = ""
@@ -56,7 +57,8 @@ sealed class VendorConfiguration {
         @JsonProperty("threadingConfiguration") val threadingConfiguration: ThreadingConfiguration = ThreadingConfiguration(),
         @JsonProperty("testParserConfiguration") val testParserConfiguration: TestParserConfiguration = TestParserConfiguration.LocalTestParserConfiguration,
         @JsonProperty("testAccessConfiguration") val testAccessConfiguration: TestAccessConfiguration = TestAccessConfiguration(),
-        @JsonProperty("adbServers") val adbServers: List<AdbEndpoint> = listOf(AdbEndpoint())
+        @JsonProperty("adbServers") val adbServers: List<AdbEndpoint> = listOf(AdbEndpoint()),
+        @JsonProperty("disableWindowAnimation") val disableWindowAnimation: Boolean = DEFAULT_DISABLE_WINDOW_ANIMATION,
     ) : VendorConfiguration() {
         fun safeAndroidSdk(): File = androidSdk ?: throw ConfigurationException("No android SDK path specified")
 

@@ -16,6 +16,7 @@ import com.malinskiy.marathon.exceptions.DeviceLostException
 import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.test.Test
 import com.malinskiy.marathon.test.TestBatch
+import com.malinskiy.marathon.test.toClassName
 import com.malinskiy.marathon.test.toTestName
 import kotlinx.coroutines.runBlocking
 import java.io.IOException
@@ -103,7 +104,7 @@ class AndroidDeviceTestRunner(private val device: DdmlibAndroidDevice, private v
                 logger.debug { "Package ${info.applicationPackage} cleared: $it" }
             }
         }
-        if (androidConfiguration.fileSyncConfiguration.pull.isNotEmpty()) {
+        if (androidConfiguration.fileSyncConfiguration.pull.isNotEmpty() || androidConfiguration.fileSyncConfiguration.push.isNotEmpty()) {
             when {
                 device.version.isGreaterOrEqualThan(30) -> {
                     val command = "appops set --uid ${info.applicationPackage} MANAGE_EXTERNAL_STORAGE allow"
@@ -132,7 +133,7 @@ class AndroidDeviceTestRunner(private val device: DdmlibAndroidDevice, private v
         val runner = RemoteAndroidTestRunner(info.instrumentationPackage, info.testRunnerClass, device.ddmsDevice)
 
         val tests = testBatch.tests.map {
-            "${it.pkg}.${it.clazz}#${it.method}"
+            "${it.toClassName()}#${it.method}"
         }.toTypedArray()
 
         logger.debug { "tests = ${tests.toList()}" }
@@ -211,4 +212,4 @@ class AndroidDeviceTestRunner(private val device: DdmlibAndroidDevice, private v
         com.malinskiy.marathon.android.model.TestIdentifier(this.className, this.testName)
 }
 
-internal fun Test.toTestIdentifier(): TestIdentifier = TestIdentifier("$pkg.$clazz", method)
+internal fun Test.toTestIdentifier(): TestIdentifier = TestIdentifier(toClassName(), method)

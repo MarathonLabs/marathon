@@ -25,6 +25,7 @@ import com.malinskiy.adam.request.shell.v1.ShellCommandRequest
 import com.malinskiy.adam.request.sync.AndroidFile
 import com.malinskiy.adam.request.sync.AndroidFileType
 import com.malinskiy.adam.request.sync.ListFilesRequest
+import com.malinskiy.adam.request.sync.PushRequest
 import com.malinskiy.adam.request.sync.compat.CompatPullFileRequest
 import com.malinskiy.adam.request.sync.compat.CompatPushFileRequest
 import com.malinskiy.adam.request.sync.compat.CompatStatFileRequest
@@ -249,6 +250,15 @@ class AdamAndroidDevice(
                 pullFile(remoteFilePath, localFile.absolutePath)
             } ?: logger.warn { "Pulling $remoteFilePath timed out. Ignoring" }
         }
+    }
+
+    override suspend fun pushFolder(localFolderPath: String, remoteFolderPath: String) {
+        if (!File(localFolderPath).isDirectory) {
+            throw TransferException("Source $localFolderPath is not a directory")
+        }
+        withTimeoutOrNull(androidConfiguration.timeoutConfiguration.pushFolder) {
+            client.execute(PushRequest(File(localFolderPath), remoteFolderPath, supportedFeatures, coroutineContext = dispatcher), serial = adbSerial)
+        } ?: logger.warn { "Pushing $localFolderPath timed out. Ignoring" }
     }
 
     override suspend fun safeUninstallPackage(appPackage: String, keepData: Boolean): String? {

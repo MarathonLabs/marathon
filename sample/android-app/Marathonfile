@@ -1,15 +1,35 @@
 name: "sample-app tests"
 outputDir: "build/reports/marathon"
 isCodeCoverageEnabled: true
-retryStrategy:
-  type: "fixed-quota"
-  totalAllowedRetryQuota: 100
-  retryPerTestQuota: 2
+analyticsConfiguration:
+#  type: "influxdb"
+#  url: "http://192.168.2.2:8086"
+#  dbName: "marathon-5522"
+#  user: "admin"
+#  password: "xxxxx"
+  type: "influxdb2"
+  url: "http://192.168.2.2:3001"
+  token: "super-secret-token"
+  organization: "home"
+  bucket: "marathon"
+#flakinessStrategy:
+#  type: "probability"
+#  minSuccessRate: 0.99
+#  maxCount: 3
+#  timeLimit: "-PT1H"
+screenRecordingPolicy: "ON_ANY"
+filteringConfiguration:
+  allowlist:
+    - type: "fully-qualified-test-name"
+      file: "Marathonfilter"
 vendorConfiguration:
   type: "Android"
   applicationApk: "app/build/outputs/apk/debug/app-debug.apk"
   testApplicationApk: "app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk"
+  disableWindowAnimation: false
   autoGrantPermission: true
+  screenRecordConfiguration:
+    preferableRecorderType: "screenshot"
   instrumentationArgs:
     debug: "false"
   applicationPmClear: true
@@ -25,6 +45,9 @@ vendorConfiguration:
     - relativePath: "files/allure-results"
       pathRoot: APP_DATA
       aggregationMode: TEST_RUN
+    push:
+    - path: "fixtures/external-file"
+    - path: "fixtures/external-folder"
   allureConfiguration:
     enabled: true
   # See https://marathonlabs.github.io/marathon/ven/android.html#test-access-configuration before copy-pasting this

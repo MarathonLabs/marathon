@@ -15,6 +15,7 @@ import com.malinskiy.adam.request.testrunner.TestStarted
 import com.malinskiy.marathon.analytics.internal.pub.Track
 import com.malinskiy.marathon.android.AndroidAppInstaller
 import com.malinskiy.marathon.android.AndroidTestBundleIdentifier
+import com.malinskiy.marathon.android.adam.event.TestAnnotationParser
 import com.malinskiy.marathon.android.extension.testBundlesCompat
 import com.malinskiy.marathon.android.model.AndroidTestBundle
 import com.malinskiy.marathon.android.model.TestIdentifier
@@ -25,7 +26,6 @@ import com.malinskiy.marathon.device.DeviceProvider
 import com.malinskiy.marathon.execution.TestParser
 import com.malinskiy.marathon.execution.withRetry
 import com.malinskiy.marathon.log.MarathonLogging
-import com.malinskiy.marathon.test.MetaProperty
 import com.malinskiy.marathon.test.Test
 import com.malinskiy.marathon.time.SystemTimer
 import kotlinx.coroutines.CancellationException
@@ -40,6 +40,7 @@ class RemoteTestParser(
     private val vendorConfiguration: VendorConfiguration.AndroidConfiguration
 ) : TestParser {
     private val logger = MarathonLogging.logger {}
+    private val testAnnotationParser = TestAnnotationParser()
 
     override suspend fun extract(): List<Test> {
         val testBundles = vendorConfiguration.testBundlesCompat()
@@ -67,8 +68,7 @@ class RemoteTestParser(
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {
-                logger.debug { "Remote parsing failed. Retrying" }
-                logger.debug { e.message }
+                logger.debug(e) { "Remote parsing failed. Retrying" }
                 throw e
             } finally {
                 channel.close()
@@ -123,7 +123,7 @@ class RemoteTestParser(
                             is TestAssumptionFailed -> Unit
                             is TestIgnored -> Unit
                             is TestEnded -> {
-                                val annotations = extractAnnotations(event)
+                                val annotations = testAnnotationParser.extractAnnotations(event)
                                 if (annotations.isNotEmpty()) {
                                     observedAnnotations = true
                                 }
@@ -147,30 +147,6 @@ class RemoteTestParser(
             }
 
             tests
-        }
-    }
-
-    private fun extractAnnotations(event: TestEnded): List<MetaProperty> {
-        val v2 = event.metrics["com.malinskiy.adam.junit4.android.listener.TestAnnotationProducer.v2"]
-        return when {
-            v2 != null -> {
-                v2.removeSurrounding("[", "]").split(",").map { it.trim() }
-                    .toList().map { serializedAnnotation ->
-                        val index = serializedAnnotation.indexOfFirst { it == '(' }
-                        val name = serializedAnnotation.substring(0 until index)
-                        val parameters = serializedAnnotation.substring(index).removeSurrounding("(", ")").split(":")
-                        val values = parameters.mapNotNull { parameter ->
-                            val split = parameter.split("=")
-                            if (split.size == 2) {
-                                Pair(split[0], split[1])
-                            } else {
-                                null
-                            }
-                        }.toMap()
-                        MetaProperty(name = name, values = values)
-                    }
-            }
-            else -> emptyList()
         }
     }
 }

@@ -78,7 +78,7 @@ class ScreenCapturerTestRunListener(
         } else {
             attachmentListeners.forEach {
                 val file = fileManager.createFile(FileType.SCREENSHOT, pool, device.toDeviceInfo(), toTest, testBatchId)
-                val attachment = Attachment(file, AttachmentType.SCREENSHOT)
+                val attachment = Attachment(file, AttachmentType.SCREENSHOT_GIF)
                 it.onAttachment(toTest, attachment)
             }
         }

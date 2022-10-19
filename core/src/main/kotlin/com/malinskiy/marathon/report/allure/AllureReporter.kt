@@ -9,6 +9,7 @@ import com.malinskiy.marathon.execution.TestResult
 import com.malinskiy.marathon.execution.TestStatus
 import com.malinskiy.marathon.report.Reporter
 import com.malinskiy.marathon.test.Test
+import com.malinskiy.marathon.test.toClassName
 import com.malinskiy.marathon.test.toSafeTestName
 import io.qameta.allure.AllureLifecycle
 import io.qameta.allure.FileSystemResultsWriter
@@ -66,7 +67,7 @@ class AllureReporter(val configuration: Configuration, private val outputDirecto
         val test = testResult.test
         val fullName = test.toSafeTestName()
         val testMethodName = test.method
-        val suite = "${test.pkg}.${test.clazz}"
+        val suite = test.toClassName()
 
         val status: Status = when (testResult.status) {
             TestStatus.FAILURE -> Status.FAILED
@@ -81,7 +82,7 @@ class AllureReporter(val configuration: Configuration, private val outputDirecto
                 .setName(it.type.name.lowercase(Locale.ENGLISH)
                              .replaceFirstChar { cher -> if (cher.isLowerCase()) cher.titlecase(Locale.ENGLISH) else cher.toString() })
                 .setSource(it.file.absolutePath)
-                .setType(it.type.toMimeType())
+                .setType(it.type.mimeType)
         }
 
         val allureTestResult = io.qameta.allure.model.TestResult()

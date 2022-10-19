@@ -21,6 +21,7 @@ import com.xenomachina.argparser.mainBody
 import ddmlibModule
 import org.koin.core.context.stopKoin
 import org.koin.dsl.module
+import kotlin.system.exitProcess
 
 private val logger = MarathonLogging.logger {}
 
@@ -28,6 +29,11 @@ fun main(args: Array<String>): Unit = mainBody(
     programName = "marathon v${BuildConfig.VERSION}"
 ) {
     ArgParser(args).parseInto(::MarathonCliConfiguration).run {
+        if (version) {
+            println(BuildConfig.VERSION)
+            exitProcess(0)
+        }
+
         logger.info { "Starting marathon v${BuildConfig.VERSION}" }
         val bugsnagExceptionsReporter = ExceptionsReporterFactory.get(bugsnagReporting)
         try {

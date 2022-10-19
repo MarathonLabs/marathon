@@ -13,6 +13,7 @@ import java.time.Instant
 @JsonSubTypes(
     JsonSubTypes.Type(value = SortingStrategyConfiguration.ExecutionTimeSortingStrategyConfiguration::class, name = "execution-time"),
     JsonSubTypes.Type(value = SortingStrategyConfiguration.NoSortingStrategyConfiguration::class, name = "no-sorting"),
+    JsonSubTypes.Type(value = SortingStrategyConfiguration.RandomOrderStrategyConfiguration::class, name = "random-order"),
     JsonSubTypes.Type(value = SortingStrategyConfiguration.SuccessRateSortingStrategyConfiguration::class, name = "success-rate"),
 )
 sealed class SortingStrategyConfiguration {
@@ -22,6 +23,8 @@ sealed class SortingStrategyConfiguration {
     ) : SortingStrategyConfiguration()
 
     object NoSortingStrategyConfiguration : SortingStrategyConfiguration()
+
+    object RandomOrderStrategyConfiguration: SortingStrategyConfiguration()
 
     data class SuccessRateSortingStrategyConfiguration(
         @JsonProperty("timeLimit") val timeLimit: Instant,

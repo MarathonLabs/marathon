@@ -14,4 +14,8 @@ class MarathonCliConfiguration(parser: ArgParser) {
     val bugsnagReporting: Boolean by parser
         .storing("--bugsnag", help = "Enable/Disable anonymous crash reporting. Enabled by default") { this.toBoolean() }
         .default(true)
+    val version: Boolean by parser.flagging(
+        "--version",
+        help = "Print version and exit"
+    )
 }

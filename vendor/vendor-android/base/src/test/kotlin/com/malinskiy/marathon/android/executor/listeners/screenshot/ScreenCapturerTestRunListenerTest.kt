@@ -81,7 +81,7 @@ class ScreenCapturerTestRunListenerTest {
             listener.testFailed(test1, "trace")
             listener.testEnded(test1, mapOf())
 
-            verify(attachmentListener, times(1)).onAttachment(test1.toTest(), Attachment(screenshot, AttachmentType.SCREENSHOT))
+            verify(attachmentListener, times(1)).onAttachment(test1.toTest(), Attachment(screenshot, AttachmentType.SCREENSHOT_GIF))
         }
     }
 
