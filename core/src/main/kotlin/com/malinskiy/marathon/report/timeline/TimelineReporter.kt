@@ -26,6 +26,8 @@ class TimelineReporter(
 
         val chartJs = File(timelineDir, "chart.js")
         inputStreamFromResources("timeline/chart.js").copyTo(chartJs.outputStream())
+        val iframeResizerJs = File(timelineDir, "iframeResizer.contentWindow.min.js")
+        inputStreamFromResources("timeline/iframeResizer.contentWindow.min.js").copyTo(iframeResizerJs.outputStream())
 
         val json = gson.toJson(provider.generate(executionReport))
         val index = inputStreamFromResources("timeline/index.html")
