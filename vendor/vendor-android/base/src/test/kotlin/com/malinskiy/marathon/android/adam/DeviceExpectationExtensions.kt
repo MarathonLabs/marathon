@@ -29,6 +29,50 @@ fun DeviceExpectation.installApk(tempDir: File, path: String, mode: String, md5:
     shell("rm $path", "")
 }
 
+fun DeviceExpectation.installSplitApk(
+    files: List<File>,
+    sessionId: String = "demo-session-id",
+) {
+    val total = files.sumOf { it.length() }
+    installCreateSession(total.toInt(), sessionId)
+
+    files.forEach {
+        installWriteSession(it, sessionId)
+    }
+    
+    installCommitSession(sessionId)
+
+    shell("pm list packages", "")
+}
+
+fun DeviceExpectation.installCommitSession(sessionId: String) {
+    session {
+        respondOkay()
+        expectExec { "cmd package install-commit $sessionId" }
+            .accept()
+            .respond("Success")
+    }
+}
+
+fun DeviceExpectation.installWriteSession(it: File, sessionId: String) {
+    session {
+        respondOkay()
+        expectExec { "cmd package install-write -S ${it.length()} $sessionId ${it.name} -" }
+            .accept()
+            .receiveFile(it)
+            .respond("Success: streamed ${it.length()} bytes")
+    }
+}
+
+fun DeviceExpectation.installCreateSession(size: Int, sessionId: String) {
+    session {
+        respondOkay()
+        expectExec { "cmd package install-create '-S$size' -r" }
+            .accept()
+            .respond("Success: created install session [$sessionId]")
+    }
+}
+
 fun DeviceExpectation.pushFile(tempDir: File, path: String, mode: String) {
     val tempFile = File(tempDir, "receive").apply {
         delete()

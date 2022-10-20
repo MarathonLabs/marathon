@@ -15,6 +15,7 @@ import com.malinskiy.marathon.android.ADB_SHORT_TIMEOUT_SECONDS
 import com.malinskiy.marathon.android.extension.toScreenRecorderCommand
 import com.malinskiy.marathon.config.vendor.android.VideoConfiguration
 import com.malinskiy.marathon.test.Test
+import java.io.File
 import java.io.IOException
 import java.util.concurrent.TimeUnit
 
@@ -60,6 +61,24 @@ fun IDevice.safeInstallPackage(packageFilePath: String, reinstall: Boolean, vara
         ADB_INSTALL_TIMEOUT_MINUTES,
         TimeUnit.MINUTES,
         *extraArgs
+    )
+
+    return if (receiver.isSuccessfullyCompleted) {
+        receiver.successMessage
+    } else {
+        receiver.errorMessage
+    }
+}
+
+fun IDevice.safeInstallPackages(packageFilePaths: List<File>, reinstall: Boolean, vararg extraArgs: String): String? {
+    val receiver = InstallReceiver()
+
+    installPackages(
+        packageFilePaths,
+        reinstall,
+        extraArgs.toList(),
+        ADB_INSTALL_TIMEOUT_MINUTES,
+        TimeUnit.MINUTES,
     )
 
     return if (receiver.isSuccessfullyCompleted) {

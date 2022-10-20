@@ -37,6 +37,7 @@ import kotlinx.coroutines.newFixedThreadPoolContext
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withTimeout
 import java.awt.image.BufferedImage
+import java.io.File
 import java.io.IOException
 import java.time.Duration
 import java.util.concurrent.ExecutorService
@@ -211,6 +212,15 @@ class DdmlibAndroidDevice(
     override suspend fun installPackage(absolutePath: String, reinstall: Boolean, optionalParams: List<String>): String? {
         return try {
             ddmsDevice.safeInstallPackage(absolutePath, reinstall, *(optionalParams.filter { it.isNotBlank() }).toTypedArray())
+        } catch (e: InstallException) {
+            throw com.malinskiy.marathon.android.exception.InstallException(e)
+        }
+    }
+
+    override suspend fun installSplitPackages(absolutePaths: List<String>, reinstall: Boolean, optionalParams: List<String>): String? {
+        val files = absolutePaths.map { File(it) }
+        return try {
+            ddmsDevice.safeInstallPackages(files, reinstall, *(optionalParams.filter { it.isNotBlank() }).toTypedArray())
         } catch (e: InstallException) {
             throw com.malinskiy.marathon.android.exception.InstallException(e)
         }

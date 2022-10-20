@@ -15,6 +15,7 @@ class AndroidTestParserTest {
         androidSdk = File(""),
         applicationOutput = File(""),
         testApplicationOutput = apkFile,
+        splitApks = emptyList(),
         extraApplicationsOutput = emptyList()
     )
     private val parser = LocalTestParser(vendorConfiguration, testBundleIdentifier)
