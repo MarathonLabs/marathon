@@ -9,6 +9,7 @@ import com.malinskiy.marathon.config.strategy.ShardingStrategyConfiguration
 import com.malinskiy.marathon.config.strategy.SortingStrategyConfiguration
 import com.malinskiy.marathon.config.vendor.VendorConfiguration
 import java.io.File
+import java.io.Serializable
 
 private const val DEFAULT_BATCH_EXECUTION_TIMEOUT_MILLIS: Long = 1800_000 //30 min
 private const val DEFAULT_OUTPUT_TIMEOUT_MILLIS: Long = 300_000 //5 min
@@ -150,8 +151,7 @@ data class Configuration private constructor(
     class Builder(
         val name: String,
         val outputDir: File,
-        val vendorConfiguration: VendorConfiguration,
-    ) {
+    ) : Serializable {
         var analyticsConfiguration: AnalyticsConfiguration = AnalyticsConfiguration.DisabledAnalytics
         var poolingStrategy: PoolingStrategyConfiguration = PoolingStrategyConfiguration.OmniPoolingStrategyConfiguration
         var shardingStrategy: ShardingStrategyConfiguration = ShardingStrategyConfiguration.ParallelShardingStrategyConfiguration
@@ -182,7 +182,7 @@ data class Configuration private constructor(
 
         var outputConfiguration = OutputConfiguration()
         
-        fun build(): Configuration {
+        fun build(vendorConfiguration: VendorConfiguration): Configuration {
             return Configuration(
                 name = name,
                 outputDir = outputDir,

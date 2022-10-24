@@ -5,11 +5,12 @@ import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo
 import com.malinskiy.marathon.config.exceptions.ConfigurationException
 import java.io.File
+import java.io.Serializable
 
 data class FilteringConfiguration(
     @JsonProperty("allowlist", required = false) val allowlist: Collection<TestFilterConfiguration> = emptyList(),
     @JsonProperty("blocklist", required = false) val blocklist: Collection<TestFilterConfiguration> = emptyList()
-)
+)  : Serializable
 
 @JsonTypeInfo(
     use = JsonTypeInfo.Id.NAME,
@@ -31,7 +32,7 @@ data class FilteringConfiguration(
     JsonSubTypes.Type(value = TestFilterConfiguration.TestPackageFilterConfiguration::class, name = "package"),
     JsonSubTypes.Type(value = TestFilterConfiguration.AllureFilterConfiguration::class, name = "allure"),
 )
-sealed class TestFilterConfiguration {
+sealed class TestFilterConfiguration  : Serializable {
     abstract fun validate()
 
     data class SimpleClassnameFilterConfiguration(

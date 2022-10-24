@@ -7,6 +7,8 @@ import com.android.build.api.variant.BuiltArtifactsLoader
 import com.android.build.api.variant.LibraryAndroidComponentsExtension
 import com.android.build.gradle.AppPlugin
 import com.android.build.gradle.LibraryPlugin
+import com.malinskiy.marathon.config.Configuration
+import com.malinskiy.marathon.config.vendor.VendorConfiguration
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.Task
@@ -18,13 +20,21 @@ import org.gradle.api.provider.Provider
 import org.gradle.kotlin.dsl.closureOf
 import org.gradle.kotlin.dsl.get
 import org.gradle.kotlin.dsl.getByName
+import java.io.File
 
 class MarathonPlugin : Plugin<Project> {
 
     override fun apply(project: Project) {
         val logger = project.logger
         logger.info("Applying marathon plugin")
-        project.extensions.create("marathon", MarathonExtension::class.java, project)
+        val marathonExtension = project.extensions.create("marathon", MarathonExtension::class.java)
+        
+        marathonExtension.apply { 
+            name = "Marathon"
+//            analyticsTracking = false
+//            instrumentationArgs = mutableMapOf()
+        }
+        
 
         val rootProject = project.rootProject
         if (rootProject.extensions.findByName("marathon") == null) {
@@ -47,7 +57,7 @@ class MarathonPlugin : Plugin<Project> {
 
         val appExtension = project.extensions.findByType(ApplicationAndroidComponentsExtension::class.java)
         val libraryExtension = project.extensions.findByType(LibraryAndroidComponentsExtension::class.java)
-        val conf = project.extensions.getByName("marathon") as? MarathonExtension ?: MarathonExtension(project)
+        val conf = project.extensions.getByName("marathon") as? MarathonExtension ?: throw IllegalStateException("extension not found")
 
         when {
             appExtension != null -> {
@@ -74,10 +84,11 @@ class MarathonPlugin : Plugin<Project> {
                             )
                         )
 
-                        val testTaskForVariant = createTask(
+                        val (generateMarathonfileTask, testTaskForVariant) = createTask(
                             logger, androidTest, bundles, project, conf, sdkDirectory
                         )
-                        testTaskForVariant.dependsOn(unpackMarathonTask, apkFolder, testApkFolder)
+                        generateMarathonfileTask.dependsOn(apkFolder, testApkFolder)
+                        testTaskForVariant.dependsOn(unpackMarathonTask)
                         marathonTask.dependsOn(testTaskForVariant)
                     }
                 }
@@ -101,15 +112,16 @@ class MarathonPlugin : Plugin<Project> {
                             )
                         )
 
-                        val testTaskForVariant = createTask(
+                        val (generateMarathonfileTask, testTaskForVariant) = createTask(
                             logger, androidTest, bundles, project, conf, sdkDirectory
                         )
-                        testTaskForVariant.dependsOn(unpackMarathonTask, testApkFolder)
+                        generateMarathonfileTask.dependsOn(testApkFolder)
+                        testTaskForVariant.dependsOn(unpackMarathonTask)
                         marathonTask.dependsOn(testTaskForVariant)
                     }
                 }
             }
-            
+
             else -> throw IllegalStateException("No AndroidComponentsExtensions found. Did you apply marathon plugin after applying the application/library plugin?")
         }
 
@@ -117,7 +129,7 @@ class MarathonPlugin : Plugin<Project> {
     }
 
     private fun applyRoot(rootProject: Project) {
-        rootProject.extensions.create("marathon", MarathonExtension::class.java, rootProject)
+        rootProject.extensions.create("marathon", MarathonExtension::class.java)
         rootProject.tasks.create(MarathonUnpackTask.NAME, MarathonUnpackTask::class.java)
         rootProject.tasks.create(MarathonCleanTask.NAME, MarathonCleanTask::class.java)
     }
@@ -130,21 +142,39 @@ class MarathonPlugin : Plugin<Project> {
             project: Project,
             config: MarathonExtension,
             sdkDirectory: Provider<Directory>,
-        ): MarathonRunTask {
+        ): Pair<GenerateMarathonfileTask, MarathonRunTask> {
+            val baseOutputDir = config.baseOutputDir?.let { File(it) } ?: File(project.buildDir, "reports/marathon")
+            val output = File(baseOutputDir, variant.name)
+
+            val configurationBuilder = Configuration.Builder(config.name, output)
+            val vendorConfigurationBuilder = VendorConfiguration.AndroidConfigurationBuilder()
+
+            val generateMarathonfileTask =
+                project.tasks.create("$TASK_PREFIX${variant.name.capitalize()}GenerateMarathonfile", GenerateMarathonfileTask::class.java)
+            generateMarathonfileTask.configure(closureOf<GenerateMarathonfileTask> { 
+                group = GenerateMarathonfileTask.GROUP
+                description = "Generates Marathonfile for '${variant.name}' variation"
+                flavorName.set(variant.name)
+                applicationBundles.set(bundles)
+                this.configurationBuilder.set(configurationBuilder)
+                this.vendorConfigurationBuilder.set(vendorConfigurationBuilder)
+                sdk.set(sdkDirectory)
+                marathonfile.set(File(temporaryDir, "Marathonfile"))
+            })
+
             val marathonTask = project.tasks.create("$TASK_PREFIX${variant.name.capitalize()}", MarathonRunTask::class.java)
             marathonTask.configure(closureOf<MarathonRunTask> {
                 group = JavaBasePlugin.VERIFICATION_GROUP
                 description = "Runs instrumentation tests on all the connected devices for '${variant.name}' " +
                     "variation and generates a report with screenshots"
-                flavorName.set(variant.name)
-                applicationBundles.set(bundles)
-                marathonExtension.set(config)
-                sdk.set(sdkDirectory)
                 outputs.upToDateWhen { false }
+                marathonfile.set(generateMarathonfileTask.marathonfile)
             })
 
-            return marathonTask
+            return Pair(generateMarathonfileTask, marathonTask)
         }
+
+        
 
         /**
          * Task name prefix.

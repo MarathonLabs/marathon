@@ -12,11 +12,10 @@ import com.malinskiy.marathon.config.vendor.android.TestParserConfiguration
 import com.malinskiy.marathon.config.vendor.android.TimeoutConfiguration
 import groovy.lang.Closure
 import org.gradle.api.Action
-import org.gradle.api.Project
 import org.gradle.util.internal.ConfigureUtil
 import java.io.File
 
-open class MarathonExtension(project: Project) {
+open class MarathonExtension {
     /**
      * This string specifies the name of this test run configuration. It is used mainly in the generated test reports.
      */
@@ -149,11 +148,12 @@ open class MarathonExtension(project: Project) {
      */
     var baseOutputDir: String? = null
 
-    
+
     var outputConfiguration: OutputConfiguration? = null
     fun outputConfiguration(action: Action<OutputConfiguration>) {
         outputConfiguration = OutputConfiguration().also { action.execute(it) }
     }
+
     fun outputConfiguration(closure: Closure<OutputConfiguration>) = outputConfiguration(ConfigureUtil.configureUsing(closure))
 
     /**
@@ -404,7 +404,7 @@ open class MarathonExtension(project: Project) {
      * By default, instrumentation uses --no-window-animation flag. Use this option if you want to enable window animations
      */
     var disableWindowAnimation: Boolean? = null
-    
+
     /**
      * Configuration of analytics backend to be used for storing and retrieving test metrics. This plays a major part in optimising
      * performance and mitigating flakiness.

@@ -15,6 +15,7 @@ import com.malinskiy.marathon.config.vendor.android.TestParserConfiguration
 import com.malinskiy.marathon.config.vendor.android.ThreadingConfiguration
 import com.malinskiy.marathon.config.vendor.android.TimeoutConfiguration
 import java.io.File
+import java.io.Serializable
 
 const val DEFAULT_INIT_TIMEOUT_MILLIS = 30_000
 const val DEFAULT_AUTO_GRANT_PERMISSION = false
@@ -66,6 +67,36 @@ sealed class VendorConfiguration {
             DDMLIB,
             ADAM
         }
+    }
+    
+    class AndroidConfigurationBuilder : Serializable {
+        var vendor: AndroidConfiguration.VendorType = AndroidConfiguration.VendorType.ADAM
+        var androidSdk: File? = null
+        var applicationOutput: File? = null
+        var testApplicationOutput: File?  = null
+        var extraApplicationsOutput: List<File>?  = null
+        var outputs: List<AndroidTestBundleConfiguration>? = null
+        var autoGrantPermission: Boolean = DEFAULT_AUTO_GRANT_PERMISSION
+        var instrumentationArgs: Map<String, String> = emptyMap()
+        var applicationPmClear: Boolean = DEFAULT_APPLICATION_PM_CLEAR
+        var testApplicationPmClear: Boolean = DEFAULT_TEST_APPLICATION_PM_CLEAR
+        var adbInitTimeoutMillis: Int = DEFAULT_INIT_TIMEOUT_MILLIS
+        var installOptions: String = DEFAULT_INSTALL_OPTIONS
+        var serialStrategy: SerialStrategy = SerialStrategy.AUTOMATIC
+        var screenRecordConfiguration: ScreenRecordConfiguration = ScreenRecordConfiguration()
+        var waitForDevicesTimeoutMillis: Long = DEFAULT_WAIT_FOR_DEVICES_TIMEOUT
+        var allureConfiguration: AllureConfiguration = AllureConfiguration()
+        var timeoutConfiguration: TimeoutConfiguration = TimeoutConfiguration()
+        var fileSyncConfiguration: FileSyncConfiguration = FileSyncConfiguration()
+        var threadingConfiguration: ThreadingConfiguration = ThreadingConfiguration()
+        var testParserConfiguration: TestParserConfiguration = TestParserConfiguration.LocalTestParserConfiguration
+        var testAccessConfiguration: TestAccessConfiguration = TestAccessConfiguration()
+        var adbServers: List<AdbEndpoint> = listOf(AdbEndpoint())
+        var disableWindowAnimation: Boolean = DEFAULT_DISABLE_WINDOW_ANIMATION
+        
+        fun build() = AndroidConfiguration(
+            vendor, androidSdk, applicationOutput, testApplicationOutput, extraApplicationsOutput, outputs, autoGrantPermission, instrumentationArgs, applicationPmClear, testApplicationPmClear, adbInitTimeoutMillis, installOptions, serialStrategy, screenRecordConfiguration, waitForDevicesTimeoutMillis, allureConfiguration, timeoutConfiguration, fileSyncConfiguration, threadingConfiguration, testParserConfiguration, testAccessConfiguration, adbServers, disableWindowAnimation
+        )
     }
 
     data class IOSConfiguration(
