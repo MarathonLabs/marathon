@@ -59,11 +59,12 @@ class ConfigurationFactory(
 
                     // Adding support for Test Plan
                     val testPlanName = configuration.vendorConfiguration.xcTestPlan
+                    val testPlanWithUnderscore = "_" + testPlanName + "_"
 
                     var finalXCTestRunPath = if(!testPlanName.isNullOrEmpty()) {
                         fileListProvider
                             .fileList(resolvedDerivedDataDir)
-                            .firstOrNull { it.extension == "xctestrun" && it.name.contains("$testPlanName") } ?: throw ConfigurationException("Unable to find matching TestPlan. Please recheck if testplan is enabled")
+                            .firstOrNull { it.extension == "xctestrun" && it.name.contains("$testPlanWithUnderscore") } ?: throw ConfigurationException("Unable to find matching TestPlan. Please recheck if testplan is enabled")
                     } else {
                         configuration.vendorConfiguration.xctestrunPath?.resolveAgainst(marathonfileDir)
                             ?: fileListProvider
