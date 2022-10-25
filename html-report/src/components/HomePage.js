@@ -1,6 +1,7 @@
 import React, {Component} from 'react';
 import convertTime from './../utils/convertTime';
 import paths from './../utils/paths';
+import IframeResizer from "iframe-resizer-react";
 
 export default class HomePage extends Component {
 
@@ -47,9 +48,13 @@ export default class HomePage extends Component {
                 )}
 
                 <div className="title-common">Timeline</div>
-
+                
                 <div className="suite-item card">
-                    <iframe src="timeline/index.html" style={{ width: "100%", height: "137" }}></iframe>
+                    <IframeResizer
+                        log
+                        src="timeline/index.html"
+                        style={{ width: '1px', minWidth: '100%'}}
+                    />
                 </div>
             </div>
         );
