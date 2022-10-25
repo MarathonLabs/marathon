@@ -22,6 +22,7 @@ import com.malinskiy.marathon.config.strategy.ShardingStrategyConfiguration
 import com.malinskiy.marathon.config.strategy.SortingStrategyConfiguration
 import com.malinskiy.marathon.config.vendor.VendorConfiguration
 import com.malinskiy.marathon.config.vendor.android.AllureConfiguration
+import com.malinskiy.marathon.config.vendor.android.AndroidTestBundleConfiguration
 import com.malinskiy.marathon.config.vendor.android.RecorderType
 import com.malinskiy.marathon.config.vendor.android.ScreenRecordConfiguration
 import com.malinskiy.marathon.config.vendor.android.ScreenshotConfiguration
@@ -165,6 +166,9 @@ class ConfigurationFactoryTest {
             File("/local/android"),
             File(mockMarathonFileDir, "kotlin-buildscript/build/outputs/apk/debug/kotlin-buildscript-debug.apk"),
             File(mockMarathonFileDir, "kotlin-buildscript/build/outputs/apk/androidTest/debug/kotlin-buildscript-debug-androidTest.apk"),
+            listOf(
+                File(mockMarathonFileDir, "kotlin-buildscript/build/outputs/apk/androidTest/debug/kotlin-buildscript-split-debug.apk"),
+            ),
             null,
             null,
             true,
@@ -238,6 +242,7 @@ class ConfigurationFactoryTest {
             File("/local/android"),
             File(mockMarathonFileDir, "kotlin-buildscript/build/outputs/apk/debug/kotlin-buildscript-debug.apk"),
             File(mockMarathonFileDir, "kotlin-buildscript/build/outputs/apk/androidTest/debug/kotlin-buildscript-debug-androidTest.apk"),
+            null,
             null,
             null,
             false,
@@ -315,6 +320,7 @@ class ConfigurationFactoryTest {
             File(mockMarathonFileDir, "kotlin-buildscript/build/outputs/apk/androidTest/debug/kotlin-buildscript-debug-androidTest.apk"),
             null,
             null,
+            null,
             false,
             mapOf(),
             false,
@@ -390,6 +396,33 @@ class ConfigurationFactoryTest {
             screenrecorder = Duration.ofHours(1),
             screencapturer = Duration.ofSeconds(1),
             socketIdleTimeout = Duration.ofSeconds(45)
+        )
+    }
+
+    @Test
+    fun `on configuration with multi module testing in Android`() {
+        val file = File(ConfigurationFactoryTest::class.java.getResource("/fixture/config/sample_12.yaml").file)
+        val configuration = parser.parse(file)
+
+        val outputs = (configuration.vendorConfiguration as VendorConfiguration.AndroidConfiguration).outputs
+
+        outputs shouldBeEqualTo listOf(
+            AndroidTestBundleConfiguration(
+                application = File(mockMarathonFileDir, "kotlin-buildscript/build/outputs/apk/debug/first-app-debug.apk"),
+                testApplication = File(mockMarathonFileDir, "kotlin-buildscript/build/outputs/apk/androidTest/debug/first-app-debug-androidTest.apk"),
+                extraApplications = null,
+                splitApks = listOf(
+                    File(mockMarathonFileDir, "kotlin-buildscript/build/outputs/apk/androidTest/debug/first-app-split-debug.apk")
+                )
+            ),
+            AndroidTestBundleConfiguration(
+                application = File(mockMarathonFileDir, "kotlin-buildscript/build/outputs/apk/debug/second-app-debug.apk"),
+                testApplication = File(mockMarathonFileDir, "kotlin-buildscript/build/outputs/apk/androidTest/debug/second-app-debug-androidTest.apk"),
+                extraApplications = null,
+                splitApks = listOf(
+                    File(mockMarathonFileDir, "kotlin-buildscript/build/outputs/apk/androidTest/debug/second-app-split-debug.apk")
+                )
+            )
         )
     }
 }

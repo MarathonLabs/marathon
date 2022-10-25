@@ -92,7 +92,7 @@ class MarathonPlugin : Plugin<Project> {
 
                         val testApkFolder: Provider<Directory> = androidTest.artifacts.get(SingleArtifact.APK)
                         val testArtifactsLoader = androidTest.artifacts.getBuiltArtifactsLoader()
-
+                        
                         val bundles = listOf(
                             GradleAndroidTestBundle(
                                 testApkFolder = project.objects.directoryProperty().apply { set(testApkFolder) },

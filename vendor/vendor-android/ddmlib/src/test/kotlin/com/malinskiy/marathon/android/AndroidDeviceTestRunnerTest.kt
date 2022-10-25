@@ -55,7 +55,8 @@ class AndroidDeviceTestRunnerTest {
             AndroidTestBundle(
                 null,
                 apkFile,
-                null
+                null,
+                null,
             )
         )
         val output = File("")
@@ -63,7 +64,8 @@ class AndroidDeviceTestRunnerTest {
             androidSdk = File(""),
             applicationOutput = File(""),
             testApplicationOutput = apkFile,
-            extraApplicationsOutput = emptyList()
+            extraApplicationsOutput = emptyList(),
+            splitApks = null,
         )
         val configuration = Configuration.Builder(
             name = "",
@@ -115,7 +117,8 @@ class AndroidDeviceTestRunnerTest {
             AndroidTestBundle(
                 null,
                 apkFile,
-                null
+                null,
+                null,
             )
         )
         val output = File("")
@@ -126,7 +129,8 @@ class AndroidDeviceTestRunnerTest {
                 androidSdk = File(""),
                 applicationOutput = File(""),
                 testApplicationOutput = apkFile,
-                extraApplicationsOutput = emptyList()
+                extraApplicationsOutput = emptyList(),
+                splitApks = null,
             ),
         ).apply { analyticsTracking = false }.build()
 

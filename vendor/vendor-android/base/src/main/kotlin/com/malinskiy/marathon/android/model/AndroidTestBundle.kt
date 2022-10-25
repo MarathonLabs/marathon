@@ -9,7 +9,8 @@ import java.io.File
 class AndroidTestBundle(
     @JsonProperty("application") val application: File?,
     @JsonProperty("testApplication") val testApplication: File,
-    @JsonProperty("extraApplications") val extraApplications: List<File>?
+    @JsonProperty("extraApplications") val extraApplications: List<File>?,
+    @JsonProperty("splitApks") val splitApks: List<File>?
 ) : TestBundle() {
     override val id: String
         get() = testApplication.absolutePath

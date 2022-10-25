@@ -104,7 +104,7 @@ vendor-test, this is a fake implementation that we're using for integration test
 
 # Development chat
 
-We're available for any questions or proposals on [Slack][6]. Feel free to join!
+We're available for any questions or proposals on [Slack][6] or [Telegram][8] if you prefer to just chat. Feel free to join!
 
 [1]: https://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html
 
@@ -118,3 +118,4 @@ We're available for any questions or proposals on [Slack][6]. Feel free to join!
 
 [6]: https://bit.ly/2LLghaW
 [7]: {% post_url 2018-11-19-samples %}
+[8]: https://t.me/marathontestrunner

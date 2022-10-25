@@ -10,6 +10,7 @@ import com.malinskiy.marathon.android.adam.TestDeviceFactory
 import com.malinskiy.marathon.android.adam.boot
 import com.malinskiy.marathon.android.adam.features
 import com.malinskiy.marathon.android.adam.installApk
+import com.malinskiy.marathon.android.adam.installSplitApk
 import com.malinskiy.marathon.android.adam.shell
 import com.malinskiy.marathon.android.adam.shellFail
 import com.malinskiy.marathon.config.vendor.android.AggregationMode
@@ -62,6 +63,37 @@ class AndroidAppInstallerTest {
                     shell("pm list packages", "package:com.example")
                     installApk(temp, "/data/local/tmp/app-debug-androidTest.apk", "511", "8d103498247b3711817a9f18624dede7", "-r")
 
+                }
+                features("emulator-5554")
+            }
+
+            device.setup()
+            installer.prepareInstallation(device)
+        }
+    }
+
+    @Test
+    fun testCleanSplitInstallation() {
+        val applicationApk = File(javaClass.classLoader.getResource("apk/base-en.apk").file)
+        val splitApk = File(javaClass.classLoader.getResource("apk/standalone-hdpi.apk").file)
+        val configuration = TestConfigurationFactory.create(
+            applicationOutput = applicationApk,
+            splitApks = listOf(
+                splitApk,
+            ),
+        )
+        val installer = AndroidAppInstaller(configuration)
+        val device = TestDeviceFactory.create(client, configuration, mock())
+
+        runBlocking {
+            server.multipleSessions {
+                serial("emulator-5554") {
+                    boot()
+
+                    shell("pm list packages", "")
+                    installSplitApk(files = listOf(applicationApk, splitApk))
+
+                    installApk(temp, "/data/local/tmp/app-debug-androidTest.apk", "511", "8d103498247b3711817a9f18624dede7", "-r")
                 }
                 features("emulator-5554")
             }

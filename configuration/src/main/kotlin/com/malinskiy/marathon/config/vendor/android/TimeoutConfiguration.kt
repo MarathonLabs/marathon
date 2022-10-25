@@ -10,7 +10,7 @@ data class TimeoutConfiguration(
     var pushFolder: Duration = Duration.ofSeconds(60),
     var pullFile: Duration = Duration.ofSeconds(30),
     var uninstall: Duration = shell,
-    var install: Duration = shell,
+    var install: Duration = Duration.ofSeconds(60),
     var screenrecorder: Duration = Duration.ofSeconds(200),
     var screencapturer: Duration = Duration.ofMillis(300),
     var socketIdleTimeout: Duration = Duration.ofSeconds(30),

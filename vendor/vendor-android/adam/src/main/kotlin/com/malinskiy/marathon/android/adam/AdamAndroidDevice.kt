@@ -16,7 +16,9 @@ import com.malinskiy.adam.request.forwarding.RemoteTcpPortSpec
 import com.malinskiy.adam.request.framebuffer.BufferedImageScreenCaptureAdapter
 import com.malinskiy.adam.request.framebuffer.ScreenCaptureRequest
 import com.malinskiy.adam.request.pkg.InstallRemotePackageRequest
+import com.malinskiy.adam.request.pkg.InstallSplitPackageRequest
 import com.malinskiy.adam.request.pkg.UninstallRemotePackageRequest
+import com.malinskiy.adam.request.pkg.multi.ApkSplitInstallationPackage
 import com.malinskiy.adam.request.prop.GetPropRequest
 import com.malinskiy.adam.request.reverse.RemoveReversePortForwardRequest
 import com.malinskiy.adam.request.reverse.ReversePortForwardRequest
@@ -57,6 +59,7 @@ import com.malinskiy.marathon.test.TestBatch
 import com.malinskiy.marathon.time.Timer
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.channels.ReceiveChannel
 import kotlinx.coroutines.newFixedThreadPoolContext
@@ -293,6 +296,21 @@ class AdamAndroidDevice(
 
         safeExecuteShellCommand("rm $remotePath")
         return result.output.trim()
+    }
+
+    override suspend fun installSplitPackages(absolutePaths: List<String>, reinstall: Boolean, optionalParams: List<String>): String? {
+        return withTimeoutOrNull(androidConfiguration.timeoutConfiguration.install) {
+            val files = absolutePaths.map { File(it) }
+            client.execute(
+                InstallSplitPackageRequest(
+                    pkg = ApkSplitInstallationPackage(files),
+                    supportedFeatures = listOf(Feature.CMD),
+                    reinstall = reinstall,
+                    extraArgs = optionalParams,
+                    coroutineContext = Dispatchers.IO
+                ), serial = adbSerial
+            )
+        } ?: throw InstallException("Timeout transferring absolutePath")
     }
 
     override suspend fun getScreenshot(timeout: Duration): BufferedImage? {
