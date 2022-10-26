@@ -50,6 +50,8 @@ data class Configuration private constructor(
 
     val analyticsTracking: Boolean,
     val deviceInitializationTimeoutMillis: Long,
+
+    val buildManagementConfiguration: BuildManagementConfiguration,
 ) {
     fun toMap() =
         mapOf<String, String>(
@@ -76,7 +78,8 @@ data class Configuration private constructor(
             "debug" to debug.toString(),
             "screenRecordingPolicy" to screenRecordingPolicy.toString(),
             "vendorConfiguration" to vendorConfiguration.toString(),
-            "deviceInitializationTimeoutMillis" to deviceInitializationTimeoutMillis.toString()
+            "deviceInitializationTimeoutMillis" to deviceInitializationTimeoutMillis.toString(),
+            "buildManagementConfiguration" to buildManagementConfiguration.toString()
         )
 
     override fun equals(other: Any?): Boolean {
@@ -112,6 +115,7 @@ data class Configuration private constructor(
         if (vendorConfiguration != other.vendorConfiguration) return false
         if (analyticsTracking != other.analyticsTracking) return false
         if (deviceInitializationTimeoutMillis != other.deviceInitializationTimeoutMillis) return false
+        if (buildManagementConfiguration != other.buildManagementConfiguration) return false
 
         return true
     }
@@ -143,6 +147,7 @@ data class Configuration private constructor(
         result = 31 * result + vendorConfiguration.hashCode()
         result = 31 * result + analyticsTracking.hashCode()
         result = 31 * result + deviceInitializationTimeoutMillis.hashCode()
+        result = 31 * result + buildManagementConfiguration.hashCode()
         return result
     }
 
@@ -160,6 +165,7 @@ data class Configuration private constructor(
         var flakinessStrategy: FlakinessStrategyConfiguration = FlakinessStrategyConfiguration.IgnoreFlakinessStrategyConfiguration
         var retryStrategy: RetryStrategyConfiguration = RetryStrategyConfiguration.NoRetryStrategyConfiguration
         var filteringConfiguration: FilteringConfiguration = FilteringConfiguration(emptyList(), emptyList())
+        var buildManagementConfiguration = BuildManagementConfiguration.NoBuildManagementConfiguration
 
         var ignoreFailures: Boolean = false
         var isCodeCoverageEnabled: Boolean = false
@@ -209,7 +215,8 @@ data class Configuration private constructor(
                 screenRecordingPolicy = screenRecordingPolicy,
                 vendorConfiguration = vendorConfiguration,
                 analyticsTracking = analyticsTracking,
-                deviceInitializationTimeoutMillis = deviceInitializationTimeoutMillis
+                deviceInitializationTimeoutMillis = deviceInitializationTimeoutMillis,
+                buildManagementConfiguration = buildManagementConfiguration
             )
         }
     }
