@@ -397,5 +397,4 @@ private fun getTimeStamp(): String {
     val sdf = SimpleDateFormat("yyyy-MM-dd-HH-mm-ss", Locale.getDefault())
     sdf.timeZone = TimeZone.getDefault()
     return sdf.format(date)
-
 }
