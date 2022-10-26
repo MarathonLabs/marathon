@@ -44,6 +44,9 @@ import java.net.InetAddress
 import java.net.UnknownHostException
 import java.util.concurrent.TimeoutException
 import kotlin.coroutines.CoroutineContext
+import java.text.SimpleDateFormat
+import java.sql.Timestamp
+import java.util.*
 
 class IOSDevice(
     val simulator: RemoteSimulator,
@@ -176,6 +179,10 @@ class IOSDevice(
             timer
         )
 
+        // Adding timestamp to support multiple XCResult bundle creation
+        val timestamp = getTimeStamp()
+        val resultBundlePath: String = "${iosConfiguration.xcResultBundlePath}_"  + timestamp
+
         val command =
             listOf(
                 "cd '$remoteDir';",
@@ -183,6 +190,7 @@ class IOSDevice(
                 "xcodebuild test-without-building",
                 "-xctestrun ${remoteXctestrunFile.path}",
                 testBatch.toXcodebuildArguments(),
+                "-resultBundlePath $resultBundlePath",
                 "-destination 'platform=iOS simulator,id=$udid' ;",
                 "exit"
             )
@@ -382,3 +390,12 @@ private fun String.toInetAddressOrNull(): InetAddress? {
 
 private fun TestBatch.toXcodebuildArguments(): String =
     tests.joinToString(separator = " ") { "-only-testing:\"${it.pkg}/${it.clazz}/${it.method}\"" }
+
+private fun getTimeStamp(): String {
+    val stamp = Timestamp(System.currentTimeMillis())
+    val date = Date(stamp.time)
+    val sdf = SimpleDateFormat("yyyy-MM-dd-HH-mm-ss", Locale.getDefault())
+    sdf.timeZone = TimeZone.getDefault()
+    return sdf.format(date)
+
+}
