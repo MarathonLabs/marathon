@@ -64,7 +64,7 @@ class ConfigurationFactory(
                     val optionalDevices = configuration.vendorConfiguration.devicesFile?.resolveAgainst(marathonfileDir)
                         ?: marathonfileDir.resolve("Marathondevices")
                     val optionalKnownHostsPath = configuration.vendorConfiguration.knownHostsPath?.resolveAgainst(marathonfileDir)
-                    val optionalResultBundlePath = configuration.vendorConfiguration.xcResultBundlePath?.let { marathonfileDir.resolve(it) }
+                    val optionalResultBundlePath = configuration.vendorConfiguration.xcResultBundlePath.resolveAgainst(marathonfileDir)
 
                     configuration.vendorConfiguration.copy(
                         derivedDataDir = resolvedDerivedDataDir,

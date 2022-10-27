@@ -83,7 +83,7 @@ sealed class VendorConfiguration {
         @JsonProperty("compactOutput") val compactOutput: Boolean = false,
         @JsonProperty("keepAliveIntervalMillis") val keepAliveIntervalMillis: Long = 0L,
         @JsonProperty("devices") val devicesFile: File? = null,
-        @JsonProperty("xcResultBundlePath") val xcResultBundlePath: File? = null,
+        @JsonProperty("xcResultBundlePath") val xcResultBundlePath: File = File("derived-data/test/result"),
     ) : VendorConfiguration() {
         /**
          * Exception should not happen since it will be first thrown in deserializer
