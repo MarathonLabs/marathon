@@ -101,6 +101,7 @@ open class GenerateMarathonfileTask @Inject constructor(objects: ObjectFactory) 
                 application = application,
                 testApplication = testApplication,
                 extraApplications = emptyList(),
+                splitApks = null,
             )
         }
         return outputs

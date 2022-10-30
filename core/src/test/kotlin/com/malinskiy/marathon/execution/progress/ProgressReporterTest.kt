@@ -15,8 +15,8 @@ class ProgressReporterTest {
         Configuration.Builder(
             name = "",
             outputDir = File(""),
-            vendorConfiguration = VendorConfiguration.StubVendorConfiguration,
         ).apply {
+            vendorConfiguration = VendorConfiguration.StubVendorConfiguration
             debug = false
             analyticsTracking = false
         }.build()

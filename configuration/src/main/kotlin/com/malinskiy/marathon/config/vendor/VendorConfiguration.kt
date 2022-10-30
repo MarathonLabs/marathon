@@ -36,7 +36,7 @@ const val DEFAULT_WAIT_FOR_DEVICES_TIMEOUT = 30000L
     JsonSubTypes.Type(value = VendorConfiguration.StubVendorConfiguration::class, name = "stub"),
     JsonSubTypes.Type(value = VendorConfiguration.EmptyVendorConfiguration::class, name = "empty"),
 )
-sealed class VendorConfiguration { 
+sealed class VendorConfiguration {
     data class AndroidConfiguration(
         @JsonProperty("vendor") val vendor: VendorType = VendorType.ADAM,
         @JsonProperty("androidSdk") val androidSdk: File?,
@@ -77,6 +77,7 @@ sealed class VendorConfiguration {
         var applicationOutput: File? = null
         var testApplicationOutput: File? = null
         var extraApplicationsOutput: List<File>? = null
+        var splitApks: List<File>? = null
         var outputs: List<AndroidTestBundleConfiguration>? = null
         var autoGrantPermission: Boolean = DEFAULT_AUTO_GRANT_PERMISSION
         var instrumentationArgs: Map<String, String> = emptyMap()
@@ -101,6 +102,7 @@ sealed class VendorConfiguration {
             androidSdk,
             applicationOutput,
             testApplicationOutput,
+            splitApks,
             extraApplicationsOutput,
             outputs,
             autoGrantPermission,

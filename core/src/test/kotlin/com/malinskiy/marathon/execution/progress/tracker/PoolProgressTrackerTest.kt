@@ -18,9 +18,9 @@ class PoolProgressTrackerTest {
     private fun createConfiguration(strictMode: Boolean): Configuration {
         return Configuration.Builder(
             name = "",
-            outputDir = File(""),
-            vendorConfiguration = VendorConfiguration.StubVendorConfiguration,
+            outputDir = File("")
         ).apply {
+            vendorConfiguration = VendorConfiguration.StubVendorConfiguration
             this.strictMode = strictMode
             debug = false
             analyticsTracking = false

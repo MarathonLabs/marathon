@@ -55,8 +55,9 @@ class ConfigurationFactory(val testParser: TestParser, val deviceProvider: StubD
     }
 
     fun build(): Configuration = Configuration.Builder(
-        name, outputDir, vendorConfiguration
+        name, outputDir, 
     ).apply {
+        vendorConfiguration = this@ConfigurationFactory.vendorConfiguration
         analyticsConfiguration = this@ConfigurationFactory.analyticsConfiguration
         poolingStrategy = this@ConfigurationFactory.poolingStrategy
         shardingStrategy = this@ConfigurationFactory.shardingStrategy

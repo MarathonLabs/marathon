@@ -181,8 +181,8 @@ class JUnitReporterTest {
         Configuration.Builder(
             name = "",
             outputDir = File(temporaryFolder, "test-run").apply { deleteRecursively(); mkdirs() },
-            vendorConfiguration = VendorConfiguration.StubVendorConfiguration,
         ).apply {
+            vendorConfiguration = VendorConfiguration.StubVendorConfiguration
             analyticsConfiguration = AnalyticsConfiguration.DisabledAnalytics
             analyticsTracking = false
         }.build()
