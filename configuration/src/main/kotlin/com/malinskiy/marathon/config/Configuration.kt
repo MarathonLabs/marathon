@@ -146,8 +146,6 @@ data class Configuration private constructor(
         result = 31 * result + deviceInitializationTimeoutMillis.hashCode()
         return result
     }
-
-
     class Builder(
         val name: String,
         val outputDir: File,
@@ -181,8 +179,9 @@ data class Configuration private constructor(
         var deviceInitializationTimeoutMillis: Long = DEFAULT_DEVICE_INITIALIZATION_TIMEOUT_MILLIS
 
         var outputConfiguration = OutputConfiguration()
+        var vendorConfiguration: VendorConfiguration = VendorConfiguration.EmptyVendorConfiguration()
         
-        fun build(vendorConfiguration: VendorConfiguration): Configuration {
+        fun build(): Configuration {
             return Configuration(
                 name = name,
                 outputDir = outputDir,

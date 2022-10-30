@@ -52,6 +52,7 @@ class ConfigurationFactory(
                         configuration.vendorConfiguration
                     }
                 }
+
                 is VendorConfiguration.IOSConfiguration -> {
                     // Any relative path specified in Marathonfile should be resolved against the directory Marathonfile is in
                     val resolvedDerivedDataDir = marathonfileDir.resolve(configuration.vendorConfiguration.derivedDataDir)
@@ -73,7 +74,9 @@ class ConfigurationFactory(
                         knownHostsPath = optionalKnownHostsPath,
                     )
                 }
+
                 VendorConfiguration.StubVendorConfiguration -> configuration.vendorConfiguration
+                is VendorConfiguration.EmptyVendorConfiguration -> throw ConfigurationException("No vendor configuration specified")
             }
 
             return configuration.copy(vendorConfiguration = vendorConfiguration)

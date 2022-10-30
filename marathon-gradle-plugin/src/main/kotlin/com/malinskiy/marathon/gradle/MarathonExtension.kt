@@ -10,6 +10,7 @@ import com.malinskiy.marathon.config.vendor.android.SerialStrategy
 import com.malinskiy.marathon.config.vendor.android.TestAccessConfiguration
 import com.malinskiy.marathon.config.vendor.android.TestParserConfiguration
 import com.malinskiy.marathon.config.vendor.android.TimeoutConfiguration
+import com.malinskiy.marathon.gradle.configuration.PoolingStrategyConfiguration
 import groovy.lang.Closure
 import org.gradle.api.Action
 import org.gradle.util.internal.ConfigureUtil

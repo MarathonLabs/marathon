@@ -34,8 +34,9 @@ const val DEFAULT_WAIT_FOR_DEVICES_TIMEOUT = 30000L
     JsonSubTypes.Type(value = VendorConfiguration.AndroidConfiguration::class, name = "Android"),
     JsonSubTypes.Type(value = VendorConfiguration.IOSConfiguration::class, name = "iOS"),
     JsonSubTypes.Type(value = VendorConfiguration.StubVendorConfiguration::class, name = "stub"),
+    JsonSubTypes.Type(value = VendorConfiguration.EmptyVendorConfiguration::class, name = "empty"),
 )
-sealed class VendorConfiguration {
+sealed class VendorConfiguration { 
     data class AndroidConfiguration(
         @JsonProperty("vendor") val vendor: VendorType = VendorType.ADAM,
         @JsonProperty("androidSdk") val androidSdk: File?,
@@ -68,13 +69,13 @@ sealed class VendorConfiguration {
             ADAM
         }
     }
-    
+
     class AndroidConfigurationBuilder : Serializable {
         var vendor: AndroidConfiguration.VendorType = AndroidConfiguration.VendorType.ADAM
         var androidSdk: File? = null
         var applicationOutput: File? = null
-        var testApplicationOutput: File?  = null
-        var extraApplicationsOutput: List<File>?  = null
+        var testApplicationOutput: File? = null
+        var extraApplicationsOutput: List<File>? = null
         var outputs: List<AndroidTestBundleConfiguration>? = null
         var autoGrantPermission: Boolean = DEFAULT_AUTO_GRANT_PERMISSION
         var instrumentationArgs: Map<String, String> = emptyMap()
@@ -93,9 +94,31 @@ sealed class VendorConfiguration {
         var testAccessConfiguration: TestAccessConfiguration = TestAccessConfiguration()
         var adbServers: List<AdbEndpoint> = listOf(AdbEndpoint())
         var disableWindowAnimation: Boolean = DEFAULT_DISABLE_WINDOW_ANIMATION
-        
+
         fun build() = AndroidConfiguration(
-            vendor, androidSdk, applicationOutput, testApplicationOutput, extraApplicationsOutput, outputs, autoGrantPermission, instrumentationArgs, applicationPmClear, testApplicationPmClear, adbInitTimeoutMillis, installOptions, serialStrategy, screenRecordConfiguration, waitForDevicesTimeoutMillis, allureConfiguration, timeoutConfiguration, fileSyncConfiguration, threadingConfiguration, testParserConfiguration, testAccessConfiguration, adbServers, disableWindowAnimation
+            vendor,
+            androidSdk,
+            applicationOutput,
+            testApplicationOutput,
+            extraApplicationsOutput,
+            outputs,
+            autoGrantPermission,
+            instrumentationArgs,
+            applicationPmClear,
+            testApplicationPmClear,
+            adbInitTimeoutMillis,
+            installOptions,
+            serialStrategy,
+            screenRecordConfiguration,
+            waitForDevicesTimeoutMillis,
+            allureConfiguration,
+            timeoutConfiguration,
+            fileSyncConfiguration,
+            threadingConfiguration,
+            testParserConfiguration,
+            testAccessConfiguration,
+            adbServers,
+            disableWindowAnimation
         )
     }
 
@@ -120,6 +143,9 @@ sealed class VendorConfiguration {
         fun safecxtestrunPath(): File =
             xctestrunPath ?: throw ConfigurationException("Unable to find an xctestrun file in derived data folder")
     }
+
+    @Suppress("CanSealedSubClassBeObject")
+    class EmptyVendorConfiguration : VendorConfiguration(), Serializable
 
     //For testing purposes
     object StubVendorConfiguration : VendorConfiguration()

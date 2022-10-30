@@ -8,7 +8,6 @@ plugins {
     id("com.github.johnrengelman.shadow") version Versions.gradlePluginShadow
 }
 
-
 gradlePlugin {
     (plugins) {
         create("marathon-gradle-plugin") {
@@ -34,7 +33,7 @@ dependencies {
     
     shadow(Libraries.kotlinLogging)
     implementation(project(":configuration"))
-    shadow(BuildPlugins.androidGradle)
+    compileOnly(BuildPlugins.androidGradle)
     shadow(Libraries.apacheCommonsCodec)
 }
 
