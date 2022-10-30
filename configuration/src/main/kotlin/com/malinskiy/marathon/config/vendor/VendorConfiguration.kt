@@ -83,7 +83,8 @@ sealed class VendorConfiguration {
         @JsonProperty("compactOutput") val compactOutput: Boolean = false,
         @JsonProperty("keepAliveIntervalMillis") val keepAliveIntervalMillis: Long = 0L,
         @JsonProperty("devices") val devicesFile: File? = null,
-    ) : VendorConfiguration() {
+        @JsonProperty("xcTestRunnerTag") val xcTestRunnerTag: String? = null,
+        ) : VendorConfiguration() {
         /**
          * Exception should not happen since it will be first thrown in deserializer
          */

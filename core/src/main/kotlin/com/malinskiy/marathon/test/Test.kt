@@ -43,3 +43,13 @@ fun Test.toClassName(separator: Char = '.'): String {
 fun Test.toSimpleSafeTestName(): String = "$clazz.$method"
 
 fun Test.toSafeTestName() = toTestName(methodSeparator = '.')
+
+fun Test.getCucumberishTags(): List<String>{
+    var tags: List<String> = emptyList()
+
+    if (metaProperties.isNotEmpty()) {
+        val mappedValues = metaProperties.filter { it.name == "cucumberishTags" }.first().values
+        tags = mappedValues.get("tags") as? List<String> ?: emptyList()
+    }
+    return tags
+}

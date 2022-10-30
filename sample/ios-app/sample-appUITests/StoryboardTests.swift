@@ -61,6 +61,19 @@ class StoryboardTests: XCTestCase {
         let label = app.staticTexts.firstMatch
         XCTAssertEqual(label.label, "Label")
     }
+
+    // @SmokeTest @RegressionTest
+    func testButtonBasedOnAnnotationOrTag() {
+        let button = app.buttons.firstMatch
+        XCTAssertTrue(button.waitForExistence())
+        XCTAssertTrue(button.isHittable)
+
+        button.tap()
+
+        let label = app.staticTexts.firstMatch
+        XCTAssertTrue(label.waitForExistence())
+    }
+
 }
 
 private let standardTimeout: TimeInterval = 30.0
