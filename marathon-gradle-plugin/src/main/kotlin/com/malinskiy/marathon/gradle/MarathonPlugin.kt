@@ -10,6 +10,7 @@ import com.android.build.gradle.LibraryPlugin
 import com.malinskiy.marathon.config.Configuration
 import com.malinskiy.marathon.config.vendor.VendorConfiguration
 import com.malinskiy.marathon.gradle.configuration.toStrategy
+import com.malinskiy.marathon.gradle.service.JsonService
 import com.malinskiy.marathon.gradle.task.GenerateMarathonfileTask
 import com.malinskiy.marathon.gradle.task.MarathonRunTask
 import com.malinskiy.marathon.gradle.task.MarathonUnpackTask
@@ -36,8 +37,10 @@ class MarathonPlugin : Plugin<Project> {
         logger.info("Applying marathon plugin")
         val marathonExtension = project.extensions.create("marathon", MarathonExtension::class.java)
 
+
         val rootProject = project.rootProject
 
+        val jsonServiceProvider = rootProject.gradle.sharedServices.registerIfAbsent("marathonJson", JsonService::class.java) {}
         val wrapper: TaskProvider<MarathonUnpackTask> = rootProject.tasks.findByName(MarathonUnpackTask.NAME)?.let {
             rootProject.tasks.named(MarathonUnpackTask.NAME, MarathonUnpackTask::class.java)
         } ?: applyRoot(rootProject)
@@ -82,7 +85,7 @@ class MarathonPlugin : Plugin<Project> {
                         )
 
                         val (generateMarathonfileTaskProvider, testTaskForVariantProvider) = createTasks(
-                            logger, androidTest, bundle, project, conf, sdkDirectory, wrapper
+                            logger, androidTest, bundle, project, conf, sdkDirectory, wrapper, jsonServiceProvider
                         )
                         marathonTask.dependsOn(testTaskForVariantProvider)
                     }
@@ -106,7 +109,7 @@ class MarathonPlugin : Plugin<Project> {
                         )
 
                         val (generateMarathonfileTask, testTaskForVariant) = createTasks(
-                            logger, androidTest, bundle, project, conf, sdkDirectory, wrapper
+                            logger, androidTest, bundle, project, conf, sdkDirectory, wrapper, jsonServiceProvider
                         )
                         marathonTask.dependsOn(testTaskForVariant)
                     }
@@ -164,6 +167,7 @@ class MarathonPlugin : Plugin<Project> {
             config: MarathonExtension,
             sdkDirectory: Provider<Directory>,
             wrapper: TaskProvider<MarathonUnpackTask>,
+            jsonServiceProvider: Provider<JsonService>,
         ): Pair<TaskProvider<GenerateMarathonfileTask>, TaskProvider<MarathonRunTask>> {
             val baseOutputDir = config.baseOutputDir?.let { File(it) } ?: File(project.buildDir, "reports/marathon")
             val output = File(baseOutputDir, variant.name)
@@ -195,7 +199,29 @@ class MarathonPlugin : Plugin<Project> {
                 }
                 config.outputConfiguration?.toStrategy()?.let { outputConfiguration = it }
             }
-            val vendorConfigurationBuilder = VendorConfiguration.AndroidConfigurationBuilder()
+            val vendorConfigurationBuilder = VendorConfiguration.AndroidConfigurationBuilder().apply {
+                config.vendor?.let { vendor = it }
+                config.autoGrantPermission?.let { autoGrantPermission = it }
+                instrumentationArgs = config.instrumentationArgs
+                config.applicationPmClear?.let { applicationPmClear = it }
+                config.testApplicationPmClear?.let { testApplicationPmClear = it }
+                config.adbInitTimeout?.let { adbInitTimeoutMillis = it }
+                config.installOptions?.let { installOptions = it }
+                config.screenRecordConfiguration?.let { screenRecordConfiguration = it }
+                config.serialStrategy?.let { serialStrategy = it }
+                config.waitForDevicesTimeoutMillis?.let { waitForDevicesTimeoutMillis = it }
+                config.allureConfiguration?.let { allureConfiguration = it }
+                config.fileSyncConfiguration?.let { fileSyncConfiguration = it }
+                config.testParserConfiguration?.let { testParserConfiguration = it }
+                config.testAccessConfiguration?.let { testAccessConfiguration = it }
+                config.timeoutConfiguration?.let { timeoutConfiguration = it }
+                config.adbServers?.let { adbServers = it }
+                config.disableWindowAnimation?.let { disableWindowAnimation = it }
+            }
+
+            val jsonService = jsonServiceProvider.get()
+            val configurationJson = jsonService.serialize(configurationBuilder)
+            val vendorConfigurationJson = jsonService.serialize(vendorConfigurationBuilder)
 
             val generateMarathonfileTask =
                 project.tasks.register(
@@ -206,8 +232,9 @@ class MarathonPlugin : Plugin<Project> {
                     description = "Generates Marathonfile for '${variant.name}' variation"
                     flavorName.set(variant.name)
                     applicationBundle.set(listOf(bundle))
-                    this.configurationBuilder.set(configurationBuilder)
-                    this.vendorConfigurationBuilder.set(vendorConfigurationBuilder)
+                    this.configurationBuilder.set(configurationJson)
+                    this.vendorConfigurationBuilder.set(vendorConfigurationJson)
+                    this.jsonService.set(jsonServiceProvider)
                     sdk.set(sdkDirectory)
                     marathonfile.set(project.layout.buildDirectory.dir("marathon").map { it.dir(variant.name) }
                                          .map { it.file("Marathonfile") })

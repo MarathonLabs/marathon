@@ -15,7 +15,6 @@ import com.malinskiy.marathon.config.vendor.android.TestParserConfiguration
 import com.malinskiy.marathon.config.vendor.android.ThreadingConfiguration
 import com.malinskiy.marathon.config.vendor.android.TimeoutConfiguration
 import java.io.File
-import java.io.Serializable
 
 const val DEFAULT_INIT_TIMEOUT_MILLIS = 30_000
 const val DEFAULT_AUTO_GRANT_PERMISSION = false
@@ -71,7 +70,7 @@ sealed class VendorConfiguration {
         }
     }
 
-    class AndroidConfigurationBuilder : Serializable {
+    class AndroidConfigurationBuilder {
         var vendor: AndroidConfiguration.VendorType = AndroidConfiguration.VendorType.ADAM
         var androidSdk: File? = null
         var applicationOutput: File? = null
@@ -148,7 +147,7 @@ sealed class VendorConfiguration {
     }
 
     @Suppress("CanSealedSubClassBeObject")
-    class EmptyVendorConfiguration : VendorConfiguration(), Serializable
+    class EmptyVendorConfiguration : VendorConfiguration()
 
     //For testing purposes
     object StubVendorConfiguration : VendorConfiguration()

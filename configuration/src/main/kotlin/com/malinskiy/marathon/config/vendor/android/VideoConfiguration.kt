@@ -1,7 +1,6 @@
 package com.malinskiy.marathon.config.vendor.android
 
 import com.fasterxml.jackson.annotation.JsonProperty
-import java.io.Serializable
 import java.util.concurrent.TimeUnit
 
 /**
@@ -14,4 +13,4 @@ data class VideoConfiguration(
     @JsonProperty("bitrateMbps") val bitrateMbps: Int = 1,
     @JsonProperty("timeLimit") val timeLimit: Long = 180,
     @JsonProperty("timeLimitUnits") val timeLimitUnits: TimeUnit = TimeUnit.SECONDS
-) : Serializable
+)

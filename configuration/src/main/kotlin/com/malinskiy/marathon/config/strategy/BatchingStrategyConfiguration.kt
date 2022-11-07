@@ -2,7 +2,6 @@ package com.malinskiy.marathon.config.strategy
 
 import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo
-import java.io.Serializable
 import java.time.Instant
 
 @JsonTypeInfo(
@@ -14,7 +13,7 @@ import java.time.Instant
     JsonSubTypes.Type(value = BatchingStrategyConfiguration.FixedSizeBatchingStrategyConfiguration::class, name = "fixed-size"),
     JsonSubTypes.Type(value = BatchingStrategyConfiguration.IsolateBatchingStrategyConfiguration::class, name = "isolate"),
 )
-sealed class BatchingStrategyConfiguration : Serializable {
+sealed class BatchingStrategyConfiguration {
     data class FixedSizeBatchingStrategyConfiguration(
         val size: Int,
         val durationMillis: Long? = null,

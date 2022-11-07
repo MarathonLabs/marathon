@@ -2,7 +2,6 @@ package com.malinskiy.marathon.config.strategy
 
 import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo
-import java.io.Serializable
 
 @JsonTypeInfo(
     use = JsonTypeInfo.Id.NAME,
@@ -17,7 +16,7 @@ import java.io.Serializable
     JsonSubTypes.Type(value = PoolingStrategyConfiguration.OperatingSystemVersionPoolingStrategyConfiguration::class, name = "os-version"),
     JsonSubTypes.Type(value = PoolingStrategyConfiguration.ComboPoolingStrategyConfiguration::class, name = "combo"),
 )
-sealed class PoolingStrategyConfiguration : Serializable {
+sealed class PoolingStrategyConfiguration {
     object OmniPoolingStrategyConfiguration : PoolingStrategyConfiguration()
     object AbiPoolingStrategyConfiguration : PoolingStrategyConfiguration()
     object ManufacturerPoolingStrategyConfiguration : PoolingStrategyConfiguration()

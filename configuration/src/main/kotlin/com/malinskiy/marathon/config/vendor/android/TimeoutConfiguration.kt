@@ -1,6 +1,5 @@
 package com.malinskiy.marathon.config.vendor.android
 
-import java.io.Serializable
 import java.time.Duration
 
 data class TimeoutConfiguration(
@@ -15,4 +14,4 @@ data class TimeoutConfiguration(
     var screencapturer: Duration = Duration.ofMillis(300),
     var socketIdleTimeout: Duration = Duration.ofSeconds(30),
     var portForward: Duration = shell,
-) : Serializable
+)

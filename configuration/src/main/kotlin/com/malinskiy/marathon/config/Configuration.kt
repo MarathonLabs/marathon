@@ -9,7 +9,6 @@ import com.malinskiy.marathon.config.strategy.ShardingStrategyConfiguration
 import com.malinskiy.marathon.config.strategy.SortingStrategyConfiguration
 import com.malinskiy.marathon.config.vendor.VendorConfiguration
 import java.io.File
-import java.io.Serializable
 
 private const val DEFAULT_BATCH_EXECUTION_TIMEOUT_MILLIS: Long = 1800_000 //30 min
 private const val DEFAULT_OUTPUT_TIMEOUT_MILLIS: Long = 300_000 //5 min
@@ -146,41 +145,40 @@ data class Configuration private constructor(
         result = 31 * result + deviceInitializationTimeoutMillis.hashCode()
         return result
     }
-    class Builder(
+     data class Builder(
         val name: String,
         val outputDir: File,
-    ) : Serializable {
-        var analyticsConfiguration: AnalyticsConfiguration = AnalyticsConfiguration.DisabledAnalytics
-        var poolingStrategy: PoolingStrategyConfiguration = PoolingStrategyConfiguration.OmniPoolingStrategyConfiguration
-        var shardingStrategy: ShardingStrategyConfiguration = ShardingStrategyConfiguration.ParallelShardingStrategyConfiguration
-        var sortingStrategy: SortingStrategyConfiguration = SortingStrategyConfiguration.NoSortingStrategyConfiguration
-        var batchingStrategy: BatchingStrategyConfiguration = BatchingStrategyConfiguration.IsolateBatchingStrategyConfiguration
-        var flakinessStrategy: FlakinessStrategyConfiguration = FlakinessStrategyConfiguration.IgnoreFlakinessStrategyConfiguration
-        var retryStrategy: RetryStrategyConfiguration = RetryStrategyConfiguration.NoRetryStrategyConfiguration
-        var filteringConfiguration: FilteringConfiguration = FilteringConfiguration(emptyList(), emptyList())
+        var analyticsConfiguration: AnalyticsConfiguration = AnalyticsConfiguration.DisabledAnalytics,
+        var poolingStrategy: PoolingStrategyConfiguration = PoolingStrategyConfiguration.OmniPoolingStrategyConfiguration,
+        var shardingStrategy: ShardingStrategyConfiguration = ShardingStrategyConfiguration.ParallelShardingStrategyConfiguration,
+        var sortingStrategy: SortingStrategyConfiguration = SortingStrategyConfiguration.NoSortingStrategyConfiguration,
+        var batchingStrategy: BatchingStrategyConfiguration = BatchingStrategyConfiguration.IsolateBatchingStrategyConfiguration,
+        var flakinessStrategy: FlakinessStrategyConfiguration = FlakinessStrategyConfiguration.IgnoreFlakinessStrategyConfiguration,
+        var retryStrategy: RetryStrategyConfiguration = RetryStrategyConfiguration.NoRetryStrategyConfiguration,
+        var filteringConfiguration: FilteringConfiguration = FilteringConfiguration(emptyList(), emptyList()),
 
-        var ignoreFailures: Boolean = false
-        var isCodeCoverageEnabled: Boolean = false
-        var fallbackToScreenshots: Boolean = false
-        var strictMode: Boolean = false
-        var uncompletedTestRetryQuota: Int = Integer.MAX_VALUE
+        var ignoreFailures: Boolean = false,
+        var isCodeCoverageEnabled: Boolean = false,
+        var fallbackToScreenshots: Boolean = false,
+        var strictMode: Boolean = false,
+        var uncompletedTestRetryQuota: Int = Integer.MAX_VALUE,
 
-        var testClassRegexes: Collection<Regex> = listOf(Regex("^((?!Abstract).)*Test[s]*$"))
-        var includeSerialRegexes: Collection<Regex> = emptyList()
-        var excludeSerialRegexes: Collection<Regex> = emptyList()
+        var testClassRegexes: Collection<Regex> = listOf(Regex("^((?!Abstract).)*Test[s]*$")),
+        var includeSerialRegexes: Collection<Regex> = emptyList(),
+        var excludeSerialRegexes: Collection<Regex> = emptyList(),
 
-        var testBatchTimeoutMillis: Long = DEFAULT_BATCH_EXECUTION_TIMEOUT_MILLIS
-        var testOutputTimeoutMillis: Long = DEFAULT_OUTPUT_TIMEOUT_MILLIS
-        var debug: Boolean = true
+        var testBatchTimeoutMillis: Long = DEFAULT_BATCH_EXECUTION_TIMEOUT_MILLIS,
+        var testOutputTimeoutMillis: Long = DEFAULT_OUTPUT_TIMEOUT_MILLIS,
+        var debug: Boolean = true,
 
-        var screenRecordingPolicy: ScreenRecordingPolicy = ScreenRecordingPolicy.ON_FAILURE
+        var screenRecordingPolicy: ScreenRecordingPolicy = ScreenRecordingPolicy.ON_FAILURE,
 
-        var analyticsTracking: Boolean = false
-        var deviceInitializationTimeoutMillis: Long = DEFAULT_DEVICE_INITIALIZATION_TIMEOUT_MILLIS
+        var analyticsTracking: Boolean = false,
+        var deviceInitializationTimeoutMillis: Long = DEFAULT_DEVICE_INITIALIZATION_TIMEOUT_MILLIS,
 
-        var outputConfiguration = OutputConfiguration()
-        var vendorConfiguration: VendorConfiguration = VendorConfiguration.EmptyVendorConfiguration()
-        
+        var outputConfiguration: OutputConfiguration = OutputConfiguration(),
+        var vendorConfiguration: VendorConfiguration = VendorConfiguration.EmptyVendorConfiguration(),
+    ) {
         fun build(): Configuration {
             return Configuration(
                 name = name,

@@ -2,7 +2,6 @@ package com.malinskiy.marathon.config.strategy
 
 import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo
-import java.io.Serializable
 import java.time.Instant
 
 @JsonTypeInfo(
@@ -14,7 +13,7 @@ import java.time.Instant
     JsonSubTypes.Type(value = FlakinessStrategyConfiguration.IgnoreFlakinessStrategyConfiguration::class, name = "ignore"),
     JsonSubTypes.Type(value = FlakinessStrategyConfiguration.ProbabilityBasedFlakinessStrategyConfiguration::class, name = "probability"),
 )
-sealed class FlakinessStrategyConfiguration : Serializable {
+sealed class FlakinessStrategyConfiguration {
     object IgnoreFlakinessStrategyConfiguration : FlakinessStrategyConfiguration()
 
     data class ProbabilityBasedFlakinessStrategyConfiguration(

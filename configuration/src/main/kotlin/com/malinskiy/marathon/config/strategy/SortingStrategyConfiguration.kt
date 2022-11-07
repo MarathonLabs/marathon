@@ -3,7 +3,6 @@ package com.malinskiy.marathon.config.strategy
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo
-import java.io.Serializable
 import java.time.Instant
 
 @JsonTypeInfo(
@@ -17,7 +16,7 @@ import java.time.Instant
     JsonSubTypes.Type(value = SortingStrategyConfiguration.RandomOrderStrategyConfiguration::class, name = "random-order"),
     JsonSubTypes.Type(value = SortingStrategyConfiguration.SuccessRateSortingStrategyConfiguration::class, name = "success-rate"),
 )
-sealed class SortingStrategyConfiguration : Serializable {
+sealed class SortingStrategyConfiguration {
     data class ExecutionTimeSortingStrategyConfiguration(
         val percentile: Double,
         val timeLimit: Instant

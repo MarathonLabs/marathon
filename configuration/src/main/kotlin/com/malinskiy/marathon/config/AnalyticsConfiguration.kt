@@ -2,7 +2,6 @@ package com.malinskiy.marathon.config
 
 import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo
-import java.io.Serializable
 
 @JsonTypeInfo(
     use = JsonTypeInfo.Id.NAME,
@@ -15,7 +14,7 @@ import java.io.Serializable
     JsonSubTypes.Type(value = AnalyticsConfiguration.InfluxDb2Configuration::class, name = "influxdb2"),
     JsonSubTypes.Type(value = AnalyticsConfiguration.GraphiteConfiguration::class, name = "graphite"),
 )
-sealed class AnalyticsConfiguration : Serializable {
+sealed class AnalyticsConfiguration {
     object DisabledAnalytics : AnalyticsConfiguration()
     data class InfluxDbConfiguration(
         val url: String,
@@ -30,7 +29,7 @@ sealed class AnalyticsConfiguration : Serializable {
             val shardDuration: String,
             val replicationFactor: Int,
             val isDefault: Boolean
-        ) : Serializable {
+        ) {
             companion object {
                 val default: RetentionPolicyConfiguration = RetentionPolicyConfiguration("rpMarathon", "30d", "30m", 2, true)
             }

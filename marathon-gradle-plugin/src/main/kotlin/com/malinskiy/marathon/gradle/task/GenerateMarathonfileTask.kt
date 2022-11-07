@@ -7,6 +7,7 @@ import com.malinskiy.marathon.config.vendor.VendorConfiguration
 import com.malinskiy.marathon.config.vendor.android.AndroidTestBundleConfiguration
 import com.malinskiy.marathon.gradle.GradleAndroidTestBundle
 import com.malinskiy.marathon.gradle.Const
+import com.malinskiy.marathon.gradle.service.JsonService
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.file.RegularFileProperty
@@ -15,6 +16,7 @@ import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputDirectory
+import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.Nested
 import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.PathSensitive
@@ -34,10 +36,10 @@ open class GenerateMarathonfileTask @Inject constructor(objects: ObjectFactory) 
     val flavorName: Property<String> = objects.property()
 
     @Input
-    val configurationBuilder: Property<Configuration.Builder> = objects.property()
+    val configurationBuilder: Property<String> = objects.property()
 
     @Input
-    val vendorConfigurationBuilder: Property<VendorConfiguration.AndroidConfigurationBuilder> = objects.property()
+    val vendorConfigurationBuilder: Property<String> = objects.property()
 
     // Overrides for the configuration from the AGP
     @Nested
@@ -50,14 +52,19 @@ open class GenerateMarathonfileTask @Inject constructor(objects: ObjectFactory) 
     @OutputFile
     val marathonfile: RegularFileProperty = objects.fileProperty()
 
+    @Internal
+    val jsonService: Property<JsonService> = objects.property()
+    
     @TaskAction
     fun write() {
+        val json = jsonService.get()
+        
         // Override stuff coming from AGP
-        val androidConfiguration = vendorConfigurationBuilder.get().apply {
+        val androidConfiguration = vendorConfigurationBuilder.let { json.parseVendor(it.get()) }.apply {
             androidSdk = sdk.get().asFile
             outputs = mapAndroidOutputs(applicationBundle.get(), flavorName.get())
         }.build()
-        val cnf = configurationBuilder.get().apply {
+        val cnf = configurationBuilder.let { json.parse(it.get()) }.apply {
             vendorConfiguration = androidConfiguration
         }.build()
 

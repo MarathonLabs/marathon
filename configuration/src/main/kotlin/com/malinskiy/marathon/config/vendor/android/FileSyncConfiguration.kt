@@ -1,22 +1,20 @@
 package com.malinskiy.marathon.config.vendor.android
 
-import java.io.Serializable
-
 data class FileSyncConfiguration(
     val pull: MutableSet<FileSyncEntry> = mutableSetOf(),
     val push: MutableSet<FilePushEntry> = mutableSetOf(),
-) : Serializable
+)
 
 data class FileSyncEntry(
     val relativePath: String,
     val pathRoot: PathRoot = PathRoot.EXTERNAL_STORAGE,
     val aggregationMode: AggregationMode = AggregationMode.DEVICE
-) : Serializable
+)
 
 data class FilePushEntry(
     val path: String,
     val pathRoot: PathRoot = PathRoot.LOCAL_TMP,
-) : Serializable
+)
 
 /**
  * @property EXTERNAL_STORAGE Path is relative to external storage mount, e.g. /sdcard/some-folder
