@@ -269,5 +269,7 @@ private fun createQueueActor(
 private val DEFAULT_CONFIGURATION = Configuration.Builder(
     name = "",
     outputDir = File(""),
-    vendorConfiguration = VendorConfiguration.StubVendorConfiguration,
-).apply { analyticsTracking = false }.build()
+).apply {
+    vendorConfiguration = VendorConfiguration.StubVendorConfiguration    
+    analyticsTracking = false 
+}.build()

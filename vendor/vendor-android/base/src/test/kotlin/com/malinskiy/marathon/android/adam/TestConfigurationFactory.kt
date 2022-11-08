@@ -21,6 +21,7 @@ object TestConfigurationFactory {
         return Configuration.Builder(
             name = "",
             outputDir = File(""),
+        ).apply {
             vendorConfiguration = VendorConfiguration.AndroidConfiguration(
                 androidSdk = File(""),
                 applicationOutput = applicationOutput,
@@ -32,7 +33,6 @@ object TestConfigurationFactory {
                 fileSyncConfiguration = fileSyncConfiguration,
                 allureConfiguration = allureConfiguration
             )
-        ).apply {
             this.isCodeCoverageEnabled = isCodeCoverageEnabled
             strictMode = false
             debug = false

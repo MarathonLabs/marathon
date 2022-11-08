@@ -25,8 +25,8 @@ class IOSDeviceProviderTest {
     private val configuration = Configuration.Builder(
         name = "",
         outputDir = File(""),
-        vendorConfiguration = vendorConfiguration,
     ).apply {
+        vendorConfiguration = vendorConfiguration
         analyticsTracking = false
     }.build()
     private val provider = IOSDeviceProvider(configuration, vendorConfiguration, Track(), SystemTimer(Clock.systemDefaultZone()))

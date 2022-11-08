@@ -29,9 +29,9 @@ class TestResultReporterTest {
 
     private val defaultConfig = Configuration.Builder(
         name = "",
-        outputDir = File(""),
-        vendorConfiguration = VendorConfiguration.StubVendorConfiguration,
+        outputDir = File("")
     ).apply {
+        vendorConfiguration = VendorConfiguration.StubVendorConfiguration
         debug = false
         analyticsTracking = false
     }.build()

@@ -39,6 +39,9 @@ class DerivedDataManagerTest {
     private val configuration = Configuration.Builder(
         name = "",
         outputDir = File(""),
+    ).apply {
+        debug = false
+        analyticsTracking = false
         vendorConfiguration = VendorConfiguration.IOSConfiguration(
             derivedDataDir = derivedDataDir,
             xctestrunPath = xctestrunPath,
@@ -50,9 +53,6 @@ class DerivedDataManagerTest {
             debugSsh = false,
             alwaysEraseSimulators = true
         )
-    ).apply {
-        debug = false
-        analyticsTracking = false
     }.build()
 
     @BeforeEach
