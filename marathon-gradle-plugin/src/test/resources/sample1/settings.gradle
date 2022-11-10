@@ -1,0 +1,16 @@
+pluginManagement {
+    repositories {
+        mavenLocal()
+        google()
+        gradlePluginPortal()
+    }
+    resolutionStrategy {
+        eachPlugin {
+            if (requested.id.id == "marathon") {
+                useModule("com.malinskiy.marathon:marathon-gradle-plugin:${requested.version}")
+            }
+        }
+    }
+}
+
+include 'app'

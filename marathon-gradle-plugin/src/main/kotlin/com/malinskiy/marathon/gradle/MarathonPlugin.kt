@@ -37,9 +37,7 @@ class MarathonPlugin : Plugin<Project> {
         logger.info("Applying marathon plugin")
         val marathonExtension = project.extensions.create("marathon", MarathonExtension::class.java)
 
-
         val rootProject = project.rootProject
-
         val jsonServiceProvider = rootProject.gradle.sharedServices.registerIfAbsent("marathonJson", JsonService::class.java) {}
         val wrapper: TaskProvider<MarathonUnpackTask> = rootProject.tasks.findByName(MarathonUnpackTask.NAME)?.let {
             rootProject.tasks.named(MarathonUnpackTask.NAME, MarathonUnpackTask::class.java)
@@ -133,7 +131,7 @@ class MarathonPlugin : Plugin<Project> {
         }
 
         val wrapperTask = rootProject.tasks.register(MarathonUnpackTask.NAME, MarathonUnpackTask::class.java) {
-            inputs.files(distZipTaskProvider.map { it.destinationDir })
+            inputs.file(distZipTaskProvider.map { File(it.destinationDir, "marathon-cli.zip") })
                 .withPropertyName("distZip")
             dist.set(rootProject.layout.buildDirectory.dir("marathon").map { it.dir("cli") })
 

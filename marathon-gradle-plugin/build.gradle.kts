@@ -35,6 +35,15 @@ dependencies {
     implementation(project(":configuration"))
     compileOnly(BuildPlugins.androidGradle)
     shadow(Libraries.apacheCommonsCodec)
+    
+    testImplementation(gradleTestKit())
+    testImplementation(TestLibraries.junit5)
+    testImplementation(TestLibraries.assertk)
+}
+
+tasks.test.configure {
+    dependsOn(rootProject.project("configuration").tasks.getByName("publishDefaultPublicationToMavenLocal"))
+    dependsOn(tasks.getByName("publishPluginMavenPublicationToMavenLocal"))
 }
 
 // needed to prevent inclusion of gradle-api into shadow JAR

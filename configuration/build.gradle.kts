@@ -5,6 +5,7 @@ plugins {
     id("org.jetbrains.dokka")
     id("org.junit.platform.gradle.plugin")
     jacoco
+    id("com.github.gmazzo.buildconfig") version "3.1.0"
 }
 
 dependencies {
@@ -18,6 +19,14 @@ dependencies {
     testImplementation(TestLibraries.kluent)
     testImplementation(TestLibraries.mockitoKotlin)
     testRuntimeOnly(TestLibraries.jupiterEngine)
+}
+
+buildConfig {
+    buildConfigField("String", "VERSION", provider { "\"${Versions.marathon}\"" })
+    buildConfigField("String", "RELEASE_MODE", provider {
+        val releaseMode = Deployment.releaseMode ?: ""
+        "\"$releaseMode\""
+    })
 }
 
 tasks.named<JacocoReport>("jacocoTestReport").configure {
