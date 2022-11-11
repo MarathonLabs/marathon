@@ -1,7 +1,6 @@
 plugins {
     `java-gradle-plugin`
     `kotlin-dsl`
-    jacoco
     id("org.jetbrains.dokka")
     id("com.gradle.plugin-publish") version Versions.gradlePluginPublish
     id("com.github.johnrengelman.shadow") version Versions.gradlePluginShadow
@@ -26,7 +25,8 @@ pluginBundle {
 
 setupDeployment()
 setupKotlinCompiler()
-setupTestTask()
+//Tests are blackbox, no way to collect coverage anyway
+setupTestTask(jacoco = false)
 
 dependencies {
     shadow(gradleApi())

@@ -12,11 +12,13 @@ fun Project.setupKotlinCompiler() {
     }
 }
 
-fun Project.setupTestTask() {
-    tasks.named<JacocoReport>("jacocoTestReport").configure {
-        reports.xml.required.set(true)
-        reports.html.required.set(true)
-        dependsOn(tasks.named("test"))
+fun Project.setupTestTask(jacoco: Boolean = true) {
+    if (jacoco) {
+        tasks.named<JacocoReport>("jacocoTestReport").configure {
+            reports.xml.required.set(true)
+            reports.html.required.set(true)
+            dependsOn(tasks.named("test"))
+        }
     }
 
     tasks.withType<Test>().all {
