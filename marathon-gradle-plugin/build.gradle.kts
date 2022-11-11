@@ -9,7 +9,7 @@ plugins {
 gradlePlugin {
     (plugins) {
         create("marathon-gradle-plugin") {
-            id = "marathon"
+            id = "com.malinskiy.marathon"
             displayName = "Gradle plugin for Marathon test runner"
             description = "Marathon is a fast and platform-independent test runner focused on performance and stability"
             implementationClass = "com.malinskiy.marathon.gradle.MarathonPlugin"
