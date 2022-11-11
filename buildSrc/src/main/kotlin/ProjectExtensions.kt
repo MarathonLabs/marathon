@@ -24,7 +24,6 @@ fun Project.setupTestTask(jacoco: Boolean = true) {
     tasks.withType<Test>().all {
         tasks.getByName("check").dependsOn(this)
         useJUnitPlatform()
-        outputs.upToDateWhen { false }
     }
 }
 
