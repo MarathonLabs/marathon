@@ -26,7 +26,7 @@ object Versions {
     val espressoRunner = "1.0.1"
     val junit = "4.13.2"
     val gson = "2.9.1"
-    val apacheCommonsText = "1.9"
+    val apacheCommonsText = "1.10.0"
     val apacheCommonsIO = "2.11.0"
     val apacheCommonsCodec = "1.15"
     val influxDbClient = "2.23"
