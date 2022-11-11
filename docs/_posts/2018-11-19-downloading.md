@@ -35,7 +35,26 @@ brew install malinskiy/tap/marathon
 
 ## Gradle
 
-Marathon gradle plugin is published to [MavenCentral][2]. Then apply the plugin
+Marathon gradle plugin is published as an official Gradle plugin since version 0.8.0.
+To apply the plugin:
+{% tabs gradle-official %} {% tab gradle-official .gradle %}
+```kotlin
+plugins {
+    id 'com.malinskiy.marathon' version 'X.X.X'
+}
+```
+{% endtab %}
+{% tab gradle-official .kts %}
+```kotlin
+plugins {
+    id("com.malinskiy.marathon") version "X.X.X"
+}
+```
+{% endtab %}
+{% endtabs %}
+
+## Using gradle plugin <0.8.0
+Before v0.8.0 marathon plugin had id "marathon" instead of "com.malinskiy.marathon". Apply such plugin directly from [MavenCentral][2] as following:
 
 {% tabs gradle %} {% tab gradle .gradle %}
 ```kotlin
@@ -53,7 +72,7 @@ plugins {
 {% endtab %}
 {% endtabs %}
 
-You also need to add the following to your settings.gradle(.kts):
+You also need to add the following to your settings.gradle(.kts) if you're using an old version before 0.8.0:
 
 ```kotlin
 pluginManagement {
