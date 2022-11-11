@@ -1,8 +1,7 @@
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-
 plugins {
     `java-gradle-plugin`
     `kotlin-dsl`
+    jacoco
     id("org.jetbrains.dokka")
     id("com.gradle.plugin-publish") version Versions.gradlePluginPublish
     id("com.github.johnrengelman.shadow") version Versions.gradlePluginShadow
@@ -25,7 +24,9 @@ pluginBundle {
     tags = listOf("marathon", "test", "runner", "android")
 }
 
-Deployment.initialize(project)
+setupDeployment()
+setupKotlinCompiler()
+setupTestTask()
 
 dependencies {
     shadow(gradleApi())
@@ -39,16 +40,19 @@ dependencies {
     testImplementation(gradleTestKit())
     testImplementation(TestLibraries.junit5)
     testImplementation(TestLibraries.assertk)
+    testRuntimeOnly(TestLibraries.jupiterEngine)
 }
 
-tasks.test.configure {
+tasks.withType<Test> {
     dependsOn(rootProject.project("configuration").tasks.getByName("publishDefaultPublicationToMavenLocal"))
-    dependsOn(tasks.getByName("publishPluginMavenPublicationToMavenLocal"))
 }
 
 // needed to prevent inclusion of gradle-api into shadow JAR
 afterEvaluate {
     configurations["api"].dependencies.remove(dependencies.gradleApi())
+    tasks.test.configure {
+        dependsOn(tasks.named("publishPluginMavenPublicationToMavenLocal"))
+    }
 }
 
 tasks.processResources.configure {
@@ -69,9 +73,4 @@ tasks.shadowJar {
         "com.malinskiy.marathon.shadow.com.fasterxml.jackson"
     )
     archiveClassifier.set("")
-}
-
-tasks.withType<KotlinCompile> {
-    kotlinOptions.jvmTarget = "1.8"
-    kotlinOptions.apiVersion = "1.5"
 }

@@ -1,10 +1,7 @@
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-
 plugins {
     `java-library`
     id("org.jetbrains.kotlin.jvm")
     id("org.jetbrains.dokka")
-    id("org.junit.platform.gradle.plugin")
     jacoco
 }
 
@@ -30,21 +27,6 @@ dependencies {
     testImplementation(project(":vendor:vendor-android:adam"))
 }
 
-Deployment.initialize(project)
-
-tasks.withType<KotlinCompile> {
-    kotlinOptions.jvmTarget = "1.8"
-    kotlinOptions.apiVersion = "1.5"
-}
-
-tasks.withType<Test>().all {
-    tasks.getByName("check").dependsOn(this)
-    useJUnitPlatform()
-}
-
-junitPlatform {
-    enableStandardTestTask = true
-}
-
-tasks.getByName("junitPlatformTest").outputs.upToDateWhen { false }
-tasks.getByName("test").outputs.upToDateWhen { false }
+setupDeployment()
+setupKotlinCompiler()
+setupTestTask()
