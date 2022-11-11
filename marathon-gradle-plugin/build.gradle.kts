@@ -1,5 +1,3 @@
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-
 plugins {
     `java-gradle-plugin`
     `kotlin-dsl`
@@ -25,7 +23,10 @@ pluginBundle {
     tags = listOf("marathon", "test", "runner", "android")
 }
 
-Deployment.initialize(project)
+setupDeployment()
+setupKotlinCompiler()
+//Tests are blackbox, no way to collect coverage anyway
+setupTestTask(jacoco = false)
 
 dependencies {
     shadow(gradleApi())
@@ -35,11 +36,23 @@ dependencies {
     implementation(project(":configuration"))
     compileOnly(BuildPlugins.androidGradle)
     shadow(Libraries.apacheCommonsCodec)
+    
+    testImplementation(gradleTestKit())
+    testImplementation(TestLibraries.junit5)
+    testImplementation(TestLibraries.assertk)
+    testRuntimeOnly(TestLibraries.jupiterEngine)
+}
+
+tasks.withType<Test> {
+    dependsOn(rootProject.project("configuration").tasks.getByName("publishDefaultPublicationToMavenLocal"))
 }
 
 // needed to prevent inclusion of gradle-api into shadow JAR
 afterEvaluate {
     configurations["api"].dependencies.remove(dependencies.gradleApi())
+    tasks.test.configure {
+        dependsOn(tasks.named("publishPluginMavenPublicationToMavenLocal"))
+    }
 }
 
 tasks.processResources.configure {
@@ -60,9 +73,4 @@ tasks.shadowJar {
         "com.malinskiy.marathon.shadow.com.fasterxml.jackson"
     )
     archiveClassifier.set("")
-}
-
-tasks.withType<KotlinCompile> {
-    kotlinOptions.jvmTarget = "1.8"
-    kotlinOptions.apiVersion = "1.5"
 }

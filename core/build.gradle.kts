@@ -1,12 +1,10 @@
 import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     idea
     `java-library`
     id("org.jetbrains.kotlin.jvm")
     id("org.jetbrains.dokka")
-    id("org.junit.platform.gradle.plugin")
     jacoco
     id("com.github.gmazzo.buildconfig") version "3.1.0"
 }
@@ -72,12 +70,6 @@ dependencies {
     testRuntimeOnly(TestLibraries.jupiterEngine)
 }
 
-tasks.named<JacocoReport>("jacocoTestReport").configure {
-    reports.xml.isEnabled = true
-    reports.html.isEnabled = true
-    dependsOn(tasks.named("test"))
-}
-
 val integrationTest = task<Test>("integrationTest") {
     description = "Runs integration tests."
     group = "verification"
@@ -90,21 +82,6 @@ val integrationTest = task<Test>("integrationTest") {
     shouldRunAfter("test")
 }
 
-tasks.withType<Test>().all {
-    tasks.getByName("check").dependsOn(this)
-    useJUnitPlatform()
-}
-
-junitPlatform {
-    enableStandardTestTask = true
-}
-
-tasks.getByName("junitPlatformTest").outputs.upToDateWhen { false }
-tasks.getByName("test").outputs.upToDateWhen { false }
-
-Deployment.initialize(project)
-
-tasks.withType<KotlinCompile> {
-    kotlinOptions.jvmTarget = "1.8"
-    kotlinOptions.apiVersion = "1.5"
-}
+setupDeployment()
+setupKotlinCompiler()
+setupTestTask()
