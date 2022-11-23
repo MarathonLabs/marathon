@@ -80,7 +80,7 @@ class Marathon(
         val shard = prepareTestShard(tests, analytics)
 
         log.info("Scheduling ${tests.size} tests")
-        log.debug(tests.joinToString(", ") { it.toTestName() })
+        log.info(tests.joinToString(", ") { it.toTestName() })
         val currentCoroutineContext = coroutineContext
         val scheduler = Scheduler(
             deviceProvider,
