@@ -16,8 +16,8 @@ class MetricsProviderFactoryTest {
         val configuration = Configuration.Builder(
             name = "",
             outputDir = File(""),
-            vendorConfiguration = VendorConfiguration.StubVendorConfiguration,
         ).apply {
+            vendorConfiguration = VendorConfiguration.StubVendorConfiguration
             analyticsConfiguration = AnalyticsConfiguration.DisabledAnalytics
             analyticsTracking = false
         }.build()
@@ -38,8 +38,8 @@ class MetricsProviderFactoryTest {
         val configuration = Configuration.Builder(
             name = "",
             outputDir = File(""),
-            vendorConfiguration = VendorConfiguration.StubVendorConfiguration,
         ).apply {
+            vendorConfiguration = VendorConfiguration.StubVendorConfiguration
             this.analyticsConfiguration = analyticsConfiguration
             analyticsTracking = false
         }.build()

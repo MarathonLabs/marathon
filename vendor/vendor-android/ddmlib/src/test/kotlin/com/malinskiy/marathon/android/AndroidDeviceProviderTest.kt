@@ -24,8 +24,11 @@ class AndroidDeviceProviderTest {
         val configuration = Configuration.Builder(
             name = "",
             outputDir = File(""),
-            vendorConfiguration = vendorConfiguration,
-        ).apply { analyticsTracking = false }.build()
+            
+        ).apply {
+            this.vendorConfiguration = vendorConfiguration    
+            analyticsTracking = false 
+        }.build()
         val provider = DdmlibDeviceProvider(
             configuration,
             AndroidTestBundleIdentifier(),

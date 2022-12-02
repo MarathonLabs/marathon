@@ -1,4 +1,4 @@
-package com.malinskiy.marathon.gradle
+package com.malinskiy.marathon.gradle.configuration
 
 class PoolingStrategyConfiguration {
     var operatingSystem: Boolean? = null

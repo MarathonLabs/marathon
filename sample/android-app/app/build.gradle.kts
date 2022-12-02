@@ -4,7 +4,7 @@ import com.malinskiy.marathon.config.vendor.android.TestParserConfiguration
 plugins {
     id("com.android.application")
     id("kotlin-android")
-    id("marathon") version "0.7.3-SNAPSHOT"
+    id("com.malinskiy.marathon") version "0.8.0-SNAPSHOT"
 }
 
 android {
@@ -42,8 +42,8 @@ android {
         }
     }
 }
-
-marathon {
+    
+    marathon {
     allureConfiguration {
         enabled = true
     }
@@ -62,7 +62,7 @@ marathon {
             enabled = true
             relativeResultsDirectory = "files/allure-results"
         }
-    }
+        }
 }
 
 dependencies {

@@ -70,8 +70,10 @@ class AndroidDeviceTestRunnerTest {
         val configuration = Configuration.Builder(
             name = "",
             outputDir = output,
-            vendorConfiguration = vendorConfiguration,
-        ).apply { analyticsTracking = false }.build()
+        ).apply {
+            this.vendorConfiguration = vendorConfiguration    
+            analyticsTracking = false 
+        }.build()
 
         val device = DdmlibAndroidDevice(
             ddmsDevice,
@@ -125,14 +127,16 @@ class AndroidDeviceTestRunnerTest {
         val configuration = Configuration.Builder(
             name = "",
             outputDir = output,
+        ).apply {
             vendorConfiguration = VendorConfiguration.AndroidConfiguration(
                 androidSdk = File(""),
                 applicationOutput = File(""),
                 testApplicationOutput = apkFile,
                 extraApplicationsOutput = emptyList(),
                 splitApks = null,
-            ),
-        ).apply { analyticsTracking = false }.build()
+            )
+            analyticsTracking = false 
+        }.build()
 
         val device =
             DdmlibAndroidDevice(

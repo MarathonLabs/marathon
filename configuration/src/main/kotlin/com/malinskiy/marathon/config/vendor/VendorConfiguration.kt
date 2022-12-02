@@ -33,6 +33,7 @@ const val DEFAULT_WAIT_FOR_DEVICES_TIMEOUT = 30000L
     JsonSubTypes.Type(value = VendorConfiguration.AndroidConfiguration::class, name = "Android"),
     JsonSubTypes.Type(value = VendorConfiguration.IOSConfiguration::class, name = "iOS"),
     JsonSubTypes.Type(value = VendorConfiguration.StubVendorConfiguration::class, name = "stub"),
+    JsonSubTypes.Type(value = VendorConfiguration.EmptyVendorConfiguration::class, name = "empty"),
 )
 sealed class VendorConfiguration {
     data class AndroidConfiguration(
@@ -69,6 +70,60 @@ sealed class VendorConfiguration {
         }
     }
 
+    class AndroidConfigurationBuilder {
+        var vendor: AndroidConfiguration.VendorType = AndroidConfiguration.VendorType.ADAM
+        var androidSdk: File? = null
+        var applicationOutput: File? = null
+        var testApplicationOutput: File? = null
+        var extraApplicationsOutput: List<File>? = null
+        var splitApks: List<File>? = null
+        var outputs: List<AndroidTestBundleConfiguration>? = null
+        var autoGrantPermission: Boolean = DEFAULT_AUTO_GRANT_PERMISSION
+        var instrumentationArgs: Map<String, String> = emptyMap()
+        var applicationPmClear: Boolean = DEFAULT_APPLICATION_PM_CLEAR
+        var testApplicationPmClear: Boolean = DEFAULT_TEST_APPLICATION_PM_CLEAR
+        var adbInitTimeoutMillis: Int = DEFAULT_INIT_TIMEOUT_MILLIS
+        var installOptions: String = DEFAULT_INSTALL_OPTIONS
+        var serialStrategy: SerialStrategy = SerialStrategy.AUTOMATIC
+        var screenRecordConfiguration: ScreenRecordConfiguration = ScreenRecordConfiguration()
+        var waitForDevicesTimeoutMillis: Long = DEFAULT_WAIT_FOR_DEVICES_TIMEOUT
+        var allureConfiguration: AllureConfiguration = AllureConfiguration()
+        var timeoutConfiguration: TimeoutConfiguration = TimeoutConfiguration()
+        var fileSyncConfiguration: FileSyncConfiguration = FileSyncConfiguration()
+        var threadingConfiguration: ThreadingConfiguration = ThreadingConfiguration()
+        var testParserConfiguration: TestParserConfiguration = TestParserConfiguration.LocalTestParserConfiguration
+        var testAccessConfiguration: TestAccessConfiguration = TestAccessConfiguration()
+        var adbServers: List<AdbEndpoint> = listOf(AdbEndpoint())
+        var disableWindowAnimation: Boolean = DEFAULT_DISABLE_WINDOW_ANIMATION
+
+        fun build() = AndroidConfiguration(
+            vendor,
+            androidSdk,
+            applicationOutput,
+            testApplicationOutput,
+            splitApks,
+            extraApplicationsOutput,
+            outputs,
+            autoGrantPermission,
+            instrumentationArgs,
+            applicationPmClear,
+            testApplicationPmClear,
+            adbInitTimeoutMillis,
+            installOptions,
+            serialStrategy,
+            screenRecordConfiguration,
+            waitForDevicesTimeoutMillis,
+            allureConfiguration,
+            timeoutConfiguration,
+            fileSyncConfiguration,
+            threadingConfiguration,
+            testParserConfiguration,
+            testAccessConfiguration,
+            adbServers,
+            disableWindowAnimation
+        )
+    }
+
     data class IOSConfiguration(
         @JsonProperty("derivedDataDir") val derivedDataDir: File,
         @JsonProperty("xctestrunPath") val xctestrunPath: File?,
@@ -91,6 +146,9 @@ sealed class VendorConfiguration {
         fun safecxtestrunPath(): File =
             xctestrunPath ?: throw ConfigurationException("Unable to find an xctestrun file in derived data folder")
     }
+
+    @Suppress("CanSealedSubClassBeObject")
+    class EmptyVendorConfiguration : VendorConfiguration()
 
     //For testing purposes
     object StubVendorConfiguration : VendorConfiguration()

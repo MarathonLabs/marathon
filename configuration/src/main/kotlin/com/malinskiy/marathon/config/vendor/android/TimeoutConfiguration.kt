@@ -2,7 +2,6 @@ package com.malinskiy.marathon.config.vendor.android
 
 import java.time.Duration
 
-
 data class TimeoutConfiguration(
     var shell: Duration = Duration.ofSeconds(20),
     var listFiles: Duration = shell,

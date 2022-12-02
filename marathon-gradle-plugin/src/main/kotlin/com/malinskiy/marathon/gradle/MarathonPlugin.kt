@@ -7,31 +7,41 @@ import com.android.build.api.variant.BuiltArtifactsLoader
 import com.android.build.api.variant.LibraryAndroidComponentsExtension
 import com.android.build.gradle.AppPlugin
 import com.android.build.gradle.LibraryPlugin
+import com.malinskiy.marathon.config.Configuration
+import com.malinskiy.marathon.config.vendor.VendorConfiguration
+import com.malinskiy.marathon.gradle.configuration.toStrategy
+import com.malinskiy.marathon.gradle.service.JsonService
+import com.malinskiy.marathon.gradle.task.GenerateMarathonfileTask
+import com.malinskiy.marathon.gradle.task.MarathonRunTask
+import com.malinskiy.marathon.gradle.task.MarathonUnpackTask
+import org.apache.commons.codec.digest.DigestUtils
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.api.file.Directory
+import org.gradle.api.file.RelativePath
 import org.gradle.api.logging.Logger
 import org.gradle.api.plugins.BasePlugin
 import org.gradle.api.plugins.JavaBasePlugin
 import org.gradle.api.provider.Provider
+import org.gradle.api.tasks.Copy
+import org.gradle.api.tasks.Delete
+import org.gradle.api.tasks.TaskProvider
 import org.gradle.kotlin.dsl.closureOf
-import org.gradle.kotlin.dsl.get
-import org.gradle.kotlin.dsl.getByName
+import java.io.File
 
 class MarathonPlugin : Plugin<Project> {
 
     override fun apply(project: Project) {
         val logger = project.logger
         logger.info("Applying marathon plugin")
-        project.extensions.create("marathon", MarathonExtension::class.java, project)
+        val marathonExtension = project.extensions.create("marathon", MarathonExtension::class.java)
 
         val rootProject = project.rootProject
-        if (rootProject.extensions.findByName("marathon") == null) {
-            applyRoot(rootProject)
-        }
-        val unpackMarathonTask = rootProject.tasks.getByName(MarathonUnpackTask.NAME, MarathonUnpackTask::class)
-        val marathonCleanTask = rootProject.tasks[MarathonCleanTask.NAME]
+        val jsonServiceProvider = rootProject.gradle.sharedServices.registerIfAbsent("marathonJson", JsonService::class.java) {}
+        val wrapper: TaskProvider<MarathonUnpackTask> = rootProject.tasks.findByName(MarathonUnpackTask.NAME)?.let {
+            rootProject.tasks.named(MarathonUnpackTask.NAME, MarathonUnpackTask::class.java)
+        } ?: applyRoot(rootProject)
 
         val appPlugin = project.plugins.findPlugin(AppPlugin::class.java)
         val libraryPlugin = project.plugins.findPlugin(LibraryPlugin::class.java)
@@ -47,7 +57,7 @@ class MarathonPlugin : Plugin<Project> {
 
         val appExtension = project.extensions.findByType(ApplicationAndroidComponentsExtension::class.java)
         val libraryExtension = project.extensions.findByType(LibraryAndroidComponentsExtension::class.java)
-        val conf = project.extensions.getByName("marathon") as? MarathonExtension ?: MarathonExtension(project)
+        val conf = project.extensions.getByName("marathon") as? MarathonExtension ?: throw IllegalStateException("extension not found")
 
         when {
             appExtension != null -> {
@@ -63,22 +73,19 @@ class MarathonPlugin : Plugin<Project> {
                         val testApkFolder: Provider<Directory> = androidTest.artifacts.get(SingleArtifact.APK)
                         val testArtifactsLoader = androidTest.artifacts.getBuiltArtifactsLoader()
 
-                        val bundles = listOf(
-                            GradleAndroidTestBundle(
-                                apkFolder = project.objects.directoryProperty().apply { set(apkFolder) },
-                                artifactLoader = project.objects.property(BuiltArtifactsLoader::class.java)
-                                    .apply { set(artifactsLoader) },
-                                testApkFolder = project.objects.directoryProperty().apply { set(testApkFolder) },
-                                testArtifactLoader = project.objects.property(BuiltArtifactsLoader::class.java)
-                                    .apply { set(testArtifactsLoader) },
-                            )
+                        val bundle = GradleAndroidTestBundle(
+                            apkFolder = project.objects.directoryProperty().apply { set(apkFolder) },
+                            artifactLoader = project.objects.property(BuiltArtifactsLoader::class.java)
+                                .apply { set(artifactsLoader) },
+                            testApkFolder = project.objects.directoryProperty().apply { set(testApkFolder) },
+                            testArtifactLoader = project.objects.property(BuiltArtifactsLoader::class.java)
+                                .apply { set(testArtifactsLoader) },
                         )
 
-                        val testTaskForVariant = createTask(
-                            logger, androidTest, bundles, project, conf, sdkDirectory
+                        val (generateMarathonfileTaskProvider, testTaskForVariantProvider) = createTasks(
+                            logger, androidTest, bundle, project, conf, sdkDirectory, wrapper, jsonServiceProvider
                         )
-                        testTaskForVariant.dependsOn(unpackMarathonTask, apkFolder, testApkFolder)
-                        marathonTask.dependsOn(testTaskForVariant)
+                        marathonTask.dependsOn(testTaskForVariantProvider)
                     }
                 }
             }
@@ -92,63 +99,164 @@ class MarathonPlugin : Plugin<Project> {
 
                         val testApkFolder: Provider<Directory> = androidTest.artifacts.get(SingleArtifact.APK)
                         val testArtifactsLoader = androidTest.artifacts.getBuiltArtifactsLoader()
-                        
-                        val bundles = listOf(
-                            GradleAndroidTestBundle(
-                                testApkFolder = project.objects.directoryProperty().apply { set(testApkFolder) },
-                                testArtifactLoader = project.objects.property(BuiltArtifactsLoader::class.java)
-                                    .apply { set(testArtifactsLoader) },
-                            )
+
+                        val bundle = GradleAndroidTestBundle(
+                            testApkFolder = project.objects.directoryProperty().apply { set(testApkFolder) },
+                            testArtifactLoader = project.objects.property(BuiltArtifactsLoader::class.java)
+                                .apply { set(testArtifactsLoader) },
                         )
 
-                        val testTaskForVariant = createTask(
-                            logger, androidTest, bundles, project, conf, sdkDirectory
+                        val (generateMarathonfileTask, testTaskForVariant) = createTasks(
+                            logger, androidTest, bundle, project, conf, sdkDirectory, wrapper, jsonServiceProvider
                         )
-                        testTaskForVariant.dependsOn(unpackMarathonTask, testApkFolder)
                         marathonTask.dependsOn(testTaskForVariant)
                     }
                 }
             }
-            
+
             else -> throw IllegalStateException("No AndroidComponentsExtensions found. Did you apply marathon plugin after applying the application/library plugin?")
         }
-
-        project.tasks[BasePlugin.CLEAN_TASK_NAME].dependsOn(marathonCleanTask)
     }
 
-    private fun applyRoot(rootProject: Project) {
-        rootProject.extensions.create("marathon", MarathonExtension::class.java, rootProject)
-        rootProject.tasks.create(MarathonUnpackTask.NAME, MarathonUnpackTask::class.java)
-        rootProject.tasks.create(MarathonCleanTask.NAME, MarathonCleanTask::class.java)
+    private fun applyRoot(rootProject: Project): TaskProvider<MarathonUnpackTask> {
+        val distZip = rootProject.objects.fileProperty()
+        distZip.set(rootProject.layout.buildDirectory.dir("marathon").map { it.file("marathon-cli.zip") })
+
+        val distZipTaskProvider = rootProject.tasks.register("marathonWrapperExtract", Copy::class.java) {
+            inputs.property("md5", DigestUtils.md5Hex(MarathonPlugin::class.java.getResourceAsStream(CLI_PATH)))
+            outputs.file(distZip).withPropertyName("distZip")
+            from(rootProject.zipTree(File(MarathonPlugin::class.java.protectionDomain.codeSource.location.toURI()).path))
+            include("marathon-cli.zip")
+            into(rootProject.layout.buildDirectory.dir("marathon"))
+        }
+
+        val wrapperTask = rootProject.tasks.register(MarathonUnpackTask.NAME, MarathonUnpackTask::class.java) {
+            inputs.file(distZipTaskProvider.map { File(it.destinationDir, "marathon-cli.zip") })
+                .withPropertyName("distZip")
+            dist.set(rootProject.layout.buildDirectory.dir("marathon").map { it.dir("cli") })
+
+            from(rootProject.zipTree(distZip)) {
+                eachFile {
+                    relativePath = RelativePath(true, *relativePath.segments.drop(1).toTypedArray())
+                }
+                includeEmptyDirs = false
+            }
+            into(dist)
+        }
+
+        val cleanTaskProvider = rootProject.tasks.register("cleanMarathonWrapper", Delete::class.java) {
+            group = Const.GROUP
+            setDelete(rootProject.layout.buildDirectory.dir("marathon"))
+        }
+        rootProject.plugins.withType(BasePlugin::class.java) {
+            rootProject.tasks.named(BasePlugin.CLEAN_TASK_NAME).configure {
+                dependsOn(cleanTaskProvider)
+            }
+        }
+        return wrapperTask
     }
 
     companion object {
-        private fun createTask(
+        private fun createTasks(
             logger: Logger,
             variant: AndroidTest,
-            bundles: List<GradleAndroidTestBundle>,
+            bundle: GradleAndroidTestBundle,
             project: Project,
             config: MarathonExtension,
             sdkDirectory: Provider<Directory>,
-        ): MarathonRunTask {
-            val marathonTask = project.tasks.create("$TASK_PREFIX${variant.name.capitalize()}", MarathonRunTask::class.java)
-            marathonTask.configure(closureOf<MarathonRunTask> {
+            wrapper: TaskProvider<MarathonUnpackTask>,
+            jsonServiceProvider: Provider<JsonService>,
+        ): Pair<TaskProvider<GenerateMarathonfileTask>, TaskProvider<MarathonRunTask>> {
+            val baseOutputDir = config.baseOutputDir?.let { File(it) } ?: File(project.buildDir, "reports/marathon")
+            val output = File(baseOutputDir, variant.name)
+
+            val configurationBuilder = Configuration.Builder(config.name, output).apply {
+                config.analyticsConfiguration?.toAnalyticsConfiguration()?.let { analyticsConfiguration = it }
+                config.poolingStrategy?.toStrategy()?.let { poolingStrategy = it }
+                config.shardingStrategy?.toStrategy()?.let { shardingStrategy = it }
+                config.sortingStrategy?.toStrategy()?.let { sortingStrategy = it }
+                config.batchingStrategy?.toStrategy()?.let { batchingStrategy = it }
+                config.flakinessStrategy?.toStrategy()?.let { flakinessStrategy = it }
+                config.retryStrategy?.toStrategy()?.let { retryStrategy = it }
+                config.filteringConfiguration?.toFilteringConfiguration()?.let { filteringConfiguration = it }
+                config.ignoreFailures?.let { ignoreFailures = it }
+                config.isCodeCoverageEnabled?.let { isCodeCoverageEnabled = it }
+                config.fallbackToScreenshots?.let { fallbackToScreenshots = it }
+                config.strictMode?.let { strictMode = it }
+                config.uncompletedTestRetryQuota?.let { uncompletedTestRetryQuota = it }
+                config.testClassRegexes?.map { it.toRegex() }?.let { testClassRegexes = it }
+                config.includeSerialRegexes?.map { it.toRegex() }?.let { includeSerialRegexes = it }
+                config.excludeSerialRegexes?.map { it.toRegex() }?.let { excludeSerialRegexes = it }
+                config.testBatchTimeoutMillis?.let { testBatchTimeoutMillis = it }
+                config.testOutputTimeoutMillis?.let { testOutputTimeoutMillis = it }
+                config.debug?.let { debug = it }
+                config.screenRecordingPolicy?.let { screenRecordingPolicy = it }
+                config.analyticsTracking?.let { analyticsTracking = it }
+                config.deviceInitializationTimeoutMillis?.let {
+                    deviceInitializationTimeoutMillis = deviceInitializationTimeoutMillis
+                }
+                config.outputConfiguration?.toStrategy()?.let { outputConfiguration = it }
+            }
+            val vendorConfigurationBuilder = VendorConfiguration.AndroidConfigurationBuilder().apply {
+                config.vendor?.let { vendor = it }
+                config.autoGrantPermission?.let { autoGrantPermission = it }
+                instrumentationArgs = config.instrumentationArgs
+                config.applicationPmClear?.let { applicationPmClear = it }
+                config.testApplicationPmClear?.let { testApplicationPmClear = it }
+                config.adbInitTimeout?.let { adbInitTimeoutMillis = it }
+                config.installOptions?.let { installOptions = it }
+                config.screenRecordConfiguration?.let { screenRecordConfiguration = it }
+                config.serialStrategy?.let { serialStrategy = it }
+                config.waitForDevicesTimeoutMillis?.let { waitForDevicesTimeoutMillis = it }
+                config.allureConfiguration?.let { allureConfiguration = it }
+                config.fileSyncConfiguration?.let { fileSyncConfiguration = it }
+                config.testParserConfiguration?.let { testParserConfiguration = it }
+                config.testAccessConfiguration?.let { testAccessConfiguration = it }
+                config.timeoutConfiguration?.let { timeoutConfiguration = it }
+                config.adbServers?.let { adbServers = it }
+                config.disableWindowAnimation?.let { disableWindowAnimation = it }
+            }
+
+            val jsonService = jsonServiceProvider.get()
+            val configurationJson = jsonService.serialize(configurationBuilder)
+            val vendorConfigurationJson = jsonService.serialize(vendorConfigurationBuilder)
+
+            val generateMarathonfileTask =
+                project.tasks.register(
+                    "$TASK_PREFIX${variant.name.capitalize()}GenerateMarathonfile",
+                    GenerateMarathonfileTask::class.java
+                ) {
+                    group = Const.GROUP
+                    description = "Generates Marathonfile for '${variant.name}' variation"
+                    flavorName.set(variant.name)
+                    applicationBundle.set(listOf(bundle))
+                    this.configurationBuilder.set(configurationJson)
+                    this.vendorConfigurationBuilder.set(vendorConfigurationJson)
+                    this.jsonService.set(jsonServiceProvider)
+                    sdk.set(sdkDirectory)
+                    marathonfile.set(project.layout.buildDirectory.dir("marathon").map { it.dir(variant.name) }
+                                         .map { it.file("Marathonfile") })
+                }
+
+            val marathonTask = project.tasks.register("$TASK_PREFIX${variant.name.capitalize()}", MarathonRunTask::class.java) {
                 group = JavaBasePlugin.VERIFICATION_GROUP
                 description = "Runs instrumentation tests on all the connected devices for '${variant.name}' " +
                     "variation and generates a report with screenshots"
-                flavorName.set(variant.name)
-                applicationBundles.set(bundles)
-                marathonExtension.set(config)
-                sdk.set(sdkDirectory)
                 outputs.upToDateWhen { false }
-            })
+                dist.set(wrapper.flatMap { it.dist })
+                marathonfile.set(generateMarathonfileTask.flatMap { it.marathonfile })
+            }
 
-            return marathonTask
+
+            return Pair(generateMarathonfileTask, marathonTask)
         }
+
 
         /**
          * Task name prefix.
          */
         private const val TASK_PREFIX = "marathon"
+        private const val CLI_PATH = "/marathon-cli.zip"
+
     }
 }

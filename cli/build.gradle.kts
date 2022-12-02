@@ -1,11 +1,9 @@
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-
 plugins {
     application
     id("idea")
+    jacoco
     id("org.jetbrains.kotlin.jvm")
     id("org.jetbrains.dokka")
-    id("org.junit.platform.gradle.plugin")
     id("com.github.gmazzo.buildconfig") version "3.1.0"
 }
 
@@ -34,11 +32,6 @@ distributions {
     }
 }
 
-tasks.withType<KotlinCompile> {
-    kotlinOptions.jvmTarget = "1.8"
-    kotlinOptions.apiVersion = "1.5"
-}
-
 dependencies {
     implementation(project(":core"))
     implementation(project(":vendor:vendor-ios"))
@@ -55,7 +48,9 @@ dependencies {
     testRuntimeOnly(TestLibraries.jupiterEngine)
 }
 
-Deployment.initialize(project)
+setupDeployment()
+setupKotlinCompiler()
+setupTestTask()
 
 buildConfig {
     buildConfigField("String", "NAME", "\"${project.name}\"")
@@ -74,18 +69,6 @@ idea {
         generatedSourceDirs = generatedSourceDirs + file("${project.buildDir}/gen/buildconfig/src/main")
     }
 }
-
-tasks.withType<Test>().all {
-    tasks.getByName("check").dependsOn(this)
-    useJUnitPlatform()
-}
-
-junitPlatform {
-    enableStandardTestTask = true
-}
-
-tasks.getByName("junitPlatformTest").outputs.upToDateWhen { false }
-tasks.getByName("test").outputs.upToDateWhen { false }
 
 /**
  * Classpath is too long for commandline

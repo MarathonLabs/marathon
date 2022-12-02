@@ -24,8 +24,8 @@ class ExecutionReportTest {
     val configuration = Configuration.Builder(
         name = "",
         outputDir = File("src/test/resources/output/"),
-        vendorConfiguration = VendorConfiguration.StubVendorConfiguration,
     ).apply {
+        vendorConfiguration = VendorConfiguration.StubVendorConfiguration
         analyticsConfiguration = AnalyticsConfiguration.DisabledAnalytics
         analyticsTracking = false
     }.build()
