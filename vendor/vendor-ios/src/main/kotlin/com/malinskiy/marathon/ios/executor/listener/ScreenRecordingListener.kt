@@ -1,4 +1,4 @@
-package com.malinskiy.marathon.ios.logparser.listener
+package com.malinskiy.marathon.ios.executor.listener
 
 import com.malinskiy.marathon.device.DevicePoolId
 import com.malinskiy.marathon.io.FileManager

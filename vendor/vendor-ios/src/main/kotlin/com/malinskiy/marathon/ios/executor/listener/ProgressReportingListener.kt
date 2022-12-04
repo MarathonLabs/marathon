@@ -1,4 +1,4 @@
-package com.malinskiy.marathon.ios.logparser.listener
+package com.malinskiy.marathon.ios.executor.listener
 
 import com.malinskiy.marathon.device.Device
 import com.malinskiy.marathon.device.DevicePoolId
@@ -7,6 +7,7 @@ import com.malinskiy.marathon.execution.TestBatchResults
 import com.malinskiy.marathon.execution.TestResult
 import com.malinskiy.marathon.execution.TestStatus
 import com.malinskiy.marathon.execution.progress.ProgressReporter
+import com.malinskiy.marathon.ios.logparser.listener.TestLogListener
 import com.malinskiy.marathon.test.Test
 import com.malinskiy.marathon.test.TestBatch
 import com.malinskiy.marathon.test.toSafeTestName

@@ -43,7 +43,6 @@ class VendorConfigurationDeserializer(
                 val optionalDevices = iosConfiguration.devicesFile?.resolveAgainst(marathonfileDir)
                     ?: marathonfileDir.resolve("Marathondevices")
                 val optionalKnownHostsPath = iosConfiguration.knownHostsPath?.resolveAgainst(marathonfileDir)
-                val optionalResultBundlePath = iosConfiguration.xcResultBundlePath.resolveAgainst(marathonfileDir)
 
                 iosConfiguration.copy(
                     derivedDataDir = resolvedDerivedDataDir,
@@ -51,7 +50,6 @@ class VendorConfigurationDeserializer(
                     sourceRoot = optionalSourceRoot,
                     devicesFile = optionalDevices,
                     knownHostsPath = optionalKnownHostsPath,
-                    xcResultBundlePath = optionalResultBundlePath,
                 )
             }
             TYPE_ANDROID -> {

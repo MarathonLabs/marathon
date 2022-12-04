@@ -1,7 +1,7 @@
 package com.malinskiy.marathon.ios.logparser
 
 import com.malinskiy.marathon.ios.logparser.formatter.PackageNameFormatter
-import com.malinskiy.marathon.ios.logparser.listener.TestRunListener
+import com.malinskiy.marathon.ios.executor.listener.TestRunListener
 import com.malinskiy.marathon.ios.logparser.parser.TestRunProgressParser
 import com.malinskiy.marathon.time.Timer
 import com.nhaarman.mockitokotlin2.any

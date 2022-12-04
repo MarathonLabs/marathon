@@ -3,6 +3,7 @@ package com.malinskiy.marathon.ios
 import com.malinskiy.marathon.ios.cmd.remote.CommandResult
 import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.test.Test
+import com.malinskiy.marathon.test.TestBatch
 import java.io.File
 import java.util.Locale
 import java.util.UUID
@@ -32,11 +33,15 @@ object RemoteFileManager {
     }
 
     fun remoteXctestrunFile(device: IOSDevice): File = remoteFile(device, File(xctestrunFileName(device)))
-    fun remoteXcresultFile(device: IOSDevice): File = remoteFile(device, File(xcresultFileName(device)))
 
+    /**
+     * Omitting xcresult extension results in a symlink 
+     */
+    fun remoteXcresultFile(device: IOSDevice, batch: TestBatch): File = remoteFile(device, File(xcresultFileName(device, batch)))
+    
     private fun xctestrunFileName(device: IOSDevice): String = "${device.udid}.xctestrun"
-    private fun xcresultFileName(device: IOSDevice): String =
-        "${device.udid}.${UUID.randomUUID().toString().uppercase(Locale.ENGLISH)}.xcresult"
+    private fun xcresultFileName(device: IOSDevice, batch: TestBatch): String =
+        "${device.udid}.${batch.id}.xcresult"
 
     private fun remoteFile(device: IOSDevice, file: File): File = remoteDirectory(device = device).resolve(file)
 

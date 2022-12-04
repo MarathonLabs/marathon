@@ -1,5 +1,6 @@
 package com.malinskiy.marathon.ios.logparser.listener
 
+import com.malinskiy.marathon.ios.executor.listener.TestRunListener
 import com.malinskiy.marathon.ios.logparser.StreamingLogParser
 import com.malinskiy.marathon.test.Test
 

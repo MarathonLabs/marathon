@@ -8,7 +8,6 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLGenerator
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.KotlinFeature
 import com.fasterxml.jackson.module.kotlin.KotlinModule
-import com.fasterxml.jackson.module.kotlin.SingletonSupport
 import com.malinskiy.marathon.config.Configuration
 import com.malinskiy.marathon.config.environment.EnvironmentReader
 import com.malinskiy.marathon.config.environment.SystemEnvironmentReader
@@ -75,7 +74,6 @@ class ConfigurationFactory(
                     val optionalDevices = configuration.vendorConfiguration.devicesFile?.resolveAgainst(marathonfileDir)
                         ?: marathonfileDir.resolve("Marathondevices")
                     val optionalKnownHostsPath = configuration.vendorConfiguration.knownHostsPath?.resolveAgainst(marathonfileDir)
-                    val optionalResultBundlePath = configuration.vendorConfiguration.xcResultBundlePath.resolveAgainst(marathonfileDir)
 
                     configuration.vendorConfiguration.copy(
                         derivedDataDir = resolvedDerivedDataDir,
@@ -83,7 +81,6 @@ class ConfigurationFactory(
                         sourceRoot = optionalSourceRoot,
                         devicesFile = optionalDevices,
                         knownHostsPath = optionalKnownHostsPath,
-                        xcResultBundlePath = optionalResultBundlePath
                     )
                 }
 

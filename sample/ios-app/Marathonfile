@@ -18,4 +18,3 @@ vendorConfiguration:
   knownHostsPath: ${HOME}/.ssh/known_hosts
   remoteUsername: ${USER}
   remotePrivateKey: ${HOME}/.ssh/marathon
-  xcResultBundlePath: "derived-data/test/result"

@@ -20,6 +20,9 @@ import com.malinskiy.marathon.ios.cmd.remote.exec
 import com.malinskiy.marathon.ios.cmd.remote.execOrNull
 import com.malinskiy.marathon.ios.device.RemoteSimulator
 import com.malinskiy.marathon.ios.device.RemoteSimulatorFeatureProvider
+import com.malinskiy.marathon.ios.executor.listener.CompositeTestRunListener
+import com.malinskiy.marathon.ios.executor.listener.IOSTestRunListener
+import com.malinskiy.marathon.ios.executor.listener.ResultBundleRunListener
 import com.malinskiy.marathon.ios.logparser.IOSDeviceLogParser
 import com.malinskiy.marathon.ios.logparser.formatter.TestLogPackageNameFormatter
 import com.malinskiy.marathon.ios.logparser.parser.DeviceFailureException
@@ -44,9 +47,6 @@ import java.net.InetAddress
 import java.net.UnknownHostException
 import java.util.concurrent.TimeoutException
 import kotlin.coroutines.CoroutineContext
-import java.text.SimpleDateFormat
-import java.sql.Timestamp
-import java.util.*
 
 class IOSDevice(
     val simulator: RemoteSimulator,
@@ -157,7 +157,7 @@ class IOSDevice(
             )
         }
 
-        val remoteXcresultPath = RemoteFileManager.remoteXcresultFile(this@IOSDevice)
+        val remoteXcresultPath = RemoteFileManager.remoteXcresultFile(this@IOSDevice, testBatch)
         val remoteXctestrunFile = RemoteFileManager.remoteXctestrunFile(this@IOSDevice)
         val remoteDir = remoteXctestrunFile.parent
 
@@ -178,10 +178,8 @@ class IOSDevice(
             iosConfiguration.hideRunnerOutput,
             timer
         )
-
-        // Adding timestamp to support multiple XCResult bundle creation
-        val timestamp = getTimeStamp()
-        val resultBundlePath: String = "${iosConfiguration.xcResultBundlePath}_"  + timestamp
+        
+        val executionListeners = createExecutionListeners(devicePoolId, testBatch, fileManager, derivedDataManager)
 
         val command =
             listOf(
@@ -190,7 +188,7 @@ class IOSDevice(
                 "xcodebuild test-without-building",
                 "-xctestrun ${remoteXctestrunFile.path}",
                 testBatch.toXcodebuildArguments(),
-                "-resultBundlePath $resultBundlePath",
+                "-resultBundlePath ${remoteXcresultPath.path}",
                 "-destination 'platform=iOS simulator,id=$udid' ;",
                 "exit"
             )
@@ -228,6 +226,7 @@ class IOSDevice(
             disconnectAndThrow(e)
         } finally {
             logParser.close()
+            executionListeners.afterTestRun()
 
             if (!healthy) {
                 logger.debug("Last log before device termination")
@@ -252,7 +251,7 @@ class IOSDevice(
         throw DeviceLostException(cause)
     }
 
-    private var derivedDataManager: DerivedDataManager? = null
+    private lateinit var derivedDataManager: DerivedDataManager
     override suspend fun prepare(configuration: Configuration) = withContext(coroutineContext + CoroutineName("prepare")) {
         val iosConfiguration = configuration.vendorConfiguration as VendorConfiguration.IOSConfiguration
 
@@ -364,6 +363,17 @@ class IOSDevice(
         return derivedDataManager.xctestrunFile.resolveSibling(remoteXctestrunFile.name)
             .also { it.writeBytes(xctestrun.toXMLByteArray()) }
     }
+
+    private fun createExecutionListeners(
+        devicePoolId: DevicePoolId,
+        testBatch: TestBatch,
+        fileManager: FileManager,
+        derivedDataManager: DerivedDataManager
+    ): IOSTestRunListener {
+        return CompositeTestRunListener(listOf(
+            ResultBundleRunListener(device = this, poolId = devicePoolId, testBatch, fileManager, derivedDataManager)
+        ))
+    }
 }
 
 private const val REACHABILITY_TIMEOUT_MILLIS = 5000
@@ -390,11 +400,3 @@ private fun String.toInetAddressOrNull(): InetAddress? {
 
 private fun TestBatch.toXcodebuildArguments(): String =
     tests.joinToString(separator = " ") { "-only-testing:\"${it.pkg}/${it.clazz}/${it.method}\"" }
-
-private fun getTimeStamp(): String {
-    val stamp = Timestamp(System.currentTimeMillis())
-    val date = Date(stamp.time)
-    val sdf = SimpleDateFormat("yyyy-MM-dd-HH-mm-ss", Locale.getDefault())
-    sdf.timeZone = TimeZone.getDefault()
-    return sdf.format(date)
-}
