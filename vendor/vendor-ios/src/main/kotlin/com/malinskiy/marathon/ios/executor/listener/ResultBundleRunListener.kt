@@ -31,6 +31,8 @@ class ResultBundleRunListener(
         )
         if (exitCode != 0) {
             logger.warn { "failed to pull remote bundle" }
+        } else {
+            RemoteFileManager.removeRemotePath(device, remotePath.path)
         }
     }
 }

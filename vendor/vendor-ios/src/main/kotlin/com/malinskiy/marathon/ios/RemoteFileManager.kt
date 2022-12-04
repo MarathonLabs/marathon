@@ -31,6 +31,14 @@ object RemoteFileManager {
             "Unable to remove directory ${remoteDirectory(device)}"
         )
     }
+    
+    fun removeRemotePath(device: IOSDevice, path: String) {
+        executeCommand(
+            device,
+            "rm -rf $path",
+            "Unable to remove path $path"
+        )
+    }
 
     fun remoteXctestrunFile(device: IOSDevice): File = remoteFile(device, File(xctestrunFileName(device)))
 
