@@ -14,6 +14,7 @@ import com.malinskiy.marathon.config.vendor.android.TestAccessConfiguration
 import com.malinskiy.marathon.config.vendor.android.TestParserConfiguration
 import com.malinskiy.marathon.config.vendor.android.ThreadingConfiguration
 import com.malinskiy.marathon.config.vendor.android.TimeoutConfiguration
+import com.malinskiy.marathon.config.vendor.ios.XcresultConfiguration
 import java.io.File
 
 const val DEFAULT_INIT_TIMEOUT_MILLIS = 30_000
@@ -138,6 +139,7 @@ sealed class VendorConfiguration {
         @JsonProperty("compactOutput") val compactOutput: Boolean = false,
         @JsonProperty("keepAliveIntervalMillis") val keepAliveIntervalMillis: Long = 0L,
         @JsonProperty("devices") val devicesFile: File? = null,
+        @JsonProperty("xcresult") val xcresult: XcresultConfiguration = XcresultConfiguration()
     ) : VendorConfiguration() {
         /**
          * Exception should not happen since it will be first thrown in deserializer

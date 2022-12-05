@@ -18,3 +18,6 @@ vendorConfiguration:
   knownHostsPath: ${HOME}/.ssh/known_hosts
   remoteUsername: ${USER}
   remotePrivateKey: ${HOME}/.ssh/marathon
+  xcresult:
+    pull: true
+    remoteClean: true

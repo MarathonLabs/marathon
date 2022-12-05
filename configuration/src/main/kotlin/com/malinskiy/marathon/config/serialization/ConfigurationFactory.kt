@@ -8,7 +8,6 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLGenerator
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.KotlinFeature
 import com.fasterxml.jackson.module.kotlin.KotlinModule
-import com.fasterxml.jackson.module.kotlin.SingletonSupport
 import com.malinskiy.marathon.config.Configuration
 import com.malinskiy.marathon.config.environment.EnvironmentReader
 import com.malinskiy.marathon.config.environment.SystemEnvironmentReader

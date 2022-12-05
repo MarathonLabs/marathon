@@ -2,7 +2,7 @@ package com.malinskiy.marathon.ios.logparser.parser
 
 import com.malinskiy.marathon.ios.logparser.StreamingLogParser
 import com.malinskiy.marathon.ios.logparser.formatter.PackageNameFormatter
-import com.malinskiy.marathon.ios.logparser.listener.TestRunListener
+import com.malinskiy.marathon.ios.executor.listener.TestRunListener
 import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.test.Test
 import com.malinskiy.marathon.time.Timer

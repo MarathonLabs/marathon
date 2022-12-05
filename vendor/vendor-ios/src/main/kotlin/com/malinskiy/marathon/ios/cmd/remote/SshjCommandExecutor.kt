@@ -245,14 +245,16 @@ class SshjCommandExecutor(
         maxExecutionDurationMillis: Long,
         testOutputTimeoutMillis: Long,
         onLine: (String) -> Unit
-    ): Int? =
-        exec(
+    ): Int? {
+        logger.debug { command }
+        return exec(
             coroutineContext,
             command,
             maxExecutionDurationMillis,
             testOutputTimeoutMillis,
             onLine
         )
+    }
 
     override fun execBlocking(
         command: String,

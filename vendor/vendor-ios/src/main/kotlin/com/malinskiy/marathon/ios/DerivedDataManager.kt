@@ -89,6 +89,7 @@ class DerivedDataManager(val configuration: Configuration) {
 
         val sshString = getSshString(port)
         val rsync = getRsyncBase()
+            .links(true)
             .rsh(sshString)
             .source(source)
             .destination(destination)

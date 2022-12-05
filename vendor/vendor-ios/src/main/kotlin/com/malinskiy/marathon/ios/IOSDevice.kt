@@ -20,6 +20,9 @@ import com.malinskiy.marathon.ios.cmd.remote.exec
 import com.malinskiy.marathon.ios.cmd.remote.execOrNull
 import com.malinskiy.marathon.ios.device.RemoteSimulator
 import com.malinskiy.marathon.ios.device.RemoteSimulatorFeatureProvider
+import com.malinskiy.marathon.ios.executor.listener.CompositeTestRunListener
+import com.malinskiy.marathon.ios.executor.listener.IOSTestRunListener
+import com.malinskiy.marathon.ios.executor.listener.ResultBundleRunListener
 import com.malinskiy.marathon.ios.logparser.IOSDeviceLogParser
 import com.malinskiy.marathon.ios.logparser.formatter.TestLogPackageNameFormatter
 import com.malinskiy.marathon.ios.logparser.parser.DeviceFailureException
@@ -48,7 +51,7 @@ import kotlin.coroutines.CoroutineContext
 class IOSDevice(
     val simulator: RemoteSimulator,
     connectionAttempt: Int,
-    configuration: VendorConfiguration.IOSConfiguration,
+    private val configuration: VendorConfiguration.IOSConfiguration,
     val gson: Gson,
     private val track: Track,
     private val healthChangeListener: HealthChangeListener,
@@ -154,7 +157,7 @@ class IOSDevice(
             )
         }
 
-        val remoteXcresultPath = RemoteFileManager.remoteXcresultFile(this@IOSDevice)
+        val remoteXcresultPath = RemoteFileManager.remoteXcresultFile(this@IOSDevice, testBatch)
         val remoteXctestrunFile = RemoteFileManager.remoteXctestrunFile(this@IOSDevice)
         val remoteDir = remoteXctestrunFile.parent
 
@@ -176,6 +179,8 @@ class IOSDevice(
             timer
         )
 
+        val executionListeners = createExecutionListeners(devicePoolId, testBatch, fileManager, derivedDataManager)
+
         val command =
             listOf(
                 "cd '$remoteDir';",
@@ -183,6 +188,7 @@ class IOSDevice(
                 "xcodebuild test-without-building",
                 "-xctestrun ${remoteXctestrunFile.path}",
                 testBatch.toXcodebuildArguments(),
+                "-resultBundlePath ${remoteXcresultPath.path}",
                 "-destination 'platform=iOS simulator,id=$udid' ;",
                 "exit"
             )
@@ -220,6 +226,7 @@ class IOSDevice(
             disconnectAndThrow(e)
         } finally {
             logParser.close()
+            executionListeners.afterTestRun()
 
             if (!healthy) {
                 logger.debug("Last log before device termination")
@@ -244,7 +251,7 @@ class IOSDevice(
         throw DeviceLostException(cause)
     }
 
-    private var derivedDataManager: DerivedDataManager? = null
+    private lateinit var derivedDataManager: DerivedDataManager
     override suspend fun prepare(configuration: Configuration) = withContext(coroutineContext + CoroutineName("prepare")) {
         val iosConfiguration = configuration.vendorConfiguration as VendorConfiguration.IOSConfiguration
 
@@ -315,7 +322,7 @@ class IOSDevice(
         val result =
             hostCommandExecutor.execOrNull(
                 "/usr/libexec/PlistBuddy -c 'Add :DevicePreferences:$udid:ConnectHardwareKeyboard bool false' /Users/master/Library/Preferences/com.apple.iphonesimulator.plist" +
-                        "|| /usr/libexec/PlistBuddy -c 'Set :DevicePreferences:$udid:ConnectHardwareKeyboard false' /Users/master/Library/Preferences/com.apple.iphonesimulator.plist"
+                    "|| /usr/libexec/PlistBuddy -c 'Set :DevicePreferences:$udid:ConnectHardwareKeyboard false' /Users/master/Library/Preferences/com.apple.iphonesimulator.plist"
             )
         if (result?.exitStatus == 0) {
             logger.trace("Disabled hardware keyboard")
@@ -355,6 +362,19 @@ class IOSDevice(
 
         return derivedDataManager.xctestrunFile.resolveSibling(remoteXctestrunFile.name)
             .also { it.writeBytes(xctestrun.toXMLByteArray()) }
+    }
+
+    private fun createExecutionListeners(
+        devicePoolId: DevicePoolId,
+        testBatch: TestBatch,
+        fileManager: FileManager,
+        derivedDataManager: DerivedDataManager
+    ): IOSTestRunListener {
+        return CompositeTestRunListener(
+            listOf(
+                ResultBundleRunListener(this, configuration.xcresult, devicePoolId, testBatch, fileManager, derivedDataManager)
+            )
+        )
     }
 }
 
