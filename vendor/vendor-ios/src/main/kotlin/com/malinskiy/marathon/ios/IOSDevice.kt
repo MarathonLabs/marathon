@@ -51,7 +51,7 @@ import kotlin.coroutines.CoroutineContext
 class IOSDevice(
     val simulator: RemoteSimulator,
     connectionAttempt: Int,
-    configuration: VendorConfiguration.IOSConfiguration,
+    private val configuration: VendorConfiguration.IOSConfiguration,
     val gson: Gson,
     private val track: Track,
     private val healthChangeListener: HealthChangeListener,
@@ -178,7 +178,7 @@ class IOSDevice(
             iosConfiguration.hideRunnerOutput,
             timer
         )
-        
+
         val executionListeners = createExecutionListeners(devicePoolId, testBatch, fileManager, derivedDataManager)
 
         val command =
@@ -322,7 +322,7 @@ class IOSDevice(
         val result =
             hostCommandExecutor.execOrNull(
                 "/usr/libexec/PlistBuddy -c 'Add :DevicePreferences:$udid:ConnectHardwareKeyboard bool false' /Users/master/Library/Preferences/com.apple.iphonesimulator.plist" +
-                        "|| /usr/libexec/PlistBuddy -c 'Set :DevicePreferences:$udid:ConnectHardwareKeyboard false' /Users/master/Library/Preferences/com.apple.iphonesimulator.plist"
+                    "|| /usr/libexec/PlistBuddy -c 'Set :DevicePreferences:$udid:ConnectHardwareKeyboard false' /Users/master/Library/Preferences/com.apple.iphonesimulator.plist"
             )
         if (result?.exitStatus == 0) {
             logger.trace("Disabled hardware keyboard")
@@ -370,9 +370,11 @@ class IOSDevice(
         fileManager: FileManager,
         derivedDataManager: DerivedDataManager
     ): IOSTestRunListener {
-        return CompositeTestRunListener(listOf(
-            ResultBundleRunListener(device = this, poolId = devicePoolId, testBatch, fileManager, derivedDataManager)
-        ))
+        return CompositeTestRunListener(
+            listOf(
+                ResultBundleRunListener(this, configuration.xcresult, devicePoolId, testBatch, fileManager, derivedDataManager)
+            )
+        )
     }
 }
 
