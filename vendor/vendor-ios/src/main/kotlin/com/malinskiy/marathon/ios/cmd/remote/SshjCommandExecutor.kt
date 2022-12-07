@@ -1,6 +1,8 @@
 package com.malinskiy.marathon.ios.cmd.remote
 
 import ch.qos.logback.classic.Level
+import com.malinskiy.marathon.ios.cmd.CommandExecutor
+import com.malinskiy.marathon.ios.cmd.CommandResult
 import com.malinskiy.marathon.ios.logparser.parser.DeviceFailureException
 import com.malinskiy.marathon.ios.logparser.parser.DeviceFailureReason
 import com.malinskiy.marathon.log.MarathonLogging
@@ -46,6 +48,8 @@ class SshjCommandExecutor(
     keepAliveIntervalMillis: Long = 0L,
     verbose: Boolean = false
 ) : CommandExecutor, CoroutineScope {
+
+    override val workerId: String = hostAddress.hostAddress
 
     private val dispatcher = newSingleThreadContext("$connectionId-ssh")
     override val coroutineContext: CoroutineContext

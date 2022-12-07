@@ -1,12 +1,10 @@
 package com.malinskiy.marathon.ios
 
-import com.malinskiy.marathon.ios.cmd.remote.CommandResult
+import com.malinskiy.marathon.ios.cmd.CommandResult
 import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.test.Test
 import com.malinskiy.marathon.test.TestBatch
 import java.io.File
-import java.util.Locale
-import java.util.UUID
 
 object RemoteFileManager {
 
@@ -61,7 +59,7 @@ object RemoteFileManager {
             logger.error(errorMessage, e)
         }
 
-        if (output == null || output.exitStatus != 0) {
+        if (output == null || output.exitCode != 0) {
             logger.error(errorMessage)
         }
 

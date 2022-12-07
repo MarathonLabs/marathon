@@ -2,7 +2,7 @@ package com.malinskiy.marathon.ios
 
 import com.google.gson.GsonBuilder
 import com.malinskiy.marathon.config.vendor.VendorConfiguration
-import com.malinskiy.marathon.ios.cmd.remote.CommandResult
+import com.malinskiy.marathon.ios.cmd.CommandResult
 import com.malinskiy.marathon.ios.cmd.remote.CommandSession
 import com.malinskiy.marathon.ios.device.RemoteSimulator
 import com.malinskiy.marathon.ios.simctl.model.SimctlDeviceList
@@ -12,7 +12,7 @@ import com.nhaarman.mockitokotlin2.mock
 class Mocks {
     class CommandExecutor {
         companion object {
-            val DEFAULT = object : com.malinskiy.marathon.ios.cmd.remote.CommandExecutor {
+            val DEFAULT = object : com.malinskiy.marathon.ios.cmd.CommandExecutor {
                 val mock = mock<CommandSession>()
                 override fun startSession(command: String): CommandSession = mock
 

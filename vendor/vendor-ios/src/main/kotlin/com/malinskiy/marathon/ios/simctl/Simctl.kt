@@ -4,6 +4,8 @@ import com.dd.plist.PropertyListParser
 import com.google.gson.Gson
 import com.google.gson.JsonSyntaxException
 import com.malinskiy.marathon.ios.IOSDevice
+import com.malinskiy.marathon.ios.cmd.CommandExecutor
+import com.malinskiy.marathon.ios.cmd.CommandResult
 import com.malinskiy.marathon.ios.logparser.parser.DeviceFailureException
 import com.malinskiy.marathon.ios.logparser.parser.DeviceFailureReason
 import com.malinskiy.marathon.ios.simctl.model.SimctlDevice
@@ -11,49 +13,49 @@ import com.malinskiy.marathon.ios.simctl.model.SimctlDeviceType
 import com.malinskiy.marathon.ios.simctl.model.SimctlListDevicesOutput
 import java.io.File
 
-class Simctl {
-    fun list(device: IOSDevice, gson: Gson): List<SimctlDevice> {
-        val output = exec("list --json", device)
+class Simctl(private val commandExecutor: CommandExecutor, private val gson: Gson) {
+    fun list(): List<SimctlDevice> {
+        val output = exec("list --json").stdout
         return try {
             gson.fromJson(output, SimctlListDevicesOutput::class.java).devices.devices
         } catch (e: JsonSyntaxException) {
             throw DeviceFailureException(
                 DeviceFailureReason.ServicesUnavailable,
-                "Error parsing simctl output on device ${device.udid}: $output"
+                "Error parsing simctl output on ${commandExecutor.workerId}: $output"
             )
         }
     }
 
     fun deviceType(device: IOSDevice): String? {
-        return exec("getenv ${device.udid} SIMULATOR_VERSION_INFO", device)
+        return exec("getenv ${device.udid} SIMULATOR_VERSION_INFO").stdout
             .split(" - ")
             .associate { it.substringBefore(": ") to it.substringAfter(": ").trim() }
             .get("DeviceType")
     }
 
-    fun isRunning(device: IOSDevice): Boolean {
-        val output = exec("spawn ${device.udid} launchctl print system | grep com.apple.springboard.services", device)
+    fun isRunning(udid: String): Boolean {
+        val output = exec("spawn $udid launchctl print system | grep com.apple.springboard.services").stdout
         return output.contains("M   A   com.apple.springboard.services")
     }
 
-    fun modelIdentifier(device: IOSDevice): String? {
-        return exec("getenv ${device.udid} SIMULATOR_MODEL_IDENTIFIER", device)
+    fun modelIdentifier(udid: String): String? {
+        return exec("getenv $udid SIMULATOR_MODEL_IDENTIFIER").stdout
             .trim()
             .takeIf { it.isNotBlank() }
     }
 
-    fun simctlDeviceType(device: IOSDevice): SimctlDeviceType {
-        val deviceHome: String = exec("getenv ${device.udid} HOME", device)
+    fun simctlDeviceType(udid: String): SimctlDeviceType {
+        val deviceHome: String = exec("getenv $udid HOME").stdout
             .trim()
             .takeIf { it.isNotBlank() }
             ?: return SimctlDeviceType("Unknown", "Unknown")
         val devicePlist = File(deviceHome).resolveSibling("device.plist")
-        val devicePlistContents = device.hostCommandExecutor.execBlocking("cat ${devicePlist.canonicalPath}")
-        if (devicePlistContents.exitStatus != 0) {
+        val devicePlistContents = commandExecutor.execBlocking("cat ${devicePlist.canonicalPath}")
+        if (devicePlistContents.exitCode != 0) {
             return SimctlDeviceType("Unknown", "Unknown")
         }
         val deviceDescriptor = PropertyListParser.parse(devicePlistContents.stdout.toByteArray()).toJavaObject() as Map<*, *>
-        if (device.udid != deviceDescriptor["UDID"] as String) {
+        if (udid != deviceDescriptor["UDID"] as String) {
             return SimctlDeviceType("Unknown", "Unknown")
         }
         val deviceType = deviceDescriptor["deviceType"] as String
@@ -65,9 +67,9 @@ class Simctl {
 //    fun erase(device: IOSDevice) {}
 //    fun screenshot(device: IOSDevice) {}
 //    fun video(device: IOSDevice) {}
-
-    private fun exec(args: String, device: IOSDevice): String {
+    
+    private fun exec(args: String): CommandResult {
         val command = "xcrun simctl $args"
-        return device.hostCommandExecutor.execBlocking(command).stdout
+        return commandExecutor.execBlocking(command)
     }
 }

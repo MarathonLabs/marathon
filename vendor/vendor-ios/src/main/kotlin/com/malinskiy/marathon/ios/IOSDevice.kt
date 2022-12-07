@@ -16,8 +16,6 @@ import com.malinskiy.marathon.execution.progress.ProgressReporter
 import com.malinskiy.marathon.io.FileManager
 import com.malinskiy.marathon.ios.cmd.remote.SshjCommandExecutor
 import com.malinskiy.marathon.ios.cmd.remote.SshjCommandUnresponsiveException
-import com.malinskiy.marathon.ios.cmd.remote.exec
-import com.malinskiy.marathon.ios.cmd.remote.execOrNull
 import com.malinskiy.marathon.ios.device.RemoteSimulator
 import com.malinskiy.marathon.ios.device.RemoteSimulatorFeatureProvider
 import com.malinskiy.marathon.ios.executor.listener.CompositeTestRunListener
@@ -93,9 +91,9 @@ class IOSDevice(
             throw e
         }
 
-        val simctl = Simctl()
+        val simctl = Simctl(hostCommandExecutor, gson)
         val device = try {
-            simctl.list(this, gson).find { it.udid == udid }
+            simctl.list().find { it.udid == udid }
         } catch (e: DeviceFailureException) {
             dispose()
             throw e
@@ -306,7 +304,7 @@ class IOSDevice(
 
     private fun terminateRunningSimulators() {
         val result = hostCommandExecutor.execOrNull("/usr/bin/pkill -9 -l -f '$udid'")
-        if (result?.exitStatus == 0) {
+        if (result?.exitCode == 0) {
             logger.trace("Terminated loaded simulators")
         } else {
             logger.debug("Failed to terminate loaded simulators ${result?.stdout}")
@@ -324,7 +322,7 @@ class IOSDevice(
                 "/usr/libexec/PlistBuddy -c 'Add :DevicePreferences:$udid:ConnectHardwareKeyboard bool false' /Users/master/Library/Preferences/com.apple.iphonesimulator.plist" +
                     "|| /usr/libexec/PlistBuddy -c 'Set :DevicePreferences:$udid:ConnectHardwareKeyboard false' /Users/master/Library/Preferences/com.apple.iphonesimulator.plist"
             )
-        if (result?.exitStatus == 0) {
+        if (result?.exitCode == 0) {
             logger.trace("Disabled hardware keyboard")
         } else {
             logger.debug("Failed to disable hardware keyboard ${result?.stdout}")

@@ -15,7 +15,7 @@ object RemoteSimulatorFeatureProvider {
             device.hostCommandExecutor.execBlocking(
                 "/usr/sbin/system_profiler -detailLevel mini -xml SPDisplaysDataType"
             ).let {
-                it.exitStatus == 0
+                it.exitCode == 0
                         && it.stdout.contains("spdisplays_metalfeatureset")
             }
         }
@@ -26,7 +26,7 @@ object RemoteSimulatorFeatureProvider {
             """ruby -e 'require "socket"; puts Addrinfo.tcp("", 0).bind {|s| s.local_address.ip_port }'"""
         )
         return when {
-            commandResult.exitStatus == 0 -> commandResult.stdout.trim().toIntOrNull()
+            commandResult.exitCode == 0 -> commandResult.stdout.trim().toIntOrNull()
             else -> null
         } ?: throw SshjCommandException(commandResult.stdout)
     }
