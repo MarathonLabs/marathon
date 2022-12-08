@@ -1,0 +1,1543 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Marathon</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Cross-platform test runner written for Android and iOS projects">
+    <meta name="keywords" content="android, testing, testing-tool, test-runner, espresso, uitest, uitesting, uitests, ios, marathon, xcrun, instrumentation, instrumentation-tests, gradle, parallel, performance">
+
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.css" rel="stylesheet"
+          type="text/css">
+    <!-- Animated -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.5.2/animate.min.css">
+    <link rel="shortcut icon" href="/marathon/img/favicon.png">
+    <!-- highlight  css -->
+    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.4.1/styles/solarized-dark.min.css">
+    <!-- main css -->
+    <link rel="stylesheet" type="text/css" href="/marathon/css/marathon.css">
+    <!-- tabs -->
+    <link rel="stylesheet" type="text/css" href="/marathon/css/tabs.css">
+
+    <!-- Diagrams support -->
+    <script src="/marathon/js/dagre.min.js"></script>
+    <script src="/marathon/js/lodash.min.js"></script>
+    <script src="/marathon/js/nomnoml.js"></script>
+    <script src="/marathon/js/diagrams.js"></script>
+
+    
+    <script>
+    (function (i, s, o, g, r, a, m) {
+        i['GoogleAnalyticsObject'] = r; i[r] = i[r] || function () {
+            (i[r].q = i[r].q || []).push(arguments)
+        }, i[r].l = 1 * new Date(); a = s.createElement(o),
+            m = s.getElementsByTagName(o)[0]; a.async = 1; a.src = g; m.parentNode.insertBefore(a, m)
+    })(window, document, 'script', 'https://www.google-analytics.com/analytics.js', 'ga');
+
+    ga('create', 'UA-131132823-2', 'auto');
+    ga('send', 'pageview');
+
+
+</script>
+
+    
+</head>
+
+<body id="doc-body">
+<div id="wrapper">
+    <div id="sidebar-wrapper">
+    <div>
+      <a class="brand" href="/marathon/">
+            <img src="/marathon/img/marathon-brand-sidebar.svg" alt="">
+      </a>
+      <a href="javascript:void(0)" id="main-toggle" class="sidebar-toggle">
+            <i class="fa fa-bars"></i>
+      </a>
+    </div>
+    <ul class="sidebar-nav">
+    
+        
+        
+        <li class="sidebar-nav-item">
+          <a href="#">
+            <span>General</span>
+            <i class="fa fa-angle-down"></i>
+          </a>
+          <ul>
+            
+            
+            <li data-order="1">
+              <a href="/marathon/doc/getting-started.html">
+                  <i class="fa fa-circle"></i>
+                  <span>Getting Started</span>
+              </a>
+            </li>
+            
+            <li data-order="2">
+              <a href="/marathon/doc/downloading.html">
+                  <i class="fa fa-circle"></i>
+                  <span>Downloading</span>
+              </a>
+            </li>
+            
+            <li data-order="3">
+              <a href="/marathon/doc/configuration.html">
+                  <i class="fa fa-circle"></i>
+                  <span>Options</span>
+              </a>
+            </li>
+            
+            <li data-order="5">
+              <a href="/marathon/doc/executing.html">
+                  <i class="fa fa-circle"></i>
+                  <span>Executing</span>
+              </a>
+            </li>
+            
+            <li data-order="6">
+              <a href="/marathon/doc/reports.html">
+                  <i class="fa fa-circle"></i>
+                  <span>Reporting</span>
+              </a>
+            </li>
+            
+            <li data-order="7">
+              <a href="/marathon/doc/faq.html">
+                  <i class="fa fa-circle"></i>
+                  <span>FAQ</span>
+              </a>
+            </li>
+            
+            <li data-order="8">
+              <a href="/marathon/doc/special-thanks.html">
+                  <i class="fa fa-circle"></i>
+                  <span>Special thanks</span>
+              </a>
+            </li>
+            
+          </ul>
+        </li>
+    
+        
+        
+        <li class="sidebar-nav-item">
+          <a href="#">
+            <span>Reference</span>
+            <i class="fa fa-angle-down"></i>
+          </a>
+          <ul>
+            
+            
+            <li data-order="">
+              <a href="/marathon/ref/samples.html">
+                  <i class="fa fa-circle"></i>
+                  <span>Samples</span>
+              </a>
+            </li>
+            
+          </ul>
+        </li>
+    
+        
+        
+        <li class="sidebar-nav-item">
+          <a href="#">
+            <span>Vendor extensions</span>
+            <i class="fa fa-angle-down"></i>
+          </a>
+          <ul>
+            
+            
+            <li data-order="1">
+              <a href="/marathon/ven/android.html">
+                  <i class="fa fa-circle"></i>
+                  <span>Android</span>
+              </a>
+            </li>
+            
+            <li data-order="2">
+              <a href="/marathon/ven/ios.html">
+                  <i class="fa fa-circle"></i>
+                  <span>iOS</span>
+              </a>
+            </li>
+            
+          </ul>
+        </li>
+    
+        
+        
+        <li class="sidebar-nav-item">
+          <a href="#">
+            <span>Developers</span>
+            <i class="fa fa-angle-down"></i>
+          </a>
+          <ul>
+            
+            
+            <li data-order="2">
+              <a href="/marathon/dev/contributing.html">
+                  <i class="fa fa-circle"></i>
+                  <span>Contributing</span>
+              </a>
+            </li>
+            
+            <li data-order="3">
+              <a href="/marathon/dev/vision.html">
+                  <i class="fa fa-circle"></i>
+                  <span>Vision</span>
+              </a>
+            </li>
+            
+          </ul>
+        </li>
+    
+    </ul>
+
+</div>
+
+    <div id="doc-wrapper">
+    <div class="doc-header">
+        <a href="javascript:void(0)" id="main-toggle" class="sidebar-toggle">
+            <i class="fa fa-bars"></i>
+        </a>
+        <div class="search-wrapper">
+            <input class="search" id="docsearch" placeholder="Search documentation..." type="search">
+        </div>
+    </div>
+    <div class="doc-content">
+        
+        <ul id="markdown-toc">
+  <li><a href="#prerequisites" id="markdown-toc-prerequisites">Prerequisites</a>    <ul>
+      <li><a href="#cli" id="markdown-toc-cli">CLI</a></li>
+    </ul>
+  </li>
+  <li><a href="#required-options" id="markdown-toc-required-options">Required options</a>    <ul>
+      <li><a href="#android-sdk-path" id="markdown-toc-android-sdk-path">Android SDK path</a></li>
+      <li><a href="#apk-paths" id="markdown-toc-apk-paths">APK paths</a>        <ul>
+          <li><a href="#single-module-testing" id="markdown-toc-single-module-testing">Single module testing</a>            <ul>
+              <li><a href="#application-apk-path" id="markdown-toc-application-apk-path">Application APK path</a></li>
+              <li><a href="#test-application-apk-path" id="markdown-toc-test-application-apk-path">Test application APK path</a></li>
+            </ul>
+          </li>
+          <li><a href="#multi-module-testing" id="markdown-toc-multi-module-testing">Multi module testing</a></li>
+          <li><a href="#split-apk-testing-dynamic-feature" id="markdown-toc-split-apk-testing-dynamic-feature">Split apk testing (Dynamic Feature)</a></li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+  <li><a href="#optional" id="markdown-toc-optional">Optional</a>    <ul>
+      <li><a href="#automatic-granting-of-permissions" id="markdown-toc-automatic-granting-of-permissions">Automatic granting of permissions</a></li>
+      <li><a href="#adb-initialisation-timeout" id="markdown-toc-adb-initialisation-timeout">ADB initialisation timeout</a></li>
+      <li><a href="#device-serial-number-assignment" id="markdown-toc-device-serial-number-assignment">Device serial number assignment</a></li>
+      <li><a href="#install-options" id="markdown-toc-install-options">Install options</a></li>
+      <li><a href="#screen-recorder-configuration" id="markdown-toc-screen-recorder-configuration">Screen recorder configuration</a></li>
+      <li><a href="#clear-state-between-test-executions" id="markdown-toc-clear-state-between-test-executions">Clear state between test executions</a></li>
+      <li><a href="#instrumentation-arguments" id="markdown-toc-instrumentation-arguments">Instrumentation arguments</a></li>
+      <li><a href="#allure-kotlin-support" id="markdown-toc-allure-kotlin-support">Allure-kotlin support</a></li>
+      <li><a href="#vendor-module-selection" id="markdown-toc-vendor-module-selection">Vendor module selection</a></li>
+      <li><a href="#timeout-configuration" id="markdown-toc-timeout-configuration">Timeout configuration</a></li>
+      <li><a href="#syncpull-files-from-device-after-test-run" id="markdown-toc-syncpull-files-from-device-after-test-run">Sync/pull files from device after test run</a></li>
+      <li><a href="#push-files-to-device-before-each-batch-execution" id="markdown-toc-push-files-to-device-before-each-batch-execution">Push files to device before each batch execution</a></li>
+      <li><a href="#test-parser" id="markdown-toc-test-parser">Test parser</a></li>
+      <li><a href="#test-access-configuration" id="markdown-toc-test-access-configuration">Test access configuration</a></li>
+      <li><a href="#multiple-adb-servers" id="markdown-toc-multiple-adb-servers">Multiple adb servers</a></li>
+      <li><a href="#extra-applications-apk-path" id="markdown-toc-extra-applications-apk-path">Extra applications APK path</a></li>
+      <li><a href="#screencapture-api" id="markdown-toc-screencapture-api">ScreenCapture API</a></li>
+      <li><a href="#enable-window-animations" id="markdown-toc-enable-window-animations">Enable window animations</a></li>
+    </ul>
+  </li>
+</ul>
+
+<h1 id="prerequisites">Prerequisites</h1>
+<p>In order to execute tests on Android devices marathon will need Android SDK
+installed. Devices are expected to be connected to local machine by any means
+supported by the adb (local usb connection, local emulator or TCP/IP).</p>
+
+<h2 id="cli">CLI</h2>
+<p>To indicate to CLI that you’re using a vendor config for android you have to specify
+the <em>type</em> in the root of the <em>Marathonfile</em> configuration as following:</p>
+
+<pre><code class="language-yaml">vendorConfiguration:
+  type: "Android"
+  additional_option1: ...
+  additional_option2: ...
+</code></pre>
+
+<h1 id="required-options">Required options</h1>
+<h2 id="android-sdk-path">Android SDK path</h2>
+<p>If you’re using gradle plugin then this option is automatically detected.</p>
+
+<p>If you have an <code>ANDROID_HOME</code> environment variable then this option is automatically detected by the CLI as well.</p>
+
+<p>If this is not the case then you have to specify this option manually:</p>
+
+<ul class="tab" data-tab="1fcc1ae1-23a3-4d13-b922-e50d4439f0df">
+    
+        <li class="active">
+            <a href="">Marathonfile </a>
+        </li>
+    
+</ul>
+<ul class="tab-content" id="1fcc1ae1-23a3-4d13-b922-e50d4439f0df">
+    
+        <li class="active">
+<pre><code class="language-yaml">vendorConfiguration:
+  type: "Android"
+  androidSdk: "/usr/share/local/android"
+</code></pre>
+</li>
+    
+</ul>
+
+<h2 id="apk-paths">APK paths</h2>
+
+<h3 id="single-module-testing">Single module testing</h3>
+<h4 id="application-apk-path">Application APK path</h4>
+<p>If you’re using gradle plugin then this option is automatically detected. If this is not the case
+then you have to specify this option manually.</p>
+
+<ul class="tab" data-tab="4aaacaef-e953-446d-b38b-7cb97c6e833f">
+    
+        <li class="active">
+            <a href="">Marathonfile </a>
+        </li>
+    
+</ul>
+<ul class="tab-content" id="4aaacaef-e953-446d-b38b-7cb97c6e833f">
+    
+        <li class="active">
+<pre><code class="language-yaml">vendorConfiguration:
+  type: "Android"
+  applicationApk: "app/build/outputs/apk/debug/app-debug.apk"
+</code></pre>
+</li>
+    
+</ul>
+
+<h4 id="test-application-apk-path">Test application APK path</h4>
+<p>If you’re using gradle plugin then this option is automatically detected. If this is not the case
+then you have to specify this option manually.</p>
+
+<ul class="tab" data-tab="3dac290b-291d-457b-88db-a14297d4b934">
+    
+        <li class="active">
+            <a href="">Marathonfile </a>
+        </li>
+    
+</ul>
+<ul class="tab-content" id="3dac290b-291d-457b-88db-a14297d4b934">
+    
+        <li class="active">
+<pre><code class="language-yaml">vendorConfiguration:
+  type: "Android"
+  testApplicationApk: "app/build/outputs/apk/androidTest/debug/app-debug.apk"
+</code></pre>
+</li>
+    
+</ul>
+
+<h3 id="multi-module-testing">Multi module testing</h3>
+<p>Marathon supports testing multiple modules at the same time (e.g. your tests are across more than one module):</p>
+
+<ul class="tab" data-tab="4888e54c-a06b-4cc7-954f-2bee87c3f523">
+    
+        <li class="active">
+            <a href="">Marathonfile </a>
+        </li>
+    
+</ul>
+<ul class="tab-content" id="4888e54c-a06b-4cc7-954f-2bee87c3f523">
+    
+        <li class="active">
+<pre><code class="language-yaml">vendorConfiguration:
+  type: "Android"
+  outputs:
+  - application: "android-app/app/build/outputs/apk/debug/app-debug.apk"
+    testApplication: "android-app/app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk"
+  - testApplication: "android-library/library/build/outputs/apk/androidTest/debug/library-debug-androidTest.apk"  
+</code></pre>
+</li>
+    
+</ul>
+
+<p>Each entry consists of <code>testApplication</code> in case of library testing and <code>application</code> + <code>testApplication</code> for application testing.</p>
+
+<p>This option is not available for users of gradle plugin.</p>
+
+<h3 id="split-apk-testing-dynamic-feature">Split apk testing (Dynamic Feature)</h3>
+<p>Marathon supports testing dynamic feature modules using CLI (not supported by gradle plugin):</p>
+
+<ul class="tab" data-tab="916778db-2674-4943-819b-1293123e140f">
+    
+        <li class="active">
+            <a href="">Marathonfile </a>
+        </li>
+    
+</ul>
+<ul class="tab-content" id="916778db-2674-4943-819b-1293123e140f">
+    
+        <li class="active">
+<pre><code class="language-yaml">vendorConfiguration:
+  type: "Android"
+  applicationApk: "../../app/build/outputs/apk/debug/base.apk"
+  splitApks:
+    - "../../dynamic-feature1/build/outputs/apk/debug/dynamic-feature1-debug.apk"
+    - "../../dynamic-feature2/build/outputs/apk/debug/dynamic-feature2-debug.apk"
+</code></pre>
+</li>
+    
+</ul>
+
+<p>This option is not available for Android version less Android 5.</p>
+
+<h1 id="optional">Optional</h1>
+<h2 id="automatic-granting-of-permissions">Automatic granting of permissions</h2>
+<p>This option will grant all runtime permissions during the installation of the
+application. This works like the option <code>-g</code> for <a href="https://developer.android.com/studio/command-line/adb#issuingcommands"><code>adb install</code></a> command. By default, it’s set to <strong>false</strong>.</p>
+
+<ul class="tab" data-tab="399b4725-1029-454a-aab2-7ca19c070ac7">
+    
+        <li class="active">
+            <a href="">Marathonfile </a>
+        </li>
+    
+        <li>
+            <a href="">Gradle </a>
+        </li>
+    
+        <li>
+            <a href="">Gradle Kotlin </a>
+        </li>
+    
+</ul>
+<ul class="tab-content" id="399b4725-1029-454a-aab2-7ca19c070ac7">
+    
+        <li class="active">
+<pre><code class="language-yaml">vendorConfiguration:
+  type: "Android"
+  autoGrantPermission: true
+</code></pre>
+</li>
+    
+        <li>
+<pre><code class="language-kotlin">marathon {
+    autoGrantPermission = true
+}
+</code></pre>
+</li>
+    
+        <li>
+<pre><code class="language-kotlin">marathon {
+    autoGrantPermission = true
+}
+</code></pre>
+</li>
+    
+</ul>
+
+<h2 id="adb-initialisation-timeout">ADB initialisation timeout</h2>
+<p>This option will allow you to increase/decrease the default adb init timeout of 30
+seconds.</p>
+
+<ul class="tab" data-tab="1477c685-fc74-43cf-ba4f-499111bf8644">
+    
+        <li class="active">
+            <a href="">Marathonfile </a>
+        </li>
+    
+        <li>
+            <a href="">Gradle </a>
+        </li>
+    
+        <li>
+            <a href="">Gradle Kotlin </a>
+        </li>
+    
+</ul>
+<ul class="tab-content" id="1477c685-fc74-43cf-ba4f-499111bf8644">
+    
+        <li class="active">
+<pre><code class="language-yaml">vendorConfiguration:
+  type: "Android"
+  adbInitTimeoutMillis: 60000
+</code></pre>
+</li>
+    
+        <li>
+<pre><code class="language-kotlin">marathon {
+    adbInitTimeout = 100000
+}
+</code></pre>
+</li>
+    
+        <li>
+<pre><code class="language-kotlin">marathon {
+    adbInitTimeout = 100000
+}
+</code></pre>
+</li>
+    
+</ul>
+
+<h2 id="device-serial-number-assignment">Device serial number assignment</h2>
+<p>This option allows to customise how marathon assigns a serial number to devices.
+Possible values are:</p>
+<ul>
+  <li><code>automatic</code></li>
+  <li><code>marathon_property</code></li>
+  <li><code>boot_property</code></li>
+  <li><code>hostname</code></li>
+  <li><code>ddms</code></li>
+</ul>
+
+<ul class="tab" data-tab="befb2254-b229-472f-8d6a-b47ed849bd8b">
+    
+        <li class="active">
+            <a href="">Marathonfile </a>
+        </li>
+    
+        <li>
+            <a href="">Gradle </a>
+        </li>
+    
+        <li>
+            <a href="">Gradle Kotlin </a>
+        </li>
+    
+</ul>
+<ul class="tab-content" id="befb2254-b229-472f-8d6a-b47ed849bd8b">
+    
+        <li class="active">
+<pre><code class="language-yaml">vendorConfiguration:
+  type: "Android"
+  serialStrategy: "automatic"
+</code></pre>
+</li>
+    
+        <li>
+<pre><code class="language-kotlin">marathon {
+    serialStrategy = SerialStrategy.AUTOMATIC
+}
+</code></pre>
+</li>
+    
+        <li>
+<pre><code class="language-kotlin">marathon {
+    serialStrategy = SerialStrategy.AUTOMATIC
+}
+</code></pre>
+</li>
+    
+</ul>
+
+<p>Notes on the source of serial number:</p>
+
+<p><code>marathon_property</code> - Property name <code>marathon.serialno</code></p>
+
+<p><code>boot_property</code> - Property name <code>ro.boot.serialno</code></p>
+
+<p><code>hostname</code> - Property name <code>net.hostname</code></p>
+
+<p><code>ddms</code> - Adb serial number(same as you see with <code>adb devices</code> command)</p>
+
+<p><code>automatic</code> - Sequantially checks all available options for first non empty value.</p>
+
+<p>Priority order:</p>
+
+<p>Before 0.6: <code>marathon_property</code> -&gt; <code>boot_property</code> -&gt; <code>hostname</code> -&gt; <code>ddms</code> -&gt; UUID</p>
+
+<p>After 0.6:  <code>marathon_property</code> -&gt; <code>ddms</code> -&gt; <code>boot_property</code> -&gt; <code>hostname</code> -&gt; UUID</p>
+
+<h2 id="install-options">Install options</h2>
+<p>By default, these will be <code>-g -r</code> (<code>-r</code> prior to marshmallow). You can specify additional options to append to the default ones.</p>
+
+<ul class="tab" data-tab="28fde442-fe38-40f4-9986-b38b81dfe0f4">
+    
+        <li class="active">
+            <a href="">Marathonfile </a>
+        </li>
+    
+        <li>
+            <a href="">Gradle </a>
+        </li>
+    
+        <li>
+            <a href="">Gradle Kotlin </a>
+        </li>
+    
+</ul>
+<ul class="tab-content" id="28fde442-fe38-40f4-9986-b38b81dfe0f4">
+    
+        <li class="active">
+<pre><code class="language-yaml">vendorConfiguration:
+  type: "Android"
+  installOptions: "-d"
+</code></pre>
+</li>
+    
+        <li>
+<pre><code class="language-kotlin">marathon {
+    installOptions = "-d"
+}
+</code></pre>
+</li>
+    
+        <li>
+<pre><code class="language-kotlin">marathon {
+    installOptions = "-d"
+}
+</code></pre>
+</li>
+    
+</ul>
+
+<h2 id="screen-recorder-configuration">Screen recorder configuration</h2>
+<p>By default, device will record a 1280x720 1Mbps video of up to 180 seconds if it is supported. If on the other hand you want to force
+ screenshots or configure the recording parameters you can specify this as follows:</p>
+
+<ul class="tab" data-tab="5d03e0c3-883d-4273-ad10-d79daf1ebc84">
+    
+        <li class="active">
+            <a href="">Marathonfile </a>
+        </li>
+    
+        <li>
+            <a href="">Gradle </a>
+        </li>
+    
+        <li>
+            <a href="">Gradle Kotlin </a>
+        </li>
+    
+</ul>
+<ul class="tab-content" id="5d03e0c3-883d-4273-ad10-d79daf1ebc84">
+    
+        <li class="active">
+<pre><code class="language-yaml">vendorConfiguration:
+  type: "Android"
+  screenRecordConfiguration:
+    preferableRecorderType: "screenshot"
+    videoConfiguration:
+      enabled: false
+      width: 1080
+      height: 1920
+      bitrateMbps: 2
+      timeLimit: 300
+    screenshotConfiguration:
+      enabled: false
+      width: 1080
+      height: 1920
+      delayMs: 200
+</code></pre>
+</li>
+    
+        <li>
+<pre><code class="language-kotlin">marathon {
+  screenRecordConfiguration = ScreenRecordConfiguration(
+    RecorderType.SCREENSHOT,
+    VideoConfiguration(
+            false, //enabled
+            1080, //width
+            1920, //height
+            2, //Bitrate in Mbps
+            300 //Max duration in seconds
+        ),
+        ScreenshotConfiguration(
+            false, //enabled
+            1080, //width
+            1920, //height
+            200 //Delay between taking screenshots
+        )
+    )
+}
+</code></pre>
+</li>
+    
+        <li>
+<pre><code class="language-kotlin">marathon {
+    screenRecordConfiguration = ScreenRecordConfiguration(
+        RecorderType.SCREENSHOT,
+        VideoConfiguration(
+            false, //enabled
+            1080, //width
+            1920, //height
+            2, //Bitrate in Mbps
+            300 //Max duration in seconds
+        ),
+        ScreenshotConfiguration(
+            false, //enabled
+            1080, //width
+            1920, //height
+            200 //Delay between taking screenshots
+        )
+    )
+}
+</code></pre>
+</li>
+    
+</ul>
+
+<h2 id="clear-state-between-test-executions">Clear state between test executions</h2>
+<p>By default, marathon does not clear state between test batch executions. To mitigate potential test side-effects, one could add an option to clear the package data between test runs. Keep in mind that test side-effects might be present. 
+If you want to isolate tests even further, then you should consider reducing the batch size.</p>
+
+<p>Since <code>pm clear</code> resets the permissions of the package, the granting of permissions during installation is essentially overridden. Marathon doesn’t grant the permissions again. 
+If you need permissions to be granted and you need to clear the state, consider alternatives like <a href="https://developer.android.com/reference/androidx/test/rule/GrantPermissionRule">GrantPermissionRule</a></p>
+
+<ul class="tab" data-tab="9843b945-e22a-4a79-8dd3-b9996d0874b0">
+    
+        <li class="active">
+            <a href="">Marathonfile </a>
+        </li>
+    
+        <li>
+            <a href="">Gradle </a>
+        </li>
+    
+        <li>
+            <a href="">Gradle Kotlin </a>
+        </li>
+    
+</ul>
+<ul class="tab-content" id="9843b945-e22a-4a79-8dd3-b9996d0874b0">
+    
+        <li class="active">
+<pre><code class="language-yaml">vendorConfiguration:
+  type: "Android"
+  applicationPmClear: true
+  testApplicationPmClear: true
+</code></pre>
+</li>
+    
+        <li>
+<pre><code class="language-kotlin">marathon {
+    applicationPmClear = true
+    testApplicationPmClear = true
+}
+</code></pre>
+</li>
+    
+        <li>
+<pre><code class="language-kotlin">marathon {
+    applicationPmClear = true
+    testApplicationPmClear = true
+}
+</code></pre>
+</li>
+    
+</ul>
+
+<h2 id="instrumentation-arguments">Instrumentation arguments</h2>
+<p>If you want to pass additional arguments to the <code>am instrument</code> command executed on the device like execute only “SMALL” tests:</p>
+
+<ul class="tab" data-tab="aed15098-ad34-408a-aa0b-cf9742761934">
+    
+        <li class="active">
+            <a href="">Marathonfile </a>
+        </li>
+    
+        <li>
+            <a href="">Gradle </a>
+        </li>
+    
+        <li>
+            <a href="">Gradle Kotlin </a>
+        </li>
+    
+</ul>
+<ul class="tab-content" id="aed15098-ad34-408a-aa0b-cf9742761934">
+    
+        <li class="active">
+<pre><code class="language-yaml">vendorConfiguration:
+  type: "Android"
+  instrumentationArgs:
+    size: small
+</code></pre>
+</li>
+    
+        <li>
+<pre><code class="language-kotlin">marathon {
+    instrumentationArgs { 
+        set("size", "small")
+    }
+}
+</code></pre>
+</li>
+    
+        <li>
+<pre><code class="language-kotlin">marathon {
+    instrumentationArgs { 
+        set("size", "small")
+    }
+}
+</code></pre>
+</li>
+    
+</ul>
+
+<h2 id="allure-kotlin-support"><a href="https://github.com/allure-framework/allure-kotlin">Allure-kotlin</a> support</h2>
+<p>If you want to enable on-device collection of allure’s reports, you can use the following option:</p>
+
+<ul class="tab" data-tab="e0f5dac1-7703-4ef2-b86c-3011fb533e70">
+    
+        <li class="active">
+            <a href="">Marathonfile </a>
+        </li>
+    
+        <li>
+            <a href="">Gradle </a>
+        </li>
+    
+        <li>
+            <a href="">Gradle Kotlin </a>
+        </li>
+    
+</ul>
+<ul class="tab-content" id="e0f5dac1-7703-4ef2-b86c-3011fb533e70">
+    
+        <li class="active">
+<pre><code class="language-yaml">vendorConfiguration:
+  type: "Android"
+  allureConfiguration:
+    enabled: true
+</code></pre>
+</li>
+    
+        <li>
+<pre><code class="language-kotlin">marathon {
+    allureConfiguration {
+        enabled = true
+    }
+}
+</code></pre>
+</li>
+    
+        <li>
+<pre><code class="language-kotlin">marathon {
+    allureConfiguration {
+        enabled = true
+    }
+}
+</code></pre>
+
+</li>
+    
+</ul>
+
+<p>Configuration above works out of the box for allure-kotlin 2.3.0+.</p>
+
+<p>Additional configuration parameters include <strong>pathRoot</strong> which has two options: <code>EXTERNAL_STORAGE</code> that is usually the <code>/sdcard/</code> on most of the devices and <code>APP_DATA</code> which is usually <code>/data/data/$appPackage/</code>.
+Besides the expected path root you might need to provide the <strong>relativeResultsDirectory</strong>: this is the relative path to <code>pathRoot</code>. The default path for allure-kotlin as of 2.3.0 is <code>/data/data/$appPackage/allure-results</code>.</p>
+
+<ul class="tab" data-tab="0b63355e-efdb-4e17-9361-b90af26a55f6">
+    
+        <li class="active">
+            <a href="">Marathonfile </a>
+        </li>
+    
+        <li>
+            <a href="">Gradle </a>
+        </li>
+    
+        <li>
+            <a href="">Gradle Kotlin </a>
+        </li>
+    
+</ul>
+<ul class="tab-content" id="0b63355e-efdb-4e17-9361-b90af26a55f6">
+    
+        <li class="active">
+<pre><code class="language-yaml">vendorConfiguration:
+  type: "Android"
+  allureConfiguration:
+    enabled: true
+    relativeResultsDirectory: "relative/path/to/allure-results"
+</code></pre>
+</li>
+    
+        <li>
+<pre><code class="language-kotlin">marathon {
+    allureConfiguration {
+        enabled = true
+        relativeResultsDirectory = "relative/path/to/allure-results"
+    }
+}
+</code></pre>
+</li>
+    
+        <li>
+<pre><code class="language-kotlin">marathon {
+    allureConfiguration {
+        enabled = true
+        relativeResultsDirectory = "relative/path/to/allure-results"
+    }
+}
+</code></pre>
+
+</li>
+    
+</ul>
+
+<p>Please refer to <a href="https://github.com/allure-framework/allure-kotlin">allure’s documentation</a> on the usage of allure.</p>
+
+<p>Starting with allure 2.3.0 your test application no longer needs MANAGE_EXTERNAL_STORAGE permission to write allure’s output, so there is no need add any special permissions there.</p>
+
+<p>Enabling this option effectively creates two allure reports for each test run:</p>
+<ul>
+  <li>one from the point of view of the marathon test runner</li>
+  <li>one from the point of view of on-device test execution</li>
+</ul>
+
+<p>The on-device report gives you more flexibility and allows you to:</p>
+<ul>
+  <li>Take screenshots whenever you want</li>
+  <li>Divide large tests into steps and visualise them in the report</li>
+  <li>Capture window hierarchy
+and more.</li>
+</ul>
+
+<p>All allure output from devices will be collected under <code>$output/device-files/allure-results</code> folder.</p>
+
+<h2 id="vendor-module-selection">Vendor module selection</h2>
+<p>The first implementation of marathon for Android relied heavily on AOSP’s <a href="https://android.googlesource.com/platform/tools/base/+/master/ddmlib">ddmlib</a>. For a number of technical reasons we had to write our
+ own implementation of the ADB client named <a href="https://github.com/Malinskiy/adam">adam</a>.</p>
+
+<p>The ddmlib’s implementation is going to be deprecated in marathon <strong>0.7.0</strong> and by default adam is going to be handling all communication with
+ devices.</p>
+
+<p>By <strong>0.8.0</strong>, ddmlib is going to be removed completely unless we find major issues.</p>
+
+<p>All the features supported in ddmlib’s implementation transparently work without any changes. We ask you to test adam prior to the
+ removal of ddmlib and submit your concerns/issues.</p>
+
+<ul class="tab" data-tab="076235f7-790a-4beb-8e05-c6831c9f9c40">
+    
+        <li class="active">
+            <a href="">Marathonfile </a>
+        </li>
+    
+        <li>
+            <a href="">Gradle </a>
+        </li>
+    
+        <li>
+            <a href="">Gradle Kotlin </a>
+        </li>
+    
+</ul>
+<ul class="tab-content" id="076235f7-790a-4beb-8e05-c6831c9f9c40">
+    
+        <li class="active">
+<pre><code class="language-yaml">vendorConfiguration:
+  type: "Android"
+  vendor: ADAM
+</code></pre>
+</li>
+    
+        <li>
+<pre><code class="language-kotlin">marathon {
+    vendor = com.malinskiy.marathon.config.vendor.VendorConfiguration.AndroidConfiguration.VendorType.ADAM
+}
+</code></pre>
+
+</li>
+    
+        <li>
+<pre><code class="language-kotlin">marathon {
+    vendor = com.malinskiy.marathon.config.vendor.VendorConfiguration.AndroidConfiguration.VendorType.ADAM
+}
+</code></pre>
+
+</li>
+    
+</ul>
+
+<h2 id="timeout-configuration">Timeout configuration</h2>
+
+<p>With the introduction of <a href="https://github.com/Malinskiy/adam">adam</a> we can precisely control the timeout of individual requests. Here is how you can use it:</p>
+
+<ul class="tab" data-tab="1ad142a3-c7e6-4dea-9614-0ba3a52e435d">
+    
+        <li class="active">
+            <a href="">Marathonfile </a>
+        </li>
+    
+        <li>
+            <a href="">Gradle </a>
+        </li>
+    
+        <li>
+            <a href="">Gradle Kotlin </a>
+        </li>
+    
+</ul>
+<ul class="tab-content" id="1ad142a3-c7e6-4dea-9614-0ba3a52e435d">
+    
+        <li class="active">
+<pre><code class="language-yaml">vendorConfiguration:
+  type: "Android"
+  vendor: ADAM
+  timeoutConfiguration:
+    # ISO_8601 duration
+    shell: "PT30S"
+    listFiles: "PT1M"
+    pushFile: "PT1H"
+    pushFolder: "PT1H"
+    pullFile: "P1D"
+    uninstall: "PT1S"
+    install: "P1DT12H30M5S"
+    screenrecorder: "PT1H"
+    screencapturer: "PT1S"
+</code></pre>
+
+</li>
+    
+        <li>
+<pre><code class="language-kotlin">marathon {
+    timeoutConfiguration {
+        shell = Duration.ofSeconds(30)
+    }
+}
+</code></pre>
+
+</li>
+    
+        <li>
+<pre><code class="language-kotlin">marathon {
+    timeoutConfiguration {
+        shell = Duration.ofSeconds(30)
+    }
+}
+</code></pre>
+
+</li>
+    
+</ul>
+
+<p>Please keep in mind that this timeout configuration is only for adam vendor, ddmlib will not pick up these settings.</p>
+
+<h2 id="syncpull-files-from-device-after-test-run">Sync/pull files from device after test run</h2>
+
+<p>Sometimes you need to pull some folders from each device after the test execution. It may be screenshots or logs or other debug information.
+To help with this marathon supports pulling files from devices at the end of the test batch execution. Here is how you can configure it:</p>
+
+<ul class="tab" data-tab="583371c4-c86d-4716-b835-daebef8fb51b">
+    
+        <li class="active">
+            <a href="">Marathonfile </a>
+        </li>
+    
+        <li>
+            <a href="">Gradle </a>
+        </li>
+    
+        <li>
+            <a href="">Gradle Kotlin </a>
+        </li>
+    
+</ul>
+<ul class="tab-content" id="583371c4-c86d-4716-b835-daebef8fb51b">
+    
+        <li class="active">
+<pre><code class="language-yaml">vendorConfiguration:
+  type: "Android"
+  fileSyncConfiguration:
+    pull:
+    - relativePath: "my-device-folder1"
+      aggregationMode: TEST_RUN
+      pathRoot: EXTERNAL_STORAGE
+    - relativePath: "my-device-folder2"
+      aggregationMode: DEVICE
+      pathRoot: EXTERNAL_STORAGE
+    - relativePath: "my-device-folder3"
+      aggregationMode: DEVICE_AND_POOL
+      pathRoot: EXTERNAL_STORAGE
+    - relativePath: "my-device-folder4"
+      aggregationMode: POOL
+      pathRoot: EXTERNAL_STORAGE
+</code></pre>
+
+</li>
+    
+        <li>
+<pre><code class="language-groovy">marathon {
+  fileSyncConfiguration {
+    pull.add(
+      new FileSyncEntry(
+        "my-device-folder1",
+        AggregationMode.TEST_RUN,
+        PathRoot.EXTERNAL_STORAGE
+      )
+    )
+    pull.add(
+      FileSyncEntry(
+        "my-device-folder2",
+        AggregationMode.DEVICE,
+        PathRoot.EXTERNAL_STORAGE
+      )
+    )
+    pull.add(
+      FileSyncEntry(
+        "my-device-folder3",
+        AggregationMode.DEVICE_AND_POOL,
+        PathRoot.EXTERNAL_STORAGE
+      )
+    )
+    pull.add(
+      FileSyncEntry(
+        "my-device-folder4",
+        AggregationMode.POOL,
+        PathRoot.EXTERNAL_STORAGE
+      )
+    )
+  }
+}
+</code></pre>
+
+</li>
+    
+        <li>
+<pre><code class="language-kotlin">marathon {
+  fileSyncConfiguration {
+    pull.add(
+      FileSyncEntry(
+        "my-device-folder1",
+        AggregationMode.TEST_RUN,
+        PathRoot.EXTERNAL_STORAGE
+      )
+    )
+    pull.add(
+      FileSyncEntry(
+        "my-device-folder2",
+        AggregationMode.DEVICE,
+        PathRoot.EXTERNAL_STORAGE
+      )
+    )
+    pull.add(
+      FileSyncEntry(
+        "my-device-folder3",
+        AggregationMode.DEVICE_AND_POOL,
+        PathRoot.EXTERNAL_STORAGE
+      )
+    )
+    pull.add(
+      FileSyncEntry(
+        "my-device-folder4",
+        AggregationMode.POOL,
+        PathRoot.EXTERNAL_STORAGE
+      )
+    )
+  }
+}
+</code></pre>
+
+</li>
+    
+</ul>
+
+<p>Please pay attention to the path on the device: if path root is <code>EXTERNAL_STORAGE</code> which is the default value if you don’t specify anything, 
+then <code>relativePath</code> is relative to the <code>Environment.getExternalStorageDirectory()</code> or
+the <code>EXTERNAL_STORAGE</code> envvar. In practice this means that if you have a folder like <code>/sdcard/my-folder</code> you should specify <code>/my-folder</code> as
+a relative path.</p>
+
+<p>Starting with Android 11 your test application will require MANAGE_EXTERNAL_STORAGE permission:</p>
+
+<pre><code class="language-xml">&lt;?xml version="1.0" encoding="utf-8"?&gt;
+&lt;manifest xmlns:android="http://schemas.android.com/apk/res/android"&gt;
+    &lt;uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE"/&gt;
+    ...
+&lt;/manifest&gt;
+</code></pre>
+
+<p>Marathon will automatically grant this permission before executing tests if you pull/push files from devices with <code>EXTERNAL_STORAGE</code> path root.</p>
+
+<p>If you don’t want to add any permissions to your test application, you can also use the path root <code>APP_DATA</code>. This will automatically
+transfer the files from your application’s private folder, e.g. <code>/data/data/com.example/my-folder</code>.</p>
+
+<h2 id="push-files-to-device-before-each-batch-execution">Push files to device before each batch execution</h2>
+
+<p>Sometimes you need to push some files/folders to each device before the test execution. Here is how you can configure it:</p>
+
+<ul class="tab" data-tab="1560aef2-067b-4385-845c-29befa9408f9">
+    
+        <li class="active">
+            <a href="">Marathonfile </a>
+        </li>
+    
+        <li>
+            <a href="">Gradle </a>
+        </li>
+    
+        <li>
+            <a href="">Gradle Kotlin </a>
+        </li>
+    
+</ul>
+<ul class="tab-content" id="1560aef2-067b-4385-845c-29befa9408f9">
+    
+        <li class="active">
+<pre><code class="language-yaml">vendorConfiguration:
+  type: "Android"
+  fileSyncConfiguration:
+    push:
+    - path: "/home/user/folder"
+    - path: "/home/user/testfile.txt"
+</code></pre>
+
+</li>
+    
+        <li>
+<pre><code class="language-groovy">marathon {
+  fileSyncConfiguration {
+    push.add(new FilePushEntry("/home/user/folder"))
+    push.add(new FilePushEntry("/home/user/testfile.txt"))
+  }
+}
+</code></pre>
+
+</li>
+    
+        <li>
+<pre><code class="language-kotlin">marathon {
+  fileSyncConfiguration {
+    push.add(FilePushEntry("/home/user/folder"))
+    push.add(FilePushEntry("/home/user/testfile.txt"))
+  }
+}
+</code></pre>
+
+</li>
+    
+</ul>
+
+<p>By default, pushing will be done to <code>LOCAL_TMP</code> path root which refers to the <code>/data/local/tmp</code>. 
+You can also push files to <code>EXTERNAL_STORAGE</code>. Currently, pushing to <code>APP_DATA</code> is not supported.</p>
+
+<h2 id="test-parser">Test parser</h2>
+
+<p>Test parsing (collecting a list of tests expected to execute) can be done using either a local test parser, which uses byte code analysis,
+or a remote test parser that uses an Android device to collect a list of tests expected to run. Both have pros and cons listed below:</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>YAML type</th>
+      <th style="text-align: center">Gradle class</th>
+      <th>Pros</th>
+      <th>Const</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>“local”</td>
+      <td style="text-align: center"><code>LocalTestParser</code></td>
+      <td>Doesn’t require a booted Android device</td>
+      <td>Doesn’t support runtime-generated tests, e.g. named parameterized tests. Doesn’t support parallelising parameterized tests</td>
+    </tr>
+    <tr>
+      <td>“remote”</td>
+      <td style="text-align: center"><code>RemoteTestParser</code></td>
+      <td>Supports any runtime-generated tests, including parameterized, and allows marathon to parallelise their execution</td>
+      <td>Requires a booted Android device for parsing. If you need to use annotations for filtering purposes, requires test apk changes as well as attaching a test run listener for parser</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Default test parser is local. If you need to parallelize the execution of parameterized tests or have complex runtime test generation
+(custom test runners, e.g. cucumber) - remote parser is your choice.</p>
+
+<p>For annotations parsing using remote test parser test run is triggered without running tests (using <code>-e log true</code> option). Annotations are
+expected to be reported as test metrics, e.g.:</p>
+
+<pre><code class="language-text">INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=com.example.FailedAssumptionTest
+INSTRUMENTATION_STATUS: current=4
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=39
+INSTRUMENTATION_STATUS: stream=
+com.example.FailedAssumptionTest:
+INSTRUMENTATION_STATUS: test=ignoreTest
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: com.malinskiy.adam.junit4.android.listener.TestAnnotationProducer.v2=[androidx.test.filters.SmallTest(), io.qameta.allure.kotlin.Severity(value=critical), io.qameta.allure.kotlin.Story(value=Slow), org.junit.Test(expected=class org.junit.Test$None:timeout=0), io.qameta.allure.kotlin.Owner(value=user2), io.qameta.allure.kotlin.Feature(value=Text on main screen), io.qameta.allure.kotlin.Epic(value=General), org.junit.runner.RunWith(value=class io.qameta.allure.android.runners.AllureAndroidJUnit4), kotlin.Metadata(bytecodeVersion=[I@bdf6b25:data1=[Ljava.lang.String;@46414fa:data2=[Ljava.lang.String;@5d4aab:extraInt=0:extraString=:kind=1:metadataVersion=[I@fbb1508:packageName=), io.qameta.allure.kotlin.Severity(value=critical), io.qameta.allure.kotlin.Story(value=Slow)]
+INSTRUMENTATION_STATUS_CODE: 2
+INSTRUMENTATION_STATUS: class=com.example.FailedAssumptionTest
+INSTRUMENTATION_STATUS: current=4
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=39
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=ignoreTest
+</code></pre>
+
+<p>To generate the above metrics you need to add a JUnit 4 listener to your dependencies:</p>
+
+<pre><code class="language-kotlin">dependecies {
+  androidTestImplementation("com.malinskiy.adam:android-junit4-test-annotation-producer:${LATEST_VERSION}")
+}
+</code></pre>
+
+<p>Then you need to attach it to the execution. One way to attach the listener is using <code>am instrument</code> parameters, e.g.
+<code>-e listener com.malinskiy.adam.junit4.android.listener.TestAnnotationProducer</code>. Below you will find examples for configuring a remote test
+parser:</p>
+
+<ul class="tab" data-tab="01af5137-03cc-4c31-876f-8d24cd671cec">
+    
+        <li class="active">
+            <a href="">Marathonfile </a>
+        </li>
+    
+        <li>
+            <a href="">Gradle Kotlin </a>
+        </li>
+    
+</ul>
+<ul class="tab-content" id="01af5137-03cc-4c31-876f-8d24cd671cec">
+    
+        <li class="active">
+<pre><code class="language-yaml">vendorConfiguration:
+  type: "Android"
+  testParserConfiguration:
+    type: "remote"
+    instrumentationArgs:
+      listener: "com.malinskiy.adam.junit4.android.listener.TestAnnotationProducer"
+</code></pre>
+
+</li>
+    
+        <li>
+<pre><code class="language-kotlin">marathon {
+  testParserConfiguration = TestParserConfiguration.RemoteTestParserConfiguration(
+    mapOf(
+      "listener" to "com.malinskiy.adam.junit4.android.listener.TestAnnotationProducer"
+    )
+  )
+}
+</code></pre>
+
+</li>
+    
+</ul>
+
+<p>Keep in mind that <code>instrumentationArgs</code> should include a listener only for the test parser. During the actual execution there is no reason
+to produce test annotations.</p>
+
+<h2 id="test-access-configuration">Test access configuration</h2>
+
+<p>Marathon supports adam’s junit extensions which allow tests to gain access to adb on all devices and emulator’s control + gRPC port. See the
+<a href="https://malinskiy.github.io/adam/extensions/1-android-junit/">docs</a> as well as the <a href="https://github.com/Malinskiy/adam/pull/30">PR</a> for
+description on how this works.</p>
+
+<ul class="tab" data-tab="be16e9db-19b9-4d33-b40d-4ea6d4163896">
+    
+        <li class="active">
+            <a href="">Marathonfile </a>
+        </li>
+    
+        <li>
+            <a href="">Gradle Kotlin </a>
+        </li>
+    
+</ul>
+<ul class="tab-content" id="be16e9db-19b9-4d33-b40d-4ea6d4163896">
+    
+        <li class="active">
+<pre><code class="language-yaml">vendorConfiguration:
+  type: "Android"
+  testAccessConfiguration:
+    adb: true
+    grpc: true
+    console: true
+    consoleToken: "cantFoolMe"
+</code></pre>
+
+</li>
+    
+        <li>
+<pre><code class="language-kotlin">marathon {
+  testAccessConfiguration = TestAccessConfiguration(
+    adb = true,
+    grpc = true,
+    console = true,
+    consoleToken = "cantFoolMe"
+  )
+}
+</code></pre>
+
+</li>
+    
+</ul>
+
+<h2 id="multiple-adb-servers">Multiple adb servers</h2>
+<p>Default configuration of marathon assumes that adb server is started locally and is available at <code>127.0.0.1:5037</code>. In some cases it may be
+desirable to connect multiple adb servers instead of connecting devices to a single adb server. An example of this is distributed execution 
+of tests using test access (calling adb commands from tests). For such scenario all emulators should be connected via a local (in relation 
+to the emulator) adb server. Default port for each host is 5037.</p>
+
+<p>In order to expose the adb server it should be started on all or public network interfaces using option <code>-a</code>. For example, if you want to
+expose the adb server and start it in foreground explicitly on port 5037: <code>adb nodaemon server -a -P 5037</code>.</p>
+
+<p>This functionality is only supported by vendor adam because ddmlib doesn’t support connecting to a remote instance of adb server.</p>
+
+<ul class="tab" data-tab="4183c469-19fa-44c7-9431-7c6fb36889d8">
+    
+        <li class="active">
+            <a href="">Marathonfile </a>
+        </li>
+    
+        <li>
+            <a href="">Gradle Kotlin </a>
+        </li>
+    
+</ul>
+<ul class="tab-content" id="4183c469-19fa-44c7-9431-7c6fb36889d8">
+    
+        <li class="active">
+<pre><code class="language-yaml">vendorConfiguration:
+  type: "Android"
+  adbServers:
+    - host: 127.0.0.1
+    - host: 10.0.0.2
+      port: 5037
+</code></pre>
+
+</li>
+    
+        <li>
+<pre><code class="language-kotlin">marathon {
+  adbServers = listOf(
+    AdbEndpoint(host = "127.0.0.1"),
+    AdbEndpoint(host = "10.0.0.2", port = 5037)
+  )
+}
+</code></pre>
+
+</li>
+    
+</ul>
+
+<h2 id="extra-applications-apk-path">Extra applications APK path</h2>
+<p>Install extra apk before running the tests if required, e.g. test-butler.apk</p>
+
+<ul class="tab" data-tab="7b335ef1-b990-4575-9890-f6631a96db75">
+    
+        <li class="active">
+            <a href="">Marathonfile </a>
+        </li>
+    
+        <li>
+            <a href="">Gradle Kotlin </a>
+        </li>
+    
+</ul>
+<ul class="tab-content" id="7b335ef1-b990-4575-9890-f6631a96db75">
+    
+        <li class="active">
+<pre><code class="language-yaml">vendorConfiguration:
+  type: "Android"
+  extraApplicationsApk: 
+    - "app/build/outputs/apk/androidTest/debug/extra.apk"
+    - "app/build/outputs/apk/androidTest/debug/extra_two.apk"
+</code></pre>
+</li>
+    
+        <li>
+<pre><code class="language-kotlin">marathon {
+  extraApplications = listOf(
+    File(project.rootDir, "test-butler-app-2.2.1.apk")
+    File("/home/user/other-apk-with-absolute-path.apk"),
+  )
+}
+</code></pre>
+
+</li>
+    
+</ul>
+
+<p>Keep in mind that for Gradle, the <code>extraApplications</code> parameter will affect all the testing apk configurations in a single module.</p>
+
+<h2 id="screencapture-api">ScreenCapture API</h2>
+<p>Marathon supports automatic pull of screenshots taken via <a href="https://developer.android.com/reference/androidx/test/runner/screenshot/package-summary">ScreenCapture API</a></p>
+
+<p>To enable marathon to pull screenshots you need to use a custom <a href="https://developer.android.com/reference/androidx/test/runner/screenshot/ScreenCaptureProcessor">ScreenCaptureProcessor</a> called
+<code>AdamScreenCaptureProcessor</code>.</p>
+
+<p>Firstly, add <code>com.malinskiy.adam:android-junit4-test-annotation-producer:${LATEST_VERSION}</code> to your test code.</p>
+
+<p>Secondly, enable AdamScreenCaptureProcessor in your tests. You can do this manually:</p>
+<pre><code class="language-kotlin">Screenshot.addScreenCaptureProcessors(setOf(AdamScreenCaptureProcessor()))
+</code></pre>
+<p>or using JUnit4 rule <code>AdamScreenCaptureRule</code>:</p>
+<pre><code class="language-kotlin">class ScreenshotTest {
+    ... 
+  
+    @get:Rule
+    val screencaptureRule = AdamScreenCaptureRule()
+
+    @Test
+    fun testScreencapture() {
+        ...
+        Screenshot.capture().process()
+        ...
+    }
+}
+
+</code></pre>
+
+<p>That’s it, you’re done. No need for custom configuration on Marathon’s side: everything should be picked up automatically.</p>
+
+<p>More information on this custom ScreenCaptureProcessor can be found <a href="https://malinskiy.github.io/adam/extensions/2-android-event-producers/#adamscreencaptureprocessor">here</a>.</p>
+
+<h2 id="enable-window-animations">Enable window animations</h2>
+<p>By default, marathon uses <code>--no-window-animation</code> flag. Use the following option if you want to enable window animations:</p>
+
+<ul class="tab" data-tab="b9974738-7fa4-4fd1-a77e-59751a9f169b">
+    
+        <li class="active">
+            <a href="">Marathonfile </a>
+        </li>
+    
+        <li>
+            <a href="">Gradle Kotlin </a>
+        </li>
+    
+</ul>
+<ul class="tab-content" id="b9974738-7fa4-4fd1-a77e-59751a9f169b">
+    
+        <li class="active">
+<pre><code class="language-yaml">vendorConfiguration:
+  type: "Android"
+  disableWindowAnimation: false
+</code></pre>
+</li>
+    
+        <li>
+<pre><code class="language-kotlin">marathon {
+  disableWindowAnimation = false
+}
+</code></pre>
+
+</li>
+    
+</ul>
+
+
+    </div>
+</div>
+
+</div>
+<!-- Jquery -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<!-- Highlight -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.4.1/highlight.min.js"></script>
+<script> hljs.initHighlighting(); </script>
+<!-- Docsearch -->
+<script src="/marathon/js/docsearch.min.js" type="text/javascript"></script>
+<!-- Touch gesture support -->
+<script src="/marathon/js/hammer.min.js"></script>
+<!-- Custom scripts for this template -->
+<script src="/marathon/js/functions.js"></script>
+<script src="/marathon/js/tabs.js"></script>
+
+</body>
+</html>
