@@ -73,6 +73,10 @@ abstract class BaseAndroidDevice(
 
     override suspend fun setup() {
         booted = waitForBoot()
+        if(!booted) {
+            throw DeviceSetupException("Unable to configure device $serialNumber: not booted")
+        }
+        
         abi = getProperty("ro.product.cpu.abi") ?: abi
 
         val sdk = getProperty("ro.build.version.sdk")
