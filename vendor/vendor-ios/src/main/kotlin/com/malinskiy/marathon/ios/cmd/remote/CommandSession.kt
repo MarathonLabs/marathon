@@ -9,6 +9,7 @@ interface CommandSession : Closeable {
     val errorStream: InputStream
     val outputStream: OutputStream
 
+    fun interrupt()
     fun kill()
 
     val isEOF: Boolean

@@ -16,6 +16,9 @@ import com.malinskiy.marathon.config.vendor.android.ThreadingConfiguration
 import com.malinskiy.marathon.config.vendor.android.TimeoutConfiguration
 import com.malinskiy.marathon.config.vendor.ios.XcresultConfiguration
 import java.io.File
+import java.io.FileNotFoundException
+import com.malinskiy.marathon.config.vendor.ios.ScreenRecordConfiguration as AppleScreenRecordConfiguration
+import com.malinskiy.marathon.config.vendor.ios.TimeoutConfiguration as AppleTimeoutConfiguration
 
 const val DEFAULT_INIT_TIMEOUT_MILLIS = 30_000
 const val DEFAULT_AUTO_GRANT_PERMISSION = false
@@ -139,13 +142,25 @@ sealed class VendorConfiguration {
         @JsonProperty("compactOutput") val compactOutput: Boolean = false,
         @JsonProperty("keepAliveIntervalMillis") val keepAliveIntervalMillis: Long = 0L,
         @JsonProperty("devices") val devicesFile: File? = null,
-        @JsonProperty("xcresult") val xcresult: XcresultConfiguration = XcresultConfiguration()
-    ) : VendorConfiguration() {
+        @JsonProperty("xcresult") val xcresult: XcresultConfiguration = XcresultConfiguration(),
+        @JsonProperty("timeoutConfiguration") val timeoutConfiguration: AppleTimeoutConfiguration = AppleTimeoutConfiguration(),
+        @JsonProperty("screenRecordConfiguration") val screenRecordConfiguration: AppleScreenRecordConfiguration = AppleScreenRecordConfiguration(),
+        ) : VendorConfiguration() {
         /**
          * Exception should not happen since it will be first thrown in deserializer
          */
         fun safecxtestrunPath(): File =
             xctestrunPath ?: throw ConfigurationException("Unable to find an xctestrun file in derived data folder")
+
+        fun validate() {
+            if (!remotePrivateKey.exists()) {
+                throw FileNotFoundException("Private key not found at $remotePrivateKey")
+            }
+
+            if (safecxtestrunPath().parentFile != derivedDataDir.resolve("Build/Products")) {
+                throw FileNotFoundException("xctestrun file must be located in build products directory.")
+            }
+        }
     }
 
     @Suppress("CanSealedSubClassBeObject")

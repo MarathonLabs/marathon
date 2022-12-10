@@ -1,43 +1,42 @@
 package com.malinskiy.marathon.ios.executor.listener
 
-import com.malinskiy.marathon.device.DevicePoolId
-import com.malinskiy.marathon.io.FileManager
-import com.malinskiy.marathon.ios.IOSDevice
-import com.malinskiy.marathon.ios.recording.ScreenRecorder
-import com.malinskiy.marathon.log.MarathonLogging
+import com.malinskiy.marathon.ios.AppleDevice
+import com.malinskiy.marathon.ios.RemoteFileManager
+import com.malinskiy.marathon.ios.cmd.remote.CommandSession
 import com.malinskiy.marathon.test.Test
 
 class ScreenRecordingListener(
-    private val fileManager: FileManager,
-    private val pool: DevicePoolId,
-    private val device: IOSDevice
-) : TestRunListener {
+    private val testBatchId: String,
+    private val device: AppleDevice,
+) : AppleTestRunListener {
+    private var session: CommandSession? = null
 
-    private val logger = MarathonLogging.logger(ScreenRecordingListener::class.java.simpleName)
+    override suspend fun testStarted(test: Test) {
+        val remoteFile = RemoteFileManager.remoteVideoForTest(test, testBatchId)
+        session = device.startVideoRecording(remoteFile)
+    }
 
-    private var screenRecorder: ScreenRecorder? = null
-
-    override fun testStarted(test: Test) {
-        if (screenRecorder != null) {
-            logger.error { "Something wrong. Recorder didn't finish but called again for the same device" }
+    override suspend fun testFailed(test: Test, startTime: Long, endTime: Long) {
+        session?.let {
+            stop(it)
         }
-        screenRecorder = ScreenRecorder(device, test)
-        screenRecorder?.run()
     }
 
-    override fun testFailed(test: Test, startTime: Long, endTime: Long) {
-        screenRecorder?.interrupt()
-        screenRecorder = null
-    }
-
-    override fun testPassed(test: Test, startTime: Long, endTime: Long) {
-        screenRecorder?.interrupt()
-        screenRecorder = null
-    }
-
-    override fun batchFinished() {
-        if (screenRecorder != null) {
-            logger.error { "Something wrong. Recorder didn't finish but test batch already finished" }
+    override suspend fun testPassed(test: Test, startTime: Long, endTime: Long) {
+        session?.let {
+            stop(it)
         }
+    }
+
+    override suspend fun afterTestRun() {
+        session?.let {
+            stop(it)
+        }
+    }
+    
+    private fun stop(commandSession: CommandSession) {
+        commandSession.outputStream.write("\u0003".toByteArray())
+        commandSession.outputStream.flush()
+        commandSession.close()
     }
 }

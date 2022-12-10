@@ -5,6 +5,8 @@ import assertk.assertions.containsOnly
 import assertk.assertions.isEqualTo
 import assertk.assertions.isFalse
 import assertk.assertions.isTrue
+import com.malinskiy.marathon.execution.result.TemporalTestResult
+import com.malinskiy.marathon.execution.result.TestRunResultsAccumulator
 import com.nhaarman.mockitokotlin2.mock
 import org.junit.jupiter.api.Test
 
@@ -29,13 +31,13 @@ class TestRunResultsAccumulatorTest {
             testStarted(test5)
 
             testRunEnded(1234, mapOf("metric1" to "value1"))
-        }.testResults)
+        }.temporalTestResults)
             .containsOnly(
-                test1 to AndroidTestResult(status = AndroidTestStatus.PASSED, 0, 0, null, mapOf("metric" to "value")),
-                test2 to AndroidTestResult(status = AndroidTestStatus.FAILURE, 0, 0, "trace", null),
-                test3 to AndroidTestResult(status = AndroidTestStatus.IGNORED, 0, 0, null, null),
-                test4 to AndroidTestResult(status = AndroidTestStatus.ASSUMPTION_FAILURE, 0, 0, "trace", null),
-                test5 to AndroidTestResult(status = AndroidTestStatus.INCOMPLETE, 0, 0, null, null),
+                test1 to TemporalTestResult(status = AndroidTestStatus.PASSED, 0, 0, null, mapOf("metric" to "value")),
+                test2 to TemporalTestResult(status = AndroidTestStatus.FAILURE, 0, 0, "trace", null),
+                test3 to TemporalTestResult(status = AndroidTestStatus.IGNORED, 0, 0, null, null),
+                test4 to TemporalTestResult(status = AndroidTestStatus.ASSUMPTION_FAILURE, 0, 0, "trace", null),
+                test5 to TemporalTestResult(status = AndroidTestStatus.INCOMPLETE, 0, 0, null, null),
             )
 
         assertThat(testRunResultsAccumulator.isRunComplete).isTrue()
@@ -59,9 +61,9 @@ class TestRunResultsAccumulatorTest {
             testEnded(test1, mapOf("metric" to "value"))
 
             testRunFailed("Problems are everywhere")
-        }.testResults)
+        }.temporalTestResults)
             .containsOnly(
-                test1 to AndroidTestResult(status = AndroidTestStatus.PASSED, 0, 0, null, mapOf("metric" to "value")),
+                test1 to TemporalTestResult(status = AndroidTestStatus.PASSED, 0, 0, null, mapOf("metric" to "value")),
             )
 
         assertThat(testRunResultsAccumulator.isRunComplete).isFalse()
@@ -81,9 +83,9 @@ class TestRunResultsAccumulatorTest {
             testEnded(test1, mapOf("metric" to "value"))
 
             testRunStopped(300)
-        }.testResults)
+        }.temporalTestResults)
             .containsOnly(
-                test1 to AndroidTestResult(status = AndroidTestStatus.PASSED, 0, 0, null, mapOf("metric" to "value")),
+                test1 to TemporalTestResult(status = AndroidTestStatus.PASSED, 0, 0, null, mapOf("metric" to "value")),
             )
 
         assertThat(testRunResultsAccumulator.isRunComplete).isTrue()
@@ -99,10 +101,10 @@ class TestRunResultsAccumulatorTest {
             testFailed(test1, "trace")
             testEnded(test2, emptyMap())
             testRunEnded(300, emptyMap())
-        }.testResults)
+        }.temporalTestResults)
             .containsOnly(
-                test1 to AndroidTestResult(status = AndroidTestStatus.FAILURE, 0, 0, "trace", null),
-                test2 to AndroidTestResult(status = AndroidTestStatus.PASSED, 0, 0, null, emptyMap()),
+                test1 to TemporalTestResult(status = AndroidTestStatus.FAILURE, 0, 0, "trace", null),
+                test2 to TemporalTestResult(status = AndroidTestStatus.PASSED, 0, 0, null, emptyMap()),
             )
 
         assertThat(testRunResultsAccumulator.isRunComplete).isTrue()

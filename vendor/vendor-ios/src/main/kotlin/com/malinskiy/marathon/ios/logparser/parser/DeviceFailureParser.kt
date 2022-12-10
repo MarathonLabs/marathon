@@ -1,8 +1,8 @@
 package com.malinskiy.marathon.ios.logparser.parser
 
-import com.malinskiy.marathon.ios.logparser.StreamingLogParser
+import com.malinskiy.marathon.execution.listener.LineListener
 
-class DeviceFailureParser : StreamingLogParser {
+class DeviceFailureParser : LineListener {
     private val patterns = listOf(
         "Failed to install or launch the test runner",
         "Software caused connection abort",
@@ -37,6 +37,4 @@ class DeviceFailureParser : StreamingLogParser {
                 )
             }
     }
-
-    override fun close() = Unit
 }

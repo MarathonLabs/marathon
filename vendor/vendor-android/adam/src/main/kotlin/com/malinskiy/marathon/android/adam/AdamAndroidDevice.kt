@@ -41,7 +41,7 @@ import com.malinskiy.marathon.android.RemoteFileManager
 import com.malinskiy.marathon.android.exception.CommandRejectedException
 import com.malinskiy.marathon.android.exception.InstallException
 import com.malinskiy.marathon.android.exception.TransferException
-import com.malinskiy.marathon.android.executor.listeners.line.LineListener
+import com.malinskiy.marathon.execution.listener.LineListener
 import com.malinskiy.marathon.android.extension.toScreenRecorderCommand
 import com.malinskiy.marathon.config.Configuration
 import com.malinskiy.marathon.config.vendor.VendorConfiguration
@@ -326,13 +326,13 @@ class AdamAndroidDevice(
 
     private val logcatListeners = mutableListOf<LineListener>()
 
-    override fun addLogcatListener(listener: LineListener) {
+    override fun addLineLister(listener: LineListener) {
         synchronized(logcatListeners) {
             logcatListeners.add(listener)
         }
     }
 
-    override fun removeLogcatListener(listener: LineListener) {
+    override fun removeLineListener(listener: LineListener) {
         synchronized(logcatListeners) {
             logcatListeners.remove(listener)
         }

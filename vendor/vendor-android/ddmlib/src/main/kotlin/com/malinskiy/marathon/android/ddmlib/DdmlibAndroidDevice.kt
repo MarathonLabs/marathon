@@ -19,7 +19,7 @@ import com.malinskiy.marathon.android.ddmlib.shell.receiver.CollectingShellOutpu
 import com.malinskiy.marathon.android.ddmlib.sync.NoOpSyncProgressMonitor
 import com.malinskiy.marathon.android.exception.CommandRejectedException
 import com.malinskiy.marathon.android.exception.TransferException
-import com.malinskiy.marathon.android.executor.listeners.line.LineListener
+import com.malinskiy.marathon.execution.listener.LineListener
 import com.malinskiy.marathon.config.Configuration
 import com.malinskiy.marathon.config.vendor.VendorConfiguration
 import com.malinskiy.marathon.config.vendor.android.SerialStrategy
@@ -81,13 +81,13 @@ class DdmlibAndroidDevice(
         }
     }
 
-    override fun addLogcatListener(listener: LineListener) {
+    override fun addLineLister(listener: LineListener) {
         synchronized(logcatListeners) {
             logcatListeners.add(listener)
         }
     }
 
-    override fun removeLogcatListener(listener: LineListener) {
+    override fun removeLineListener(listener: LineListener) {
         synchronized(logcatListeners) {
             logcatListeners.remove(listener)
         }

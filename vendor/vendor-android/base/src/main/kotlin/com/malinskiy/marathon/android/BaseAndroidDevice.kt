@@ -5,10 +5,11 @@ import com.malinskiy.marathon.analytics.internal.pub.Track
 import com.malinskiy.marathon.android.exception.TransferException
 import com.malinskiy.marathon.android.executor.listeners.CompositeTestRunListener
 import com.malinskiy.marathon.android.executor.listeners.DebugTestRunListener
-import com.malinskiy.marathon.android.executor.listeners.LogCatListener
+import com.malinskiy.marathon.execution.listener.LogListener
 import com.malinskiy.marathon.android.executor.listeners.NoOpTestRunListener
 import com.malinskiy.marathon.android.executor.listeners.ProgressTestRunListener
-import com.malinskiy.marathon.android.executor.listeners.TestRunResultsListener
+import com.malinskiy.marathon.android.executor.listeners.TestRunListenerAdapter
+import com.malinskiy.marathon.android.executor.listeners.TestRunResultsTestRunListener
 import com.malinskiy.marathon.android.executor.listeners.filesync.FileSyncTestRunListener
 import com.malinskiy.marathon.android.executor.listeners.screenshot.AdamScreenCaptureTestRunListener
 import com.malinskiy.marathon.android.executor.listeners.screenshot.ScreenCapturerTestRunListener
@@ -24,6 +25,7 @@ import com.malinskiy.marathon.config.vendor.android.SerialStrategy
 import com.malinskiy.marathon.device.DeviceFeature
 import com.malinskiy.marathon.device.DevicePoolId
 import com.malinskiy.marathon.device.OperatingSystem
+import com.malinskiy.marathon.device.toDeviceInfo
 import com.malinskiy.marathon.exceptions.DeviceSetupException
 import com.malinskiy.marathon.execution.TestBatchResults
 import com.malinskiy.marathon.execution.progress.ProgressReporter
@@ -254,8 +256,10 @@ abstract class BaseAndroidDevice(
             prepareRecorderListener(feature, fileManager, devicePoolId, testBatch.id, screenRecordingPolicy, attachmentProviders)
         } ?: NoOpTestRunListener()
 
-        val logCatListener = LogCatListener(this, devicePoolId, testBatch.id, LogWriter(fileManager))
+        val logListener = TestRunListenerAdapter(
+            LogListener(this.toDeviceInfo(), this, devicePoolId, testBatch.id, LogWriter(fileManager))
             .also { attachmentProviders.add(it) }
+        )
 
         val fileSyncTestRunListener =
             FileSyncTestRunListener(devicePoolId, this, this@BaseAndroidDevice.androidConfiguration.fileSyncConfiguration, fileManager)
@@ -266,8 +270,8 @@ abstract class BaseAndroidDevice(
         return CompositeTestRunListener(
             listOf(
                 recorderListener,
-                logCatListener,
-                TestRunResultsListener(testBatch, this, deferred, timer, progressReporter, devicePoolId, attachmentProviders),
+                logListener,
+                TestRunResultsTestRunListener(testBatch, this, deferred, timer, progressReporter, devicePoolId, attachmentProviders),
                 DebugTestRunListener(this),
                 ProgressTestRunListener(this, devicePoolId, progressReporter),
                 adamScreenCaptureTestRunListener,

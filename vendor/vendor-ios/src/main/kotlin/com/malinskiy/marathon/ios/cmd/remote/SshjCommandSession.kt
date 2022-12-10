@@ -22,6 +22,10 @@ class SshjCommandSession(executableLine: String, ssh: SSHClient) : CommandSessio
     override val isOpen: Boolean
         get() = command.isOpen
 
+    override fun interrupt() {
+        command.signal(Signal.INT)
+    }
+
     override fun kill() {
         command.signal(Signal.TERM)
     }

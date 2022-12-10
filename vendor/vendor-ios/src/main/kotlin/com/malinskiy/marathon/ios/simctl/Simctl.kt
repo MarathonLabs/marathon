@@ -1,75 +1,79 @@
 package com.malinskiy.marathon.ios.simctl
 
-import com.dd.plist.PropertyListParser
 import com.google.gson.Gson
 import com.google.gson.JsonSyntaxException
-import com.malinskiy.marathon.ios.IOSDevice
+import com.malinskiy.marathon.config.vendor.ios.Display
+import com.malinskiy.marathon.config.vendor.ios.Mask
+import com.malinskiy.marathon.config.vendor.ios.TimeoutConfiguration
+import com.malinskiy.marathon.config.vendor.ios.Type
+import com.malinskiy.marathon.ios.RemoteFileManager
 import com.malinskiy.marathon.ios.cmd.CommandExecutor
 import com.malinskiy.marathon.ios.cmd.CommandResult
+import com.malinskiy.marathon.ios.cmd.remote.CommandSession
 import com.malinskiy.marathon.ios.logparser.parser.DeviceFailureException
 import com.malinskiy.marathon.ios.logparser.parser.DeviceFailureReason
 import com.malinskiy.marathon.ios.simctl.model.SimctlDevice
-import com.malinskiy.marathon.ios.simctl.model.SimctlDeviceType
 import com.malinskiy.marathon.ios.simctl.model.SimctlListDevicesOutput
-import java.io.File
+import com.malinskiy.marathon.log.MarathonLogging
 
-class Simctl(private val commandExecutor: CommandExecutor, private val gson: Gson) {
-    fun list(): List<SimctlDevice> {
-        val output = exec("list --json").stdout
+class Simctl(private val commandExecutor: CommandExecutor, private val timeoutConfiguration: TimeoutConfiguration, private val gson: Gson) {
+    private val logger = MarathonLogging.logger {}
+
+    suspend fun list(): List<SimctlDevice> {
+        val commandResult = exec("list --json")
+        if (commandResult.exitCode != 0) {
+            throw DeviceFailureException(
+                DeviceFailureReason.ServicesUnavailable,
+                "simctl list errored on ${commandExecutor.workerId}: stdout=${commandResult.stdout}, stderr=${commandResult.stderr}, exitCode=${commandResult.exitCode}"
+            )
+        }
+
         return try {
-            gson.fromJson(output, SimctlListDevicesOutput::class.java).devices.devices
+            val listOutput: SimctlListDevicesOutput = gson.fromJson(commandResult.stdout, SimctlListDevicesOutput::class.java)
+            listOutput.devices.devices
         } catch (e: JsonSyntaxException) {
             throw DeviceFailureException(
                 DeviceFailureReason.ServicesUnavailable,
-                "Error parsing simctl output on ${commandExecutor.workerId}: $output"
+                "Error parsing simctl output on ${commandExecutor.workerId}: ${commandResult.stdout}"
             )
         }
     }
 
-    fun deviceType(device: IOSDevice): String? {
-        return exec("getenv ${device.udid} SIMULATOR_VERSION_INFO").stdout
-            .split(" - ")
-            .associate { it.substringBefore(": ") to it.substringAfter(": ").trim() }
-            .get("DeviceType")
+    suspend fun boot(udid: String): Boolean {
+        return exec("boot $udid").exitCode == 0
     }
 
-    fun isRunning(udid: String): Boolean {
-        val output = exec("spawn $udid launchctl print system | grep com.apple.springboard.services").stdout
-        return output.contains("M   A   com.apple.springboard.services")
+    suspend fun shutdown(udid: String): Boolean {
+        return exec("shutdown $udid").exitCode == 0
     }
 
-    fun modelIdentifier(udid: String): String? {
-        return exec("getenv $udid SIMULATOR_MODEL_IDENTIFIER").stdout
-            .trim()
-            .takeIf { it.isNotBlank() }
+    suspend fun eraseAll(): Boolean {
+        return exec("erase all").exitCode == 0
     }
 
-    fun simctlDeviceType(udid: String): SimctlDeviceType {
-        val deviceHome: String = exec("getenv $udid HOME").stdout
-            .trim()
-            .takeIf { it.isNotBlank() }
-            ?: return SimctlDeviceType("Unknown", "Unknown")
-        val devicePlist = File(deviceHome).resolveSibling("device.plist")
-        val devicePlistContents = commandExecutor.execBlocking("cat ${devicePlist.canonicalPath}")
-        if (devicePlistContents.exitCode != 0) {
-            return SimctlDeviceType("Unknown", "Unknown")
-        }
-        val deviceDescriptor = PropertyListParser.parse(devicePlistContents.stdout.toByteArray()).toJavaObject() as Map<*, *>
-        if (udid != deviceDescriptor["UDID"] as String) {
-            return SimctlDeviceType("Unknown", "Unknown")
-        }
-        val deviceType = deviceDescriptor["deviceType"] as String
-        return SimctlDeviceType(deviceType, deviceType)
+    suspend fun erase(udids: List<String>): Boolean {
+        return exec("erase ${udids.joinToString(" ")}").exitCode == 0
     }
 
-//    fun boot(device: IOSDevice) {}
-//    fun shutdown(device: IOSDevice) {}
-//    fun erase(device: IOSDevice) {}
-//    fun screenshot(device: IOSDevice) {}
-//    fun video(device: IOSDevice) {}
-    
-    private fun exec(args: String): CommandResult {
+    private suspend fun exec(args: String): CommandResult {
         val command = "xcrun simctl $args"
         return commandExecutor.execBlocking(command)
+    }
+
+    suspend fun screenshot(udid: String, destination: String, type: Type, display: Display, mask: Mask): Boolean {
+        return exec("io $udid screenshot --type=${type.value} --display=${display.value} --mask=${mask.value} $destination").exitCode == 0
+    }
+
+    suspend fun getenv(udid: String, key: String): String? {
+        val commandResult = exec("getenv $udid $key")
+        if (commandResult.exitCode != 0) {
+            return null
+        }
+        return commandResult.stdout.trim().ifBlank { null }
+    }
+
+    fun recordVideo(udid: String, remotePath: String): CommandSession {
+        val command = "xcrun simctl io $udid recordVideo $remotePath"
+        return commandExecutor.startSession(command)
     }
 }

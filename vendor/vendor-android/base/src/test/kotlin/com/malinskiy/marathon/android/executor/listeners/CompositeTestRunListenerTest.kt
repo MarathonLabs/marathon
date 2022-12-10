@@ -10,7 +10,7 @@ import org.junit.jupiter.api.Test
 class CompositeTestRunListenerTest {
     @Test
     fun testDefault() {
-        val mock = mock<TestRunResultsListener>()
+        val mock = mock<TestRunResultsTestRunListener>()
         val listener = CompositeTestRunListener(listOf(mock))
 
         runBlocking {

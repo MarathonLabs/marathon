@@ -1,9 +1,10 @@
 package com.malinskiy.marathon.ios.cmd.remote
 
 import kotlinx.coroutines.delay
+import java.time.Duration
 
 class SshjCommandOutputWaiterImpl(
-    private val testOutputTimeoutMillis: Long,
+    private val testOutputTimeoutMillis: Duration,
     private val sleepDurationMillis: Long
 ) : SshjCommandOutputWaiter {
 

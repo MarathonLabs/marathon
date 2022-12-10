@@ -23,6 +23,9 @@ class SimctlDeviceListDeserializer : JsonDeserializer<SimctlDeviceList> {
                 val stateJson = deviceJson?.get("state")
                 val name = deviceJson?.get("name")?.asString
                 val udid = deviceJson?.get("udid")?.asString
+                val logPath = deviceJson?.get("logPath")?.asString
+                val isAvailable = deviceJson?.get("isAvailable")?.asBoolean
+                val deviceTypeIdentifier = deviceJson?.get("deviceTypeIdentifier")?.asString
 
                 if (stateJson != null && context != null && name != null && udid != null) {
                     val state: SimctlDevice.State = try {
@@ -31,7 +34,7 @@ class SimctlDeviceListDeserializer : JsonDeserializer<SimctlDeviceList> {
                         SimctlDevice.State.Unknown
                     }
 
-                    devices.add(SimctlDevice(runtime, state, name, udid))
+                    devices.add(SimctlDevice(runtime, state, name, udid, logPath, isAvailable, deviceTypeIdentifier))
                 }
             }
         }
