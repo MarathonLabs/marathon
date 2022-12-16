@@ -1,5 +1,6 @@
 package com.malinskiy.marathon.cli.args
 
+import com.malinskiy.marathon.config.ExecuteMode
 import com.xenomachina.argparser.ArgParser
 import com.xenomachina.argparser.default
 import java.io.File
@@ -18,4 +19,7 @@ class MarathonCliConfiguration(parser: ArgParser) {
         "--version",
         help = "Print version and exit"
     )
+    val executeMode: ExecuteMode by parser
+        .storing("--executeMode", help = "Set a certain execution mode. RUN by default") { ExecuteMode.valueOf(this) }
+        .default(ExecuteMode.RUN)
 }

@@ -34,7 +34,7 @@ fun main(args: Array<String>): Unit = mainBody(
             exitProcess(0)
         }
 
-        logger.info { "Starting marathon v${BuildConfig.VERSION}" }
+        logger.info { "Starting marathon v${BuildConfig.VERSION}, Execute mode: $executeMode" }
         val bugsnagExceptionsReporter = ExceptionsReporterFactory.get(bugsnagReporting)
         try {
             bugsnagExceptionsReporter.start(AppType.CLI)
@@ -65,7 +65,7 @@ fun main(args: Array<String>): Unit = mainBody(
 
             UsageAnalytics.enable = this.analyticsTracking
             UsageAnalytics.USAGE_TRACKER.trackEvent(Event(TrackActionType.RunType, "cli"))
-            val success = marathon.run()
+            val success = marathon.run(executeMode)
 
             val shouldReportFailure = !configuration.ignoreFailures
             if (!success && shouldReportFailure) {

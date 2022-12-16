@@ -4,6 +4,7 @@ import com.malinskiy.marathon.analytics.external.Analytics
 import com.malinskiy.marathon.analytics.internal.pub.Track
 import com.malinskiy.marathon.analytics.internal.sub.TrackerInternal
 import com.malinskiy.marathon.config.Configuration
+import com.malinskiy.marathon.config.ExecuteMode
 import com.malinskiy.marathon.config.LogicalConfigurationValidator
 import com.malinskiy.marathon.device.DeviceProvider
 import com.malinskiy.marathon.exceptions.NoDevicesException
@@ -49,9 +50,9 @@ class Marathon(
         logConfigurator.configure()
     }
 
-    fun run() = runBlocking {
+    fun run(executeMode: ExecuteMode = ExecuteMode.RUN) = runBlocking {
         try {
-            runAsync()
+            runAsync(executeMode)
         } catch (th: Throwable) {
             log.error(th.toString())
 
@@ -65,9 +66,9 @@ class Marathon(
         }
     }
 
-    suspend fun runAsync(): Boolean {
+    suspend fun runAsync(executeMode: ExecuteMode = ExecuteMode.RUN): Boolean {
         configureLogging()
-        trackAnalytics(configuration)
+        if (executeMode == ExecuteMode.RUN) trackAnalytics(configuration)
 
         logSystemInformation()
 
@@ -77,6 +78,11 @@ class Marathon(
         val parsedTests = testParser.extract()
         if (parsedTests.isEmpty()) throw NoTestCasesFoundException("No tests cases were found")
         val tests = applyTestFilters(parsedTests)
+        if (executeMode == ExecuteMode.PARSE) {
+            logParseExecuteModeOutput(tests)
+            return true
+        }
+
         val shard = prepareTestShard(tests, analytics)
 
         log.info("Scheduling ${tests.size} tests")
@@ -120,6 +126,15 @@ class Marathon(
         val systemProperties = properties.filterKeys { it.toString().startsWith("java") || it.toString().startsWith("os") }
         systemProperties.forEach {
             log.info { "${it.key}: ${it.value}" }
+        }
+    }
+
+    private fun logParseExecuteModeOutput(tests: List<Test>) {
+        log.info { "Parse execute mode. Result" }
+        log.info { "The number of tests: ${tests.size}" }
+        log.info { "Tests that should be executed:" }
+        tests.forEachIndexed { index, test ->
+            log.info { "Test #${index}: ${test.toTestName()}" }
         }
     }
 
