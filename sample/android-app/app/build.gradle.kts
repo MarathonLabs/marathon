@@ -44,26 +44,26 @@ android {
 }
     
     marathon {
-    allureConfiguration {
-        enabled = true
-    }
-    applicationPmClear = true
-    disableWindowAnimation = false
-    testApplicationPmClear = true
-    autoGrantPermission = true
-    isCodeCoverageEnabled = true
-    testParserConfiguration = TestParserConfiguration.RemoteTestParserConfiguration(
-        mapOf("listener" to "com.malinskiy.adam.junit4.android.listener.TestAnnotationProducer")
-    )
-    uncompletedTestRetryQuota = 3
-    testAccessConfiguration = TestAccessConfiguration(adb = true, grpc = true, console = true)
-    fileSyncConfiguration {
         allureConfiguration {
             enabled = true
-            relativeResultsDirectory = "files/allure-results"
         }
+        applicationPmClear = true
+        disableWindowAnimation = false
+        testApplicationPmClear = true
+        autoGrantPermission = true
+        isCodeCoverageEnabled = true
+        testParserConfiguration = TestParserConfiguration.RemoteTestParserConfiguration(
+            mapOf("listener" to "com.malinskiy.adam.junit4.android.listener.TestAnnotationProducer")
+        )
+        uncompletedTestRetryQuota = 3
+        testAccessConfiguration = TestAccessConfiguration(adb = true, grpc = true, console = true)
+        fileSyncConfiguration {
+            allureConfiguration {
+                enabled = true
+                relativeResultsDirectory = "files/allure-results"
+            }
         }
-}
+    }
 
 dependencies {
     implementation(Libraries.appCompat)
