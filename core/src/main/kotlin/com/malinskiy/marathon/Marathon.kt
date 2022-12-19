@@ -1,5 +1,11 @@
 package com.malinskiy.marathon
 
+import com.fasterxml.jackson.annotation.JsonInclude
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
+import com.fasterxml.jackson.dataformat.yaml.YAMLGenerator
+import com.fasterxml.jackson.module.kotlin.KotlinFeature
+import com.fasterxml.jackson.module.kotlin.KotlinModule
 import com.malinskiy.marathon.analytics.external.Analytics
 import com.malinskiy.marathon.analytics.internal.pub.Track
 import com.malinskiy.marathon.analytics.internal.sub.TrackerInternal
@@ -130,12 +136,27 @@ class Marathon(
     }
 
     private fun logParseExecuteModeOutput(tests: List<Test>) {
-        log.info { "Parse execute mode. Result" }
-        log.info { "The number of tests: ${tests.size}" }
-        log.info { "Tests that should be executed:" }
-        tests.forEachIndexed { index, test ->
-            log.info { "Test #${index}: ${test.toTestName()}" }
+        val mapper: ObjectMapper = ObjectMapper(
+            YAMLFactory()
+                .disable(YAMLGenerator.Feature.USE_NATIVE_TYPE_ID)
+        ).apply {
+            setSerializationInclusion(JsonInclude.Include.NON_NULL)
+            registerModule(
+                KotlinModule.Builder()
+                    .withReflectionCacheSize(512)
+                    .configure(KotlinFeature.NullToEmptyCollection, false)
+                    .configure(KotlinFeature.NullToEmptyMap, false)
+                    .configure(KotlinFeature.NullIsSameAsDefault, false)
+                    .configure(KotlinFeature.SingletonSupport, true)
+                    .configure(KotlinFeature.StrictNullChecks, false)
+                    .build()
+            )
         }
+        val parseResult = ParseResult(tests)
+        val res = mapper.writeValueAsString(parseResult)
+
+        log.info { "Parse execute mode. Result" }
+        log.info { res }
     }
 
     private fun installShutdownHook(block: suspend () -> Unit): ShutdownHook {
@@ -183,3 +204,8 @@ class Marathon(
         }
     }
 }
+
+// todo
+data class ParseResult(
+    val tests: List<Test>
+)

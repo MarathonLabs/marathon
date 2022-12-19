@@ -7,10 +7,10 @@ plugins {
 
 dependencies {
     api(Libraries.jacksonDatabind)
-    implementation(Libraries.jacksonAnnotations)
-    implementation(Libraries.jacksonKotlin)
-    implementation(Libraries.jacksonYaml)
-    implementation(Libraries.jacksonJSR310)
+    api(Libraries.jacksonAnnotations)
+    api(Libraries.jacksonKotlin)
+    api(Libraries.jacksonYaml)
+    api(Libraries.jacksonJSR310)
     api(Libraries.apacheCommonsText)
     testImplementation(TestLibraries.junit5)
     testImplementation(TestLibraries.kluent)
