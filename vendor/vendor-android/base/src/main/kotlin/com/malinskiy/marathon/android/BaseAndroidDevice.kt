@@ -2,7 +2,7 @@ package com.malinskiy.marathon.android
 
 import com.android.sdklib.AndroidVersion
 import com.malinskiy.marathon.analytics.internal.pub.Track
-import com.malinskiy.marathon.android.exception.TransferException
+import com.malinskiy.marathon.exceptions.TransferException
 import com.malinskiy.marathon.android.executor.listeners.CompositeTestRunListener
 import com.malinskiy.marathon.android.executor.listeners.DebugTestRunListener
 import com.malinskiy.marathon.execution.listener.LogListener
@@ -14,7 +14,7 @@ import com.malinskiy.marathon.android.executor.listeners.filesync.FileSyncTestRu
 import com.malinskiy.marathon.android.executor.listeners.screenshot.AdamScreenCaptureTestRunListener
 import com.malinskiy.marathon.android.executor.listeners.screenshot.ScreenCapturerTestRunListener
 import com.malinskiy.marathon.android.executor.listeners.video.ScreenRecorderTestBatchListener
-import com.malinskiy.marathon.android.model.Rotation
+import com.malinskiy.marathon.device.screenshot.Rotation
 import com.malinskiy.marathon.config.Configuration
 import com.malinskiy.marathon.config.ScreenRecordingPolicy
 import com.malinskiy.marathon.config.vendor.VendorConfiguration
@@ -51,7 +51,7 @@ abstract class BaseAndroidDevice(
     protected val track: Track,
     protected val timer: Timer
 ) : AndroidDevice, CoroutineScope {
-    protected val logger = MarathonLogging.logger(AndroidDevice::class.java.simpleName)
+    override val logger = MarathonLogging.logger(AndroidDevice::class.java.simpleName)
 
     override var abi: String = "Unknown"
     override var version: AndroidVersion = AndroidVersion.DEFAULT
@@ -72,6 +72,12 @@ abstract class BaseAndroidDevice(
 
     override val fileManager = RemoteFileManager(this)
     protected lateinit var md5cmd: String
+
+    /**
+     * The call to fetchRotation is a very expensive one on Android so we just keep returning the original orientation
+     */
+    override val orientation: Rotation
+        get() = initialRotation
 
     override suspend fun setup() {
         booted = waitForBoot()

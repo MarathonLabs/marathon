@@ -1,6 +1,11 @@
 package com.malinskiy.marathon.ios
 
 import com.malinskiy.marathon.config.vendor.VendorConfiguration
+import com.malinskiy.marathon.config.vendor.ios.LifecycleAction
+import com.malinskiy.marathon.config.vendor.ios.LifecycleConfiguration
+import com.malinskiy.marathon.config.vendor.ios.RsyncConfiguration
+import com.malinskiy.marathon.config.vendor.ios.SshAuthentication
+import com.malinskiy.marathon.config.vendor.ios.SshConfiguration
 import kotlinx.coroutines.runBlocking
 import org.amshove.kluent.shouldContainSame
 import org.junit.jupiter.api.Test
@@ -17,13 +22,19 @@ class AppleTestParserTest {
     private val vendorConfiguration = VendorConfiguration.IOSConfiguration(
         derivedDataDir = derivedDataDir,
         xctestrunPath = xctestrunPath,
-        remoteUsername = "testuser",
-        remotePrivateKey = File("/home/fakekey"),
-        knownHostsPath = null,
-        remoteRsyncPath = "/remote/rsync",
+        ssh = SshConfiguration(
+            authentication = SshAuthentication.PublicKeyAuthentication(
+                username = "testuser",
+                key = File("/home/fakekey"),
+            ),
+            knownHostsPath = null,
+            debug = false,
+        ),
+        rsync = RsyncConfiguration(remotePath = "/remote/rsync"),
         sourceRoot = sourceRoot,
-        debugSsh = false,
-        alwaysEraseSimulators = true
+        lifecycleConfiguration = LifecycleConfiguration(
+            onStart = setOf(LifecycleAction.ERASE)
+        ),
     )
     private val parser = AppleTestParser(vendorConfiguration)
 

@@ -1,8 +1,10 @@
 package com.malinskiy.marathon.ios.logparser.parser
 
-import com.malinskiy.marathon.execution.listener.LineListener
+import com.malinskiy.marathon.ios.logparser.TestEventProducer
+import com.malinskiy.marathon.ios.test.TestEvent
+import com.malinskiy.marathon.ios.test.TestRunFailed
 
-class DeviceFailureParser : LineListener {
+class DeviceFailureParser : TestEventProducer {
     private val patterns = listOf(
         "Failed to install or launch the test runner",
         "Software caused connection abort",
@@ -23,18 +25,17 @@ class DeviceFailureParser : LineListener {
     )
     private val crashPatterns = listOf("Assertion Failure: <unknown>:0: [^\\s]+ crashed in ")
     private var count = 0
-    override fun onLine(line: String) {
-        patterns.firstOrNull { line.contains(it) }
+
+    override fun process(line: String): List<TestEvent>? {
+        return patterns.firstOrNull { line.contains(it) }
             ?.let {
-                throw DeviceFailureException(
-                    when (patterns.indexOf(it)) {
-                        0 -> DeviceFailureReason.FailedRunner
-                        1 -> DeviceFailureReason.ConnectionAbort
-                        2 -> DeviceFailureReason.InvalidSimulatorIdentifier
-                        else -> DeviceFailureReason.Unknown
-                    },
-                    it
-                )
+                val reason = when (patterns.indexOf(it)) {
+                    0 -> DeviceFailureReason.FailedRunner
+                    1 -> DeviceFailureReason.ConnectionAbort
+                    2 -> DeviceFailureReason.InvalidSimulatorIdentifier
+                    else -> DeviceFailureReason.Unknown
+                }
+                return listOf(TestRunFailed(it, reason))
             }
     }
 }

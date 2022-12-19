@@ -20,7 +20,7 @@ class LogListener(
 ) : TestRunListener, AttachmentProvider by attachmentProvider, LineListener {
     private val stringBuffer = StringBuffer(4096)
 
-    override fun onLine(line: String) {
+    override suspend fun onLine(line: String) {
         stringBuffer.appendLine(line)
     }
 

@@ -2,6 +2,7 @@ package com.malinskiy.marathon.android.model
 
 import assertk.assertThat
 import assertk.assertions.isEqualTo
+import com.malinskiy.marathon.device.screenshot.Rotation
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.EnumSource
 import org.junit.jupiter.params.provider.ValueSource

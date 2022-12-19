@@ -21,15 +21,15 @@ class ResultBundleRunListener(
     private val logger = MarathonLogging.logger {}
     override suspend fun afterTestRun() {
         super.afterTestRun()
-        val remotePath = RemoteFileManager.remoteXcresultFile(device, batch)
+        val remotePath = device.remoteFileManager.remoteXcresultFile(batch)
         if (xcresultConfiguration.pull) {
             val localPath = fileManager.createFolder(FolderType.DEVICE_FILES, poolId, device.toDeviceInfo())
-            if (!device.pullFolder(remotePath.path, localPath)) {
+            if (!device.pullFolder(remotePath, localPath)) {
                 logger.warn { "failed to pull result bundle" }
             }
         }
         if (xcresultConfiguration.remoteClean) {
-            RemoteFileManager.removeRemotePath(device, remotePath.path)
+            device.remoteFileManager.removeRemotePath(remotePath)
         }
     }
 }

@@ -6,6 +6,7 @@ import com.malinskiy.marathon.android.model.TestIdentifier
 import com.malinskiy.marathon.config.ScreenRecordingPolicy
 import com.malinskiy.marathon.config.vendor.android.ScreenshotConfiguration
 import com.malinskiy.marathon.device.DevicePoolId
+import com.malinskiy.marathon.device.screenshot.ScreenCapturer
 import com.malinskiy.marathon.device.toDeviceInfo
 import com.malinskiy.marathon.execution.Attachment
 import com.malinskiy.marathon.execution.AttachmentType
@@ -42,7 +43,17 @@ class ScreenCapturerTestRunListener(
 
     private var supervisorJob: Job? = null
     private var hasFailed: Boolean = false
-    private val screenCapturer = ScreenCapturer(device, pool, testBatchId, fileManager, screenshotConfiguration, timeout)
+    private val screenCapturer = ScreenCapturer(
+        device.toDeviceInfo(),
+        device,
+        pool,
+        testBatchId,
+        fileManager,
+        Duration.ofMillis(screenshotConfiguration.delayMs.toLong()),
+        screenshotConfiguration.height,
+        screenshotConfiguration.width,
+        timeout
+    )
     private val logger = MarathonLogging.logger(ScreenCapturerTestRunListener::class.java.simpleName)
     private var lastTestIdentifier: TestIdentifier? = null
 

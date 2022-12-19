@@ -8,8 +8,8 @@ data class TestRequest(
     val tests: List<Test>,
     val xcresult: String,
 ) {
-    fun toXcodebuildTestFilter(): String {
-        return tests.joinToString(separator = " ") { "-only-testing:\"${it.pkg}/${it.clazz}/${it.method}\"" }
+    fun toXcodebuildTestFilter(): Array<String> {
+        return tests.map { "'-only-testing:${it.pkg}/${it.clazz}/${it.method}'" }.toTypedArray()
     }
 }
     

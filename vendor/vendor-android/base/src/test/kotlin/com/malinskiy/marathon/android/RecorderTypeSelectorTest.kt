@@ -6,6 +6,7 @@ import assertk.assertions.isNull
 import com.malinskiy.marathon.config.vendor.android.RecorderType
 import com.malinskiy.marathon.config.vendor.android.ScreenRecordConfiguration
 import com.malinskiy.marathon.device.DeviceFeature
+import com.malinskiy.marathon.device.RecorderTypeSelector
 import org.junit.jupiter.api.Test
 
 class RecorderTypeSelectorTest {

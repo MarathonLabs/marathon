@@ -1,15 +1,13 @@
 package com.malinskiy.marathon.android
 
 import com.android.sdklib.AndroidVersion
-import com.malinskiy.marathon.execution.listener.LineListener
-import com.malinskiy.marathon.android.model.Rotation
+import com.malinskiy.marathon.device.screenshot.Rotation
 import com.malinskiy.marathon.config.vendor.android.VideoConfiguration
 import com.malinskiy.marathon.device.Device
+import com.malinskiy.marathon.device.screenshot.Screenshottable
 import com.malinskiy.marathon.report.logs.LogProducer
-import java.awt.image.BufferedImage
-import java.time.Duration
 
-interface AndroidDevice : Device, LogProducer {
+interface AndroidDevice : Device, LogProducer, Screenshottable {
     val apiLevel: Int
     val version: AndroidVersion
     val fileManager: RemoteFileManager
@@ -66,10 +64,6 @@ interface AndroidDevice : Device, LogProducer {
     suspend fun installSplitPackages(absolutePaths: List<String>, reinstall: Boolean, optionalParams: List<String>): String?
     suspend fun safeUninstallPackage(appPackage: String, keepData: Boolean = false): String?
     suspend fun safeClearPackage(packageName: String): String?
-
-    /**
-     * @return screenshot or null if there was a failure
-     */
-    suspend fun getScreenshot(timeout: Duration): BufferedImage?
+    
     suspend fun safeStartScreenRecorder(remoteFilePath: String, options: VideoConfiguration)
 }

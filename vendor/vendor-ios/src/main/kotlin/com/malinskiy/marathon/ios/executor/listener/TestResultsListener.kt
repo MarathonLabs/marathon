@@ -67,6 +67,8 @@ class TestResultsListener(
 
         deferred.complete(TestBatchResults(device, finished, failed, uncompleted))
     }
+    
+    
 
     private fun Map.Entry<Test, TemporalTestResult>.toTestResult(device: Device): TestResult {
         val testInstanceFromBatch = testBatch.tests.find {

@@ -3,15 +3,24 @@ package com.malinskiy.marathon.ios.cmd.remote.rsync
 import com.github.fracpete.processoutput4j.output.CollectingProcessOutput
 import com.github.fracpete.rsync4j.RSync
 import com.malinskiy.marathon.config.Configuration
+import com.malinskiy.marathon.config.exceptions.ConfigurationException
 import com.malinskiy.marathon.config.vendor.VendorConfiguration
+import com.malinskiy.marathon.config.vendor.ios.SshAuthentication
 import com.malinskiy.marathon.ios.cmd.FileBridge
 import com.malinskiy.marathon.log.MarathonLogging
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import java.io.File
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.locks.Lock
-import java.util.concurrent.locks.ReentrantLock
-import kotlin.concurrent.withLock
 
+/**
+ * Each device will share the same instance of file bridge, but the concurrent requests should still be handled
+ * The easiest solution for now is to allow 1 send and 1 receive at a time. The callers will suspend properly though.
+ *
+ * A better solution would be to allow non-overlapping paths e.g. /tmp/marathon/x and /tmp/marathon/y should be allowed, but /tmp/marathon/x
+ * and /tmp/marathon should lock and wait for mutex.
+ */
 class RsyncFileBridge(
     private val target: RsyncTarget,
     private val configuration: Configuration,
@@ -25,57 +34,33 @@ class RsyncFileBridge(
         }
     }
 
-    private val rsyncVersion: String
-        get() {
-            val output = CollectingProcessOutput()
-            output.monitor(RSync().source("/tmp").destination("/tmp").version(true).builder())
-            return output.stdOut.replace("""(?s)\n.*\z""".toRegex(), "")
-        }
-
-    private fun getRsyncBase(): RSync {
-        return RSync()
-            .a()
-            .partial(true)
-            .partialDir(".rsync-partial")
-            .delayUpdates(true)
-            .rsyncPath(vendorConfiguration.remoteRsyncPath)
-            .verbose(configuration.debug)
-    }
-
-    private fun getSshString(port: Int): String {
-        return "ssh -o 'StrictHostKeyChecking no' -F /dev/null " +
-            "-i ${vendorConfiguration.remotePrivateKey} " +
-            "-l ${vendorConfiguration.remoteUsername} " +
-            "-p $port " +
-            when (configuration.debug && vendorConfiguration.debugSsh) {
-                true -> "-vvv"
-                else -> ""
-            }
-    }
+    private val mutex = Mutex()
 
     override suspend fun send(src: File, dst: String): Boolean {
-        val source = if (src.isDirectory) {
-            src.absolutePathWithTrailingSeparator
-        } else {
-            src.absolutePath
-        }
-        val destination = "${target.addr}:$dst"
-
-        val sshString = getSshString(target.port)
-        val rsync = getRsyncBase()
-            .rsh(sshString)
-            .source(source)
-            .destination(destination)
-
-        return with(CollectingProcessOutput()) {
-            monitor(rsync.builder())
-            if (exitCode != 0) {
-                if (stdErr.isNotEmpty()) {
-                    logger.error { "send error: $stdErr" }
-                }
-                false
+        mutex.withLock {
+            val source = if (src.isDirectory) {
+                src.absolutePathWithTrailingSeparator
             } else {
-                true
+                src.absolutePath
+            }
+            val destination = "${target.addr}:$dst"
+
+            val sshString = getSshString(target.port)
+            val rsync = getRsyncBase()
+                .rsh(sshString)
+                .source(source)
+                .destination(destination)
+
+            return with(CollectingProcessOutput()) {
+                monitor(rsync.builder())
+                if (exitCode != 0) {
+                    if (stdErr.isNotEmpty()) {
+                        logger.error { "send error: $stdErr" }
+                    }
+                    false
+                } else {
+                    true
+                }
             }
         }
     }
@@ -104,6 +89,37 @@ class RsyncFileBridge(
             }
         }
         return output.exitCode == 0
+    }
+
+    private val rsyncVersion: String
+        get() {
+            val output = CollectingProcessOutput()
+            output.monitor(RSync().source("/tmp").destination("/tmp").version(true).builder())
+            return output.stdOut.replace("""(?s)\n.*\z""".toRegex(), "")
+        }
+
+    private fun getRsyncBase(): RSync {
+        return RSync()
+            .a()
+            .partial(true)
+            .partialDir(".rsync-partial")
+            .delayUpdates(true)
+            .rsyncPath(vendorConfiguration.rsync.remotePath)
+            .verbose(configuration.debug)
+    }
+
+    private fun getSshString(port: Int): String {
+        val authentication = vendorConfiguration.ssh.authentication as? SshAuthentication.PublicKeyAuthentication
+            ?: throw ConfigurationException("rsync bridge supports only public-key ssh auth")
+
+        return "ssh -o 'StrictHostKeyChecking no' -F /dev/null " +
+            "-i ${authentication.key} " +
+            "-l ${authentication.username} " +
+            "-p $port " +
+            when (configuration.debug && vendorConfiguration.ssh.debug) {
+                true -> "-vvv"
+                else -> ""
+            }
     }
 
     private val File.absolutePathWithTrailingSeparator: String

@@ -95,27 +95,28 @@ class DeviceActor(
                 }
                 return@onTransition
             }
-            val sideEffect = validTransition.sideEffect
-            when (sideEffect) {
-                DeviceAction.Initialize -> {
-                    initialize()
-                }
-                is DeviceAction.NotifyIsReady -> {
-                    sideEffect.result?.let {
-                        sendResults(it)
+            validTransition.sideEffect?.let {sideEffect ->
+                when (sideEffect) {
+                    DeviceAction.Initialize -> {
+                        initialize()
                     }
-                    notifyIsReady()
-                }
-                is DeviceAction.ExecuteBatch -> {
-                    executeBatch(sideEffect.batch, sideEffect.result)
-                }
-                is DeviceAction.Terminate -> {
-                    val batch = sideEffect.batch
-                    if (batch == null) {
-                        terminate()
-                    } else {
-                        returnBatchAnd(batch, "Device ${device.serialNumber} terminated") {
+                    is DeviceAction.NotifyIsReady -> {
+                        sideEffect.result?.let {
+                            sendResults(it)
+                        }
+                        notifyIsReady()
+                    }
+                    is DeviceAction.ExecuteBatch -> {
+                        executeBatch(sideEffect.batch, sideEffect.result)
+                    }
+                    is DeviceAction.Terminate -> {
+                        val batch = sideEffect.batch
+                        if (batch == null) {
                             terminate()
+                        } else {
+                            returnBatchAnd(batch, "Device ${device.serialNumber} terminated") {
+                                terminate()
+                            }
                         }
                     }
                 }

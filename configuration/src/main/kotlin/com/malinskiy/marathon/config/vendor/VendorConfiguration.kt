@@ -14,6 +14,9 @@ import com.malinskiy.marathon.config.vendor.android.TestAccessConfiguration
 import com.malinskiy.marathon.config.vendor.android.TestParserConfiguration
 import com.malinskiy.marathon.config.vendor.android.ThreadingConfiguration
 import com.malinskiy.marathon.config.vendor.android.TimeoutConfiguration
+import com.malinskiy.marathon.config.vendor.ios.LifecycleConfiguration
+import com.malinskiy.marathon.config.vendor.ios.RsyncConfiguration
+import com.malinskiy.marathon.config.vendor.ios.SshConfiguration
 import com.malinskiy.marathon.config.vendor.ios.XcresultConfiguration
 import java.io.File
 import java.io.FileNotFoundException
@@ -131,13 +134,9 @@ sealed class VendorConfiguration {
     data class IOSConfiguration(
         @JsonProperty("derivedDataDir") val derivedDataDir: File,
         @JsonProperty("xctestrunPath") val xctestrunPath: File?,
-        @JsonProperty("remoteUsername") val remoteUsername: String,
-        @JsonProperty("remotePrivateKey") val remotePrivateKey: File,
-        @JsonProperty("knownHostsPath") val knownHostsPath: File?,
-        @JsonProperty("remoteRsyncPath") val remoteRsyncPath: String = "/usr/bin/rsync",
+        @JsonProperty("ssh") val ssh: SshConfiguration = SshConfiguration(),
+        @JsonProperty("rsync") val rsync: RsyncConfiguration = RsyncConfiguration(),
         @JsonProperty("sourceRoot") val sourceRoot: File = File("."),
-        @JsonProperty("alwaysEraseSimulators") val alwaysEraseSimulators: Boolean = true,
-        @JsonProperty("debugSsh") val debugSsh: Boolean = false,
         @JsonProperty("hideRunnerOutput") val hideRunnerOutput: Boolean = false,
         @JsonProperty("compactOutput") val compactOutput: Boolean = false,
         @JsonProperty("keepAliveIntervalMillis") val keepAliveIntervalMillis: Long = 0L,
@@ -145,7 +144,9 @@ sealed class VendorConfiguration {
         @JsonProperty("xcresult") val xcresult: XcresultConfiguration = XcresultConfiguration(),
         @JsonProperty("timeoutConfiguration") val timeoutConfiguration: AppleTimeoutConfiguration = AppleTimeoutConfiguration(),
         @JsonProperty("screenRecordConfiguration") val screenRecordConfiguration: AppleScreenRecordConfiguration = AppleScreenRecordConfiguration(),
-        ) : VendorConfiguration() {
+        @JsonProperty("xctestrunEnv") val xctestrunEnv: Map<String, String> = emptyMap(),
+        @JsonProperty("lifecycle") val lifecycleConfiguration: LifecycleConfiguration = LifecycleConfiguration(),
+    ) : VendorConfiguration() {
         /**
          * Exception should not happen since it will be first thrown in deserializer
          */
@@ -153,9 +154,7 @@ sealed class VendorConfiguration {
             xctestrunPath ?: throw ConfigurationException("Unable to find an xctestrun file in derived data folder")
 
         fun validate() {
-            if (!remotePrivateKey.exists()) {
-                throw FileNotFoundException("Private key not found at $remotePrivateKey")
-            }
+            ssh.validate()
 
             if (safecxtestrunPath().parentFile != derivedDataDir.resolve("Build/Products")) {
                 throw FileNotFoundException("xctestrun file must be located in build products directory.")

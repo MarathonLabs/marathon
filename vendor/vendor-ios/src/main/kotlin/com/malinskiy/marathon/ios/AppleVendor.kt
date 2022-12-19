@@ -8,8 +8,8 @@ import com.google.gson.GsonBuilder
 import com.malinskiy.marathon.device.DeviceProvider
 import com.malinskiy.marathon.execution.TestParser
 import com.malinskiy.marathon.execution.bundle.TestBundleIdentifier
-import com.malinskiy.marathon.ios.simctl.model.SimctlDeviceList
-import com.malinskiy.marathon.ios.simctl.model.SimctlDeviceListDeserializer
+import com.malinskiy.marathon.ios.xcrun.simctl.model.SimctlDeviceList
+import com.malinskiy.marathon.ios.xcrun.simctl.model.SimctlDeviceListDeserializer
 import com.malinskiy.marathon.log.MarathonLogConfigurator
 import org.koin.dsl.module
 

@@ -10,6 +10,7 @@ import com.fasterxml.jackson.module.kotlin.treeToValue
 import com.malinskiy.marathon.config.environment.EnvironmentReader
 import com.malinskiy.marathon.config.exceptions.ConfigurationException
 import com.malinskiy.marathon.config.vendor.VendorConfiguration
+import com.malinskiy.marathon.config.vendor.ios.SshAuthentication
 import java.io.File
 
 const val TYPE_ANDROID = "Android"
@@ -42,14 +43,28 @@ class VendorConfigurationDeserializer(
                 val optionalSourceRoot = iosConfiguration.sourceRoot.resolveAgainst(marathonfileDir)
                 val optionalDevices = iosConfiguration.devicesFile?.resolveAgainst(marathonfileDir)
                     ?: marathonfileDir.resolve("Marathondevices")
-                val optionalKnownHostsPath = iosConfiguration.knownHostsPath?.resolveAgainst(marathonfileDir)
+
+                val optionalknownHostsPath = iosConfiguration.ssh.knownHostsPath?.resolveAgainst(marathonfileDir)
+                val optionalSshAuthentication = when (iosConfiguration.ssh.authentication) {
+                    is SshAuthentication.PasswordAuthentication -> iosConfiguration.ssh.authentication
+                    is SshAuthentication.PublicKeyAuthentication -> iosConfiguration.ssh.authentication.copy(
+                        username = iosConfiguration.ssh.authentication.username,
+                        key = iosConfiguration.ssh.authentication.key.resolveAgainst(marathonfileDir)
+                    )
+
+                    null -> null
+                }
+                val optionalSshConfiguration = iosConfiguration.ssh.copy(
+                    authentication = optionalSshAuthentication,
+                    knownHostsPath = optionalknownHostsPath,
+                )
 
                 iosConfiguration.copy(
                     derivedDataDir = resolvedDerivedDataDir,
                     xctestrunPath = finalXCTestRunPath,
                     sourceRoot = optionalSourceRoot,
                     devicesFile = optionalDevices,
-                    knownHostsPath = optionalKnownHostsPath,
+                    ssh = optionalSshConfiguration,
                 )
             }
             TYPE_ANDROID -> {

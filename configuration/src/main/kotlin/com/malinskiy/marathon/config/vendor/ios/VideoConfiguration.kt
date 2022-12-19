@@ -20,13 +20,17 @@ import com.fasterxml.jackson.annotation.JsonProperty
  */
 data class VideoConfiguration(
     @JsonProperty("enabled") val enabled: Boolean = true,
-    @JsonProperty("codec") val codec: Codec = Codec.HEVC,
+    @JsonProperty("codec") val codec: Codec = Codec.H264,
     @JsonProperty("display") val display: Display = Display.INTERNAL,
     @JsonProperty("mask") val mask: Mask = Mask.BLACK,
 )
 
-enum class Codec {
-    @JsonProperty("h264") H264,
-    @JsonProperty("hevc") HEVC,
+enum class Codec(val value: String) {
+    @JsonProperty("h264") H264("h264"),
+
+    /**
+     * Might not work everywhere playback-wise since support for h265 is not universal yet
+     */
+    @JsonProperty("hevc") HEVC("hevc"),
 }
 

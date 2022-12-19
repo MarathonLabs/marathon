@@ -18,7 +18,7 @@ import com.malinskiy.marathon.android.BaseAndroidDevice
 import com.malinskiy.marathon.android.ddmlib.shell.receiver.CollectingShellOutputReceiver
 import com.malinskiy.marathon.android.ddmlib.sync.NoOpSyncProgressMonitor
 import com.malinskiy.marathon.android.exception.CommandRejectedException
-import com.malinskiy.marathon.android.exception.TransferException
+import com.malinskiy.marathon.exceptions.TransferException
 import com.malinskiy.marathon.execution.listener.LineListener
 import com.malinskiy.marathon.config.Configuration
 import com.malinskiy.marathon.config.vendor.VendorConfiguration
@@ -34,6 +34,7 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.async
 import kotlinx.coroutines.newFixedThreadPoolContext
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withTimeout
 import java.awt.image.BufferedImage
@@ -73,15 +74,15 @@ class DdmlibAndroidDevice(
     private val logcatListeners = mutableListOf<LineListener>()
     private val listener: (List<LogCatMessage>) -> Unit = {
         it.forEach { msg ->
-            synchronized(logcatListeners) {
-                logcatListeners.forEach { listener ->
+            logcatListeners.forEach { listener ->
+                runBlocking {
                     listener.onLine("${msg.timestamp} ${msg.pid}-${msg.tid}/${msg.appName} ${msg.logLevel.priorityLetter}/${msg.tag}: ${msg.message}")
                 }
             }
         }
     }
 
-    override fun addLineLister(listener: LineListener) {
+    override fun addLineListener(listener: LineListener) {
         synchronized(logcatListeners) {
             logcatListeners.add(listener)
         }

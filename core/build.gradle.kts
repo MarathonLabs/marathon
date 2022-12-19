@@ -57,6 +57,7 @@ dependencies {
     implementation(Libraries.logbackClassic)
     implementation(Libraries.influxDbClient)
     implementation(Libraries.influxDb2Client)
+    implementation(Libraries.scalr)
     api(Libraries.koin)
     api(Libraries.bugsnag)
     testImplementation(project(":vendor:vendor-test"))

@@ -29,6 +29,10 @@ import com.malinskiy.marathon.config.vendor.android.ScreenshotConfiguration
 import com.malinskiy.marathon.config.vendor.android.SerialStrategy
 import com.malinskiy.marathon.config.vendor.android.TimeoutConfiguration
 import com.malinskiy.marathon.config.vendor.android.VideoConfiguration
+import com.malinskiy.marathon.config.vendor.ios.LifecycleConfiguration
+import com.malinskiy.marathon.config.vendor.ios.RsyncConfiguration
+import com.malinskiy.marathon.config.vendor.ios.SshAuthentication
+import com.malinskiy.marathon.config.vendor.ios.SshConfiguration
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
 import org.amshove.kluent.`should be equal to`
@@ -263,12 +267,17 @@ class ConfigurationFactoryTest {
         configuration.vendorConfiguration shouldBeEqualTo VendorConfiguration.IOSConfiguration(
             derivedDataDir = file.parentFile.resolve("a").canonicalFile,
             xctestrunPath = file.parentFile.resolve("a/Build/Products/UITesting_iphonesimulator11.0-x86_64.xctestrun").canonicalFile,
-            remoteUsername = "testuser",
-            remotePrivateKey = File("/home/testuser/.ssh/id_rsa").canonicalFile,
-            knownHostsPath = file.parentFile.resolve("known_hosts").canonicalFile,
-            remoteRsyncPath = "/usr/local/bin/rsync",
-            debugSsh = true,
-            alwaysEraseSimulators = false,
+            ssh = SshConfiguration(
+                authentication = SshAuthentication.PublicKeyAuthentication(
+                    username = "testuser",
+                    key = File("/home/testuser/.ssh/id_rsa").canonicalFile
+                ),
+                knownHostsPath = file.parentFile.resolve("known_hosts").canonicalFile,
+                debug = true,
+            ),
+            rsync = RsyncConfiguration(
+                remotePath = "/usr/local/bin/rsync",
+            ),
             hideRunnerOutput = true,
             compactOutput = true,
             keepAliveIntervalMillis = 300000L,
@@ -283,7 +292,7 @@ class ConfigurationFactoryTest {
         val configuration = parser.parse(file)
 
         val iosConfiguration = configuration.vendorConfiguration as VendorConfiguration.IOSConfiguration
-        iosConfiguration.remoteRsyncPath shouldBeEqualTo "/usr/bin/rsync"
+        iosConfiguration.rsync.remotePath shouldBeEqualTo "/usr/bin/rsync"
     }
 
     @Test

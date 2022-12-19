@@ -1,23 +1,25 @@
 name: "sample-ios-app tests"
 outputDir: "derived-data/Marathon"
 testClassRegexes: ["^((?!Abstract).)*Tests$"]
+screenRecordingPolicy: ON_ANY
 poolingStrategy:
   type: "omni"
 batchingStrategy:
   type: "fixed-size"
   size: 5
 debug: true
-filteringConfiguration:
-  allowlist:
-    - type: "simple-class-name"
-      regex: "StoryboardTests"
 vendorConfiguration:
   type: "iOS"
   derivedDataDir: "derived-data"
   sourceRoot: "sample-appUITests"
-  knownHostsPath: ${HOME}/.ssh/known_hosts
-  remoteUsername: ${USER}
-  remotePrivateKey: ${HOME}/.ssh/marathon
+  ssh:
+    authentication:
+      type: "public-key"
+      username: ${USER}
+      key: ${HOME}/.ssh/marathon
+    knownHostsPath: ${HOME}/.ssh/known_hosts
   xcresult:
     pull: true
     remoteClean: true
+  lifecycle:
+    onStart: []

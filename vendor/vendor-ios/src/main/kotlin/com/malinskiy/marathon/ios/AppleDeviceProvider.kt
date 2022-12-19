@@ -15,6 +15,7 @@ import com.malinskiy.marathon.ios.device.SimulatorFactory
 import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.time.Timer
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.newFixedThreadPoolContext
 import kotlinx.coroutines.withContext
 import org.apache.commons.text.StringSubstitutor
@@ -48,23 +49,26 @@ class AppleDeviceProvider(
         val file = vendorConfiguration.devicesFile ?: File(System.getProperty("user.dir"), "Marathondevices")
         val devicesWithEnvironmentVariablesReplaced = environmentVariableSubstitutor.replace(file.readText())
         val devices: Marathondevices = objectMapper.readValue(devicesWithEnvironmentVariablesReplaced)
-        val remoteSimulators = devices.remote ?: throw NoDevicesException("No devices found in the ${file.absolutePath}")
-        if (remoteSimulators.isEmpty()) {
+        val localSimulators = devices.local ?: emptyList()
+        val remoteSimulators = devices.remote ?: emptyList()
+        val simulators = localSimulators + remoteSimulators
+        if (simulators.isEmpty()) {
             throw NoDevicesException("No devices found in the ${file.absolutePath}")
         }
 
-        val simulatorFactory = SimulatorFactory(configuration, vendorConfiguration, gson)
+        val simulatorFactory = SimulatorFactory(configuration, vendorConfiguration, gson, track, timer)
         simulatorProvider = AppleSimulatorProvider(
             coroutineContext,
             configuration.deviceInitializationTimeoutMillis,
             simulatorFactory,
-            remoteSimulators
+            remoteSimulators,
+            localSimulators,
         )
         simulatorProvider.initialize()
     }
 
     override suspend fun terminate() {
-        withContext(coroutineContext) {
+        withContext(NonCancellable) {
             logger.debug { "Terminating AppleDeviceProvider" }
             simulatorProvider.terminate()
         }

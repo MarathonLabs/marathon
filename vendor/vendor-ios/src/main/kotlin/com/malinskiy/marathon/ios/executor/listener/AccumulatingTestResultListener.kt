@@ -1,6 +1,8 @@
 package com.malinskiy.marathon.ios.executor.listener
 
 import com.malinskiy.marathon.execution.result.TestRunResultsAccumulator
+import com.malinskiy.marathon.ios.logparser.parser.DeviceFailureException
+import com.malinskiy.marathon.ios.logparser.parser.DeviceFailureReason
 import com.malinskiy.marathon.test.Test
 import com.malinskiy.marathon.time.Timer
 
@@ -17,10 +19,21 @@ abstract class AccumulatingTestResultListener(private val expectedTestCount: Int
 
     override suspend fun testFailed(test: Test, startTime: Long, endTime: Long) {
         runResult.testFailed(test = test, trace = "", startTime = startTime, endTime = endTime)
+        testEnded(test, startTime, endTime)
     }
 
     override suspend fun testPassed(test: Test, startTime: Long, endTime: Long) {
-        runResult.testEnded(test = test, testMetrics = emptyMap(), startTime = startTime, endTime = endTime)
+        testEnded(test, startTime, endTime)
+    }
+    
+    private fun testEnded(test: Test, startTime: Long, endTime: Long) {
+        runResult.testEnded(test = test, testMetrics = emptyMap(), endTime = endTime)
+    }
+
+    override suspend fun testRunFailed(errorMessage: String, reason: DeviceFailureReason) {
+        runResult.testRunFailed(errorMessage)
+        //TODO: check how we handle these
+        throw DeviceFailureException(reason, errorMessage)
     }
 
     override suspend fun testRunEnded() {

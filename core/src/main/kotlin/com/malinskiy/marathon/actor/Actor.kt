@@ -49,7 +49,7 @@ abstract class Actor<in T>(
         return true
     }
 
-    override fun offer(element: T): Boolean = delegate.offer(element)
+    override fun offer(element: T): Boolean = delegate.trySend(element).isSuccess
 
     override fun trySend(element: T): ChannelResult<Unit> = delegate.trySend(element)
 

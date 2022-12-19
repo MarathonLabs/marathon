@@ -1,5 +1,6 @@
 package com.malinskiy.marathon.ios.executor.listener
 
+import com.malinskiy.marathon.ios.logparser.parser.DeviceFailureReason
 import com.malinskiy.marathon.test.Test
 
 class CompositeTestRunListener(private val listeners: List<AppleTestRunListener>) : AppleTestRunListener {
@@ -25,6 +26,10 @@ class CompositeTestRunListener(private val listeners: List<AppleTestRunListener>
 
     override suspend fun testPassed(test: Test, startTime: Long, endTime: Long) {
         execute { it.testPassed(test, startTime, endTime) }
+    }
+
+    override suspend fun testRunFailed(errorMessage: String, reason: DeviceFailureReason) {
+        execute { it.testRunFailed(errorMessage,) }
     }
 
     override suspend fun testRunEnded() {

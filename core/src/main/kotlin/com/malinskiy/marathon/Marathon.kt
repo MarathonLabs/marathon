@@ -24,8 +24,14 @@ import com.malinskiy.marathon.time.Timer
 import com.malinskiy.marathon.usageanalytics.TrackActionType
 import com.malinskiy.marathon.usageanalytics.UsageAnalytics
 import com.malinskiy.marathon.usageanalytics.tracker.Event
+import kotlinx.coroutines.NonCancellable
+import kotlinx.coroutines.async
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 import org.koin.core.context.stopKoin
+import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.coroutines.coroutineContext
 
 private val log = MarathonLogging.logger {}
@@ -43,23 +49,39 @@ class Marathon(
     private val timer: Timer
 ) {
     private val configurationValidator = LogicalConfigurationValidator()
+    private val cleanedUp = AtomicBoolean(false)
 
     private fun configureLogging() {
         MarathonLogging.debug = configuration.debug
         logConfigurator.configure()
     }
 
-    fun run() = runBlocking {
+    fun run(): Boolean = runBlocking {
         try {
-            runAsync()
+            async {
+                val hook = installShutdownHook { onFinish(analytics, deviceProvider) }
+                runAsync()
+                hook.uninstall()
+            }.apply {
+                invokeOnCompletion {
+                    //Marathon will usually clean up correctly unless exception is thrown
+                    if (it != null) {
+                        runBlocking {
+                            withContext(NonCancellable) {
+                                onFinish(analytics, deviceProvider)
+                            }
+                        }
+                    }
+                }
+            }.await()
         } catch (th: Throwable) {
-            log.error(th.toString())
-
+            log.error(th) {}
             when (th) {
                 is NoDevicesException -> {
                     log.warn { "No devices found" }
                     false
                 }
+
                 else -> configuration.ignoreFailures
             }
         }
@@ -100,14 +122,12 @@ class Marathon(
         }
         configuration.outputDir.mkdirs()
 
-        val hook = installShutdownHook { onFinish(analytics, deviceProvider) }
-
         if (tests.isNotEmpty()) {
             scheduler.execute()
         }
 
-        val result = onFinish(analytics, deviceProvider)
-        hook.uninstall()
+        onFinish(analytics, deviceProvider)
+        val result = progressReporter.aggregateResult()
 
         stopKoin()
         return result
@@ -133,11 +153,13 @@ class Marathon(
         return shutdownHook
     }
 
-    private suspend fun onFinish(analytics: Analytics, deviceProvider: DeviceProvider): Boolean {
-        analytics.close()
-        deviceProvider.terminate()
-        tracker.close()
-        return progressReporter.aggregateResult()
+
+    private suspend fun onFinish(analytics: Analytics, deviceProvider: DeviceProvider) {
+        if (cleanedUp.compareAndSet(false, true)) {
+            analytics.close()
+            deviceProvider.terminate()
+            tracker.close()
+        }
     }
 
     private fun applyTestFilters(parsedTests: List<Test>): List<Test> {

@@ -1,17 +1,5 @@
 package com.malinskiy.marathon.ios.logparser.parser
 
-import com.malinskiy.marathon.execution.listener.LineListener
+import com.malinskiy.marathon.ios.executor.listener.ArtifactFinderListener
 
-class DiagnosticLogsPathFinder : LineListener {
-
-    private val logPathPattern = """(^\s*|\s+)/.+\.log\s*$""".toRegex()
-    private var paths = mutableSetOf<String>()
-
-    val diagnosticLogPaths: Collection<String>
-        get() = paths
-
-    override fun onLine(line: String) {
-        logPathPattern.find(line)?.groupValues?.firstOrNull()
-            ?.let { paths.add(it) }
-    }
-}
+class DiagnosticLogsPathFinder : ArtifactFinderListener("""(^\s*|\s+)/.+\.log\s*$""".toRegex(), "Diagnostic logs available at")

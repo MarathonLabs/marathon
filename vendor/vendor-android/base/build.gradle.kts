@@ -13,7 +13,6 @@ dependencies {
     implementation(Libraries.dexTestParser)
     implementation(Libraries.axmlParser)
     implementation(Libraries.jacksonAnnotations)
-    implementation(Libraries.scalr)
     implementation(project(":core"))
     implementation(Libraries.logbackClassic)
     implementation(Libraries.androidCommon)

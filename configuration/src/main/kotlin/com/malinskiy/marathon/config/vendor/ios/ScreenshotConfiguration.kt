@@ -1,6 +1,7 @@
 package com.malinskiy.marathon.config.vendor.ios
 
 import com.fasterxml.jackson.annotation.JsonProperty
+import java.time.Duration
 
 /**
  * screenshot [--type=<type>] [--display=<display>] [--mask=<policy>] <file or url>
@@ -22,6 +23,10 @@ data class ScreenshotConfiguration(
     @JsonProperty("type") val type: Type = Type.GIF,
     @JsonProperty("display") val display: Display = Display.INTERNAL,
     @JsonProperty("mask") val mask: Mask = Mask.BLACK,
+    @JsonProperty("delay") val delay: Duration = Duration.ofMillis(500),
+    @JsonProperty("width") val width: Int = 720,
+    @JsonProperty("height") val height: Int = 1280,
+    
 )
 
 enum class Type(val value: String) {

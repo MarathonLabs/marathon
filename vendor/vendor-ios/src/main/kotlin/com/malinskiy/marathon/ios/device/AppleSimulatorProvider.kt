@@ -3,17 +3,18 @@ package com.malinskiy.marathon.ios.device
 import com.malinskiy.marathon.actor.unboundedChannel
 import com.malinskiy.marathon.device.DeviceProvider
 import com.malinskiy.marathon.ios.AppleSimulatorDevice
+import com.malinskiy.marathon.ios.configuration.LocalSimulator
 import com.malinskiy.marathon.ios.configuration.RemoteSimulator
 import com.malinskiy.marathon.ios.logparser.parser.DeviceFailureReason
 import com.malinskiy.marathon.log.MarathonLogging
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.isActive
-import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.concurrent.ConcurrentHashMap
@@ -25,9 +26,10 @@ class AppleSimulatorProvider(
     override val coroutineContext: CoroutineContext,
     override val deviceInitializationTimeoutMillis: Long,
     private val simulatorFactory: SimulatorFactory,
-    private val simulators: List<RemoteSimulator>,
+    private val remoteSimulators: List<RemoteSimulator>,
+    private val localSimulators: List<LocalSimulator>,
 ) : DeviceProvider, CoroutineScope {
-    
+
     private val logger = MarathonLogging.logger(AppleSimulatorProvider::class.java.simpleName)
 
     private val job = Job()
@@ -38,15 +40,26 @@ class AppleSimulatorProvider(
     override fun subscribe() = channel
 
     override suspend fun initialize() = withContext(coroutineContext) {
-        logger.info("starts providing ${simulators.count()} simulator devices")
-        simulators.map {
+        logger.info("starts providing ${remoteSimulators.count()} simulator devices")
+        val deferredLocal = localSimulators.map {
             async(context = coroutineContext) {
-                simulatorFactory.createRemote(it, RemoteSimulatorConnectionCounter.putAndGet(it.udid))?.let { connect(it) }
+                connect(simulatorFactory.createLocal(it))
             }
-        }.joinAll()
+        }
+
+        val deferredRemote = remoteSimulators.map {
+            async(context = coroutineContext) {
+                RemoteSimulatorConnectionCounter.putAndGet(it.udid)
+                simulatorFactory.createRemote(it)?.let {
+                    connect(it)
+                }
+            }
+        }
+        awaitAll(*deferredLocal.toTypedArray(), *deferredRemote.toTypedArray())
+        Unit
     }
 
-    override suspend fun terminate() = withContext(coroutineContext) {
+    override suspend fun terminate() = withContext(NonCancellable) {
         logger.info("stops providing anything")
         channel.close()
         if (logger.isDebugEnabled) {
@@ -60,34 +73,31 @@ class AppleSimulatorProvider(
         devices.clear()
     }
 
-    override suspend fun onDisconnect(device: AppleSimulatorDevice) = withContext(coroutineContext + CoroutineName("onDisconnect")) {
-        launch(context = coroutineContext + job + CoroutineName("disconnector")) {
-            try {
-                if (devices.remove(device.serialNumber, device)) {
-                    dispose(device)
-                    notifyDisconnected(device)
+    suspend fun onDisconnect(device: AppleSimulatorDevice, remoteSimulator: RemoteSimulator, reason: DeviceFailureReason) =
+        withContext(coroutineContext + CoroutineName("onDisconnect")) {
+            launch(context = coroutineContext + job + CoroutineName("disconnector")) {
+                try {
+                    if (devices.remove(device.serialNumber, device)) {
+                        dispose(device)
+                        notifyDisconnected(device)
+                    }
+                } catch (e: Exception) {
+                    logger.debug("Exception removing device ${device.udid}")
                 }
-            } catch (e: Exception) {
-                logger.debug("Exception removing device ${device.udid}")
             }
-        }
 
-        if (device.failureReason == DeviceFailureReason.InvalidSimulatorIdentifier) {
-            logger.error("device ${device.udid} does not exist on remote host")
-        } else if (RemoteSimulatorConnectionCounter.get(device.udid) < MAX_CONNECTION_ATTEMPTS) {
-            launch(context = coroutineContext + job + CoroutineName("reconnector")) {
-                delay(499)
-                if (isActive) {
-                    createDevice(
-                        device.simulator,
-                        RemoteSimulatorConnectionCounter.putAndGet(device.udid)
-                    )?.let {
+            if (reason == DeviceFailureReason.InvalidSimulatorIdentifier) {
+                logger.error("device ${device.udid} does not exist on remote host")
+            } else if (RemoteSimulatorConnectionCounter.get(device.udid) < MAX_CONNECTION_ATTEMPTS) {
+                launch(context = coroutineContext + job + CoroutineName("reconnector")) {
+                    delay(499)
+                    RemoteSimulatorConnectionCounter.putAndGet(device.udid)
+                    simulatorFactory.createRemote(remoteSimulator)?.let {
                         connect(it)
                     }
                 }
             }
         }
-    }
 
     private fun dispose(device: AppleSimulatorDevice) {
         device.dispose()
@@ -111,7 +121,7 @@ class AppleSimulatorProvider(
     }
 
     private fun printFailingSimulatorSummary() {
-        simulators
+        remoteSimulators
             .map { "${it.udid}@${it.addr}" to (RemoteSimulatorConnectionCounter.get(it.udid) - 1) }
             .filter { it.second > 0 }
             .sortedByDescending { it.second }
