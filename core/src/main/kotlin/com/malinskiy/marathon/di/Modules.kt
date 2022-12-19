@@ -6,6 +6,7 @@ import com.malinskiy.marathon.analytics.TrackerFactory
 import com.malinskiy.marathon.analytics.external.AnalyticsFactory
 import com.malinskiy.marathon.analytics.internal.pub.Track
 import com.malinskiy.marathon.config.Configuration
+import com.malinskiy.marathon.execution.command.parse.MarathonTestParseCommand
 import com.malinskiy.marathon.execution.progress.ProgressReporter
 import com.malinskiy.marathon.io.FileManager
 import com.malinskiy.marathon.json.FileSerializer
@@ -37,7 +38,8 @@ val coreModule = module {
     single<Clock> { Clock.systemDefaultZone() }
     single<Timer> { SystemTimer(get()) }
     single { ProgressReporter(get()) }
-    single { Marathon(get(), get(), get(), get(), get(), get(), get(), get(), get(), get()) }
+    single { MarathonTestParseCommand() }
+    single { Marathon(get(), get(), get(), get(), get(), get(), get(), get(), get(), get(), get()) }
 }
 
 fun marathonStartKoin(configuration: Configuration, modules: List<Module>): KoinApplication {

@@ -1,17 +1,12 @@
 package com.malinskiy.marathon
 
-import com.fasterxml.jackson.annotation.JsonInclude
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
-import com.fasterxml.jackson.dataformat.yaml.YAMLGenerator
-import com.fasterxml.jackson.module.kotlin.KotlinFeature
-import com.fasterxml.jackson.module.kotlin.KotlinModule
 import com.malinskiy.marathon.analytics.external.Analytics
 import com.malinskiy.marathon.analytics.internal.pub.Track
 import com.malinskiy.marathon.analytics.internal.sub.TrackerInternal
 import com.malinskiy.marathon.config.Configuration
-import com.malinskiy.marathon.config.ExecuteMode
+import com.malinskiy.marathon.config.ExecutionCommand
 import com.malinskiy.marathon.config.LogicalConfigurationValidator
+import com.malinskiy.marathon.config.ParseCommand
 import com.malinskiy.marathon.device.DeviceProvider
 import com.malinskiy.marathon.exceptions.NoDevicesException
 import com.malinskiy.marathon.exceptions.NoTestCasesFoundException
@@ -19,6 +14,7 @@ import com.malinskiy.marathon.execution.Scheduler
 import com.malinskiy.marathon.execution.TestParser
 import com.malinskiy.marathon.execution.TestShard
 import com.malinskiy.marathon.execution.bundle.TestBundleIdentifier
+import com.malinskiy.marathon.execution.command.parse.MarathonTestParseCommand
 import com.malinskiy.marathon.execution.progress.ProgressReporter
 import com.malinskiy.marathon.extension.toFlakinessStrategy
 import com.malinskiy.marathon.extension.toShardingStrategy
@@ -47,7 +43,8 @@ class Marathon(
     private val analytics: Analytics,
     private val progressReporter: ProgressReporter,
     private val track: Track,
-    private val timer: Timer
+    private val timer: Timer,
+    private val marathonTestParseCommand: MarathonTestParseCommand
 ) {
     private val configurationValidator = LogicalConfigurationValidator()
 
@@ -56,9 +53,9 @@ class Marathon(
         logConfigurator.configure()
     }
 
-    fun run(executeMode: ExecuteMode = ExecuteMode.RUN) = runBlocking {
+    fun run(executionCommand: ExecutionCommand) = runBlocking {
         try {
-            runAsync(executeMode)
+            runAsync(executionCommand)
         } catch (th: Throwable) {
             log.error(th.toString())
 
@@ -72,27 +69,31 @@ class Marathon(
         }
     }
 
-    suspend fun runAsync(executeMode: ExecuteMode = ExecuteMode.RUN): Boolean {
+    suspend fun runAsync(executionCommand: ExecutionCommand): Boolean {
         configureLogging()
-        if (executeMode == ExecuteMode.RUN) trackAnalytics(configuration)
+        trackAnalytics(configuration)
 
         logSystemInformation()
 
         deviceProvider.initialize()
         configurationValidator.validate(configuration)
 
-        val parsedTests = testParser.extract()
-        if (parsedTests.isEmpty()) throw NoTestCasesFoundException("No tests cases were found")
-        val tests = applyTestFilters(parsedTests)
-        if (executeMode == ExecuteMode.PARSE) {
-            logParseExecuteModeOutput(tests)
+        val parsedAllTests = testParser.extract()
+        if (parsedAllTests.isEmpty()) throw NoTestCasesFoundException("No tests cases were found")
+        val parsedFilteredTests = applyTestFilters(parsedAllTests)
+        if (executionCommand is ParseCommand) {
+            marathonTestParseCommand.execute(
+                tests = parsedFilteredTests,
+                outputFile = executionCommand.outputFile
+            )
+            stopKoin()
             return true
         }
 
-        val shard = prepareTestShard(tests, analytics)
+        val shard = prepareTestShard(parsedFilteredTests, analytics)
 
-        log.info("Scheduling ${tests.size} tests")
-        log.debug(tests.joinToString(", ") { it.toTestName() })
+        log.info("Scheduling ${parsedFilteredTests.size} tests")
+        log.debug(parsedFilteredTests.joinToString(", ") { it.toTestName() })
         val currentCoroutineContext = coroutineContext
         val scheduler = Scheduler(
             deviceProvider,
@@ -114,7 +115,7 @@ class Marathon(
 
         val hook = installShutdownHook { onFinish(analytics, deviceProvider) }
 
-        if (tests.isNotEmpty()) {
+        if (parsedFilteredTests.isNotEmpty()) {
             scheduler.execute()
         }
 
@@ -133,30 +134,6 @@ class Marathon(
         systemProperties.forEach {
             log.info { "${it.key}: ${it.value}" }
         }
-    }
-
-    private fun logParseExecuteModeOutput(tests: List<Test>) {
-        val mapper: ObjectMapper = ObjectMapper(
-            YAMLFactory()
-                .disable(YAMLGenerator.Feature.USE_NATIVE_TYPE_ID)
-        ).apply {
-            setSerializationInclusion(JsonInclude.Include.NON_NULL)
-            registerModule(
-                KotlinModule.Builder()
-                    .withReflectionCacheSize(512)
-                    .configure(KotlinFeature.NullToEmptyCollection, false)
-                    .configure(KotlinFeature.NullToEmptyMap, false)
-                    .configure(KotlinFeature.NullIsSameAsDefault, false)
-                    .configure(KotlinFeature.SingletonSupport, true)
-                    .configure(KotlinFeature.StrictNullChecks, false)
-                    .build()
-            )
-        }
-        val parseResult = ParseResult(tests)
-        val res = mapper.writeValueAsString(parseResult)
-
-        log.info { "Parse execute mode. Result" }
-        log.info { res }
     }
 
     private fun installShutdownHook(block: suspend () -> Unit): ShutdownHook {
@@ -204,8 +181,3 @@ class Marathon(
         }
     }
 }
-
-// todo
-data class ParseResult(
-    val tests: List<Test>
-)

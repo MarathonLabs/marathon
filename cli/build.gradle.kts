@@ -46,6 +46,9 @@ dependencies {
     implementation(Libraries.logbackClassic)
     implementation(Libraries.argParser)
     testRuntimeOnly(TestLibraries.jupiterEngine)
+
+    // todo include to Libraries
+    implementation("com.github.ajalt.clikt:clikt:3.5.0")
 }
 
 setupDeployment()
