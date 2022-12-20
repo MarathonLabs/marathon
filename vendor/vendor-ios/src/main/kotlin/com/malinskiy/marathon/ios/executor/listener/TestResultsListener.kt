@@ -117,7 +117,7 @@ class TestResultsListener(
                     1 -> runResult.testFailed(
                         matchingTests.first(),
                         trace = StringBuilder().apply {
-                            failureSummary.producingTarget?.let { appendLine(it) }
+                            failureSummary.documentLocationInCreatingWorkspace?.let { appendLine(it.url) }
                             appendLine(failureSummary.message)
                         }.toString()
                     )
