@@ -3,8 +3,8 @@ package com.malinskiy.marathon.cli.args
 import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.parameters.groups.OptionGroup
 import com.github.ajalt.clikt.parameters.groups.provideDelegate
+import com.github.ajalt.clikt.parameters.options.convert
 import com.github.ajalt.clikt.parameters.options.default
-import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.types.file
 import java.io.File
@@ -13,11 +13,12 @@ class MarathonRunCommonOptions : OptionGroup() {
     val marathonfile by option("--marathonfile", "-m", help="Marathonfile file path")
         .file()
         .default(File("Marathonfile"))
-    // todo check flags how it worked with xenomachina
     val analyticsTracking by option("--analyticsTracking", help="Enable anonymous analytics tracking")
-        .flag("true", "false", default = false)
+        .convert { it.toBoolean() }
+        .default(false)
     val bugsnagReporting by option("--bugsnag", help="Enable/Disable anonymous crash reporting. Enabled by default")
-        .flag("true", "false", default = true)
+        .convert { it.toBoolean() }
+        .default(true)
 }
 
 class MarathonCli(
