@@ -1,5 +1,6 @@
 package com.malinskiy.marathon.cli
 
+import com.github.ajalt.clikt.core.PrintMessage
 import com.github.ajalt.clikt.core.subcommands
 import com.malinskiy.marathon.Marathon
 import com.malinskiy.marathon.android.AndroidVendor
@@ -23,8 +24,6 @@ import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.usageanalytics.TrackActionType
 import com.malinskiy.marathon.usageanalytics.UsageAnalytics
 import com.malinskiy.marathon.usageanalytics.tracker.Event
-import com.xenomachina.argparser.SystemExitException
-import com.xenomachina.argparser.mainBody
 import ddmlibModule
 import org.koin.core.context.stopKoin
 import org.koin.dsl.module
@@ -32,14 +31,10 @@ import kotlin.system.exitProcess
 
 private val logger = MarathonLogging.logger {}
 
-// todo remove xenomachina
-fun main(args: Array<String>): Unit = mainBody(
-    programName = "marathon v${BuildConfig.VERSION}"
-) {
+fun main(args: Array<String>): Unit =
     MarathonCli(::execute)
         .subcommands(Version(::execute), Parse(::execute), RunMarathon(::execute))
         .main(args)
-}
 
 private fun execute(cliConfiguration: CliConfiguration) {
     logger.info { "Starting marathon v${BuildConfig.VERSION}, CliConfiguration: $cliConfiguration" }
@@ -90,9 +85,9 @@ private fun execute(cliConfiguration: CliConfiguration) {
 
         val shouldReportFailure = !configuration.ignoreFailures
         if (!success && shouldReportFailure) {
-            throw SystemExitException("Marathon execution failed", 1)
+            throw PrintMessage(message = "Marathon execution failed", error = true)
         } else {
-            throw SystemExitException("Marathon execution finished", 0)
+            throw PrintMessage(message = "Marathon execution finished", error = false)
         }
     } finally {
         stopKoin()
