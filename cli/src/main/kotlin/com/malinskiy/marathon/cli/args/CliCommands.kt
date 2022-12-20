@@ -58,7 +58,7 @@ class Parse(
     private val marathonfile by option("--marathonfile", "-m", help="Marathonfile file path")
         .file()
         .default(File("Marathonfile"))
-    private val parseOutputFile by option("--output", "-o", help="Output for the result of Parse command execution")
+    private val parseOutputFile by option("--output", "-o", help="Output for the result of Parse command execution in yaml format")
         .file()
     override fun run() {
         // todo create/check the file???
