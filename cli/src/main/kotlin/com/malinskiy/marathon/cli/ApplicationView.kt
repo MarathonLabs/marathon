@@ -46,7 +46,7 @@ private fun execute(cliConfiguration: CliConfiguration) {
     val marathonStartConfiguration: MarathonStartConfiguration = when(cliConfiguration) {
         is MarathonRunCommandCliConfiguration -> cliConfiguration.toMarathonStartConfiguration()
         is ParseCommandCliConfiguration -> cliConfiguration.toMarathonStartConfiguration()
-        else -> throw IllegalArgumentException("") // todo
+        else -> throw IllegalArgumentException("Please handle the new format of cliConfiguration=$cliConfiguration")
     }
 
     val bugsnagExceptionsReporter = ExceptionsReporterFactory.get(marathonStartConfiguration.bugsnagReporting)

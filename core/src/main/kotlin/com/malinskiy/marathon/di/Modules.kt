@@ -38,7 +38,10 @@ val coreModule = module {
     single<Clock> { Clock.systemDefaultZone() }
     single<Timer> { SystemTimer(get()) }
     single { ProgressReporter(get()) }
-    single { MarathonTestParseCommand() }
+    single {
+        val configuration = get<Configuration>()
+        MarathonTestParseCommand(configuration.outputDir)
+    }
     single { Marathon(get(), get(), get(), get(), get(), get(), get(), get(), get(), get(), get()) }
 }
 

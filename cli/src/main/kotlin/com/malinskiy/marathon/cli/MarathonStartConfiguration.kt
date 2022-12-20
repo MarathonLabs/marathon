@@ -27,5 +27,5 @@ fun ParseCommandCliConfiguration.toMarathonStartConfiguration(): MarathonStartCo
         marathonfile = this.marathonfile,
         bugsnagReporting = false,
         analyticsTracking = false,
-        executionCommand = ParseCommand(this.outputFile),
+        executionCommand = ParseCommand(this.outputFileName),
     )

@@ -84,7 +84,7 @@ class Marathon(
         if (executionCommand is ParseCommand) {
             marathonTestParseCommand.execute(
                 tests = parsedFilteredTests,
-                outputFile = executionCommand.outputFile
+                outputFileName = executionCommand.outputFileName
             )
             stopKoin()
             return true

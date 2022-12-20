@@ -9,10 +9,22 @@ import com.fasterxml.jackson.module.kotlin.KotlinModule
 import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.test.Test
 import java.io.File
+import java.nio.file.Files
+import java.nio.file.Paths.get
+
+private const val EXTENSION = ".yaml"
 
 private val log = MarathonLogging.logger {}
 
-class MarathonTestParseCommand {
+/**
+ * Further development when new commands will appear:
+ * 1. Create an interface like CommandExecutor with a single method "execute(Command)" where Command is a sealed class.
+ * 2. MarathonTestParseCommand should be inherited from described above interface.
+ * 3. "outputFile" arg in "execute" method should be a part of Config for this particular class. The config is bringing through a constructor.
+ * 4. "tests" arg should be a part of Command sealed class inheritor.
+ */
+
+class MarathonTestParseCommand(private val outputDir: File) {
 
     private val mapper: ObjectMapper = ObjectMapper(
         YAMLFactory()
@@ -31,13 +43,16 @@ class MarathonTestParseCommand {
         )
     }
 
-    fun execute(tests: List<Test>, outputFile: File?) {
+    fun execute(tests: List<Test>, outputFileName: String?) {
         val parseResult = ParseCommandResult(tests)
         val res = mapper.writeValueAsString(parseResult)
 
         log.info { "Parse execute mode. Result" }
         log.info { res }
+        if (outputFileName == null) return
 
-        // todo write to output file
+        val dirPath = Files.createDirectories(get(outputDir.absolutePath))
+        val resultFile = File(dirPath.toFile(), outputFileName + EXTENSION)
+        resultFile.writeText(res)
     }
 }
