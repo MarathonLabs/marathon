@@ -43,9 +43,10 @@ class XcresulttoolSourceCreator(private val schema: File, private val pkg: Strin
 
         var processed = mutableMapOf<String, List<PropertySpec>>()
 
+        println("Starting generation of " + objects.joinToString { it.type.name })
         var (currentIterationObjects, objectsToGenerate) = objects.partition { canGenerate(it, processed) }
-        while (objectsToGenerate.isNotEmpty()) {
-            println("Generating ${currentIterationObjects.map{it.type.name}.joinToString()}")
+        while (currentIterationObjects.isNotEmpty()) {
+            println("Generating ${currentIterationObjects.map { it.type.name }.joinToString()}")
             currentIterationObjects.forEach { typeDefinition ->
                 val properties = typeDefinition.properties
                     .filter { !filteredParameterTypes.contains(it.type) }
@@ -78,21 +79,16 @@ class XcresulttoolSourceCreator(private val schema: File, private val pkg: Strin
                 println("Generated ${typeDefinition.type.name}")
 
                 processed[typeDefinition.type.name] = propertySpecs
-                if(typeDefinition.type.name == "DocumentLocation") {
-                    println("hello, ${canGenerate(typeDefinition, processed)}")
-                }
             }
 
             val (nextIterationObjects, leftoGenerate) = objectsToGenerate.partition { canGenerate(it, processed) }
             currentIterationObjects = nextIterationObjects
             objectsToGenerate = leftoGenerate
+        }
 
-            if(nextIterationObjects.size == 0) {
-                objectsToGenerate.forEach {
-                    println(it)
-                }
-                throw RuntimeException("Can't resolve any more types")
-            }
+
+        if (objectsToGenerate.size != 0) {
+            throw RuntimeException("Can't resolve types ${objectsToGenerate.joinToString { it.type.name }}")
         }
     }
 
@@ -103,23 +99,25 @@ class XcresulttoolSourceCreator(private val schema: File, private val pkg: Strin
                 .filter { !filteredParameterTypes.contains(it.type) }
                 .filter { filterInternal && !it.isInternal }
                 .forEach {
-                    add(if (it.isOptional) {
-                        it.wrappedType!!
-                    } else if (it.type == "Array") {
-                        it.wrappedType!!
-                    } else {
-                        it.type
-                    })
+                    add(
+                        if (it.isOptional) {
+                            it.wrappedType!!
+                        } else if (it.type == "Array") {
+                            it.wrappedType!!
+                        } else {
+                            it.type
+                        }
+                    )
                 }
         }
-        if(typeDefinition.type.name == "IssueSummary") {
+        if (typeDefinition.type.name == "ActionTestPlanRunSummaries") {
             dependencies.forEach {
                 println(it + ":${known.containsKey(it) || Property.WKT.containsKey(it)}")
             }
         }
 
         return dependencies.all {
-            known.containsKey(it) || Property.WKT.containsKey(it) || Property.ARTIFICIAL_TYPES.contains(it) || 
+            known.containsKey(it) || Property.WKT.containsKey(it) || Property.ARTIFICIAL_TYPES.contains(it) ||
                 it == typeDefinition.type.name //Type loop
         }
     }

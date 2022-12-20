@@ -1,9 +1,10 @@
 package com.malinskiy.marathon.ios.xcrun.xcresulttool
 
-import com.malinskiy.marathon.config.Configuration
+import com.google.gson.GsonBuilder
+import com.google.gson.JsonSyntaxException
 import com.malinskiy.marathon.config.vendor.ios.TimeoutConfiguration
 import com.malinskiy.marathon.ios.cmd.CommandExecutor
-import com.malinskiy.marathon.ios.xcrun.simctl.Simctl
+import com.malinskiy.marathon.log.MarathonLogging
 
 /**
  * USAGE: xcresulttool subcommand [options] ...
@@ -21,18 +22,38 @@ class Xcresulttool(
     private val commandExecutor: CommandExecutor,
     private val timeoutConfiguration: TimeoutConfiguration,
 ) {
+    private val logger = MarathonLogging.logger {}
+    /**
+     * For the Apple trickery with json we require a custom deserializer
+     */
+    private val gson = GsonBuilder()
+        .registerTypeAdapter(List::class.java, AppleListConverter())
+        .registerTypeAdapterFactory(AppleJsonTypeAdapterFactory())
+        .create()
+
     /**
      * Get Result Bundle Object
      *
      * @param path The result bundle path
      * @param format The output format [json|raw], default: raw
-     * @param id The ID of the object [optional, assumes rootID if not specified]
+     * @param id The ID of the object [optional, assumes rootID if not specified]. Note: specifying rootID doesn't work as a default
      * @param version For incomplete result bundles (lacking Info.plist), specify version explicitly [optional, assumes latest version if not specified]
      */
-    suspend fun get(path: String, format: ResultBundleFormat = ResultBundleFormat.JSON, id: String? = null, version: String? = null) {
+    suspend fun <T> get(clazz: Class<T>, path: String, format: ResultBundleFormat = ResultBundleFormat.JSON, id: String? = null, version: String? = null): T? {
+        val args = mutableListOf("xcrun", "xcresulttool", "get", "--format", format.value, "--path", path)
+        id?.let {
+            args.add("--id")
+            args.add(it)
+        }
         val result =
-            commandExecutor.criticalExecute(timeoutConfiguration.shell, "xcrun", "xcresulttool", "--path", path, "--format", format.value)
-        result.combinedStdout.trim()
+            commandExecutor.criticalExecute(timeoutConfiguration.shell, *args.toTypedArray())
+        val json = result.combinedStdout.trim()
+        return try {
+            gson.fromJson(json, clazz)
+        } catch (e: JsonSyntaxException) {
+            logger.warn(e) { "Invalid syntax in the $path" }
+            null
+        }
     }
 }
 

@@ -6,21 +6,29 @@ import com.malinskiy.marathon.execution.TestBatchResults
 import com.malinskiy.marathon.execution.TestResult
 import com.malinskiy.marathon.execution.TestStatus
 import com.malinskiy.marathon.execution.result.TemporalTestResult
-import com.malinskiy.marathon.report.attachment.AttachmentCollector
+import com.malinskiy.marathon.ios.RemoteFileManager
+import com.malinskiy.marathon.ios.xcrun.xcresulttool.ResultBundleFormat
+import com.malinskiy.marathon.ios.xcrun.xcresulttool.Xcresulttool
 import com.malinskiy.marathon.log.MarathonLogging
+import com.malinskiy.marathon.report.attachment.AttachmentCollector
 import com.malinskiy.marathon.report.attachment.AttachmentListener
 import com.malinskiy.marathon.report.attachment.AttachmentProvider
 import com.malinskiy.marathon.test.Test
 import com.malinskiy.marathon.test.TestBatch
 import com.malinskiy.marathon.test.toTestName
 import com.malinskiy.marathon.time.Timer
+import com.malinskiy.marathon.vendor.ios.xcrun.xcresulttool.ActionTestPlanRunSummaries
+import com.malinskiy.marathon.vendor.ios.xcrun.xcresulttool.ActionsInvocationRecord
 import kotlinx.coroutines.CompletableDeferred
+import kotlin.system.measureTimeMillis
 
 class TestResultsListener(
     private val testBatch: TestBatch,
     private val device: Device,
     private val deferred: CompletableDeferred<TestBatchResults>,
     private val timer: Timer,
+    private val remoteFileManager: RemoteFileManager,
+    private val xcresulttool: Xcresulttool,
     attachmentProviders: List<AttachmentProvider>,
     private val attachmentCollector: AttachmentCollector = AttachmentCollector(attachmentProviders),
 ) : AccumulatingTestResultListener(testBatch.tests.size, timer), AttachmentListener by attachmentCollector {
@@ -28,6 +36,8 @@ class TestResultsListener(
     private val logger = MarathonLogging.logger {}
 
     override suspend fun afterTestRun() {
+        enhanceResults()
+
         val results = runResult.temporalTestResults
         val tests = testBatch.tests
 
@@ -67,8 +77,59 @@ class TestResultsListener(
 
         deferred.complete(TestBatchResults(device, finished, failed, uncompleted))
     }
-    
-    
+
+    private suspend fun enhanceResults() {
+        measureTimeMillis {
+            val remoteXcresult = remoteFileManager.remoteXcresultFile(testBatch)
+            val actionsInvocationRecord =
+                xcresulttool.get(ActionsInvocationRecord::class.java, remoteXcresult, ResultBundleFormat.JSON) ?: return
+
+            val targetName = actionsInvocationRecord.actions.mapNotNull {
+                it.actionResult.testsRef?.id?.let {
+                    xcresulttool.get(ActionTestPlanRunSummaries::class.java, remoteXcresult, ResultBundleFormat.JSON, id = it)?.summaries
+                }
+            }.flatten().mapNotNull { it.testableSummaries.mapNotNull { it.targetName } }.flatten().distinct()
+
+            val pkg = when (targetName.size) {
+                1 -> targetName.first()
+                0 -> {
+                    logger.warn { "No testable targets found in xcresult" }
+                    null
+                }
+
+                else -> {
+                    logger.warn { "Multiple testing targets found in xcresult" }
+                    null
+                }
+            }
+
+            actionsInvocationRecord.issues.testFailureSummaries.forEach { failureSummary ->
+                //AIR doesn't contain package information at all. Match by class+method and fail if more than one found
+                val matchingTests = runResult.completedTests.filter {
+                    val testCaseName = failureSummary.testCaseName.removeSuffix("()")
+                    if (pkg != null) {
+                        it.pkg == pkg && "${it.clazz}.${it.method}" == testCaseName
+                    } else {
+                        "${it.clazz}.${it.method}" == testCaseName
+                    }
+                }
+                when (matchingTests.size) {
+                    1 -> runResult.testFailed(
+                        matchingTests.first(),
+                        trace = StringBuilder().apply {
+                            failureSummary.producingTarget?.let { appendLine(it) }
+                            appendLine(failureSummary.message)
+                        }.toString()
+                    )
+
+                    0 -> logger.warn { "No matching test cases found in xcresult" }
+                    else -> logger.warn { "Multiple matching test cases found in xcresult. Impossible to possible to add stacktrace to report" }
+                }
+            }
+        }.let {
+            logger.debug { "Enhancing report using xcresult took $it ms" }
+        }
+    }
 
     private fun Map.Entry<Test, TemporalTestResult>.toTestResult(device: Device): TestResult {
         val testInstanceFromBatch = testBatch.tests.find {

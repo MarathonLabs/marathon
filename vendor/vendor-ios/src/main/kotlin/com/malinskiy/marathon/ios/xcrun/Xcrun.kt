@@ -6,6 +6,7 @@ import com.malinskiy.marathon.config.vendor.VendorConfiguration
 import com.malinskiy.marathon.ios.cmd.CommandExecutor
 import com.malinskiy.marathon.ios.xcrun.simctl.Simctl
 import com.malinskiy.marathon.ios.xcrun.xcodebuild.Xcodebuild
+import com.malinskiy.marathon.ios.xcrun.xcresulttool.Xcresulttool
 
 class Xcrun(
     commandExecutor: CommandExecutor,
@@ -15,4 +16,5 @@ class Xcrun(
 ) {
     val simctl = Simctl(commandExecutor, configuration, vendorConfiguration, gson)
     val xcodebuild = Xcodebuild(commandExecutor, configuration)
+    val xcresulttool = Xcresulttool(commandExecutor, vendorConfiguration.timeoutConfiguration)
 }

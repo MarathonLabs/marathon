@@ -291,7 +291,7 @@ class AppleSimulatorDevice(
         return Pair(
             CompositeTestRunListener(
                 listOf(
-                    TestResultsListener(testBatch, this, deferred, timer, attachmentProviders),
+                    TestResultsListener(testBatch, this, deferred, timer, remoteFileManager, xcrun.xcresulttool, attachmentProviders),
                     logListener,
                     progressReportingListener,
                     DebugTestRunListener(this),

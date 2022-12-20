@@ -31,7 +31,7 @@ abstract class SimctlService(private val commandExecutor: CommandExecutor) {
         env: Map<String, String>,
         vararg args: String,
     ): CommandResult {
-        return commandExecutor.criticalExecute(listOf(*args), timeout, TimeoutConfiguration.INFINITE, env, null)
+        return commandExecutor.criticalExecute(listOf("xcrun", "simctl", *args), timeout, TimeoutConfiguration.INFINITE, env, null)
     }
 
 
