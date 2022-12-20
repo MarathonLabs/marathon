@@ -38,6 +38,7 @@ class AppleDeviceTestRunner(private val device: AppleDevice) {
             xctestrun = remoteXctestrunFile,
             tests = rawTestBatch.tests,
             xcresult = remoteXcresultPath,
+            coverage = configuration.isCodeCoverageEnabled,
         )
         var channel: ReceiveChannel<List<TestEvent>>? = null
         try {

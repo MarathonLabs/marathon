@@ -18,6 +18,7 @@ class Xcodebuild(
             "xcrun", "xcodebuild", "test-without-building",
             "-xctestrun", request.xctestrun,
             *request.toXcodebuildTestFilter(),
+            "-enableCodeCoverage", codeCoverageFlag(request),
             "-resultBundlePath", request.xcresult,
             "-destination", "\'platform=iOS simulator,id=$udid\'"
         )
@@ -29,5 +30,10 @@ class Xcodebuild(
             workdir = request.workdir,
             env = mapOf("NSUnbufferedIO" to "YES"),
         )
+    }
+
+    private fun codeCoverageFlag(request: TestRequest) = when (request.coverage) {
+        true -> "YES"
+        false -> "NO"
     }
 }
