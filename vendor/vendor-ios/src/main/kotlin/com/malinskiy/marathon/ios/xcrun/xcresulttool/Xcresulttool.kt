@@ -55,6 +55,21 @@ class Xcresulttool(
             null
         }
     }
+
+    /**
+     * OVERVIEW: Merge Result Bundles
+     *
+     * OPTIONS:
+     *   --output-path   The path to write the merged result bundle.
+     *
+     * POSITIONAL ARGUMENTS:
+     *   input paths     Two or more result bundles to merge.
+     */
+    suspend fun merge(outputPath: String, paths: List<String>): Boolean {
+        val result =
+            commandExecutor.criticalExecute(timeoutConfiguration.shell, "xcrun", "xcresulttool", "merge", "--output-path", outputPath, *paths.toTypedArray())
+        return result.successful
+    }
 }
 
 enum class ResultBundleFormat(val value: String) {

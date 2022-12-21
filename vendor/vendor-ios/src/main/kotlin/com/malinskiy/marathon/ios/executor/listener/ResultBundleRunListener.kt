@@ -9,6 +9,7 @@ import com.malinskiy.marathon.ios.AppleDevice
 import com.malinskiy.marathon.ios.RemoteFileManager
 import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.test.TestBatch
+import java.io.File
 
 class ResultBundleRunListener(
     private val device: AppleDevice,
@@ -23,9 +24,12 @@ class ResultBundleRunListener(
         super.afterTestRun()
         val remotePath = device.remoteFileManager.remoteXcresultFile(batch)
         if (xcresultConfiguration.pull) {
-            val localPath = fileManager.createFolder(FolderType.DEVICE_FILES, poolId, device.toDeviceInfo())
+            val localPath = File(fileManager.createFolder(FolderType.DEVICE_FILES, poolId, device.toDeviceInfo()), "xcresult")
             if (!device.pullFolder(remotePath, localPath)) {
                 logger.warn { "failed to pull result bundle" }
+            } else {
+                File(localPath, remotePath.substringAfterLast(RemoteFileManager.FILE_SEPARATOR))
+                    .renameTo(File(localPath, "${batch.id}.xcresult"))
             }
         }
         if (xcresultConfiguration.remoteClean) {

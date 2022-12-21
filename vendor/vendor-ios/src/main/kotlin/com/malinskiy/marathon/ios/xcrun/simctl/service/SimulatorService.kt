@@ -39,6 +39,16 @@ class SimulatorService(
         ).successful
     }
 
+    /**
+     * Simulator should be in the state SHUTDOWN
+     */
+    suspend fun delete(udid: String): Boolean {
+        return criticalExec(
+            timeout = timeoutConfiguration.shutdown,
+            "delete", udid
+        ).successful
+    }
+
     suspend fun eraseAll(): Boolean {
         return criticalExec(
             timeout = timeoutConfiguration.erase,
