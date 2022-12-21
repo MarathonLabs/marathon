@@ -34,9 +34,10 @@ class TestResultsListener(
 ) : AccumulatingTestResultListener(testBatch.tests.size, timer), AttachmentListener by attachmentCollector {
 
     private val logger = MarathonLogging.logger {}
+    private val enhanceUsingXcresult = true
 
     override suspend fun afterTestRun() {
-        enhanceResults()
+        if(enhanceUsingXcresult) enhanceResults()
 
         val results = runResult.temporalTestResults
         val tests = testBatch.tests

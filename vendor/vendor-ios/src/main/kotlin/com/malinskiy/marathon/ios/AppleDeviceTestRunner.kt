@@ -69,7 +69,7 @@ class AppleDeviceTestRunner(private val device: AppleDevice) {
                 is TestRunStartedEvent -> listener.testRunStarted()
                 is TestStarted -> listener.testStarted(event.id)
                 is TestPassed -> listener.testPassed(event.id, event.startTime, event.endTime)
-                is TestFailed -> listener.testFailed(event.id, event.startTime, event.endTime)
+                is TestFailed -> listener.testFailed(event.id, event.startTime, event.endTime, event.trace)
                 is TestRunFailed -> listener.testRunFailed(event.message, event.reason)
                 is TestRunEnded -> listener.testRunEnded()
             }

@@ -17,8 +17,8 @@ abstract class AccumulatingTestResultListener(private val expectedTestCount: Int
         runResult.testStarted(test)
     }
 
-    override suspend fun testFailed(test: Test, startTime: Long, endTime: Long) {
-        runResult.testFailed(test = test, trace = "", startTime = startTime, endTime = endTime)
+    override suspend fun testFailed(test: Test, startTime: Long, endTime: Long, trace: String?) {
+        runResult.testFailed(test = test, trace = trace ?: "", startTime = startTime, endTime = endTime)
         testEnded(test, startTime, endTime)
     }
 

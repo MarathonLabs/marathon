@@ -14,7 +14,7 @@ class ProgressReportingListener(
         progressReporter.testStarted(poolId, deviceInfo, test)
     }
 
-    override suspend fun testFailed(test: Test, startTime: Long, endTime: Long) {
+    override suspend fun testFailed(test: Test, startTime: Long, endTime: Long, trace: String?) {
         progressReporter.testFailed(poolId, deviceInfo, test)
     }
 

@@ -22,16 +22,42 @@ class TestRunProgressParser(
     val TEST_CASE_FINISHED =
         """Test Case '-\[([a-zA-Z0-9_.]+)\.([a-zA-Z0-9_]+) ([a-zA-Z0-9_]+)]' (passed|failed) \(([\d\.]+) seconds\)\.""".toRegex()
 
+    /**
+     * $1 = file
+     * $2 = test_suite
+     * $3 = test_case
+     * $4 = reason
+     */
+    val FAILING_TEST_MATCHER = "(/.+:\\d+):\\serror:\\s[\\+\\-]\\[(.*)\\s(.*)\\]\\s:(\\s.*)".toRegex()
+    
+    private var failingTestLine: String? = null
+    
     override fun process(line: String): List<TestEvent>? {
         return if (line.matches(TEST_CASE_STARTED)) {
             parseTestStarted(line)?.let { listOf(it) }
         } else if (line.matches(TEST_CASE_FINISHED)) {
             parseTestFinished(line)?.let { listOf(it) }
+        } else if (line.matches(FAILING_TEST_MATCHER)) {
+            failingTestLine = line
+            null
         } else {
             null
         }
     }
-    
+
+    private fun parseFailingTest(line: String): String? {
+        val matchResult = FAILING_TEST_MATCHER.find(line)
+        val file = matchResult?.groups?.get(1)?.value?.trim()
+        val testSuite = matchResult?.groups?.get(2)?.value?.trim()
+        val testCase = matchResult?.groups?.get(3)?.value?.trim()
+        val reason = matchResult?.groups?.get(4)?.value?.trim()
+        
+        if(file !== null && testSuite != null && testCase != null && reason != null) {
+            return "$file:$reason"
+        }
+        return null
+    }
+
     private fun parseTestFinished(line: String): TestEvent? {
         val matchResult = TEST_CASE_FINISHED.find(line)
         val pkg = packageNameFormatter.format(matchResult?.groups?.get(1)?.value)
@@ -54,9 +80,11 @@ class TestRunProgressParser(
                 }
 
                 "failed" -> {
-                    TestFailed(test, startTime, endTime)
+                    val trace = failingTestLine?.let { 
+                        parseFailingTest(it)
+                    }
+                    TestFailed(test, startTime, endTime, trace)
                 }
-
                 else -> {
                     logger.error { "Unknown result $result for test $pkg.$clazz.$method" }
                     null
@@ -67,6 +95,7 @@ class TestRunProgressParser(
     }
 
     private fun parseTestStarted(line: String): TestStarted? {
+        failingTestLine = null
         val matchResult = TEST_CASE_STARTED.find(line)
         val pkg = packageNameFormatter.format(matchResult?.groups?.get(1)?.value)
         val clazz = matchResult?.groups?.get(2)?.value

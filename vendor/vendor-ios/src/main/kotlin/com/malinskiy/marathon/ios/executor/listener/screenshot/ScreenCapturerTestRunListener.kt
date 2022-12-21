@@ -51,7 +51,7 @@ class ScreenCapturerTestRunListener(
         }
     }
 
-    override suspend fun testFailed(test: Test, startTime: Long, endTime: Long) {
+    override suspend fun testFailed(test: Test, startTime: Long, endTime: Long, trace: String?) {
         testEnded(test, true)
     }
 

@@ -12,7 +12,7 @@ open class ArtifactFinderListener(
     private var matches = mutableSetOf<String>()
     override suspend fun onLine(line: String) {
         pattern.find(line)?.groupValues?.firstOrNull()
-            ?.let { matches.add(it) }
+            ?.let { matches.add(it.trim()) }
     }
 
     override suspend fun afterTestRun() {

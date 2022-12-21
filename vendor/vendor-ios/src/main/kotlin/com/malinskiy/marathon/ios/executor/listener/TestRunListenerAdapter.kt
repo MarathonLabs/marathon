@@ -15,7 +15,7 @@ class TestRunListenerAdapter(private val listener: TestRunListener) : AppleTestR
         listener.testStarted(test)
     }
 
-    override suspend fun testFailed(test: Test, startTime: Long, endTime: Long) {
+    override suspend fun testFailed(test: Test, startTime: Long, endTime: Long, trace: String?) {
         listener.testEnded(test)
     }
 

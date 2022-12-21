@@ -20,8 +20,8 @@ class CompositeTestRunListener(private val listeners: List<AppleTestRunListener>
         execute { it.testStarted(test) }
     }
 
-    override suspend fun testFailed(test: Test, startTime: Long, endTime: Long) {
-        execute { it.testFailed(test, startTime, endTime) }
+    override suspend fun testFailed(test: Test, startTime: Long, endTime: Long, trace: String?) {
+        execute { it.testFailed(test, startTime, endTime, trace) }
     }
 
     override suspend fun testPassed(test: Test, startTime: Long, endTime: Long) {
