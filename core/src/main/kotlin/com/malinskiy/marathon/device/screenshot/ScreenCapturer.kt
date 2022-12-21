@@ -30,10 +30,12 @@ class ScreenCapturer(
     private val timeout: Duration
 ) {
     private val delayMillis by lazy { delay.toMillis().toInt() }
+    var capturesTaken: Int = 0
 
     suspend fun start(test: Test) {
         var outputStream: FileImageOutputStream? = null
         var writer: GifSequenceWriter? = null
+        capturesTaken = 0
         try {
             outputStream =
                 FileImageOutputStream(fileManager.createFile(FileType.SCREENSHOT, poolId, deviceInfo, test, testBatchId))
@@ -43,6 +45,7 @@ class ScreenCapturer(
                 val capturingTimeMillis = measureTimeMillis {
                     getScreenshot(targetRotation)?.let {
                         writer.writeToSequence(it)
+                        capturesTaken++
                     }
                 }
                 val sleepTimeMillis = when {

@@ -69,7 +69,11 @@ class ScreenCapturerTestRunListener(
             }
         } else {
             val file = fileManager.createFile(FileType.SCREENSHOT, pool, device.toDeviceInfo(), test, testBatchId)
-            attachmentProvider.onAttachment(test, Attachment(file, AttachmentType.SCREENSHOT_GIF))
+            if(screenCapturer.capturesTaken > 0) {
+                attachmentProvider.onAttachment(test, Attachment(file, AttachmentType.SCREENSHOT_GIF))
+            } else {
+                file.delete()
+            }
         }
     } 
 

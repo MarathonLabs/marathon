@@ -17,22 +17,22 @@ import java.time.Duration
  *                          ignored: The mask is ignored and the unmasked framebuffer is saved.
  *                          alpha: The mask is used as premultiplied alpha.
  *                          black: The mask is rendered black.
+ *                          
+ * Notes: GIF doesn't really work and produces `Invalid file type: gif` with latest xcode                         
  */
 data class ScreenshotConfiguration(
     @JsonProperty("enabled") val enabled: Boolean = true,
-    @JsonProperty("type") val type: Type = Type.GIF,
+    @JsonProperty("type") val type: Type = Type.JPEG,
     @JsonProperty("display") val display: Display = Display.INTERNAL,
     @JsonProperty("mask") val mask: Mask = Mask.BLACK,
     @JsonProperty("delay") val delay: Duration = Duration.ofMillis(500),
     @JsonProperty("width") val width: Int = 720,
     @JsonProperty("height") val height: Int = 1280,
-    
 )
 
 enum class Type(val value: String) {
     @JsonProperty("png") PNG("png"),
     @JsonProperty("tiff") TIFF(("tiff")),
     @JsonProperty("bmp") BMP("bmp"),
-    @JsonProperty("gif") GIF("gif"),
     @JsonProperty("jpeg") JPEG("jpeg"),
 }

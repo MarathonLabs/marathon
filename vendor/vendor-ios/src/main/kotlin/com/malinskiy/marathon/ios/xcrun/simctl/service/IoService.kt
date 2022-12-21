@@ -8,17 +8,25 @@ import com.malinskiy.marathon.config.vendor.ios.Type
 import com.malinskiy.marathon.ios.cmd.CommandExecutor
 import com.malinskiy.marathon.ios.cmd.CommandResult
 import com.malinskiy.marathon.ios.xcrun.simctl.SimctlService
+import com.malinskiy.marathon.log.MarathonLogging
 
 class IoService(
     commandExecutor: CommandExecutor,
     private val timeoutConfiguration: TimeoutConfiguration,
 ) : SimctlService(commandExecutor) {
+    private val logger = MarathonLogging.logger {}
+
     suspend fun screenshot(udid: String, destination: String, type: Type, display: Display, mask: Mask): Boolean {
-        return safeExecute(
+        val result = safeExecute(
             timeout = timeoutConfiguration.screenshot,
             "io", udid, "screenshot", "--type=${type.value}", "--display=${display.value}", "--mask=${mask.value}", destination
         )
-            ?.successful ?: false
+        return if (result?.successful == true) {
+            true
+        } else {
+            logger.debug { "failed to capture screenshot, stdout=${result?.combinedStdout}, stderr=${result?.combinedStderr}" }
+            false
+        }
     }
 
     /**
