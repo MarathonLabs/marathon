@@ -8,11 +8,13 @@ import com.fasterxml.jackson.module.kotlin.KotlinFeature
 import com.fasterxml.jackson.module.kotlin.KotlinModule
 import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.test.Test
+import org.jetbrains.annotations.TestOnly
 import java.io.File
 import java.nio.file.Files
 import java.nio.file.Paths.get
 
-private const val EXTENSION = ".yaml"
+@get:TestOnly
+internal const val EXTENSION = ".yml"
 
 private val log = MarathonLogging.logger {}
 
