@@ -46,7 +46,7 @@ class AppleApplicationInstaller(
             for (permission in vendorConfiguration.permissions.grant) {
                 device.grant(permission, bundleId)
             }
-        } else {
+        } else if(vendorConfiguration.permissions.grant.isNotEmpty()) {
             logger.warn { "Unable to grant permissions due to unknown bundle identifier" }
         }
         
