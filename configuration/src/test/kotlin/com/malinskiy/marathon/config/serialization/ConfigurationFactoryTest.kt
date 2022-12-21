@@ -157,7 +157,6 @@ class ConfigurationFactoryTest {
         configuration.excludeSerialRegexes.joinToString(separator = "") { it.pattern } shouldBeEqualTo """emulator-5002""".toRegex().pattern
         configuration.ignoreFailures shouldBeEqualTo false
         configuration.isCodeCoverageEnabled shouldBeEqualTo false
-        configuration.fallbackToScreenshots shouldBeEqualTo false
         configuration.strictMode shouldBeEqualTo true
         configuration.testBatchTimeoutMillis shouldBeEqualTo 20_000
         configuration.testOutputTimeoutMillis shouldBeEqualTo 30_000
@@ -236,7 +235,6 @@ class ConfigurationFactoryTest {
         configuration.excludeSerialRegexes shouldBeEqualTo emptyList()
         configuration.ignoreFailures shouldBeEqualTo false
         configuration.isCodeCoverageEnabled shouldBeEqualTo false
-        configuration.fallbackToScreenshots shouldBeEqualTo false
         configuration.testBatchTimeoutMillis shouldBeEqualTo 1800_000
         configuration.testOutputTimeoutMillis shouldBeEqualTo 300_000
         configuration.debug shouldBeEqualTo true

@@ -27,7 +27,6 @@ class ConfigurationFactory(val testParser: TestParser, val deviceProvider: StubD
     var batchingStrategy: BatchingStrategyConfiguration = BatchingStrategyConfiguration.IsolateBatchingStrategyConfiguration
     var analyticsConfiguration: AnalyticsConfiguration = AnalyticsConfiguration.DisabledAnalytics
     var excludeSerialRegexes: List<Regex> = emptyList()
-    var fallbackToScreenshots: Boolean = false
     var strictMode: Boolean = false
     var uncompletedTestRetryQuota: Int = Int.MAX_VALUE
     var filteringConfiguration: FilteringConfiguration = FilteringConfiguration()
@@ -68,7 +67,6 @@ class ConfigurationFactory(val testParser: TestParser, val deviceProvider: StubD
         filteringConfiguration = this@ConfigurationFactory.filteringConfiguration
         ignoreFailures = this@ConfigurationFactory.ignoreFailures
         isCodeCoverageEnabled = this@ConfigurationFactory.isCodeCoverageEnabled
-        fallbackToScreenshots = this@ConfigurationFactory.fallbackToScreenshots
         strictMode = this@ConfigurationFactory.strictMode
         uncompletedTestRetryQuota = this@ConfigurationFactory.uncompletedTestRetryQuota
         testClassRegexes = this@ConfigurationFactory.testClassRegexes
