@@ -3,7 +3,7 @@ package com.malinskiy.marathon.config.vendor.ios
 import com.fasterxml.jackson.annotation.JsonProperty
 
 data class LifecycleConfiguration(
-    @JsonProperty("onStart") val onStart: Set<LifecycleAction> = emptySet(),
+    @JsonProperty("onPrepare") val onPrepare: Set<LifecycleAction> = emptySet(),
 )
 
 enum class LifecycleAction {

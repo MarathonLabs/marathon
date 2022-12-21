@@ -19,7 +19,7 @@ interface Device {
     val logger: KLogger
 
     /**
-     * Called before each batch execution
+     * Called before once after has been device connected
      *
      * Should throw an instance of DeviceSetupException
      *

@@ -33,7 +33,7 @@ class AppleTestParserTest {
         rsync = RsyncConfiguration(remotePath = "/remote/rsync"),
         sourceRoot = sourceRoot,
         lifecycleConfiguration = LifecycleConfiguration(
-            onStart = setOf(LifecycleAction.ERASE)
+            onPrepare = setOf(LifecycleAction.ERASE)
         ),
     )
     private val parser = AppleTestParser(vendorConfiguration)

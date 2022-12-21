@@ -62,7 +62,6 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.newFixedThreadPoolContext
 import kotlinx.coroutines.supervisorScope
 import kotlinx.coroutines.withContext
-import kotlinx.coroutines.withTimeoutOrNull
 import net.schmizz.sshj.connection.ConnectionException
 import net.schmizz.sshj.connection.channel.OpenFailException
 import net.schmizz.sshj.transport.TransportException
@@ -179,10 +178,10 @@ class AppleSimulatorDevice(
                             ).prepareInstallation(this@AppleSimulatorDevice)
                         })
                         add(async {
-                            if (vendorConfiguration.lifecycleConfiguration.onStart.contains(LifecycleAction.TERMINATE)) {
+                            if (vendorConfiguration.lifecycleConfiguration.onPrepare.contains(LifecycleAction.TERMINATE)) {
                                 terminateRunningSimulator()
                             }
-                            if (vendorConfiguration.lifecycleConfiguration.onStart.contains(LifecycleAction.ERASE)) {
+                            if (vendorConfiguration.lifecycleConfiguration.onPrepare.contains(LifecycleAction.ERASE)) {
                                 if (!shutdown()) {
                                     logger.warn("Exception shutting down simulator $udid")
                                 } else {
