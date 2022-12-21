@@ -36,6 +36,20 @@ class AppleApplicationInstaller(
                 throw DeviceSetupException("Error transferring $productsDir to ${device.serialNumber}")
             }
         }
+        
+        grantPermissions(device)
+    }
+
+    private suspend fun grantPermissions(device: AppleSimulatorDevice) {
+        val bundleId = vendorConfiguration.permissions.bundleId
+        if (bundleId != null) {
+            for (permission in vendorConfiguration.permissions.grant) {
+                device.grant(permission, bundleId)
+            }
+        } else {
+            logger.warn { "Unable to grant permissions due to unknown bundle identifier" }
+        }
+        
     }
 
     private fun prepareXctestrun(device: AppleSimulatorDevice): File {

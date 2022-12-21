@@ -6,6 +6,7 @@ import com.malinskiy.marathon.config.Configuration
 import com.malinskiy.marathon.config.ScreenRecordingPolicy
 import com.malinskiy.marathon.config.vendor.VendorConfiguration
 import com.malinskiy.marathon.config.vendor.ios.LifecycleAction
+import com.malinskiy.marathon.config.vendor.ios.Permission
 import com.malinskiy.marathon.device.DeviceFeature
 import com.malinskiy.marathon.device.DevicePoolId
 import com.malinskiy.marathon.device.NetworkState
@@ -717,5 +718,9 @@ class AppleSimulatorDevice(
         } else {
             logger.debug("Failed to disable hardware keyboard for $udid, stdout=${result?.combinedStdout}")
         }
+    }
+
+    suspend fun grant(permission: Permission, bundleId: String): Boolean {
+        return xcrun.simctl.privacy.grant(udid, permission, bundleId).successful
     }
 }

@@ -15,6 +15,7 @@ import com.malinskiy.marathon.config.vendor.android.TestParserConfiguration
 import com.malinskiy.marathon.config.vendor.android.ThreadingConfiguration
 import com.malinskiy.marathon.config.vendor.android.TimeoutConfiguration
 import com.malinskiy.marathon.config.vendor.ios.LifecycleConfiguration
+import com.malinskiy.marathon.config.vendor.ios.PermissionsConfiguration
 import com.malinskiy.marathon.config.vendor.ios.RsyncConfiguration
 import com.malinskiy.marathon.config.vendor.ios.SshConfiguration
 import com.malinskiy.marathon.config.vendor.ios.XcresultConfiguration
@@ -146,6 +147,7 @@ sealed class VendorConfiguration {
         @JsonProperty("screenRecordConfiguration") val screenRecordConfiguration: AppleScreenRecordConfiguration = AppleScreenRecordConfiguration(),
         @JsonProperty("xctestrunEnv") val xctestrunEnv: Map<String, String> = emptyMap(),
         @JsonProperty("lifecycle") val lifecycleConfiguration: LifecycleConfiguration = LifecycleConfiguration(),
+        @JsonProperty("permissions") val permissions: PermissionsConfiguration = PermissionsConfiguration(),
     ) : VendorConfiguration() {
         /**
          * Exception should not happen since it will be first thrown in deserializer
