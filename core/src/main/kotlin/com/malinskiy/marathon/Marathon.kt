@@ -5,9 +5,13 @@ import com.malinskiy.marathon.analytics.internal.pub.Track
 import com.malinskiy.marathon.analytics.internal.sub.TrackerInternal
 import com.malinskiy.marathon.config.Configuration
 import com.malinskiy.marathon.config.LogicalConfigurationValidator
+import com.malinskiy.marathon.config.exceptions.ConfigurationException
 import com.malinskiy.marathon.device.DeviceProvider
+import com.malinskiy.marathon.device.DeviceProviderFactory
 import com.malinskiy.marathon.exceptions.NoDevicesException
 import com.malinskiy.marathon.exceptions.NoTestCasesFoundException
+import com.malinskiy.marathon.execution.LocalTestParser
+import com.malinskiy.marathon.execution.RemoteTestParser
 import com.malinskiy.marathon.execution.Scheduler
 import com.malinskiy.marathon.execution.TestParser
 import com.malinskiy.marathon.execution.TestShard
@@ -26,8 +30,6 @@ import com.malinskiy.marathon.usageanalytics.UsageAnalytics
 import com.malinskiy.marathon.usageanalytics.tracker.Event
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.async
-import kotlinx.coroutines.cancel
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import org.koin.core.context.stopKoin
@@ -38,7 +40,7 @@ private val log = MarathonLogging.logger {}
 
 class Marathon(
     private val configuration: Configuration,
-    private val deviceProvider: DeviceProvider,
+    private val deviceProviderFactory: DeviceProviderFactory,
     private val testBundleIdentifier: TestBundleIdentifier?,
     private val testParser: TestParser,
     private val logConfigurator: MarathonLogConfigurator,
@@ -50,6 +52,7 @@ class Marathon(
 ) {
     private val configurationValidator = LogicalConfigurationValidator()
     private val cleanedUp = AtomicBoolean(false)
+    private val deviceProvider = deviceProviderFactory.create()
 
     private fun configureLogging() {
         MarathonLogging.debug = configuration.debug
@@ -92,11 +95,25 @@ class Marathon(
         trackAnalytics(configuration)
 
         logSystemInformation()
-
-        deviceProvider.initialize()
         configurationValidator.validate(configuration)
 
-        val parsedTests = testParser.extract()
+        val parsedTests = when (testParser) {
+            is LocalTestParser -> testParser.extract()
+            is RemoteTestParser<*> -> {
+                val tempDeviceProvider = deviceProviderFactory.create()
+                tempDeviceProvider.initialize()
+                val extractedTests = testParser.extract(tempDeviceProvider)
+                tempDeviceProvider.terminate()
+                extractedTests
+            }
+
+            else -> {
+                throw ConfigurationException("unknown test parser type for ${testParser::class}, should inherit from either ${LocalTestParser::class.simpleName} or ${RemoteTestParser::class.simpleName}")
+            }
+        }
+
+        deviceProvider.initialize()
+
         if (parsedTests.isEmpty()) throw NoTestCasesFoundException("No tests cases were found")
         val tests = applyTestFilters(parsedTests)
         val shard = prepareTestShard(tests, analytics)

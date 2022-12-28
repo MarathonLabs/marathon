@@ -1,6 +1,7 @@
 package com.malinskiy.marathon.ios
 
 import com.malinskiy.marathon.config.vendor.VendorConfiguration
+import com.malinskiy.marathon.config.vendor.ios.AppleTestBundleConfiguration
 import com.malinskiy.marathon.config.vendor.ios.LifecycleAction
 import com.malinskiy.marathon.config.vendor.ios.LifecycleConfiguration
 import com.malinskiy.marathon.config.vendor.ios.RsyncConfiguration
@@ -20,8 +21,10 @@ class AppleTestParserTest {
     private val xctestrunPath =
         File(javaClass.classLoader.getResource("sample-xcworkspace/derived-data/Build/Products/UITesting_iphonesimulator11.2-x86_64.xctestrun").file)
     private val vendorConfiguration = VendorConfiguration.IOSConfiguration(
-        derivedDataDir = derivedDataDir,
-        xctestrunPath = xctestrunPath,
+        bundle = AppleTestBundleConfiguration(
+            derivedDataDir = derivedDataDir,
+            testApplication = xctestrunPath,
+        ),
         ssh = SshConfiguration(
             authentication = SshAuthentication.PublicKeyAuthentication(
                 username = "testuser",
@@ -36,7 +39,7 @@ class AppleTestParserTest {
             onPrepare = setOf(LifecycleAction.ERASE)
         ),
     )
-    private val parser = AppleTestParser(vendorConfiguration)
+    private val parser = AppleTestParser(vendorConfiguration, AppleTestBundleIdentifier())
 
     @Test
     fun `should return accurate list of tests`() {

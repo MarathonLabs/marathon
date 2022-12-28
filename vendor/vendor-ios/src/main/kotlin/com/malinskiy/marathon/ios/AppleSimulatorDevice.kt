@@ -22,6 +22,7 @@ import com.malinskiy.marathon.execution.listener.LineListener
 import com.malinskiy.marathon.execution.listener.LogListener
 import com.malinskiy.marathon.execution.progress.ProgressReporter
 import com.malinskiy.marathon.io.FileManager
+import com.malinskiy.marathon.ios.bin.AppleBinaryEnvironment
 import com.malinskiy.marathon.ios.cmd.CommandExecutor
 import com.malinskiy.marathon.ios.cmd.CommandResult
 import com.malinskiy.marathon.ios.cmd.FileBridge
@@ -40,11 +41,12 @@ import com.malinskiy.marathon.ios.logparser.parser.DebugLogPrinter
 import com.malinskiy.marathon.ios.logparser.parser.DeviceFailureException
 import com.malinskiy.marathon.ios.logparser.parser.DiagnosticLogsPathFinder
 import com.malinskiy.marathon.ios.logparser.parser.SessionResultsPathFinder
-import com.malinskiy.marathon.ios.xcrun.simctl.SimulatorState
+import com.malinskiy.marathon.ios.model.Arch
+import com.malinskiy.marathon.ios.model.Sdk
+import com.malinskiy.marathon.ios.model.Simulator
+import com.malinskiy.marathon.ios.model.XcodeVersion
 import com.malinskiy.marathon.ios.test.TestEvent
 import com.malinskiy.marathon.ios.test.TestRequest
-import com.malinskiy.marathon.ios.xcrun.Xcrun
-import com.malinskiy.marathon.ios.xctestrun.Xctestrun
 import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.report.attachment.AttachmentProvider
 import com.malinskiy.marathon.report.logs.LogWriter
@@ -74,8 +76,10 @@ import kotlin.coroutines.CoroutineContext
 
 class AppleSimulatorDevice(
     override val udid: String,
-    private val xcrun: Xcrun,
-    private val fileManager: FileManager,
+    var sdk: Sdk,
+    val binaryEnvironment: AppleBinaryEnvironment,
+    private val testBundleIdentifier: AppleTestBundleIdentifier,
+    val fileManager: FileManager,
     private val configuration: Configuration,
     private val vendorConfiguration: VendorConfiguration.IOSConfiguration,
     private val commandExecutor: CommandExecutor,
@@ -98,8 +102,14 @@ class AppleSimulatorDevice(
     override val healthy: Boolean = true
     override var abi: String = "Unknown"
     private lateinit var version: String
-    override val orientation: Rotation = Rotation.ROTATION_0
+    val arch: Arch
+        get() = when {
+            sdk == Sdk.IPHONESIMULATOR -> Arch.x86_64
+            udid.contains('-') -> Arch.arm64e
+            else -> Arch.arm64
+        }
 
+    override val orientation: Rotation = Rotation.ROTATION_0
     private lateinit var runtimeVersion: String
     private lateinit var runtimeBuildVersion: String
     private lateinit var deviceType: String
@@ -114,25 +124,28 @@ class AppleSimulatorDevice(
     }
     override val coroutineContext: CoroutineContext = dispatcher
     override val remoteFileManager: RemoteFileManager = RemoteFileManager(this)
-    override val storagePath = "/tmp/marathon"
+    override val storagePath = "/tmp/marathon/$udid"
+    private lateinit var xcodeVersion: XcodeVersion
 
     /**
      * Called only once per device's lifetime
      */
     override suspend fun setup() {
-        val simctlDevices = xcrun.simctl.device.list()
+        val simctlDevices = binaryEnvironment.xcrun.simctl.device.listDevices()
         val simctlDevice = simctlDevices.find { it.udid == udid } ?: throw DeviceSetupException("simulator $udid not found")
         env = fetchEnvvars()
+        
+        xcodeVersion = binaryEnvironment.xcrun.xcodebuild.getVersion()
 
         home = env["HOME"]
-            ?: xcrun.simctl.simulator.getenv(udid, "SIMULATOR_HOST_HOME")
+            ?: binaryEnvironment.xcrun.simctl.simulator.getenv(udid, "SIMULATOR_HOST_HOME")
                 ?: ""
         if (home.isBlank()) {
             throw DeviceSetupException("simulator $udid: invalid value $home for environment variable HOME")
         }
         val logDirectory = simctlDevice.logPath ?: "$home/Library/Developer/CoreSimulator/Devices/$udid"
         logFile = "$logDirectory/system.log"
-        rootPath = xcrun.simctl.simulator.getenv(udid, "HOME")?.let {
+        rootPath = binaryEnvironment.xcrun.simctl.simulator.getenv(udid, "HOME")?.let {
             if (it.endsWith("/data")) {
                 it.substringBefore("/data")
             } else {
@@ -175,7 +188,8 @@ class AppleSimulatorDevice(
                         add(async {
                             AppleApplicationInstaller(
                                 configuration,
-                                vendorConfiguration
+                                vendorConfiguration,
+                                testBundleIdentifier,
                             ).prepareInstallation(this@AppleSimulatorDevice)
                         })
                         add(async {
@@ -292,7 +306,7 @@ class AppleSimulatorDevice(
         return Pair(
             CompositeTestRunListener(
                 listOf(
-                    TestResultsListener(testBatch, this, deferred, timer, remoteFileManager, xcrun.xcresulttool, attachmentProviders),
+                    TestResultsListener(testBatch, this, deferred, timer, remoteFileManager, binaryEnvironment.xcrun.xcresulttool, attachmentProviders),
                     logListener,
                     progressReportingListener,
                     DebugTestRunListener(this),
@@ -306,11 +320,11 @@ class AppleSimulatorDevice(
     }
 
     override suspend fun executeTestRequest(request: TestRequest): ReceiveChannel<List<TestEvent>> {
-        val xctestrun = Xctestrun(vendorConfiguration.safecxtestrunPath())
-        val packageNameFormatter = TestLogPackageNameFormatter(xctestrun.productModuleName, xctestrun.targetName)
+//        val packageNameFormatter = TestLogPackageNameFormatter(request.localXctestrun.productModuleName, request.localXctestrun.targetName)
+        val packageNameFormatter = TestLogPackageNameFormatter("", "")
 
         return produce {
-            xcrun.xcodebuild.testWithoutBuilding(udid, request).use { session ->
+            binaryEnvironment.xcrun.xcodebuild.testWithoutBuilding(udid, request).use { session ->
                 withContext(Dispatchers.IO) {
                     val deferredStdout = supervisorScope {
                         async {
@@ -385,7 +399,7 @@ class AppleSimulatorDevice(
         val codec = videoConfiguration.codec
         val display = videoConfiguration.display
         val mask = videoConfiguration.mask
-        return xcrun.simctl.io.recordVideo(udid, remotePath, codec, display, mask, remoteFileManager.remoteVideoPidfile())
+        return binaryEnvironment.xcrun.simctl.io.recordVideo(udid, remotePath, codec, display, mask, remoteFileManager.remoteVideoPidfile())
     }
 
     override suspend fun stopVideoRecording(): Boolean {
@@ -403,7 +417,7 @@ class AppleSimulatorDevice(
     override suspend fun getScreenshot(timeout: Duration, dst: File): Boolean {
         val cfg = vendorConfiguration.screenRecordConfiguration.screenshotConfiguration
         val tempDestination = remoteFileManager.remoteScreenshot(udid, cfg.type)
-        val success = xcrun.simctl.io.screenshot(udid, tempDestination, cfg.type, cfg.display, cfg.mask)
+        val success = binaryEnvironment.xcrun.simctl.io.screenshot(udid, tempDestination, cfg.type, cfg.display, cfg.mask)
         if (!success) {
             return false
         }
@@ -426,28 +440,28 @@ class AppleSimulatorDevice(
     override suspend fun shutdown(): Boolean {
         val state = state()
         return when (state) {
-            SimulatorState.SHUTDOWN -> true
-            SimulatorState.CREATING, SimulatorState.BOOTING, SimulatorState.BOOTED -> if (xcrun.simctl.simulator.shutdown(udid)) {
-                waitForState(SimulatorState.SHUTDOWN)
+            Simulator.State.SHUTDOWN -> true
+            Simulator.State.CREATING, Simulator.State.BOOTING, Simulator.State.BOOTED -> if (binaryEnvironment.xcrun.simctl.simulator.shutdown(udid)) {
+                waitForState(Simulator.State.SHUTDOWN)
             } else {
                 false
             }
 
-            SimulatorState.UNKNOWN -> false
+            Simulator.State.UNKNOWN -> false
         }
     }
 
     override suspend fun erase(): Boolean {
         when (state()) {
-            SimulatorState.CREATING, SimulatorState.BOOTING, SimulatorState.BOOTED -> {
+            Simulator.State.CREATING, Simulator.State.BOOTING, Simulator.State.BOOTED -> {
                 if (!shutdown()) {
                     return false
                 }
             }
 
-            SimulatorState.SHUTDOWN, SimulatorState.UNKNOWN -> Unit
+            Simulator.State.SHUTDOWN, Simulator.State.UNKNOWN -> Unit
         }
-        return xcrun.simctl.simulator.erase(listOf(udid))
+        return binaryEnvironment.xcrun.simctl.simulator.erase(listOf(udid))
     }
 
     /**
@@ -455,65 +469,65 @@ class AppleSimulatorDevice(
      */
     suspend fun boot(): Boolean {
         return when (state()) {
-            SimulatorState.CREATING -> waitForBoot()
-            SimulatorState.SHUTDOWN -> {
-                if (xcrun.simctl.simulator.boot(udid)) {
+            Simulator.State.CREATING -> waitForBoot()
+            Simulator.State.SHUTDOWN -> {
+                if (binaryEnvironment.xcrun.simctl.simulator.boot(udid)) {
                     waitForBoot()
                 } else {
                     false
                 }
             }
 
-            SimulatorState.BOOTED -> true
-            SimulatorState.BOOTING -> {
+            Simulator.State.BOOTED -> true
+            Simulator.State.BOOTING -> {
                 waitForBoot()
             }
 
-            SimulatorState.UNKNOWN -> false
+            Simulator.State.UNKNOWN -> false
         }
     }
 
     suspend fun monitorStatus(): Boolean {
-        return xcrun.simctl.simulator.monitorStatus(udid)
+        return binaryEnvironment.xcrun.simctl.simulator.monitorStatus(udid)
     }
 
     suspend fun shutdown(udid: String) {
         when (state()) {
-            SimulatorState.CREATING -> {
+            Simulator.State.CREATING -> {
                 logger.warn { "simulator $udid: unable to shutdown simulator at the same time as it's created" }
             }
 
-            SimulatorState.BOOTING, SimulatorState.BOOTED -> {
-                if (!xcrun.simctl.simulator.shutdown(udid)) {
+            Simulator.State.BOOTING, Simulator.State.BOOTED -> {
+                if (!binaryEnvironment.xcrun.simctl.simulator.shutdown(udid)) {
                     logger.error { "simulator $udid: unable to shutdown simulator" }
                 }
             }
 
-            SimulatorState.SHUTDOWN, SimulatorState.UNKNOWN -> Unit
+            Simulator.State.SHUTDOWN, Simulator.State.UNKNOWN -> Unit
         }
-        if (!waitForState(SimulatorState.SHUTDOWN, "Device $udid successfully shutdown!")) {
+        if (!waitForState(Simulator.State.SHUTDOWN, "Device $udid successfully shutdown!")) {
             logger.error { "simulator $udid: unable to confirm shutdown within timeout" }
         }
     }
 
-    private suspend fun state(): SimulatorState {
+    private suspend fun state(): Simulator.State {
         return getDeviceProperty<Int>("state", false)?.toInt()?.let {
             when (it) {
-                0 -> SimulatorState.CREATING
-                1 -> SimulatorState.SHUTDOWN
+                0 -> Simulator.State.CREATING
+                1 -> Simulator.State.SHUTDOWN
                 3 -> {
                     //This means device is booted but doesn't mean it's actually ready
                     val running = isRunning()
                     if (running) {
-                        SimulatorState.BOOTED
+                        Simulator.State.BOOTED
                     } else {
-                        SimulatorState.BOOTING
+                        Simulator.State.BOOTING
                     }
                 }
 
-                else -> SimulatorState.UNKNOWN
+                else -> Simulator.State.UNKNOWN
             }
-        } ?: SimulatorState.UNKNOWN
+        } ?: Simulator.State.UNKNOWN
 
     }
 
@@ -540,7 +554,7 @@ class AppleSimulatorDevice(
     }
 
     private suspend fun waitForState(
-        state: SimulatorState,
+        state: Simulator.State,
         successMessage: String? = null,
         progressMessage: String? = null,
         timeout: Duration = Duration.ofSeconds(30),
@@ -562,7 +576,7 @@ class AppleSimulatorDevice(
     }
 
     private suspend fun waitForBoot(): Boolean {
-        return waitForState(SimulatorState.BOOTED, "Device $udid booted!", "Device $udid is still booting...")
+        return waitForState(Simulator.State.BOOTED, "Device $udid booted!", "Device $udid is still booting...")
     }
 
     private suspend fun fetchDeviceDescriptor() {
@@ -587,7 +601,7 @@ class AppleSimulatorDevice(
     }
 
     private suspend fun getSimpleEnvProperty(key: String, default: String = "Unknown"): String {
-        return xcrun.simctl.simulator.getenv(udid, key) ?: default
+        return binaryEnvironment.xcrun.simctl.simulator.getenv(udid, key) ?: default
     }
 
     private suspend fun <T> getDeviceProperty(name: String, cached: Boolean = true): T? {
@@ -598,7 +612,7 @@ class AppleSimulatorDevice(
     }
 
     suspend fun isRunning(): Boolean {
-        return xcrun.simctl.simulator.isRunning(udid, runtimeVersion)
+        return binaryEnvironment.xcrun.simctl.simulator.isRunning(udid, runtimeVersion)
     }
 
     private suspend fun fetchEnvvars(): Map<String, String> {
@@ -721,6 +735,6 @@ class AppleSimulatorDevice(
     }
 
     suspend fun grant(permission: Permission, bundleId: String): Boolean {
-        return xcrun.simctl.privacy.grant(udid, permission, bundleId).successful
+        return binaryEnvironment.xcrun.simctl.privacy.grant(udid, permission, bundleId).successful
     }
 }

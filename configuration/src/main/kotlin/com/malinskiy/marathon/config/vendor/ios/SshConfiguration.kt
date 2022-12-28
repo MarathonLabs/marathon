@@ -40,9 +40,13 @@ data class SshConfiguration(
 )
 @JsonSubTypes(
     JsonSubTypes.Type(value = SshAuthentication.PasswordAuthentication::class, name = "password"),
-    JsonSubTypes.Type(value = SshAuthentication.PublicKeyAuthentication::class, name = "public-key"),
+    JsonSubTypes.Type(value = SshAuthentication.PublicKeyAuthentication::class, name = "publicKey"),
 )
 sealed class SshAuthentication {
-    data class PasswordAuthentication(@JsonProperty("username") val username: String, @JsonProperty("password") val password: String) : SshAuthentication()
+    data class PasswordAuthentication(@JsonProperty("username") val username: String, @JsonProperty("password") val password: String) : SshAuthentication() {
+        override fun toString(): String {
+            return "PasswordAuthentication(username='$username')"
+        }
+    }
     data class PublicKeyAuthentication(@JsonProperty("username") val username: String, @JsonProperty("key") val key: File) : SshAuthentication()
 }

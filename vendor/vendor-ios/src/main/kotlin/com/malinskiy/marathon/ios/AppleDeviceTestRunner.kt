@@ -11,13 +11,14 @@ import com.malinskiy.marathon.ios.test.TestRunEnded
 import com.malinskiy.marathon.ios.test.TestRunFailed
 import com.malinskiy.marathon.ios.test.TestRunStartedEvent
 import com.malinskiy.marathon.ios.test.TestStarted
+import com.malinskiy.marathon.ios.xctestrun.TestRootFactory
 import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.test.TestBatch
 import com.malinskiy.marathon.test.toTestName
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.channels.ReceiveChannel
 
-class AppleDeviceTestRunner(private val device: AppleDevice) {
+class AppleDeviceTestRunner(private val device: AppleSimulatorDevice) {
     private val logger = MarathonLogging.logger {}
 
     suspend fun execute(
@@ -32,10 +33,10 @@ class AppleDeviceTestRunner(private val device: AppleDevice) {
 
         logger.debug("Remote xctestrun = $remoteXctestrunFile")
         logger.debug("Tests = ${rawTestBatch.tests.toList()}")
-        
+
         val runnerRequest = TestRequest(
             workdir = remoteDir,
-            xctestrun = remoteXctestrunFile,
+            remoteXctestrun = remoteXctestrunFile,
             tests = rawTestBatch.tests,
             xcresult = remoteXcresultPath,
             coverage = configuration.isCodeCoverageEnabled,

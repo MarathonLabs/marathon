@@ -1,5 +1,6 @@
 package com.malinskiy.marathon.ios
 
+import com.fasterxml.jackson.databind.JsonMappingException
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.google.gson.Gson
@@ -8,8 +9,9 @@ import com.malinskiy.marathon.config.Configuration
 import com.malinskiy.marathon.config.vendor.VendorConfiguration
 import com.malinskiy.marathon.device.DeviceProvider
 import com.malinskiy.marathon.exceptions.NoDevicesException
+import com.malinskiy.marathon.ios.configuration.AppleTarget
 import com.malinskiy.marathon.ios.configuration.Marathondevices
-import com.malinskiy.marathon.ios.configuration.RemoteSimulator
+import com.malinskiy.marathon.ios.configuration.Transport
 import com.malinskiy.marathon.ios.device.AppleSimulatorProvider
 import com.malinskiy.marathon.ios.device.SimulatorFactory
 import com.malinskiy.marathon.log.MarathonLogging
@@ -26,6 +28,7 @@ import kotlin.coroutines.CoroutineContext
 class AppleDeviceProvider(
     private val configuration: Configuration,
     private val vendorConfiguration: VendorConfiguration.IOSConfiguration,
+    private val testBundleIdentifier: AppleTestBundleIdentifier,
     private val gson: Gson,
     private val objectMapper: ObjectMapper,
     private val track: Track,
@@ -48,21 +51,36 @@ class AppleDeviceProvider(
         logger.debug("Initializing AppleDeviceProvider")
         val file = vendorConfiguration.devicesFile ?: File(System.getProperty("user.dir"), "Marathondevices")
         val devicesWithEnvironmentVariablesReplaced = environmentVariableSubstitutor.replace(file.readText())
-        val devices: Marathondevices = objectMapper.readValue(devicesWithEnvironmentVariablesReplaced)
-        val localSimulators = devices.local ?: emptyList()
-        val remoteSimulators = devices.remote ?: emptyList()
-        val simulators = localSimulators + remoteSimulators
-        if (simulators.isEmpty()) {
+        val devices: List<AppleTarget> = try {
+            objectMapper.readValue<Marathondevices>(devicesWithEnvironmentVariablesReplaced).devices
+        } catch (e: JsonMappingException) {
+            throw NoDevicesException("Invalid Marathondevices file ${file.absolutePath} format", e)
+        }
+        if (devices.isEmpty()) {
             throw NoDevicesException("No devices found in the ${file.absolutePath}")
         }
 
-        val simulatorFactory = SimulatorFactory(configuration, vendorConfiguration, gson, track, timer)
+        val hosts: Map<Transport, List<AppleTarget>> = devices.groupBy {
+            when (it) {
+                is AppleTarget.Simulator -> {
+                    it.transport
+                }
+
+                is AppleTarget.SimulatorProfile -> {
+                    it.transport
+
+                }
+
+                is AppleTarget.Physical -> {
+                    it.transport
+
+                }
+            }
+        }
+
+        val simulatorFactory = SimulatorFactory(configuration, vendorConfiguration, testBundleIdentifier, gson, track, timer)
         simulatorProvider = AppleSimulatorProvider(
-            coroutineContext,
-            configuration.deviceInitializationTimeoutMillis,
-            simulatorFactory,
-            remoteSimulators,
-            localSimulators,
+            configuration, vendorConfiguration, gson, coroutineContext, deviceInitializationTimeoutMillis, simulatorFactory, hosts
         )
         simulatorProvider.initialize()
     }

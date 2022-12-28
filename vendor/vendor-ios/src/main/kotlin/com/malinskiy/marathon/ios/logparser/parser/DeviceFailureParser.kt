@@ -19,6 +19,7 @@ class DeviceFailureParser : TestEventProducer {
         "Early unexpected exit, operation never finished bootstrapping",
         "Connection peer refused channel request",
         "CoreSimulatorService connection became invalid", // occurs in simctl output
+        "CoreSimulatorService connection interrupted", // occurs in simctl output
         "Simulator services will no longer be available", // occurs in simctl output
         "Unable to locate device set", // occurs in simctl output
         "Test runner exited"

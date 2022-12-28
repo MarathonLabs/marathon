@@ -2,9 +2,9 @@ package com.malinskiy.marathon.ios.simctl.model
 
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
-import com.malinskiy.marathon.ios.xcrun.simctl.model.SimctlDeviceList
-import com.malinskiy.marathon.ios.xcrun.simctl.model.SimctlDeviceListDeserializer
-import com.malinskiy.marathon.ios.xcrun.simctl.model.SimctlListDevicesOutput
+import com.malinskiy.marathon.ios.bin.xcrun.simctl.model.SimctlDeviceList
+import com.malinskiy.marathon.ios.bin.xcrun.simctl.model.SimctlDeviceListDeserializer
+import com.malinskiy.marathon.ios.bin.xcrun.simctl.model.SimctlListDevicesOutput
 import org.amshove.kluent.`should be equal to`
 import org.junit.jupiter.api.Test
 import java.io.File

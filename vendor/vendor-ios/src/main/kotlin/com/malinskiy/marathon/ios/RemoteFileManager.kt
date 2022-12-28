@@ -40,17 +40,32 @@ class RemoteFileManager(private val device: AppleDevice) {
 
     fun remoteXctestrunFile(): String = remoteFile(xctestrunFileName())
 
+    fun remoteXctestFile(): String = remoteFile(xctestFileName())
+    fun remoteApplication(): String = remoteFile(appUnderTestFileName())
+
     /**
      * Omitting xcresult extension results in a symlink 
      */
     fun remoteXcresultFile(batch: TestBatch): String = remoteFile(xcresultFileName(batch))
+
+    fun xctestrunFileName(): String = "marathon.xctestrun"
+
+    private fun xctestFileName(): String  = "marathon.xctest"
+    private fun appUnderTestFileName(): String  = "appUnderTest.app"
     
-    fun xctestrunFileName(): String = "${device.udid}.xctestrun"
     private fun xcresultFileName(batch: TestBatch): String =
         "${device.udid}.${batch.id}.xcresult"
 
     private fun remoteFile(file: String): String = remoteDirectory().resolve(file)
 
+    private suspend fun safeExecuteCommand(command: List<String>) {
+        try {
+            device.executeWorkerCommand(command)
+        } catch (e: Exception) {
+            null
+        }
+    }
+    
     private suspend fun executeCommand(command: List<String>, errorMessage: String): String? {
         return try {
             val result = device.executeWorkerCommand(command) ?: return null
@@ -95,6 +110,25 @@ class RemoteFileManager(private val device: AppleDevice) {
     }
 
     private fun videoPidFileName(udid: String) = "${udid}.pid"
+    fun remoteTestRoot() = remoteDirectory()
+    
+    fun joinPath(base: String, vararg args: String): String {
+        return listOf(
+            base.removeSuffix(FILE_SEPARATOR),
+            *args
+        ).joinToString(FILE_SEPARATOR)
+    }
+
+    suspend fun copy(src: String, dst: String, override: Boolean = true) {
+        if(override) {
+            safeExecuteCommand(
+                listOf("rm", "-R", dst)
+            )
+        }
+        executeCommand(
+            listOf("cp", "-R", src, dst), "failed to copy remote directory $src to $dst"
+        )
+    }
 
     companion object {
         const val FILE_SEPARATOR = "/"

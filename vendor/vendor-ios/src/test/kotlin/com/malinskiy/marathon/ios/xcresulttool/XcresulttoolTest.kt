@@ -1,8 +1,8 @@
 package com.malinskiy.marathon.ios.xcresulttool
 
 import com.google.gson.GsonBuilder
-import com.malinskiy.marathon.ios.xcrun.xcresulttool.AppleJsonTypeAdapterFactory
-import com.malinskiy.marathon.ios.xcrun.xcresulttool.AppleListConverter
+import com.malinskiy.marathon.ios.bin.xcrun.xcresulttool.AppleJsonTypeAdapterFactory
+import com.malinskiy.marathon.ios.bin.xcrun.xcresulttool.AppleListConverter
 import com.malinskiy.marathon.vendor.ios.xcrun.xcresulttool.ActionsInvocationRecord
 import org.junit.jupiter.api.Test
 import java.io.File

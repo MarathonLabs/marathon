@@ -29,7 +29,7 @@ class IOSConfigurationTest {
         )
 
         val configuration = configurationFactory.parse(marathonfile)
-        (configuration.vendorConfiguration as VendorConfiguration.IOSConfiguration).xctestrunPath shouldBeEqualTo mockXctestrunFile
+        (configuration.vendorConfiguration as VendorConfiguration.IOSConfiguration).bundle?.first()?.testApplication shouldBeEqualTo mockXctestrunFile
     }
 
     @Test
@@ -44,7 +44,7 @@ class IOSConfigurationTest {
             )
 
             val configuration = configurationFactory.parse(marathonfile)
-            (configuration.vendorConfiguration as VendorConfiguration.IOSConfiguration).xctestrunPath shouldBeEqualTo mockXctestrunFile
+            (configuration.vendorConfiguration as VendorConfiguration.IOSConfiguration).bundle?.first()?.testApplication shouldBeEqualTo mockXctestrunFile
         }
 
         thrower shouldThrow ConfigurationException::class

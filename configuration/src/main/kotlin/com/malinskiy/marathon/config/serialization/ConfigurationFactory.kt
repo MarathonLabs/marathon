@@ -17,6 +17,7 @@ import com.malinskiy.marathon.config.serialization.yaml.DerivedDataFileListProvi
 import com.malinskiy.marathon.config.serialization.yaml.FileListProvider
 import com.malinskiy.marathon.config.serialization.yaml.SerializeModule
 import com.malinskiy.marathon.config.vendor.VendorConfiguration
+import com.malinskiy.marathon.config.vendor.ios.AppleTestBundleConfiguration
 import com.malinskiy.marathon.config.vendor.ios.SshAuthentication
 import org.apache.commons.text.StringSubstitutor
 import org.apache.commons.text.lookup.StringLookupFactory
@@ -66,13 +67,12 @@ class ConfigurationFactory(
                 is VendorConfiguration.IOSConfiguration -> {
                     // Any relative path specified in Marathonfile should be resolved against the directory Marathonfile is in
                     val iosConfiguration: VendorConfiguration.IOSConfiguration = configuration.vendorConfiguration
-                    val resolvedDerivedDataDir = marathonfileDir.resolve(iosConfiguration.derivedDataDir)
-                    val finalXCTestRunPath = configuration.vendorConfiguration.xctestrunPath?.resolveAgainst(marathonfileDir)
-                        ?: fileListProvider
-                            .fileList(resolvedDerivedDataDir)
-                            .firstOrNull { it.extension == "xctestrun" }
-                        ?: throw ConfigurationException("Unable to find an xctestrun file in derived data folder")
-                    val optionalSourceRoot = configuration.vendorConfiguration.sourceRoot.resolveAgainst(marathonfileDir)
+                    val resolvedBundle = iosConfiguration.bundle?.let {
+                        val resolvedDerivedDataDir = it.derivedDataDir?.let { ddd -> marathonfileDir.resolve(ddd) }
+                        val resolvedApplication = it.application?.let { ddd -> marathonfileDir.resolve(ddd) }
+                        val resolvedTestApplication = it.testApplication?.let { ddd -> marathonfileDir.resolve(ddd) }
+                        AppleTestBundleConfiguration(resolvedApplication, resolvedTestApplication, resolvedDerivedDataDir)
+                    }
                     val optionalDevices = configuration.vendorConfiguration.devicesFile?.resolveAgainst(marathonfileDir)
                         ?: marathonfileDir.resolve("Marathondevices")
 
@@ -92,9 +92,7 @@ class ConfigurationFactory(
                     )
                     
                     configuration.vendorConfiguration.copy(
-                        derivedDataDir = resolvedDerivedDataDir,
-                        xctestrunPath = finalXCTestRunPath,
-                        sourceRoot = optionalSourceRoot,
+                        bundle = resolvedBundle,
                         devicesFile = optionalDevices,
                         ssh = optionalSshConfiguration,
                     )

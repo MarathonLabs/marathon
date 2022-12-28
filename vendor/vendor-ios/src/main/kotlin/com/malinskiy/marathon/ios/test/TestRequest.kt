@@ -4,7 +4,7 @@ import com.malinskiy.marathon.test.Test
 
 data class TestRequest(
     val workdir: String,
-    val xctestrun: String,
+    val remoteXctestrun: String,
     val tests: List<Test>,
     val xcresult: String,
     val coverage: Boolean,

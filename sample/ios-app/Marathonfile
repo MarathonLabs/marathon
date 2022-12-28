@@ -10,11 +10,12 @@ batchingStrategy:
 debug: true
 vendorConfiguration:
   type: "iOS"
-  derivedDataDir: "derived-data"
-  sourceRoot: "sample-appUITests"
+  bundle:
+    application: derived-data/Build/Products/Debug-iphonesimulator/sample-app.app
+    testApplication: derived-data/Build/Products/Debug-iphonesimulator/sample-appUITests-Runner.app/PlugIns/sample-appUITests.xctest
   ssh:
     authentication:
-      type: "public-key"
+      type: publicKey
       username: ${USER}
       key: ${HOME}/.ssh/marathon
     knownHostsPath: ${HOME}/.ssh/known_hosts
@@ -22,4 +23,4 @@ vendorConfiguration:
     pull: true
     remoteClean: true
   lifecycle:
-    onStart: []
+    onPrepare: []

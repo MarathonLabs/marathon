@@ -10,6 +10,7 @@ import com.fasterxml.jackson.module.kotlin.treeToValue
 import com.malinskiy.marathon.config.environment.EnvironmentReader
 import com.malinskiy.marathon.config.exceptions.ConfigurationException
 import com.malinskiy.marathon.config.vendor.VendorConfiguration
+import com.malinskiy.marathon.config.vendor.ios.AppleTestBundleConfiguration
 import com.malinskiy.marathon.config.vendor.ios.SshAuthentication
 import java.io.File
 
@@ -34,13 +35,12 @@ class VendorConfigurationDeserializer(
                     ?: throw ConfigurationException("Missing vendor configuration")
 
                 // Any relative path specified in Marathonfile should be resolved against the directory Marathonfile is in
-                val resolvedDerivedDataDir = marathonfileDir.resolve(iosConfiguration.derivedDataDir)
-                val finalXCTestRunPath = iosConfiguration.xctestrunPath?.resolveAgainst(marathonfileDir)
-                    ?: fileListProvider
-                        .fileList(resolvedDerivedDataDir)
-                        .firstOrNull { it.extension == "xctestrun" }
-                    ?: throw ConfigurationException("Unable to find an xctestrun file in derived data folder")
-                val optionalSourceRoot = iosConfiguration.sourceRoot.resolveAgainst(marathonfileDir)
+                val resolvedBundle = iosConfiguration.bundle?.let {
+                    val resolvedDerivedDataDir = it.derivedDataDir?.let { ddd -> marathonfileDir.resolve(ddd) }
+                    val resolvedApplication = it.application?.let { ddd -> marathonfileDir.resolve(ddd) }
+                    val resolvedTestApplication = it.testApplication?.let { ddd -> marathonfileDir.resolve(ddd) }
+                    AppleTestBundleConfiguration(resolvedApplication, resolvedTestApplication, resolvedDerivedDataDir)
+                }
                 val optionalDevices = iosConfiguration.devicesFile?.resolveAgainst(marathonfileDir)
                     ?: marathonfileDir.resolve("Marathondevices")
 
@@ -60,13 +60,12 @@ class VendorConfigurationDeserializer(
                 )
 
                 iosConfiguration.copy(
-                    derivedDataDir = resolvedDerivedDataDir,
-                    xctestrunPath = finalXCTestRunPath,
-                    sourceRoot = optionalSourceRoot,
+                    bundle = resolvedBundle,
                     devicesFile = optionalDevices,
                     ssh = optionalSshConfiguration,
                 )
             }
+
             TYPE_ANDROID -> {
                 (node as ObjectNode).remove("type")
                 var androidConfiguration = codec.treeToValue<VendorConfiguration.AndroidConfiguration>(node)
@@ -80,6 +79,7 @@ class VendorConfigurationDeserializer(
                     androidConfiguration
                 }
             }
+
             else -> throw ConfigurationException(
                 "Unrecognized vendor type $type. " +
                     "Valid options are $TYPE_ANDROID and $TYPE_IOS"

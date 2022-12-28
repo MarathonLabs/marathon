@@ -14,13 +14,14 @@ import com.malinskiy.marathon.config.vendor.android.TestAccessConfiguration
 import com.malinskiy.marathon.config.vendor.android.TestParserConfiguration
 import com.malinskiy.marathon.config.vendor.android.ThreadingConfiguration
 import com.malinskiy.marathon.config.vendor.android.TimeoutConfiguration
+import com.malinskiy.marathon.config.vendor.ios.AppleTestBundleConfiguration
 import com.malinskiy.marathon.config.vendor.ios.LifecycleConfiguration
 import com.malinskiy.marathon.config.vendor.ios.PermissionsConfiguration
 import com.malinskiy.marathon.config.vendor.ios.RsyncConfiguration
+import com.malinskiy.marathon.config.vendor.ios.SigningConfiguration
 import com.malinskiy.marathon.config.vendor.ios.SshConfiguration
 import com.malinskiy.marathon.config.vendor.ios.XcresultConfiguration
 import java.io.File
-import java.io.FileNotFoundException
 import com.malinskiy.marathon.config.vendor.ios.ScreenRecordConfiguration as AppleScreenRecordConfiguration
 import com.malinskiy.marathon.config.vendor.ios.TimeoutConfiguration as AppleTimeoutConfiguration
 
@@ -133,11 +134,10 @@ sealed class VendorConfiguration {
     }
 
     data class IOSConfiguration(
-        @JsonProperty("derivedDataDir") val derivedDataDir: File,
-        @JsonProperty("xctestrunPath") val xctestrunPath: File?,
+        @JsonProperty("bundle") val bundle: AppleTestBundleConfiguration? = null,
+        @JsonProperty("signing") val signing: SigningConfiguration = SigningConfiguration(),
         @JsonProperty("ssh") val ssh: SshConfiguration = SshConfiguration(),
         @JsonProperty("rsync") val rsync: RsyncConfiguration = RsyncConfiguration(),
-        @JsonProperty("sourceRoot") val sourceRoot: File = File("."),
         @JsonProperty("hideRunnerOutput") val hideRunnerOutput: Boolean = false,
         @JsonProperty("compactOutput") val compactOutput: Boolean = false,
         @JsonProperty("keepAliveIntervalMillis") val keepAliveIntervalMillis: Long = 0L,
@@ -149,18 +149,11 @@ sealed class VendorConfiguration {
         @JsonProperty("lifecycle") val lifecycleConfiguration: LifecycleConfiguration = LifecycleConfiguration(),
         @JsonProperty("permissions") val permissions: PermissionsConfiguration = PermissionsConfiguration(),
     ) : VendorConfiguration() {
-        /**
-         * Exception should not happen since it will be first thrown in deserializer
-         */
-        fun safecxtestrunPath(): File =
-            xctestrunPath ?: throw ConfigurationException("Unable to find an xctestrun file in derived data folder")
-
         fun validate() {
             ssh.validate()
 
-            if (safecxtestrunPath().parentFile != derivedDataDir.resolve("Build/Products")) {
-                throw FileNotFoundException("xctestrun file must be located in build products directory.")
-            }
+            val testBundleConfiguration = bundle ?: throw ConfigurationException("bundles must contain at least one valid entry")
+            testBundleConfiguration.validate()
         }
     }
 

@@ -18,7 +18,7 @@ class AndroidTestParserTest {
         splitApks = emptyList(),
         extraApplicationsOutput = emptyList()
     )
-    private val parser = LocalTestParser(vendorConfiguration, testBundleIdentifier)
+    private val parser = DexTestParser(vendorConfiguration, testBundleIdentifier)
 
     @Test
     fun `should return proper list of test methods`() {

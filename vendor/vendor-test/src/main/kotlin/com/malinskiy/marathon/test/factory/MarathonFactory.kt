@@ -55,7 +55,7 @@ class MarathonFactory {
             modules(analyticsModule)
             modules(module {
                 single<TestParser> { testParser }
-                single<DeviceProvider> { deviceProvider }
+                factory<DeviceProvider> { deviceProvider }
                 single<TestBundleIdentifier> { mock() }
                 single<MarathonLogConfigurator> { mock() }
             })

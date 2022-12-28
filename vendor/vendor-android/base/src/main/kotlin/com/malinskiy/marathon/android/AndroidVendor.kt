@@ -8,7 +8,7 @@ import org.koin.dsl.module
 
 val AndroidVendor = module {
     val testBundleIdentifier = AndroidTestBundleIdentifier()
-    single<TestParser?> { LocalTestParser(get(), get()) }
+    single<TestParser?> { DexTestParser(get(), get()) }
     single<TestBundleIdentifier?> { testBundleIdentifier }
     single { testBundleIdentifier }
     single<MarathonLogConfigurator> { AndroidLogConfigurator() }

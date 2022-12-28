@@ -7,8 +7,8 @@ import com.malinskiy.marathon.execution.TestResult
 import com.malinskiy.marathon.execution.TestStatus
 import com.malinskiy.marathon.execution.result.TemporalTestResult
 import com.malinskiy.marathon.ios.RemoteFileManager
-import com.malinskiy.marathon.ios.xcrun.xcresulttool.ResultBundleFormat
-import com.malinskiy.marathon.ios.xcrun.xcresulttool.Xcresulttool
+import com.malinskiy.marathon.ios.bin.xcrun.xcresulttool.ResultBundleFormat
+import com.malinskiy.marathon.ios.bin.xcrun.xcresulttool.Xcresulttool
 import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.report.attachment.AttachmentCollector
 import com.malinskiy.marathon.report.attachment.AttachmentListener

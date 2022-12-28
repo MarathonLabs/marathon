@@ -1,5 +1,6 @@
 package com.malinskiy.marathon.ios.xctestrun
 
+import com.malinskiy.marathon.ios.xctestrun.legacy.Xctestrun
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldHaveKey
 import org.amshove.kluent.shouldNotHaveKey

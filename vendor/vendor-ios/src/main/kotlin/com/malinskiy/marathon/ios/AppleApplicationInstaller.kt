@@ -1,10 +1,14 @@
 package com.malinskiy.marathon.ios
 
 import com.malinskiy.marathon.config.Configuration
+import com.malinskiy.marathon.config.exceptions.ConfigurationException
 import com.malinskiy.marathon.config.vendor.VendorConfiguration
+import com.malinskiy.marathon.config.vendor.ios.TestType
 import com.malinskiy.marathon.exceptions.DeviceSetupException
 import com.malinskiy.marathon.execution.withRetry
-import com.malinskiy.marathon.ios.xctestrun.Xctestrun
+import com.malinskiy.marathon.ios.model.Sdk
+import com.malinskiy.marathon.ios.xctestrun.TestRootFactory
+import com.malinskiy.marathon.ios.xctestrun.legacy.Xctestrun
 import com.malinskiy.marathon.log.MarathonLogging
 import java.io.File
 
@@ -12,31 +16,39 @@ private const val PRODUCTS_PATH = "Build/Products"
 
 class AppleApplicationInstaller(
     private val configuration: Configuration,
-    private val vendorConfiguration: VendorConfiguration.IOSConfiguration
+    private val vendorConfiguration: VendorConfiguration.IOSConfiguration,
+    private val testBundleIdentifier: AppleTestBundleIdentifier
 ) {
     private val logger = MarathonLogging.logger {}
-    
-    suspend fun prepareInstallation(device: AppleSimulatorDevice) {
-        logger.debug { "Preparing xctestrun for ${device.serialNumber}" }
-        val preparedXctestrun = prepareXctestrun(device)
-        
-        logger.debug { "Moving xctestrun to ${device.serialNumber}" }
-        val remoteXctestrunFile = device.remoteFileManager.remoteXctestrunFile()
-        withRetry(3, 1000L) {
-            if(!device.pushFile(preparedXctestrun, remoteXctestrunFile)) {
-                throw DeviceSetupException("Error transferring ${vendorConfiguration.safecxtestrunPath()} to ${device.serialNumber}")
-            }
-        }
 
-        logger.debug { "Moving $PRODUCTS_PATH to ${device.serialNumber}" }
+    suspend fun prepareInstallation(device: AppleSimulatorDevice) {
+        val bundle = vendorConfiguration.bundle ?: throw ConfigurationException("no xctest found for configuration")
+        
+        val xctest = bundle.xctest
+        logger.debug { "Moving xctest to ${device.serialNumber}" }
+        val remoteXctest = device.remoteFileManager.remoteXctestFile()
         withRetry(3, 1000L) {
-            val productsDir = vendorConfiguration.derivedDataDir.resolve(PRODUCTS_PATH)
+            device.remoteFileManager.createRemoteDirectory()
             val remoteDirectory = device.remoteFileManager.remoteDirectory()
-            if(!device.pushFolder(productsDir, remoteDirectory)) {
-                throw DeviceSetupException("Error transferring $productsDir to ${device.serialNumber}")
+            if (!device.pushFolder(xctest, remoteXctest)) {
+                throw DeviceSetupException("Error transferring $xctest to ${device.serialNumber}")
             }
         }
-        
+        logger.debug { "Generating test root for ${device.serialNumber}" }
+
+        val possibleTestBinaries = xctest.listFiles()?.filter { it.isFile && it.extension == "" }
+            ?: throw ConfigurationException("missing test binaries in xctest folder at $xctest")
+        val testBinary = when (possibleTestBinaries.size) {
+            0 -> throw ConfigurationException("missing test binaries in xctest folder at $xctest")
+            1 -> possibleTestBinaries[0]
+            else -> {
+                logger.warn { "Multiple test binaries present in xctest folder" }
+                possibleTestBinaries.find { it.name == xctest.nameWithoutExtension } ?: possibleTestBinaries.first()
+            }
+        }
+        val remoteTestBinary = device.remoteFileManager.joinPath(remoteXctest, testBinary.name)
+        val testType = getTestTypeFor(device, device.sdk, remoteTestBinary)
+        TestRootFactory(device, vendorConfiguration).generate(testType, bundle)
         grantPermissions(device)
     }
 
@@ -46,14 +58,14 @@ class AppleApplicationInstaller(
             for (permission in vendorConfiguration.permissions.grant) {
                 device.grant(permission, bundleId)
             }
-        } else if(vendorConfiguration.permissions.grant.isNotEmpty()) {
+        } else if (vendorConfiguration.permissions.grant.isNotEmpty()) {
             logger.warn { "Unable to grant permissions due to unknown bundle identifier" }
         }
-        
+
     }
 
     private fun prepareXctestrun(device: AppleSimulatorDevice): File {
-        val xctestrunPath = vendorConfiguration.safecxtestrunPath()
+        val xctestrunPath = vendorConfiguration.bundle!!.xctest
         val xctestrun = Xctestrun(xctestrunPath).apply {
             environment(vendorConfiguration.xctestrunEnv)
         }
@@ -61,23 +73,43 @@ class AppleApplicationInstaller(
             .also { it.writeBytes(xctestrun.toXMLByteArray()) }
         return preparedXctestrun
     }
-    
-    /**
-     * This is some Agoda feature code that preallocates an open port for mock server. 
-     * While I understand the allocation of a port on a remote machine requires ssh'ing into remote machine,
-     * There is probably a better solution for this. E.g. passing environment variables to xctestrun without any preallocation
-     */
-    suspend fun availablePort(device: AppleSimulatorDevice): Int? {
-        val commandResult = device.executeWorkerCommand(
-            listOf(
-                "ruby",
-                "-e",
-                "'require \"socket\"; puts Addrinfo.tcp(\"\", 0).bind {|s| s.local_address.ip_port }'"
-            )
-        )
+
+    private suspend fun getTestTypeFor(device: AppleSimulatorDevice, sdk: Sdk, remoteTestBinary: String): TestType {
+        val app = vendorConfiguration.bundle?.application
+        val detectedTestType = vendorConfiguration.bundle?.testType ?: detectTestType(device, remoteTestBinary)
+
         return when {
-            commandResult?.exitCode == 0 -> commandResult.combinedStdout.trim().toIntOrNull()
-            else -> null
+            detectedTestType == TestType.LOGIC_TEST && sdk == Sdk.IPHONEOS && app != null -> {
+                logger.warn { "Overriding test type to XCTest. Reason: target sdk (iPhone) doesn't support running logic tests" }
+                TestType.XCTEST
+            }
+
+            detectedTestType == TestType.LOGIC_TEST && sdk == Sdk.IPHONEOS && app == null -> {
+                throw ConfigurationException("Logic tests should target only iPhone Simulator")
+            }
+
+            detectedTestType == TestType.XCTEST && sdk == Sdk.IPHONESIMULATOR && app == null -> {
+                logger.warn { "Overriding test type to Logic Test. Reason: found xctest bundle without application and targeting iPhone Simulator" }
+                TestType.LOGIC_TEST
+            }
+
+            detectedTestType != TestType.LOGIC_TEST && app == null -> {
+                throw ConfigurationException("Application is required for test type $detectedTestType")
+            }
+
+            else -> detectedTestType
+        }
+    }
+
+    /**
+     * Detect presence of XCUIApplication in the test binary
+     */
+    private suspend fun detectTestType(device: AppleSimulatorDevice, remoteTestBinary: String): TestType {
+        val output = device.binaryEnvironment.nm.list(remoteTestBinary)
+        return if (output.any { it.contains("XCUIApplication") }) {
+            TestType.XCUITEST
+        } else {
+            TestType.XCTEST
         }
     }
 }

@@ -37,3 +37,7 @@ dependencies {
 setupDeployment()
 setupKotlinCompiler()
 setupTestTask()
+
+tasks.jar.configure {
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+}

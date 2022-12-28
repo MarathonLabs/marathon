@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
 import com.fasterxml.jackson.dataformat.yaml.YAMLGenerator
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
+import com.fasterxml.jackson.module.kotlin.KotlinFeature
 import com.fasterxml.jackson.module.kotlin.KotlinModule
 import com.malinskiy.marathon.config.AnalyticsConfiguration
 import com.malinskiy.marathon.config.ScreenRecordingPolicy
@@ -29,7 +30,7 @@ import com.malinskiy.marathon.config.vendor.android.ScreenshotConfiguration
 import com.malinskiy.marathon.config.vendor.android.SerialStrategy
 import com.malinskiy.marathon.config.vendor.android.TimeoutConfiguration
 import com.malinskiy.marathon.config.vendor.android.VideoConfiguration
-import com.malinskiy.marathon.config.vendor.ios.LifecycleConfiguration
+import com.malinskiy.marathon.config.vendor.ios.AppleTestBundleConfiguration
 import com.malinskiy.marathon.config.vendor.ios.RsyncConfiguration
 import com.malinskiy.marathon.config.vendor.ios.SshAuthentication
 import com.malinskiy.marathon.config.vendor.ios.SshConfiguration
@@ -78,7 +79,14 @@ class ConfigurationFactoryTest {
                 DerivedDataFileListProvider
             )
         )
-            .registerModule(KotlinModule())
+            .registerModule(KotlinModule.Builder()
+                                .withReflectionCacheSize(512)
+                                .configure(KotlinFeature.NullToEmptyCollection, false)
+                                .configure(KotlinFeature.NullToEmptyMap, false)
+                                .configure(KotlinFeature.NullIsSameAsDefault, false)
+                                .configure(KotlinFeature.SingletonSupport, true)
+                                .configure(KotlinFeature.StrictNullChecks, false)
+                                .build())
             .registerModule(JavaTimeModule())
         parser = ConfigurationFactory(marathonfileDir = mockMarathonFileDir, mapper = mapper)
     }
@@ -263,8 +271,10 @@ class ConfigurationFactoryTest {
         val configuration = parser.parse(file)
 
         configuration.vendorConfiguration shouldBeEqualTo VendorConfiguration.IOSConfiguration(
-            derivedDataDir = file.parentFile.resolve("a").canonicalFile,
-            xctestrunPath = file.parentFile.resolve("a/Build/Products/UITesting_iphonesimulator11.0-x86_64.xctestrun").canonicalFile,
+            bundle = listOf(AppleTestBundleConfiguration(
+                derivedDataDir = file.parentFile.resolve("a").canonicalFile,
+                testApplication = file.parentFile.resolve("a/Build/Products/UITesting_iphonesimulator11.0-x86_64.xctestrun").canonicalFile,
+            )),
             ssh = SshConfiguration(
                 authentication = SshAuthentication.PublicKeyAuthentication(
                     username = "testuser",
@@ -314,7 +324,14 @@ class ConfigurationFactoryTest {
                 DerivedDataFileListProvider
             )
         )
-            .registerModule(KotlinModule())
+            .registerModule(KotlinModule.Builder()
+                                .withReflectionCacheSize(512)
+                                .configure(KotlinFeature.NullToEmptyCollection, false)
+                                .configure(KotlinFeature.NullToEmptyMap, false)
+                                .configure(KotlinFeature.NullIsSameAsDefault, false)
+                                .configure(KotlinFeature.SingletonSupport, true)
+                                .configure(KotlinFeature.StrictNullChecks, false)
+                                .build())
             .registerModule(JavaTimeModule())
         parser = ConfigurationFactory(marathonfileDir = mockMarathonFileDir, mapper = mapper, environmentReader = environmentReader)
         val configuration = parser.parse(file)
