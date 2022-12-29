@@ -104,7 +104,7 @@ class TestResultsListener(
                 }
             }
 
-            actionsInvocationRecord.issues.testFailureSummaries.forEach { failureSummary ->
+            actionsInvocationRecord.issues.testFailureSummaries?.forEach { failureSummary ->
                 //AIR doesn't contain package information at all. Match by class+method and fail if more than one found
                 val matchingTests = runResult.completedTests.filter {
                     val testCaseName = failureSummary.testCaseName.removeSuffix("()")
