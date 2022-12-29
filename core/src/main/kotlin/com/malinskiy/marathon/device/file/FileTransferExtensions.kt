@@ -6,9 +6,11 @@ import kotlin.system.measureTimeMillis
 
 inline fun <T : Any> Device.measureFileTransfer(file: File, block: () -> T): T {
     var result: T
-    measureTimeMillis {
+    val start = System.currentTimeMillis()
+    try {
         result = block()
-    }.let { time ->
+    } finally {
+        val time = System.currentTimeMillis() - start
         if(file.exists()) {
             val fileSize = file.length()
             val timeInSeconds = time.toDouble() / 1000
