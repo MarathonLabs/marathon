@@ -55,15 +55,15 @@ class ScreenRecordingListener(
         async(supervisor) {
             val existingPidfile = device.remoteFileManager.remoteVideoPidfile()
             var informedUser = false
-            while(supervisor.isActive) {
+            while (supervisor.isActive) {
                 /**
                  * We wait for the previous process to die, otherwise we risk overloading the worker with many encoding processes
                  * that all encode the same frames
                  */
-                if(device.readTextfile(existingPidfile) == null) {
+                if (device.readTextfile(existingPidfile) == null) {
                     //Previous recording finished
                     break
-                } else if(!informedUser) {
+                } else if (!informedUser) {
                     informedUser = true
                     logger.warn { "Previous video recording didn't finish yet. Current recording might be missing or cut from the start" }
                 }
@@ -79,6 +79,18 @@ class ScreenRecordingListener(
     }
 
     override suspend fun testFailed(test: Test, startTime: Long, endTime: Long, trace: String?) {
+        testEnded(test, false)
+    }
+
+    override suspend fun testPassed(test: Test, startTime: Long, endTime: Long) {
+        testEnded(test, true)
+    }
+
+    override suspend fun testIgnored(test: Test, startTime: Long, endTime: Long) {
+        testEnded(test, true)
+    }
+
+    private suspend fun testEnded(test: Test, success: Boolean) {
         if (started) {
             stop()
         }
@@ -97,14 +109,6 @@ class ScreenRecordingListener(
         } catch (e: TransferException) {
             logger.warn { "Can't pull video" }
         }
-    }
-
-    override suspend fun testPassed(test: Test, startTime: Long, endTime: Long) {
-        if (started) {
-            stop()
-        }
-        lastRemoteFile = null
-        pullVideo(test, true)
     }
 
     override suspend fun testRunFailed(errorMessage: String, reason: DeviceFailureReason) {

@@ -6,12 +6,12 @@ import com.malinskiy.marathon.ios.executor.listener.AppleTestRunListener
 import com.malinskiy.marathon.ios.test.TestEvent
 import com.malinskiy.marathon.ios.test.TestPassed
 import com.malinskiy.marathon.ios.test.TestFailed
+import com.malinskiy.marathon.ios.test.TestIgnored
 import com.malinskiy.marathon.ios.test.TestRequest
 import com.malinskiy.marathon.ios.test.TestRunEnded
 import com.malinskiy.marathon.ios.test.TestRunFailed
 import com.malinskiy.marathon.ios.test.TestRunStartedEvent
 import com.malinskiy.marathon.ios.test.TestStarted
-import com.malinskiy.marathon.ios.xctestrun.TestRootFactory
 import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.test.TestBatch
 import com.malinskiy.marathon.test.toTestName
@@ -71,6 +71,7 @@ class AppleDeviceTestRunner(private val device: AppleSimulatorDevice) {
                 is TestStarted -> listener.testStarted(event.id)
                 is TestPassed -> listener.testPassed(event.id, event.startTime, event.endTime)
                 is TestFailed -> listener.testFailed(event.id, event.startTime, event.endTime, event.trace)
+                is TestIgnored -> listener.testIgnored(event.id, event.startTime, event.endTime)
                 is TestRunFailed -> listener.testRunFailed(event.message, event.reason)
                 is TestRunEnded -> listener.testRunEnded()
             }

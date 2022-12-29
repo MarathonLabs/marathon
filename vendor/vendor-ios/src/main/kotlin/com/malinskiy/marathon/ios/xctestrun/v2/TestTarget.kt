@@ -36,7 +36,8 @@ class TestTarget : TestTarget {
             testExecutionOrdering: String? = null,
             testLanguage: String? = null,
             testRegion: String? = null,
-            isUITestBundle: Boolean? = null
+            isUITestBundle: Boolean? = null,
+            isAppHostedTestBundle: Boolean? = null,
         ): V2TestTarget {
             return V2TestTarget(
                 name = name,
@@ -63,6 +64,7 @@ class TestTarget : TestTarget {
                 testLanguage = testLanguage,
                 testRegion = testRegion,
                 isUITestBundle = isUITestBundle,
+                isAppHostedTestBundle = isAppHostedTestBundle,
             )
         }
 
@@ -158,6 +160,7 @@ class TestTarget : TestTarget {
         testLanguage: String? = null,
         testRegion: String? = null,
         isUITestBundle: Boolean? = null,
+        isAppHostedTestBundle: Boolean? = null,
     ) : super(
         testBundlePath,
         testHostPath,
@@ -188,6 +191,7 @@ class TestTarget : TestTarget {
         testLanguage?.let { this.testLanguage = it }
         testRegion?.let { this.testRegion = it }
         isUITestBundle?.let { this.isUITestBundle = it }
+        isAppHostedTestBundle?.let { this.isAppHostedTestBundle = it }
     }
 
     /**
@@ -265,4 +269,5 @@ class TestTarget : TestTarget {
      *
      */
     var isUITestBundle: Boolean? by delegate.optionalDelegateFor("IsUITestBundle")
+    var isAppHostedTestBundle: Boolean? by delegate.optionalDelegateFor("IsAppHostedTestBundle")
 }

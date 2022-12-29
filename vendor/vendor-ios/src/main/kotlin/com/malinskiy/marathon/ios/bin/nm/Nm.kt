@@ -23,12 +23,14 @@ class Nm(
      * @see https://github.com/apple/swift/blob/c4cacd10d275ccceccbc3a9c7bf9159b6599a061/lib/Demangling/NodePrinter.cpp#L1218
      */
     suspend fun swiftTests(path: String): List<String> {
+
+        
         /**
          * -g     Display only global (external) symbols.
          * -U     Don't display undefined symbols.
          * -j     Just display the symbol names (no value or type).
          */
-        val arg = "'nm -gUj \"$path\" | xargs -s $MAX_XARGS xcrun swift-demangle --compact | grep \"$METHOD_DESCRIPTOR_PREFIX\" | sed -e \"s/$METHOD_DESCRIPTOR_PREFIX //\"'"
+        val arg = "'nm -gUj \"$path\" | xargs -s $MAX_XARGS xcrun swift-demangle | cut -d\\  -f3 | grep -e \"[\\\\.|_]\"test'"
         return commandExecutor.criticalExecute(timeoutConfiguration.shell, "sh", "-c", arg).successfulOrNull()?.stdout
             ?.map { it.trim() }
             ?.filter { it.isNotEmpty() }
@@ -37,7 +39,7 @@ class Nm(
     
     suspend fun objectiveCTests(path: String): List<String> {
         // -U     Don't display undefined symbols.
-        val arg = "'nm -U \"$path\" | grep \" t \" | cut -d\" \" -f3,4 | cut -d\"-\" -f2 | cut -d\"[\" -f2 | cut -d\"]\" -f1'"
+        val arg = "'nm -U \"$path\" | grep \" t \" | cut -d\\  -f3,4 | cut -d \"-\" -f2 | cut -d \"[\" -f2 | cut -d \"]\" -f1 | grep \" test\"'"
         return commandExecutor.criticalExecute(timeoutConfiguration.shell, "sh", "-c", arg).successfulOrNull()?.stdout
             ?.map { it.trim() }
             ?.filter { it.isNotEmpty() }
@@ -52,7 +54,6 @@ class Nm(
     }
 
     companion object {
-        const val METHOD_DESCRIPTOR_PREFIX = "method descriptor for"
         const val MAX_XARGS = 131072
     }
 }

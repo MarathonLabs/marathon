@@ -25,7 +25,12 @@ abstract class AccumulatingTestResultListener(private val expectedTestCount: Int
     override suspend fun testPassed(test: Test, startTime: Long, endTime: Long) {
         testEnded(test, startTime, endTime)
     }
-    
+
+    override suspend fun testIgnored(test: Test, startTime: Long, endTime: Long) {
+        runResult.testIgnored(test)
+        testEnded(test, startTime, endTime)
+    }
+
     private fun testEnded(test: Test, startTime: Long, endTime: Long) {
         runResult.testEnded(test = test, testMetrics = emptyMap(), endTime = endTime)
     }

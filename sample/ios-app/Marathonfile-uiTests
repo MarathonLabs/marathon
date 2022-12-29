@@ -1,22 +1,30 @@
 name: "sample-ios-app tests"
-outputDir: "derived-data/Marathon"
+outputDir: "report/marathon-uiTests"
 testClassRegexes: ["^((?!Abstract).)*Tests$"]
 screenRecordingPolicy: ON_ANY
+isCodeCoverageEnabled: true
+flakinessStrategy:
+  type: "probability"
+  minSuccessRate: 0.99
+  maxCount: 2
+  timeLimit: "-PT1H"
 poolingStrategy:
   type: "omni"
 batchingStrategy:
   type: "fixed-size"
   size: 5
+  lastMileLength: 50
 debug: true
 vendorConfiguration:
   type: "iOS"
   bundle:
-    application: derived-data/Build/Products/Debug-iphonesimulator/sample-app.app
-    testApplication: derived-data/Build/Products/Debug-iphonesimulator/sample-appUITests-Runner.app/PlugIns/sample-appUITests.xctest
+    application: dd/sample-app.app
+    testApplication: dd/sample-appUITests.xctest
+    testType: xcuitest
   ssh:
     authentication:
       type: publicKey
-      username: ${USER}
+      username: malinskiy
       key: ${HOME}/.ssh/marathon
     knownHostsPath: ${HOME}/.ssh/known_hosts
   xcresult:

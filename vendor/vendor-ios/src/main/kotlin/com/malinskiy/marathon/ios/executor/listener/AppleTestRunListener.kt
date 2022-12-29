@@ -9,6 +9,7 @@ interface AppleTestRunListener {
     suspend fun testStarted(test: Test) {}
     suspend fun testFailed(test: Test, startTime: Long, endTime: Long, trace: String?) {}
     suspend fun testPassed(test: Test, startTime: Long, endTime: Long) {}
+    suspend fun testIgnored(test: Test, startTime: Long, endTime: Long) {}
     suspend fun testRunEnded() {}
     suspend fun testRunFailed(errorMessage: String, reason: DeviceFailureReason = DeviceFailureReason.Unknown) {}
     suspend fun afterTestRun() {}

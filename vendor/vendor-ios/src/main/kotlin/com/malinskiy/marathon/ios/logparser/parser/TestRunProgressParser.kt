@@ -4,6 +4,7 @@ import com.malinskiy.marathon.ios.logparser.TestEventProducer
 import com.malinskiy.marathon.ios.logparser.formatter.PackageNameFormatter
 import com.malinskiy.marathon.ios.test.TestEvent
 import com.malinskiy.marathon.ios.test.TestFailed
+import com.malinskiy.marathon.ios.test.TestIgnored
 import com.malinskiy.marathon.ios.test.TestPassed
 import com.malinskiy.marathon.ios.test.TestStarted
 import com.malinskiy.marathon.log.MarathonLogging
@@ -20,7 +21,7 @@ class TestRunProgressParser(
 
     val TEST_CASE_STARTED = """Test Case '-\[([a-zA-Z0-9_.]+)\.([a-zA-Z0-9_]+) ([a-zA-Z0-9_]+)]' started\.""".toRegex()
     val TEST_CASE_FINISHED =
-        """Test Case '-\[([a-zA-Z0-9_.]+)\.([a-zA-Z0-9_]+) ([a-zA-Z0-9_]+)]' (passed|failed) \(([\d\.]+) seconds\)\.""".toRegex()
+        """Test Case '-\[([a-zA-Z0-9_.]+)\.([a-zA-Z0-9_]+) ([a-zA-Z0-9_]+)]' (passed|failed|skipped) \(([\d\.]+) seconds\)\.""".toRegex()
 
     /**
      * $1 = file
@@ -84,6 +85,9 @@ class TestRunProgressParser(
                         parseFailingTest(it)
                     }
                     TestFailed(test, startTime, endTime, trace)
+                }
+                "skipped" -> {
+                    TestIgnored(test, startTime, endTime)
                 }
                 else -> {
                     logger.error { "Unknown result $result for test $pkg.$clazz.$method" }

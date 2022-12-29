@@ -25,6 +25,10 @@ class DebugTestRunListener(private val device: AppleDevice) : AppleTestRunListen
         logger.info { "testPassed ${device.serialNumber} test = $test, timespan = [$startTime,$endTime]" }
     }
 
+    override suspend fun testIgnored(test: Test, startTime: Long, endTime: Long) {
+        logger.info { "testIgnored ${device.serialNumber} test = $test, timespan = [$startTime,$endTime]" }
+    }
+
     override suspend fun testRunFailed(errorMessage: String, reason: DeviceFailureReason) {
         logger.info { "testRunFailed ${device.serialNumber} errorMessage = $errorMessage" }
     }

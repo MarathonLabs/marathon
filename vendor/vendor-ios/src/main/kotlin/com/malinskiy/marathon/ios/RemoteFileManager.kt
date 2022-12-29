@@ -51,7 +51,7 @@ class RemoteFileManager(private val device: AppleDevice) {
     fun xctestrunFileName(): String = "marathon.xctestrun"
 
     private fun xctestFileName(): String  = "marathon.xctest"
-    private fun appUnderTestFileName(): String  = "appUnderTest.app"
+    fun appUnderTestFileName(): String  = "appUnderTest.app"
     
     private fun xcresultFileName(batch: TestBatch): String =
         "${device.udid}.${batch.id}.xcresult"

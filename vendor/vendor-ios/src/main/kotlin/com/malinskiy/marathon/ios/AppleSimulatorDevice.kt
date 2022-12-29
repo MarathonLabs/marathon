@@ -36,6 +36,7 @@ import com.malinskiy.marathon.ios.executor.listener.TestResultsListener
 import com.malinskiy.marathon.ios.executor.listener.TestRunListenerAdapter
 import com.malinskiy.marathon.ios.executor.listener.screenshot.ScreenCapturerTestRunListener
 import com.malinskiy.marathon.ios.logparser.XctestEventProducer
+import com.malinskiy.marathon.ios.logparser.formatter.NoopPackageNameFormatter
 import com.malinskiy.marathon.ios.logparser.formatter.TestLogPackageNameFormatter
 import com.malinskiy.marathon.ios.logparser.parser.DebugLogPrinter
 import com.malinskiy.marathon.ios.logparser.parser.DeviceFailureException
@@ -320,15 +321,12 @@ class AppleSimulatorDevice(
     }
 
     override suspend fun executeTestRequest(request: TestRequest): ReceiveChannel<List<TestEvent>> {
-//        val packageNameFormatter = TestLogPackageNameFormatter(request.localXctestrun.productModuleName, request.localXctestrun.targetName)
-        val packageNameFormatter = TestLogPackageNameFormatter("", "")
-
         return produce {
             binaryEnvironment.xcrun.xcodebuild.testWithoutBuilding(udid, request).use { session ->
                 withContext(Dispatchers.IO) {
                     val deferredStdout = supervisorScope {
                         async {
-                            val testEventProducer = XctestEventProducer(packageNameFormatter, timer)
+                            val testEventProducer = XctestEventProducer(NoopPackageNameFormatter, timer)
                             for (line in session.stdout) {
                                 testEventProducer.process(line)?.let {
                                     send(it)

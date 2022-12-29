@@ -58,7 +58,11 @@ class ScreenCapturerTestRunListener(
     override suspend fun testPassed(test: Test, startTime: Long, endTime: Long) {
         testEnded(test, false)
     }
-    
+
+    override suspend fun testIgnored(test: Test, startTime: Long, endTime: Long) {
+        testEnded(test, false)
+    }
+
     private suspend fun testEnded(test: Test, hasFailed: Boolean) {
         lastTestIdentifier = null
         logger.debug { "Finished recording for ${test.toSimpleSafeTestName()}" }

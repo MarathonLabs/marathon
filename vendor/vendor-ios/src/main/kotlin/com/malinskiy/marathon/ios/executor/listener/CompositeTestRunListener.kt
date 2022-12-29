@@ -28,6 +28,10 @@ class CompositeTestRunListener(private val listeners: List<AppleTestRunListener>
         execute { it.testPassed(test, startTime, endTime) }
     }
 
+    override suspend fun testIgnored(test: Test, startTime: Long, endTime: Long) {
+        execute { it.testIgnored(test, startTime, endTime) }
+    }
+
     override suspend fun testRunFailed(errorMessage: String, reason: DeviceFailureReason) {
         execute { it.testRunFailed(errorMessage,) }
     }

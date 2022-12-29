@@ -23,6 +23,10 @@ class TestRunListenerAdapter(private val listener: TestRunListener) : AppleTestR
         listener.testEnded(test)
     }
 
+    override suspend fun testIgnored(test: Test, startTime: Long, endTime: Long) {
+        listener.testEnded(test)
+    }
+
     override suspend fun afterTestRun() {
         listener.afterTestRun()
     }

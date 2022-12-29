@@ -17,6 +17,7 @@ import com.malinskiy.marathon.ios.xctestrun.v2.TestConfiguration
 import com.malinskiy.marathon.ios.xctestrun.v2.TestTarget
 import com.malinskiy.marathon.ios.xctestrun.v2.Xctestrun
 import java.io.File
+import java.nio.file.Path
 import kotlin.io.path.createTempFile
 
 class TestRootFactory(private val device: AppleSimulatorDevice, private val vendorConfiguration: VendorConfiguration.IOSConfiguration) {
@@ -27,7 +28,7 @@ class TestRootFactory(private val device: AppleSimulatorDevice, private val vend
         remoteFileManager.createRemoteDirectory(testRoot)
         val xctestrun = when (testType) {
             TestType.XCUITEST -> generateXCUITest(testRoot, remoteFileManager, bundleConfiguration)
-            TestType.XCTEST -> TODO()
+            TestType.XCTEST -> generateXCTest(testRoot, remoteFileManager, bundleConfiguration)
             TestType.LOGIC_TEST -> TODO()
         }
 
@@ -51,14 +52,15 @@ class TestRootFactory(private val device: AppleSimulatorDevice, private val vend
         val sdkPlatformPath = device.binaryEnvironment.xcrun.getSdkPlatformPath(device.sdk)
         val platformLibraryPath = remoteFileManager.joinPath(sdkPlatformPath, "Developer", "Library")
 
-        val xctestBundleInfo : BundleInfo = PropertyList.from(File(bundleConfiguration.xctest, "Info.plist"))
+        val xctestBundleInfo: BundleInfo = PropertyList.from(File(bundleConfiguration.xctest, "Info.plist"))
         val testBundleId = (xctestBundleInfo.naming.bundleName ?: bundleConfiguration.xctest.nameWithoutExtension).replace('-', '_')
         val testRunnerApp = generateTestRunnerApp(testRoot, testBundleId, platformLibraryPath, bundleConfiguration)
         val testApp = bundleConfiguration.app ?: throw ConfigurationException("no application specified for XCUITest")
-        val appBundleInfo : BundleInfo = PropertyList.from(File(testApp, "Info.plist"))
-        val appId = appBundleInfo.identification.bundleIdentifier ?: throw ConfigurationException("No bundle identifier specified in $testApp")
+        val appBundleInfo: BundleInfo = PropertyList.from(File(testApp, "Info.plist"))
+        val appId =
+            appBundleInfo.identification.bundleIdentifier ?: throw ConfigurationException("No bundle identifier specified in $testApp")
         val remoteTestApp = device.remoteFileManager.remoteApplication()
-        if(!device.pushFolder(testApp, remoteTestApp)) {
+        if (!device.pushFolder(testApp, remoteTestApp)) {
             throw DeviceSetupException("failed to push app under test to remote device")
         }
         val runnerPlugins = remoteFileManager.joinPath(testRunnerApp, "PlugIns")
@@ -80,7 +82,7 @@ class TestRootFactory(private val device: AppleSimulatorDevice, private val vend
             "DYLD_FRAMEWORK_PATH" to "__TESTROOT__:$frameworks:$privateFrameworks",
             "DYLD_LIBRARY_PATH" to "__TESTROOT__:$usrLib"
         )
-        
+
         return Xctestrun(
             metadata = Metadata(2),
             testConfigurations = arrayOf(
@@ -98,6 +100,83 @@ class TestRootFactory(private val device: AppleSimulatorDevice, private val vend
                             testBundlePath = remoteXctest,
                             testHostPath = testRunnerApp,
                             uiTargetAppPath = remoteTestApp,
+                        )
+                    )
+                )
+            )
+        )
+    }
+
+    private suspend fun generateXCTest(
+        testRoot: String,
+        remoteFileManager: RemoteFileManager,
+        bundleConfiguration: AppleTestBundleConfiguration
+    ): Xctestrun {
+        val testApp = bundleConfiguration.app ?: throw ConfigurationException("no application specified for XCTest")
+        val xctestBundleInfo: BundleInfo = PropertyList.from(File(bundleConfiguration.xctest, "Info.plist"))
+        val testBundleId = (xctestBundleInfo.naming.bundleName ?: bundleConfiguration.xctest.nameWithoutExtension).replace('-', '_')
+
+        val appBundleInfo: BundleInfo = PropertyList.from(File(testApp, "Info.plist"))
+        val appId =
+            appBundleInfo.identification.bundleIdentifier ?: throw ConfigurationException("No bundle identifier specified in $testApp")
+
+        val remoteTestApp = device.remoteFileManager.remoteApplication()
+        if (!device.pushFolder(testApp, remoteTestApp)) {
+            throw DeviceSetupException("failed to push app under test to remote device")
+        }
+
+        /**
+         * A common scenario is to place xctest for unit tests inside the app's PlugIns.
+         * This is what Xcode does out of the box
+         */
+        val remoteXctest = joinPath(remoteTestApp, "PlugIns", bundleConfiguration.xctest.name)
+        if (bundleConfiguration.xctest == Path.of(testApp.path, "PlugIns")) {
+            //We already pushed it above
+        } else {
+            if (!device.pushFolder(bundleConfiguration.xctest, remoteXctest)) {
+                throw DeviceSetupException("failed to push xctest to remote device")
+            }
+        }
+
+        if (device.sdk == Sdk.IPHONEOS) {
+            TODO("generate phone provisioning")
+        }
+
+        val platformName = device.sdk.platformName
+        val developerPath = remoteFileManager.joinPath("__PLATFORMS__", "$platformName.platform", "Developer")
+
+        val DYLD_INSERT_LIBS = if (device.sdk == Sdk.IPHONEOS) {
+            "__TESTHOST__/Frameworks/libXCTestBundleInject.dylib"
+        } else {
+            "$developerPath/usr/lib/libXCTestBundleInject.dylib"
+        }
+
+
+        val frameworks = remoteFileManager.joinPath(developerPath, "Library", "Frameworks")
+        val privateFrameworks = remoteFileManager.joinPath(developerPath, "Library", "PrivateFrameworks")
+        val usrLib = remoteFileManager.joinPath(developerPath, "usr", "lib")
+        val testEnv = mapOf(
+            "XCInjectBundleInto" to "__TESTHOST__/${remoteFileManager.appUnderTestFileName()}",
+            "DYLD_FRAMEWORK_PATH" to "__TESTROOT__:$frameworks:$privateFrameworks",
+            "DYLD_INSERT_LIBRARIES" to DYLD_INSERT_LIBS,
+            "DYLD_LIBRARY_PATH" to "__TESTROOT__:$usrLib"
+        )
+
+        return Xctestrun(
+            metadata = Metadata(2),
+            testConfigurations = arrayOf(
+                TestConfiguration(
+                    "marathon",
+                    arrayOf(
+                        TestTarget.withArtifactReinstall(
+                            name = testBundleId,
+                            testingEnvironmentVariables = testEnv,
+                            productModuleName = testBundleId,
+                            systemAttachmentLifetime = vendorConfiguration.xcresult.attachments.systemAttachmentLifetime.value,
+                            userAttachmentLifetime = vendorConfiguration.xcresult.attachments.userAttachmentLifetime.value,
+                            testBundlePath = remoteXctest,
+                            testHostPath = remoteTestApp,
+                            isAppHostedTestBundle = true,
                         )
                     )
                 )
@@ -129,7 +208,7 @@ class TestRootFactory(private val device: AppleSimulatorDevice, private val vend
             set(plist, "CFBundleExecutable", runnerBinaryName)
             set(plist, "CFBundleIdentifier", "com.apple.test.$runnerBinaryName")
         }
-        
+
         return testRunnerApp
     }
 
