@@ -59,13 +59,8 @@ class QueueActor(
     private val testResultReporter = TestResultReporter(poolId, analytics, testShard, configuration, track)
 
     init {
-        val tests = testShard.tests + testShard.flakyTests
-        queue.addAll(tests)
-        /**
-         * Initial queue fill might contain retries from the flakiness strategy
-         */
-        val expectedTestResults = tests.distinct().size
-        progressReporter.testCountExpectation(poolId, expectedTestResults)
+        queue.addAll(testShard.tests + testShard.flakyTests)
+        progressReporter.testCountExpectation(poolId, queue.size)
     }
 
     override suspend fun receive(msg: QueueMessage) {
