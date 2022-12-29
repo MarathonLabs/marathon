@@ -39,7 +39,18 @@ class KotlinProcessCommandExecutor(
     ): BaseCommand {
         val job = SupervisorJob()
 
-        val process = ProcessBuilder(command).apply {
+        /**
+         * For some reason local shell execution doesn't like leading " or '
+         */
+        val unescapedCommand = command.map {
+            if(it.isShellscaped()) {
+                it.removeSurrounding("\"").removeSurrounding("\'")
+            } else {
+                it
+            }
+        }
+
+        val process = ProcessBuilder(unescapedCommand).apply {
             redirectOutput(ProcessBuilder.Redirect.PIPE)
             redirectError(ProcessBuilder.Redirect.PIPE)
 
@@ -64,6 +75,14 @@ class KotlinProcessCommandExecutor(
 
     override fun close() {
     }
+}
+
+/**
+ * Verifies only fully escaped strings without verifying special characters
+ */
+private fun String.isShellscaped(): Boolean {
+    return (startsWith('\'') && endsWith('\'')) ||
+        (startsWith('"') && endsWith('"'))
 }
 
 private const val POLL_DURATION_MILLIS = 1L

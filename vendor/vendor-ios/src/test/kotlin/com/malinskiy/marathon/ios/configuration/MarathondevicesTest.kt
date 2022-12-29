@@ -34,23 +34,29 @@ class MarathondevicesTest {
     fun testSample1() {
         val src = File(MarathondevicesTest::class.java.getResource("/fixtures/marathondevices/sample_1.yaml").file)
         val actual = mapper.readValue<Marathondevices>(src)
-        
-        actual shouldBeEqualTo Marathondevices(listOf(
-            AppleTarget.Simulator("XXX", Transport.Local),
-            AppleTarget.Physical("YYY", Transport.Local),
-            AppleTarget.SimulatorProfile(
-                deviceTypeId = "com.apple.CoreSimulator.SimDeviceType.iPhone-X",
-                runtimeId = "com.apple.CoreSimulator.SimRuntime.iOS-16-2",
-                newNamePrefix = "prefix",
-                transport = Transport.Ssh(
-                    addr = "node-1.device-farm.example.com",
-                    port = 44,
-                    authentication = SshAuthentication.PasswordAuthentication(
-                        username = "vasya",
-                        password = "pupking",
+
+        actual shouldBeEqualTo Marathondevices(
+            workers = listOf(
+                Worker(
+                    transport = Transport.Ssh(
+                        addr = "node-1.device-farm.example.com",
+                        port = 44,
+                        authentication = SshAuthentication.PasswordAuthentication(
+                            username = "vasya",
+                            password = "pupking",
+                        )
+                    ),
+                    devices = listOf(
+                        AppleTarget.Simulator("XXX"),
+                        AppleTarget.Physical("YYY"),
+                        AppleTarget.SimulatorProfile(
+                            deviceTypeId = "com.apple.CoreSimulator.SimDeviceType.iPhone-X",
+                            runtimeId = "com.apple.CoreSimulator.SimRuntime.iOS-16-2",
+                            newNamePrefix = "prefix",
+                        )
                     )
                 )
             )
-        ))
+        )
     }
 }

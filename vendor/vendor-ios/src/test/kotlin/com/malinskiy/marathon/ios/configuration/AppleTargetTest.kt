@@ -13,7 +13,6 @@ class AppleTargetTest {
         val profile = AppleTarget.SimulatorProfile(
             deviceTypeId = device,
             runtimeId = runtime,
-            transport = Transport.Local
         )
         profile.fullyQualifiedDeviceTypeId shouldBeEqualTo expectedDevice
         profile.fullyQualifiedRuntimeId shouldBeEqualTo expectedRuntime
