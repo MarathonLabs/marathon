@@ -40,7 +40,7 @@ object Versions {
     val ddPlist = "1.24"
     val guava = "31.1-jre"
     val rsync4j = "3.2.3-10"
-    val sshj = "0.34.1-SNAPSHOT"
+    val sshj = "0.34.0"
     val kotlinProcess = "1.4"
     val testContainers = "1.17.3"
     val jupiterEngine = junit5
