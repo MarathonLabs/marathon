@@ -199,11 +199,14 @@ class AppleSimulatorProvider(
                 usedUdids.add(it.udid)
             }
         }
-        val unusedDevices = simulatorDevices.filterKeys { !usedUdids.contains(it) }
+        val unusedDevices = simulatorDevices.filterKeys { !usedUdids.contains(it) }.toMutableMap()
         val reuseUdid = mutableSetOf<String>()
-        val createProfiles = mutableSetOf<AppleTarget.SimulatorProfile>()
+        val createProfiles = mutableListOf<AppleTarget.SimulatorProfile>()
         simulatorProfiles.forEach { profile ->
-            reuseExistingSimulator(unusedDevices, profile)?.let { reuseUdid.add(it) } ?: createProfiles.add(profile)
+            reuseExistingSimulator(unusedDevices - reuseUdid, profile)?.let {
+                reuseUdid.add(it) 
+                unusedDevices.remove(it)
+            } ?: createProfiles.add(profile)
         }
 
         //Maybe we should sanity-check if these are available
