@@ -15,7 +15,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo
     JsonSubTypes.Type(value = AppleTarget.SimulatorProfile::class, name = "simulatorProfile"),
 )
 sealed class AppleTarget {
-    data class Simulator(@JsonProperty("udid") val udid: String, @JsonProperty("transport") val transport: Transport) : AppleTarget()
+    data class Simulator(@JsonProperty("udid") val udid: String) : AppleTarget()
 
     /**
      * @param deviceTypeId A valid available device type.
@@ -34,7 +34,6 @@ sealed class AppleTarget {
         @JsonProperty("deviceType") private val deviceTypeId: String,
         @JsonProperty("runtime") private val runtimeId: String? = null,
         @JsonProperty("newNamePrefix") val newNamePrefix: String = "marathon",
-        @JsonProperty("transport") val transport: Transport,
     ) : AppleTarget() {
         val fullyQualifiedRuntimeId: String? by lazy {
             runtimeId?.let { expandTextualId(it, FQCN_SIM_RUNTIME) }
@@ -61,7 +60,7 @@ sealed class AppleTarget {
         }
     }
 
-    data class Physical(@JsonProperty("udid") val udid: String, @JsonProperty("transport") val transport: Transport) : AppleTarget()
+    data class Physical(@JsonProperty("udid") val udid: String) : AppleTarget()
 
     companion object {
         const val FQCN_SIM_DEVICE_TYPE = "com.apple.CoreSimulator.SimDeviceType"

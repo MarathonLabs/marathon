@@ -12,6 +12,7 @@ import com.malinskiy.marathon.exceptions.NoDevicesException
 import com.malinskiy.marathon.ios.configuration.AppleTarget
 import com.malinskiy.marathon.ios.configuration.Marathondevices
 import com.malinskiy.marathon.ios.configuration.Transport
+import com.malinskiy.marathon.ios.configuration.Worker
 import com.malinskiy.marathon.ios.device.AppleSimulatorProvider
 import com.malinskiy.marathon.ios.device.SimulatorFactory
 import com.malinskiy.marathon.log.MarathonLogging
@@ -51,33 +52,19 @@ class AppleDeviceProvider(
         logger.debug("Initializing AppleDeviceProvider")
         val file = vendorConfiguration.devicesFile ?: File(System.getProperty("user.dir"), "Marathondevices")
         val devicesWithEnvironmentVariablesReplaced = environmentVariableSubstitutor.replace(file.readText())
-        val devices: List<AppleTarget> = try {
-            objectMapper.readValue<Marathondevices>(devicesWithEnvironmentVariablesReplaced).devices
+        val workers: List<Worker> = try {
+            objectMapper.readValue<Marathondevices>(devicesWithEnvironmentVariablesReplaced).workers
         } catch (e: JsonMappingException) {
             throw NoDevicesException("Invalid Marathondevices file ${file.absolutePath} format", e)
         }
-        if (devices.isEmpty()) {
-            throw NoDevicesException("No devices found in the ${file.absolutePath}")
+        if (workers.isEmpty()) {
+            throw NoDevicesException("No workers found in the ${file.absolutePath}")
         }
-
-        val hosts: Map<Transport, List<AppleTarget>> = devices.groupBy {
-            when (it) {
-                is AppleTarget.Simulator -> {
-                    it.transport
-                }
-
-                is AppleTarget.SimulatorProfile -> {
-                    it.transport
-
-                }
-
-                is AppleTarget.Physical -> {
-                    it.transport
-
-                }
+        val hosts: Map<Transport, List<AppleTarget>> = mutableMapOf<Transport, List<AppleTarget>>().apply {
+            workers.map {
+                put(it.transport, it.devices)
             }
         }
-
         val simulatorFactory = SimulatorFactory(configuration, vendorConfiguration, testBundleIdentifier, gson, track, timer)
         simulatorProvider = AppleSimulatorProvider(
             configuration, vendorConfiguration, gson, coroutineContext, deviceInitializationTimeoutMillis, simulatorFactory, hosts

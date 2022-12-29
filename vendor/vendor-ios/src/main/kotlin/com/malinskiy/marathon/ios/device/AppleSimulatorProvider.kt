@@ -81,10 +81,10 @@ class AppleSimulatorProvider(
                     Transport.Local -> {
                         val bin = AppleBinaryEnvironment(localCommandExecutor, configuration, vendorConfiguration, gson)
 
-                        val plan = plan(bin, targets)
+                        val plan = plan(transport, bin, targets)
 
-                        val deferredExisting = createExisting(plan, localCommandExecutor, localFileBridge)
-                        val deferredProvisioning = createNew(plan, bin, localCommandExecutor, localFileBridge)
+                        val deferredExisting = createExisting(transport, plan, localCommandExecutor, localFileBridge)
+                        val deferredProvisioning = createNew(transport, plan, bin, localCommandExecutor, localFileBridge)
                         (deferredExisting + deferredProvisioning).awaitAll()
                     }
 
@@ -93,10 +93,10 @@ class AppleSimulatorProvider(
                         val fileBridge = getOrCreateFileBridge(transport.addr, transport.port)
                         val bin = AppleBinaryEnvironment(commandExecutor, configuration, vendorConfiguration, gson)
 
-                        val plan = plan(bin, targets)
+                        val plan = plan(transport, bin, targets)
 
-                        val deferredExisting = createExisting(plan, commandExecutor, fileBridge)
-                        val deferredProvisioning = createNew(plan, bin, commandExecutor, fileBridge)
+                        val deferredExisting = createExisting(transport, plan, commandExecutor, fileBridge)
+                        val deferredProvisioning = createNew(transport, plan, bin, commandExecutor, fileBridge)
                         (deferredExisting + deferredProvisioning).awaitAll()
                     }
                 }
@@ -106,7 +106,7 @@ class AppleSimulatorProvider(
         Unit
     }
 
-    private suspend fun createExisting(plan: ProvisioningPlan, commandExecutor: CommandExecutor, fileBridge: FileBridge) =
+    private suspend fun createExisting(transport: Transport, plan: ProvisioningPlan, commandExecutor: CommandExecutor, fileBridge: FileBridge) =
         plan.existingSimulators.map { udid ->
             supervisorScope {
                 async {
@@ -123,6 +123,7 @@ class AppleSimulatorProvider(
     ) = simulatorFactory.create(commandExecutor, fileBridge, udid)
 
     private suspend fun createNew(
+        transport: Transport,
         plan: ProvisioningPlan,
         bin: AppleBinaryEnvironment,
         commandExecutor: CommandExecutor,
@@ -131,7 +132,7 @@ class AppleSimulatorProvider(
         supervisorScope {
             async {
                 val simctlListDevicesOutput = bin.xcrun.simctl.device.list()
-                if (!verifySimulatorCanBeProvisioned(simctlListDevicesOutput, profile)) {
+                if (!verifySimulatorCanBeProvisioned(simctlListDevicesOutput, profile, transport)) {
                     return@async
                 }
 
@@ -154,18 +155,19 @@ class AppleSimulatorProvider(
 
     private fun verifySimulatorCanBeProvisioned(
         simctlListDevicesOutput: SimctlListDevicesOutput,
-        profile: AppleTarget.SimulatorProfile
+        profile: AppleTarget.SimulatorProfile,
+        transport: Transport
     ): Boolean {
         if (!simctlListDevicesOutput.devicetypes.any {
                 it.identifier == profile.fullyQualifiedDeviceTypeId
             }) {
-            logger.error { "device type ${profile.fullyQualifiedDeviceTypeId} is not available at ${profile.transport}" }
+            logger.error { "device type ${profile.fullyQualifiedDeviceTypeId} is not available at $transport" }
             return false
         }
         if (profile.fullyQualifiedRuntimeId != null && !simctlListDevicesOutput.runtimes.any {
                 it.identifier == profile.fullyQualifiedRuntimeId
             }) {
-            logger.error { "runtime ${profile.fullyQualifiedRuntimeId} is not available at ${profile.transport}" }
+            logger.error { "runtime ${profile.fullyQualifiedRuntimeId} is not available at $transport" }
             return false
         }
         return true
@@ -174,7 +176,7 @@ class AppleSimulatorProvider(
     /**
      * Per-host provisioning
      */
-    suspend fun plan(bin: AppleBinaryEnvironment, targets: List<AppleTarget>): ProvisioningPlan {
+    suspend fun plan(transport: Transport, bin: AppleBinaryEnvironment, targets: List<AppleTarget>): ProvisioningPlan {
         val simulatorDevices: Map<String, SimctlDevice> = bin.xcrun.simctl.device.listDevices()
             .filter { it.isAvailable ?: false }
             .groupBy { it.udid }
@@ -194,7 +196,7 @@ class AppleSimulatorProvider(
         val usedUdids = mutableSetOf<String>()
         simulators.forEach {
             if (!availableUdids.contains(it.udid)) {
-                logger.error { "udid ${it.udid} is not available at ${it.transport}" }
+                logger.error { "udid ${it.udid} is not available at $transport" }
             } else {
                 usedUdids.add(it.udid)
             }
