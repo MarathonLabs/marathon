@@ -12,7 +12,7 @@ class XctestrunTest {
         val file = File(javaClass.classLoader.getResource("fixtures/xctestrun/man_v2.xctestrun").file)
         val actual: Xctestrun = PropertyList.from(file)
 
-        val testTarget = TestTarget(
+        val testTarget = TestTarget.withArtifactReinstall(
             name = "MyAppTests",
             testBundlePath = "__TESTHOST__/PlugIns/MyAppTests.xctest",
             testHostPath = "__TESTROOT__/Debug-iphonesimulator/MyApp.app",
@@ -21,7 +21,6 @@ class XctestrunTest {
                 "DYLD_LIBRARY_PATH" to "__TESTROOT__/Debug-iphonesimulator"
             ),
             uiTargetAppPath = "__TESTROOT__/Debug-iphonesimulator/MyApp.app",
-            testHostBundleIdentifier = "com.example.MyApp",
             dependentProductPaths = arrayOf(
                 "__TESTROOT__/Debug-iphonesimulator/MyApp.app",
                 "__TESTROOT__/Debug-iphonesimulator/MyApp.app/PlugIns/MyAppTests.xctest"
@@ -65,7 +64,7 @@ class XctestrunTest {
 
     @Test
     fun testWrite() {
-        val testTarget = TestTarget(
+        val testTarget = TestTarget.withArtifactReinstall(
             name = "MyAppTests",
             testBundlePath = "__TESTHOST__/PlugIns/MyAppTests.xctest",
             testHostPath = "__TESTROOT__/Debug-iphonesimulator/MyApp.app",
@@ -74,7 +73,6 @@ class XctestrunTest {
                 "DYLD_LIBRARY_PATH" to "__TESTROOT__/Debug-iphonesimulator"
             ),
             uiTargetAppPath = "__TESTROOT__/Debug-iphonesimulator/MyApp.app",
-            testHostBundleIdentifier = "com.example.MyApp",
             dependentProductPaths = arrayOf(
                 "__TESTROOT__/Debug-iphonesimulator/MyApp.app",
                 "__TESTROOT__/Debug-iphonesimulator/MyApp.app/PlugIns/MyAppTests.xctest"

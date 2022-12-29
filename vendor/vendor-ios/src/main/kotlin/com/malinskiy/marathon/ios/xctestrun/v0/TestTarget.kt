@@ -8,8 +8,8 @@ import com.malinskiy.marathon.ios.plist.optionalArrayDelegateFor
 
 open class TestTarget(delegate: NSDictionary) : PropertyList<NSDictionary>(delegate) {
     constructor(
-        testBundlePath: String,
-        testHostPath: String,
+        testBundlePath: String? = null,
+        testHostPath: String? = null,
         testingEnvironmentVariables: Map<String, String>,
         uiTargetAppPath: String? = null,
         environmentVariables: Map<String, String>? = null,
@@ -41,6 +41,8 @@ open class TestTarget(delegate: NSDictionary) : PropertyList<NSDictionary>(deleg
         uiTargetAppBundleIdentifier?.let { this.uiTargetAppBundleIdentifier = it }
     }
 
+    //All optional
+    
     /**
      * A path to the test bundle to be tested.
      *
@@ -49,7 +51,7 @@ open class TestTarget(delegate: NSDictionary) : PropertyList<NSDictionary>(deleg
      * `__TESTROOT__` - The directory containing the xctestrun file.
      * `__TESTHOST__` - The test host directory bundle provided by TestHostPath.
      */
-    var testBundlePath: String by delegate.delegateFor("TestBundlePath")
+    var testBundlePath: String? by delegate.delegateFor("TestBundlePath")
 
     /**
      * A path to the test host. For framework tests, this should be a path to the xctest command line tool.
@@ -62,7 +64,7 @@ open class TestTarget(delegate: NSDictionary) : PropertyList<NSDictionary>(deleg
      * `__TESTROOT__` - The directory containing the xctestrun file.
      * `__PLATFORMS__` - The platforms directory in the active Xcode.app.
      */
-    var testHostPath: String by delegate.delegateFor("TestHostPath")
+    var testHostPath: String? by delegate.delegateFor("TestHostPath")
 
     /**
      * Additional testing environment variables that xcodebuild will provide to the [testHostPath] process.
@@ -80,9 +82,7 @@ open class TestTarget(delegate: NSDictionary) : PropertyList<NSDictionary>(deleg
      * `__SHAREDFRAMEWORKS__` - The shared frameworks directory in the active Xcode.app.
      *
      */
-    var testingEnvironmentVariables: Map<String, String> by delegate.delegateFor("TestingEnvironmentVariables")
-
-    // Optional section
+    var testingEnvironmentVariables: Map<String, String>? by delegate.delegateFor("TestingEnvironmentVariables")
 
     /**
      * A path to the target application for UI tests.
@@ -149,7 +149,7 @@ open class TestTarget(delegate: NSDictionary) : PropertyList<NSDictionary>(deleg
      * An optional flag to indicate that xcodebuild should look on the destination for test artifacts. When this flag is set,
      * xcodebuild will not install test artifacts to the destination during testing.
      *
-     * TestBundlePath, TestHostPath, and UITargetPath should be excluded when this flag is set.
+     * [testBundlePath], [testHostPath], and [uiTargetAppPath] should be excluded when this flag is set.
      * Instead, xcodebuild requires the following parameters: [testHostBundleIdentifier], [testBundleDestinationRelativePath] and [uiTargetAppBundleIdentifier]
      */
     var useDestinationArtifacts: Boolean? by delegate.optionalDelegateFor("UseDestinationArtifacts")

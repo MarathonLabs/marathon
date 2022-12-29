@@ -24,6 +24,7 @@ class XctestrunTest {
             "__TESTROOT__/Debug-iphonesimulator/sample-appUITests-Runner.app/PlugIns/sample-appUITests.xctest",
             "__TESTROOT__/Debug-iphonesimulator/sample-app.app"
         )
+
         target.testingEnvironmentVariables shouldContainSame mapOf(
             "DYLD_FRAMEWORK_PATH" to "__TESTROOT__/Debug-iphonesimulator:__PLATFORMS__/iPhoneSimulator.platform/Developer/Library/Frameworks:/Library/Developer/CoreSimulator/Profiles/Runtimes/iOS 11.1.simruntime/Contents/Resources/RuntimeRoot/Developer/Library/PrivateFrameworks",
             "DYLD_INSERT_LIBRARIES" to "/Library/Developer/CoreSimulator/Profiles/Runtimes/iOS 11.1.simruntime/Contents/Resources/RuntimeRoot/usr/lib/libMainThreadChecker.dylib",

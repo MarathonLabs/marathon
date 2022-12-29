@@ -5,16 +5,133 @@ import com.malinskiy.marathon.ios.plist.delegateFor
 import com.malinskiy.marathon.ios.plist.optionalDelegateFor
 import com.malinskiy.marathon.ios.plist.optionalArrayDelegateFor
 import com.malinskiy.marathon.ios.xctestrun.v0.TestTarget
+import com.malinskiy.marathon.ios.xctestrun.v2.TestTarget as V2TestTarget
 
 class TestTarget : TestTarget {
 
     constructor(delegate: NSDictionary) : super(delegate)
 
-    constructor(
+    companion object {
+        fun withArtifactReinstall(
+            name: String,
+            testBundlePath: String,
+            testHostPath: String,
+            testingEnvironmentVariables: Map<String, String>,
+            uiTargetAppPath: String? = null,
+            environmentVariables: Map<String, String>? = null,
+            commandLineArguments: Array<String>? = null,
+            uiTargetAppEnvironmentVariables: Map<String, String>? = null,
+            uiTargetAppCommandLineArguments: Array<String>? = null,
+            baselinePath: String? = null,
+            skipTestIdentifiers: Array<String>? = null,
+            onlyTestIdentifiers: Array<String>? = null,
+            treatMissingBaselinesAsFailures: Boolean? = null,
+            uiTargetAppMainThreadCheckerEnabled: Boolean? = null,
+            gatherLocalizableStringsData: Boolean? = null,
+            dependentProductPaths: Array<String>? = null,
+            productModuleName: String? = null,
+            systemAttachmentLifetime: String? = null,
+            userAttachmentLifetime: String? = null,
+            parallelizationEnabled: Boolean? = null,
+            testExecutionOrdering: String? = null,
+            testLanguage: String? = null,
+            testRegion: String? = null,
+            isUITestBundle: Boolean? = null
+        ): V2TestTarget {
+            return V2TestTarget(
+                name = name,
+                testBundlePath = testBundlePath,
+                testHostPath = testHostPath,
+                testingEnvironmentVariables = testingEnvironmentVariables,
+                uiTargetAppPath = uiTargetAppPath,
+                environmentVariables = environmentVariables,
+                commandLineArguments = commandLineArguments,
+                uiTargetAppEnvironmentVariables = uiTargetAppEnvironmentVariables,
+                uiTargetAppCommandLineArguments = uiTargetAppCommandLineArguments,
+                baselinePath = baselinePath,
+                skipTestIdentifiers = skipTestIdentifiers,
+                onlyTestIdentifiers = onlyTestIdentifiers,
+                treatMissingBaselinesAsFailures = treatMissingBaselinesAsFailures,
+                uiTargetAppMainThreadCheckerEnabled = uiTargetAppMainThreadCheckerEnabled,
+                gatherLocalizableStringsData = gatherLocalizableStringsData,
+                dependentProductPaths = dependentProductPaths,
+                productModuleName = productModuleName,
+                systemAttachmentLifetime = systemAttachmentLifetime,
+                userAttachmentLifetime = userAttachmentLifetime,
+                parallelizationEnabled = parallelizationEnabled,
+                testExecutionOrdering = testExecutionOrdering,
+                testLanguage = testLanguage,
+                testRegion = testRegion,
+                isUITestBundle = isUITestBundle,
+            )
+        }
+
+        /**
+         * Although documentation doesn't mention this, using UseDestinationArtifacts is not possible on simulators for some reason
+         * 
+         * Reason: Cannot test target “XXXTests” on “Simulator name”: when UseDestinationArtifacts is set, the destination must be an iOS device
+         */
+        fun withArtifactReuse(
+            name: String,
+            testHostBundleIdentifier: String,
+            testBundleDestinationRelativePath: String,
+            uiTargetAppBundleIdentifier: String,
+            testingEnvironmentVariables: Map<String, String>,
+            environmentVariables: Map<String, String>? = null,
+            commandLineArguments: Array<String>? = null,
+            uiTargetAppEnvironmentVariables: Map<String, String>? = null,
+            uiTargetAppCommandLineArguments: Array<String>? = null,
+            baselinePath: String? = null,
+            skipTestIdentifiers: Array<String>? = null,
+            onlyTestIdentifiers: Array<String>? = null,
+            treatMissingBaselinesAsFailures: Boolean? = null,
+            uiTargetAppMainThreadCheckerEnabled: Boolean? = null,
+            gatherLocalizableStringsData: Boolean? = null,
+            dependentProductPaths: Array<String>? = null,
+            productModuleName: String? = null,
+            systemAttachmentLifetime: String? = null,
+            userAttachmentLifetime: String? = null,
+            parallelizationEnabled: Boolean? = null,
+            testExecutionOrdering: String? = null,
+            testLanguage: String? = null,
+            testRegion: String? = null,
+            isUITestBundle: Boolean? = null
+        ): V2TestTarget {
+            return V2TestTarget(
+                name = name,
+                testingEnvironmentVariables = testingEnvironmentVariables,
+                environmentVariables = environmentVariables,
+                commandLineArguments = commandLineArguments,
+                uiTargetAppEnvironmentVariables = uiTargetAppEnvironmentVariables,
+                uiTargetAppCommandLineArguments = uiTargetAppCommandLineArguments,
+                baselinePath = baselinePath,
+                skipTestIdentifiers = skipTestIdentifiers,
+                onlyTestIdentifiers = onlyTestIdentifiers,
+                treatMissingBaselinesAsFailures = treatMissingBaselinesAsFailures,
+                uiTargetAppMainThreadCheckerEnabled = uiTargetAppMainThreadCheckerEnabled,
+                gatherLocalizableStringsData = gatherLocalizableStringsData,
+                dependentProductPaths = dependentProductPaths,
+                productModuleName = productModuleName,
+                systemAttachmentLifetime = systemAttachmentLifetime,
+                userAttachmentLifetime = userAttachmentLifetime,
+                parallelizationEnabled = parallelizationEnabled,
+                testExecutionOrdering = testExecutionOrdering,
+                testLanguage = testLanguage,
+                testRegion = testRegion,
+                isUITestBundle = isUITestBundle,
+                useDestinationArtifacts = true,
+                testHostBundleIdentifier = testHostBundleIdentifier,
+                testBundleDestinationRelativePath = testBundleDestinationRelativePath,
+                uiTargetAppBundleIdentifier = uiTargetAppBundleIdentifier,
+            )
+        }
+    }
+
+    private constructor(
         name: String,
         //Base
-        testBundlePath: String,
-        testHostPath: String,
+        testBundlePath: String? = null,
+        testHostPath: String? = null,
         testingEnvironmentVariables: Map<String, String>,
         uiTargetAppPath: String? = null,
         environmentVariables: Map<String, String>? = null,
@@ -49,13 +166,13 @@ class TestTarget : TestTarget {
         environmentVariables,
         commandLineArguments,
         uiTargetAppEnvironmentVariables,
-        uiTargetAppCommandLineArguments, 
-        baselinePath, 
-        skipTestIdentifiers, 
-        onlyTestIdentifiers, 
+        uiTargetAppCommandLineArguments,
+        baselinePath,
+        skipTestIdentifiers,
+        onlyTestIdentifiers,
         useDestinationArtifacts,
-        testHostBundleIdentifier, 
-        testBundleDestinationRelativePath, 
+        testHostBundleIdentifier,
+        testBundleDestinationRelativePath,
         uiTargetAppBundleIdentifier
     ) {
         this.name = name
@@ -142,10 +259,10 @@ class TestTarget : TestTarget {
      * Region identifier code for the region which tests should be run using.
      */
     var testRegion: String? by delegate.optionalDelegateFor("TestRegion")
-    
+
     // Undocumented
     /**
-     * 
+     *
      */
     var isUITestBundle: Boolean? by delegate.optionalDelegateFor("IsUITestBundle")
 }

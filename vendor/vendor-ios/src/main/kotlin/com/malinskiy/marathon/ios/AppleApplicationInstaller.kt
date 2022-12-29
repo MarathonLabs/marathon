@@ -8,11 +8,7 @@ import com.malinskiy.marathon.exceptions.DeviceSetupException
 import com.malinskiy.marathon.execution.withRetry
 import com.malinskiy.marathon.ios.model.Sdk
 import com.malinskiy.marathon.ios.xctestrun.TestRootFactory
-import com.malinskiy.marathon.ios.xctestrun.legacy.Xctestrun
 import com.malinskiy.marathon.log.MarathonLogging
-import java.io.File
-
-private const val PRODUCTS_PATH = "Build/Products"
 
 class AppleApplicationInstaller(
     private val configuration: Configuration,
@@ -62,16 +58,6 @@ class AppleApplicationInstaller(
             logger.warn { "Unable to grant permissions due to unknown bundle identifier" }
         }
 
-    }
-
-    private fun prepareXctestrun(device: AppleSimulatorDevice): File {
-        val xctestrunPath = vendorConfiguration.bundle!!.xctest
-        val xctestrun = Xctestrun(xctestrunPath).apply {
-            environment(vendorConfiguration.xctestrunEnv)
-        }
-        val preparedXctestrun = xctestrunPath.resolveSibling(device.remoteFileManager.xctestrunFileName())
-            .also { it.writeBytes(xctestrun.toXMLByteArray()) }
-        return preparedXctestrun
     }
 
     private suspend fun getTestTypeFor(device: AppleSimulatorDevice, sdk: Sdk, remoteTestBinary: String): TestType {

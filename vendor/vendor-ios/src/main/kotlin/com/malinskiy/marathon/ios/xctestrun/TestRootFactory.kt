@@ -11,7 +11,7 @@ import com.malinskiy.marathon.ios.RemoteFileManager
 import com.malinskiy.marathon.ios.model.Arch
 import com.malinskiy.marathon.ios.model.Sdk
 import com.malinskiy.marathon.ios.plist.PropertyList
-import com.malinskiy.marathon.ios.xctest.Xctest
+import com.malinskiy.marathon.ios.plist.bundle.BundleInfo
 import com.malinskiy.marathon.ios.xctestrun.v2.Metadata
 import com.malinskiy.marathon.ios.xctestrun.v2.TestConfiguration
 import com.malinskiy.marathon.ios.xctestrun.v2.TestTarget
@@ -51,15 +51,16 @@ class TestRootFactory(private val device: AppleSimulatorDevice, private val vend
         val sdkPlatformPath = device.binaryEnvironment.xcrun.getSdkPlatformPath(device.sdk)
         val platformLibraryPath = remoteFileManager.joinPath(sdkPlatformPath, "Developer", "Library")
 
-        val xctest : Xctest = PropertyList.from(File(bundleConfiguration.xctest, "Info.plist"))
-        val testBundleId = (xctest.bundleName ?: bundleConfiguration.xctest.nameWithoutExtension).replace('-','_')
+        val xctestBundleInfo : BundleInfo = PropertyList.from(File(bundleConfiguration.xctest, "Info.plist"))
+        val testBundleId = (xctestBundleInfo.naming.bundleName ?: bundleConfiguration.xctest.nameWithoutExtension).replace('-', '_')
         val testRunnerApp = generateTestRunnerApp(testRoot, testBundleId, platformLibraryPath, bundleConfiguration)
         val testApp = bundleConfiguration.app ?: throw ConfigurationException("no application specified for XCUITest")
+        val appBundleInfo : BundleInfo = PropertyList.from(File(testApp, "Info.plist"))
+        val appId = appBundleInfo.identification.bundleIdentifier ?: throw ConfigurationException("No bundle identifier specified in $testApp")
         val remoteTestApp = device.remoteFileManager.remoteApplication()
         if(!device.pushFolder(testApp, remoteTestApp)) {
             throw DeviceSetupException("failed to push app under test to remote device")
         }
-        
         val runnerPlugins = remoteFileManager.joinPath(testRunnerApp, "PlugIns")
         remoteFileManager.createRemoteDirectory(runnerPlugins)
         val remoteXctest = remoteFileManager.remoteXctestFile()
@@ -86,17 +87,17 @@ class TestRootFactory(private val device: AppleSimulatorDevice, private val vend
                 TestConfiguration(
                     "marathon",
                     arrayOf(
-                        TestTarget(
+                        TestTarget.withArtifactReinstall(
                             name = testBundleId,
-                            testBundlePath = remoteXctest,
-                            testHostPath = testRunnerApp,
                             testingEnvironmentVariables = testEnv,
-                            uiTargetAppPath = remoteTestApp,
                             productModuleName = testBundleId,
                             systemAttachmentLifetime = vendorConfiguration.xcresult.attachments.systemAttachmentLifetime.value,
                             userAttachmentLifetime = vendorConfiguration.xcresult.attachments.userAttachmentLifetime.value,
                             dependentProductPaths = arrayOf(testRunnerApp, remoteXctest, remoteTestApp),
                             isUITestBundle = true,
+                            testBundlePath = remoteXctest,
+                            testHostPath = testRunnerApp,
+                            uiTargetAppPath = remoteTestApp,
                         )
                     )
                 )
@@ -110,27 +111,29 @@ class TestRootFactory(private val device: AppleSimulatorDevice, private val vend
         platformLibraryPath: String,
         bundleConfiguration: AppleTestBundleConfiguration
     ): String {
-        val testBinary =
-            device.remoteFileManager.joinPath(device.remoteFileManager.remoteXctestFile(), bundleConfiguration.xctest.nameWithoutExtension)
-
-        val baseApp = device.remoteFileManager.joinPath(platformLibraryPath, "Xcode", "Agents", "XCTRunner.app")
+        val testBinary = joinPath(device.remoteFileManager.remoteXctestFile(), bundleConfiguration.xctest.nameWithoutExtension)
+        val baseApp = joinPath(platformLibraryPath, "Xcode", "Agents", "XCTRunner.app")
         val runnerBinaryName = "$testBundleId-Runner"
-        val testRunnerApp = device.remoteFileManager.joinPath(testRoot, "$runnerBinaryName.app")
+        val testRunnerApp = joinPath(testRoot, "$runnerBinaryName.app")
         device.remoteFileManager.copy(baseApp, testRunnerApp)
 
-        val baseTestRunnerBinary = device.remoteFileManager.joinPath(testRunnerApp, "XCTRunner")
-        val testRunnerBinary = device.remoteFileManager.joinPath(testRunnerApp, runnerBinaryName)
+        val baseTestRunnerBinary = joinPath(testRunnerApp, "XCTRunner")
+        val testRunnerBinary = joinPath(testRunnerApp, runnerBinaryName)
         device.remoteFileManager.copy(baseTestRunnerBinary, testRunnerBinary)
 
         matchArchitectures(testBinary, testRunnerBinary)
 
-        val plist = device.remoteFileManager.joinPath(testRunnerApp, "Info.plist")
-        device.binaryEnvironment.plistBuddy.set(plist, "CFBundleName", runnerBinaryName)
-        device.binaryEnvironment.plistBuddy.set(plist, "CFBundleExecutable", runnerBinaryName)
-        device.binaryEnvironment.plistBuddy.set(plist, "CFBundleIdentifier", "com.apple.test.$runnerBinaryName")
-
+        val plist = joinPath(testRunnerApp, "Info.plist")
+        device.binaryEnvironment.plistBuddy.apply {
+            set(plist, "CFBundleName", runnerBinaryName)
+            set(plist, "CFBundleExecutable", runnerBinaryName)
+            set(plist, "CFBundleIdentifier", "com.apple.test.$runnerBinaryName")
+        }
+        
         return testRunnerApp
     }
+
+    private fun joinPath(base: String, vararg args: String) = device.remoteFileManager.joinPath(base, *args)
 
     private suspend fun matchArchitectures(testBinary: String, testRunnerBinary: String) {
         if (device.arch == Arch.arm64e) {
