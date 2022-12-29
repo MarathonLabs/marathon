@@ -1,71 +1,95 @@
 package com.malinskiy.marathon.ios.bin.xcrun.xcresulttool
 
-import com.google.gson.Gson
-import com.google.gson.JsonDeserializationContext
-import com.google.gson.JsonDeserializer
-import com.google.gson.JsonElement
-import com.google.gson.TypeAdapter
-import com.google.gson.TypeAdapterFactory
-import com.google.gson.reflect.TypeToken
-import com.google.gson.stream.JsonReader
-import com.google.gson.stream.JsonWriter
-import java.lang.reflect.ParameterizedType
-import java.lang.reflect.Type
+import com.fasterxml.jackson.core.JsonParser
+import com.fasterxml.jackson.databind.BeanDescription
+import com.fasterxml.jackson.databind.DeserializationConfig
+import com.fasterxml.jackson.databind.DeserializationContext
+import com.fasterxml.jackson.databind.JavaType
+import com.fasterxml.jackson.databind.JsonNode
+import com.fasterxml.jackson.databind.deser.BeanDeserializerModifier
+import com.fasterxml.jackson.databind.deser.std.CollectionDeserializer
+import com.fasterxml.jackson.databind.deser.std.StdNodeBasedDeserializer
+import com.fasterxml.jackson.databind.module.SimpleModule
+import com.fasterxml.jackson.databind.node.ArrayNode
+import com.fasterxml.jackson.databind.node.ObjectNode
+import com.fasterxml.jackson.databind.type.CollectionType
 
-class AppleJsonTypeAdapterFactory : TypeAdapterFactory {
-    override fun <T> create(gson: Gson, type: TypeToken<T>): TypeAdapter<T> {
-        val rawType = type.rawType as Class<T>
-        if(rawType is List<*>) {
-            println("")
-        }
-        
-        val actualAdapter = gson.getDelegateAdapter(this, type)
-        
-        return when (rawType)  {
-            java.util.Date::class.java -> AppleJsonTypeAdapter(actualAdapter)
-            Double::class.java, java.lang.Double::class.java -> AppleJsonTypeAdapter(actualAdapter)
-            Int::class.java, java.lang.Integer::class.java -> AppleJsonTypeAdapter(actualAdapter)
-            String::class.java, java.lang.String::class.java -> AppleJsonTypeAdapter(actualAdapter)
-            Boolean::class.java, java.lang.Boolean::class.java -> AppleJsonTypeAdapter(actualAdapter)
-            else -> actualAdapter
-        }
-    }
-}
 
-class AppleJsonTypeAdapter<T>(private val actualAdapter: TypeAdapter<T>) : TypeAdapter<T>() {
-    override fun write(out: JsonWriter?, value: T) {
-        TODO("We shouldn't write this level of insanity")
-    }
+/**
+ * For the Apple trickery with json we require a custom deserializer
+ */
+class AppleModule : SimpleModule() {
+    init {
+        setDeserializerModifier(object : BeanDeserializerModifier() {
+            override fun modifyDeserializer(
+                config: DeserializationConfig?,
+                beanDesc: BeanDescription?,
+                deserializer: com.fasterxml.jackson.databind.JsonDeserializer<*>?
+            ): com.fasterxml.jackson.databind.JsonDeserializer<*> {
+                return when (beanDesc?.beanClass) {
+                    String::class.java, java.lang.String::class.java -> {
+                        AppleJsonDeserializer(String::class.java, deserializer as com.fasterxml.jackson.databind.JsonDeserializer<String>)
+                    }
 
-    override fun read(reader: JsonReader): T? {
-        var result: T? = null
-        reader.beginObject()
-        while (reader.hasNext()) {
-            when (reader.nextName()) {
-                "_type" -> {
-                    reader.skipValue()
+                    java.util.Date::class.java -> AppleJsonDeserializer(
+                        java.util.Date::class.java,
+                        deserializer as com.fasterxml.jackson.databind.JsonDeserializer<java.util.Date>
+                    )
+
+                    Double::class.java, java.lang.Double::class.java -> {
+                        AppleJsonDeserializer(Double::class.java, deserializer as com.fasterxml.jackson.databind.JsonDeserializer<Double>)
+                    }
+
+                    Int::class.java, java.lang.Integer::class.java -> {
+                        AppleJsonDeserializer(Int::class.java, deserializer as com.fasterxml.jackson.databind.JsonDeserializer<Int>)
+                    }
+
+                    Boolean::class.java, java.lang.Boolean::class.java -> {
+                        AppleJsonDeserializer(Boolean::class.java, deserializer as com.fasterxml.jackson.databind.JsonDeserializer<Boolean>)
+                    }
+
+                    else -> super.modifyDeserializer(config, beanDesc, deserializer)
                 }
-                "_value" -> {
-                    result = actualAdapter.read(reader)
-                }
-                "_values" -> {
-                    result = actualAdapter.read(reader)
-                }
-                else -> reader.skipValue()
             }
-        }
-        reader.endObject()
-        return result
+
+            override fun modifyCollectionDeserializer(
+                config: DeserializationConfig,
+                type: CollectionType,
+                beanDesc: BeanDescription,
+                deserializer: com.fasterxml.jackson.databind.JsonDeserializer<*>
+            ): com.fasterxml.jackson.databind.JsonDeserializer<*> {
+                if (type.isTypeOrSubTypeOf(List::class.java) && deserializer::class.java.isAssignableFrom(CollectionDeserializer::class.java)) {
+                    return AppleListJson(
+                        type.contentType.rawClass,
+                        type,
+                    )
+                }
+                return super.modifyCollectionDeserializer(config, type, beanDesc, deserializer)
+            }
+        })
     }
 }
 
-internal class AppleListConverter : JsonDeserializer<List<*>?> {
-    override fun deserialize(json: JsonElement, typeOfT: Type, ctx: JsonDeserializationContext): List<*> {
-        val valueType: Type = (typeOfT as ParameterizedType).actualTypeArguments[0]
-        val list = mutableListOf<Any>()
-        for (item in json.asJsonObject.get("_values").asJsonArray) {
-            list.add(ctx.deserialize(item, valueType))
+class AppleJsonDeserializer<T>(
+    clazz: Class<T>,
+    private val deserializer: com.fasterxml.jackson.databind.JsonDeserializer<T>
+) : StdNodeBasedDeserializer<T>(clazz) {
+    override fun convert(root: JsonNode?, ctxt: DeserializationContext): T {
+        val value = (root as? ObjectNode)?.get("_value")
+        val nodeParser: JsonParser = value!!.traverse(ctxt.parser.codec)
+        nodeParser.nextToken()
+        return deserializer.deserialize(nodeParser, ctxt)
+    }
+}
+
+class AppleListJson<T : Any>(
+    private val valueClazz: Class<T>,
+    listType: JavaType,
+) : StdNodeBasedDeserializer<List<T>>(listType) {
+    override fun convert(root: JsonNode?, ctxt: DeserializationContext): List<T> {
+        val values = (root as? ObjectNode)?.get("_values") as? ArrayNode ?: return emptyList()
+        return values.map {
+            it.traverse(ctxt.parser.codec).readValueAs(valueClazz)
         }
-        return list
     }
 }

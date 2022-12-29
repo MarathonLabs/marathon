@@ -1,6 +1,9 @@
 package com.malinskiy.marathon.ios.bin.xcrun.xcresulttool
 
-import com.google.gson.GsonBuilder
+import com.fasterxml.jackson.databind.DeserializationFeature
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.module.kotlin.KotlinFeature
+import com.fasterxml.jackson.module.kotlin.KotlinModule
 import com.google.gson.JsonSyntaxException
 import com.malinskiy.marathon.config.vendor.ios.TimeoutConfiguration
 import com.malinskiy.marathon.ios.cmd.CommandExecutor
@@ -25,13 +28,22 @@ class Xcresulttool(
     private val timeoutConfiguration: TimeoutConfiguration,
 ) {
     private val logger = MarathonLogging.logger {}
-    /**
-     * For the Apple trickery with json we require a custom deserializer
-     */
-    private val gson = GsonBuilder()
-        .registerTypeAdapter(List::class.java, AppleListConverter())
-        .registerTypeAdapterFactory(AppleJsonTypeAdapterFactory())
-        .create()
+    companion object {
+        val AppleJsonMapper: ObjectMapper = ObjectMapper().apply {
+            registerModule(
+                KotlinModule.Builder()
+                    .withReflectionCacheSize(512)
+                    .configure(KotlinFeature.NullToEmptyCollection, true)
+                    .configure(KotlinFeature.NullToEmptyMap, false)
+                    .configure(KotlinFeature.NullIsSameAsDefault, true)
+                    .configure(KotlinFeature.SingletonSupport, true)
+                    .configure(KotlinFeature.StrictNullChecks, false)
+                    .build()
+            )
+            registerModule(AppleModule())
+            configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+        }
+    }
 
     /**
      * Get Result Bundle Object
@@ -51,7 +63,7 @@ class Xcresulttool(
             commandExecutor.criticalExecute(timeoutConfiguration.shell, *args.toTypedArray())
         val json = result.combinedStdout.trim()
         return try {
-            gson.fromJson(json, clazz)
+            AppleJsonMapper.readValue(json, clazz)
         } catch (e: JsonSyntaxException) {
             logger.warn(e) { "Invalid syntax in the $path" }
             null

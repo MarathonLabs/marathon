@@ -13,6 +13,10 @@ import com.squareup.kotlinpoet.PropertySpec
 import com.squareup.kotlinpoet.KModifier
 import com.squareup.kotlinpoet.ParameterSpec
 import com.squareup.kotlinpoet.AnnotationSpec
+import com.squareup.kotlinpoet.ClassName
+import com.squareup.kotlinpoet.ParameterizedTypeName
+import com.squareup.kotlinpoet.asTypeName
+import org.jetbrains.kotlin.gradle.utils.`is`
 
 class XcresulttoolSourceCreator(private val schema: File, private val pkg: String) {
     /**
@@ -59,7 +63,7 @@ class XcresulttoolSourceCreator(private val schema: File, private val pkg: Strin
                     )
                         .addAnnotation(
                             AnnotationSpec.builder(
-                                SerializedName::class
+                                ClassName("com.fasterxml.jackson.annotation", "JsonProperty")
                             ).addMember("value=\"${property.name}\"", "")
                                 .build()
                         )
@@ -126,7 +130,39 @@ class XcresulttoolSourceCreator(private val schema: File, private val pkg: Strin
 
 fun TypeSpec.Builder.primaryConstructor(properties: List<PropertySpec>): TypeSpec.Builder {
     val propertySpecs = properties.map { p -> p.toBuilder().initializer(p.name).build() }
-    val parameters = propertySpecs.map { ParameterSpec.builder(it.name, it.type).build() }
+    val parameters = propertySpecs.map {
+        ParameterSpec
+            .builder(it.name, it.type)
+            .apply {
+                //Apple decided that it's ok to have non-optional arrays have null values
+                (it.type as? ParameterizedTypeName)?.let { parameterizedTypeName ->
+                    if (parameterizedTypeName.rawType == Property.LIST && !parameterizedTypeName.isNullable) {
+                        defaultValue("emptyList()")
+                    }
+                }
+                /**
+                 * According to what Apple believes is sane json spec, some types like Integer marked as non-optional should still be optional
+                 * and default to some unspecified value
+                 */
+                if (!it.type.isNullable) {
+                    when (it.type) {
+                        Int::class.asTypeName() -> {
+                            defaultValue("0")
+                        }
+                        Double::class.asTypeName() -> {
+                            defaultValue(".0")
+                        }
+                        Boolean::class.asTypeName() -> {
+                            defaultValue("false")
+                        }
+                        String::class.asTypeName() -> {
+                            defaultValue("\"\"")
+                        }
+                    }
+                }
+            }
+            .build()
+    }
     val constructor = FunSpec.constructorBuilder()
         .addParameters(parameters)
         .build()
