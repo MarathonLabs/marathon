@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty
 
 data class LifecycleConfiguration(
     @JsonProperty("onPrepare") val onPrepare: Set<LifecycleAction> = emptySet(),
+    @JsonProperty("shutdownUnused") val shutdownUnused: Boolean = true,
 )
 
 enum class LifecycleAction {

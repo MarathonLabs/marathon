@@ -214,6 +214,14 @@ class AppleSimulatorProvider(
         //Maybe we should sanity-check if these are available
         val physicalUdids = physical.map { it.udid }.toSet()
         
+        if(vendorConfiguration.lifecycleConfiguration.shutdownUnused) {
+            unusedDevices.filter { 
+                it.value.state == SimctlDevice.State.Booted 
+            }.forEach { 
+                bin.xcrun.simctl.simulator.shutdown(it.key)
+            }
+        }
+        
         return ProvisioningPlan(usedUdids + reuseUdid, createProfiles, physicalUdids)
     }
 
