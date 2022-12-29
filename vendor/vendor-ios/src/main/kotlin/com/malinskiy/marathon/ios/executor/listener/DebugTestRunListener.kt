@@ -32,4 +32,9 @@ class DebugTestRunListener(private val device: AppleDevice) : AppleTestRunListen
     override suspend fun testRunEnded() {
         logger.info { "testRunEnded" }
     }
+
+    override suspend fun afterTestRun() {
+        super.afterTestRun()
+        logger.info { "afterTestRun" }
+    }
 }

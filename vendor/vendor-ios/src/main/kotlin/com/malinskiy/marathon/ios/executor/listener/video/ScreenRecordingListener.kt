@@ -23,7 +23,6 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.async
 import kotlinx.coroutines.cancelAndJoin
-import kotlinx.coroutines.isActive
 import java.time.Duration
 import kotlin.system.measureTimeMillis
 
@@ -56,7 +55,7 @@ class ScreenRecordingListener(
         async(supervisor) {
             val existingPidfile = device.remoteFileManager.remoteVideoPidfile()
             var informedUser = false
-            while(isActive) {
+            while(supervisor.isActive) {
                 /**
                  * We wait for the previous process to die, otherwise we risk overloading the worker with many encoding processes
                  * that all encode the same frames
@@ -116,6 +115,8 @@ class ScreenRecordingListener(
                     pullLastBatchVideo(it)
                     removeRemoteVideo(it)
                 }
+            } else {
+                logger.warn { "Device is unhealthy, can't pull batch fail video" }
             }
         } catch (e: TransferException) {
             logger.warn { "Can't pull video" }
@@ -148,7 +149,7 @@ class ScreenRecordingListener(
         val millis = measureTimeMillis {
             device.pullFile(remoteFilePath, localVideoFile)
         }
-        logger.trace { "Pulling finished in ${millis}ms $remoteFilePath " }
+        logger.debug { "Pulling finished in ${millis}ms $remoteFilePath " }
         attachmentProvider.onAttachment(test, Attachment(localVideoFile, AttachmentType.VIDEO))
     }
 
@@ -157,14 +158,14 @@ class ScreenRecordingListener(
         val millis = measureTimeMillis {
             device.pullFile(remoteFilePath, localVideoFile)
         }
-        logger.trace { "Pulling finished in ${millis}ms $remoteFilePath " }
+        logger.debug { "Pulling finished in ${millis}ms $remoteFilePath " }
     }
 
     private suspend fun removeRemoteVideo(remoteFilePath: String) {
         val millis = measureTimeMillis {
             remoteFileManager.removeRemotePath(remoteFilePath)
         }
-        logger.trace { "Removed file in ${millis}ms $remoteFilePath" }
+        logger.debug { "Removed file in ${millis}ms $remoteFilePath" }
     }
 }
 
