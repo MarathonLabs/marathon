@@ -19,8 +19,10 @@ import com.malinskiy.marathon.android.extension.testBundlesCompat
 import com.malinskiy.marathon.android.model.AndroidTestBundle
 import com.malinskiy.marathon.android.model.TestIdentifier
 import com.malinskiy.marathon.config.Configuration
+import com.malinskiy.marathon.config.exceptions.ConfigurationException
 import com.malinskiy.marathon.config.vendor.VendorConfiguration
 import com.malinskiy.marathon.config.vendor.android.TestParserConfiguration
+import com.malinskiy.marathon.device.Device
 import com.malinskiy.marathon.device.DeviceProvider
 import com.malinskiy.marathon.exceptions.TestParsingException
 import com.malinskiy.marathon.execution.RemoteTestParser
@@ -39,30 +41,21 @@ class AmInstrumentTestParser(
     private val logger = MarathonLogging.logger {}
     private val testAnnotationParser = TestAnnotationParser()
 
-    override suspend fun extract(deviceProvider: DeviceProvider): List<Test> {
+    override suspend fun extract(device: Device): List<Test> {
         val testBundles = vendorConfiguration.testBundlesCompat()
-
-        return withRetry(10, 0) {
-            val channel = deviceProvider.subscribe()
+        return withRetry(3, 0) {
             try {
-                for (update in channel) {
-                    if (update is DeviceProvider.DeviceEvent.DeviceConnected) {
-                        val device = update.device as AdamAndroidDevice
-                        return@withRetry parseTests(device, configuration, vendorConfiguration, testBundles)
-                    }
-                }
-                throw TestParsingException("failed to parse: no test events received")
+                val device = device as? AdamAndroidDevice ?: throw ConfigurationException("Unexpected device type for remote test parsing")
+                return@withRetry parseTests(device, configuration, vendorConfiguration, testBundles)
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {
                 logger.debug(e) { "Remote parsing failed. Retrying" }
                 throw e
-            } finally {
-                channel.close()
             }
         }
     }
-    
+
     private suspend fun parseTests(
         device: AdamAndroidDevice,
         configuration: Configuration,
@@ -70,7 +63,8 @@ class AmInstrumentTestParser(
         testBundles: List<AndroidTestBundle>
     ): List<Test> {
         return testBundles.flatMap { bundle ->
-            val androidTestBundle = AndroidTestBundle(bundle.application, bundle.testApplication, bundle.extraApplications, bundle.splitApks)
+            val androidTestBundle =
+                AndroidTestBundle(bundle.application, bundle.testApplication, bundle.extraApplications, bundle.splitApks)
             val instrumentationInfo = androidTestBundle.instrumentationInfo
 
             val testParserConfiguration = vendorConfiguration.testParserConfiguration
@@ -116,6 +110,7 @@ class AmInstrumentTestParser(
                                 tests.add(test)
                                 testBundleIdentifier.put(test, androidTestBundle)
                             }
+
                             is TestRunFailed -> Unit
                             is TestRunStopped -> Unit
                             is TestRunEnded -> Unit

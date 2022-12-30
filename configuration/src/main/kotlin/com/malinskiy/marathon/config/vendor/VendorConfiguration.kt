@@ -23,6 +23,7 @@ import com.malinskiy.marathon.config.vendor.ios.SshConfiguration
 import com.malinskiy.marathon.config.vendor.ios.XcresultConfiguration
 import java.io.File
 import com.malinskiy.marathon.config.vendor.ios.ScreenRecordConfiguration as AppleScreenRecordConfiguration
+import com.malinskiy.marathon.config.vendor.ios.ThreadingConfiguration as IosThreadingConfiguration
 import com.malinskiy.marathon.config.vendor.ios.TimeoutConfiguration as AppleTimeoutConfiguration
 
 const val DEFAULT_INIT_TIMEOUT_MILLIS = 30_000
@@ -148,6 +149,7 @@ sealed class VendorConfiguration {
         @JsonProperty("xctestrunEnv") val xctestrunEnv: Map<String, String> = emptyMap(),
         @JsonProperty("lifecycle") val lifecycleConfiguration: LifecycleConfiguration = LifecycleConfiguration(),
         @JsonProperty("permissions") val permissions: PermissionsConfiguration = PermissionsConfiguration(),
+        @JsonProperty("threadingConfiguration") val threadingConfiguration: IosThreadingConfiguration = IosThreadingConfiguration(),
     ) : VendorConfiguration() {
         fun validate() {
             ssh.validate()

@@ -17,6 +17,7 @@ import com.malinskiy.marathon.execution.TestParser
 import com.malinskiy.marathon.execution.TestShard
 import com.malinskiy.marathon.execution.bundle.TestBundleIdentifier
 import com.malinskiy.marathon.execution.progress.ProgressReporter
+import com.malinskiy.marathon.execution.withRetry
 import com.malinskiy.marathon.extension.toFlakinessStrategy
 import com.malinskiy.marathon.extension.toShardingStrategy
 import com.malinskiy.marathon.extension.toTestFilter
@@ -30,8 +31,10 @@ import com.malinskiy.marathon.usageanalytics.UsageAnalytics
 import com.malinskiy.marathon.usageanalytics.tracker.Event
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.async
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.withTimeoutOrNull
 import org.koin.core.context.stopKoin
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.coroutines.coroutineContext
@@ -97,14 +100,16 @@ class Marathon(
         logSystemInformation()
         configurationValidator.validate(configuration)
 
+        deviceProvider.initialize()
         val parsedTests = when (testParser) {
             is LocalTestParser -> testParser.extract()
             is RemoteTestParser<*> -> {
-                val tempDeviceProvider = deviceProviderFactory.create()
-                tempDeviceProvider.initialize()
-                val extractedTests = testParser.extract(tempDeviceProvider)
-                tempDeviceProvider.terminate()
-                extractedTests
+                withRetry(3, 0) {
+                    withTimeoutOrNull(configuration.deviceInitializationTimeoutMillis) {
+                        val borrowedDevice = deviceProvider.borrow()
+                        testParser.extract(borrowedDevice)
+                    } ?: throw NoDevicesException("Timed out waiting for a temporary device for remote test parsing")
+                }
             }
 
             else -> {
@@ -112,7 +117,6 @@ class Marathon(
             }
         }
 
-        deviceProvider.initialize()
 
         if (parsedTests.isEmpty()) throw NoTestCasesFoundException("No tests cases were found")
         val tests = applyTestFilters(parsedTests)

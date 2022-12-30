@@ -31,6 +31,8 @@ class SshjCommandExecutor(
 ) : CommandExecutor, CoroutineScope {
     override val logger = MarathonLogging.logger {}
     override val coroutineContext = Dispatchers.IO
+    override val connected: Boolean
+        get() = client.isConnected
 
     override suspend fun execute(
         command: List<String>,

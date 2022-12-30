@@ -27,6 +27,7 @@ class KotlinProcessCommandExecutor(
     override val logger = MarathonLogging.logger {}
     override val host: CommandHost = KotlinProcessHost()
     override val coroutineContext = Dispatchers.IO
+    override val connected = true
 
     @Suppress("BlockingMethodInNonBlockingContext")
     override suspend fun execute(

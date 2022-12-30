@@ -10,6 +10,7 @@ import java.time.Duration
 interface CommandExecutor : AutoCloseable {
     val host: CommandHost
     val logger: KLogger
+    val connected: Boolean
 
     /**
      * Executes [command]

@@ -3,6 +3,7 @@ package com.malinskiy.marathon.ios
 import com.malinskiy.marathon.config.Configuration
 import com.malinskiy.marathon.config.exceptions.ConfigurationException
 import com.malinskiy.marathon.config.vendor.VendorConfiguration
+import com.malinskiy.marathon.device.Device
 import com.malinskiy.marathon.device.DeviceProvider
 import com.malinskiy.marathon.exceptions.TestParsingException
 import com.malinskiy.marathon.execution.RemoteTestParser
@@ -20,7 +21,7 @@ class AppleTestParser(
 ) : RemoteTestParser<AppleDeviceProvider> {
     private val logger = MarathonLogging.logger(AppleTestParser::class.java.simpleName)
 
-    override suspend fun extract(deviceProvider: DeviceProvider): List<Test> {
+    override suspend fun extract(device: Device): List<Test> {
         val app = vendorConfiguration.bundle?.app ?: throw IllegalArgumentException("No application bundle provided")
         val xctest = vendorConfiguration.bundle?.xctest ?: throw IllegalArgumentException("No test bundle provided")
         val possibleTestBinaries = xctest.listFiles()?.filter { it.isFile && it.extension == "" }
@@ -34,24 +35,15 @@ class AppleTestParser(
             }
         }
 
-        return withRetry(10, 0) {
-            val channel = deviceProvider.subscribe()
-
+        return withRetry(3, 0) {
             try {
-                for (update in channel) {
-                    if (update is DeviceProvider.DeviceEvent.DeviceConnected) {
-                        val device = update.device as? AppleSimulatorDevice ?: continue
-                        return@withRetry parseTests(device, xctest, testBinary)
-                    }
-                }
-                throw RuntimeException("failed to parse")
+                val device = device as? AppleSimulatorDevice ?: throw ConfigurationException("Unexpected device type for remote test parsing")
+                return@withRetry parseTests(device, xctest, testBinary)
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {
                 logger.debug(e) { "Remote parsing failed. Retrying" }
                 throw e
-            } finally {
-                channel.close()
             }
         }
     }

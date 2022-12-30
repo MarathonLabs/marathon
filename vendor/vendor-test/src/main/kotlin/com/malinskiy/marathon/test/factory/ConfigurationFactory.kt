@@ -12,14 +12,14 @@ import com.malinskiy.marathon.config.strategy.ShardingStrategyConfiguration
 import com.malinskiy.marathon.config.strategy.SortingStrategyConfiguration
 import com.malinskiy.marathon.config.vendor.VendorConfiguration
 import com.malinskiy.marathon.device.DeviceProvider
-import com.malinskiy.marathon.execution.TestParser
+import com.malinskiy.marathon.execution.LocalTestParser
 import com.malinskiy.marathon.test.StubDeviceProvider
 import com.malinskiy.marathon.test.Test
 import com.nhaarman.mockitokotlin2.whenever
 import kotlinx.coroutines.channels.Channel
 import java.nio.file.Files
 
-class ConfigurationFactory(val testParser: TestParser, val deviceProvider: StubDeviceProvider) {
+class ConfigurationFactory(val testParser: LocalTestParser, val deviceProvider: StubDeviceProvider) {
     var name = "DEFAULT_TEST_CONFIG"
     var outputDir = Files.createTempDirectory("test-run").toFile()
     var vendorConfiguration = VendorConfiguration.StubVendorConfiguration

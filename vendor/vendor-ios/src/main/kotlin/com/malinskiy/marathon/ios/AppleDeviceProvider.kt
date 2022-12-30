@@ -7,6 +7,7 @@ import com.google.gson.Gson
 import com.malinskiy.marathon.analytics.internal.pub.Track
 import com.malinskiy.marathon.config.Configuration
 import com.malinskiy.marathon.config.vendor.VendorConfiguration
+import com.malinskiy.marathon.device.Device
 import com.malinskiy.marathon.device.DeviceProvider
 import com.malinskiy.marathon.exceptions.NoDevicesException
 import com.malinskiy.marathon.ios.configuration.AppleTarget
@@ -36,7 +37,7 @@ class AppleDeviceProvider(
     private val timer: Timer
 ) : DeviceProvider, CoroutineScope {
 
-    private val dispatcher = newFixedThreadPoolContext(4, "AppleDeviceProvider")
+    private val dispatcher = newFixedThreadPoolContext(vendorConfiguration.threadingConfiguration.deviceProviderThreads, "AppleDeviceProvider")
     override val coroutineContext: CoroutineContext
         get() = dispatcher
 
@@ -70,6 +71,10 @@ class AppleDeviceProvider(
             configuration, vendorConfiguration, gson, coroutineContext, deviceInitializationTimeoutMillis, simulatorFactory, hosts
         )
         simulatorProvider.initialize()
+    }
+
+    override suspend fun borrow(): Device {
+        return simulatorProvider.borrow()
     }
 
     override suspend fun terminate() {

@@ -37,7 +37,6 @@ import com.malinskiy.marathon.ios.executor.listener.TestRunListenerAdapter
 import com.malinskiy.marathon.ios.executor.listener.screenshot.ScreenCapturerTestRunListener
 import com.malinskiy.marathon.ios.logparser.XctestEventProducer
 import com.malinskiy.marathon.ios.logparser.formatter.NoopPackageNameFormatter
-import com.malinskiy.marathon.ios.logparser.formatter.TestLogPackageNameFormatter
 import com.malinskiy.marathon.ios.logparser.parser.DebugLogPrinter
 import com.malinskiy.marathon.ios.logparser.parser.DeviceFailureException
 import com.malinskiy.marathon.ios.logparser.parser.DiagnosticLogsPathFinder
@@ -58,12 +57,14 @@ import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.channels.ReceiveChannel
 import kotlinx.coroutines.channels.produce
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.newFixedThreadPoolContext
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.supervisorScope
 import kotlinx.coroutines.withContext
 import net.schmizz.sshj.connection.ConnectionException
@@ -83,7 +84,7 @@ class AppleSimulatorDevice(
     val fileManager: FileManager,
     private val configuration: Configuration,
     private val vendorConfiguration: VendorConfiguration.IOSConfiguration,
-    private val commandExecutor: CommandExecutor,
+    internal val commandExecutor: CommandExecutor,
     private val fileBridge: FileBridge,
     private val track: Track,
     private val timer: Timer,
@@ -121,7 +122,7 @@ class AppleSimulatorDevice(
     private lateinit var devicePlistPath: String
     private var deviceDescriptor: Map<*, *>? = null
     private val dispatcher by lazy {
-        newFixedThreadPoolContext(2, "AppleSimulatorDevice - execution - ${commandExecutor.host.id}")
+        newFixedThreadPoolContext(vendorConfiguration.threadingConfiguration.deviceThreads, "AppleSimulatorDevice - execution - ${commandExecutor.host.id}")
     }
     override val coroutineContext: CoroutineContext = dispatcher
     override val remoteFileManager: RemoteFileManager = RemoteFileManager(this)
@@ -135,7 +136,7 @@ class AppleSimulatorDevice(
         val simctlDevices = binaryEnvironment.xcrun.simctl.device.listDevices()
         val simctlDevice = simctlDevices.find { it.udid == udid } ?: throw DeviceSetupException("simulator $udid not found")
         env = fetchEnvvars()
-        
+
         xcodeVersion = binaryEnvironment.xcrun.xcodebuild.getVersion()
 
         home = env["HOME"]
@@ -194,21 +195,7 @@ class AppleSimulatorDevice(
                             ).prepareInstallation(this@AppleSimulatorDevice)
                         })
                         add(async {
-                            if (vendorConfiguration.lifecycleConfiguration.onPrepare.contains(LifecycleAction.TERMINATE)) {
-                                terminateRunningSimulator()
-                            }
-                            if (vendorConfiguration.lifecycleConfiguration.onPrepare.contains(LifecycleAction.ERASE)) {
-                                if (!shutdown()) {
-                                    logger.warn("Exception shutting down simulator $udid")
-                                } else {
-                                    logger.info { "Simulator $udid shutdown" }
-                                }
-                                if (!erase()) {
-                                    logger.warn("Exception erasing simulator $udid")
-                                } else {
-                                    logger.info { "Erased simulator $udid" }
-                                }
-                            }
+                            handleLifecycle(vendorConfiguration.lifecycleConfiguration.onPrepare)
                             disableHardwareKeyboard()
                             if (!boot()) {
                                 logger.warn("Exception booting simulator $udid")
@@ -218,6 +205,26 @@ class AppleSimulatorDevice(
                 }
             }
         }.await()
+    }
+
+    private suspend fun handleLifecycle(actions: Set<LifecycleAction>) {
+        if (actions.contains(LifecycleAction.TERMINATE)) {
+            terminateRunningSimulator()
+        }
+        if (actions.contains(LifecycleAction.SHUTDOWN) || actions.contains(LifecycleAction.ERASE)) {
+            if (!shutdown()) {
+                logger.warn("Exception shutting down simulator $udid")
+            } else {
+                logger.info { "Simulator $udid shutdown" }
+            }
+        }
+        if (actions.contains(LifecycleAction.ERASE)) {
+            if (!erase()) {
+                logger.warn("Exception erasing simulator $udid")
+            } else {
+                logger.info { "Erased simulator $udid" }
+            }
+        }
     }
 
     override suspend fun execute(
@@ -255,7 +262,13 @@ class AppleSimulatorDevice(
 
     override fun dispose() {
         try {
-            commandExecutor.close()
+            runBlocking {
+                withContext(NonCancellable) {
+                    if (commandExecutor.connected) {
+                        handleLifecycle(vendorConfiguration.lifecycleConfiguration.onDispose)
+                    }
+                }
+            }
         } catch (e: Exception) {
             logger.debug(e) { "Error closing command executor" }
         }
@@ -307,7 +320,15 @@ class AppleSimulatorDevice(
         return Pair(
             CompositeTestRunListener(
                 listOf(
-                    TestResultsListener(testBatch, this, deferred, timer, remoteFileManager, binaryEnvironment.xcrun.xcresulttool, attachmentProviders),
+                    TestResultsListener(
+                        testBatch,
+                        this,
+                        deferred,
+                        timer,
+                        remoteFileManager,
+                        binaryEnvironment.xcrun.xcresulttool,
+                        attachmentProviders
+                    ),
                     logListener,
                     progressReportingListener,
                     DebugTestRunListener(this),
@@ -439,7 +460,10 @@ class AppleSimulatorDevice(
         val state = state()
         return when (state) {
             Simulator.State.SHUTDOWN -> true
-            Simulator.State.CREATING, Simulator.State.BOOTING, Simulator.State.BOOTED -> if (binaryEnvironment.xcrun.simctl.simulator.shutdown(udid)) {
+            Simulator.State.CREATING, Simulator.State.BOOTING, Simulator.State.BOOTED -> if (binaryEnvironment.xcrun.simctl.simulator.shutdown(
+                    udid
+                )
+            ) {
                 waitForState(Simulator.State.SHUTDOWN)
             } else {
                 false
@@ -684,7 +708,7 @@ class AppleSimulatorDevice(
         }
 
     private suspend fun terminateRunningSimulator() {
-        var ps = executeWorkerCommand(listOf("sh", "-c", "/bin/ps | /usr/bin/grep $udid"))?.combinedStdout?.trim() ?: ""
+        var ps = executeWorkerCommand(listOf("sh", "-c", "ps aux | grep $udid | grep -v grep"))?.combinedStdout?.trim() ?: ""
         if (ps.isNotBlank()) {
             val result = executeWorkerCommand(
                 listOf(
@@ -696,12 +720,12 @@ class AppleSimulatorDevice(
                 )
             )
             if (result?.successful == true) {
-                logger.trace("Terminated loaded simulators")
+                logger.debug { "Terminated loaded simulators" }
             } else {
-                logger.debug("Failed to terminate loaded simulators, stdout=${result?.combinedStdout}, stderr=${result?.combinedStderr}")
+                logger.warn { "Failed to terminate loaded simulators, stdout=${result?.combinedStdout}, stderr=${result?.combinedStderr}" }
             }
 
-            ps = executeWorkerCommand(listOf("sh", "-c", "/bin/ps | /usr/bin/grep $udid"))?.combinedStdout?.trim() ?: ""
+            ps = executeWorkerCommand(listOf("sh", "-c", "ps aux | grep $udid | grep -v grep"))?.combinedStdout?.trim() ?: ""
             if (ps.isNotBlank()) {
                 logger.debug { "Terminated loaded simulators, but there are still some processes with simulator udid: ${System.lineSeparator()}$ps" }
             }
@@ -709,27 +733,18 @@ class AppleSimulatorDevice(
     }
 
     private suspend fun disableHardwareKeyboard() {
-        executeWorkerCommand(
-            listOf(
-                "/usr/libexec/PlistBuddy",
-                "-c",
-                "'Add :DevicePreferences:$udid:ConnectHardwareKeyboard bool false'",
-                "$home/Library/Preferences/com.apple.iphonesimulator.plist",
-            )
+        binaryEnvironment.plistBuddy.add(
+            "$home/Library/Preferences/com.apple.iphonesimulator.plist",
+            ":DevicePreferences:$udid:ConnectHardwareKeyboard",
+            "bool",
+            "false"
         )
-        val result = executeWorkerCommand(
-            listOf(
-                "/usr/libexec/PlistBuddy",
-                "-c",
-                "'Set :DevicePreferences:$udid:ConnectHardwareKeyboard false'",
-                "$home/Library/Preferences/com.apple.iphonesimulator.plist",
-            )
+        binaryEnvironment.plistBuddy.set(
+            "$home/Library/Preferences/com.apple.iphonesimulator.plist",
+            ":DevicePreferences:$udid:ConnectHardwareKeyboard",
+            "false"
         )
-        if (result?.exitCode == 0) {
-            logger.trace("Disabled hardware keyboard for $udid")
-        } else {
-            logger.debug("Failed to disable hardware keyboard for $udid, stdout=${result?.combinedStdout}")
-        }
+        logger.debug { "Disabled hardware keyboard for $udid" }
     }
 
     suspend fun grant(permission: Permission, bundleId: String): Boolean {

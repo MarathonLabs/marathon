@@ -15,6 +15,10 @@ data class SshConfiguration(
     @JsonProperty("knownHostsPath") val knownHostsPath: File? = null,
     @JsonProperty("keepAliveInterval") val keepAliveInterval: Duration = Duration.ofSeconds(60),
     @JsonProperty("debug") val debug: Boolean = false,
+    /**
+     * Most of SSH setups limit concurrent connections to 10, so sharing connection between simulators might be needed
+     */
+    @JsonProperty("shareWorkerConnection") val shareWorkerConnection: Boolean = false,
 ) {
     fun validate() {
         authentication?.let { 

@@ -14,12 +14,16 @@ class PlistBuddy(
     private val commandExecutor: CommandExecutor,
     private val timeoutConfiguration: TimeoutConfiguration,
 ) {
-    suspend fun set(file: String, path: String, value: String): List<String> {
-        return criticalExec("-c", "'Set $path $value'", file).stdout
+    suspend fun set(file: String, path: String, value: String): Boolean {
+        return criticalExec("-c", "'Set $path $value'", file)?.successfulOrNull()?.successful ?: false
     }
 
-    protected suspend fun criticalExec(vararg args: String): CommandResult {
-        return commandExecutor.criticalExecute(timeoutConfiguration.shell, "/usr/libexec/PlistBuddy", *args)
+    suspend fun add(file: String, path: String, type: String, value: String): Boolean {
+        return criticalExec("-c", "'Add $path $type $value'", file)?.successfulOrNull()?.successful ?: false
+    }
+
+    protected suspend fun criticalExec(vararg args: String): CommandResult? {
+        return commandExecutor.safeExecute(timeoutConfiguration.shell, "/usr/libexec/PlistBuddy", *args)
     }
 }
 
