@@ -44,7 +44,7 @@ dependencies {
     implementation(Libraries.kotlinLogging)
     implementation(Libraries.kotlinReflect)
     implementation(Libraries.logbackClassic)
-    implementation(Libraries.argParser)
+    implementation(Libraries.clikt)
     testRuntimeOnly(TestLibraries.jupiterEngine)
 }
 
