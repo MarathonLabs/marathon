@@ -6,7 +6,9 @@ date: 2018-11-19 16:55:00
 order: 5
 ---
 
-# CLI <0.8.0
+# CLI
+
+## CLI <0.8.0
 
 Executing the CLI version of marathon requires you to provide all the options through the *Marathonfile*. 
 By default, it will be searched in the working directory by the name **Marathonfile**, but if you need a custom file path you can specify it via the options.
@@ -22,10 +24,11 @@ optional arguments:
   -m MARATHONFILE
 ```
 
-# CLI >=0.8.0
+## CLI >=0.8.0
 
-Since 0.8.0, Marathon CLI supports commands:
-1. Run command
+Since 0.8.0, Marathon CLI supports the following commands: run, parse and version.
+
+### Run command
 ```bash
 $ marathon run -h
 Usage: marathon run [OPTIONS]
@@ -39,7 +42,7 @@ Options:
   -h, --help                 Show this message and exit
 ```
 
-2. Parse command
+### Parse command
 ```bash
 $ marathon parse -h
 Usage: marathon parse [OPTIONS]
@@ -52,7 +55,7 @@ Options:
   -h, --help               Show this message and exit
 ```
 
-3. Version command
+### Version command
 ```bash
 $ marathon version -h
 Usage: marathon version [OPTIONS]
@@ -63,9 +66,10 @@ Options:
   -h, --help  Show this message and exit
 ```
 
-Also, the new CLI supports the old CLI format. The script below will work the same way in both CLI versions:
+### Default command
+Default command is the run command, so the old CLI syntax works the same way:
 ```bash
-./marathon -m MARATHONFILE
+$ marathon -m MARATHONFILE
 ```
 
 # Gradle plugin
