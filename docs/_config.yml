@@ -6,7 +6,7 @@ subtitle: 'Cross-platform test runner for Android and iOS'
 # disqus_shortname: ''
 
 # if you use google analytics, add your tracking id here
-google_analytics_id: 'UA-131132823-2'
+google_analytics_id: 'G-7RE7PPY2QW'
 
 # Enable/show navigation. There are there options:
 #   0 - always hide
@@ -30,7 +30,7 @@ sections: [
 
 # Keep as an empty string if served up at the root. If served up at a specific
 # path (e.g. on GitHub pages) leave off the trailing slash, e.g. /my-project
-baseurl: '/marathon'
+baseurl: ''
 
 # Dates are not included in permalinks
 permalink: none
