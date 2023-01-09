@@ -16,7 +16,7 @@ jobs:
           gem_src: docs
           build_dir: docs_build_dir
           build_only: true
-      - uses: jakejarvis/s3-sync-action@master
+      - uses: kefranabg/s3-sync-action@02d8eaf34efb8bd76abe2e5614ba3d8028de219e
         with:
           args: --follow-symlinks --delete
         env:
