@@ -1,0 +1,27 @@
+name: Build and deploy docs
+
+on:
+  push:
+    branches:
+      - develop
+
+jobs:
+  github-pages:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v3
+      - uses: helaili/jekyll-action@2.4.0
+        with:
+          jekyll_src: docs
+          gem_src: docs
+          build_dir: docs_build_dir
+          build_only: true
+      - uses: jakejarvis/s3-sync-action@master
+        with:
+          args: --follow-symlinks --delete
+        env:
+          AWS_S3_BUCKET: ${{ secrets.AWS_S3_BUCKET }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: 'eu-central-1'
+          SOURCE_DIR: 'docs/docs_build_dir'
