@@ -10,7 +10,12 @@
           type="text/css">
     <!-- Animated -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.5.2/animate.min.css">
-    <link rel="shortcut icon" href="{{ '/img/favicon.png' | relative_url }}">
+  
+    <link rel="icon" type="image/png" sizes="32x32" href="/img/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/img/favicon-16x16.png">
+    <link rel="icon" href="/img/favicon.svg" type="image/svg+xml">
+    <link rel="manifest" href="/img/site.webmanifest">
+  
     <!-- highlight  css -->
     <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.4.1/styles/solarized-dark.min.css">
     <!-- main css -->
@@ -25,6 +30,7 @@
     <script src="{{ '/js/lodash.min.js' | relative_url }}"></script>
     <script src="{{ '/js/nomnoml.js' | relative_url }}"></script>
     <script src="{{ '/js/diagrams.js' | relative_url }}"></script>
+  
 
     {% if jekyll.environment == 'production' and site.data.commons.google_analytics %}
     {% include _google-analytics.html %}
