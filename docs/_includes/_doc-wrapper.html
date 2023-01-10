@@ -1,16 +1,14 @@
 <div id="doc-wrapper">
-    <div class="doc-header">
-        <a href="javascript:void(0)" id="main-toggle" class="sidebar-toggle">
-            <i class="fa fa-bars"></i>
-        </a>
-        <div class="search-wrapper">
-            <input class="search" id="docsearch" placeholder="Search documentation..." type="search">
-        </div>
-    </div>
-    <div class="doc-content">
-        {% if page.video %}
-        {% include _media-wrapper.html id=page.video %}
-        {% endif %}
-        {{content}}
-    </div>
+  <div class="doc-header">
+    <a href="javascript:void(0)" id="main-toggle" class="sidebar-toggle">
+      <i class="fa fa-bars"></i>
+    </a>
+    <div id="docsearch"></div>
+  </div>
+  <div class="doc-content">
+    {% if page.video %}
+    {% include _media-wrapper.html id=page.video %}
+    {% endif %}
+    {{content}}
+  </div>
 </div>

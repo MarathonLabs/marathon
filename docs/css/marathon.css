@@ -565,7 +565,10 @@ table {
         opacity: 1;
         transform: rotate(-180deg); } }
 #doc-wrapper {
-  width: 100%; }
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+}
 
 .sidebar-brand {
   height: 88px;
