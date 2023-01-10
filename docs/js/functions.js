@@ -2,12 +2,12 @@
     "use strict";
 
     var docsearchInputId = '#docsearch';
-
+    
     docsearch({
-     apiKey: '9f5b66e31245290bb996f4f0dd6f1472',
-     indexName: 'malinskiy_marathon',
-     inputSelector: docsearchInputId,
-     debug: false // Set debug to true if you want to inspect the dropdown
+      container: docsearchInputId,
+      appId: '5FSD01C36S',
+      indexName: 'malinskiy_marathon',
+      apiKey: '9a3b61683f7ae8215249da35b66fc74b',
     });
 
     $(document).ready(function() {

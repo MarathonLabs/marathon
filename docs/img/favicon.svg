@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<svg viewBox="0 0 408 408" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient gradientTransform="matrix(0.730128, 0, 0, 0.733904, 7.365322, 6.345413)" gradientUnits="userSpaceOnUse" id="linearGradient-6" y2="540" x2="270" y1="-1.344329e-14" x1="270">
+      <stop id="stop4025" offset="0" stop-color="#611AA5"/>
+      <stop id="stop4027" offset="1" stop-color="#4C42B5"/>
+    </linearGradient>
+    <linearGradient gradientUnits="userSpaceOnUse" gradientTransform="scale(0.60739776,1.6463676)" id="linearGradient-7" y2="120.58772" x2="278.95084" y1="-4.5362141" x1="278.95084">
+      <stop id="stop4030" offset="0" stop-color="#5B25AA"/>
+      <stop id="stop4032" offset="1" stop-color="#5630AE"/>
+    </linearGradient>
+    <linearGradient gradientUnits="userSpaceOnUse" gradientTransform="scale(0.60739776,1.6463676)" id="linearGradient-8" y2="116.412" x2="280.5972" y1="-3.9288164" x1="280.5972">
+      <stop id="stop4035" offset="0" stop-color="#5C25AA"/>
+      <stop id="stop4037" offset="1" stop-color="#5530AE"/>
+    </linearGradient>
+    <linearGradient gradientUnits="userSpaceOnUse" gradientTransform="scale(0.56273143,1.7770466)" id="linearGradient-9" y2="139.57503" x2="153.09948" y1="4.5194873" x1="153.09948">
+      <stop id="stop4040" offset="0" stop-color="#5C24A9"/>
+      <stop id="stop4042" offset="1" stop-color="#5336B0"/>
+    </linearGradient>
+  </defs>
+  <ellipse id="circle4476" cx="204.5" cy="204.5" style="fill:url(#linearGradient-6);fill-rule:nonzero;stroke:none;stroke-width:0.73201358" rx="197.135" ry="198.154"/>
+  <g transform="matrix(0.730128, 0, 0, 0.733904, 43.619019, 110.248718)" id="m2-copy" style="fill:none;fill-rule:evenodd;stroke:none;stroke-width:1">
+    <g style="fill:#ffffff;fill-rule:nonzero" transform="matrix(-1,0,0,1,440,0)" id="Group-2-Copy">
+      <rect style="stroke:#ffffff" rx="37.5" height="239" width="75" y="9.3164282" x="47.961662" transform="rotate(25,85.461662,128.81643)" id="Rectangle"/>
+      <rect style="stroke:url(#linearGradient-7)" rx="37.5" height="205" width="75" y="-6.968276" x="131.93411" transform="matrix(-0.64278761,0.76604444,0.76604444,0.64278761,205.16271,-95.668941)" id="Rectangle-Copy-5"/>
+    </g>
+    <g transform="translate(0,1)" id="Group-2"/>
+    <rect style="fill:#ffffff;fill-rule:nonzero;stroke:url(#linearGradient-8)" rx="37.5" height="205" width="75" y="-5.968276" x="132.93411" transform="matrix(-0.65605903,0.75470958,0.75470958,0.65605903,209.39552,-95.427038)" id="rect4054"/>
+    <rect style="fill:#ffffff;fill-rule:nonzero;stroke:url(#linearGradient-9)" rx="37.5" height="239" width="75" y="8.5313396" x="48.653889" transform="rotate(25,86.153887,128.03134)" id="rect4056"/>
+  </g>
+</svg>
