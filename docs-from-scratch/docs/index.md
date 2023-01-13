@@ -9,7 +9,7 @@ brew install malinskiy/tap/marathon
 ```
 
 ## Configure
-Configuration is done via a yaml file. By default marathon will look for a file named `Marathonfile`. Here is an example for Android to start with. Place it in the root of your project:
+Configuration is done via a yaml file. By default marathon will look for a file named `Marathonfile`. As an example place the following contents in the `Marathonfile` in the root of your Android project:
 ```yaml
 name: "My awesome tests"
 outputDir: "marathon"
