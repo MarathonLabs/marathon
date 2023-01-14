@@ -1,236 +1,36 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<svg
-   width="2655.7224"
-   height="546.00006"
-   viewBox="0 0 2655.7224 546.00006"
-   version="1.1"
-   id="svg265"
-   sodipodi:docname="marathon-website-logo.svg"
-   inkscape:version="1.2.2 (b0a8486541, 2022-12-01)"
-   inkscape:export-filename="../Development/marathon/docs-from-scratch/static/logos/marathon-text-docs-dark.svg"
-   inkscape:export-xdpi="96"
-   inkscape:export-ydpi="96"
-   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
-   xmlns:xlink="http://www.w3.org/1999/xlink"
-   xmlns="http://www.w3.org/2000/svg"
-   xmlns:svg="http://www.w3.org/2000/svg">
-  <sodipodi:namedview
-     id="namedview267"
-     pagecolor="#ffffff"
-     bordercolor="#000000"
-     borderopacity="0.25"
-     inkscape:showpageshadow="2"
-     inkscape:pageopacity="0.0"
-     inkscape:pagecheckerboard="0"
-     inkscape:deskcolor="#d1d1d1"
-     showgrid="false"
-     inkscape:zoom="0.43847656"
-     inkscape:cx="667.08241"
-     inkscape:cy="1031.9822"
-     inkscape:window-width="2513"
-     inkscape:window-height="1056"
-     inkscape:window-x="1127"
-     inkscape:window-y="0"
-     inkscape:window-maximized="1"
-     inkscape:current-layer="Logo-maraphone" />
-  <!-- Generator: Sketch 52.2 (67145) - http://www.bohemiancoding.com/sketch -->
-  <title
-     id="title149">Logo maraphone@2x</title>
-  <desc
-     id="desc151">Created with Sketch.</desc>
-  <defs
-     id="defs198">
-    <linearGradient
-       x1="0.5"
-       y1="0"
-       x2="0.5"
-       y2="1"
-       id="linearGradient-2">
-      <stop
-         stop-color="#611AA5"
-         offset="0%"
-         id="stop158" />
-      <stop
-         stop-color="#4C42B5"
-         offset="100%"
-         id="stop160" />
-    </linearGradient>
-    <linearGradient
-       x1="280.5972"
-       y1="54.260719"
-       x2="280.5972"
-       y2="118.60037"
-       id="linearGradient-3"
-       gradientTransform="scale(0.60739776,1.6463676)"
-       gradientUnits="userSpaceOnUse">
-      <stop
-         stop-color="#5843BB"
-         offset="0%"
-         id="stop163" />
-      <stop
-         stop-color="#4C42B5"
-         offset="100%"
-         id="stop165" />
-    </linearGradient>
-    <linearGradient
-       x1="151.32243"
-       y1="-2.9587855"
-       x2="151.32243"
-       y2="146.71512"
-       id="linearGradient-4"
-       gradientTransform="scale(0.56273143,1.7770466)"
-       gradientUnits="userSpaceOnUse">
-      <stop
-         stop-color="#3023AE"
-         offset="0%"
-         id="stop168" />
-      <stop
-         stop-color="#C86DD7"
-         offset="100%"
-         id="stop170" />
-    </linearGradient>
-    <linearGradient
-       x1="145.14047"
-       y1="4.39855"
-       x2="145.14047"
-       y2="139.45409"
-       id="linearGradient-5"
-       gradientTransform="scale(0.56273143,1.7770466)"
-       gradientUnits="userSpaceOnUse">
-      <stop
-         stop-color="#3023AE"
-         offset="0%"
-         id="stop173" />
-      <stop
-         stop-color="#C86DD7"
-         offset="100%"
-         id="stop175" />
-    </linearGradient>
-    <linearGradient
-       inkscape:collect="always"
-       xlink:href="#linearGradient-2"
-       id="linearGradient422"
-       x1="270"
-       y1="-3"
-       x2="270"
-       y2="543"
-       gradientUnits="userSpaceOnUse" />
-    <linearGradient
-       inkscape:collect="always"
-       xlink:href="#linearGradient-2"
-       id="linearGradient424"
-       x1="280.5972"
-       y1="-4.5362139"
-       x2="280.5972"
-       y2="120.58772"
-       gradientTransform="scale(0.60739776,1.6463676)"
-       gradientUnits="userSpaceOnUse" />
-  </defs>
-  <g
-     id="Logo-maraphone"
-     stroke="none"
-     stroke-width="1"
-     fill="none"
-     fill-rule="evenodd"
-     transform="translate(-54.046501,-617.6286)">
-    <g
-       id="Group-4"
-       transform="translate(-632.9535,620.62862)"
-       inkscape:export-filename="../Development/marathon/docs-from-scratch/static/logos/Group-4.svg"
-       inkscape:export-xdpi="96"
-       inkscape:export-ydpi="96">
-      <g
-         id="Group-5">
-        <g
-           id="m3-copy-2"
-           transform="translate(690)">
-          <circle
-             id="Oval"
-             stroke="url(#linearGradient-2)"
-             stroke-width="6"
-             fill="#ffffff"
-             fill-rule="nonzero"
-             cx="270"
-             cy="270"
-             r="270"
-             style="stroke:url(#linearGradient422)" />
-          <g
-             id="m2-copy"
-             transform="translate(50,144)">
-            <g
-               id="g217"
-               transform="matrix(-1,0,0,1,440,0)"
-               fill-rule="nonzero">
-              <rect
-                 id="rect213"
-                 fill="url(#linearGradient-5)"
-                 transform="rotate(25,85.461662,127.81643)"
-                 x="47.461662"
-                 y="7.8164282"
-                 width="76"
-                 height="240"
-                 rx="38"
-                 style="fill:url(#linearGradient-5)" />
-              <rect
-                 id="rect215"
-                 fill="url(#linearGradient-2)"
-                 transform="matrix(-0.64278761,0.76604444,0.76604444,0.64278761,206.80549,-96.434985)"
-                 x="132.43411"
-                 y="-7.468276"
-                 width="76"
-                 height="206"
-                 rx="38"
-                 style="fill:url(#linearGradient424)" />
-            </g>
-            <g
-               id="g219" />
-            <rect
-               id="rect221"
-               fill="url(#linearGradient-3)"
-               fill-rule="nonzero"
-               transform="matrix(-0.64278761,0.76604444,0.76604444,0.64278761,206.80549,-96.434985)"
-               x="132.43411"
-               y="-7.468276"
-               width="76"
-               height="206"
-               rx="38"
-               style="fill:url(#linearGradient-3)" />
-            <rect
-               id="rect223"
-               fill="url(#linearGradient-4)"
-               fill-rule="nonzero"
-               transform="rotate(25,85.153887,128.03134)"
-               x="47.153889"
-               y="8.0313396"
-               width="76"
-               height="240"
-               rx="38"
-               style="fill:url(#linearGradient-4)" />
-          </g>
-        </g>
-      </g>
-      <g
-         id="Group-3"
-         transform="translate(0,690)">
-        <g
-           id="m3-copy"
-           transform="translate(690)" />
-      </g>
-    </g>
-    <text
-       xml:space="preserve"
-       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:384px;font-family:'Tillium Web';-inkscape-font-specification:'Tillium Web';fill:#000000"
-       x="757.89539"
-       y="1023.965"
-       id="text735"
-       inkscape:export-filename="../Development/marathon/docs-from-scratch/static/logos/text735.svg"
-       inkscape:export-xdpi="96"
-       inkscape:export-ydpi="96"><tspan
-         id="tspan733"
-         x="757.89539"
-         y="1023.965"
-         style="font-style:normal;font-variant:normal;font-weight:600;font-stretch:normal;font-size:384px;font-family:'Titillium Web';-inkscape-font-specification:'Titillium Web Semi-Bold'"
-         sodipodi:role="line">MARATHON</tspan></text>
-  </g>
+<svg width="113" height="30" viewBox="0 0 113 30" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g clip-path="url(#clip0_4_140)">
+<rect width="113" height="30" fill="white"/>
+<path fill-rule="evenodd" clip-rule="evenodd" d="M12 3.26374C5.51824 3.26374 0.263736 8.51824 0.263736 15C0.263736 21.4818 5.51824 26.7363 12 26.7363C18.4818 26.7363 23.7363 21.4818 23.7363 15C23.7363 8.51824 18.4818 3.26374 12 3.26374ZM0 15C0 8.37258 5.37258 3 12 3C18.6274 3 24 8.37258 24 15C24 21.6274 18.6274 27 12 27C5.37258 27 0 21.6274 0 15Z" fill="url(#paint0_linear_4_140)"/>
+<path d="M14.8767 12.5192C14.4869 11.6831 14.8486 10.6893 15.6847 10.2994C16.5207 9.90955 17.5145 10.2713 17.9044 11.1073L20.951 17.6407C21.3408 18.4768 20.9791 19.4706 20.143 19.8605C19.307 20.2503 18.3132 19.8886 17.9233 19.0525L14.8767 12.5192Z" fill="url(#paint1_linear_4_140)"/>
+<path d="M17.4412 13.104C18.1478 12.511 18.24 11.4574 17.647 10.7507C17.0541 10.0441 16.0005 9.95189 15.2938 10.5449L10.9164 14.2179C10.2097 14.8109 10.1176 15.8645 10.7105 16.5711C11.3035 17.2778 12.3571 17.37 13.0638 16.777L17.4412 13.104Z" fill="url(#paint2_linear_4_140)"/>
+<path d="M6.55897 13.104C5.8523 12.511 5.76012 11.4574 6.35309 10.7507C6.94606 10.0441 7.99963 9.95189 8.7063 10.5449L13.0837 14.2179C13.7904 14.8109 13.8826 15.8645 13.2896 16.5711C12.6966 17.2778 11.643 17.37 10.9364 16.777L6.55897 13.104Z" fill="url(#paint3_linear_4_140)"/>
+<path d="M9.10984 12.5287C9.4997 11.6926 9.13799 10.6988 8.30192 10.3089C7.46585 9.91907 6.47204 10.2808 6.08217 11.1169L3.03561 17.6502C2.64574 18.4863 3.00746 19.4801 3.84353 19.87C4.67959 20.2599 5.67341 19.8981 6.06327 19.0621L9.10984 12.5287Z" fill="url(#paint4_linear_4_140)"/>
+<path d="M31.7 22V8.16H34.48L38.4 19.86L42.32 8.16H45.1V22H43.56V9.8H43.28L39.26 21.5H37.54L33.52 9.8H33.24V22H31.7ZM55.2969 15.02V20.14C55.3369 20.6333 55.7235 20.9267 56.4569 21.02L56.3969 22.2C55.3435 22.2 54.5502 21.9333 54.0169 21.4C52.8169 21.9333 51.6169 22.2 50.4169 22.2C49.4969 22.2 48.7969 21.94 48.3169 21.42C47.8369 20.9 47.5969 20.1533 47.5969 19.18C47.5969 18.2067 47.8435 17.4933 48.3369 17.04C48.8302 16.5733 49.6035 16.2867 50.6569 16.18L53.7969 15.88V15.02C53.7969 14.34 53.6502 13.8533 53.3569 13.56C53.0635 13.2667 52.6635 13.12 52.1569 13.12C51.0902 13.12 49.9835 13.1867 48.8369 13.32L48.2169 13.38L48.1569 12.24C49.6235 11.9467 50.9235 11.8 52.0569 11.8C53.1902 11.8 54.0102 12.06 54.5169 12.58C55.0369 13.1 55.2969 13.9133 55.2969 15.02ZM49.1369 19.1C49.1369 20.3267 49.6435 20.94 50.6569 20.94C51.5635 20.94 52.4569 20.7867 53.3369 20.48L53.7969 20.32V17.02L50.8369 17.3C50.2369 17.3533 49.8035 17.5267 49.5369 17.82C49.2702 18.1133 49.1369 18.54 49.1369 19.1ZM58.2564 22V12H59.7364V13.36C60.8964 12.56 62.1164 12.0333 63.3964 11.78V13.3C62.8364 13.4067 62.2497 13.5733 61.6364 13.8C61.0364 14.0267 60.5764 14.2267 60.2564 14.4L59.7564 14.66V22H58.2564ZM72.2305 15.02V20.14C72.2705 20.6333 72.6571 20.9267 73.3905 21.02L73.3305 22.2C72.2771 22.2 71.4838 21.9333 70.9505 21.4C69.7505 21.9333 68.5505 22.2 67.3505 22.2C66.4305 22.2 65.7305 21.94 65.2505 21.42C64.7705 20.9 64.5305 20.1533 64.5305 19.18C64.5305 18.2067 64.7771 17.4933 65.2705 17.04C65.7638 16.5733 66.5371 16.2867 67.5905 16.18L70.7305 15.88V15.02C70.7305 14.34 70.5838 13.8533 70.2905 13.56C69.9971 13.2667 69.5971 13.12 69.0905 13.12C68.0238 13.12 66.9171 13.1867 65.7705 13.32L65.1505 13.38L65.0905 12.24C66.5571 11.9467 67.8571 11.8 68.9905 11.8C70.1238 11.8 70.9438 12.06 71.4505 12.58C71.9705 13.1 72.2305 13.9133 72.2305 15.02ZM66.0705 19.1C66.0705 20.3267 66.5771 20.94 67.5905 20.94C68.4971 20.94 69.3905 20.7867 70.2705 20.48L70.7305 20.32V17.02L67.7705 17.3C67.1705 17.3533 66.7371 17.5267 66.4705 17.82C66.2038 18.1133 66.0705 18.54 66.0705 19.1ZM80.37 13.3H77.19V18.08C77.19 19.2267 77.27 19.98 77.43 20.34C77.6033 20.7 78.0033 20.88 78.63 20.88L80.41 20.76L80.51 22C79.6167 22.1467 78.9367 22.22 78.47 22.22C77.43 22.22 76.71 21.9667 76.31 21.46C75.91 20.9533 75.71 19.9867 75.71 18.56V13.3H74.29V12H75.71V8.94H77.19V12H80.37V13.3ZM83.7017 22H82.2017V7.64H83.7017V12.56C84.7684 12.0533 85.7951 11.8 86.7817 11.8C88.1151 11.8 89.0084 12.16 89.4617 12.88C89.9284 13.6 90.1617 14.88 90.1617 16.72V22H88.6617V16.76C88.6617 15.3733 88.5217 14.4267 88.2417 13.92C87.9751 13.4 87.4017 13.14 86.5217 13.14C85.6817 13.14 84.8684 13.2933 84.0817 13.6L83.7017 13.74V22ZM92.5039 16.98C92.5039 15.1533 92.8306 13.8333 93.4839 13.02C94.1372 12.2067 95.2372 11.8 96.7839 11.8C98.3439 11.8 99.4439 12.2067 100.084 13.02C100.737 13.8333 101.064 15.1533 101.064 16.98C101.064 18.8067 100.757 20.1333 100.144 20.96C99.5306 21.7867 98.4106 22.2 96.7839 22.2C95.1572 22.2 94.0372 21.7867 93.4239 20.96C92.8106 20.1333 92.5039 18.8067 92.5039 16.98ZM94.0439 16.96C94.0439 18.4133 94.2172 19.4333 94.5639 20.02C94.9239 20.6067 95.6639 20.9 96.7839 20.9C97.9172 20.9 98.6572 20.6133 99.0039 20.04C99.3506 19.4533 99.5239 18.4267 99.5239 16.96C99.5239 15.4933 99.3306 14.4867 98.9439 13.94C98.5572 13.38 97.8372 13.1 96.7839 13.1C95.7439 13.1 95.0239 13.38 94.6239 13.94C94.2372 14.4867 94.0439 15.4933 94.0439 16.96ZM105.01 22H103.51V12H104.99V12.7C106.07 12.1 107.104 11.8 108.09 11.8C109.424 11.8 110.317 12.16 110.77 12.88C111.237 13.6 111.47 14.88 111.47 16.72V22H109.99V16.76C109.99 15.3733 109.85 14.4267 109.57 13.92C109.304 13.4 108.724 13.14 107.83 13.14C107.404 13.14 106.95 13.2067 106.47 13.34C106.004 13.46 105.644 13.58 105.39 13.7L105.01 13.88V22Z" fill="#572FAE"/>
+</g>
+<defs>
+<linearGradient id="paint0_linear_4_140" x1="12" y1="3.13187" x2="12" y2="26.8681" gradientUnits="userSpaceOnUse">
+<stop stop-color="#611AA5"/>
+<stop offset="1" stop-color="#4C42B5"/>
+</linearGradient>
+<linearGradient id="paint1_linear_4_140" x1="15.8355" y1="10.2291" x2="20.2939" y2="19.7901" gradientUnits="userSpaceOnUse">
+<stop stop-color="#3023AE"/>
+<stop offset="1" stop-color="#C86DD7"/>
+</linearGradient>
+<linearGradient id="paint2_linear_4_140" x1="17.647" y1="10.7507" x2="10.7105" y2="16.5711" gradientUnits="userSpaceOnUse">
+<stop stop-color="#611AA5"/>
+<stop offset="1" stop-color="#4C42B5"/>
+</linearGradient>
+<linearGradient id="paint3_linear_4_140" x1="9.61261" y1="13.4858" x2="13.1794" y2="16.4787" gradientUnits="userSpaceOnUse">
+<stop stop-color="#5843BB"/>
+<stop offset="1" stop-color="#4C42B5"/>
+</linearGradient>
+<linearGradient id="paint4_linear_4_140" x1="8.54879" y1="9.77953" x2="3.60782" y2="20.3755" gradientUnits="userSpaceOnUse">
+<stop stop-color="#3023AE"/>
+<stop offset="1" stop-color="#C86DD7"/>
+</linearGradient>
+<clipPath id="clip0_4_140">
+<rect width="113" height="30" fill="white"/>
+</clipPath>
+</defs>
 </svg>

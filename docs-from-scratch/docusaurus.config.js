@@ -54,6 +54,7 @@ const config = {
                 theme: {
                     customCss: [
                         require.resolve('./src/styles/custom.scss'),
+                        require.resolve('./src/styles/colors.css'),
                     ]
                 },
             },
@@ -76,7 +77,7 @@ const config = {
                     srcDark: `/logos/marathon-text-docs-light.svg`,
                     href: '/',
                     target: '_self',
-                    width: 120,
+                    width: 113,
                 },
                 items: [
                     {
