@@ -22,6 +22,23 @@ const sidebars = {
                 'index',
                 'intro/overview',
                 'intro/install',
+                {
+                    type: 'category',
+                    label: 'Configuration',
+                    collapsed: true,
+                    items: [
+                        'intro/configure',
+                        'configuration/filtering',
+                        'configuration/analytics',
+                        'configuration/pooling',
+                        'configuration/sharding',
+                        'configuration/sorting',
+                        'configuration/batching',
+                        'configuration/flakiness',
+                        'configuration/retries',
+                        'configuration/dynamic-configuration',
+                    ]
+                },
                 'intro/execute',
                 'intro/reports',
                 'intro/faq',
@@ -32,18 +49,11 @@ const sidebars = {
         },
         {
             type: 'category',
-            label: 'Configure',
-            collapsed: false,
-            items: [
-                'configure',
-            ],
-        },
-        {
-            type: 'category',
             label: 'Android',
             collapsed: false,
             items: [
                 'android',
+                'android/install',
                 'android/configure',
                 'android/examples',
             ],

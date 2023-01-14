@@ -11,29 +11,12 @@ Marathon takes into account two key aspects of test execution:
 * The duration of the test
 * The probability of the test passing
 
-In order for the test run to finish as quickly as possible one must plan the execution of tests with regards to the expected duration of the test. On the other hand, we need to address the flakiness of the environment and of the test itself. One key indicator of flakiness is the *probability* of the test passing.
+Test run can only finish as quickly as possible if we plan the execution of tests with regard to the expected duration of the test. On the other hand, we need to address the flakiness of the environment and of the test itself. One key indicator of flakiness is the *probability* of the test passing.
 
 Marathon takes a number of steps to ensure that each test run is as balanced as possible:
 * The flakiness strategy queues up preventive retries for tests which are expected to fail during the test run according to the current real-time statistical data
 * The sorting strategy forces long tests to be executed first so that if an unexpected retry attempt occurs it doesn't affect the test run significantly (e.g. at the end of execution)
-* If all else fail we revert back to post-factum retries but we try to limit their impact on the run with retry quotas
-
-# TL;DR
-
-## Installation
-
-### Via brew
-```bash
-$ brew tap malinskiy/tap
-$ brew install malinskiy/tap/marathon
-```
-
-### Or manually download the binary
-```bash
-curl https://github.com/MarathonLabs/marathon/releases/download/X.X.X/marathon-X.X.X.zip -o marathon-X.X.X.zip
-unzip -d $DESTINATION marathon-X.X.X.zip
-export PATH=$PATH:$DESTINATION/marathon-X.X.X/bin
-```
+* If all else fail we revert back to post-factum retries, but we try to limit their impact on the run with retry quotas
 
 ## Configuration
 
@@ -96,6 +79,6 @@ For more help and examples continue through the rest of the Documentation sectio
 # Requirements
 Marathon requires Java Runtime Environment 8 or higher.
 
-[1]: {% post_url 2018-11-19-downloading %}
-[2]: {% post_url 2018-11-19-configuration %}
-[3]: {% post_url 2018-11-19-samples %}
+[1]: /intro/install
+[2]: /intro/configure
+[3]: https://github.com/MarathonLabs/marathon/tree/develop/sample
