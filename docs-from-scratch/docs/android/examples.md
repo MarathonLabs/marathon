@@ -1,4 +1,7 @@
-# Examples
+---
+title: "Examples"
+---
+
 All of the sample apps are located [here][1]
 
 ## Android application

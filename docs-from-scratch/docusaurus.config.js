@@ -3,6 +3,8 @@
 
 const lightCodeTheme = require('prism-react-renderer/themes/github');
 const darkCodeTheme = require('prism-react-renderer/themes/dracula');
+const math = require('remark-math');
+const katex = require('rehype-katex');
 const path = require("path");
 
 /** @type {import('@docusaurus/types').Config} */
@@ -13,8 +15,8 @@ const config = {
     baseUrl: '/',
     onBrokenLinks: 'throw',
     onBrokenMarkdownLinks: 'warn',
-    favicon: 'img/favicon-96x96.png',
-  
+    favicon: 'img/favicon.svg',
+
     i18n: {
         defaultLocale: 'en',
         locales: ['en'],
@@ -45,11 +47,13 @@ const config = {
                 docs: {
                     routeBasePath: '/',
                     sidebarPath: require.resolve('./sidebars.js'),
+                    editCurrentVersion: false,
+                    remarkPlugins: [math],
+                    rehypePlugins: [katex],
                 },
                 theme: {
                     customCss: [
                         require.resolve('./src/styles/custom.scss'),
-                        require.resolve('./node_modules/modern-normalize/modern-normalize.css'),
                     ]
                 },
             },
@@ -59,6 +63,7 @@ const config = {
     themeConfig:
     /** @type {import('@docusaurus/preset-classic').ThemeConfig} */
         ({
+
             colorMode: {
                 defaultMode: 'light',
                 disableSwitch: true,
@@ -71,8 +76,7 @@ const config = {
                     srcDark: `/logos/marathon-text-docs-light.svg`,
                     href: '/',
                     target: '_self',
-                    width: 139,
-                    height: 28,
+                    width: 120,
                 },
                 items: [
                     {
@@ -112,11 +116,20 @@ const config = {
             },
             prism: {
                 theme: lightCodeTheme,
-                additionalLanguages: ["shell-session"]
+                additionalLanguages: ["shell-session", "kotlin", "groovy"]
             },
         }),
     themes: [
         "@docusaurus/theme-mermaid",
+    ],
+    stylesheets: [
+        {
+            href: 'https://cdn.jsdelivr.net/npm/katex@0.13.24/dist/katex.min.css',
+            type: 'text/css',
+            integrity:
+                'sha384-odtC+0UGzzFL/6PNoE8rX/SPcQDXBJ+uRepguP4QkPCm2LBxH3FA3y+fKSiJ+AmM',
+            crossorigin: 'anonymous',
+        },
     ],
 };
 

@@ -24,6 +24,10 @@
 @use './components/theme-toggle';
 @use './components/toc';
 
+@import url("https://fonts.googleapis.com/css?family=Titillium+Web:400,600,700");
+@import url("https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,600,700");
+@import '../../node_modules/modern-normalize/modern-normalize.css';
+
 :root {
   --ifm-background-color: var(--token-primary-bg-c);
 
@@ -31,9 +35,8 @@
   --ifm-navbar-padding-vertical: 0;
   --ifm-navbar-item-padding-vertical: 0;
 
-  --ifm-font-family-base: -apple-system, BlinkMacSystemFont, Inter, Helvetica, Arial, sans-serif, 'Apple Color Emoji',
-    'Segoe UI emoji';
-  --ifm-font-family-monospace: 'SFMono-Regular', 'Roboto Mono', Consolas, 'Liberation Mono', Menlo, Courier, monospace;
+  --ifm-font-family-base: 'Titillium Web', sans-serif;
+  --ifm-font-family-monospace: 'Source Sans Pro', monospace;
 
   --ifm-menu-link-sublist-icon: url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAiIGhlaWdodD0iNiIgdmlld0JveD0iMCAwIDEwIDYiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxwYXRoIGQ9Ik04Ljk5OTg4IDVMNC45OTk4OCAxTDAuOTk5ODc4IDUiIHN0cm9rZT0iIzAzMDYwQiIgc3Ryb2tlLXdpZHRoPSIxLjUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPgo8L3N2Zz4K');
 
@@ -107,6 +110,7 @@ a {
 
 body {
   margin: 0;
+  font-family: 'Titillium Web', sans-serif;
 }
 
 .theme-doc-version-banner {
