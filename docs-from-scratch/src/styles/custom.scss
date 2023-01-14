@@ -47,6 +47,7 @@
 }
 
 html[data-theme='light'] {
+  --ifm-color-primary: var(--c-marathon-blue);
   --token-primary-bg-c: #fff;
   --token-secondary-bg-c: #fff;
 
@@ -57,7 +58,7 @@ html[data-theme='light'] {
   --ifm-background-surface-color: var(--token-primary-bg-c);
 
   --ifm-navbar-background-color: var(--token-primary-bg-c);
-  --ifm-navbar-shadow: 0 1px 0 0 var(--c-gray-0);
+  --ifm-navbar-shadow: 0 1px 0 0 var(--c-gray-10);
 
   --ifm-heading-color: var(--c-carbon-100);
   --ifm-code-background: var(--c-indigo-10);
