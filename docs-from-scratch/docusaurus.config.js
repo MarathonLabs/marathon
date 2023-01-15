@@ -50,6 +50,13 @@ const config = {
                     editCurrentVersion: false,
                     remarkPlugins: [math],
                     rehypePlugins: [katex],
+                    versions: {
+                        current: {
+                            label: 'develop',
+                            path: 'next',
+                            banner: 'none',
+                        },
+                    }
                 },
                 theme: {
                     customCss: [
@@ -81,11 +88,10 @@ const config = {
                 },
                 items: [
                     {
-                      type: 'docsVersionDropdown',
-                      position: 'right',
-                      dropdownItemsAfter: [{to: '/versions', label: 'All versions'}],
-                      dropdownActiveClassDisabled: true,
-                      className: 'navbar__dropdown--versions',
+                        type: 'docsVersionDropdown',
+                        position: 'right',
+                        dropdownActiveClassDisabled: true,
+                        className: 'navbar__dropdown--versions',
                     },
                     {
                         label: 'Support',
@@ -99,10 +105,10 @@ const config = {
                             },
                             {
                                 href: 'https://t.me/marathontestrunner',
-                                label: 'Telegram (RU)',
+                                label: 'Telegram',
                                 target: '_blank',
                                 rel: null,
-                            }
+                            },
                         ],
                         className: 'navbar__link--support',
                     },
