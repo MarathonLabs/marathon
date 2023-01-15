@@ -94,6 +94,10 @@ const config = {
                         className: 'navbar__dropdown--versions',
                     },
                     {
+                        type: 'search',
+                        position: 'right',
+                    },
+                    {
                         label: 'Support',
                         position: 'right',
                         items: [
@@ -131,6 +135,13 @@ const config = {
             prism: {
                 theme: lightCodeTheme,
                 additionalLanguages: ["shell-session", "kotlin", "groovy"]
+            },
+            algolia: {
+                appId: '5FSD01C36S',
+                apiKey: '9a3b61683f7ae8215249da35b66fc74b',
+                indexName: 'malinskiy_marathon',
+                contextualSearch: true,
+                searchPagePath: false,
             },
         }),
     themes: [
