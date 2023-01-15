@@ -25,7 +25,7 @@ import Navbar from '@theme/Navbar';
 import clsx from 'clsx';
 import styles from './styles.module.css';
 import {ThemeClassNames} from '@docusaurus/theme-common';
-// import {docVersionSearchTag} from '@docusaurus/theme-common/internal';
+import {docVersionSearchTag} from '@docusaurus/theme-common/internal';
 import Head from '@docusaurus/Head';
 
 type DocPageContentProps = {
@@ -62,7 +62,7 @@ function DocPageContent({
       pageClassName={ThemeClassNames.page.docsDocPage}
       searchMetadata={{
         version,
-        // tag: docVersionSearchTag(pluginId, version),
+        tag: docVersionSearchTag(pluginId, version),
       }}>
       <div className={clsx(styles.docPage)}>
         <BackToTopButton />
