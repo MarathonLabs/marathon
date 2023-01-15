@@ -64,6 +64,10 @@ const config = {
                         require.resolve('./src/styles/colors.css'),
                     ]
                 },
+                gtag: {
+                  trackingID: 'G-7RE7PPY2QW',
+                  anonymizeIP: false,
+                },
             },
         ],
     ],
