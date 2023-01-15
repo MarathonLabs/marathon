@@ -8,6 +8,12 @@ brew tap malinskiy/tap
 brew install malinskiy/tap/marathon
 ```
 
+:::tip
+
+If you don't have homebrew installed head over to [https://brew.sh](https://brew.sh/) for instructions on how to install it 
+
+:::
+
 ## Configure
 Configuration is done via a yaml file. By default marathon will look for a file named `Marathonfile`. As an example place the following contents in the `Marathonfile` in the root of your Android project:
 ```yaml
@@ -16,8 +22,8 @@ outputDir: "marathon"
 debug: false
 vendorConfiguration:
   type: "Android"
-  applicationApk: "app/build/outputs/apk/debug/app-debug.apk"
-  testApplicationApk: "app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk"
+  applicationApk: "dist/app-debug.apk"
+  testApplicationApk: "dist/app-debug-androidTest.apk"
 ```
 :::tip
 
@@ -61,7 +67,7 @@ Total time: 0H 1m 45s
 Marathon execution failed
 ```
 
-For CI there is a JUnit xml `marathon_junit_report.xml` generated in the `$output/tests/omni` folder:
+For CI there is a JUnit xml `marathon_junit_report.xml` generated in the ``$outputDir/tests/omni`` folder where ``$outputDir`` is a directory that you’ve defined in the [marathon configuration](/intro/configure#output-directory):
 ```shell-session 
 foo@bar:~$ cat marathon/omni/marathon_junit_report.xml
 <?xml version="1.0" encoding="UTF-8"?>

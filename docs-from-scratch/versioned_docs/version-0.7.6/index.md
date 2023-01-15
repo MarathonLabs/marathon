@@ -16,8 +16,8 @@ outputDir: "marathon"
 debug: false
 vendorConfiguration:
   type: "Android"
-  applicationApk: "app/build/outputs/apk/debug/app-debug.apk"
-  testApplicationApk: "app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk"
+  applicationApk: "dist/app-debug.apk"
+  testApplicationApk: "dist/app-debug-androidTest.apk"
 ```
 :::tip
 
@@ -61,7 +61,7 @@ Total time: 0H 1m 45s
 Marathon execution failed
 ```
 
-For CI there is a JUnit xml `marathon_junit_report.xml` generated in the `$output/tests/omni` folder:
+For CI there is a JUnit xml `marathon_junit_report.xml` generated in the ``$outputDir/tests/omni`` folder where ``$outputDir`` is a directory that you’ve defined in the [marathon configuration](/intro/configure#output-directory):
 ```shell-session 
 foo@bar:~$ cat marathon/omni/marathon_junit_report.xml
 <?xml version="1.0" encoding="UTF-8"?>

@@ -60,7 +60,7 @@ This option is automatically detected if you're using Gradle Plugin
 ```yaml
 vendorConfiguration:
   type: "Android"
-  applicationApk: "app/build/outputs/apk/debug/app-debug.apk"
+  applicationApk: "dist/app-debug.apk"
 ```
 
 </TabItem>
@@ -80,7 +80,7 @@ This option is automatically detected if you're using Gradle Plugin
 ```yaml
 vendorConfiguration:
   type: "Android"
-  testApplicationApk: "app/build/outputs/apk/androidTest/debug/app-debug.apk"
+  testApplicationApk: "dist/app-debug.apk"
 ```
 
 </TabItem>
@@ -103,9 +103,9 @@ Marathon supports testing multiple modules at the same time (e.g. your tests are
 vendorConfiguration:
   type: "Android"
   outputs:
-    - application: "android-app/app/build/outputs/apk/debug/app-debug.apk"
-      testApplication: "android-app/app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk"
-    - testApplication: "android-library/library/build/outputs/apk/androidTest/debug/library-debug-androidTest.apk"  
+    - application: "dist/app-debug.apk"
+      testApplication: "dist/app-debug-androidTest.apk"
+    - testApplication: "dist/library-debug-androidTest.apk"  
 ```
 
 </TabItem>
@@ -130,10 +130,10 @@ Marathon supports testing dynamic feature modules:
 ```yaml
 vendorConfiguration:
   type: "Android"
-  applicationApk: "../../app/build/outputs/apk/debug/base.apk"
+  applicationApk: "dist/base.apk"
   splitApks:
-    - "../../dynamic-feature1/build/outputs/apk/debug/dynamic-feature1-debug.apk"
-    - "../../dynamic-feature2/build/outputs/apk/debug/dynamic-feature2-debug.apk"
+    - "dist/dynamic-feature1-debug.apk"
+    - "dist/dynamic-feature2-debug.apk"
 ```
 
 </TabItem>
@@ -1062,8 +1062,8 @@ For Gradle Plugin users, the `extraApplications` parameter will affect all the t
 vendorConfiguration:
   type: "Android"
   extraApplicationsApk:
-    - "app/build/outputs/apk/androidTest/debug/extra.apk"
-    - "app/build/outputs/apk/androidTest/debug/extra_two.apk"
+    - "dist/extra.apk"
+    - "dist/extra_two.apk"
 ```
 
 </TabItem>
