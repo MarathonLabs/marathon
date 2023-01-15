@@ -26,8 +26,8 @@ name: "My application"
 outputDir: "build/reports/marathon"
 vendorConfiguration:
   type: "Android"
-  applicationApk: "app/build/outputs/apk/debug/app-debug.apk"
-  testApplicationApk: "app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk"
+  applicationApk: "dist/app-debug.apk"
+  testApplicationApk: "dist/app-debug-androidTest.apk"
 ```
 
 Vendor section describes platform specific details, for iOS a simple configuration would look like:
