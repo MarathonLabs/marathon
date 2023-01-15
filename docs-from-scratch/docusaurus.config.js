@@ -81,6 +81,13 @@ const config = {
                 },
                 items: [
                     {
+                      type: 'docsVersionDropdown',
+                      position: 'right',
+                      dropdownItemsAfter: [{to: '/versions', label: 'All versions'}],
+                      dropdownActiveClassDisabled: true,
+                      className: 'navbar__dropdown--versions',
+                    },
+                    {
                         label: 'Support',
                         position: 'right',
                         items: [
