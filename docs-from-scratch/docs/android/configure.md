@@ -589,10 +589,14 @@ All allure output from devices will be collected under `$output/device-files/all
 The first implementation of marathon for Android relied heavily on AOSP's [ddmlib][4]. For a number of technical reasons we had to write our
 own implementation of the ADB client named [adam][6].
 
-The ddmlib's implementation is going to be deprecated in marathon **0.7.0** and by default adam is going to be handling all communication
+:::caution
+
+Ddmlib's implementation is deprecated since marathon **0.7.0** and by default adam is handling all communication
 with devices.
 
 By **0.8.0**, ddmlib is going to be removed completely unless we find major issues.
+
+:::
 
 All the features supported in ddmlib's implementation transparently work without any changes. We ask you to test adam prior to the
 removal of ddmlib and submit your concerns/issues.

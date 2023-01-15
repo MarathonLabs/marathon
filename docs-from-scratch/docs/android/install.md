@@ -23,14 +23,15 @@ You **should** try using [CLI][2] first
 
 ## Install
 
-Apply the plugin from [MavenCentral][1] as following:
+Marathon gradle plugin is published to [plugins.gradle.org][1].
+To apply the plugin:
 
 <Tabs>
 <TabItem value="kts" label="Kotlin DSL">
 
 ```kotlin
 plugins {
-  id("marathon") version "X.X.X"
+  id("com.malinskiy.marathon") version "X.X.X"
 }
 ```
 
@@ -39,27 +40,7 @@ plugins {
 
 ```groovy
 plugins {
-  id 'marathon' version 'X.X.X'
-}
-```
-
-</TabItem>
-</Tabs>
-
-You also need to add the following to your settings.gradle(.kts):
-
-<Tabs>
-<TabItem value="kts" label="Kotlin DSL">
-
-```kotlin
-pluginManagement {
-  resolutionStrategy {
-    eachPlugin {
-      if (requested.id.id == "marathon") {
-        useModule("com.malinskiy.marathon:marathon-gradle-plugin:${requested.version}")
-      }
-    }
-  }
+  id 'com.malinskiy.marathon' version 'X.X.X'
 }
 ```
 
@@ -68,7 +49,7 @@ pluginManagement {
 
 All the test tasks will start with **marathon** prefix, for example **marathonDebugAndroidTest**.
 
-[1]: https://search.maven.org/
+[1]: https://plugins.gradle.org
 [2]: /intro/install.md
 
 ## Configure
