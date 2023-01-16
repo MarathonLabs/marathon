@@ -2,7 +2,7 @@
 title: "Install"
 ---
 
-## MacOS
+## macOS
 
 Grab the latest release with [homebrew][5]:
 
