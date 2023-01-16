@@ -39,7 +39,6 @@
   --ifm-font-family-monospace: 'Source Sans Pro', monospace;
 
   --ifm-menu-link-sublist-icon: url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAiIGhlaWdodD0iNiIgdmlld0JveD0iMCAwIDEwIDYiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxwYXRoIGQ9Ik04Ljk5OTg4IDVMNC45OTk4OCAxTDAuOTk5ODc4IDUiIHN0cm9rZT0iIzAzMDYwQiIgc3Ryb2tlLXdpZHRoPSIxLjUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPgo8L3N2Zz4K');
-
   //#region ----------- Z Indices ------------
   --z-sidebar: 2000;
   --z-backdrop: 1100;
@@ -63,6 +62,8 @@ html[data-theme='light'] {
   --ifm-heading-color: var(--c-carbon-100);
   --ifm-code-background: var(--c-indigo-10);
   --ifm-font-color-base: var(--c-carbon-90);
+
+  --docusaurus-collapse-button-bg: var(--ifm-color-emphasis-200);
 }
 
 html[data-theme='dark'] {
@@ -84,6 +85,8 @@ html[data-theme='dark'] {
   --ifm-dropdown-background-color: var(--token-secondary-bg-c);
 
   --ifm-menu-link-sublist-icon-filter: invert(100%);
+
+  --docusaurus-collapse-button-bg: #2e333a;
 }
 
 html {
@@ -159,6 +162,7 @@ iframe {
   width: 1em;
   vertical-align: -0.1em;
 }
+
 .git-link path {
   fill: currentColor;
 }
