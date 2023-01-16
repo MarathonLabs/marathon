@@ -50,6 +50,7 @@ const config = {
                     editCurrentVersion: false,
                     remarkPlugins: [math],
                     rehypePlugins: [katex],
+                    breadcrumbs: false,
                     versions: {
                         current: {
                             label: 'develop',
