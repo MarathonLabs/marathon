@@ -14,6 +14,7 @@ jobs:
         with:
           node-version: 18
       - run: npm install
+        working-directory: ./docs
       - run: npm run build
         working-directory: ./docs
       - uses: kefranabg/s3-sync-action@02d8eaf34efb8bd76abe2e5614ba3d8028de219e
