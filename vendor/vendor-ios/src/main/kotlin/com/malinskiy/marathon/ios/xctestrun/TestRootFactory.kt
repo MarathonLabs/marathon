@@ -78,14 +78,21 @@ class TestRootFactory(private val device: AppleSimulatorDevice, private val vend
         val frameworks = remoteFileManager.joinPath(developerPath, "Library", "Frameworks")
         val privateFrameworks = remoteFileManager.joinPath(developerPath, "Library", "PrivateFrameworks")
         val usrLib = remoteFileManager.joinPath(developerPath, "usr", "lib")
-        
+
         val userFrameworkPath =
             vendorConfiguration.xctestrunEnv["DYLD_FRAMEWORK_PATH"]?.split(":")?.filter { it.isNotBlank() } ?: emptySet()
         val userLibraryPath = vendorConfiguration.xctestrunEnv["DYLD_LIBRARY_PATH"]?.split(":")?.filter { it.isNotBlank() } ?: emptySet()
 
-        val dyldFrameworks = listOf("__TESTROOT__", frameworks, privateFrameworks, *userFrameworkPath.toTypedArray())
+        val dyldFrameworks = mutableListOf("__TESTROOT__", frameworks, privateFrameworks, *userFrameworkPath.toTypedArray())
         val dyldLibraries = listOf("__TESTROOT__", usrLib, *userLibraryPath.toTypedArray())
         
+        /**
+         * If the app contains internal frameworks we need to add them to xctestrun
+         */
+        if (File(testApp, "Frameworks").exists()) {
+            dyldFrameworks.add("__TESTROOT__/${remoteFileManager.appUnderTestFileName()}/Frameworks")
+        }
+
         val testEnv = mutableMapOf(
             "DYLD_FRAMEWORK_PATH" to dyldFrameworks.joinToString(":"),
             "DYLD_LIBRARY_PATH" to dyldLibraries.joinToString(":")
@@ -159,7 +166,6 @@ class TestRootFactory(private val device: AppleSimulatorDevice, private val vend
         val platformName = device.sdk.platformName
         val developerPath = remoteFileManager.joinPath("__PLATFORMS__", "$platformName.platform", "Developer")
 
-        
 
         val frameworks = remoteFileManager.joinPath(developerPath, "Library", "Frameworks")
         val privateFrameworks = remoteFileManager.joinPath(developerPath, "Library", "PrivateFrameworks")
@@ -168,9 +174,17 @@ class TestRootFactory(private val device: AppleSimulatorDevice, private val vend
         val userFrameworkPath =
             vendorConfiguration.xctestrunEnv["DYLD_FRAMEWORK_PATH"]?.split(":")?.filter { it.isNotBlank() } ?: emptySet()
         val userLibraryPath = vendorConfiguration.xctestrunEnv["DYLD_LIBRARY_PATH"]?.split(":")?.filter { it.isNotBlank() } ?: emptySet()
-        val userInsertLibraries = vendorConfiguration.xctestrunEnv["DYLD_INSERT_LIBRARIES"]?.split(":")?.filter { it.isNotBlank() } ?: emptySet()
+        val userInsertLibraries =
+            vendorConfiguration.xctestrunEnv["DYLD_INSERT_LIBRARIES"]?.split(":")?.filter { it.isNotBlank() } ?: emptySet()
+
+        val dyldFrameworks = mutableListOf("__TESTROOT__", frameworks, privateFrameworks, *userFrameworkPath.toTypedArray())
+        /**
+         * If the app contains internal frameworks we need to add them to xctestrun
+         */
+        if (File(testApp, "Frameworks").exists()) {
+            dyldFrameworks.add("__TESTROOT__/${remoteFileManager.appUnderTestFileName()}/Frameworks")
+        }
         
-        val dyldFrameworks = listOf("__TESTROOT__", frameworks, privateFrameworks, *userFrameworkPath.toTypedArray())
         val dyldLibraries = listOf("__TESTROOT__", usrLib, *userLibraryPath.toTypedArray())
         val bundleInject = if (device.sdk == Sdk.IPHONEOS) {
             "__TESTHOST__/Frameworks/libXCTestBundleInject.dylib"
@@ -178,7 +192,7 @@ class TestRootFactory(private val device: AppleSimulatorDevice, private val vend
             "$developerPath/usr/lib/libXCTestBundleInject.dylib"
         }
         val dyldInsertLibraries = listOf(bundleInject, *userInsertLibraries.toTypedArray())
-        
+
         val testEnv = mutableMapOf(
             "DYLD_FRAMEWORK_PATH" to dyldFrameworks.joinToString(":"),
             "DYLD_INSERT_LIBRARIES" to dyldInsertLibraries.joinToString(":"),
@@ -191,7 +205,7 @@ class TestRootFactory(private val device: AppleSimulatorDevice, private val vend
                     put(it.key, it.value)
                 }
         }.toMap()
-        
+
         return Xctestrun(
             metadata = Metadata(2),
             testConfigurations = arrayOf(
