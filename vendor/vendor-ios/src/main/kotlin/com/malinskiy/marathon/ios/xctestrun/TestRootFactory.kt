@@ -78,10 +78,24 @@ class TestRootFactory(private val device: AppleSimulatorDevice, private val vend
         val frameworks = remoteFileManager.joinPath(developerPath, "Library", "Frameworks")
         val privateFrameworks = remoteFileManager.joinPath(developerPath, "Library", "PrivateFrameworks")
         val usrLib = remoteFileManager.joinPath(developerPath, "usr", "lib")
-        val testEnv = mapOf(
-            "DYLD_FRAMEWORK_PATH" to "__TESTROOT__:$frameworks:$privateFrameworks",
-            "DYLD_LIBRARY_PATH" to "__TESTROOT__:$usrLib"
-        )
+        
+        val userFrameworkPath =
+            vendorConfiguration.xctestrunEnv["DYLD_FRAMEWORK_PATH"]?.split(":")?.filter { it.isNotBlank() } ?: emptySet()
+        val userLibraryPath = vendorConfiguration.xctestrunEnv["DYLD_LIBRARY_PATH"]?.split(":")?.filter { it.isNotBlank() } ?: emptySet()
+
+        val dyldFrameworks = listOf("__TESTROOT__", frameworks, privateFrameworks, *userFrameworkPath.toTypedArray())
+        val dyldLibraries = listOf("__TESTROOT__", usrLib, *userLibraryPath.toTypedArray())
+        
+        val testEnv = mutableMapOf(
+            "DYLD_FRAMEWORK_PATH" to dyldFrameworks.joinToString(":"),
+            "DYLD_LIBRARY_PATH" to dyldLibraries.joinToString(":")
+        ).apply {
+            vendorConfiguration.xctestrunEnv
+                .filterKeys { !setOf("DYLD_FRAMEWORK_PATH", "DYLD_LIBRARY_PATH").contains(it) }
+                .forEach {
+                    put(it.key, it.value)
+                }
+        }.toMap()
 
         return Xctestrun(
             metadata = Metadata(2),
@@ -145,23 +159,39 @@ class TestRootFactory(private val device: AppleSimulatorDevice, private val vend
         val platformName = device.sdk.platformName
         val developerPath = remoteFileManager.joinPath("__PLATFORMS__", "$platformName.platform", "Developer")
 
-        val DYLD_INSERT_LIBS = if (device.sdk == Sdk.IPHONEOS) {
-            "__TESTHOST__/Frameworks/libXCTestBundleInject.dylib"
-        } else {
-            "$developerPath/usr/lib/libXCTestBundleInject.dylib"
-        }
-
+        
 
         val frameworks = remoteFileManager.joinPath(developerPath, "Library", "Frameworks")
         val privateFrameworks = remoteFileManager.joinPath(developerPath, "Library", "PrivateFrameworks")
         val usrLib = remoteFileManager.joinPath(developerPath, "usr", "lib")
-        val testEnv = mapOf(
-            "XCInjectBundleInto" to "__TESTHOST__/${remoteFileManager.appUnderTestFileName()}",
-            "DYLD_FRAMEWORK_PATH" to "__TESTROOT__:$frameworks:$privateFrameworks",
-            "DYLD_INSERT_LIBRARIES" to DYLD_INSERT_LIBS,
-            "DYLD_LIBRARY_PATH" to "__TESTROOT__:$usrLib"
-        )
 
+        val userFrameworkPath =
+            vendorConfiguration.xctestrunEnv["DYLD_FRAMEWORK_PATH"]?.split(":")?.filter { it.isNotBlank() } ?: emptySet()
+        val userLibraryPath = vendorConfiguration.xctestrunEnv["DYLD_LIBRARY_PATH"]?.split(":")?.filter { it.isNotBlank() } ?: emptySet()
+        val userInsertLibraries = vendorConfiguration.xctestrunEnv["DYLD_INSERT_LIBRARIES"]?.split(":")?.filter { it.isNotBlank() } ?: emptySet()
+        
+        val dyldFrameworks = listOf("__TESTROOT__", frameworks, privateFrameworks, *userFrameworkPath.toTypedArray())
+        val dyldLibraries = listOf("__TESTROOT__", usrLib, *userLibraryPath.toTypedArray())
+        val bundleInject = if (device.sdk == Sdk.IPHONEOS) {
+            "__TESTHOST__/Frameworks/libXCTestBundleInject.dylib"
+        } else {
+            "$developerPath/usr/lib/libXCTestBundleInject.dylib"
+        }
+        val dyldInsertLibraries = listOf(bundleInject, *userInsertLibraries.toTypedArray())
+        
+        val testEnv = mutableMapOf(
+            "DYLD_FRAMEWORK_PATH" to dyldFrameworks.joinToString(":"),
+            "DYLD_INSERT_LIBRARIES" to dyldInsertLibraries.joinToString(":"),
+            "DYLD_LIBRARY_PATH" to dyldLibraries.joinToString(":"),
+            "XCInjectBundleInto" to "__TESTHOST__/${remoteFileManager.appUnderTestFileName()}"
+        ).apply {
+            vendorConfiguration.xctestrunEnv
+                .filterKeys { !setOf("DYLD_FRAMEWORK_PATH", "DYLD_INSERT_LIBRARIES", "DYLD_LIBRARY_PATH").contains(it) }
+                .forEach {
+                    put(it.key, it.value)
+                }
+        }.toMap()
+        
         return Xctestrun(
             metadata = Metadata(2),
             testConfigurations = arrayOf(
