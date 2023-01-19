@@ -1,5 +1,6 @@
 package com.malinskiy.marathon.ios.cmd.local
 
+import com.malinskiy.marathon.ios.RemoteFileManager
 import com.malinskiy.marathon.ios.cmd.FileBridge
 import java.io.File
 
@@ -9,6 +10,12 @@ class JvmFileBridge(private val overwrite: Boolean = true) : FileBridge {
     }
 
     override suspend fun receive(src: String, dst: File): Boolean {
-        return File(src).copyRecursively(dst, overwrite = overwrite)
+        val filename = src.split(RemoteFileManager.FILE_SEPARATOR).last()
+        val destination = if (dst.isDirectory) {
+            File(dst, filename)
+        } else {
+            dst
+        }
+        return File(src).copyRecursively(destination, overwrite = overwrite)
     }
 }
