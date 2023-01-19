@@ -64,6 +64,7 @@ const sidebars = {
             collapsed: false,
             items: [
                 'ios',
+                'ios/workers',
                 'ios/configure',
                 'ios/examples',
             ],

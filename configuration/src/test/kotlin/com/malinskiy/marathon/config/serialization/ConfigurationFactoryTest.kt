@@ -288,7 +288,6 @@ class ConfigurationFactoryTest {
             ),
             hideRunnerOutput = true,
             compactOutput = true,
-            keepAliveIntervalMillis = 300000L,
             devicesFile = file.parentFile.resolve("Testdevices").canonicalFile,
             sourceRoot = file.parentFile.resolve(".").canonicalFile,
         )

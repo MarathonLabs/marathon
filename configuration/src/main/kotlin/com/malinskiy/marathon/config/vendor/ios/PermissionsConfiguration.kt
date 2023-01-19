@@ -23,17 +23,17 @@ data class PermissionsConfiguration(
  * @property Siri Allow use of the app with Siri
  */
 enum class Permission(val value: String) {
-    All("all"),
-    Calendar("calendar"),
-    ContactsLimited("contacts-limited"),
-    Contacts("contacts"),
-    Location("location"),
-    LocationAlways("location-always"),
-    PhotosAdd("photos-add"),
-    Photos("photos"),
-    MediaLibrary("media-library"),
-    Microphone("microphone"),
-    Motion("motion"),
-    Reminders("reminders"),
-    Siri("siri");
+    @JsonProperty("all") All("all"),
+    @JsonProperty("calendar") Calendar("calendar"),
+    @JsonProperty("contacts-limited") ContactsLimited("contacts-limited"),
+    @JsonProperty("contacts") Contacts("contacts"),
+    @JsonProperty("location") Location("location"),
+    @JsonProperty("location-always") LocationAlways("location-always"),
+    @JsonProperty("photos-add") PhotosAdd("photos-add"),
+    @JsonProperty("photos") Photos("photos"),
+    @JsonProperty("media-library") MediaLibrary("media-library"),
+    @JsonProperty("microphone") Microphone("microphone"),
+    @JsonProperty("motion") Motion("motion"),
+    @JsonProperty("reminders") Reminders("reminders"),
+    @JsonProperty("siri") Siri("siri");
 }

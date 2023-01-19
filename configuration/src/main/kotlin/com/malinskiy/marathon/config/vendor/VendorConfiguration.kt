@@ -136,20 +136,21 @@ sealed class VendorConfiguration {
 
     data class IOSConfiguration(
         @JsonProperty("bundle") val bundle: AppleTestBundleConfiguration? = null,
-        @JsonProperty("signing") val signing: SigningConfiguration = SigningConfiguration(),
-        @JsonProperty("ssh") val ssh: SshConfiguration = SshConfiguration(),
-        @JsonProperty("rsync") val rsync: RsyncConfiguration = RsyncConfiguration(),
-        @JsonProperty("hideRunnerOutput") val hideRunnerOutput: Boolean = false,
-        @JsonProperty("compactOutput") val compactOutput: Boolean = false,
-        @JsonProperty("keepAliveIntervalMillis") val keepAliveIntervalMillis: Long = 0L,
         @JsonProperty("devices") val devicesFile: File? = null,
+        @JsonProperty("ssh") val ssh: SshConfiguration = SshConfiguration(),
+
         @JsonProperty("xcresult") val xcresult: XcresultConfiguration = XcresultConfiguration(),
-        @JsonProperty("timeoutConfiguration") val timeoutConfiguration: AppleTimeoutConfiguration = AppleTimeoutConfiguration(),
         @JsonProperty("screenRecordConfiguration") val screenRecordConfiguration: AppleScreenRecordConfiguration = AppleScreenRecordConfiguration(),
         @JsonProperty("xctestrunEnv") val xctestrunEnv: Map<String, String> = emptyMap(),
         @JsonProperty("lifecycle") val lifecycleConfiguration: LifecycleConfiguration = LifecycleConfiguration(),
         @JsonProperty("permissions") val permissions: PermissionsConfiguration = PermissionsConfiguration(),
+        @JsonProperty("timeoutConfiguration") val timeoutConfiguration: AppleTimeoutConfiguration = AppleTimeoutConfiguration(),
         @JsonProperty("threadingConfiguration") val threadingConfiguration: IosThreadingConfiguration = IosThreadingConfiguration(),
+        @JsonProperty("hideRunnerOutput") val hideRunnerOutput: Boolean = false,
+        @JsonProperty("compactOutput") val compactOutput: Boolean = false,
+        @JsonProperty("rsync") val rsync: RsyncConfiguration = RsyncConfiguration(),
+        
+        @JsonProperty("signing") val signing: SigningConfiguration = SigningConfiguration(),
     ) : VendorConfiguration() {
         fun validate() {
             ssh.validate()
