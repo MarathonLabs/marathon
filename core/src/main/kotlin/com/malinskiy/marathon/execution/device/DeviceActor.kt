@@ -167,8 +167,7 @@ class DeviceActor(
                         } catch (e: CancellationException) {
                             throw e
                         } catch (e: Exception) {
-                            logger.debug { "device ${device.serialNumber} initialization failed. Retrying" }
-                            logger.debug { e.message }
+                            logger.debug(e) { "device ${device.serialNumber} initialization failed. Retrying" }
                             throw e
                         }
                     }
