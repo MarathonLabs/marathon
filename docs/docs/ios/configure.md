@@ -417,6 +417,6 @@ rsync:
   remotePath: "/usr/bin/rsync-custom"
 ```
 
-[1]: workers
-[2]: /configuration/dynamic-configuration
+[1]: workers.md
+[2]: /configuration/dynamic-configuration.md
 [3]: https://en.wikipedia.org/wiki/ISO_8601

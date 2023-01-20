@@ -1,3 +1,6 @@
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
 # Introduction
 
 Marathon will help you execute tests in the shortest time possible. Here is a 2 minute guide on how to get started:
@@ -15,7 +18,12 @@ If you don't have homebrew installed head over to [https://brew.sh](https://brew
 :::
 
 ## Configure
-Configuration is done via a yaml file. By default marathon will look for a file named `Marathonfile`. As an example place the following contents in the `Marathonfile` in the root of your Android project:
+Configuration is done via a yaml file. By default marathon will look for a file named `Marathonfile`. 
+
+For example, place the following contents in the `Marathonfile` in the root of your project:
+<Tabs>
+<TabItem value="Android" label="Android">
+
 ```yaml
 name: "My awesome tests"
 outputDir: "marathon"
@@ -25,9 +33,28 @@ vendorConfiguration:
   applicationApk: "dist/app-debug.apk"
   testApplicationApk: "dist/app-debug-androidTest.apk"
 ```
+
+</TabItem>
+<TabItem value="iOS" label="iOS">
+
+```yaml
+name: "My application"
+outputDir: "derived-data/Marathon"
+testClassRegexes: ["^((?!Abstract).)*Tests$"]
+vendorConfiguration:
+  type: "iOS"
+  application: "build/my.app"
+  testApplication: "build/my.xctest"
+```
+
+</TabItem>
+</Tabs>
+
 :::tip
 
-Don't forget to replace the **applicationApk** and **testApplicationApk**
+Don't forget to replace the **applicationApk**, **testApplicationApk** or **application**, **testApplication**
+
+iOS also requires a small configuration file about your devices, [see here for more information][1]
 
 :::
 
@@ -83,3 +110,5 @@ There is also an assortment of html reports for you to analyze:
 
 ## Next steps
 There are many more customisations and optimisation that you can do for your test runs that can help you speed up the test execution and/or battle reliability issues. Continue reading the docs to understand how marathon can help you. 
+
+[1]: /ios/workers.md

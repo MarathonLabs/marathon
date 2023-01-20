@@ -21,7 +21,7 @@ archive and depending on runtime discovery of your bundles
 :::
  
 
-[1]: ios/workers
+[1]: ios/workers.md
 [2]: https://en.wikipedia.org/wiki/Secure_Shell
 [3]: https://en.wikipedia.org/wiki/Rsync
 [4]: https://en.wikipedia.org/wiki/.ipa
