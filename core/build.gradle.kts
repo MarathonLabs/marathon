@@ -63,11 +63,13 @@ dependencies {
     testImplementation(project(":vendor:vendor-test"))
     testImplementation(TestLibraries.junit5)
     testImplementation(TestLibraries.kluent)
+    testImplementation(TestLibraries.assertk)
     testImplementation(TestLibraries.testContainers)
     testImplementation(TestLibraries.testContainersInflux)
     testImplementation(TestLibraries.mockitoKotlin)
     testImplementation(TestLibraries.koin)
     testImplementation(TestLibraries.xmlUnit)
+    testImplementation(TestLibraries.coroutinesTest)
     testRuntimeOnly(TestLibraries.jupiterEngine)
 }
 

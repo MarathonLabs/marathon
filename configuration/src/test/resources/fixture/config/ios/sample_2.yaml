@@ -7,8 +7,15 @@ vendorConfiguration:
   ssh:
     authentication:
       type: "publicKey"
-      username: "user"
-      key: "key"
+      username: "testuser"
+      key: "/home/testuser/.ssh/id_rsa"
     knownHostsPath: "known_hosts"
     keepAliveInterval: PT300S
     debug: true
+  lifecycle:
+    onPrepare: []
+  rsync:
+    remotePath: "/usr/local/bin/rsync"
+  hideRunnerOutput: true
+  compactOutput: true
+  devices: "Testdevices"

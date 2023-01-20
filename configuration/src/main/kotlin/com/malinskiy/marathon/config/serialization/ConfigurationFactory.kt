@@ -13,8 +13,6 @@ import com.malinskiy.marathon.config.environment.EnvironmentReader
 import com.malinskiy.marathon.config.environment.SystemEnvironmentReader
 import com.malinskiy.marathon.config.exceptions.ConfigurationException
 import com.malinskiy.marathon.config.serialization.time.InstantTimeProviderImpl
-import com.malinskiy.marathon.config.serialization.yaml.DerivedDataFileListProvider
-import com.malinskiy.marathon.config.serialization.yaml.FileListProvider
 import com.malinskiy.marathon.config.serialization.yaml.SerializeModule
 import com.malinskiy.marathon.config.vendor.VendorConfiguration
 import com.malinskiy.marathon.config.vendor.ios.AppleTestBundleConfiguration
@@ -25,14 +23,13 @@ import java.io.File
 
 class ConfigurationFactory(
     private val marathonfileDir: File,
-    private val fileListProvider: FileListProvider = DerivedDataFileListProvider,
     private val environmentReader: EnvironmentReader = SystemEnvironmentReader(),
     private val mapper: ObjectMapper = ObjectMapper(
         YAMLFactory()
             .disable(YAMLGenerator.Feature.USE_NATIVE_TYPE_ID)
     ).apply {
         setSerializationInclusion(JsonInclude.Include.NON_NULL)
-        registerModule(SerializeModule(InstantTimeProviderImpl(), environmentReader, marathonfileDir, fileListProvider))
+        registerModule(SerializeModule(InstantTimeProviderImpl(), marathonfileDir))
         registerModule(
             KotlinModule.Builder()
                 .withReflectionCacheSize(512)
@@ -71,7 +68,7 @@ class ConfigurationFactory(
                         val resolvedDerivedDataDir = it.derivedDataDir?.let { ddd -> marathonfileDir.resolve(ddd) }
                         val resolvedApplication = it.application?.let { ddd -> marathonfileDir.resolve(ddd) }
                         val resolvedTestApplication = it.testApplication?.let { ddd -> marathonfileDir.resolve(ddd) }
-                        AppleTestBundleConfiguration(resolvedApplication, resolvedTestApplication, resolvedDerivedDataDir)
+                        AppleTestBundleConfiguration(resolvedApplication, resolvedTestApplication, resolvedDerivedDataDir).apply { validate() }
                     }
                     val optionalDevices = configuration.vendorConfiguration.devicesFile?.resolveAgainst(marathonfileDir)
                         ?: marathonfileDir.resolve("Marathondevices")

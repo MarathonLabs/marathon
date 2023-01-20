@@ -8,7 +8,8 @@ import com.malinskiy.marathon.test.setupMarathon
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.test.TestCoroutineContext
+import kotlinx.coroutines.test.advanceTimeBy
+import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.shouldBe
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.AfterEach
@@ -25,9 +26,8 @@ class SuccessParseScenarioTest {
     }
 
     @Test
-    fun `one healthy device execution of the parse command should pass`() {
+    fun `one healthy device execution of the parse command should pass`() = runTest {
         var output: File? = null
-        val context = TestCoroutineContext("testing context")
 
         val marathon = setupMarathon {
             val test = MarathonTest("test", "SimpleTest", "test", emptySet())
@@ -40,7 +40,7 @@ class SuccessParseScenarioTest {
                     listOf(test)
                 }
 
-                deviceProvider.context = context
+                deviceProvider.context = coroutineContext
 
                 devices {
                     delay(1000)
@@ -53,11 +53,11 @@ class SuccessParseScenarioTest {
             )
         }
 
-        val job = GlobalScope.launch(context = context) {
+        val job = launch {
             marathon.runAsync(executionCommand = ParseCommand(outputFileName = "parse_result"))
         }
 
-        context.advanceTimeBy(20, TimeUnit.SECONDS)
+        advanceTimeBy(20_000)
 
         job.isCompleted shouldBe true
         val content = File(output!!.absolutePath, "parse_result.yml").readText()

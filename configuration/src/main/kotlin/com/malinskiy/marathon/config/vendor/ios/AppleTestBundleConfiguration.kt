@@ -1,7 +1,9 @@
 package com.malinskiy.marathon.config.vendor.ios
 
+import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.malinskiy.marathon.config.exceptions.ConfigurationException
+import com.malinskiy.marathon.config.serialization.yaml.FileListProvider
 import java.io.File
 import java.io.FileOutputStream
 import java.util.zip.ZipFile
@@ -20,8 +22,8 @@ data class AppleTestBundleConfiguration(
         File(file.parentFile, file.nameWithoutExtension).apply { deleteRecursively(); mkdirs() }
     }
 ) {
-    var app: File? = null
-    lateinit var xctest: File
+    @JsonIgnore var app: File? = null
+    @JsonIgnore lateinit var xctest: File
 
     fun validate() {
         when {

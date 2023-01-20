@@ -46,7 +46,7 @@ private val log = MarathonLogging.logger {}
 
 class Marathon(
     private val configuration: Configuration,
-    private val deviceProviderFactory: DeviceProviderFactory,
+    private val deviceProvider: DeviceProvider,
     private val testBundleIdentifier: TestBundleIdentifier?,
     private val testParser: TestParser,
     private val logConfigurator: MarathonLogConfigurator,
@@ -59,7 +59,6 @@ class Marathon(
 ) {
     private val configurationValidator = LogicalConfigurationValidator()
     private val cleanedUp = AtomicBoolean(false)
-    private val deviceProvider = deviceProviderFactory.create()
 
     private fun configureLogging() {
         MarathonLogging.debug = configuration.debug

@@ -7,8 +7,6 @@ import com.fasterxml.jackson.module.kotlin.KotlinFeature
 import com.fasterxml.jackson.module.kotlin.KotlinModule
 import com.google.gson.GsonBuilder
 import com.malinskiy.marathon.device.DeviceProvider
-import com.malinskiy.marathon.device.DeviceProviderFactory
-import com.malinskiy.marathon.device.LambdaDeviceProviderFactory
 import com.malinskiy.marathon.execution.TestParser
 import com.malinskiy.marathon.execution.bundle.TestBundleIdentifier
 import com.malinskiy.marathon.ios.bin.xcrun.simctl.model.SimctlDeviceList
@@ -17,8 +15,7 @@ import com.malinskiy.marathon.log.MarathonLogConfigurator
 import org.koin.dsl.module
 
 val AppleVendor = module {
-    single <DeviceProviderFactory> {
-        LambdaDeviceProviderFactory {
+    single <DeviceProvider> {
             val gson = GsonBuilder()
                 .registerTypeAdapter(SimctlDeviceList::class.java, SimctlDeviceListDeserializer())
                 .create()
@@ -34,7 +31,6 @@ val AppleVendor = module {
                         .build()
                 )
             AppleDeviceProvider(get(), get(), get(), gson, objectMapper, get(), get())
-        }
     }
     single<TestParser?> { AppleTestParser(get(), get(), get()) }
     single<MarathonLogConfigurator> { AppleLogConfigurator(get()) }

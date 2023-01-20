@@ -13,7 +13,6 @@ import com.malinskiy.marathon.config.environment.EnvironmentConfiguration
 import com.malinskiy.marathon.config.environment.EnvironmentReader
 import com.malinskiy.marathon.config.exceptions.ConfigurationException
 import com.malinskiy.marathon.config.serialization.time.InstantTimeProvider
-import com.malinskiy.marathon.config.serialization.yaml.DerivedDataFileListProvider
 import com.malinskiy.marathon.config.serialization.yaml.SerializeModule
 import com.malinskiy.marathon.config.strategy.BatchingStrategyConfiguration
 import com.malinskiy.marathon.config.strategy.FlakinessStrategyConfiguration
@@ -31,6 +30,7 @@ import com.malinskiy.marathon.config.vendor.android.SerialStrategy
 import com.malinskiy.marathon.config.vendor.android.TimeoutConfiguration
 import com.malinskiy.marathon.config.vendor.android.VideoConfiguration
 import com.malinskiy.marathon.config.vendor.ios.AppleTestBundleConfiguration
+import com.malinskiy.marathon.config.vendor.ios.LifecycleConfiguration
 import com.malinskiy.marathon.config.vendor.ios.RsyncConfiguration
 import com.malinskiy.marathon.config.vendor.ios.SshAuthentication
 import com.malinskiy.marathon.config.vendor.ios.SshConfiguration
@@ -52,7 +52,7 @@ import java.time.Instant
 import java.time.format.DateTimeFormatter
 
 class ConfigurationFactoryTest {
-    val mockMarathonFileDir = File(ConfigurationFactoryTest::class.java.getResource("/fixture/config/sample_3.yaml").file).parentFile
+    val mockMarathonFileDir = File(ConfigurationFactoryTest::class.java.getResource("/fixture/config").file).parentFile
 
     val referenceInstant: Instant = Instant.ofEpochSecond(1000000)
     private val mockInstantTimeProvider = object : InstantTimeProvider {
@@ -74,9 +74,7 @@ class ConfigurationFactoryTest {
         mapper.registerModule(
             SerializeModule(
                 mockInstantTimeProvider,
-                mockEnvironmentReader(),
                 mockMarathonFileDir,
-                DerivedDataFileListProvider
             )
         )
             .registerModule(KotlinModule.Builder()
@@ -265,42 +263,7 @@ class ConfigurationFactoryTest {
         )
     }
 
-    @Test
-    fun `on config with ios vendor configuration should initialize a specific vendor configuration`() {
-        val file = File(ConfigurationFactoryTest::class.java.getResource("/fixture/config/sample_3.yaml").file)
-        val configuration = parser.parse(file)
 
-        configuration.vendorConfiguration shouldBeEqualTo VendorConfiguration.IOSConfiguration(
-            bundle = listOf(AppleTestBundleConfiguration(
-                derivedDataDir = file.parentFile.resolve("a").canonicalFile,
-                testApplication = file.parentFile.resolve("a/Build/Products/UITesting_iphonesimulator11.0-x86_64.xctestrun").canonicalFile,
-            )),
-            ssh = SshConfiguration(
-                authentication = SshAuthentication.PublicKeyAuthentication(
-                    username = "testuser",
-                    key = File("/home/testuser/.ssh/id_rsa").canonicalFile
-                ),
-                knownHostsPath = file.parentFile.resolve("known_hosts").canonicalFile,
-                debug = true,
-            ),
-            rsync = RsyncConfiguration(
-                remotePath = "/usr/local/bin/rsync",
-            ),
-            hideRunnerOutput = true,
-            compactOutput = true,
-            devicesFile = file.parentFile.resolve("Testdevices").canonicalFile,
-            sourceRoot = file.parentFile.resolve(".").canonicalFile,
-        )
-    }
-
-    @Test
-    fun `on configuration without an explicit remote rsync path should initialize a default one`() {
-        val file = File(ConfigurationFactoryTest::class.java.getResource("/fixture/config/sample_4.yaml").file)
-        val configuration = parser.parse(file)
-
-        val iosConfiguration = configuration.vendorConfiguration as VendorConfiguration.IOSConfiguration
-        iosConfiguration.rsync.remotePath shouldBeEqualTo "/usr/bin/rsync"
-    }
 
     @Test
     fun `on configuration without an explicit xctestrun path should throw an exception`() {
@@ -318,9 +281,7 @@ class ConfigurationFactoryTest {
         mapper.registerModule(
             SerializeModule(
                 mockInstantTimeProvider,
-                environmentReader,
                 mockMarathonFileDir,
-                DerivedDataFileListProvider
             )
         )
             .registerModule(KotlinModule.Builder()

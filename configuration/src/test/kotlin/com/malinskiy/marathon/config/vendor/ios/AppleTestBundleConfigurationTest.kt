@@ -16,28 +16,28 @@ class AppleTestBundleConfigurationTest {
     
     @Test
     fun testExplicitConfig() {
-        val app = File(IOSConfigurationTest::class.java.getResource("/fixture/config/ios/bundle/sample.app").file)
-        val testApp = File(IOSConfigurationTest::class.java.getResource("/fixture/config/ios/bundle/sample.xctest").file)
+        val app = File(IOSConfigurationTest::class.java.getResource("/fixture/config/ios/derivedDataDir/sample.app").file)
+        val testApp = File(IOSConfigurationTest::class.java.getResource("/fixture/config/ios/derivedDataDir/ui.xctest").file)
         AppleTestBundleConfiguration(app, testApp, tempDirFor = tempDirFor).validate()
     }
 
     @Test
     fun testDerivedDir() {
-        val derivedDir = File(IOSConfigurationTest::class.java.getResource("/fixture/config/ios/bundle").file)
+        val derivedDir = File(IOSConfigurationTest::class.java.getResource("/fixture/config/ios/derivedDataDir").file)
         AppleTestBundleConfiguration(derivedDataDir = derivedDir, tempDirFor = tempDirFor).validate()
     }
     
     @Test
     fun testIpa() {
-        val app = File(IOSConfigurationTest::class.java.getResource("/fixture/config/ios/bundle/app.ipa").file)
-        val testApp = File(IOSConfigurationTest::class.java.getResource("/fixture/config/ios/bundle/testApp.ipa").file)
+        val app = File(IOSConfigurationTest::class.java.getResource("/fixture/config/ios/ipa/app.ipa").file)
+        val testApp = File(IOSConfigurationTest::class.java.getResource("/fixture/config/ios/ipa/testApp.ipa").file)
         AppleTestBundleConfiguration(app, testApp, tempDirFor = tempDirFor).validate()
     }
 
     @Test
     fun testZip() {
-        val app = File(IOSConfigurationTest::class.java.getResource("/fixture/config/ios/bundle/app.zip").file)
-        val testApp = File(IOSConfigurationTest::class.java.getResource("/fixture/config/ios/bundle/testApp.zip").file)
+        val app = File(IOSConfigurationTest::class.java.getResource("/fixture/config/ios/zip/app.zip").file)
+        val testApp = File(IOSConfigurationTest::class.java.getResource("/fixture/config/ios/zip/testApp.zip").file)
         AppleTestBundleConfiguration(app, testApp, tempDirFor = tempDirFor).validate()
     }
     

@@ -7,8 +7,6 @@ vendorConfiguration:
   ssh:
     authentication:
       type: "publicKey"
-      username: "user"
-      key: "key"
-    knownHostsPath: "known_hosts"
-    keepAliveInterval: PT300S
+      username: "testuser"
+      key: "/home/testuser/.ssh/id_rsa"
     debug: true

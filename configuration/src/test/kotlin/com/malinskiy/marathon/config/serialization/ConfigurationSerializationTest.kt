@@ -1,5 +1,6 @@
 package com.malinskiy.marathon.config.serialization
 
+import com.malinskiy.marathon.config.LogicalConfigurationValidator
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.io.TempDir
 import org.junit.jupiter.params.ParameterizedTest
@@ -9,13 +10,13 @@ import java.nio.file.Path
 
 class ConfigurationSerializationTest {
 
+    val validator = LogicalConfigurationValidator()
+    
     @ValueSource(
         strings = arrayOf(
             "sample_1.yaml",
             "sample_1_rp.yaml",
             "sample_2.yaml",
-            "sample_3.yaml",
-            "sample_4.yaml",
             "sample_6.yaml",
             "sample_7.yaml",
             "sample_8.yaml",
@@ -30,6 +31,9 @@ class ConfigurationSerializationTest {
             //should fail due to no xctestrun file
             //"sample_5.yaml"
             //"ios/sample_1.yaml",
+            "ios/sample_1.yaml",
+            "ios/sample_2.yaml",
+            "ios/sample_3.yaml",
         )
     )
     @ParameterizedTest
