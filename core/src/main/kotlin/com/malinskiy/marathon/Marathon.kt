@@ -6,9 +6,9 @@ import com.malinskiy.marathon.analytics.internal.sub.TrackerInternal
 import com.malinskiy.marathon.config.Configuration
 import com.malinskiy.marathon.config.ExecutionCommand
 import com.malinskiy.marathon.config.LogicalConfigurationValidator
-import com.malinskiy.marathon.config.exceptions.ConfigurationException
 import com.malinskiy.marathon.config.MarathonRunCommand
 import com.malinskiy.marathon.config.ParseCommand
+import com.malinskiy.marathon.config.exceptions.ConfigurationException
 import com.malinskiy.marathon.device.DeviceProvider
 import com.malinskiy.marathon.exceptions.NoDevicesException
 import com.malinskiy.marathon.exceptions.NoTestCasesFoundException
