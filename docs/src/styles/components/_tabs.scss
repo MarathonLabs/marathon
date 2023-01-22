@@ -19,7 +19,13 @@ html[data-theme='dark'] {
 
 .tabs-container {
   border: 1px solid var(--sidebar-border-c);
-  border-radius: 4px;
+  border-radius: 0.5rem;
+}
+
+div[role=tabpanel] {
+  background: #f6f8fa;
+  border-bottom-left-radius: 0.5rem;
+  border-bottom-right-radius: 0.5rem;
 }
 
 .tabs {
