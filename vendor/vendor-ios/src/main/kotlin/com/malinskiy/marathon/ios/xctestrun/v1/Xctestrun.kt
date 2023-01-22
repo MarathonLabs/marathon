@@ -20,7 +20,7 @@ class XctestrunTarget(delegate: NSDictionary) : PropertyList<NSDictionary>(deleg
     var testBundlePath: String by delegate.delegateFor("TestBundlePath")
     var testHostPath: String by delegate.delegateFor("TestHostPath")
     var uiTargetAppPath: String by delegate.delegateFor("UITargetAppPath")
-    var dependentProductPaths: Array<String> by delegate.arrayDelegateFor("DependentProductPaths", false)
+    var dependentProductPaths: Array<String> by delegate.arrayDelegateFor<String>("DependentProductPaths", false)
     var userAttachmentLifetime: String by delegate.delegateFor("UserAttachmentLifetime")
     var systemAttachmentLifetime: String by delegate.delegateFor("SystemAttachmentLifetime")
     var environmentVariables: Map<String, String> by delegate.delegateFor("EnvironmentVariables")

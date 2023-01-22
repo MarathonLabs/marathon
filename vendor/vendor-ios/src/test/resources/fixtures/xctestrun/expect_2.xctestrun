@@ -28,8 +28,6 @@
 					</dict>
 					<key>UITargetAppPath</key>
 					<string>__TESTROOT__/Debug-iphonesimulator/MyApp.app</string>
-					<key>TestHostBundleIdentifier</key>
-					<string>com.example.MyApp</string>
 					<key>BlueprintName</key>
 					<string>MyAppTests</string>
 					<key>DependentProductPaths</key>

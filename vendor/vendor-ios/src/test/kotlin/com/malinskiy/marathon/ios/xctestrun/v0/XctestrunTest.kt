@@ -9,7 +9,7 @@ import java.io.File
 class XctestrunTest {
     @Test
     fun testRead() {
-        val file = File(javaClass.classLoader.getResource("fixtures/xctestrun/v0.xctestrun").file)
+        val file = File(javaClass.classLoader.getResource("fixtures/xctestrun/man_v0.xctestrun").file)
         val actual: Xctestrun = PropertyList.from(file)
 
         val target = TestTarget(
@@ -24,7 +24,7 @@ class XctestrunTest {
         target.uiTargetAppPath = "__TESTROOT__/Target.app"
         val expected = Xctestrun("TestTargetName", target)
         
-        actual shouldBeEqualTo  expected
+        actual shouldBeEqualTo expected
     }
 
     @Test

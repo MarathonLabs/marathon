@@ -7,14 +7,12 @@ import com.malinskiy.marathon.config.Configuration
 import com.malinskiy.marathon.config.vendor.VendorConfiguration
 import com.malinskiy.marathon.config.vendor.android.TestParserConfiguration
 import com.malinskiy.marathon.device.DeviceProvider
-import com.malinskiy.marathon.device.DeviceProviderFactory
-import com.malinskiy.marathon.device.LambdaDeviceProviderFactory
 import com.malinskiy.marathon.execution.TestParser
 import org.koin.dsl.module
 
 val adamModule = module {
-    single<DeviceProviderFactory> {
-        LambdaDeviceProviderFactory { AdamDeviceProvider(get(), get(), get(), get(), get()) }
+    single<DeviceProvider> {
+        AdamDeviceProvider(get(), get(), get(), get(), get())
     }
     single<TestParser?> {
         val configuration = get<Configuration>()

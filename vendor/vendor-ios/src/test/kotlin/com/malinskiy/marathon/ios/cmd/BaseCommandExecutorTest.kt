@@ -9,6 +9,7 @@ import kotlinx.coroutines.withContext
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeInRange
 import org.amshove.kluent.shouldHaveSize
+import org.amshove.kluent.shouldNotBeEqualTo
 import org.junit.jupiter.api.Test
 import java.nio.charset.Charset
 import java.time.Duration
@@ -178,10 +179,9 @@ abstract class BaseCommandExecutorTest {
                 }
                 delay(1000)
                 
-                
-                
                 val commandResult = deferredA.await()
-                commandResult.exitCode shouldBeEqualTo 143
+                //exit code is not standardized across OSes: some use 143 to indicate SIGTERM, but not all
+                commandResult.exitCode shouldNotBeEqualTo 0
 
                 val sessionB = executor.execute(listOf("echo", "hello"), Duration.ofSeconds(10), Duration.ofSeconds(10), emptyMap(), null)
                 val resultB = sessionB.await()

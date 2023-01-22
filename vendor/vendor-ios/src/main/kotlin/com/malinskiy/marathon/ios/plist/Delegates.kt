@@ -59,15 +59,19 @@ inline fun <reified T> NSDictionary.arrayDelegateFor(name: String, optional: Boo
     return object : ReadWriteProperty<Any, Array<T>> {
         @Suppress("UNCHECKED_CAST")
         override fun getValue(thisRef: Any, property: KProperty<*>): Array<T> {
-            val someProperty = this@arrayDelegateFor[name]?.toJavaObject()
+            val someProperty = this@arrayDelegateFor[name]
                 ?: if (optional) {
                     return emptyArray()
                 } else {
                     throw IllegalArgumentException("plist does not define property $name")
                 }
-            val array =
-                someProperty as? Array<T> ?: throw IllegalArgumentException("plist property $name is of type ${someProperty::class.java}")
-            return array
+            
+            val nsArray: NSArray =
+                someProperty as? NSArray ?: throw IllegalArgumentException("plist property $name is of type ${someProperty::class.java}")
+            
+            return nsArray.array.map { 
+                it.toJavaObject(T::class.java) 
+            }.toTypedArray()
         }
 
         override fun setValue(thisRef: Any, property: KProperty<*>, value: Array<T>) {

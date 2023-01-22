@@ -9,7 +9,6 @@ import com.malinskiy.marathon.android.adam.TestConfigurationFactory
 import com.malinskiy.marathon.android.adam.TestDeviceFactory
 import com.malinskiy.marathon.android.adam.boot
 import com.malinskiy.marathon.android.adam.features
-import com.malinskiy.marathon.android.model.TestIdentifier
 import com.malinskiy.marathon.config.vendor.android.FileSyncConfiguration
 import com.malinskiy.marathon.config.vendor.android.FileSyncEntry
 import com.malinskiy.marathon.device.DevicePoolId
@@ -28,6 +27,7 @@ import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
 import java.io.File
+import com.malinskiy.marathon.test.Test as MarathonTest
 
 @AdbTest
 class LogListenerTest {
@@ -51,10 +51,11 @@ class LogListenerTest {
         )
         val device = TestDeviceFactory.create(client, configuration, mock())
         val poolId = DevicePoolId("testpool")
-        val batch = TestBatch(listOf(test0.toTest()))
+        val batch = TestBatch(listOf(test0))
         val logWriter = mock<LogWriter>()
         val attachmentListener = mock<AttachmentListener>()
-        val listener = LogListener(device.toDeviceInfo(), device, poolId, batch.id, logWriter)
+        val deviceInfo = device.toDeviceInfo()
+        val listener = LogListener(deviceInfo, device, poolId, batch.id, logWriter)
 
         runBlocking {
             server.multipleSessions {
@@ -67,17 +68,17 @@ class LogListenerTest {
             device.setup()
 
             val logFile = File(temp, "log")
-            whenever(logWriter.saveLogs(test0.toTest(), poolId, batch.id, device.toDeviceInfo(), listOf("1\n2\n"))).thenReturn(logFile)
+            whenever(logWriter.saveLogs(test0, poolId, batch.id, deviceInfo, listOf("1\n2\n"))).thenReturn(logFile)
 
             listener.registerListener(attachmentListener)
             listener.onLine("0")
-            listener.testStarted(test0.toTest())
+            listener.testStarted(test0)
             listener.onLine("1")
             listener.onLine("2")
-            listener.testEnded(test0.toTest())
+            listener.testEnded(test0)
             listener.onLine("3")
 
-            verify(attachmentListener, times(1)).onAttachment(test0.toTest(), Attachment(logFile, AttachmentType.LOG))
+            verify(attachmentListener, times(1)).onAttachment(test0, Attachment(logFile, AttachmentType.LOG))
         }
     }
 
@@ -92,10 +93,11 @@ class LogListenerTest {
         )
         val device = TestDeviceFactory.create(client, configuration, mock())
         val poolId = DevicePoolId("testpool")
-        val batch = TestBatch(listOf(test0.toTest()))
+        val batch = TestBatch(listOf(test0))
         val logWriter = mock<LogWriter>()
         val attachmentListener = mock<AttachmentListener>()
-        val listener = LogListener(device.toDeviceInfo(), device, poolId, batch.id, logWriter)
+        val deviceInfo = device.toDeviceInfo()
+        val listener = LogListener(deviceInfo, device, poolId, batch.id, logWriter)
 
         runBlocking {
             server.multipleSessions {
@@ -108,17 +110,17 @@ class LogListenerTest {
             device.setup()
 
             val logFile = File(temp, "log")
-            whenever(logWriter.saveLogs(test0.toTest(), poolId, batch.id, device.toDeviceInfo(), listOf("1\n2\n"))).thenReturn(logFile)
+            whenever(logWriter.saveLogs(test0, poolId, batch.id, deviceInfo, listOf("1\n2\n"))).thenReturn(logFile)
 
             listener.registerListener(attachmentListener)
             listener.onLine("0")
-            listener.testStarted(test0.toTest())
+            listener.testStarted(test0)
             listener.onLine("1")
             listener.onLine("2")
-            listener.testEnded(test0.toTest())
+            listener.testEnded(test0)
             listener.onLine("3")
 
-            verify(attachmentListener, times(1)).onAttachment(test0.toTest(), Attachment(logFile, AttachmentType.LOG))
+            verify(attachmentListener, times(1)).onAttachment(test0, Attachment(logFile, AttachmentType.LOG))
         }
     }
 
@@ -133,10 +135,11 @@ class LogListenerTest {
         )
         val device = TestDeviceFactory.create(client, configuration, mock())
         val poolId = DevicePoolId("testpool")
-        val batch = TestBatch(listOf(test0.toTest(), test1.toTest()))
+        val batch = TestBatch(listOf(test0, test1))
         val logWriter = mock<LogWriter>()
         val attachmentListener = mock<AttachmentListener>()
-        val listener = LogListener(device.toDeviceInfo(), device, poolId, batch.id, logWriter)
+        val deviceInfo = device.toDeviceInfo()
+        val listener = LogListener(deviceInfo, device, poolId, batch.id, logWriter)
 
         runBlocking {
             server.multipleSessions {
@@ -150,27 +153,27 @@ class LogListenerTest {
 
             val logFile1 = File(temp, "log1")
             val logFile2 = File(temp, "log2")
-            whenever(logWriter.saveLogs(test0.toTest(), poolId, batch.id, device.toDeviceInfo(), listOf("1\n2\n"))).thenReturn(logFile1)
-            whenever(logWriter.saveLogs(test1.toTest(), poolId, batch.id, device.toDeviceInfo(), listOf("b\nc\n"))).thenReturn(logFile2)
+            whenever(logWriter.saveLogs(test0, poolId, batch.id, deviceInfo, listOf("1\n2\n"))).thenReturn(logFile1)
+            whenever(logWriter.saveLogs(test1, poolId, batch.id, deviceInfo, listOf("b\nc\n"))).thenReturn(logFile2)
 
             listener.registerListener(attachmentListener)
             listener.onLine("0")
-            listener.testStarted(test0.toTest())
+            listener.testStarted(test0)
             listener.onLine("1")
             listener.onLine("2")
-            listener.testEnded(test0.toTest())
+            listener.testEnded(test0)
             listener.onLine("3")
 
             listener.onLine("a")
-            listener.testStarted(test1.toTest())
+            listener.testStarted(test1)
             listener.onLine("b")
             listener.onLine("c")
-            listener.testEnded(test1.toTest())
+            listener.testEnded(test1)
             listener.onLine("d")
 
 
-            verify(attachmentListener, times(1)).onAttachment(test0.toTest(), Attachment(logFile1, AttachmentType.LOG))
-            verify(attachmentListener, times(1)).onAttachment(test1.toTest(), Attachment(logFile2, AttachmentType.LOG))
+            verify(attachmentListener, times(1)).onAttachment(test0, Attachment(logFile1, AttachmentType.LOG))
+            verify(attachmentListener, times(1)).onAttachment(test1, Attachment(logFile2, AttachmentType.LOG))
         }
     }
 
@@ -179,9 +182,10 @@ class LogListenerTest {
         val configuration = TestConfigurationFactory.create()
         val device = TestDeviceFactory.create(client, configuration, mock())
         val poolId = DevicePoolId("testpool")
-        val batch = TestBatch(listOf(test0.toTest()))
+        val batch = TestBatch(listOf(test0))
         val logWriter = mock<LogWriter>()
-        val listener = LogListener(device.toDeviceInfo(), device, poolId, batch.id, logWriter)
+        val deviceInfo = device.toDeviceInfo()
+        val listener = LogListener(deviceInfo, device, poolId, batch.id, logWriter)
 
         runBlocking {
             server.multipleSessions {
@@ -197,12 +201,12 @@ class LogListenerTest {
             listener.onLine("Important crash-related information")
             listener.afterTestRun()
 
-            verify(logWriter, times(1)).saveLogs(poolId, batch.id, device.toDeviceInfo(), listOf("Important crash-related information\n"))
+            verify(logWriter, times(1)).saveLogs(poolId, batch.id, deviceInfo, listOf("Important crash-related information\n"))
         }
     }
 
     companion object {
-        val test0 = TestIdentifier("com.example.Class", "method0")
-        val test1 = TestIdentifier("com.example.Class", "method1")
+        val test0 = MarathonTest("com.example", "Class", "method0", emptyList())
+        val test1 = MarathonTest("com.example", "Class", "method1", emptyList())
     }
 }

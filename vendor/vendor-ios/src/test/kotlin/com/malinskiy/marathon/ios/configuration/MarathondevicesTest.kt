@@ -38,6 +38,13 @@ class MarathondevicesTest {
         actual shouldBeEqualTo Marathondevices(
             workers = listOf(
                 Worker(
+                    transport = Transport.Local,
+                    devices = listOf(
+                        AppleTarget.Simulator("XXX"),
+                        AppleTarget.Physical("YYY"),
+                    ) 
+                ),
+                Worker(
                     transport = Transport.Ssh(
                         addr = "node-1.device-farm.example.com",
                         port = 44,
@@ -47,8 +54,6 @@ class MarathondevicesTest {
                         )
                     ),
                     devices = listOf(
-                        AppleTarget.Simulator("XXX"),
-                        AppleTarget.Physical("YYY"),
                         AppleTarget.SimulatorProfile(
                             deviceTypeId = "com.apple.CoreSimulator.SimDeviceType.iPhone-X",
                             runtimeId = "com.apple.CoreSimulator.SimRuntime.iOS-16-2",
