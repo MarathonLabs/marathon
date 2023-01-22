@@ -1,7 +1,7 @@
 html[data-theme='light'] {
   --ifm-tabs-color: var(--c-indigo-90);
-  --ifm-tabs-color-active: var(--c-carbon-100);
-  --tabs-border-c: var(--c-indigo-40);
+  --ifm-tabs-color-active: var(--c-marathon-purple);
+  --tabs-border-c: var(--c-marathon-purple);
 }
 
 html[data-theme='dark'] {
@@ -17,29 +17,26 @@ html[data-theme='dark'] {
   --ifm-tabs-spacing: 0.5rem;
 }
 
+.tabs-container {
+  border: 1px solid var(--sidebar-border-c);
+  border-radius: 4px;
+}
+
 .tabs {
+  border-block-end: 1px solid var(--sidebar-border-c);
   .tabs__item {
     font-weight: 400;
-    font-size: 0.75rem;
+    font-size: 0.938rem;
     line-height: 100%;
+    padding-inline: 1.25rem;
     letter-spacing: 0;
-
-    border-radius: 1000px;
-    border: 1px solid rgba(0, 0, 0, 0);
-
     padding-block-start: calc(var(--ifm-tabs-padding-vertical) - 1px);
-
-    transition: border-color 0.2s ease-out, opacity 0.2s ease-out;
-
+    
     &--active {
-      font-weight: 500;
-
+      font-weight: 600;
       border-color: var(--tabs-border-c);
     }
 
-    + .tabs__item {
-      margin-inline-start: var(--ifm-tabs-spacing);
-    }
 
     &:hover {
       background-color: inherit;
@@ -52,5 +49,5 @@ html[data-theme='dark'] {
 }
 
 .tabs-container > div {
-  margin-block-start: 0.75rem !important;
+  margin-block-start: 0rem !important;
 }
