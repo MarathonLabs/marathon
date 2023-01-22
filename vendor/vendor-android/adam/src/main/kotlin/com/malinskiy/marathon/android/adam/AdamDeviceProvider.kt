@@ -35,6 +35,7 @@ import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withTimeoutOrNull
 import java.net.ConnectException
 import java.net.InetAddress
+import java.time.Duration
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.coroutines.CoroutineContext
 
@@ -176,6 +177,13 @@ class AdamDeviceProvider(
                 }
             }
         }
+    }
+
+    override suspend fun borrow(): AdamAndroidDevice {
+        while(devices.isEmpty()) {
+            delay(200)
+        }
+        return devices.values.random().device
     }
 
     private suspend fun printAdbServerVersion(client: AndroidDebugBridgeClient) {

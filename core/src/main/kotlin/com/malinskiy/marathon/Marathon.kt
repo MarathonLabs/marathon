@@ -8,15 +8,19 @@ import com.malinskiy.marathon.config.ExecutionCommand
 import com.malinskiy.marathon.config.LogicalConfigurationValidator
 import com.malinskiy.marathon.config.MarathonRunCommand
 import com.malinskiy.marathon.config.ParseCommand
+import com.malinskiy.marathon.config.exceptions.ConfigurationException
 import com.malinskiy.marathon.device.DeviceProvider
 import com.malinskiy.marathon.exceptions.NoDevicesException
 import com.malinskiy.marathon.exceptions.NoTestCasesFoundException
+import com.malinskiy.marathon.execution.LocalTestParser
+import com.malinskiy.marathon.execution.RemoteTestParser
 import com.malinskiy.marathon.execution.Scheduler
 import com.malinskiy.marathon.execution.TestParser
 import com.malinskiy.marathon.execution.TestShard
 import com.malinskiy.marathon.execution.bundle.TestBundleIdentifier
 import com.malinskiy.marathon.execution.command.parse.MarathonTestParseCommand
 import com.malinskiy.marathon.execution.progress.ProgressReporter
+import com.malinskiy.marathon.execution.withRetry
 import com.malinskiy.marathon.extension.toFlakinessStrategy
 import com.malinskiy.marathon.extension.toShardingStrategy
 import com.malinskiy.marathon.extension.toTestFilter
@@ -28,8 +32,14 @@ import com.malinskiy.marathon.time.Timer
 import com.malinskiy.marathon.usageanalytics.TrackActionType
 import com.malinskiy.marathon.usageanalytics.UsageAnalytics
 import com.malinskiy.marathon.usageanalytics.tracker.Event
+import kotlinx.coroutines.NonCancellable
+import kotlinx.coroutines.async
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
+import kotlinx.coroutines.withTimeoutOrNull
 import org.koin.core.context.stopKoin
+import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.coroutines.coroutineContext
 
 private val log = MarathonLogging.logger {}
@@ -48,23 +58,39 @@ class Marathon(
     private val marathonTestParseCommand: MarathonTestParseCommand
 ) {
     private val configurationValidator = LogicalConfigurationValidator()
+    private val cleanedUp = AtomicBoolean(false)
 
     private fun configureLogging() {
         MarathonLogging.debug = configuration.debug
         logConfigurator.configure()
     }
 
-    fun run(executionCommand: ExecutionCommand = MarathonRunCommand) = runBlocking {
+    fun run(executionCommand: ExecutionCommand = MarathonRunCommand) : Boolean = runBlocking {
         try {
-            runAsync(executionCommand)
+            async {
+                val hook = installShutdownHook { onFinish(analytics, deviceProvider) }
+                runAsync(executionCommand)
+                hook.uninstall()
+            }.apply {
+                invokeOnCompletion {
+                    //Marathon will usually clean up correctly unless exception is thrown
+                    if (it != null) {
+                        runBlocking {
+                            withContext(NonCancellable) {
+                                onFinish(analytics, deviceProvider)
+                            }
+                        }
+                    }
+                }
+            }.await()
         } catch (th: Throwable) {
-            log.error(th.toString())
-
+            log.error(th) {}
             when (th) {
                 is NoDevicesException -> {
                     log.warn { "No devices found" }
                     false
                 }
+
                 else -> configuration.ignoreFailures
             }
         }
@@ -75,11 +101,25 @@ class Marathon(
         trackAnalytics(configuration)
 
         logSystemInformation()
-
-        deviceProvider.initialize()
         configurationValidator.validate(configuration)
 
-        val parsedAllTests = testParser.extract()
+        deviceProvider.initialize()
+        val parsedAllTests = when (testParser) {
+            is LocalTestParser -> testParser.extract()
+            is RemoteTestParser<*> -> {
+                withRetry(3, 0) {
+                    withTimeoutOrNull(configuration.deviceInitializationTimeoutMillis) {
+                        val borrowedDevice = deviceProvider.borrow()
+                        testParser.extract(borrowedDevice)
+                    } ?: throw NoDevicesException("Timed out waiting for a temporary device for remote test parsing")
+                }
+            }
+
+            else -> {
+                throw ConfigurationException("unknown test parser type for ${testParser::class}, should inherit from either ${LocalTestParser::class.simpleName} or ${RemoteTestParser::class.simpleName}")
+            }
+        }
+
         if (parsedAllTests.isEmpty()) throw NoTestCasesFoundException("No tests cases were found")
         val parsedFilteredTests = applyTestFilters(parsedAllTests)
         if (executionCommand is ParseCommand) {
@@ -114,14 +154,12 @@ class Marathon(
         }
         configuration.outputDir.mkdirs()
 
-        val hook = installShutdownHook { onFinish(analytics, deviceProvider) }
-
         if (parsedFilteredTests.isNotEmpty()) {
             scheduler.execute()
         }
 
-        val result = onFinish(analytics, deviceProvider)
-        hook.uninstall()
+        onFinish(analytics, deviceProvider)
+        val result = progressReporter.aggregateResult()
 
         stopKoin()
         return result
@@ -147,11 +185,13 @@ class Marathon(
         return shutdownHook
     }
 
-    private suspend fun onFinish(analytics: Analytics, deviceProvider: DeviceProvider): Boolean {
-        analytics.close()
-        deviceProvider.terminate()
-        tracker.close()
-        return progressReporter.aggregateResult()
+
+    private suspend fun onFinish(analytics: Analytics, deviceProvider: DeviceProvider) {
+        if (cleanedUp.compareAndSet(false, true)) {
+            analytics.close()
+            deviceProvider.terminate()
+            tracker.close()
+        }
     }
 
     private fun applyTestFilters(parsedTests: List<Test>): List<Test> {

@@ -1,0 +1,39 @@
+name: "sample-ios-app tests"
+outputDir: "report/marathon-unitTests"
+testClassRegexes: ["^((?!Abstract).)*Tests$"]
+screenRecordingPolicy: ON_ANY
+isCodeCoverageEnabled: true
+flakinessStrategy:
+  type: "probability"
+  minSuccessRate: 0.99
+  maxCount: 2
+  timeLimit: "-PT1H"
+poolingStrategy:
+  type: "omni"
+batchingStrategy:
+  type: "fixed-size"
+  size: 5
+  lastMileLength: 50
+debug: true
+vendorConfiguration:
+  type: "iOS"
+  bundle:
+    application: dd/sample-app.app
+    testApplication: dd/sample-appUnitTests.xctest
+    testType: xctest
+  ssh:
+    authentication:
+      type: publicKey
+      username: malinskiy
+      key: ${HOME}/.ssh/marathon
+    knownHostsPath: ${HOME}/.ssh/known_hosts
+  xcresult:
+    pull: true
+    remoteClean: true
+  screenRecordConfiguration:
+    videoConfiguration:
+      enabled: false
+    screenshotConfiguration:
+      enabled: false
+  lifecycle:
+    onPrepare: []

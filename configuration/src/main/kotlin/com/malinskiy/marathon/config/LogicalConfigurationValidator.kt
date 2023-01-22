@@ -3,6 +3,7 @@ package com.malinskiy.marathon.config
 import com.malinskiy.marathon.config.exceptions.ConfigurationException
 import com.malinskiy.marathon.config.strategy.FlakinessStrategyConfiguration
 import com.malinskiy.marathon.config.strategy.ShardingStrategyConfiguration
+import com.malinskiy.marathon.config.vendor.VendorConfiguration
 
 class LogicalConfigurationValidator : ConfigurationValidator {
     override fun validate(configuration: Configuration) {
@@ -19,5 +20,13 @@ class LogicalConfigurationValidator : ConfigurationValidator {
 
         configuration.filteringConfiguration.allowlist.forEach { it.validate() }
         configuration.filteringConfiguration.blocklist.forEach { it.validate() }
+        
+        when(configuration.vendorConfiguration) {
+            is VendorConfiguration.IOSConfiguration -> {
+                configuration.vendorConfiguration.validate()
+            }
+
+            else -> Unit
+        }
     }
 }

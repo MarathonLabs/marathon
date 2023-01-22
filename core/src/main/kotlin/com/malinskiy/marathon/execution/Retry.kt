@@ -21,3 +21,19 @@ suspend fun <T> withRetry(attempts: Int, delayTime: Long = 0, f: suspend () -> T
         ++attempt
     }
 }
+
+fun <T> withRetrySync(attempts: Int, delayTime: Long = 0, f: () -> T): T {
+    var attempt = 1
+    while (true) {
+        try {
+            return f()
+        } catch (th: Throwable) {
+            if (attempt == attempts) {
+                throw th
+            } else {
+                Thread.sleep(delayTime)
+            }
+        }
+        ++attempt
+    }
+}

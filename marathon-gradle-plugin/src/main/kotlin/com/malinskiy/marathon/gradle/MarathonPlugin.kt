@@ -181,7 +181,6 @@ class MarathonPlugin : Plugin<Project> {
                 config.filteringConfiguration?.toFilteringConfiguration()?.let { filteringConfiguration = it }
                 config.ignoreFailures?.let { ignoreFailures = it }
                 config.isCodeCoverageEnabled?.let { isCodeCoverageEnabled = it }
-                config.fallbackToScreenshots?.let { fallbackToScreenshots = it }
                 config.strictMode?.let { strictMode = it }
                 config.uncompletedTestRetryQuota?.let { uncompletedTestRetryQuota = it }
                 config.testClassRegexes?.map { it.toRegex() }?.let { testClassRegexes = it }

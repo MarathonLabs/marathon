@@ -1,7 +1,7 @@
 package com.malinskiy.marathon.android.adam
 
 import com.malinskiy.adam.server.stub.dsl.DeviceExpectation
-import com.malinskiy.marathon.android.model.Rotation
+import com.malinskiy.marathon.device.screenshot.Rotation
 import kotlinx.coroutines.delay
 import java.io.File
 

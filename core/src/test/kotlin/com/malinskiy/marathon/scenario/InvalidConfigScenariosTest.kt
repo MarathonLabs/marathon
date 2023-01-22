@@ -7,18 +7,17 @@ import com.malinskiy.marathon.device.DeviceProvider
 import com.malinskiy.marathon.execution.TestStatus
 import com.malinskiy.marathon.test.StubDevice
 import com.malinskiy.marathon.test.setupMarathon
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.test.TestCoroutineContext
+import kotlinx.coroutines.test.advanceTimeBy
+import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.shouldBe
-import org.amshove.kluent.shouldBeInstanceOf
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 import org.koin.core.context.stopKoin
 import java.io.File
 import java.time.Instant
-import java.util.concurrent.TimeUnit
 import com.malinskiy.marathon.test.Test as MarathonTest
 
 class InvalidConfigScenariosTest {
@@ -28,45 +27,47 @@ class InvalidConfigScenariosTest {
         stopKoin()
     }
 
-    @Test
+    @Test()
     fun `one healthy device and invalid marathon config should fail`() {
-        var output: File? = null
-        val context = TestCoroutineContext("testing context")
+        assertThrows<ConfigurationException> {
+            runTest {
+                var output: File? = null
 
-        val marathon = setupMarathon {
-            val test = MarathonTest("test", "SimpleTest", "test", emptySet())
-            val device = StubDevice()
+                val marathon = setupMarathon {
+                    val test = MarathonTest("test", "SimpleTest", "test", emptySet())
+                    val device = StubDevice()
 
-            configuration {
-                output = outputDir
+                    configuration {
+                        output = outputDir
 
-                tests {
-                    listOf(test)
+                        tests {
+                            listOf(test)
+                        }
+
+                        flakinessStrategy = FlakinessStrategyConfiguration.ProbabilityBasedFlakinessStrategyConfiguration(.2, 2, Instant.now())
+                        shardingStrategy = ShardingStrategyConfiguration.CountShardingStrategyConfiguration(2)
+
+                        deviceProvider.context = coroutineContext
+
+                        devices {
+                            delay(1000)
+                            it.send(DeviceProvider.DeviceEvent.DeviceConnected(device))
+                        }
+                    }
+
+                    device.executionResults = mapOf(
+                        test to arrayOf(TestStatus.PASSED)
+                    )
                 }
 
-                flakinessStrategy = FlakinessStrategyConfiguration.ProbabilityBasedFlakinessStrategyConfiguration(.2, 2, Instant.now())
-                shardingStrategy = ShardingStrategyConfiguration.CountShardingStrategyConfiguration(2)
-
-                deviceProvider.context = context
-
-                devices {
-                    delay(1000)
-                    it.send(DeviceProvider.DeviceEvent.DeviceConnected(device))
+                val job = launch {
+                    marathon.runAsync()
                 }
+
+                advanceTimeBy(20_000)
+
+                job.isCompleted shouldBe true
             }
-
-            device.executionResults = mapOf(
-                test to arrayOf(TestStatus.PASSED)
-            )
         }
-
-        val job = GlobalScope.launch(context = context) {
-            marathon.runAsync()
-        }
-
-        context.advanceTimeBy(20, TimeUnit.SECONDS)
-
-        job.isCompleted shouldBe true
-        context.exceptions[0] shouldBeInstanceOf ConfigurationException::class.java
     }
 }

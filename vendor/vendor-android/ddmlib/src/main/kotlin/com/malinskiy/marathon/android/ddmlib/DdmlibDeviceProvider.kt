@@ -12,6 +12,7 @@ import com.malinskiy.marathon.android.AndroidTestBundleIdentifier
 import com.malinskiy.marathon.config.Configuration
 import com.malinskiy.marathon.config.vendor.VendorConfiguration
 import com.malinskiy.marathon.config.vendor.android.AdbEndpoint
+import com.malinskiy.marathon.device.Device
 import com.malinskiy.marathon.device.DeviceProvider
 import com.malinskiy.marathon.device.DeviceProvider.DeviceEvent.DeviceConnected
 import com.malinskiy.marathon.device.DeviceProvider.DeviceEvent.DeviceDisconnected
@@ -20,12 +21,14 @@ import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.time.Timer
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.newFixedThreadPoolContext
 import java.nio.file.Paths
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ConcurrentMap
 import java.util.concurrent.TimeUnit
+import javax.naming.ConfigurationException
 import kotlin.coroutines.CoroutineContext
 
 private const val DEFAULT_DDM_LIB_TIMEOUT = 30000
@@ -178,6 +181,13 @@ class DdmlibDeviceProvider(
             terminate()
             throw NoDevicesException("No devices found.")
         }
+    }
+
+    override suspend fun borrow(): Device {
+        while(devices.isEmpty()) {
+            delay(200)
+        }
+        return devices.values.random()
     }
 
     private fun getDeviceOrPut(androidDevice: DdmlibAndroidDevice): DdmlibAndroidDevice {

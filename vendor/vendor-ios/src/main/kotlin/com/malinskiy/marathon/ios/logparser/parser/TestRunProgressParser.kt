@@ -1,37 +1,65 @@
 package com.malinskiy.marathon.ios.logparser.parser
 
-import com.malinskiy.marathon.ios.logparser.StreamingLogParser
+import com.malinskiy.marathon.ios.logparser.TestEventProducer
 import com.malinskiy.marathon.ios.logparser.formatter.PackageNameFormatter
-import com.malinskiy.marathon.ios.executor.listener.TestRunListener
+import com.malinskiy.marathon.ios.test.TestEvent
+import com.malinskiy.marathon.ios.test.TestFailed
+import com.malinskiy.marathon.ios.test.TestIgnored
+import com.malinskiy.marathon.ios.test.TestPassed
+import com.malinskiy.marathon.ios.test.TestStarted
 import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.test.Test
 import com.malinskiy.marathon.time.Timer
+import kotlin.math.roundToInt
 
 class TestRunProgressParser(
     private val timer: Timer,
     private val packageNameFormatter: PackageNameFormatter,
-    private val listeners: Collection<TestRunListener>
-) : StreamingLogParser {
-
-    override fun close() {
-        listeners.forEach { it.batchFinished() }
-    }
+) : TestEventProducer {
 
     val logger = MarathonLogging.logger(TestRunProgressParser::class.java.simpleName)
 
     val TEST_CASE_STARTED = """Test Case '-\[([a-zA-Z0-9_.]+)\.([a-zA-Z0-9_]+) ([a-zA-Z0-9_]+)]' started\.""".toRegex()
     val TEST_CASE_FINISHED =
-        """Test Case '-\[([a-zA-Z0-9_.]+)\.([a-zA-Z0-9_]+) ([a-zA-Z0-9_]+)]' (passed|failed) \(([\d\.]+) seconds\)\.""".toRegex()
+        """Test Case '-\[([a-zA-Z0-9_.]+)\.([a-zA-Z0-9_]+) ([a-zA-Z0-9_]+)]' (passed|failed|skipped) \(([\d\.]+) seconds\)\.""".toRegex()
 
-    override fun onLine(line: String) {
-        if (line.matches(TEST_CASE_STARTED)) {
-            notifyTestStarted(line)
+    /**
+     * $1 = file
+     * $2 = test_suite
+     * $3 = test_case
+     * $4 = reason
+     */
+    val FAILING_TEST_MATCHER = "(/.+:\\d+):\\serror:\\s[\\+\\-]\\[(.*)\\s(.*)\\]\\s:(\\s.*)".toRegex()
+    
+    private var failingTestLine: String? = null
+    
+    override fun process(line: String): List<TestEvent>? {
+        return if (line.matches(TEST_CASE_STARTED)) {
+            parseTestStarted(line)?.let { listOf(it) }
         } else if (line.matches(TEST_CASE_FINISHED)) {
-            notifyTestFinished(line)
+            parseTestFinished(line)?.let { listOf(it) }
+        } else if (line.matches(FAILING_TEST_MATCHER)) {
+            failingTestLine = line
+            null
+        } else {
+            null
         }
     }
 
-    fun notifyTestFinished(line: String) {
+    private fun parseFailingTest(line: String): String? {
+        val matchResult = FAILING_TEST_MATCHER.find(line)
+        val file = matchResult?.groups?.get(1)?.value?.trim()
+        val testSuite = matchResult?.groups?.get(2)?.value?.trim()
+        val testCase = matchResult?.groups?.get(3)?.value?.trim()
+        val reason = matchResult?.groups?.get(4)?.value?.trim()
+        
+        if(file !== null && testSuite != null && testCase != null && reason != null) {
+            return "$file:$reason"
+        }
+        return null
+    }
+
+    private fun parseTestFinished(line: String): TestEvent? {
         val matchResult = TEST_CASE_FINISHED.find(line)
         val pkg = packageNameFormatter.format(matchResult?.groups?.get(1)?.value)
         val clazz = matchResult?.groups?.get(2)?.value
@@ -45,30 +73,44 @@ class TestRunProgressParser(
             val test = Test(pkg, clazz, method, emptyList())
 
             val endTime = timer.currentTimeMillis()
-            val startTime = endTime - Math.round(duration * 1000)
+            val startTime = endTime - (duration * 1000).roundToInt()
 
-            when (result) {
+            return when (result) {
                 "passed" -> {
-                    listeners.forEach { it.testPassed(test, startTime, endTime) }
+                    TestPassed(test, startTime, endTime)
                 }
+
                 "failed" -> {
-                    listeners.forEach { it.testFailed(test, startTime, endTime) }
+                    val trace = failingTestLine?.let { 
+                        parseFailingTest(it)
+                    }
+                    TestFailed(test, startTime, endTime, trace)
                 }
-                else -> logger.error { "Unknown result $result for test $pkg.$clazz.$method" }
+                "skipped" -> {
+                    TestIgnored(test, startTime, endTime)
+                }
+                else -> {
+                    logger.error { "Unknown result $result for test $pkg.$clazz.$method" }
+                    null
+                }
             }
         }
+        return null
     }
 
-    fun notifyTestStarted(line: String) {
+    private fun parseTestStarted(line: String): TestStarted? {
+        failingTestLine = null
         val matchResult = TEST_CASE_STARTED.find(line)
         val pkg = packageNameFormatter.format(matchResult?.groups?.get(1)?.value)
         val clazz = matchResult?.groups?.get(2)?.value
         val method = matchResult?.groups?.get(3)?.value
 
-        if (pkg != null && clazz != null && method != null) {
+        return if (pkg != null && clazz != null && method != null) {
             val test = Test(pkg, clazz, method, emptyList())
             logger.trace { "Test $pkg.$clazz.$method started" }
-            listeners.forEach { it.testStarted(test) }
+            TestStarted(test)
+        } else {
+            null
         }
     }
 }

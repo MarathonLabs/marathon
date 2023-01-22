@@ -10,5 +10,5 @@ enum class AttachmentType(val mimeType: String) {
     SCREENSHOT_PNG("image/png"),
     SCREENSHOT_WEBP("image/webp"),
     VIDEO("video/mp4"),
-    LOG("text/txt");
+    LOG("text/plain");
 }

@@ -33,3 +33,4 @@ if [[ -z ${XCODEBUILD_DESTINATION} ]]; then
 fi
 
 $XCODEBUILD build-for-testing -derivedDataPath derived-data -workspace sample-app.xcworkspace -scheme UITesting -sdk iphonesimulator -destination "platform=iOS Simulator,id=$XCODEBUILD_DESTINATION"
+$XCODEBUILD build-for-testing -derivedDataPath derived-data -workspace sample-app.xcworkspace -scheme sample-appUnitTests -sdk iphonesimulator -destination "platform=iOS Simulator,id=$XCODEBUILD_DESTINATION"

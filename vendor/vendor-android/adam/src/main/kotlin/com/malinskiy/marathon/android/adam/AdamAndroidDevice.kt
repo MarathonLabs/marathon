@@ -40,8 +40,8 @@ import com.malinskiy.marathon.android.BaseAndroidDevice
 import com.malinskiy.marathon.android.RemoteFileManager
 import com.malinskiy.marathon.android.exception.CommandRejectedException
 import com.malinskiy.marathon.android.exception.InstallException
-import com.malinskiy.marathon.android.exception.TransferException
-import com.malinskiy.marathon.android.executor.listeners.line.LineListener
+import com.malinskiy.marathon.exceptions.TransferException
+import com.malinskiy.marathon.execution.listener.LineListener
 import com.malinskiy.marathon.android.extension.toScreenRecorderCommand
 import com.malinskiy.marathon.config.Configuration
 import com.malinskiy.marathon.config.vendor.VendorConfiguration
@@ -49,6 +49,7 @@ import com.malinskiy.marathon.config.vendor.android.SerialStrategy
 import com.malinskiy.marathon.config.vendor.android.VideoConfiguration
 import com.malinskiy.marathon.device.DevicePoolId
 import com.malinskiy.marathon.device.NetworkState
+import com.malinskiy.marathon.device.file.measureFileTransfer
 import com.malinskiy.marathon.exceptions.DeviceLostException
 import com.malinskiy.marathon.execution.TestBatchResults
 import com.malinskiy.marathon.execution.progress.ProgressReporter
@@ -260,7 +261,10 @@ class AdamAndroidDevice(
             throw TransferException("Source $localFolderPath is not a directory")
         }
         withTimeoutOrNull(androidConfiguration.timeoutConfiguration.pushFolder) {
-            client.execute(PushRequest(File(localFolderPath), remoteFolderPath, supportedFeatures, coroutineContext = dispatcher), serial = adbSerial)
+            client.execute(
+                PushRequest(File(localFolderPath), remoteFolderPath, supportedFeatures, coroutineContext = dispatcher),
+                serial = adbSerial
+            )
         } ?: logger.warn { "Pushing $localFolderPath timed out. Ignoring" }
     }
 
@@ -326,13 +330,13 @@ class AdamAndroidDevice(
 
     private val logcatListeners = mutableListOf<LineListener>()
 
-    override fun addLogcatListener(listener: LineListener) {
+    override fun addLineListener(listener: LineListener) {
         synchronized(logcatListeners) {
             logcatListeners.add(listener)
         }
     }
 
-    override fun removeLogcatListener(listener: LineListener) {
+    override fun removeLineListener(listener: LineListener) {
         synchronized(logcatListeners) {
             logcatListeners.remove(listener)
         }
@@ -427,30 +431,9 @@ class AdamAndroidDevice(
         return client.execute(runnerRequest, scope = this, serial = adbSerial)
     }
 
-    private inline fun measureFileTransfer(file: File, block: () -> Unit) {
-        measureTimeMillis {
-            block()
-        }.let { time ->
-            val fileSize = file.length()
-            val timeInSeconds = time.toDouble() / 1000
-            if (timeInSeconds > .0f && fileSize > 0) {
-                val speed = "%.2f".format((fileSize / 1000) / timeInSeconds)
-                logger.debug {
-                    "Transferred ${file.name} to/from $serialNumber. $speed KB/s ($fileSize bytes in ${
-                        "%.4f".format(
-                            timeInSeconds
-                        )
-                    })"
-                }
-            }
-        }
-    }
-
-    override fun onLine(line: String) {
-        synchronized(logcatListeners) {
-            logcatListeners.forEach { listener ->
-                listener.onLine(line)
-            }
+    override suspend fun onLine(line: String) {
+        logcatListeners.forEach { listener ->
+            listener.onLine(line)
         }
     }
 

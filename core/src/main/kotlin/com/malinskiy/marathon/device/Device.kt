@@ -5,6 +5,7 @@ import com.malinskiy.marathon.execution.TestBatchResults
 import com.malinskiy.marathon.execution.progress.ProgressReporter
 import com.malinskiy.marathon.test.TestBatch
 import kotlinx.coroutines.CompletableDeferred
+import mu.KLogger
 
 interface Device {
     val operatingSystem: OperatingSystem
@@ -15,9 +16,10 @@ interface Device {
     val deviceFeatures: Collection<DeviceFeature>
     val healthy: Boolean
     val abi: String
+    val logger: KLogger
 
     /**
-     * Called before each batch execution
+     * Called before once after has been device connected
      *
      * Should throw an instance of DeviceSetupException
      *

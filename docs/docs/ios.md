@@ -2,22 +2,26 @@
 title: "Overview"
 ---
 
-Executing tests on iOS simulators requires ssh access to
-Apple hardware capable of executing tests. Simulators have to be
-pre-created when the test run is executed.
+Executing tests on iOS simulators requires access to Apple hardware capable of executing tests. This can be a local macOS instance or a 
+remote instance accessible via [secure shell][2]. For remote access file transfers are carried out incrementally using [rsync][3].
 
-## Providing devices
-iOS device provider reads the available devices from the
-**Marathondevices** file which has the following format:
+Device provider can provision simulators on-demand, reuse existing ones if they match desired configuration as well as utilize
+pre-provisioned simulators. See documentation on [workers][1] for more information on this topic.
 
-```yaml
-- host: "10.0.0.1"
-  udid: "XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX"
-- host: "10.0.0.2"
-  udid: "XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX"
-```
+Marathon can run both XCUITests and XCTests. Test bundle requires you to specify application under test as well as test application.
+After preprocessing both of these inputs are distilled into an application bundle (e.g. `my.app`) and xctest bundle (e.g. `my-tests.xctest`)
+You can specify `.ipa` [application archives][4] as well as `.zip` with the same content as application archive. They will be searched for the
+application and xctest bundles. If there are multiple entries matching description - marathon will fail.
 
-This is basically a list of simulator UDID's with the IP of the macOS system.
+:::tip
 
-Logging into the machine is done using private key authentication which is
-specified using vendor specific options.
+It is much easier to supply the `.app` application bundle and `.xctest` bundle directly instead of wasting time on packaging a signed application
+archive and depending on runtime discovery of your bundles
+
+:::
+ 
+
+[1]: ios/workers.md
+[2]: https://en.wikipedia.org/wiki/Secure_Shell
+[3]: https://en.wikipedia.org/wiki/Rsync
+[4]: https://en.wikipedia.org/wiki/.ipa

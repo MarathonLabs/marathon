@@ -1,3 +1,6 @@
 package com.malinskiy.marathon.exceptions
 
-class NoDevicesException(message: String) : RuntimeException(message)
+class NoDevicesException : RuntimeException {
+    constructor(message: String) : super(message)
+    constructor(message: String, cause: Throwable) : super(message, cause)
+}

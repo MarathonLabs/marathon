@@ -1,0 +1,2065 @@
+{
+  "signature" : "PS0lrtUj8Aw=",
+  "types" : [
+    {
+      "type" : {
+        "name" : "ActionAbstractTestSummary"
+      },
+      "kind" : "object",
+      "properties" : [
+        {
+          "isOptional" : true,
+          "isInternal" : false,
+          "wrappedType" : "String",
+          "name" : "name",
+          "type" : "Optional"
+        }
+      ]
+    },
+    {
+      "type" : {
+        "name" : "ActionDeviceRecord"
+      },
+      "kind" : "object",
+      "properties" : [
+        {
+          "isOptional" : false,
+          "isInternal" : false,
+          "name" : "name",
+          "type" : "String"
+        },
+        {
+          "isOptional" : false,
+          "isInternal" : false,
+          "name" : "isConcreteDevice",
+          "type" : "Bool"
+        },
+        {
+          "isOptional" : false,
+          "isInternal" : false,
+          "name" : "operatingSystemVersion",
+          "type" : "String"
+        },
+        {
+          "isOptional" : false,
+          "isInternal" : false,
+          "name" : "operatingSystemVersionWithBuildNumber",
+          "type" : "String"
+        },
+        {
+          "isOptional" : false,
+          "isInternal" : false,
+          "name" : "nativeArchitecture",
+          "type" : "String"
+        },
+        {
+          "isOptional" : false,
+          "isInternal" : false,
+          "name" : "modelName",
+          "type" : "String"
+        },
+        {
+          "isOptional" : false,
+          "isInternal" : false,
+          "name" : "modelCode",
+          "type" : "String"
+        },
+        {
+          "isOptional" : false,
+          "isInternal" : false,
+          "name" : "modelUTI",
+          "type" : "String"
+        },
+        {
+          "isOptional" : false,
+          "isInternal" : false,
+          "name" : "identifier",
+          "type" : "String"
+        },
+        {
+          "isOptional" : false,
+          "isInternal" : false,
+          "name" : "isWireless",
+          "type" : "Bool"
+        },
+        {
+          "isOptional" : false,
+          "isInternal" : false,
+          "name" : "cpuKind",
+          "type" : "String"
+        },
+        {
+          "isOptional" : true,
+          "isInternal" : false,
+          "wrappedType" : "Int",
+          "name" : "cpuCount",
+          "type" : "Optional"
+        },
+        {
+          "isOptional" : true,
+          "isInternal" : false,
+          "wrappedType" : "Int",
+          "name" : "cpuSpeedInMHz",
+          "type" : "Optional"
+        },
+        {
+          "isOptional" : true,
+          "isInternal" : false,
+          "wrappedType" : "Int",
+          "name" : "busSpeedInMHz",
+          "type" : "Optional"
+        },
+        {
+          "isOptional" : true,
+          "isInternal" : false,
+          "wrappedType" : "Int",
+          "name" : "ramSizeInMegabytes",
+          "type" : "Optional"
+        },
+        {
+          "isOptional" : true,
+          "isInternal" : false,
+          "wrappedType" : "Int",
+          "name" : "physicalCPUCoresPerPackage",
+          "type" : "Optional"
+        },
+        {
+          "isOptional" : true,
+          "isInternal" : false,
+          "wrappedType" : "Int",
+          "name" : "logicalCPUCoresPerPackage",
+          "type" : "Optional"
+        },
+        {
+          "isOptional" : false,
+          "isInternal" : false,
+          "name" : "platformRecord",
+          "type" : "ActionPlatformRecord"
+        }
+      ]
+    },
+    {
+      "type" : {
+        "name" : "ActionPlatformRecord"
+      },
+      "kind" : "object",
+      "properties" : [
+        {
+          "isOptional" : false,
+          "isInternal" : false,
+          "name" : "identifier",
+          "type" : "String"
+        },
+        {
+          "isOptional" : false,
+          "isInternal" : false,
+          "name" : "userDescription",
+          "type" : "String"
+        }
+      ]
+    },
+    {
+      "type" : {
+        "name" : "ActionRecord"
+      },
+      "kind" : "object",
+      "properties" : [
+        {
+          "isOptional" : false,
+          "isInternal" : false,
+          "name" : "schemeCommandName",
+          "type" : "String"
+        },
+        {
+          "isOptional" : false,
+          "isInternal" : false,
+          "name" : "schemeTaskName",
+          "type" : "String"
+        },
+        {
+          "isOptional" : true,
+          "isInternal" : false,
+          "wrappedType" : "String",
+          "name" : "title",
+          "type" : "Optional"
+        },
+        {
+          "isOptional" : false,
+          "isInternal" : false,
+          "name" : "startedTime",
+          "type" : "Date"
+        },
+        {
+          "isOptional" : false,
+          "isInternal" : false,
+          "name" : "endedTime",
+          "type" : "Date"
+        },
+        {
+          "isOptional" : false,
+          "isInternal" : false,
+          "name" : "runDestination",
+          "type" : "ActionRunDestinationRecord"
+        },
+        {
+          "isOptional" : false,
+          "isInternal" : false,
+          "name" : "buildResult",
+          "type" : "ActionResult"
+        },
+        {
+          "isOptional" : false,
+          "isInternal" : false,
+          "name" : "actionResult",
+          "type" : "ActionResult"
+        },
+        {
+          "isOptional" : true,
+          "isInternal" : false,
+          "wrappedType" : "String",
+          "name" : "testPlanName",
+          "type" : "Optional"
+        }
+      ]
+    },
+    {
+      "type" : {
+        "name" : "ActionResult"
+      },
+      "kind" : "object",
+      "properties" : [
+        {
+          "isOptional" : false,
+          "isInternal" : false,
+          "name" : "resultName",
+          "type" : "String"
+        },
+        {
+          "isOptional" : false,
+          "isInternal" : false,
+          "name" : "status",
+          "type" : "String"
+        },
+        {
+          "isOptional" : false,
+          "isInternal" : false,
+          "name" : "metrics",
+          "type" : "ResultMetrics"
+        },
+        {
+          "isOptional" : false,
+          "isInternal" : false,
+          "name" : "issues",
+          "type" : "ResultIssueSummaries"
+        },
+        {
+          "isOptional" : false,
+          "isInternal" : false,
+          "name" : "coverage",
+          "type" : "CodeCoverageInfo"
+        },
+        {
+          "isOptional" : true,
+          "isInternal" : false,
+          "wrappedType" : "Reference",
+          "name" : "timelineRef",
+          "type" : "Optional"
+        },
+        {
+          "isOptional" : true,
+          "isInternal" : false,
+          "wrappedType" : "Reference",
+          "name" : "logRef",
+          "type" : "Optional"
+        },
+        {
+          "isOptional" : true,
+          "isInternal" : false,
+          "wrappedType" : "Reference",
+          "name" : "testsRef",
+          "type" : "Optional"
+        },
+        {
+          "isOptional" : true,
+          "isInternal" : false,
+          "wrappedType" : "Reference",
+          "name" : "diagnosticsRef",
+          "type" : "Optional"
+        },
+        {
+          "isOptional" : true,
+          "isInternal" : false,
+          "wrappedType" : "Reference",
+          "name" : "consoleLogRef",
+          "type" : "Optional"
+        }
+      ]
+    },
+    {
+      "type" : {
+        "name" : "ActionRunDestinationRecord"
+      },
+      "kind" : "object",
+      "properties" : [
+        {
+          "isOptional" : false,
+          "isInternal" : false,
+          "name" : "displayName",
+          "type" : "String"
+        },
+        {
+          "isOptional" : false,
+          "isInternal" : false,
+          "name" : "targetArchitecture",
+          "type" : "String"
+        },
+        {
+          "isOptional" : false,
+          "isInternal" : false,
+          "name" : "targetDeviceRecord",
+          "type" : "ActionDeviceRecord"
+        },
+        {
+          "isOptional" : false,
+          "isInternal" : false,
+          "name" : "localComputerRecord",
+          "type" : "ActionDeviceRecord"
+        },
+        {
+          "isOptional" : false,
+          "isInternal" : false,
+          "name" : "targetSDKRecord",
+          "type" : "ActionSDKRecord"
+        }
+      ]
+    },
+    {
+      "type" : {
+        "name" : "ActionSDKRecord"
+      },
+      "kind" : "object",
+      "properties" : [
+        {
+          "isOptional" : false,
+          "isInternal" : false,
+          "name" : "name",
+          "type" : "String"
+        },
+        {
+          "isOptional" : false,
+          "isInternal" : false,
+          "name" : "identifier",
+          "type" : "String"
+        },
+        {
+          "isOptional" : false,
+          "isInternal" : false,
+          "name" : "operatingSystemVersion",
+          "type" : "String"
+        },
+        {
+          "isOptional" : false,
+          "isInternal" : false,
+          "name" : "isInternal",
+          "type" : "Bool"
+        }
+      ]
+    },
+    {
+      "type" : {
+        "name" : "ActionTestActivitySummary"
+      },
+      "kind" : "object",
+      "properties" : [
+        {
+          "isOptional" : false,
+          "isInternal" : false,
+          "name" : "title",
+          "type" : "String"
+        },
+        {
+          "isOptional" : false,
+          "isInternal" : false,
+          "name" : "activityType",
+          "type" : "String"
+        },
+        {
+          "isOptional" : false,
+          "isInternal" : false,
+          "name" : "uuid",
+          "type" : "String"
+        },
+        {
+          "isOptional" : true,
+          "isInternal" : false,
+          "wrappedType" : "Date",
+          "name" : "start",
+          "type" : "Optional"
+        },
+        {
+          "isOptional" : true,
+          "isInternal" : false,
+          "wrappedType" : "Date",
+          "name" : "finish",
+          "type" : "Optional"
+        },
+        {
+          "isOptional" : false,
+          "isInternal" : false,
+          "wrappedType" : "ActionTestAttachment",
+          "name" : "attachments",
+          "type" : "Array"
+        },
+        {
+          "isOptional" : false,
+          "isInternal" : false,
+          "wrappedType" : "ActionTestActivitySummary",
+          "name" : "subactivities",
+          "type" : "Array"
+        },
+        {
+          "isOptional" : false,
+          "isInternal" : false,
+          "wrappedType" : "String",
+          "name" : "failureSummaryIDs",
+          "type" : "Array"
+        },
+        {
+          "isOptional" : false,
+          "isInternal" : false,
+          "wrappedType" : "String",
+          "name" : "expectedFailureIDs",
+          "type" : "Array"
+        }
+      ]
+    },
+    {
+      "type" : {
+        "name" : "ActionTestAttachment"
+      },
+      "kind" : "object",
+      "properties" : [
+        {
+          "isOptional" : false,
+          "isInternal" : false,
+          "name" : "uniformTypeIdentifier",
+          "type" : "String"
+        },
+        {
+          "isOptional" : true,
+          "isInternal" : false,
+          "wrappedType" : "String",
+          "name" : "name",
+          "type" : "Optional"
+        },
+        {
+          "isOptional" : true,
+          "isInternal" : false,
+          "wrappedType" : "String",
+          "name" : "uuid",
+          "type" : "Optional"
+        },
+        {
+          "isOptional" : true,
+          "isInternal" : false,
+          "wrappedType" : "Date",
+          "name" : "timestamp",
+          "type" : "Optional"
+        },
+        {
+          "isOptional" : true,
+          "isInternal" : false,
+          "wrappedType" : "SortedKeyValueArray",
+          "name" : "userInfo",
+          "type" : "Optional"
+        },
+        {
+          "isOptional" : false,
+          "isInternal" : false,
+          "name" : "lifetime",
+          "type" : "String"
+        },
+        {
+          "isOptional" : false,
+          "isInternal" : false,
+          "name" : "inActivityIdentifier",
+          "type" : "Int"
+        },
+        {
+          "isOptional" : true,
+          "isInternal" : false,
+          "wrappedType" : "String",
+          "name" : "filename",
+          "type" : "Optional"
+        },
+        {
+          "isOptional" : true,
+          "isInternal" : false,
+          "wrappedType" : "Reference",
+          "name" : "payloadRef",
+          "type" : "Optional"
+        },
+        {
+          "isOptional" : false,
+          "isInternal" : false,
+          "name" : "payloadSize",
+          "type" : "Int"
+        }
+      ]
+    },
+    {
+      "type" : {
+        "name" : "ActionTestConfiguration"
+      },
+      "kind" : "object",
+      "properties" : [
+        {
+          "isOptional" : false,
+          "isInternal" : false,
+          "name" : "values",
+          "type" : "SortedKeyValueArray"
+        }
+      ]
+    },
+    {
+      "type" : {
+        "name" : "ActionTestExpectedFailure"
+      },
+      "kind" : "object",
+      "properties" : [
+        {
+          "isOptional" : false,
+          "isInternal" : false,
+          "name" : "uuid",
+          "type" : "String"
+        },
+        {
+          "isOptional" : true,
+          "isInternal" : false,
+          "wrappedType" : "String",
+          "name" : "failureReason",
+          "type" : "Optional"
+        },
+        {
+          "isOptional" : true,
+          "isInternal" : false,
+          "wrappedType" : "ActionTestFailureSummary",
+          "name" : "failureSummary",
+          "type" : "Optional"
+        },
+        {
+          "isOptional" : false,
+          "isInternal" : false,
+          "name" : "isTopLevelFailure",
+          "type" : "Bool"
+        }
+      ]
+    },
+    {
+      "type" : {
+        "name" : "ActionTestFailureSummary"
+      },
+      "kind" : "object",
+      "properties" : [
+        {
+          "isOptional" : true,
+          "isInternal" : false,
+          "wrappedType" : "String",
+          "name" : "message",
+          "type" : "Optional"
+        },
+        {
+          "isOptional" : false,
+          "isInternal" : false,
+          "name" : "fileName",
+          "type" : "String"
+        },
+        {
+          "isOptional" : false,
+          "isInternal" : false,
+          "name" : "lineNumber",
+          "type" : "Int"
+        },
+        {
+          "isOptional" : false,
+          "isInternal" : false,
+          "name" : "isPerformanceFailure",
+          "type" : "Bool"
+        },
+        {
+          "isOptional" : false,
+          "isInternal" : false,
+          "name" : "uuid",
+          "type" : "String"
+        },
+        {
+          "isOptional" : true,
+          "isInternal" : false,
+          "wrappedType" : "String",
+          "name" : "issueType",
+          "type" : "Optional"
+        },
+        {
+          "isOptional" : true,
+          "isInternal" : false,
+          "wrappedType" : "String",
+          "name" : "detailedDescription",
+          "type" : "Optional"
+        },
+        {
+          "isOptional" : false,
+          "isInternal" : false,
+          "wrappedType" : "ActionTestAttachment",
+          "name" : "attachments",
+          "type" : "Array"
+        },
+        {
+          "isOptional" : true,
+          "isInternal" : false,
+          "wrappedType" : "TestAssociatedError",
+          "name" : "associatedError",
+          "type" : "Optional"
+        },
+        {
+          "isOptional" : true,
+          "isInternal" : false,
+          "wrappedType" : "SourceCodeContext",
+          "name" : "sourceCodeContext",
+          "type" : "Optional"
+        },
+        {
+          "isOptional" : true,
+          "isInternal" : false,
+          "wrappedType" : "Date",
+          "name" : "timestamp",
+          "type" : "Optional"
+        },
+        {
+          "isOptional" : false,
+          "isInternal" : false,
+          "name" : "isTopLevelFailure",
+          "type" : "Bool"
+        }
+      ]
+    },
+    {
+      "type" : {
+        "name" : "ActionTestMetadata",
+        "supertype" : "ActionTestSummaryIdentifiableObject"
+      },
+      "kind" : "object",
+      "properties" : [
+        {
+          "isOptional" : false,
+          "isInternal" : false,
+          "name" : "testStatus",
+          "type" : "String"
+        },
+        {
+          "isOptional" : true,
+          "isInternal" : false,
+          "wrappedType" : "Double",
+          "name" : "duration",
+          "type" : "Optional"
+        },
+        {
+          "isOptional" : true,
+          "isInternal" : false,
+          "wrappedType" : "Reference",
+          "name" : "summaryRef",
+          "type" : "Optional"
+        },
+        {
+          "isOptional" : false,
+          "isInternal" : false,
+          "name" : "performanceMetricsCount",
+          "type" : "Int"
+        },
+        {
+          "isOptional" : false,
+          "isInternal" : false,
+          "name" : "failureSummariesCount",
+          "type" : "Int"
+        },
+        {
+          "isOptional" : false,
+          "isInternal" : false,
+          "name" : "activitySummariesCount",
+          "type" : "Int"
+        }
+      ]
+    },
+    {
+      "type" : {
+        "name" : "ActionTestNoticeSummary"
+      },
+      "kind" : "object",
+      "properties" : [
+        {
+          "isOptional" : true,
+          "isInternal" : false,
+          "wrappedType" : "String",
+          "name" : "message",
+          "type" : "Optional"
+        },
+        {
+          "isOptional" : false,
+          "isInternal" : false,
+          "name" : "fileName",
+          "type" : "String"
+        },
+        {
+          "isOptional" : false,
+          "isInternal" : false,
+          "name" : "lineNumber",
+          "type" : "Int"
+        },
+        {
+          "isOptional" : true,
+          "isInternal" : false,
+          "wrappedType" : "Date",
+          "name" : "timestamp",
+          "type" : "Optional"
+        }
+      ]
+    },
+    {
+      "type" : {
+        "name" : "ActionTestPerformanceMetricSummary"
+      },
+      "kind" : "object",
+      "properties" : [
+        {
+          "isOptional" : false,
+          "isInternal" : false,
+          "name" : "displayName",
+          "type" : "String"
+        },
+        {
+          "isOptional" : false,
+          "isInternal" : false,
+          "name" : "unitOfMeasurement",
+          "type" : "String"
+        },
+        {
+          "isOptional" : false,
+          "isInternal" : false,
+          "wrappedType" : "Double",
+          "name" : "measurements",
+          "type" : "Array"
+        },
+        {
+          "isOptional" : true,
+          "isInternal" : false,
+          "wrappedType" : "String",
+          "name" : "identifier",
+          "type" : "Optional"
+        },
+        {
+          "isOptional" : true,
+          "isInternal" : false,
+          "wrappedType" : "String",
+          "name" : "baselineName",
+          "type" : "Optional"
+        },
+        {
+          "isOptional" : true,
+          "isInternal" : false,
+          "wrappedType" : "Double",
+          "name" : "baselineAverage",
+          "type" : "Optional"
+        },
+        {
+          "isOptional" : true,
+          "isInternal" : false,
+          "wrappedType" : "Double",
+          "name" : "maxPercentRegression",
+          "type" : "Optional"
+        },
+        {
+          "isOptional" : true,
+          "isInternal" : false,
+          "wrappedType" : "Double",
+          "name" : "maxPercentRelativeStandardDeviation",
+          "type" : "Optional"
+        },
+        {
+          "isOptional" : true,
+          "isInternal" : false,
+          "wrappedType" : "Double",
+          "name" : "maxRegression",
+          "type" : "Optional"
+        },
+        {
+          "isOptional" : true,
+          "isInternal" : false,
+          "wrappedType" : "Double",
+          "name" : "maxStandardDeviation",
+          "type" : "Optional"
+        },
+        {
+          "isOptional" : true,
+          "isInternal" : false,
+          "wrappedType" : "String",
+          "name" : "polarity",
+          "type" : "Optional"
+        }
+      ]
+    },
+    {
+      "type" : {
+        "name" : "ActionTestPlanRunSummaries"
+      },
+      "kind" : "object",
+      "properties" : [
+        {
+          "isOptional" : false,
+          "isInternal" : false,
+          "wrappedType" : "ActionTestPlanRunSummary",
+          "name" : "summaries",
+          "type" : "Array"
+        }
+      ]
+    },
+    {
+      "type" : {
+        "name" : "ActionTestPlanRunSummary",
+        "supertype" : "ActionAbstractTestSummary"
+      },
+      "kind" : "object",
+      "properties" : [
+        {
+          "isOptional" : false,
+          "isInternal" : false,
+          "wrappedType" : "ActionTestableSummary",
+          "name" : "testableSummaries",
+          "type" : "Array"
+        }
+      ]
+    },
+    {
+      "type" : {
+        "name" : "ActionTestRepetitionPolicySummary"
+      },
+      "kind" : "object",
+      "properties" : [
+        {
+          "isOptional" : true,
+          "isInternal" : false,
+          "wrappedType" : "Int",
+          "name" : "iteration",
+          "type" : "Optional"
+        },
+        {
+          "isOptional" : true,
+          "isInternal" : false,
+          "wrappedType" : "Int",
+          "name" : "totalIterations",
+          "type" : "Optional"
+        },
+        {
+          "isOptional" : true,
+          "isInternal" : false,
+          "wrappedType" : "String",
+          "name" : "repetitionMode",
+          "type" : "Optional"
+        }
+      ]
+    },
+    {
+      "type" : {
+        "name" : "ActionTestSummary",
+        "supertype" : "ActionTestSummaryIdentifiableObject"
+      },
+      "kind" : "object",
+      "properties" : [
+        {
+          "isOptional" : false,
+          "isInternal" : false,
+          "name" : "testStatus",
+          "type" : "String"
+        },
+        {
+          "isOptional" : false,
+          "isInternal" : false,
+          "name" : "duration",
+          "type" : "Double"
+        },
+        {
+          "isOptional" : false,
+          "isInternal" : false,
+          "wrappedType" : "ActionTestPerformanceMetricSummary",
+          "name" : "performanceMetrics",
+          "type" : "Array"
+        },
+        {
+          "isOptional" : false,
+          "isInternal" : false,
+          "wrappedType" : "ActionTestFailureSummary",
+          "name" : "failureSummaries",
+          "type" : "Array"
+        },
+        {
+          "isOptional" : false,
+          "isInternal" : false,
+          "wrappedType" : "ActionTestExpectedFailure",
+          "name" : "expectedFailures",
+          "type" : "Array"
+        },
+        {
+          "isOptional" : true,
+          "isInternal" : false,
+          "wrappedType" : "ActionTestNoticeSummary",
+          "name" : "skipNoticeSummary",
+          "type" : "Optional"
+        },
+        {
+          "isOptional" : false,
+          "isInternal" : false,
+          "wrappedType" : "ActionTestActivitySummary",
+          "name" : "activitySummaries",
+          "type" : "Array"
+        },
+        {
+          "isOptional" : true,
+          "isInternal" : false,
+          "wrappedType" : "ActionTestRepetitionPolicySummary",
+          "name" : "repetitionPolicySummary",
+          "type" : "Optional"
+        },
+        {
+          "isOptional" : true,
+          "isInternal" : false,
+          "wrappedType" : "ActionTestConfiguration",
+          "name" : "configuration",
+          "type" : "Optional"
+        }
+      ]
+    },
+    {
+      "type" : {
+        "name" : "ActionTestSummaryGroup",
+        "supertype" : "ActionTestSummaryIdentifiableObject"
+      },
+      "kind" : "object",
+      "properties" : [
+        {
+          "isOptional" : false,
+          "isInternal" : false,
+          "name" : "duration",
+          "type" : "Double"
+        },
+        {
+          "isOptional" : false,
+          "isInternal" : false,
+          "wrappedType" : "ActionTestSummaryIdentifiableObject",
+          "name" : "subtests",
+          "type" : "Array"
+        }
+      ]
+    },
+    {
+      "type" : {
+        "name" : "ActionTestSummaryIdentifiableObject",
+        "supertype" : "ActionAbstractTestSummary"
+      },
+      "kind" : "object",
+      "properties" : [
+        {
+          "isOptional" : true,
+          "isInternal" : false,
+          "wrappedType" : "String",
+          "name" : "identifier",
+          "type" : "Optional"
+        },
+        {
+          "isOptional" : true,
+          "isInternal" : false,
+          "wrappedType" : "String",
+          "name" : "identifierURL",
+          "type" : "Optional"
+        }
+      ]
+    },
+    {
+      "type" : {
+        "name" : "ActionTestableSummary",
+        "supertype" : "ActionAbstractTestSummary"
+      },
+      "kind" : "object",
+      "properties" : [
+        {
+          "isOptional" : true,
+          "isInternal" : false,
+          "wrappedType" : "String",
+          "name" : "identifierURL",
+          "type" : "Optional"
+        },
+        {
+          "isOptional" : true,
+          "isInternal" : false,
+          "wrappedType" : "String",
+          "name" : "projectRelativePath",
+          "type" : "Optional"
+        },
+        {
+          "isOptional" : true,
+          "isInternal" : false,
+          "wrappedType" : "String",
+          "name" : "targetName",
+          "type" : "Optional"
+        },
+        {
+          "isOptional" : true,
+          "isInternal" : false,
+          "wrappedType" : "String",
+          "name" : "testKind",
+          "type" : "Optional"
+        },
+        {
+          "isOptional" : false,
+          "isInternal" : false,
+          "wrappedType" : "ActionTestSummaryIdentifiableObject",
+          "name" : "tests",
+          "type" : "Array"
+        },
+        {
+          "isOptional" : true,
+          "isInternal" : false,
+          "wrappedType" : "String",
+          "name" : "diagnosticsDirectoryName",
+          "type" : "Optional"
+        },
+        {
+          "isOptional" : false,
+          "isInternal" : false,
+          "wrappedType" : "ActionTestFailureSummary",
+          "name" : "failureSummaries",
+          "type" : "Array"
+        },
+        {
+          "isOptional" : true,
+          "isInternal" : false,
+          "wrappedType" : "String",
+          "name" : "testLanguage",
+          "type" : "Optional"
+        },
+        {
+          "isOptional" : true,
+          "isInternal" : false,
+          "wrappedType" : "String",
+          "name" : "testRegion",
+          "type" : "Optional"
+        }
+      ]
+    },
+    {
+      "type" : {
+        "name" : "ActionsInvocationMetadata"
+      },
+      "kind" : "object",
+      "properties" : [
+        {
+          "isOptional" : false,
+          "isInternal" : false,
+          "name" : "creatingWorkspaceFilePath",
+          "type" : "String"
+        },
+        {
+          "isOptional" : false,
+          "isInternal" : false,
+          "name" : "uniqueIdentifier",
+          "type" : "String"
+        },
+        {
+          "isOptional" : true,
+          "isInternal" : false,
+          "wrappedType" : "EntityIdentifier",
+          "name" : "schemeIdentifier",
+          "type" : "Optional"
+        }
+      ]
+    },
+    {
+      "type" : {
+        "name" : "ActionsInvocationRecord"
+      },
+      "kind" : "object",
+      "properties" : [
+        {
+          "isOptional" : true,
+          "isInternal" : false,
+          "wrappedType" : "Reference",
+          "name" : "metadataRef",
+          "type" : "Optional"
+        },
+        {
+          "isOptional" : false,
+          "isInternal" : false,
+          "name" : "metrics",
+          "type" : "ResultMetrics"
+        },
+        {
+          "isOptional" : false,
+          "isInternal" : false,
+          "name" : "issues",
+          "type" : "ResultIssueSummaries"
+        },
+        {
+          "isOptional" : false,
+          "isInternal" : false,
+          "wrappedType" : "ActionRecord",
+          "name" : "actions",
+          "type" : "Array"
+        },
+        {
+          "isOptional" : true,
+          "isInternal" : false,
+          "wrappedType" : "ArchiveInfo",
+          "name" : "archive",
+          "type" : "Optional"
+        }
+      ]
+    },
+    {
+      "type" : {
+        "name" : "ActivityLogAnalyzerControlFlowStep",
+        "supertype" : "ActivityLogAnalyzerStep"
+      },
+      "kind" : "object",
+      "properties" : [
+        {
+          "isOptional" : false,
+          "isInternal" : false,
+          "name" : "title",
+          "type" : "String"
+        },
+        {
+          "isOptional" : true,
+          "isInternal" : false,
+          "wrappedType" : "DocumentLocation",
+          "name" : "startLocation",
+          "type" : "Optional"
+        },
+        {
+          "isOptional" : true,
+          "isInternal" : false,
+          "wrappedType" : "DocumentLocation",
+          "name" : "endLocation",
+          "type" : "Optional"
+        },
+        {
+          "isOptional" : false,
+          "isInternal" : false,
+          "wrappedType" : "ActivityLogAnalyzerControlFlowStepEdge",
+          "name" : "edges",
+          "type" : "Array"
+        }
+      ]
+    },
+    {
+      "type" : {
+        "name" : "ActivityLogAnalyzerControlFlowStepEdge"
+      },
+      "kind" : "object",
+      "properties" : [
+        {
+          "isOptional" : true,
+          "isInternal" : false,
+          "wrappedType" : "DocumentLocation",
+          "name" : "startLocation",
+          "type" : "Optional"
+        },
+        {
+          "isOptional" : true,
+          "isInternal" : false,
+          "wrappedType" : "DocumentLocation",
+          "name" : "endLocation",
+          "type" : "Optional"
+        }
+      ]
+    },
+    {
+      "type" : {
+        "name" : "ActivityLogAnalyzerEventStep",
+        "supertype" : "ActivityLogAnalyzerStep"
+      },
+      "kind" : "object",
+      "properties" : [
+        {
+          "isOptional" : false,
+          "isInternal" : false,
+          "name" : "title",
+          "type" : "String"
+        },
+        {
+          "isOptional" : true,
+          "isInternal" : false,
+          "wrappedType" : "DocumentLocation",
+          "name" : "location",
+          "type" : "Optional"
+        },
+        {
+          "isOptional" : false,
+          "isInternal" : false,
+          "name" : "description",
+          "type" : "String"
+        },
+        {
+          "isOptional" : false,
+          "isInternal" : false,
+          "name" : "callDepth",
+          "type" : "Int"
+        }
+      ]
+    },
+    {
+      "type" : {
+        "name" : "ActivityLogAnalyzerResultMessage",
+        "supertype" : "ActivityLogMessage"
+      },
+      "kind" : "object",
+      "properties" : [
+        {
+          "isOptional" : false,
+          "isInternal" : false,
+          "wrappedType" : "ActivityLogAnalyzerStep",
+          "name" : "steps",
+          "type" : "Array"
+        },
+        {
+          "isOptional" : true,
+          "isInternal" : false,
+          "wrappedType" : "String",
+          "name" : "resultType",
+          "type" : "Optional"
+        },
+        {
+          "isOptional" : false,
+          "isInternal" : false,
+          "name" : "keyEventIndex",
+          "type" : "Int"
+        }
+      ]
+    },
+    {
+      "type" : {
+        "name" : "ActivityLogAnalyzerStep"
+      },
+      "kind" : "object",
+      "properties" : [
+        {
+          "isOptional" : false,
+          "isInternal" : false,
+          "name" : "parentIndex",
+          "type" : "Int"
+        }
+      ]
+    },
+    {
+      "type" : {
+        "name" : "ActivityLogAnalyzerWarningMessage",
+        "supertype" : "ActivityLogMessage"
+      },
+      "kind" : "object",
+      "properties" : [
+
+      ]
+    },
+    {
+      "type" : {
+        "name" : "ActivityLogCommandInvocationSection",
+        "supertype" : "ActivityLogSection"
+      },
+      "kind" : "object",
+      "properties" : [
+        {
+          "isOptional" : false,
+          "isInternal" : false,
+          "name" : "commandDetails",
+          "type" : "String"
+        },
+        {
+          "isOptional" : false,
+          "isInternal" : false,
+          "name" : "emittedOutput",
+          "type" : "String"
+        },
+        {
+          "isOptional" : true,
+          "isInternal" : false,
+          "wrappedType" : "Int",
+          "name" : "exitCode",
+          "type" : "Optional"
+        }
+      ]
+    },
+    {
+      "type" : {
+        "name" : "ActivityLogMajorSection",
+        "supertype" : "ActivityLogSection"
+      },
+      "kind" : "object",
+      "properties" : [
+        {
+          "isOptional" : false,
+          "isInternal" : false,
+          "name" : "subtitle",
+          "type" : "String"
+        }
+      ]
+    },
+    {
+      "type" : {
+        "name" : "ActivityLogMessage"
+      },
+      "kind" : "object",
+      "properties" : [
+        {
+          "isOptional" : false,
+          "isInternal" : false,
+          "name" : "type",
+          "type" : "String"
+        },
+        {
+          "isOptional" : false,
+          "isInternal" : false,
+          "name" : "title",
+          "type" : "String"
+        },
+        {
+          "isOptional" : true,
+          "isInternal" : false,
+          "wrappedType" : "String",
+          "name" : "shortTitle",
+          "type" : "Optional"
+        },
+        {
+          "isOptional" : true,
+          "isInternal" : false,
+          "wrappedType" : "String",
+          "name" : "category",
+          "type" : "Optional"
+        },
+        {
+          "isOptional" : true,
+          "isInternal" : false,
+          "wrappedType" : "DocumentLocation",
+          "name" : "location",
+          "type" : "Optional"
+        },
+        {
+          "isOptional" : false,
+          "isInternal" : false,
+          "wrappedType" : "ActivityLogMessageAnnotation",
+          "name" : "annotations",
+          "type" : "Array"
+        }
+      ]
+    },
+    {
+      "type" : {
+        "name" : "ActivityLogMessageAnnotation"
+      },
+      "kind" : "object",
+      "properties" : [
+        {
+          "isOptional" : false,
+          "isInternal" : false,
+          "name" : "title",
+          "type" : "String"
+        },
+        {
+          "isOptional" : true,
+          "isInternal" : false,
+          "wrappedType" : "DocumentLocation",
+          "name" : "location",
+          "type" : "Optional"
+        }
+      ]
+    },
+    {
+      "type" : {
+        "name" : "ActivityLogSection"
+      },
+      "kind" : "object",
+      "properties" : [
+        {
+          "isOptional" : false,
+          "isInternal" : false,
+          "name" : "domainType",
+          "type" : "String"
+        },
+        {
+          "isOptional" : false,
+          "isInternal" : false,
+          "name" : "title",
+          "type" : "String"
+        },
+        {
+          "isOptional" : true,
+          "isInternal" : false,
+          "wrappedType" : "Date",
+          "name" : "startTime",
+          "type" : "Optional"
+        },
+        {
+          "isOptional" : false,
+          "isInternal" : false,
+          "name" : "duration",
+          "type" : "Double"
+        },
+        {
+          "isOptional" : true,
+          "isInternal" : false,
+          "wrappedType" : "String",
+          "name" : "result",
+          "type" : "Optional"
+        },
+        {
+          "isOptional" : true,
+          "isInternal" : false,
+          "wrappedType" : "DocumentLocation",
+          "name" : "location",
+          "type" : "Optional"
+        },
+        {
+          "isOptional" : false,
+          "isInternal" : false,
+          "wrappedType" : "ActivityLogSection",
+          "name" : "subsections",
+          "type" : "Array"
+        },
+        {
+          "isOptional" : false,
+          "isInternal" : false,
+          "wrappedType" : "ActivityLogMessage",
+          "name" : "messages",
+          "type" : "Array"
+        }
+      ]
+    },
+    {
+      "type" : {
+        "name" : "ActivityLogTargetBuildSection",
+        "supertype" : "ActivityLogMajorSection"
+      },
+      "kind" : "object",
+      "properties" : [
+        {
+          "isOptional" : true,
+          "isInternal" : false,
+          "wrappedType" : "String",
+          "name" : "productType",
+          "type" : "Optional"
+        }
+      ]
+    },
+    {
+      "type" : {
+        "name" : "ActivityLogUnitTestSection",
+        "supertype" : "ActivityLogSection"
+      },
+      "kind" : "object",
+      "properties" : [
+        {
+          "isOptional" : true,
+          "isInternal" : false,
+          "wrappedType" : "String",
+          "name" : "testName",
+          "type" : "Optional"
+        },
+        {
+          "isOptional" : true,
+          "isInternal" : false,
+          "wrappedType" : "String",
+          "name" : "suiteName",
+          "type" : "Optional"
+        },
+        {
+          "isOptional" : true,
+          "isInternal" : false,
+          "wrappedType" : "String",
+          "name" : "summary",
+          "type" : "Optional"
+        },
+        {
+          "isOptional" : true,
+          "isInternal" : false,
+          "wrappedType" : "String",
+          "name" : "emittedOutput",
+          "type" : "Optional"
+        },
+        {
+          "isOptional" : true,
+          "isInternal" : false,
+          "wrappedType" : "String",
+          "name" : "performanceTestOutput",
+          "type" : "Optional"
+        },
+        {
+          "isOptional" : true,
+          "isInternal" : false,
+          "wrappedType" : "String",
+          "name" : "testsPassedString",
+          "type" : "Optional"
+        },
+        {
+          "isOptional" : false,
+          "isInternal" : false,
+          "name" : "wasSkipped",
+          "type" : "Bool"
+        },
+        {
+          "isOptional" : true,
+          "isInternal" : false,
+          "wrappedType" : "String",
+          "name" : "runnablePath",
+          "type" : "Optional"
+        },
+        {
+          "isOptional" : true,
+          "isInternal" : false,
+          "wrappedType" : "String",
+          "name" : "runnableUTI",
+          "type" : "Optional"
+        }
+      ]
+    },
+    {
+      "type" : {
+        "name" : "ArchiveInfo"
+      },
+      "kind" : "object",
+      "properties" : [
+        {
+          "isOptional" : true,
+          "isInternal" : false,
+          "wrappedType" : "String",
+          "name" : "path",
+          "type" : "Optional"
+        }
+      ]
+    },
+    {
+      "type" : {
+        "name" : "Array"
+      },
+      "kind" : "array"
+    },
+    {
+      "type" : {
+        "name" : "Bool"
+      },
+      "kind" : "value"
+    },
+    {
+      "type" : {
+        "name" : "CodeCoverageInfo"
+      },
+      "kind" : "object",
+      "properties" : [
+        {
+          "isOptional" : false,
+          "isInternal" : false,
+          "name" : "hasCoverageData",
+          "type" : "Bool"
+        },
+        {
+          "isOptional" : true,
+          "isInternal" : false,
+          "wrappedType" : "Reference",
+          "name" : "reportRef",
+          "type" : "Optional"
+        },
+        {
+          "isOptional" : true,
+          "isInternal" : false,
+          "wrappedType" : "Reference",
+          "name" : "archiveRef",
+          "type" : "Optional"
+        }
+      ]
+    },
+    {
+      "type" : {
+        "name" : "ConsoleLogItem"
+      },
+      "kind" : "object",
+      "properties" : [
+        {
+          "isOptional" : true,
+          "isInternal" : false,
+          "wrappedType" : "String",
+          "name" : "adaptorType",
+          "type" : "Optional"
+        },
+        {
+          "isOptional" : true,
+          "isInternal" : false,
+          "wrappedType" : "String",
+          "name" : "kind",
+          "type" : "Optional"
+        },
+        {
+          "isOptional" : false,
+          "isInternal" : false,
+          "name" : "timestamp",
+          "type" : "Double"
+        },
+        {
+          "isOptional" : false,
+          "isInternal" : false,
+          "name" : "content",
+          "type" : "String"
+        }
+      ]
+    },
+    {
+      "type" : {
+        "name" : "ConsoleLogSection"
+      },
+      "kind" : "object",
+      "properties" : [
+        {
+          "isOptional" : false,
+          "isInternal" : false,
+          "name" : "title",
+          "type" : "String"
+        },
+        {
+          "isOptional" : false,
+          "isInternal" : false,
+          "wrappedType" : "ConsoleLogItem",
+          "name" : "items",
+          "type" : "Array"
+        }
+      ]
+    },
+    {
+      "type" : {
+        "name" : "Date"
+      },
+      "kind" : "value"
+    },
+    {
+      "type" : {
+        "name" : "DocumentLocation"
+      },
+      "kind" : "object",
+      "properties" : [
+        {
+          "isOptional" : false,
+          "isInternal" : false,
+          "name" : "url",
+          "type" : "String"
+        },
+        {
+          "isOptional" : false,
+          "isInternal" : false,
+          "name" : "concreteTypeName",
+          "type" : "String"
+        }
+      ]
+    },
+    {
+      "type" : {
+        "name" : "Double"
+      },
+      "kind" : "value"
+    },
+    {
+      "type" : {
+        "name" : "EntityIdentifier"
+      },
+      "kind" : "object",
+      "properties" : [
+        {
+          "isOptional" : false,
+          "isInternal" : false,
+          "name" : "entityName",
+          "type" : "String"
+        },
+        {
+          "isOptional" : false,
+          "isInternal" : false,
+          "name" : "containerName",
+          "type" : "String"
+        },
+        {
+          "isOptional" : false,
+          "isInternal" : false,
+          "name" : "entityType",
+          "type" : "String"
+        },
+        {
+          "isOptional" : false,
+          "isInternal" : false,
+          "name" : "sharedState",
+          "type" : "String"
+        }
+      ]
+    },
+    {
+      "type" : {
+        "name" : "Int"
+      },
+      "kind" : "value"
+    },
+    {
+      "type" : {
+        "name" : "IssueSummary"
+      },
+      "kind" : "object",
+      "properties" : [
+        {
+          "isOptional" : false,
+          "isInternal" : false,
+          "name" : "issueType",
+          "type" : "String"
+        },
+        {
+          "isOptional" : false,
+          "isInternal" : false,
+          "name" : "message",
+          "type" : "String"
+        },
+        {
+          "isOptional" : true,
+          "isInternal" : false,
+          "wrappedType" : "String",
+          "name" : "producingTarget",
+          "type" : "Optional"
+        },
+        {
+          "isOptional" : true,
+          "isInternal" : false,
+          "wrappedType" : "DocumentLocation",
+          "name" : "documentLocationInCreatingWorkspace",
+          "type" : "Optional"
+        }
+      ]
+    },
+    {
+      "type" : {
+        "name" : "ObjectID"
+      },
+      "kind" : "object",
+      "properties" : [
+        {
+          "isOptional" : false,
+          "isInternal" : false,
+          "name" : "hash",
+          "type" : "String"
+        }
+      ]
+    },
+    {
+      "type" : {
+        "name" : "Reference"
+      },
+      "kind" : "object",
+      "properties" : [
+        {
+          "isOptional" : false,
+          "isInternal" : false,
+          "name" : "id",
+          "type" : "String"
+        },
+        {
+          "isOptional" : true,
+          "isInternal" : false,
+          "wrappedType" : "TypeDefinition",
+          "name" : "targetType",
+          "type" : "Optional"
+        }
+      ]
+    },
+    {
+      "type" : {
+        "name" : "ResultIssueSummaries"
+      },
+      "kind" : "object",
+      "properties" : [
+        {
+          "isOptional" : false,
+          "isInternal" : false,
+          "wrappedType" : "IssueSummary",
+          "name" : "analyzerWarningSummaries",
+          "type" : "Array"
+        },
+        {
+          "isOptional" : false,
+          "isInternal" : false,
+          "wrappedType" : "IssueSummary",
+          "name" : "errorSummaries",
+          "type" : "Array"
+        },
+        {
+          "isOptional" : false,
+          "isInternal" : false,
+          "wrappedType" : "TestFailureIssueSummary",
+          "name" : "testFailureSummaries",
+          "type" : "Array"
+        },
+        {
+          "isOptional" : false,
+          "isInternal" : false,
+          "wrappedType" : "IssueSummary",
+          "name" : "warningSummaries",
+          "type" : "Array"
+        }
+      ]
+    },
+    {
+      "type" : {
+        "name" : "ResultMetrics"
+      },
+      "kind" : "object",
+      "properties" : [
+        {
+          "isOptional" : false,
+          "isInternal" : false,
+          "name" : "analyzerWarningCount",
+          "type" : "Int"
+        },
+        {
+          "isOptional" : false,
+          "isInternal" : false,
+          "name" : "errorCount",
+          "type" : "Int"
+        },
+        {
+          "isOptional" : false,
+          "isInternal" : false,
+          "name" : "testsCount",
+          "type" : "Int"
+        },
+        {
+          "isOptional" : false,
+          "isInternal" : false,
+          "name" : "testsFailedCount",
+          "type" : "Int"
+        },
+        {
+          "isOptional" : false,
+          "isInternal" : false,
+          "name" : "testsSkippedCount",
+          "type" : "Int"
+        },
+        {
+          "isOptional" : false,
+          "isInternal" : false,
+          "name" : "warningCount",
+          "type" : "Int"
+        }
+      ]
+    },
+    {
+      "type" : {
+        "name" : "SortedKeyValueArray"
+      },
+      "kind" : "object",
+      "properties" : [
+        {
+          "isOptional" : false,
+          "isInternal" : false,
+          "wrappedType" : "SortedKeyValueArrayPair",
+          "name" : "storage",
+          "type" : "Array"
+        }
+      ]
+    },
+    {
+      "type" : {
+        "name" : "SortedKeyValueArrayPair"
+      },
+      "kind" : "object",
+      "properties" : [
+        {
+          "isOptional" : false,
+          "isInternal" : false,
+          "name" : "key",
+          "type" : "String"
+        },
+        {
+          "isOptional" : false,
+          "isInternal" : false,
+          "name" : "value",
+          "type" : "SchemaSerializable"
+        }
+      ]
+    },
+    {
+      "type" : {
+        "name" : "SourceCodeContext"
+      },
+      "kind" : "object",
+      "properties" : [
+        {
+          "isOptional" : true,
+          "isInternal" : false,
+          "wrappedType" : "SourceCodeLocation",
+          "name" : "location",
+          "type" : "Optional"
+        },
+        {
+          "isOptional" : false,
+          "isInternal" : false,
+          "wrappedType" : "SourceCodeFrame",
+          "name" : "callStack",
+          "type" : "Array"
+        }
+      ]
+    },
+    {
+      "type" : {
+        "name" : "SourceCodeFrame"
+      },
+      "kind" : "object",
+      "properties" : [
+        {
+          "isOptional" : true,
+          "isInternal" : false,
+          "wrappedType" : "String",
+          "name" : "addressString",
+          "type" : "Optional"
+        },
+        {
+          "isOptional" : true,
+          "isInternal" : false,
+          "wrappedType" : "SourceCodeSymbolInfo",
+          "name" : "symbolInfo",
+          "type" : "Optional"
+        }
+      ]
+    },
+    {
+      "type" : {
+        "name" : "SourceCodeLocation"
+      },
+      "kind" : "object",
+      "properties" : [
+        {
+          "isOptional" : true,
+          "isInternal" : false,
+          "wrappedType" : "String",
+          "name" : "filePath",
+          "type" : "Optional"
+        },
+        {
+          "isOptional" : true,
+          "isInternal" : false,
+          "wrappedType" : "Int",
+          "name" : "lineNumber",
+          "type" : "Optional"
+        }
+      ]
+    },
+    {
+      "type" : {
+        "name" : "SourceCodeSymbolInfo"
+      },
+      "kind" : "object",
+      "properties" : [
+        {
+          "isOptional" : true,
+          "isInternal" : false,
+          "wrappedType" : "String",
+          "name" : "imageName",
+          "type" : "Optional"
+        },
+        {
+          "isOptional" : true,
+          "isInternal" : false,
+          "wrappedType" : "String",
+          "name" : "symbolName",
+          "type" : "Optional"
+        },
+        {
+          "isOptional" : true,
+          "isInternal" : false,
+          "wrappedType" : "SourceCodeLocation",
+          "name" : "location",
+          "type" : "Optional"
+        }
+      ]
+    },
+    {
+      "type" : {
+        "name" : "String"
+      },
+      "kind" : "value"
+    },
+    {
+      "type" : {
+        "name" : "TestAssociatedError"
+      },
+      "kind" : "object",
+      "properties" : [
+        {
+          "isOptional" : true,
+          "isInternal" : false,
+          "wrappedType" : "String",
+          "name" : "domain",
+          "type" : "Optional"
+        },
+        {
+          "isOptional" : true,
+          "isInternal" : false,
+          "wrappedType" : "Int",
+          "name" : "code",
+          "type" : "Optional"
+        },
+        {
+          "isOptional" : true,
+          "isInternal" : false,
+          "wrappedType" : "SortedKeyValueArray",
+          "name" : "userInfo",
+          "type" : "Optional"
+        }
+      ]
+    },
+    {
+      "type" : {
+        "name" : "TestFailureIssueSummary",
+        "supertype" : "IssueSummary"
+      },
+      "kind" : "object",
+      "properties" : [
+        {
+          "isOptional" : false,
+          "isInternal" : false,
+          "name" : "testCaseName",
+          "type" : "String"
+        }
+      ]
+    },
+    {
+      "type" : {
+        "name" : "TypeDefinition"
+      },
+      "kind" : "object",
+      "properties" : [
+        {
+          "isOptional" : false,
+          "isInternal" : false,
+          "name" : "name",
+          "type" : "String"
+        },
+        {
+          "isOptional" : true,
+          "isInternal" : false,
+          "wrappedType" : "TypeDefinition",
+          "name" : "supertype",
+          "type" : "Optional"
+        }
+      ]
+    }
+  ],
+  "name" : "Xcode Result Types",
+  "version" : {
+    "major" : 3,
+    "minor" : 39
+  }
+}

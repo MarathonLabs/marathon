@@ -1,9 +1,13 @@
+import com.malinskiy.marathon.buildsystem.XcresulttoolPlugin
+
 plugins {
     `java-library`
     jacoco
     id("org.jetbrains.kotlin.jvm")
     id("org.jetbrains.dokka")
 }
+
+apply<XcresulttoolPlugin>()
 
 dependencies {
     implementation(Libraries.kotlinStdLib)
@@ -19,14 +23,21 @@ dependencies {
     implementation(Libraries.jacksonKotlin)
     implementation(Libraries.jacksonYaml)
     implementation(Libraries.jansi)
+    implementation(Libraries.kotlinProcess)
     implementation(project(":core"))
     testImplementation(TestLibraries.kluent)
     testImplementation(TestLibraries.mockitoKotlin)
     testImplementation(TestLibraries.testContainers)
+    testImplementation(TestLibraries.testContainersJupiter)
     testImplementation(TestLibraries.junit5)
+    testImplementation(TestLibraries.coroutinesTest)
     testRuntimeOnly(TestLibraries.jupiterEngine)
 }
 
 setupDeployment()
 setupKotlinCompiler()
 setupTestTask()
+
+tasks.jar.configure {
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+}

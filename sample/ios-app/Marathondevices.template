@@ -1,2 +1,15 @@
-- host: "localhost"
-  udid: "XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX"
+workers:
+  - transport:
+      type: ssh
+      addr: 10.0.0.2
+    devices:
+      - type: simulator
+        udid: "XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX"
+      - type: simulatorProfile
+        deviceType: com.apple.CoreSimulator.SimDeviceType.iPhone-13-mini
+  - transport:
+      type: ssh
+      addr: 10.0.0.3  
+    devices:
+      - type: simulatorProfile
+        deviceType: com.apple.CoreSimulator.SimDeviceType.iPhone-13-mini

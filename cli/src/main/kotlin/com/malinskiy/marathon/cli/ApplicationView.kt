@@ -19,7 +19,7 @@ import com.malinskiy.marathon.config.serialization.ConfigurationFactory
 import com.malinskiy.marathon.config.vendor.VendorConfiguration
 import com.malinskiy.marathon.di.marathonStartKoin
 import com.malinskiy.marathon.exceptions.ExceptionsReporterFactory
-import com.malinskiy.marathon.ios.IOSVendor
+import com.malinskiy.marathon.ios.AppleVendor
 import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.usageanalytics.TrackActionType
 import com.malinskiy.marathon.usageanalytics.UsageAnalytics
@@ -65,7 +65,7 @@ private fun execute(cliConfiguration: CliConfiguration) {
         val vendorConfiguration = configuration.vendorConfiguration
         val modules = when (vendorConfiguration) {
             is VendorConfiguration.IOSConfiguration -> {
-                IOSVendor + module { single { vendorConfiguration } }
+                AppleVendor + module { single { vendorConfiguration } }
             }
             is VendorConfiguration.AndroidConfiguration -> {
                 AndroidVendor + module { single { vendorConfiguration } } + when (vendorConfiguration.vendor) {

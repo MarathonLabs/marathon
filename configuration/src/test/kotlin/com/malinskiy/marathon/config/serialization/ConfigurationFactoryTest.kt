@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
 import com.fasterxml.jackson.dataformat.yaml.YAMLGenerator
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
+import com.fasterxml.jackson.module.kotlin.KotlinFeature
 import com.fasterxml.jackson.module.kotlin.KotlinModule
 import com.malinskiy.marathon.config.AnalyticsConfiguration
 import com.malinskiy.marathon.config.ScreenRecordingPolicy
@@ -12,7 +13,6 @@ import com.malinskiy.marathon.config.environment.EnvironmentConfiguration
 import com.malinskiy.marathon.config.environment.EnvironmentReader
 import com.malinskiy.marathon.config.exceptions.ConfigurationException
 import com.malinskiy.marathon.config.serialization.time.InstantTimeProvider
-import com.malinskiy.marathon.config.serialization.yaml.DerivedDataFileListProvider
 import com.malinskiy.marathon.config.serialization.yaml.SerializeModule
 import com.malinskiy.marathon.config.strategy.BatchingStrategyConfiguration
 import com.malinskiy.marathon.config.strategy.FlakinessStrategyConfiguration
@@ -29,6 +29,11 @@ import com.malinskiy.marathon.config.vendor.android.ScreenshotConfiguration
 import com.malinskiy.marathon.config.vendor.android.SerialStrategy
 import com.malinskiy.marathon.config.vendor.android.TimeoutConfiguration
 import com.malinskiy.marathon.config.vendor.android.VideoConfiguration
+import com.malinskiy.marathon.config.vendor.ios.AppleTestBundleConfiguration
+import com.malinskiy.marathon.config.vendor.ios.LifecycleConfiguration
+import com.malinskiy.marathon.config.vendor.ios.RsyncConfiguration
+import com.malinskiy.marathon.config.vendor.ios.SshAuthentication
+import com.malinskiy.marathon.config.vendor.ios.SshConfiguration
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
 import org.amshove.kluent.`should be equal to`
@@ -47,7 +52,7 @@ import java.time.Instant
 import java.time.format.DateTimeFormatter
 
 class ConfigurationFactoryTest {
-    val mockMarathonFileDir = File(ConfigurationFactoryTest::class.java.getResource("/fixture/config/sample_3.yaml").file).parentFile
+    val mockMarathonFileDir = File(ConfigurationFactoryTest::class.java.getResource("/fixture/config").file).parentFile
 
     val referenceInstant: Instant = Instant.ofEpochSecond(1000000)
     private val mockInstantTimeProvider = object : InstantTimeProvider {
@@ -69,12 +74,17 @@ class ConfigurationFactoryTest {
         mapper.registerModule(
             SerializeModule(
                 mockInstantTimeProvider,
-                mockEnvironmentReader(),
                 mockMarathonFileDir,
-                DerivedDataFileListProvider
             )
         )
-            .registerModule(KotlinModule())
+            .registerModule(KotlinModule.Builder()
+                                .withReflectionCacheSize(512)
+                                .configure(KotlinFeature.NullToEmptyCollection, false)
+                                .configure(KotlinFeature.NullToEmptyMap, false)
+                                .configure(KotlinFeature.NullIsSameAsDefault, false)
+                                .configure(KotlinFeature.SingletonSupport, true)
+                                .configure(KotlinFeature.StrictNullChecks, false)
+                                .build())
             .registerModule(JavaTimeModule())
         parser = ConfigurationFactory(marathonfileDir = mockMarathonFileDir, mapper = mapper)
     }
@@ -153,7 +163,6 @@ class ConfigurationFactoryTest {
         configuration.excludeSerialRegexes.joinToString(separator = "") { it.pattern } shouldBeEqualTo """emulator-5002""".toRegex().pattern
         configuration.ignoreFailures shouldBeEqualTo false
         configuration.isCodeCoverageEnabled shouldBeEqualTo false
-        configuration.fallbackToScreenshots shouldBeEqualTo false
         configuration.strictMode shouldBeEqualTo true
         configuration.testBatchTimeoutMillis shouldBeEqualTo 20_000
         configuration.testOutputTimeoutMillis shouldBeEqualTo 30_000
@@ -232,7 +241,6 @@ class ConfigurationFactoryTest {
         configuration.excludeSerialRegexes shouldBeEqualTo emptyList()
         configuration.ignoreFailures shouldBeEqualTo false
         configuration.isCodeCoverageEnabled shouldBeEqualTo false
-        configuration.fallbackToScreenshots shouldBeEqualTo false
         configuration.testBatchTimeoutMillis shouldBeEqualTo 1800_000
         configuration.testOutputTimeoutMillis shouldBeEqualTo 300_000
         configuration.debug shouldBeEqualTo true
@@ -255,36 +263,7 @@ class ConfigurationFactoryTest {
         )
     }
 
-    @Test
-    fun `on config with ios vendor configuration should initialize a specific vendor configuration`() {
-        val file = File(ConfigurationFactoryTest::class.java.getResource("/fixture/config/sample_3.yaml").file)
-        val configuration = parser.parse(file)
 
-        configuration.vendorConfiguration shouldBeEqualTo VendorConfiguration.IOSConfiguration(
-            derivedDataDir = file.parentFile.resolve("a").canonicalFile,
-            xctestrunPath = file.parentFile.resolve("a/Build/Products/UITesting_iphonesimulator11.0-x86_64.xctestrun").canonicalFile,
-            remoteUsername = "testuser",
-            remotePrivateKey = File("/home/testuser/.ssh/id_rsa").canonicalFile,
-            knownHostsPath = file.parentFile.resolve("known_hosts").canonicalFile,
-            remoteRsyncPath = "/usr/local/bin/rsync",
-            debugSsh = true,
-            alwaysEraseSimulators = false,
-            hideRunnerOutput = true,
-            compactOutput = true,
-            keepAliveIntervalMillis = 300000L,
-            devicesFile = file.parentFile.resolve("Testdevices").canonicalFile,
-            sourceRoot = file.parentFile.resolve(".").canonicalFile,
-        )
-    }
-
-    @Test
-    fun `on configuration without an explicit remote rsync path should initialize a default one`() {
-        val file = File(ConfigurationFactoryTest::class.java.getResource("/fixture/config/sample_4.yaml").file)
-        val configuration = parser.parse(file)
-
-        val iosConfiguration = configuration.vendorConfiguration as VendorConfiguration.IOSConfiguration
-        iosConfiguration.remoteRsyncPath shouldBeEqualTo "/usr/bin/rsync"
-    }
 
     @Test
     fun `on configuration without an explicit xctestrun path should throw an exception`() {
@@ -302,12 +281,17 @@ class ConfigurationFactoryTest {
         mapper.registerModule(
             SerializeModule(
                 mockInstantTimeProvider,
-                environmentReader,
                 mockMarathonFileDir,
-                DerivedDataFileListProvider
             )
         )
-            .registerModule(KotlinModule())
+            .registerModule(KotlinModule.Builder()
+                                .withReflectionCacheSize(512)
+                                .configure(KotlinFeature.NullToEmptyCollection, false)
+                                .configure(KotlinFeature.NullToEmptyMap, false)
+                                .configure(KotlinFeature.NullIsSameAsDefault, false)
+                                .configure(KotlinFeature.SingletonSupport, true)
+                                .configure(KotlinFeature.StrictNullChecks, false)
+                                .build())
             .registerModule(JavaTimeModule())
         parser = ConfigurationFactory(marathonfileDir = mockMarathonFileDir, mapper = mapper, environmentReader = environmentReader)
         val configuration = parser.parse(file)

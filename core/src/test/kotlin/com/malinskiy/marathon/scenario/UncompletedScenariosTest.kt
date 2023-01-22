@@ -12,7 +12,8 @@ import com.nhaarman.mockitokotlin2.whenever
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.test.TestCoroutineContext
+import kotlinx.coroutines.test.advanceTimeBy
+import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.shouldBe
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
@@ -29,9 +30,8 @@ class UncompletedScenariosTest {
     }
 
     @Test
-    fun `one device that never completes tests with 100 uncompleted tests executed should return`() {
+    fun `one device that never completes tests with 100 uncompleted tests executed should return`() = runTest {
         var output: File? = null
-        val context = TestCoroutineContext("testing context")
 
         val marathon = setupMarathon {
             val test1 = MarathonTest("test", "SimpleTest", "test1", emptySet())
@@ -46,7 +46,7 @@ class UncompletedScenariosTest {
 
                 uncompletedTestRetryQuota = 100
 
-                deviceProvider.context = context
+                deviceProvider.context = coroutineContext
 
                 devices {
                     delay(1000)
@@ -57,11 +57,11 @@ class UncompletedScenariosTest {
             device1.executionResults = mapOf(test1 to Array(101) { TestStatus.INCOMPLETE })
         }
 
-        val job = GlobalScope.launch(context = context) {
+        val job = launch {
             marathon.runAsync()
         }
 
-        context.advanceTimeBy(600, TimeUnit.SECONDS)
+        advanceTimeBy(600_000)
 
         job.isCompleted shouldBe true
 
@@ -70,9 +70,8 @@ class UncompletedScenariosTest {
     }
 
     @Test
-    fun `one device that never completes tests with 100 uncompleted tests while throwing exception should return`() {
+    fun `one device that never completes tests with 100 uncompleted tests while throwing exception should return`() = runTest {
         var output: File? = null
-        val context = TestCoroutineContext("testing context")
         val timerMock: Timer = mock()
 
         val marathon = setupMarathon {
@@ -89,7 +88,7 @@ class UncompletedScenariosTest {
 
                 uncompletedTestRetryQuota = 100
 
-                deviceProvider.context = context
+                deviceProvider.context = coroutineContext
 
                 devices {
                     delay(1000)
@@ -103,11 +102,11 @@ class UncompletedScenariosTest {
         var i = 0L
         whenever(timerMock.currentTimeMillis()).then { i++ }
 
-        val job = GlobalScope.launch(context = context) {
+        val job = launch {
             marathon.runAsync()
         }
 
-        context.advanceTimeBy(600, TimeUnit.SECONDS)
+        advanceTimeBy(600_000)
 
         job.isCompleted shouldBe true
 
@@ -116,9 +115,8 @@ class UncompletedScenariosTest {
     }
 
     @Test
-    fun `one device that never completes tests after all retries should report test as failed`() {
+    fun `one device that never completes tests after all retries should report test as failed`() = runTest {
         var output: File? = null
-        val context = TestCoroutineContext("testing context")
 
         val marathon = setupMarathon {
             val test1 = MarathonTest("test", "SimpleTest", "test1", emptySet())
@@ -133,7 +131,7 @@ class UncompletedScenariosTest {
 
                 uncompletedTestRetryQuota = 3
 
-                deviceProvider.context = context
+                deviceProvider.context = coroutineContext
 
                 devices {
                     delay(1000)
@@ -144,11 +142,11 @@ class UncompletedScenariosTest {
             device1.executionResults = mapOf(test1 to Array(4) { TestStatus.INCOMPLETE })
         }
 
-        val job = GlobalScope.launch(context = context) {
+        val job = launch {
             marathon.runAsync()
         }
 
-        context.advanceTimeBy(600, TimeUnit.SECONDS)
+        advanceTimeBy(600_000)
 
         job.isCompleted shouldBe true
 
@@ -157,9 +155,8 @@ class UncompletedScenariosTest {
     }
 
     @Test
-    fun `one device that never completes tests after all retries with retry strategy should report test as failed`() {
+    fun `one device that never completes tests after all retries with retry strategy should report test as failed`() = runTest {
         var output: File? = null
-        val context = TestCoroutineContext("testing context")
 
         val marathon = setupMarathon {
             val test1 = MarathonTest("test", "SimpleTest", "test1", emptySet())
@@ -175,7 +172,7 @@ class UncompletedScenariosTest {
                 uncompletedTestRetryQuota = 3
                 retryStrategy = RetryStrategyConfiguration.FixedQuotaRetryStrategyConfiguration(10, 3)
 
-                deviceProvider.context = context
+                deviceProvider.context = coroutineContext
 
                 devices {
                     delay(1000)
@@ -186,11 +183,11 @@ class UncompletedScenariosTest {
             device1.executionResults = mapOf(test1 to Array(100) { TestStatus.INCOMPLETE })
         }
 
-        val job = GlobalScope.launch(context = context) {
+        val job = launch {
             marathon.runAsync()
         }
 
-        context.advanceTimeBy(600, TimeUnit.SECONDS)
+        advanceTimeBy(600_000)
 
         job.isCompleted shouldBe true
 

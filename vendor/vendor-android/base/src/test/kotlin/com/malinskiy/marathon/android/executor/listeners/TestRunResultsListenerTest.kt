@@ -14,7 +14,6 @@ import com.malinskiy.marathon.android.adam.TestDeviceFactory
 import com.malinskiy.marathon.android.adam.boot
 import com.malinskiy.marathon.android.adam.features
 import com.malinskiy.marathon.android.model.TestIdentifier
-import com.malinskiy.marathon.android.model.TestRunResultsAccumulatorTest
 import com.malinskiy.marathon.config.vendor.android.FileSyncConfiguration
 import com.malinskiy.marathon.config.vendor.android.FileSyncEntry
 import com.malinskiy.marathon.device.DevicePoolId
@@ -66,7 +65,7 @@ class TestRunResultsListenerTest {
         val deferred = CompletableDeferred<TestBatchResults>()
 
         val attachmentProvider = mock<AttachmentProvider>()
-        val listener = TestRunResultsListener(batch, device, deferred, mock(), mock(), DevicePoolId("omni"), listOf(attachmentProvider))
+        val listener = TestRunResultsTestRunListener(batch, device, deferred, mock(), mock(), DevicePoolId("omni"), listOf(attachmentProvider))
 
         runBlocking {
             server.multipleSessions {
@@ -85,20 +84,20 @@ class TestRunResultsListenerTest {
                 testFailed(test0, "trace")
 
                 testRunStarted("testing", 3)
-                testStarted(TestRunResultsAccumulatorTest.test1)
-                testEnded(TestRunResultsAccumulatorTest.test1, mapOf("metric" to "value"))
+                testStarted(test1)
+                testEnded(test1, mapOf("metric" to "value"))
 
-                testStarted(TestRunResultsAccumulatorTest.test2)
-                testFailed(TestRunResultsAccumulatorTest.test2, "trace")
+                testStarted(test2)
+                testFailed(test2, "trace")
                 onAttachment(test2.toTest(), attachment)
 
-                testStarted(TestRunResultsAccumulatorTest.test3)
-                testIgnored(TestRunResultsAccumulatorTest.test3)
+                testStarted(test3)
+                testIgnored(test3)
 
-                testStarted(TestRunResultsAccumulatorTest.test4)
-                testAssumptionFailure(TestRunResultsAccumulatorTest.test4, "trace")
+                testStarted(test4)
+                testAssumptionFailure(test4, "trace")
 
-                testStarted(TestRunResultsAccumulatorTest.test5)
+                testStarted(test5)
 
                 testRunEnded(1234, mapOf("metric1" to "value1"))
                 afterTestRun()
@@ -135,7 +134,7 @@ class TestRunResultsListenerTest {
         )
         val device = TestDeviceFactory.create(client, configuration, mock())
         val deferred = CompletableDeferred<TestBatchResults>()
-        val listener = TestRunResultsListener(batch, device, deferred, mock(), mock(), DevicePoolId("omni"), emptyList())
+        val listener = TestRunResultsTestRunListener(batch, device, deferred, mock(), mock(), DevicePoolId("omni"), emptyList())
 
         runBlocking {
             server.multipleSessions {
@@ -176,7 +175,7 @@ class TestRunResultsListenerTest {
         )
         val device = TestDeviceFactory.create(client, configuration, mock())
         val deferred = CompletableDeferred<TestBatchResults>()
-        val listener = TestRunResultsListener(batch, device, deferred, mock(), mock(), DevicePoolId("omni"), emptyList())
+        val listener = TestRunResultsTestRunListener(batch, device, deferred, mock(), mock(), DevicePoolId("omni"), emptyList())
 
         runBlocking {
             server.multipleSessions {
@@ -227,7 +226,7 @@ class TestRunResultsListenerTest {
         )
         val device = TestDeviceFactory.create(client, configuration, mock())
         val deferred = CompletableDeferred<TestBatchResults>()
-        val listener = TestRunResultsListener(batch, device, deferred, mock(), mock(), DevicePoolId("omni"), emptyList())
+        val listener = TestRunResultsTestRunListener(batch, device, deferred, mock(), mock(), DevicePoolId("omni"), emptyList())
 
         runBlocking {
             server.multipleSessions {
@@ -267,7 +266,7 @@ class TestRunResultsListenerTest {
         )
         val device = TestDeviceFactory.create(client, configuration, mock())
         val deferred = CompletableDeferred<TestBatchResults>()
-        val listener = TestRunResultsListener(batch, device, deferred, mock(), mock(), DevicePoolId("omni"), emptyList())
+        val listener = TestRunResultsTestRunListener(batch, device, deferred, mock(), mock(), DevicePoolId("omni"), emptyList())
 
         runBlocking {
             server.multipleSessions {
@@ -313,7 +312,7 @@ class TestRunResultsListenerTest {
         )
         val device = TestDeviceFactory.create(client, configuration, mock())
         val deferred = CompletableDeferred<TestBatchResults>()
-        val listener = TestRunResultsListener(batch, device, deferred, mock(), mock(), DevicePoolId("omni"), emptyList())
+        val listener = TestRunResultsTestRunListener(batch, device, deferred, mock(), mock(), DevicePoolId("omni"), emptyList())
 
         runBlocking {
             server.multipleSessions {
@@ -364,7 +363,7 @@ class TestRunResultsListenerTest {
         )
         val device = TestDeviceFactory.create(client, configuration, mock())
         val deferred = CompletableDeferred<TestBatchResults>()
-        val listener = TestRunResultsListener(batch, device, deferred, mock(), mock(), DevicePoolId("omni"), emptyList())
+        val listener = TestRunResultsTestRunListener(batch, device, deferred, mock(), mock(), DevicePoolId("omni"), emptyList())
 
         runBlocking {
             server.multipleSessions {
@@ -415,7 +414,7 @@ class TestRunResultsListenerTest {
         )
         val device = TestDeviceFactory.create(client, configuration, mock())
         val deferred = CompletableDeferred<TestBatchResults>()
-        val listener = TestRunResultsListener(batch, device, deferred, mock(), mock(), DevicePoolId("omni"), emptyList())
+        val listener = TestRunResultsTestRunListener(batch, device, deferred, mock(), mock(), DevicePoolId("omni"), emptyList())
 
         runBlocking {
             server.multipleSessions {
@@ -464,7 +463,7 @@ class TestRunResultsListenerTest {
         )
         val device = TestDeviceFactory.create(client, configuration, mock())
         val deferred = CompletableDeferred<TestBatchResults>()
-        val listener = TestRunResultsListener(batch, device, deferred, mock(), mock(), DevicePoolId("omni"), emptyList())
+        val listener = TestRunResultsTestRunListener(batch, device, deferred, mock(), mock(), DevicePoolId("omni"), emptyList())
 
         runBlocking {
             server.multipleSessions {
@@ -518,7 +517,7 @@ class TestRunResultsListenerTest {
         val deferred = CompletableDeferred<TestBatchResults>()
         val progressReporter = mock<ProgressReporter>()
         val poolId = DevicePoolId("omni")
-        val listener = TestRunResultsListener(batch, device, deferred, mock(), progressReporter, poolId, emptyList())
+        val listener = TestRunResultsTestRunListener(batch, device, deferred, mock(), progressReporter, poolId, emptyList())
 
         runBlocking {
             server.multipleSessions {

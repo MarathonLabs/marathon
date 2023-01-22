@@ -32,7 +32,6 @@ data class Configuration private constructor(
 
     val ignoreFailures: Boolean,
     val isCodeCoverageEnabled: Boolean,
-    val fallbackToScreenshots: Boolean,
     val strictMode: Boolean,
     val uncompletedTestRetryQuota: Int,
 
@@ -66,7 +65,6 @@ data class Configuration private constructor(
             "filtering" to filteringConfiguration.toString(),
             "ignoreFailures" to ignoreFailures.toString(),
             "isCodeCoverageEnabled" to isCodeCoverageEnabled.toString(),
-            "fallbackToScreenshots" to fallbackToScreenshots.toString(),
             "strictMode" to strictMode.toString(),
             "testClassRegexes" to testClassRegexes.toString(),
             "includeSerialRegexes" to includeSerialRegexes.toString(),
@@ -98,7 +96,6 @@ data class Configuration private constructor(
         if (filteringConfiguration != other.filteringConfiguration) return false
         if (ignoreFailures != other.ignoreFailures) return false
         if (isCodeCoverageEnabled != other.isCodeCoverageEnabled) return false
-        if (fallbackToScreenshots != other.fallbackToScreenshots) return false
         if (strictMode != other.strictMode) return false
         if (uncompletedTestRetryQuota != other.uncompletedTestRetryQuota) return false
         //For testing we need to compare configuration instances. Unfortunately Regex equality is broken so need to map it to String
@@ -130,7 +127,6 @@ data class Configuration private constructor(
         result = 31 * result + filteringConfiguration.hashCode()
         result = 31 * result + ignoreFailures.hashCode()
         result = 31 * result + isCodeCoverageEnabled.hashCode()
-        result = 31 * result + fallbackToScreenshots.hashCode()
         result = 31 * result + strictMode.hashCode()
         result = 31 * result + uncompletedTestRetryQuota
         result = 31 * result + testClassRegexes.hashCode()
@@ -159,7 +155,6 @@ data class Configuration private constructor(
 
         var ignoreFailures: Boolean = false,
         var isCodeCoverageEnabled: Boolean = false,
-        var fallbackToScreenshots: Boolean = false,
         var strictMode: Boolean = false,
         var uncompletedTestRetryQuota: Int = Integer.MAX_VALUE,
 
@@ -194,7 +189,6 @@ data class Configuration private constructor(
                 filteringConfiguration = filteringConfiguration,
                 ignoreFailures = ignoreFailures,
                 isCodeCoverageEnabled = isCodeCoverageEnabled,
-                fallbackToScreenshots = fallbackToScreenshots,
                 strictMode = strictMode,
                 uncompletedTestRetryQuota = uncompletedTestRetryQuota,
                 testClassRegexes = testClassRegexes,

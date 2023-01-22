@@ -14,8 +14,17 @@ import com.malinskiy.marathon.config.vendor.android.TestAccessConfiguration
 import com.malinskiy.marathon.config.vendor.android.TestParserConfiguration
 import com.malinskiy.marathon.config.vendor.android.ThreadingConfiguration
 import com.malinskiy.marathon.config.vendor.android.TimeoutConfiguration
+import com.malinskiy.marathon.config.vendor.ios.AppleTestBundleConfiguration
+import com.malinskiy.marathon.config.vendor.ios.LifecycleConfiguration
+import com.malinskiy.marathon.config.vendor.ios.PermissionsConfiguration
+import com.malinskiy.marathon.config.vendor.ios.RsyncConfiguration
+import com.malinskiy.marathon.config.vendor.ios.SigningConfiguration
+import com.malinskiy.marathon.config.vendor.ios.SshConfiguration
 import com.malinskiy.marathon.config.vendor.ios.XcresultConfiguration
 import java.io.File
+import com.malinskiy.marathon.config.vendor.ios.ScreenRecordConfiguration as AppleScreenRecordConfiguration
+import com.malinskiy.marathon.config.vendor.ios.ThreadingConfiguration as IosThreadingConfiguration
+import com.malinskiy.marathon.config.vendor.ios.TimeoutConfiguration as AppleTimeoutConfiguration
 
 const val DEFAULT_INIT_TIMEOUT_MILLIS = 30_000
 const val DEFAULT_AUTO_GRANT_PERMISSION = false
@@ -126,26 +135,29 @@ sealed class VendorConfiguration {
     }
 
     data class IOSConfiguration(
-        @JsonProperty("derivedDataDir") val derivedDataDir: File,
-        @JsonProperty("xctestrunPath") val xctestrunPath: File?,
-        @JsonProperty("remoteUsername") val remoteUsername: String,
-        @JsonProperty("remotePrivateKey") val remotePrivateKey: File,
-        @JsonProperty("knownHostsPath") val knownHostsPath: File?,
-        @JsonProperty("remoteRsyncPath") val remoteRsyncPath: String = "/usr/bin/rsync",
-        @JsonProperty("sourceRoot") val sourceRoot: File = File("."),
-        @JsonProperty("alwaysEraseSimulators") val alwaysEraseSimulators: Boolean = true,
-        @JsonProperty("debugSsh") val debugSsh: Boolean = false,
+        @JsonProperty("bundle") val bundle: AppleTestBundleConfiguration? = null,
+        @JsonProperty("devices") val devicesFile: File? = null,
+        @JsonProperty("ssh") val ssh: SshConfiguration = SshConfiguration(),
+
+        @JsonProperty("xcresult") val xcresult: XcresultConfiguration = XcresultConfiguration(),
+        @JsonProperty("screenRecordConfiguration") val screenRecordConfiguration: AppleScreenRecordConfiguration = AppleScreenRecordConfiguration(),
+        @JsonProperty("xctestrunEnv") val xctestrunEnv: Map<String, String> = emptyMap(),
+        @JsonProperty("lifecycle") val lifecycleConfiguration: LifecycleConfiguration = LifecycleConfiguration(),
+        @JsonProperty("permissions") val permissions: PermissionsConfiguration = PermissionsConfiguration(),
+        @JsonProperty("timeoutConfiguration") val timeoutConfiguration: AppleTimeoutConfiguration = AppleTimeoutConfiguration(),
+        @JsonProperty("threadingConfiguration") val threadingConfiguration: IosThreadingConfiguration = IosThreadingConfiguration(),
         @JsonProperty("hideRunnerOutput") val hideRunnerOutput: Boolean = false,
         @JsonProperty("compactOutput") val compactOutput: Boolean = false,
-        @JsonProperty("keepAliveIntervalMillis") val keepAliveIntervalMillis: Long = 0L,
-        @JsonProperty("devices") val devicesFile: File? = null,
-        @JsonProperty("xcresult") val xcresult: XcresultConfiguration = XcresultConfiguration()
+        @JsonProperty("rsync") val rsync: RsyncConfiguration = RsyncConfiguration(),
+        
+        @JsonProperty("signing") val signing: SigningConfiguration = SigningConfiguration(),
     ) : VendorConfiguration() {
-        /**
-         * Exception should not happen since it will be first thrown in deserializer
-         */
-        fun safecxtestrunPath(): File =
-            xctestrunPath ?: throw ConfigurationException("Unable to find an xctestrun file in derived data folder")
+        fun validate() {
+            ssh.validate()
+
+            val testBundleConfiguration = bundle ?: throw ConfigurationException("bundles must contain at least one valid entry")
+            testBundleConfiguration.validate()
+        }
     }
 
     @Suppress("CanSealedSubClassBeObject")

@@ -8,7 +8,8 @@ import com.malinskiy.marathon.test.setupMarathon
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.test.TestCoroutineContext
+import kotlinx.coroutines.test.advanceTimeBy
+import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.shouldBe
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
@@ -24,9 +25,8 @@ class SuccessScenariosTest {
     }
 
     @Test
-    fun `one healthy device execution of one test should pass`() {
+    fun `one healthy device execution of one test should pass`() = runTest {
         var output: File? = null
-        val context = TestCoroutineContext("testing context")
 
         val marathon = setupMarathon {
             val test = MarathonTest("test", "SimpleTest", "test", emptySet())
@@ -39,7 +39,7 @@ class SuccessScenariosTest {
                     listOf(test)
                 }
 
-                deviceProvider.context = context
+                deviceProvider.context = coroutineContext
 
                 devices {
                     delay(1000)
@@ -52,11 +52,11 @@ class SuccessScenariosTest {
             )
         }
 
-        val job = GlobalScope.launch(context = context) {
+        val job = launch {
             marathon.runAsync()
         }
 
-        context.advanceTimeBy(20, TimeUnit.SECONDS)
+        advanceTimeBy(20_000)
 
         job.isCompleted shouldBe true
         File(output!!.absolutePath + "/test_result", "raw.json")

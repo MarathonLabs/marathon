@@ -2,8 +2,13 @@ name: "sample-app tests"
 outputDir: "./marathon"
 vendorConfiguration:
   type: "iOS"
-  derivedDataDir: "a"
-  remoteUsername: "user"
-  remotePrivateKey: "key"
-  sourceRoot: "sourceRoot"
-  alwaysEraseSimulators: true
+  bundle:
+    derivedDataDir: "derivedDataDir"
+  ssh:
+    authentication:
+      type: "publicKey"
+      username: "user"
+      key: "key"
+    knownHostsPath: "known_hosts"
+    keepAliveInterval: PT300S
+    debug: true

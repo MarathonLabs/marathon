@@ -170,8 +170,6 @@ open class MarathonExtension {
     var isCodeCoverageEnabled: Boolean? = null
 
 
-    var fallbackToScreenshots: Boolean? = null
-
     /**
      * By default, if one of the test retries succeeds then the test is considered successfully executed. If you require success status only when
      * all retries were executed successfully you can enable the strict mode. This may be useful to verify that flakiness of tests was fixed for

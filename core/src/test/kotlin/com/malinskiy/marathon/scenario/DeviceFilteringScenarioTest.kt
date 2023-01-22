@@ -5,16 +5,15 @@ import com.malinskiy.marathon.execution.TestStatus
 import com.malinskiy.marathon.test.StubDevice
 import com.malinskiy.marathon.test.assert.shouldBeEqualToAsJson
 import com.malinskiy.marathon.test.setupMarathon
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.test.TestCoroutineContext
+import kotlinx.coroutines.test.advanceTimeBy
+import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.shouldBe
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
 import org.koin.core.context.stopKoin
 import java.io.File
-import java.util.concurrent.TimeUnit
 import com.malinskiy.marathon.test.Test as MarathonTest
 
 class DeviceFilteringScenarioTest {
@@ -24,9 +23,8 @@ class DeviceFilteringScenarioTest {
         stopKoin()
     }
 
-    fun `one blocklisted device and empty allowlist executing two tests should pass on one device`() {
+    fun `one blocklisted device and empty allowlist executing two tests should pass on one device`() = runTest {
         var output: File? = null
-        val context = TestCoroutineContext("testing context")
 
         val marathon = setupMarathon {
             val test1 = MarathonTest("test", "SimpleTest", "test1", emptySet())
@@ -44,7 +42,7 @@ class DeviceFilteringScenarioTest {
                 excludeSerialRegexes = listOf("""emulator-5002""".toRegex())
                 includeSerialRegexes = emptyList()
 
-                deviceProvider.context = context
+                deviceProvider.context = coroutineContext
 
                 devices {
                     delay(1000)
@@ -59,11 +57,11 @@ class DeviceFilteringScenarioTest {
             )
         }
 
-        val job = GlobalScope.launch(context = context) {
+        val job = launch {
             marathon.runAsync()
         }
 
-        context.advanceTimeBy(20, TimeUnit.SECONDS)
+        advanceTimeBy(20_000)
 
         job.isCompleted shouldBe true
         File(output!!.absolutePath + "/test_result", "raw.json")
@@ -72,9 +70,8 @@ class DeviceFilteringScenarioTest {
 
 
     @Test
-    fun `one allowlisted device and empty blocklist executing two tests should pass on one device`() {
+    fun `one allowlisted device and empty blocklist executing two tests should pass on one device`() = runTest {
         var output: File? = null
-        val context = TestCoroutineContext("testing context")
 
         val marathon = setupMarathon {
             val test1 = MarathonTest("test", "SimpleTest", "test1", emptySet())
@@ -92,7 +89,7 @@ class DeviceFilteringScenarioTest {
                 excludeSerialRegexes = emptyList()
                 includeSerialRegexes = listOf("""emulator-5002""".toRegex())
 
-                deviceProvider.context = context
+                deviceProvider.context = coroutineContext
 
                 devices {
                     delay(1000)
@@ -107,11 +104,11 @@ class DeviceFilteringScenarioTest {
             )
         }
 
-        val job = GlobalScope.launch(context = context) {
+        val job = launch {
             marathon.runAsync()
         }
 
-        context.advanceTimeBy(20, TimeUnit.SECONDS)
+        advanceTimeBy(20_000)
 
         job.isCompleted shouldBe true
         File(output!!.absolutePath + "/test_result", "raw.json")
@@ -119,9 +116,8 @@ class DeviceFilteringScenarioTest {
     }
 
     @Test
-    fun `one blocklisted device and one allowlisted executing two tests should pass on one device`() {
+    fun `one blocklisted device and one allowlisted executing two tests should pass on one device`() = runTest {
         var output: File? = null
-        val context = TestCoroutineContext("testing context")
 
         val marathon = setupMarathon {
             val test1 = MarathonTest("test", "SimpleTest", "test1", emptySet())
@@ -140,7 +136,7 @@ class DeviceFilteringScenarioTest {
                 excludeSerialRegexes = listOf("""emulator-5002""".toRegex())
                 includeSerialRegexes = listOf("""emulator-500[2,4]""".toRegex())
 
-                deviceProvider.context = context
+                deviceProvider.context = coroutineContext
 
                 devices {
                     delay(1000)
@@ -156,11 +152,11 @@ class DeviceFilteringScenarioTest {
             )
         }
 
-        val job = GlobalScope.launch(context = context) {
+        val job = launch {
             marathon.runAsync()
         }
 
-        context.advanceTimeBy(20, TimeUnit.SECONDS)
+        advanceTimeBy(20_000)
 
         job.isCompleted shouldBe true
         File(output!!.absolutePath + "/test_result", "raw.json")

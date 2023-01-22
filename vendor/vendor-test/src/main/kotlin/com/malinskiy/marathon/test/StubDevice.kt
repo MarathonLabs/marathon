@@ -30,7 +30,7 @@ class StubDevice(
     val crashWithTestBatchException: Boolean = false
 ) : Device {
 
-    private val logger = MarathonLogging.logger(StubDevice::class.java.simpleName)
+    override val logger = MarathonLogging.logger(StubDevice::class.java.simpleName)
 
     lateinit var executionResults: Map<Test, Array<TestStatus>>
     var executionIndexMap: MutableMap<Test, Int> = mutableMapOf()

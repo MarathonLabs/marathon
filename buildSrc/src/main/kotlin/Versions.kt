@@ -1,8 +1,9 @@
 object Versions {
     val marathon = System.getenv("GIT_TAG_NAME") ?: "0.8.0"
 
-    val kotlin = "1.5.21"
-    val coroutines = "1.5.2"
+    val kotlin = "1.7.10"
+    val coroutines = "1.6.4"
+    val coroutinesTest = coroutines
 
     val ddmlib = "30.0.3"
     val adam = "0.4.7"
@@ -40,6 +41,7 @@ object Versions {
     val guava = "31.1-jre"
     val rsync4j = "3.2.3-10"
     val sshj = "0.34.0"
+    val kotlinProcess = "1.4"
     val testContainers = "1.17.3"
     val jupiterEngine = junit5
     val jansi = "2.4.0"
@@ -101,22 +103,26 @@ object Libraries {
     val allureTestFilter = "io.qameta.allure:allure-test-filter:${Versions.allureTestFilter}"
     val koin = "io.insert-koin:koin-core:${Versions.koin}"
     val bugsnag = "com.bugsnag:bugsnag:${Versions.bugsnag}"
+    val kotlinProcess = "com.github.pgreze:kotlin-process:${Versions.kotlinProcess}"
 }
 
 object TestLibraries {
     val junit5 = "org.junit.jupiter:junit-jupiter:${Versions.junit5}"
     val kluent = "org.amshove.kluent:kluent:${Versions.kluent}"
     val kakao = "io.github.kakaocup:kakao:${Versions.kakao}"
-
+    
     val junit = "junit:junit:${Versions.junit}"
+
     val mockitoKotlin = "com.nhaarman.mockitokotlin2:mockito-kotlin:${Versions.mockitoKotlin}"
     val jupiterEngine = "org.junit.jupiter:junit-jupiter-engine:${Versions.jupiterEngine}"
     val koin = "io.insert-koin:koin-test:${Versions.koin}"
     val jsonAssert = "org.skyscreamer:jsonassert:${Versions.jsonAssert}"
     val xmlUnit = "org.xmlunit:xmlunit-matchers:${Versions.xmlUnit}"
     val assertk = "com.willowtreeapps.assertk:assertk:${Versions.assertk}"
+    val coroutinesTest = "org.jetbrains.kotlinx:kotlinx-coroutines-test:${Versions.coroutinesTest}"
 
     val testContainers = "org.testcontainers:testcontainers:${Versions.testContainers}"
+    val testContainersJupiter = "org.testcontainers:junit-jupiter:${Versions.testContainers}"
     val testContainersInflux = "org.testcontainers:influxdb:${Versions.testContainers}"
     val adamServerStubJunit5 = "com.malinskiy.adam:server-stub-junit5:${Versions.adam}"
 }

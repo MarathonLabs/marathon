@@ -1,0 +1,513 @@
+{
+  "_type" : {
+    "_name" : "ActionTestPlanRunSummaries"
+  },
+  "summaries" : {
+    "_type" : {
+      "_name" : "Array"
+    },
+    "_values" : [
+      {
+        "_type" : {
+          "_name" : "ActionTestPlanRunSummary",
+          "_supertype" : {
+            "_name" : "ActionAbstractTestSummary"
+          }
+        },
+        "name" : {
+          "_type" : {
+            "_name" : "String"
+          },
+          "_value" : "Test Scheme Action"
+        },
+        "testableSummaries" : {
+          "_type" : {
+            "_name" : "Array"
+          },
+          "_values" : [
+            {
+              "_type" : {
+                "_name" : "ActionTestableSummary",
+                "_supertype" : {
+                  "_name" : "ActionAbstractTestSummary"
+                }
+              },
+              "diagnosticsDirectoryName" : {
+                "_type" : {
+                  "_name" : "String"
+                },
+                "_value" : "sample-appUITests-79600DA0-ABB7-48C5-A293-4BAB4A4F4AA8-Configuration-Test Scheme Action-Iteration-1"
+              },
+              "identifierURL" : {
+                "_type" : {
+                  "_name" : "String"
+                },
+                "_value" : "test:\/\/com.apple.xcode\/sample-app\/sample-appUITests"
+              },
+              "name" : {
+                "_type" : {
+                  "_name" : "String"
+                },
+                "_value" : "sample-appUITests"
+              },
+              "targetName" : {
+                "_type" : {
+                  "_name" : "String"
+                },
+                "_value" : "sample-appUITests"
+              },
+              "testKind" : {
+                "_type" : {
+                  "_name" : "String"
+                },
+                "_value" : "UI"
+              },
+              "testLanguage" : {
+                "_type" : {
+                  "_name" : "String"
+                },
+                "_value" : ""
+              },
+              "testRegion" : {
+                "_type" : {
+                  "_name" : "String"
+                },
+                "_value" : ""
+              },
+              "tests" : {
+                "_type" : {
+                  "_name" : "Array"
+                },
+                "_values" : [
+                  {
+                    "_type" : {
+                      "_name" : "ActionTestSummaryGroup",
+                      "_supertype" : {
+                        "_name" : "ActionTestSummaryIdentifiableObject",
+                        "_supertype" : {
+                          "_name" : "ActionAbstractTestSummary"
+                        }
+                      }
+                    },
+                    "duration" : {
+                      "_type" : {
+                        "_name" : "Double"
+                      },
+                      "_value" : "9.792358994483948"
+                    },
+                    "identifier" : {
+                      "_type" : {
+                        "_name" : "String"
+                      },
+                      "_value" : "Selected tests"
+                    },
+                    "identifierURL" : {
+                      "_type" : {
+                        "_name" : "String"
+                      },
+                      "_value" : "test:\/\/com.apple.xcode\/sample-app\/sample-appUITests\/Selected%20tests"
+                    },
+                    "name" : {
+                      "_type" : {
+                        "_name" : "String"
+                      },
+                      "_value" : "Selected tests"
+                    },
+                    "subtests" : {
+                      "_type" : {
+                        "_name" : "Array"
+                      },
+                      "_values" : [
+                        {
+                          "_type" : {
+                            "_name" : "ActionTestSummaryGroup",
+                            "_supertype" : {
+                              "_name" : "ActionTestSummaryIdentifiableObject",
+                              "_supertype" : {
+                                "_name" : "ActionAbstractTestSummary"
+                              }
+                            }
+                          },
+                          "duration" : {
+                            "_type" : {
+                              "_name" : "Double"
+                            },
+                            "_value" : "9.788666009902954"
+                          },
+                          "identifier" : {
+                            "_type" : {
+                              "_name" : "String"
+                            },
+                            "_value" : ""
+                          },
+                          "identifierURL" : {
+                            "_type" : {
+                              "_name" : "String"
+                            },
+                            "_value" : "test:\/\/com.apple.xcode\/sample-app\/sample-appUITests\/"
+                          },
+                          "name" : {
+                            "_type" : {
+                              "_name" : "String"
+                            },
+                            "_value" : ""
+                          },
+                          "subtests" : {
+                            "_type" : {
+                              "_name" : "Array"
+                            },
+                            "_values" : [
+                              {
+                                "_type" : {
+                                  "_name" : "ActionTestSummaryGroup",
+                                  "_supertype" : {
+                                    "_name" : "ActionTestSummaryIdentifiableObject",
+                                    "_supertype" : {
+                                      "_name" : "ActionAbstractTestSummary"
+                                    }
+                                  }
+                                },
+                                "duration" : {
+                                  "_type" : {
+                                    "_name" : "Double"
+                                  },
+                                  "_value" : "3.308037042617798"
+                                },
+                                "identifier" : {
+                                  "_type" : {
+                                    "_name" : "String"
+                                  },
+                                  "_value" : "FailingTests"
+                                },
+                                "identifierURL" : {
+                                  "_type" : {
+                                    "_name" : "String"
+                                  },
+                                  "_value" : "test:\/\/com.apple.xcode\/sample-app\/sample-appUITests\/FailingTests"
+                                },
+                                "name" : {
+                                  "_type" : {
+                                    "_name" : "String"
+                                  },
+                                  "_value" : "FailingTests"
+                                },
+                                "subtests" : {
+                                  "_type" : {
+                                    "_name" : "Array"
+                                  },
+                                  "_values" : [
+                                    {
+                                      "_type" : {
+                                        "_name" : "ActionTestMetadata",
+                                        "_supertype" : {
+                                          "_name" : "ActionTestSummaryIdentifiableObject",
+                                          "_supertype" : {
+                                            "_name" : "ActionAbstractTestSummary"
+                                          }
+                                        }
+                                      },
+                                      "duration" : {
+                                        "_type" : {
+                                          "_name" : "Double"
+                                        },
+                                        "_value" : "3.306209921836853"
+                                      },
+                                      "identifier" : {
+                                        "_type" : {
+                                          "_name" : "String"
+                                        },
+                                        "_value" : "FailingTests\/testAlwaysFailing()"
+                                      },
+                                      "identifierURL" : {
+                                        "_type" : {
+                                          "_name" : "String"
+                                        },
+                                        "_value" : "test:\/\/com.apple.xcode\/sample-app\/sample-appUITests\/FailingTests\/testAlwaysFailing"
+                                      },
+                                      "name" : {
+                                        "_type" : {
+                                          "_name" : "String"
+                                        },
+                                        "_value" : "testAlwaysFailing()"
+                                      },
+                                      "summaryRef" : {
+                                        "_type" : {
+                                          "_name" : "Reference"
+                                        },
+                                        "id" : {
+                                          "_type" : {
+                                            "_name" : "String"
+                                          },
+                                          "_value" : "0~JpPiwLE6hurIfjlEsNOuqKYfHeei3ERzzzdY3x7CYST0YInr4dVM4zNDNQQIXrir_bTNjqx8m4FQPeSkjtJwEg=="
+                                        },
+                                        "targetType" : {
+                                          "_type" : {
+                                            "_name" : "TypeDefinition"
+                                          },
+                                          "name" : {
+                                            "_type" : {
+                                              "_name" : "String"
+                                            },
+                                            "_value" : "ActionTestSummary"
+                                          },
+                                          "supertype" : {
+                                            "_type" : {
+                                              "_name" : "TypeDefinition"
+                                            },
+                                            "name" : {
+                                              "_type" : {
+                                                "_name" : "String"
+                                              },
+                                              "_value" : "ActionTestSummaryIdentifiableObject"
+                                            },
+                                            "supertype" : {
+                                              "_type" : {
+                                                "_name" : "TypeDefinition"
+                                              },
+                                              "name" : {
+                                                "_type" : {
+                                                  "_name" : "String"
+                                                },
+                                                "_value" : "ActionAbstractTestSummary"
+                                              }
+                                            }
+                                          }
+                                        }
+                                      },
+                                      "testStatus" : {
+                                        "_type" : {
+                                          "_name" : "String"
+                                        },
+                                        "_value" : "Failure"
+                                      }
+                                    }
+                                  ]
+                                }
+                              },
+                              {
+                                "_type" : {
+                                  "_name" : "ActionTestSummaryGroup",
+                                  "_supertype" : {
+                                    "_name" : "ActionTestSummaryIdentifiableObject",
+                                    "_supertype" : {
+                                      "_name" : "ActionAbstractTestSummary"
+                                    }
+                                  }
+                                },
+                                "duration" : {
+                                  "_type" : {
+                                    "_name" : "Double"
+                                  },
+                                  "_value" : "6.47720193862915"
+                                },
+                                "identifier" : {
+                                  "_type" : {
+                                    "_name" : "String"
+                                  },
+                                  "_value" : "FlakyTests"
+                                },
+                                "identifierURL" : {
+                                  "_type" : {
+                                    "_name" : "String"
+                                  },
+                                  "_value" : "test:\/\/com.apple.xcode\/sample-app\/sample-appUITests\/FlakyTests"
+                                },
+                                "name" : {
+                                  "_type" : {
+                                    "_name" : "String"
+                                  },
+                                  "_value" : "FlakyTests"
+                                },
+                                "subtests" : {
+                                  "_type" : {
+                                    "_name" : "Array"
+                                  },
+                                  "_values" : [
+                                    {
+                                      "_type" : {
+                                        "_name" : "ActionTestMetadata",
+                                        "_supertype" : {
+                                          "_name" : "ActionTestSummaryIdentifiableObject",
+                                          "_supertype" : {
+                                            "_name" : "ActionAbstractTestSummary"
+                                          }
+                                        }
+                                      },
+                                      "duration" : {
+                                        "_type" : {
+                                          "_name" : "Double"
+                                        },
+                                        "_value" : "3.1736220121383667"
+                                      },
+                                      "identifier" : {
+                                        "_type" : {
+                                          "_name" : "String"
+                                        },
+                                        "_value" : "FlakyTests\/testTextFlaky6()"
+                                      },
+                                      "identifierURL" : {
+                                        "_type" : {
+                                          "_name" : "String"
+                                        },
+                                        "_value" : "test:\/\/com.apple.xcode\/sample-app\/sample-appUITests\/FlakyTests\/testTextFlaky6"
+                                      },
+                                      "name" : {
+                                        "_type" : {
+                                          "_name" : "String"
+                                        },
+                                        "_value" : "testTextFlaky6()"
+                                      },
+                                      "summaryRef" : {
+                                        "_type" : {
+                                          "_name" : "Reference"
+                                        },
+                                        "id" : {
+                                          "_type" : {
+                                            "_name" : "String"
+                                          },
+                                          "_value" : "0~8vqk3Eh54WkYuo24MtJJQSSq7p5RA9T92BoO90O-M_xOC75T-HXbrDP0svfJVbBJWrQahufWbw5bFIQhI42wzw=="
+                                        },
+                                        "targetType" : {
+                                          "_type" : {
+                                            "_name" : "TypeDefinition"
+                                          },
+                                          "name" : {
+                                            "_type" : {
+                                              "_name" : "String"
+                                            },
+                                            "_value" : "ActionTestSummary"
+                                          },
+                                          "supertype" : {
+                                            "_type" : {
+                                              "_name" : "TypeDefinition"
+                                            },
+                                            "name" : {
+                                              "_type" : {
+                                                "_name" : "String"
+                                              },
+                                              "_value" : "ActionTestSummaryIdentifiableObject"
+                                            },
+                                            "supertype" : {
+                                              "_type" : {
+                                                "_name" : "TypeDefinition"
+                                              },
+                                              "name" : {
+                                                "_type" : {
+                                                  "_name" : "String"
+                                                },
+                                                "_value" : "ActionAbstractTestSummary"
+                                              }
+                                            }
+                                          }
+                                        }
+                                      },
+                                      "testStatus" : {
+                                        "_type" : {
+                                          "_name" : "String"
+                                        },
+                                        "_value" : "Failure"
+                                      }
+                                    },
+                                    {
+                                      "_type" : {
+                                        "_name" : "ActionTestMetadata",
+                                        "_supertype" : {
+                                          "_name" : "ActionTestSummaryIdentifiableObject",
+                                          "_supertype" : {
+                                            "_name" : "ActionAbstractTestSummary"
+                                          }
+                                        }
+                                      },
+                                      "duration" : {
+                                        "_type" : {
+                                          "_name" : "Double"
+                                        },
+                                        "_value" : "3.301375985145569"
+                                      },
+                                      "identifier" : {
+                                        "_type" : {
+                                          "_name" : "String"
+                                        },
+                                        "_value" : "FlakyTests\/testTextFlaky8()"
+                                      },
+                                      "identifierURL" : {
+                                        "_type" : {
+                                          "_name" : "String"
+                                        },
+                                        "_value" : "test:\/\/com.apple.xcode\/sample-app\/sample-appUITests\/FlakyTests\/testTextFlaky8"
+                                      },
+                                      "name" : {
+                                        "_type" : {
+                                          "_name" : "String"
+                                        },
+                                        "_value" : "testTextFlaky8()"
+                                      },
+                                      "summaryRef" : {
+                                        "_type" : {
+                                          "_name" : "Reference"
+                                        },
+                                        "id" : {
+                                          "_type" : {
+                                            "_name" : "String"
+                                          },
+                                          "_value" : "0~9P8VkBQvPsHxp409WYOseO-O_ty30kpRxrzPwuBy9sVKScNVMc-L2DezZsZ6SclnYTMKjZHV619RHpTh0N2cYQ=="
+                                        },
+                                        "targetType" : {
+                                          "_type" : {
+                                            "_name" : "TypeDefinition"
+                                          },
+                                          "name" : {
+                                            "_type" : {
+                                              "_name" : "String"
+                                            },
+                                            "_value" : "ActionTestSummary"
+                                          },
+                                          "supertype" : {
+                                            "_type" : {
+                                              "_name" : "TypeDefinition"
+                                            },
+                                            "name" : {
+                                              "_type" : {
+                                                "_name" : "String"
+                                              },
+                                              "_value" : "ActionTestSummaryIdentifiableObject"
+                                            },
+                                            "supertype" : {
+                                              "_type" : {
+                                                "_name" : "TypeDefinition"
+                                              },
+                                              "name" : {
+                                                "_type" : {
+                                                  "_name" : "String"
+                                                },
+                                                "_value" : "ActionAbstractTestSummary"
+                                              }
+                                            }
+                                          }
+                                        }
+                                      },
+                                      "testStatus" : {
+                                        "_type" : {
+                                          "_name" : "String"
+                                        },
+                                        "_value" : "Failure"
+                                      }
+                                    }
+                                  ]
+                                }
+                              }
+                            ]
+                          }
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

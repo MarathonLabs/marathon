@@ -12,14 +12,14 @@ import com.malinskiy.marathon.config.strategy.ShardingStrategyConfiguration
 import com.malinskiy.marathon.config.strategy.SortingStrategyConfiguration
 import com.malinskiy.marathon.config.vendor.VendorConfiguration
 import com.malinskiy.marathon.device.DeviceProvider
-import com.malinskiy.marathon.execution.TestParser
+import com.malinskiy.marathon.execution.LocalTestParser
 import com.malinskiy.marathon.test.StubDeviceProvider
 import com.malinskiy.marathon.test.Test
 import com.nhaarman.mockitokotlin2.whenever
 import kotlinx.coroutines.channels.Channel
 import java.nio.file.Files
 
-class ConfigurationFactory(val testParser: TestParser, val deviceProvider: StubDeviceProvider) {
+class ConfigurationFactory(val testParser: LocalTestParser, val deviceProvider: StubDeviceProvider) {
     var name = "DEFAULT_TEST_CONFIG"
     var outputDir = Files.createTempDirectory("test-run").toFile()
     var vendorConfiguration = VendorConfiguration.StubVendorConfiguration
@@ -27,7 +27,6 @@ class ConfigurationFactory(val testParser: TestParser, val deviceProvider: StubD
     var batchingStrategy: BatchingStrategyConfiguration = BatchingStrategyConfiguration.IsolateBatchingStrategyConfiguration
     var analyticsConfiguration: AnalyticsConfiguration = AnalyticsConfiguration.DisabledAnalytics
     var excludeSerialRegexes: List<Regex> = emptyList()
-    var fallbackToScreenshots: Boolean = false
     var strictMode: Boolean = false
     var uncompletedTestRetryQuota: Int = Int.MAX_VALUE
     var filteringConfiguration: FilteringConfiguration = FilteringConfiguration()
@@ -68,7 +67,6 @@ class ConfigurationFactory(val testParser: TestParser, val deviceProvider: StubD
         filteringConfiguration = this@ConfigurationFactory.filteringConfiguration
         ignoreFailures = this@ConfigurationFactory.ignoreFailures
         isCodeCoverageEnabled = this@ConfigurationFactory.isCodeCoverageEnabled
-        fallbackToScreenshots = this@ConfigurationFactory.fallbackToScreenshots
         strictMode = this@ConfigurationFactory.strictMode
         uncompletedTestRetryQuota = this@ConfigurationFactory.uncompletedTestRetryQuota
         testClassRegexes = this@ConfigurationFactory.testClassRegexes

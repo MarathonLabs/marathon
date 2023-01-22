@@ -1,6 +1,7 @@
 package com.malinskiy.marathon.test
 
 import com.malinskiy.marathon.actor.unboundedChannel
+import com.malinskiy.marathon.device.Device
 import com.malinskiy.marathon.device.DeviceProvider
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.channels.Channel
@@ -9,6 +10,7 @@ import kotlin.coroutines.CoroutineContext
 
 class StubDeviceProvider : DeviceProvider, CoroutineScope {
     lateinit var context: CoroutineContext
+    lateinit var borrowingDevice: Device
 
     override val coroutineContext: kotlin.coroutines.CoroutineContext
         get() = context
@@ -18,6 +20,8 @@ class StubDeviceProvider : DeviceProvider, CoroutineScope {
 
     override val deviceInitializationTimeoutMillis: Long = 180_000
     override suspend fun initialize() {}
+
+    override suspend fun borrow() = borrowingDevice
 
     override fun subscribe(): Channel<DeviceProvider.DeviceEvent> {
         providingLogic?.let {

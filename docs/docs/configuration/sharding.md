@@ -90,4 +90,4 @@ marathon {
 </TabItem>
 </Tabs>
 
-[1]: ./filtering#fragmented-execution-of-tests
+[1]: filtering.md#fragmented-execution-of-tests
