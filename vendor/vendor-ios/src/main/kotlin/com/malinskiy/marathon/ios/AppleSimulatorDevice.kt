@@ -106,7 +106,13 @@ class AppleSimulatorDevice(
     private lateinit var version: String
     val arch: Arch
         get() = when {
-            sdk == Sdk.IPHONESIMULATOR -> Arch.x86_64
+            sdk == Sdk.IPHONESIMULATOR -> {
+                when(abi) {
+                    "x86_64" -> Arch.x86_64
+                    "arm64" -> Arch.arm64
+                    else -> Arch.arm64
+                }
+            }
             udid.contains('-') -> Arch.arm64e
             else -> Arch.arm64
         }
