@@ -44,7 +44,7 @@ class ExecutionReportTest {
             deviceConnectedEvents = listOf(
                 DeviceConnectedEvent(Instant.now(), DevicePoolId("myPool"), device)
             ),
-            deviceDisconnectedEvents = deviceDisconnectedEvents.sortedBy { it.instant },
+            deviceDisconnectedEvents = emptyList(),
             devicePreparingEvents = emptyList(),
             deviceProviderPreparingEvent = emptyList(),
             testEvents = listOf(
@@ -69,7 +69,7 @@ class ExecutionReportTest {
             deviceConnectedEvents = listOf(
                 DeviceConnectedEvent(Instant.now(), DevicePoolId("myPool"), device)
             ),
-            deviceDisconnectedEvents = deviceDisconnectedEvents.sortedBy { it.instant },
+            deviceDisconnectedEvents = emptyList(),
             devicePreparingEvents = emptyList(),
             deviceProviderPreparingEvent = emptyList(),
             testEvents = listOf(
