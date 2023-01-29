@@ -41,11 +41,12 @@ class ExecutionReportTest {
             healthy = true
         )
         ExecutionReport(
-            deviceProviderPreparingEvent = emptyList(),
-            devicePreparingEvents = emptyList(),
             deviceConnectedEvents = listOf(
                 DeviceConnectedEvent(Instant.now(), DevicePoolId("myPool"), device)
             ),
+            deviceDisconnectedEvents = deviceDisconnectedEvents.sortedBy { it.instant },
+            devicePreparingEvents = emptyList(),
+            deviceProviderPreparingEvent = emptyList(),
             testEvents = listOf(
                 createTestEvent(device, "test1", TestStatus.INCOMPLETE),
                 createTestEvent(device, "test2", TestStatus.PASSED),
@@ -65,11 +66,12 @@ class ExecutionReportTest {
             healthy = true
         )
         ExecutionReport(
-            deviceProviderPreparingEvent = emptyList(),
-            devicePreparingEvents = emptyList(),
             deviceConnectedEvents = listOf(
                 DeviceConnectedEvent(Instant.now(), DevicePoolId("myPool"), device)
             ),
+            deviceDisconnectedEvents = deviceDisconnectedEvents.sortedBy { it.instant },
+            devicePreparingEvents = emptyList(),
+            deviceProviderPreparingEvent = emptyList(),
             testEvents = listOf(
                 createTestEvent(device, "test2", TestStatus.FAILURE, false),
                 createTestEvent(device, "test2", TestStatus.FAILURE, false),

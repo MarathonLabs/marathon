@@ -87,6 +87,7 @@ class TimelineSummaryProvider {
         val ignoredTests = executionReport.testEvents.count { it.testResult.isIgnored }
 
         val deviceConnectedEvents = executionReport.deviceConnectedEvents.groupBy { it.device.serialNumber }
+        val deviceDisconnectedEvents = executionReport.deviceDisconnectedEvents.groupBy { it.device.serialNumber }
         val devicePreparingEvent = executionReport.devicePreparingEvents.groupBy { it.serialNumber }
         val deviceProviderPreparingEvents = executionReport.deviceProviderPreparingEvent.groupBy { it.serialNumber }
         val testEvents = executionReport.testEvents.groupBy { it.device.serialNumber }
@@ -96,6 +97,7 @@ class TimelineSummaryProvider {
         val reports = keys.map { key ->
             key to ExecutionReport(
                 deviceConnectedEvents = deviceConnectedEvents[key] ?: emptyList(),
+                deviceDisconnectedEvents = deviceDisconnectedEvents[key] ?: emptyList(),
                 devicePreparingEvents = devicePreparingEvent[key] ?: emptyList(),
                 deviceProviderPreparingEvent = deviceProviderPreparingEvents[key] ?: emptyList(),
                 testEvents = testEvents[key] ?: emptyList()
