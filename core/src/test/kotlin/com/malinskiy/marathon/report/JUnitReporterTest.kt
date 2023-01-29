@@ -32,11 +32,12 @@ class JUnitReporterTest {
     fun `only Passed Tests and without retries should generate correct report`() {
         val device = getDevice()
         val report = ExecutionReport(
-            deviceProviderPreparingEvent = emptyList(),
-            devicePreparingEvents = emptyList(),
             deviceConnectedEvents = listOf(
                 DeviceConnectedEvent(Instant.now(), DevicePoolId("myPool"), device)
             ),
+            deviceDisconnectedEvents = emptyList(),
+            devicePreparingEvents = emptyList(),
+            deviceProviderPreparingEvent = emptyList(),
             testEvents = listOf(
                 createTestEvent(device, "test1", TestStatus.PASSED),
                 createTestEvent(device, "test2", TestStatus.PASSED),
@@ -57,11 +58,12 @@ class JUnitReporterTest {
     fun `only Failed Tests and without retries should generate correct report`() {
         val device = getDevice()
         val report = ExecutionReport(
-            deviceProviderPreparingEvent = emptyList(),
-            devicePreparingEvents = emptyList(),
             deviceConnectedEvents = listOf(
                 DeviceConnectedEvent(Instant.now(), DevicePoolId("myPool"), device)
             ),
+            deviceDisconnectedEvents = emptyList(),
+            devicePreparingEvents = emptyList(),
+            deviceProviderPreparingEvent = emptyList(),
             testEvents = listOf(
                 createTestEvent(device, "test1", TestStatus.FAILURE),
                 createTestEvent(device, "test2", TestStatus.INCOMPLETE),
@@ -88,11 +90,12 @@ class JUnitReporterTest {
             "  at com.example.stacktrace.StackTraceExample.methodA(StackTraceExample.java:9)\n" +
             "  at com.example.stacktrace.StackTraceExample.main(StackTraceExample.java:5)"
         val report = ExecutionReport(
-            deviceProviderPreparingEvent = emptyList(),
-            devicePreparingEvents = emptyList(),
             deviceConnectedEvents = listOf(
                 DeviceConnectedEvent(Instant.now(), DevicePoolId("myPool"), device)
             ),
+            deviceDisconnectedEvents = emptyList(),
+            devicePreparingEvents = emptyList(),
+            deviceProviderPreparingEvent = emptyList(),
             testEvents = listOf(
                 createTestEvent(device, "test1", TestStatus.FAILURE, stackTrace),
                 createTestEvent(device, "test2", TestStatus.IGNORED),
@@ -120,11 +123,12 @@ class JUnitReporterTest {
             "  at com.example.stacktrace.StackTraceExample.methodA(StackTraceExample.java:9)\n" +
             "  at com.example.stacktrace.StackTraceExample.main(StackTraceExample.java:5)"
         val report = ExecutionReport(
-            deviceProviderPreparingEvent = emptyList(),
-            devicePreparingEvents = emptyList(),
             deviceConnectedEvents = listOf(
                 DeviceConnectedEvent(Instant.now(), DevicePoolId("myPool"), device)
             ),
+            deviceDisconnectedEvents = emptyList(),
+            devicePreparingEvents = emptyList(),
+            deviceProviderPreparingEvent = emptyList(),
             testEvents = listOf(
                 createTestEvent(device, "test1", TestStatus.FAILURE, stackTrace, false),
                 createTestEvent(device, "test1", TestStatus.PASSED, final = true)
@@ -150,11 +154,12 @@ class JUnitReporterTest {
             "  at com.example.stacktrace.StackTraceExample.methodA(StackTraceExample.java:9)\n" +
             "  at com.example.stacktrace.StackTraceExample.main(StackTraceExample.java:5)"
         val report = ExecutionReport(
-            deviceProviderPreparingEvent = emptyList(),
-            devicePreparingEvents = emptyList(),
             deviceConnectedEvents = listOf(
                 DeviceConnectedEvent(Instant.now(), DevicePoolId("myPool"), device)
             ),
+            deviceDisconnectedEvents = emptyList(),
+            devicePreparingEvents = emptyList(),
+            deviceProviderPreparingEvent = emptyList(),
             testEvents = listOf(
                 createTestEvent(device, "test1", TestStatus.PASSED, final = false),
                 createTestEvent(device, "test1", TestStatus.FAILURE, stackTrace)

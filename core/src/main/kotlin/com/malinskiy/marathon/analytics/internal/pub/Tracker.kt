@@ -10,6 +10,7 @@ import java.time.Instant
  */
 interface Tracker {
     fun deviceConnected(poolId: DevicePoolId, device: DeviceInfo)
+    fun deviceDisconnected(poolId: DevicePoolId, device: DeviceInfo)
     fun deviceProviderInit(serialNumber: String, startTime: Instant, finishTime: Instant)
     fun devicePreparing(serialNumber: String, startTime: Instant, finishTime: Instant)
 

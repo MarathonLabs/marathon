@@ -4,6 +4,7 @@ abstract class TrackerInternalAdapter : TrackerInternal {
     final override fun track(event: Event) {
         when (event) {
             is DeviceConnectedEvent -> trackDeviceConnected(event)
+            is DeviceDisconnectedEvent -> trackDeviceDisconnected(event)
             is DevicePreparingEvent -> trackDevicePreparing(event)
             is DeviceProviderPreparingEvent -> trackDeviceProviderPreparing(event)
             is TestEvent -> trackTest(event)
@@ -19,4 +20,6 @@ abstract class TrackerInternalAdapter : TrackerInternal {
     protected open fun trackDevicePreparing(event: DevicePreparingEvent) = Unit
 
     protected open fun trackDeviceConnected(event: DeviceConnectedEvent) = Unit
+
+    protected open fun trackDeviceDisconnected(event: Event) = Unit
 }

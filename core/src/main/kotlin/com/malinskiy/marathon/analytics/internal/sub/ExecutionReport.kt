@@ -12,6 +12,7 @@ import java.time.Instant
  */
 data class ExecutionReport(
     val deviceConnectedEvents: List<DeviceConnectedEvent>,
+    val deviceDisconnectedEvents: List<DeviceDisconnectedEvent>,
     val devicePreparingEvents: List<DevicePreparingEvent>,
     val deviceProviderPreparingEvent: List<DeviceProviderPreparingEvent>,
     val testEvents: List<TestEvent>
@@ -123,4 +124,10 @@ data class TestEvent(
     val device: DeviceInfo,
     val testResult: TestResult,
     val final: Boolean
+) : Event()
+
+data class DeviceDisconnectedEvent(
+    val instant: Instant,
+    val poolId: DevicePoolId,
+    val device: DeviceInfo
 ) : Event()
