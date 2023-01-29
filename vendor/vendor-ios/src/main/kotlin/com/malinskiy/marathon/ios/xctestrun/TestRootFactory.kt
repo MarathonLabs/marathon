@@ -267,7 +267,7 @@ class TestRootFactory(private val device: AppleSimulatorDevice, private val vend
             }
         } else if (device.sdk == Sdk.IPHONESIMULATOR) {
             val supportedArchs = device.binaryEnvironment.lipo.getArch(testBinary)
-            if (supportedArchs.contains(Arch.x86_64)) {
+            if (supportedArchs.contains(Arch.x86_64) && device.arch != Arch.arm64) {
                 // Launch as plain x86_64 if test binary has been built for simulator and is targeting x86_64
                 device.binaryEnvironment.lipo.removeArch(testRunnerBinary, Arch.arm64)
             }
