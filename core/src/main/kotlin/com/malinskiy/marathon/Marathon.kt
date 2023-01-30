@@ -69,8 +69,9 @@ class Marathon(
         try {
             async {
                 val hook = installShutdownHook { onFinish(analytics, deviceProvider) }
-                runAsync(executionCommand)
+                val result = runAsync(executionCommand)
                 hook.uninstall()
+                result
             }.apply {
                 invokeOnCompletion {
                     //Marathon will usually clean up correctly unless exception is thrown
