@@ -33,7 +33,7 @@ class ConnectionFactory(private val configuration: Configuration, private val ve
     private val fileBridges = hashMapOf<RsyncTarget, RsyncFileBridge>()
     private val sshCommandExecutors = hashMapOf<Transport.Ssh, SshjCommandExecutor>()
     private val sshFactory = SshjCommandExecutorFactory()
-    
+
     private val connectionCounter = HashMap<CommandExecutor, Int>()
     private val lock = Object()
 
@@ -55,7 +55,7 @@ class ConnectionFactory(private val configuration: Configuration, private val ve
         synchronized(lock) {
             val users = (connectionCounter[commandExecutor] ?: 0) - 1
             connectionCounter[commandExecutor] = users
-            if(users == 0) {
+            if (users == 0) {
                 logger.debug { "Disposing of command executor for ${commandExecutor.host}" }
                 commandExecutor.close()
             }
@@ -67,10 +67,10 @@ class ConnectionFactory(private val configuration: Configuration, private val ve
     }
 
     fun createRemote(transport: Transport.Ssh): Pair<CommandExecutor?, FileBridge> {
-        return if(vendorConfiguration.ssh.shareWorkerConnection) {
-            Pair(getOrCreateSshCommandExecutor(transport),getOrCreateFileBridge(transport.addr, transport.port))
+        return if (vendorConfiguration.ssh.shareWorkerConnection) {
+            Pair(getOrCreateSshCommandExecutor(transport), getOrCreateFileBridge(transport.addr, transport.port, transport.authentication))
         } else {
-            Pair(createRemoteCommandExecutor(transport), getOrCreateFileBridge(transport.addr, transport.port))
+            Pair(createRemoteCommandExecutor(transport), getOrCreateFileBridge(transport.addr, transport.port, transport.authentication))
         }
     }
 
@@ -140,7 +140,7 @@ class ConnectionFactory(private val configuration: Configuration, private val ve
     private fun getOrCreateSshCommandExecutor(transport: Transport.Ssh): CommandExecutor? {
         synchronized(sshCommandExecutors) {
             return sshCommandExecutors.getOrPut(transport) {
-                createRemoteCommandExecutor(transport) ?: return null 
+                createRemoteCommandExecutor(transport) ?: return null
             }
         }
     }
@@ -148,11 +148,16 @@ class ConnectionFactory(private val configuration: Configuration, private val ve
     /**
      * Rsync doesn't work in parallel for the same host, so we have to share the same bridge
      */
-    private fun getOrCreateFileBridge(addr: String, port: Int): FileBridge {
+    private fun getOrCreateFileBridge(addr: String, port: Int, authentication: SshAuthentication?): FileBridge {
         synchronized(fileBridges) {
             val rsyncSshTarget = RsyncTarget(addr, port)
             return fileBridges.getOrElse(rsyncSshTarget) {
-                val defaultBridge = RsyncFileBridge(rsyncSshTarget, configuration, vendorConfiguration)
+                val defaultBridge = RsyncFileBridge(
+                    rsyncSshTarget,
+                    configuration,
+                    vendorConfiguration,
+                    authentication ?: vendorConfiguration.ssh.authentication
+                )
                 fileBridges[rsyncSshTarget] = defaultBridge
                 defaultBridge
             }

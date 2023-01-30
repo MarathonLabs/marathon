@@ -25,6 +25,7 @@ class RsyncFileBridge(
     private val target: RsyncTarget,
     private val configuration: Configuration,
     private val vendorConfiguration: VendorConfiguration.IOSConfiguration,
+    private val authentication: SshAuthentication?,
 ) : FileBridge {
     private val logger = MarathonLogging.logger {}
 
@@ -109,7 +110,7 @@ class RsyncFileBridge(
     }
 
     private fun getSshString(port: Int): String {
-        val authentication = vendorConfiguration.ssh.authentication as? SshAuthentication.PublicKeyAuthentication
+        val authentication = authentication as? SshAuthentication.PublicKeyAuthentication
             ?: throw ConfigurationException("rsync bridge supports only public-key ssh auth")
 
         return "ssh -o 'StrictHostKeyChecking no' -F /dev/null " +
