@@ -47,7 +47,6 @@ const val DEFAULT_WAIT_FOR_DEVICES_TIMEOUT = 30000L
 )
 sealed class VendorConfiguration {
     data class AndroidConfiguration(
-        @JsonProperty("vendor") val vendor: VendorType = VendorType.ADAM,
         @JsonProperty("androidSdk") val androidSdk: File?,
         @JsonProperty("applicationApk") val applicationOutput: File?,
         @JsonProperty("testApplicationApk") val testApplicationOutput: File?,
@@ -73,15 +72,9 @@ sealed class VendorConfiguration {
         @JsonProperty("disableWindowAnimation") val disableWindowAnimation: Boolean = DEFAULT_DISABLE_WINDOW_ANIMATION,
     ) : VendorConfiguration() {
         fun safeAndroidSdk(): File = androidSdk ?: throw ConfigurationException("No android SDK path specified")
-
-        enum class VendorType {
-            DDMLIB,
-            ADAM
-        }
     }
 
     class AndroidConfigurationBuilder {
-        var vendor: AndroidConfiguration.VendorType = AndroidConfiguration.VendorType.ADAM
         var androidSdk: File? = null
         var applicationOutput: File? = null
         var testApplicationOutput: File? = null
@@ -107,7 +100,6 @@ sealed class VendorConfiguration {
         var disableWindowAnimation: Boolean = DEFAULT_DISABLE_WINDOW_ANIMATION
 
         fun build() = AndroidConfiguration(
-            vendor,
             androidSdk,
             applicationOutput,
             testApplicationOutput,

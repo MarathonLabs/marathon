@@ -24,7 +24,6 @@ import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.usageanalytics.TrackActionType
 import com.malinskiy.marathon.usageanalytics.UsageAnalytics
 import com.malinskiy.marathon.usageanalytics.tracker.Event
-import ddmlibModule
 import org.koin.core.context.stopKoin
 import org.koin.dsl.module
 import kotlin.system.exitProcess
@@ -68,10 +67,7 @@ private fun execute(cliConfiguration: CliConfiguration) {
                 AppleVendor + module { single { vendorConfiguration } }
             }
             is VendorConfiguration.AndroidConfiguration -> {
-                AndroidVendor + module { single { vendorConfiguration } } + when (vendorConfiguration.vendor) {
-                    VendorConfiguration.AndroidConfiguration.VendorType.ADAM -> listOf(adamModule)
-                    VendorConfiguration.AndroidConfiguration.VendorType.DDMLIB -> listOf(ddmlibModule)
-                }
+                AndroidVendor + module { single { vendorConfiguration } } + listOf(adamModule)
             }
             else -> throw ConfigurationException("No vendor config present in ${marathonStartConfiguration.marathonfile.absolutePath}")
         }
