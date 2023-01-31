@@ -2,6 +2,7 @@ package com.malinskiy.marathon.ios.cmd.remote.rsync
 
 import com.github.fracpete.processoutput4j.output.CollectingProcessOutput
 import com.github.fracpete.rsync4j.RSync
+import com.github.fracpete.rsync4j.SshPass
 import com.malinskiy.marathon.config.Configuration
 import com.malinskiy.marathon.config.exceptions.ConfigurationException
 import com.malinskiy.marathon.config.vendor.VendorConfiguration
@@ -46,9 +47,8 @@ class RsyncFileBridge(
             }
             val destination = "${target.addr}:$dst"
 
-            val sshString = getSshString(target.port)
             val rsync = getRsyncBase()
-                .rsh(sshString)
+                .authenticate()
                 .source(source)
                 .destination(destination)
 
@@ -74,10 +74,9 @@ class RsyncFileBridge(
             dst.absolutePath
         }
 
-        val sshString = getSshString(target.port)
         val rsync = getRsyncBase()
             .links(true)
-            .rsh(sshString)
+            .authenticate()
             .source(source)
             .destination(destination)
 
@@ -109,18 +108,35 @@ class RsyncFileBridge(
             .verbose(configuration.debug)
     }
 
-    private fun getSshString(port: Int): String {
-        val authentication = authentication as? SshAuthentication.PublicKeyAuthentication
-            ?: throw ConfigurationException("rsync bridge supports only public-key ssh auth")
-
-        return "ssh -o 'StrictHostKeyChecking no' -F /dev/null " +
-            "-i ${authentication.key} " +
-            "-l ${authentication.username} " +
-            "-p $port " +
-            when (configuration.debug && vendorConfiguration.ssh.debug) {
-                true -> "-vvv"
-                else -> ""
+    private fun RSync.authenticate(): RSync {
+        return when (authentication) {
+            is SshAuthentication.PasswordAuthentication -> {
+                sshPass(
+                    SshPass().password(authentication.password)
+                ).rsh(
+                    "ssh -o 'StrictHostKeyChecking no' -F /dev/null " +
+                        "-l ${authentication.username} " +
+                        "-p ${target.port} " +
+                        when (configuration.debug && vendorConfiguration.ssh.debug) {
+                            true -> "-vvv"
+                            else -> ""
+                        }
+                )
             }
+            is SshAuthentication.PublicKeyAuthentication -> {
+                rsh(
+                    "ssh -o 'StrictHostKeyChecking no' -F /dev/null " +
+                        "-i ${authentication.key} " +
+                        "-l ${authentication.username} " +
+                        "-p ${target.port} " +
+                        when (configuration.debug && vendorConfiguration.ssh.debug) {
+                            true -> "-vvv"
+                            else -> ""
+                        }
+                )
+            }
+            null -> throw ConfigurationException("rsync bridge needs ssh auth")
+        }
     }
 
     private val File.absolutePathWithTrailingSeparator: String

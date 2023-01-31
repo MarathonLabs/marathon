@@ -108,6 +108,12 @@ ssh:
 #### Password Authentication
 To authenticate using username and password:
 
+:::caution
+
+`sshpass` is required to allow rsync to pick up username+password credentials.
+
+:::
+
 ```yaml
 ssh:
   authentication:
@@ -122,6 +128,7 @@ Storing ssh password in a configuration file directly is a bad idea. Refer to [d
 to provide the password for your test runs during runtime.
 
 :::
+
 
 #### Known hosts
 When ssh establishes connection to a remote host it tries to verify the identity of the remote host to mitigate potential men-in-the-middle
