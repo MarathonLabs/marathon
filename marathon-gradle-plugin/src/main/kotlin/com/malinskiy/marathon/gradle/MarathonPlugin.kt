@@ -197,7 +197,6 @@ class MarathonPlugin : Plugin<Project> {
                 config.outputConfiguration?.toStrategy()?.let { outputConfiguration = it }
             }
             val vendorConfigurationBuilder = VendorConfiguration.AndroidConfigurationBuilder().apply {
-                config.vendor?.let { vendor = it }
                 config.autoGrantPermission?.let { autoGrantPermission = it }
                 instrumentationArgs = config.instrumentationArgs
                 config.applicationPmClear?.let { applicationPmClear = it }

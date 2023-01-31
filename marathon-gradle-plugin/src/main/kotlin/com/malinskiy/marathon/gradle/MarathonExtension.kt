@@ -229,20 +229,6 @@ open class MarathonExtension {
     var deviceInitializationTimeoutMillis: Long? = null
 
     /**
-     * The first implementation of marathon for Android relied heavily on AOSP's [ddmlib][4]. For a number of technical reasons we had to write our
-     * own implementation of the ADB client named [adam][6].
-     *
-     * The ddmlib's implementation is going to be deprecated in marathon **0.7.0** and by default adam is going to be handling all communication with
-     * devices.
-     *
-     * By **0.8.0**, ddmlib is going to be removed completely unless we find major issues.
-     *
-     * All the features supported in ddmlib's implementation transparently work without any changes. We ask you to test adam prior to the
-     * removal of ddmlib and submit your concerns/issues.
-     */
-    var vendor: VendorConfiguration.AndroidConfiguration.VendorType? = null
-
-    /**
      * By default, marathon does not clear state between test batch executions. To mitigate potential test side-effects, one could add an option to clear the package data between test runs. Keep in mind that test side-effects might be present.
      * If you want to isolate tests even further, then you should consider reducing the batch size.
      *
@@ -388,8 +374,6 @@ open class MarathonExtension {
      *
      * In order to expose the adb server it should be started on all or public network interfaces using option `-a`. For example, if you want to
      * expose the adb server and start it in foreground explicitly on port 5037: `adb nodaemon server -a -P 5037`.
-     *
-     * This functionality is only supported by vendor adam because ddmlib doesn't support connecting to a remote instance of adb server.
      *
      */
     var adbServers: List<AdbEndpoint>? = null

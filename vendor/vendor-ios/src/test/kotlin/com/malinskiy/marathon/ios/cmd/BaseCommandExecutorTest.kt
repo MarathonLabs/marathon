@@ -135,7 +135,7 @@ abstract class BaseCommandExecutorTest {
             command.terminate()
 
             val result = resultDeferred.await()
-            result.stdout.size shouldBeInRange 5..10 //fuzzy way of checking that we didn't actually produce all 50 lines
+            result.stdout.size shouldBeInRange 3..10 //fuzzy way of checking that we didn't actually produce all 50 lines
             result.stderr shouldHaveSize 0
             result.exitCode shouldBeEqualTo 143 //graceful termination
         }

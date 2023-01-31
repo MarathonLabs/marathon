@@ -584,62 +584,9 @@ The on-device report gives you more flexibility and allows you to:
 
 All allure output from devices will be collected under `$output/device-files/allure-results` folder.
 
-### Vendor module selection
-
-The first implementation of marathon for Android relied heavily on AOSP's [ddmlib][4]. For a number of technical reasons we had to write our
-own implementation of the ADB client named [adam][6].
-
-:::caution
-
-Ddmlib's implementation is deprecated since marathon **0.7.0** and by default adam is handling all communication
-with devices.
-
-By **0.8.0**, ddmlib is going to be removed completely unless we find major issues.
-
-:::
-
-All the features supported in ddmlib's implementation transparently work without any changes. We ask you to test adam prior to the
-removal of ddmlib and submit your concerns/issues.
-
-<Tabs>
-<TabItem value="YAML" label="Marathonfile">
-
-```yaml
-vendorConfiguration:
-  type: "Android"
-  vendor: ADAM
-```
-
-</TabItem>
-<TabItem value="kts" label="Kotlin DSL">
-
-```kotlin
-marathon {
-  vendor = com.malinskiy.marathon.config.vendor.VendorConfiguration.AndroidConfiguration.VendorType.ADAM
-}
-```
-
-</TabItem>
-<TabItem value="groovy" label="Groovy DSL">
-
-```groovy
-marathon {
-  vendor = com.malinskiy.marathon.config.vendor.VendorConfiguration.AndroidConfiguration.VendorType.ADAM
-}
-```
-
-</TabItem>
-</Tabs>
-
 ### Timeout configuration
 
-With the introduction of [adam][6] we can precisely control the timeout of individual requests. Here is how you can use it:
-
-:::note
-
-This timeout configuration works only in conjuction with adam, ddmlib will not pick up these settings.
-
-:::
+With the introduction of [adam][4] we can precisely control the timeout of individual requests. Here is how you can use it:
 
 
 <Tabs>
@@ -1008,12 +955,6 @@ desirable to connect multiple adb servers instead of connecting devices to a sin
 of tests using test access (calling adb commands from tests). For such scenario all emulators should be connected via a local (in relation
 to the emulator) adb server. Default port for each host is 5037.
 
-:::info
-
-This functionality is only supported by vendor adam because ddmlib doesn't support connecting to a remote instance of adb server.
-
-:::
-
 :::tip
 
 Adb server started on another machine should be exposed to external traffic, e.g. using option `-a`. For example, if you want to
@@ -1153,8 +1094,4 @@ marathon {
 
 [3]: https://github.com/allure-framework/allure-kotlin
 
-[4]: https://android.googlesource.com/platform/tools/base/+/master/ddmlib
-
-[5]: https://medium.com/@Malinskiy/adam-a-second-birth-to-androids-ddmlib-c90fdde4c39d
-
-[6]: https://github.com/Malinskiy/adam
+[4]: https://github.com/Malinskiy/adam
