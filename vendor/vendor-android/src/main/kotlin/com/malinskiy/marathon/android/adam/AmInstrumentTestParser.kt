@@ -123,7 +123,7 @@ class AmInstrumentTestParser(
             if (!observedAnnotations) {
                 logger.warn {
                     "Bundle ${bundle.id} did not report any test annotations. If you need test annotations retrieval, remote test parser requires additional setup " +
-                        "see https://marathonlabs.github.io/marathon/ven/android.html#test-parser"
+                        "see https://docs.marathonlabs.io/android/configure#test-parser"
                 }
             }
 

@@ -18,7 +18,7 @@ gradlePlugin {
 }
 
 pluginBundle {
-    website = "https://marathonlabs.github.io/marathon/"
+    website = "https://docs.marathonlabs.io/"
     vcsUrl = "https://github.com/MarathonLabs/marathon"
     tags = listOf("marathon", "test", "runner", "android")
 }
