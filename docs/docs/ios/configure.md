@@ -74,6 +74,14 @@ testType: "xctest"
 </TabItem>
 </Tabs>
 
+#### Extra applications
+Marathon can install additional applications that might be required for testing:
+
+```yaml
+extraApplications: 
+  - "/path/to/additional.app"
+```
+
 ### Devices
 By default, marathon will look for a file `Marathondevices` in the same folder as `Marathonfile` for the configuration of workers. You can 
 override this location with the following property:

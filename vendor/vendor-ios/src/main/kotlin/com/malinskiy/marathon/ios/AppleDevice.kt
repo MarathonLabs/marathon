@@ -33,6 +33,8 @@ interface AppleDevice : Device, Screenshottable, LogProducer {
     suspend fun pushFolder(src: File, dst: String): Boolean
     suspend fun pullFolder(src: String, dst: File): Boolean
     
+    suspend fun install(remotePath: String): Boolean
+    
     suspend fun getScreenshot(timeout: Duration, dst: File): Boolean
     suspend fun startVideoRecording(remotePath: String): CommandResult?
     suspend fun stopVideoRecording(): Boolean

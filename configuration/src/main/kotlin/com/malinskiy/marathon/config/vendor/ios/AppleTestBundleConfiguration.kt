@@ -16,6 +16,7 @@ import kotlin.io.path.Path
 data class AppleTestBundleConfiguration(
     @JsonProperty("application") val application: File? = null,
     @JsonProperty("testApplication") val testApplication: File? = null,
+    @JsonProperty("extraApplications") val extraApplications: List<File>? = null,
     @JsonProperty("derivedDataDir") val derivedDataDir: File? = null,
     @JsonProperty("testType") val testType: TestType? = null,
     private val tempDirFor: (File) -> File = { file ->

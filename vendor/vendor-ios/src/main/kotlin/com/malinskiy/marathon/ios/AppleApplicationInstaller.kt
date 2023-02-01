@@ -19,7 +19,7 @@ class AppleApplicationInstaller(
 
     suspend fun prepareInstallation(device: AppleSimulatorDevice) {
         val bundle = vendorConfiguration.bundle ?: throw ConfigurationException("no xctest found for configuration")
-        
+
         val xctest = bundle.xctest
         logger.debug { "Moving xctest to ${device.serialNumber}" }
         val remoteXctest = device.remoteFileManager.remoteXctestFile()
@@ -46,6 +46,17 @@ class AppleApplicationInstaller(
         val testType = getTestTypeFor(device, device.sdk, remoteTestBinary)
         TestRootFactory(device, vendorConfiguration).generate(testType, bundle)
         grantPermissions(device)
+
+        bundle.extraApplications?.forEach {
+            if (it.isDirectory && it.extension == "app") {
+                logger.debug { "Installing extra application $it to ${device.serialNumber}" }
+                val remoteExtraApplication = device.remoteFileManager.remoteExtraApplication(it.name)
+                device.pushFolder(it, remoteExtraApplication)
+                device.install(remoteExtraApplication)
+            } else {
+                logger.warn { "Extra application $it should be a directory with extension app" }
+            }
+        }
     }
 
     private suspend fun grantPermissions(device: AppleSimulatorDevice) {
