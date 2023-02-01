@@ -43,13 +43,6 @@ class MarathonPlugin : Plugin<Project> {
             rootProject.tasks.named(MarathonUnpackTask.NAME, MarathonUnpackTask::class.java)
         } ?: applyRoot(rootProject)
 
-        val appPlugin = project.plugins.findPlugin(AppPlugin::class.java)
-        val libraryPlugin = project.plugins.findPlugin(LibraryPlugin::class.java)
-
-        if (appPlugin == null && libraryPlugin == null) {
-            throw IllegalStateException("Android plugin is not found")
-        }
-
         val marathonTask: Task = project.task(TASK_PREFIX, closureOf<Task> {
             group = JavaBasePlugin.VERIFICATION_GROUP
             description = "Runs all the instrumentation test variations on all the connected devices"
@@ -57,7 +50,7 @@ class MarathonPlugin : Plugin<Project> {
 
         val appExtension = project.extensions.findByType(ApplicationAndroidComponentsExtension::class.java)
         val libraryExtension = project.extensions.findByType(LibraryAndroidComponentsExtension::class.java)
-        val conf = project.extensions.getByName("marathon") as? MarathonExtension ?: throw IllegalStateException("extension not found")
+        val conf = project.extensions.getByName("marathon") as? MarathonExtension ?: throw IllegalStateException("Android extension not found")
 
         when {
             appExtension != null -> {
@@ -73,7 +66,7 @@ class MarathonPlugin : Plugin<Project> {
                         val testApkFolder: Provider<Directory> = androidTest.artifacts.get(SingleArtifact.APK)
                         val testArtifactsLoader = androidTest.artifacts.getBuiltArtifactsLoader()
 
-                        val bundle = GradleAndroidTestBundle(
+                        val bundle = GradleAndroidTestBundle.ApplicationWithTest(
                             apkFolder = project.objects.directoryProperty().apply { set(apkFolder) },
                             artifactLoader = project.objects.property(BuiltArtifactsLoader::class.java)
                                 .apply { set(artifactsLoader) },
@@ -100,11 +93,12 @@ class MarathonPlugin : Plugin<Project> {
                         val testApkFolder: Provider<Directory> = androidTest.artifacts.get(SingleArtifact.APK)
                         val testArtifactsLoader = androidTest.artifacts.getBuiltArtifactsLoader()
 
-                        val bundle = GradleAndroidTestBundle(
+                        val bundle = GradleAndroidTestBundle.TestOnly(
                             testApkFolder = project.objects.directoryProperty().apply { set(testApkFolder) },
                             testArtifactLoader = project.objects.property(BuiltArtifactsLoader::class.java)
                                 .apply { set(testArtifactsLoader) },
                         )
+                        println(bundle)
 
                         val (generateMarathonfileTask, testTaskForVariant) = createTasks(
                             logger, androidTest, bundle, project, conf, sdkDirectory, wrapper, jsonServiceProvider

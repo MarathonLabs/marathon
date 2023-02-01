@@ -1,14 +1,14 @@
 object Versions {
-    val kotlin = "1.4.10"
+    val kotlin = "1.7.10"
 
-    val androidGradleVersion = "4.2.0"
+    val androidGradleVersion = "7.4.0"
 
-    val cucumber = "4.8.4"
+    val cucumber = "4.9.0"
     val cucumberPicocontainer = "4.8.1"
-    val espresso = "3.4.0"
-    val espressoRules = "1.4.0"
+    val espresso = "3.5.1"
+    val espressoRules = "1.5.0"
     val junit = "4.12"
-    val appCompat = "1.3.1"
+    val appCompat = "1.6.0"
 }
 
 object BuildPlugins {
