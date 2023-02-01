@@ -2,8 +2,9 @@
 title: "Install"
 ---
 
-## macOS
+Marathon runs on a JVM, so you can run it on any system that JVM can be installed to: Linux, macOS, FreeBSD, etc.
 
+## macOS
 Grab the latest release with [homebrew][5]:
 
 ```bash
@@ -11,7 +12,7 @@ brew tap malinskiy/tap
 brew install malinskiy/tap/marathon
 ```
 
-## GitHub Releases
+## Other OS
 
 Grab the latest release from [GitHub Releases][1] page. Extract the archive into your apps folder and add the binary to your path using
 local terminal session or using your profile file (.bashrc or equivalent), e.g.
