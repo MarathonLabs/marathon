@@ -89,7 +89,7 @@ class AdamAndroidDevice(
      * This adapter is thread-safe but the internal reusable buffer should be considered if we ever need to make screenshots in parallel
      */
     private val imageScreenCaptureAdapter = BufferedImageScreenCaptureAdapter()
-    private lateinit var supportedFeatures: List<Feature>
+    lateinit var supportedFeatures: List<Feature>
 
     val portForwardingRules = mutableMapOf<String, ReversePortForwardingRule>()
 
@@ -426,8 +426,8 @@ class AdamAndroidDevice(
         }
     }
 
-    fun executeTestRequest(runnerRequest: TestRunnerRequest): ReceiveChannel<List<TestEvent>> {
-        return client.execute(runnerRequest, scope = this, serial = adbSerial)
+    suspend fun executeTestRequest(runnerRequest: TestRunnerRequest): ReceiveChannel<List<TestEvent>> {
+        return client.execute(runnerRequest, serial = adbSerial)
     }
 
     override suspend fun onLine(line: String) {

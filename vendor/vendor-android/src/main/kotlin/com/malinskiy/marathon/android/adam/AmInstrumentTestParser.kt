@@ -77,8 +77,10 @@ class AmInstrumentTestParser(
                 runnerClass = instrumentationInfo.testRunnerClass,
                 instrumentOptions = InstrumentOptions(
                     log = true,
-                    overrides = overrides
+                    overrides = overrides,
                 ),
+                supportedFeatures = device.supportedFeatures,
+                coroutineScope = device,
             )
             val androidAppInstaller = AndroidAppInstaller(configuration)
             androidAppInstaller.prepareInstallation(device)
