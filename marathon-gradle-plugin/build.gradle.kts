@@ -8,7 +8,7 @@ plugins {
 project.version = Deployment.getVersion(project)
 
 gradlePlugin {
-    website.set("https://marathonlabs.github.io/marathon/")
+    website.set("https://docs.marathonlabs.io/")
     vcsUrl.set("https://github.com/MarathonLabs/marathon")
     plugins {
         create("marathon-gradle-plugin") {
