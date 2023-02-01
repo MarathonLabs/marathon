@@ -419,6 +419,10 @@ class AppleSimulatorDevice(
         }
     }
 
+    override suspend fun install(remotePath: String): Boolean {
+        return binaryEnvironment.xcrun.simctl.application.install(udid, remotePath).successful
+    }
+
     override suspend fun startVideoRecording(remotePath: String): CommandResult? {
         val videoConfiguration = vendorConfiguration.screenRecordConfiguration.videoConfiguration
         val codec = videoConfiguration.codec

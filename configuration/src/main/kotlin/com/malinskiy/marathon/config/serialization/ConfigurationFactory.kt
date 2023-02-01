@@ -68,7 +68,9 @@ class ConfigurationFactory(
                         val resolvedDerivedDataDir = it.derivedDataDir?.let { ddd -> marathonfileDir.resolve(ddd) }
                         val resolvedApplication = it.application?.let { ddd -> marathonfileDir.resolve(ddd) }
                         val resolvedTestApplication = it.testApplication?.let { ddd -> marathonfileDir.resolve(ddd) }
-                        AppleTestBundleConfiguration(resolvedApplication, resolvedTestApplication, resolvedDerivedDataDir).apply { validate() }
+                        val resolvedExtraApplications = it.extraApplications?.map { ddd -> marathonfileDir.resolve(ddd) }
+                        
+                        AppleTestBundleConfiguration(resolvedApplication, resolvedTestApplication,  resolvedExtraApplications, resolvedDerivedDataDir).apply { validate() }
                     }
                     val optionalDevices = configuration.vendorConfiguration.devicesFile?.resolveAgainst(marathonfileDir)
                         ?: marathonfileDir.resolve("Marathondevices")

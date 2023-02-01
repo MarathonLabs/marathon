@@ -42,6 +42,7 @@ class RemoteFileManager(private val device: AppleDevice) {
 
     fun remoteXctestFile(): String = remoteFile(xctestFileName())
     fun remoteApplication(): String = remoteFile(appUnderTestFileName())
+    fun remoteExtraApplication(name: String) = remoteFile(name)
 
     /**
      * Omitting xcresult extension results in a symlink 
@@ -89,7 +90,6 @@ class RemoteFileManager(private val device: AppleDevice) {
     fun remoteScreenshot(udid: String, type: Type): String {
         return remoteFileForTest(screenshotFileName(udid, type))
     }
-    
 
     private fun remoteFileForTest(filename: String): String {
         return "${outputDir}$FILE_SEPARATOR$filename"

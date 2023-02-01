@@ -1,6 +1,5 @@
 package com.malinskiy.marathon.ios.bin.xcrun.simctl.service
 
-import com.google.gson.Gson
 import com.malinskiy.marathon.config.vendor.ios.TimeoutConfiguration
 import com.malinskiy.marathon.ios.cmd.CommandExecutor
 import com.malinskiy.marathon.ios.cmd.CommandResult
@@ -8,7 +7,6 @@ import com.malinskiy.marathon.ios.bin.xcrun.simctl.SimctlService
 
 class ApplicationService (commandExecutor: CommandExecutor,
                           private val timeoutConfiguration: TimeoutConfiguration,
-                          private val gson: Gson,
 ) : SimctlService(commandExecutor) {
 
     suspend fun install(udid: String, remotePath: String): CommandResult {
@@ -17,7 +15,6 @@ class ApplicationService (commandExecutor: CommandExecutor,
             "install", udid, remotePath
         )
     }
-
 
     /**
      * Terminates a running application with the given bundle ID on this device
