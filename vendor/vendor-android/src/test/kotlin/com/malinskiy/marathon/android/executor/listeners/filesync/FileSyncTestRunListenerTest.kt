@@ -18,13 +18,16 @@ import com.malinskiy.marathon.config.vendor.android.FilePushEntry
 import com.malinskiy.marathon.config.vendor.android.FileSyncConfiguration
 import com.malinskiy.marathon.config.vendor.android.FileSyncEntry
 import com.malinskiy.marathon.config.vendor.android.PathRoot
+import com.malinskiy.marathon.device.DeviceInfo
 import com.malinskiy.marathon.device.DevicePoolId
 import com.malinskiy.marathon.device.toDeviceInfo
 import com.malinskiy.marathon.io.FileManager
 import com.malinskiy.marathon.io.FolderType
+import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.times
 import com.nhaarman.mockitokotlin2.verify
+import com.nhaarman.mockitokotlin2.whenever
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
@@ -59,6 +62,11 @@ class FileSyncTestRunListenerTest {
         val device = TestDeviceFactory.create(client, configuration, mock())
         val poolId = DevicePoolId("testpool")
         val fileManager = mock<FileManager>()
+        whenever(fileManager.createFolder(any<FolderType>())).thenReturn(temp)
+        whenever(fileManager.createFolder(any<FolderType>(), any<DeviceInfo>())).thenReturn(temp)
+        whenever(fileManager.createFolder(any<FolderType>(), any<DevicePoolId>())).thenReturn(temp)
+        whenever(fileManager.createFolder(any<FolderType>(), any<DevicePoolId>(), any<DeviceInfo>())).thenReturn(temp)
+        
         val androidConfiguration = configuration.vendorConfiguration as VendorConfiguration.AndroidConfiguration
         val listener = FileSyncTestRunListener(poolId, device, androidConfiguration.fileSyncConfiguration, fileManager)
 
@@ -160,7 +168,7 @@ class FileSyncTestRunListenerTest {
         )
         val device = TestDeviceFactory.create(client, configuration, mock())
         val poolId = DevicePoolId("testpool")
-        val fileManager = mock<FileManager>()
+        val fileManager = FileManager(1024, tempDir)
         val androidConfiguration = configuration.vendorConfiguration as VendorConfiguration.AndroidConfiguration
         val listener = FileSyncTestRunListener(poolId, device, androidConfiguration.fileSyncConfiguration, fileManager)
 

@@ -16,7 +16,7 @@ class CachingTest {
     @Test
     fun testUnpackingIsCached() {
         val runner = GradleRunner.create()
-            .withGradleVersion("7.3.3")
+            .withGradleVersion("7.4")
             .withProjectDir(testProjectDir)
             .withArguments(":marathonWrapper", "--build-cache", "--stacktrace")
         var result = runner.build()
@@ -34,7 +34,7 @@ class CachingTest {
     @Test
     fun testMarathonfileGenerationIsCached() {
         val runner = GradleRunner.create()
-            .withGradleVersion("7.3.3")
+            .withGradleVersion("7.4")
             .withProjectDir(testProjectDir)
             .withArguments(":app:marathonDebugAndroidTestGenerateMarathonfile", "--build-cache", "--stacktrace")
         var result = runner.build()
