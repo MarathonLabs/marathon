@@ -69,7 +69,7 @@ class AndroidDeviceTestRunner(private val device: AdamAndroidDevice, private val
                     clearData(configuration, androidConfiguration, info)
                     listener.beforeTestRun(info)
 
-                    logger.debug { "Running ${String(runnerRequest.serialize())}" }
+                    logger.debug { "Running ${runnerRequest.cmd}" }
                     val localChannel = device.executeTestRequest(runnerRequest)
                     channel = localChannel
 
@@ -198,7 +198,9 @@ class AndroidDeviceTestRunner(private val device: AdamAndroidDevice, private val
                 coverageFile = if (configuration.isCodeCoverageEnabled) coverageFile else null,
                 overrides = overrides
             ),
-            socketIdleTimeout = Long.MAX_VALUE
+            socketIdleTimeout = Long.MAX_VALUE,
+            supportedFeatures = device.supportedFeatures,
+            coroutineScope = device,
         )
 
         return request
