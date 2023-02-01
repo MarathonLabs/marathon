@@ -179,10 +179,12 @@ class AdamDeviceProvider(
     }
 
     override suspend fun borrow(): AdamAndroidDevice {
-        while(devices.isEmpty()) {
+        var availableDevices = devices.filter { it.value.setupJob.isCompleted }
+        while(availableDevices.isEmpty()) {
             delay(200)
+            availableDevices = devices.filter { it.value.setupJob.isCompleted }
         }
-        return devices.values.random().device
+        return availableDevices.values.random().device
     }
 
     private suspend fun printAdbServerVersion(client: AndroidDebugBridgeClient) {

@@ -5,12 +5,12 @@ plugins {
 }
 
 android {
-    buildToolsVersion("30.0.2")
-    compileSdkVersion(30)
+    buildToolsVersion = "30.0.3"
+    compileSdk = 33
 
     defaultConfig {
-        minSdkVersion(21)
-        targetSdkVersion(30)
+        minSdk = 21
+        targetSdk = 33
 
         applicationId = "cucumber.cukeulator"
         versionCode = 1
@@ -25,7 +25,7 @@ android {
             proguardFiles("proguard-rules.pro")
         }
         getByName("debug") {
-            isTestCoverageEnabled = true
+            isTestCoverageEnabled = false
         }
     }
 }

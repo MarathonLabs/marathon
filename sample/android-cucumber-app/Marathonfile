@@ -16,7 +16,6 @@ vendorConfiguration:
     debug: "false"
   applicationPmClear: true
   testApplicationPmClear: true
-  vendor: ADAM
   waitForDevicesTimeoutMillis: 60000
   fileSyncConfiguration:
     pull:

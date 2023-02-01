@@ -9,7 +9,7 @@ plugins {
 
 android {
     buildToolsVersion = "30.0.3"
-    compileSdk = 30
+    compileSdk = 33
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_8
@@ -23,7 +23,7 @@ android {
 
     defaultConfig {
         minSdk = 21
-        targetSdk = 30
+        targetSdk = 33
 
         applicationId = "com.example"
         versionCode = 1
@@ -42,28 +42,36 @@ android {
         }
     }
 }
-    
-    marathon {
+
+marathon {
+    allureConfiguration {
+        enabled = true
+    }
+    applicationPmClear = true
+    disableWindowAnimation = false
+    testApplicationPmClear = true
+    autoGrantPermission = true
+    isCodeCoverageEnabled = true
+    testParserConfiguration = TestParserConfiguration.RemoteTestParserConfiguration(
+        mapOf("listener" to "com.malinskiy.adam.junit4.android.listener.TestAnnotationProducer")
+    )
+    uncompletedTestRetryQuota = 3
+    testAccessConfiguration = TestAccessConfiguration(adb = true, grpc = true, console = true)
+    fileSyncConfiguration {
         allureConfiguration {
             enabled = true
-        }
-        applicationPmClear = true
-        disableWindowAnimation = false
-        testApplicationPmClear = true
-        autoGrantPermission = true
-        isCodeCoverageEnabled = true
-        testParserConfiguration = TestParserConfiguration.RemoteTestParserConfiguration(
-            mapOf("listener" to "com.malinskiy.adam.junit4.android.listener.TestAnnotationProducer")
-        )
-        uncompletedTestRetryQuota = 3
-        testAccessConfiguration = TestAccessConfiguration(adb = true, grpc = true, console = true)
-        fileSyncConfiguration {
-            allureConfiguration {
-                enabled = true
-                relativeResultsDirectory = "files/allure-results"
-            }
+            relativeResultsDirectory = "files/allure-results"
         }
     }
+}
+
+configurations {
+    forEach { configuration ->
+        //Because Google is using a library from 2016 for proto and can't update it
+        //https://github.com/google/Accessibility-Test-Framework-for-Android/issues/38
+        configuration.exclude(group = "com.google.protobuf", module = "protobuf-lite")
+    }
+}
 
 dependencies {
     implementation(Libraries.appCompat)

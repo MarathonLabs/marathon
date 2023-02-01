@@ -1,19 +1,19 @@
 object Versions {
-    val kotlin = "1.5.21"
-    val coroutines = "1.5.2"
+    val kotlin = "1.7.10"
+    val coroutines = "1.6.4"
 
-    val androidGradleVersion = "7.2.2"
+    val androidGradleVersion = "7.4.0"
 
-    val kakao = "3.0.2"
-    val espresso = "3.3.0"
-    val espressoRules = "1.3.0"
-    val espressoRunner = "1.3.0"
-    val testJunit = "1.1.2"
+    val kakao = "3.2.2"
+    val espresso = "3.5.1"
+    val espressoRules = "1.5.0"
+    val espressoRunner = "1.5.2"
+    val testJunit = "1.1.5"
     val junit = "4.13.2"
-    val appCompat = "1.2.0"
+    val appCompat = "1.6.0"
     val constraintLayout = "2.0.4"
     val allure = "2.4.0"
-    val adam = "0.4.6"
+    val adam = "0.5.0"
 }
 
 object BuildPlugins {
