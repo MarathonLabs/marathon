@@ -44,6 +44,19 @@ marathon {
 ```
 
 </TabItem>
+<TabItem value="groovy" label="Groovy DSL">
+
+```groovy
+marathon {
+  filteringConfiguration {
+    allowlist {
+      annotationFilter = ['com.example.SmokeTest']
+    }
+  }
+}
+```
+
+</TabItem>
 </Tabs>
 
 And the next snippet will execute everything, but the smoke tests:
@@ -67,6 +80,19 @@ marathon {
   filteringConfiguration {
     blocklist {
       add(AnnotationFilterConfiguration(values = listOf("com.example.SmokeTest")))
+    }
+  }
+}
+```
+
+</TabItem>
+<TabItem value="groovy" label="Groovy DSL">
+
+```groovy
+marathon {
+  filteringConfiguration {
+    blocklist {
+      annotationFilter = ['com.example.SmokeTest']
     }
   }
 }
@@ -165,6 +191,23 @@ com.example
 com.example.subpackage
 ```
 
+### Groovy filtering
+
+With almost every filtering configuration (except for `annotationDataFilter`) it is possible to have `regex` and `values`.
+
+Providing one value will be mapped to `regex` in the generated Marathonfile, more than one will end up in `values`
+
+```groovy
+marathon {
+  filteringConfiguration {
+    allowlist {
+      annotationFilter = ['com.example.SmokeTest']//mapped to regex
+      testMethodFilter = ['testMethod', 'testSomethingElse']//mapped to values
+    }
+  }
+}
+```
+
 ## Common examples
 
 ### Running only specific tests
@@ -198,6 +241,19 @@ marathon {
           )
         )
       )
+    }
+  }
+}
+```
+
+</TabItem>
+<TabItem value="groovy" label="Groovy DSL">
+
+```groovy
+marathon {
+  filteringConfiguration {
+    allowlist {
+      fullyQualifiedTestnameFilter = ['com.example.ElaborateTest#testMethod', 'com.example.subpackage.OtherTest#testSomethingElse']
     }
   }
 }
@@ -352,7 +408,7 @@ marathon {
 <TabItem value="groovy" label="Groovy DSL">
 
 ```groovy
-//Simple access Groovy configuration doesn't allow specifying anything besides the test filter regex
+//With Groovy configuration, specifying only one value per configuration will result in regex
 marathon {
   filteringConfiguration {
     allowlist {

@@ -36,6 +36,7 @@ open class FilteringPluginConfiguration {
 open class Wrapper {
     open var simpleClassNameFilter: ArrayList<String>? = null
     open var fullyQualifiedClassnameFilter: ArrayList<String>? = null
+    open var fullyQualifiedTestnameFilter: ArrayList<String>? = null
     open var testPackageFilter: ArrayList<String>? = null
     open var testMethodFilter: ArrayList<String>? = null
     open var annotationFilter: ArrayList<String>? = null
@@ -45,20 +46,35 @@ open class Wrapper {
 
 fun Wrapper.toList(): List<TestFilterConfiguration> {
     val mutableList = mutableListOf<TestFilterConfiguration>()
-    this.annotationFilter?.map { TestFilterConfiguration.AnnotationFilterConfiguration(it.toRegex()) }?.let {
-        mutableList.addAll(it)
+    when (annotationFilter?.size) {
+        null, 0 -> Unit
+        1 -> mutableList.add(TestFilterConfiguration.AnnotationFilterConfiguration(annotationFilter?.first().orEmpty().toRegex()))
+        else -> mutableList.add(TestFilterConfiguration.AnnotationFilterConfiguration(values = annotationFilter))
     }
-    this.fullyQualifiedClassnameFilter?.map { TestFilterConfiguration.FullyQualifiedClassnameFilterConfiguration(it.toRegex()) }?.let {
-        mutableList.addAll(it)
+    when (fullyQualifiedClassnameFilter?.size) {
+        null, 0 -> Unit
+        1 -> mutableList.add(TestFilterConfiguration.FullyQualifiedClassnameFilterConfiguration(fullyQualifiedClassnameFilter?.first().orEmpty().toRegex()))
+        else -> mutableList.add(TestFilterConfiguration.FullyQualifiedClassnameFilterConfiguration(values = fullyQualifiedClassnameFilter))
     }
-    this.testPackageFilter?.map { TestFilterConfiguration.TestPackageFilterConfiguration(it.toRegex()) }?.let {
-        mutableList.addAll(it)
+    when (testPackageFilter?.size) {
+        null, 0 -> Unit
+        1 -> mutableList.add(TestFilterConfiguration.TestPackageFilterConfiguration(testPackageFilter?.first().orEmpty().toRegex()))
+        else -> mutableList.add(TestFilterConfiguration.TestPackageFilterConfiguration(values = testPackageFilter))
     }
-    this.testMethodFilter?.map { TestFilterConfiguration.TestMethodFilterConfiguration(it.toRegex()) }?.let {
-        mutableList.addAll(it)
+    when (testMethodFilter?.size) {
+        null, 0 -> Unit
+        1 -> mutableList.add(TestFilterConfiguration.TestMethodFilterConfiguration(testMethodFilter?.first().orEmpty().toRegex()))
+        else -> mutableList.add(TestFilterConfiguration.TestMethodFilterConfiguration(values = testMethodFilter))
     }
-    this.simpleClassNameFilter?.map { TestFilterConfiguration.SimpleClassnameFilterConfiguration(it.toRegex()) }?.let {
-        mutableList.addAll(it)
+    when (simpleClassNameFilter?.size) {
+        null, 0 -> Unit
+        1 -> mutableList.add(TestFilterConfiguration.SimpleClassnameFilterConfiguration(simpleClassNameFilter?.first().orEmpty().toRegex()))
+        else -> mutableList.add(TestFilterConfiguration.SimpleClassnameFilterConfiguration(values = simpleClassNameFilter))
+    }
+    when (fullyQualifiedTestnameFilter?.size) {
+        null, 0 -> Unit
+        1 -> mutableList.add(TestFilterConfiguration.FullyQualifiedTestnameFilterConfiguration(fullyQualifiedTestnameFilter?.first().orEmpty().toRegex()))
+        else -> mutableList.add(TestFilterConfiguration.FullyQualifiedTestnameFilterConfiguration(values = fullyQualifiedTestnameFilter))
     }
     this.annotationDataFilter?.map {
         val currentData = it.split(",")
