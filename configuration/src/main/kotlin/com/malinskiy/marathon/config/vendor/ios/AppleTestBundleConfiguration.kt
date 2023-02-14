@@ -86,6 +86,10 @@ data class AppleTestBundleConfiguration(
         ZipFile(file).use { zipFile ->
             for (entry in zipFile.entries()) {
                 when {
+                    IGNORED.contains(entry.name) -> {
+                        continue
+                    }
+
                     entry.isDirectory -> {
                         var subpath = entry.name.split("/").filter { it.trim().isNotEmpty() }
                         Path(dst.path, *subpath.toTypedArray()).toFile().mkdirs()
@@ -105,6 +109,11 @@ data class AppleTestBundleConfiguration(
             }
         }
         return dst
+    }
+
+    companion object {
+        //See https://en.wikipedia.org/wiki/Resource_fork
+        val IGNORED = setOf("__MACOSX", ".DS_Store")
     }
 }
 
