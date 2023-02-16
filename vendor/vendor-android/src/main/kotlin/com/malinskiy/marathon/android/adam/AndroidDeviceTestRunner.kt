@@ -37,7 +37,6 @@ class AndroidDeviceTestRunner(private val device: AdamAndroidDevice, private val
     private val logger = MarathonLogging.logger("AndroidDeviceTestRunner")
     private val argumentsFactory = ArgumentsFactory(device)
 
-    @OptIn(ExperimentalStdlibApi::class)
     suspend fun execute(
         configuration: Configuration,
         rawTestBatch: TestBatch,

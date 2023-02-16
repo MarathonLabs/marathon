@@ -19,7 +19,6 @@ import com.malinskiy.marathon.execution.TestParser
 import com.malinskiy.marathon.execution.TestShard
 import com.malinskiy.marathon.execution.bundle.TestBundleIdentifier
 import com.malinskiy.marathon.execution.command.parse.MarathonTestParseCommand
-import com.malinskiy.marathon.execution.progress.ProgressReporter
 import com.malinskiy.marathon.execution.withRetry
 import com.malinskiy.marathon.extension.toFlakinessStrategy
 import com.malinskiy.marathon.extension.toShardingStrategy
@@ -34,7 +33,6 @@ import com.malinskiy.marathon.usageanalytics.UsageAnalytics
 import com.malinskiy.marathon.usageanalytics.tracker.Event
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.async
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeoutOrNull
@@ -52,7 +50,6 @@ class Marathon(
     private val logConfigurator: MarathonLogConfigurator,
     private val tracker: TrackerInternal,
     private val analytics: Analytics,
-    private val progressReporter: ProgressReporter,
     private val track: Track,
     private val timer: Timer,
     private val marathonTestParseCommand: MarathonTestParseCommand
@@ -142,7 +139,6 @@ class Marathon(
             analytics,
             configuration,
             shard,
-            progressReporter,
             track,
             timer,
             testBundleIdentifier,
@@ -155,12 +151,13 @@ class Marathon(
         }
         configuration.outputDir.mkdirs()
 
-        if (parsedFilteredTests.isNotEmpty()) {
+        val result = if (parsedFilteredTests.isNotEmpty()) {
             scheduler.execute()
+        } else {
+            true
         }
 
         onFinish(analytics, deviceProvider)
-        val result = progressReporter.aggregateResult()
 
         stopKoin()
         return result

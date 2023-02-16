@@ -221,10 +221,10 @@ fun createTestEvent(
     )
 }
 
-fun getDevice() =
+fun getDevice(serialNumber: String = "xxyyzz") =
     DeviceInfo(
         operatingSystem = OperatingSystem("23"),
-        serialNumber = "xxyyzz",
+        serialNumber = serialNumber,
         model = "Android SDK built for x86",
         manufacturer = "unknown",
         networkState = NetworkState.CONNECTED,

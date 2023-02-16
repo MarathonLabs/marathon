@@ -3,12 +3,15 @@ package com.malinskiy.marathon.execution.queue
 import com.malinskiy.marathon.analytics.external.Analytics
 import com.malinskiy.marathon.analytics.internal.pub.Track
 import com.malinskiy.marathon.config.Configuration
+import com.malinskiy.marathon.config.strategy.ExecutionMode
+import com.malinskiy.marathon.config.strategy.ExecutionStrategyConfiguration
 import com.malinskiy.marathon.config.vendor.VendorConfiguration
 import com.malinskiy.marathon.createDeviceInfo
 import com.malinskiy.marathon.device.DevicePoolId
 import com.malinskiy.marathon.execution.TestResult
 import com.malinskiy.marathon.execution.TestShard
 import com.malinskiy.marathon.execution.TestStatus
+import com.malinskiy.marathon.execution.progress.PoolProgressAccumulator
 import com.malinskiy.marathon.generateTest
 import com.nhaarman.mockitokotlin2.inOrder
 import com.nhaarman.mockitokotlin2.mock
@@ -18,7 +21,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import java.io.File
 
-class TestResultReporterTemporalTest {
+class TestResultReporterAllSuccessTest {
     private val track = mock<Track>()
     private val analytics = mock<Analytics>()
 
@@ -35,21 +38,19 @@ class TestResultReporterTemporalTest {
         debug = false
         analyticsTracking = false
     }.build()
-    private val strictConfig = defaultConfig.copy(strictMode = true)
+    private val strictConfig = defaultConfig.copy(executionStrategy = ExecutionStrategyConfiguration(ExecutionMode.ALL_SUCCESS, fast = false))
     val test = generateTest()
     private val poolId = DevicePoolId("test")
 
-    private fun filterDefault() = TestResultReporter(
+    private fun filterDefault() = PoolProgressAccumulator(
         poolId,
-        analytics,
         TestShard(listOf(test, test, test)),
         defaultConfig,
         track
     )
 
-    private fun filterStrict() = TestResultReporter(
+    private fun filterStrict() = PoolProgressAccumulator(
         poolId,
-        analytics,
         TestShard(listOf(test, test, test)),
         strictConfig,
         track

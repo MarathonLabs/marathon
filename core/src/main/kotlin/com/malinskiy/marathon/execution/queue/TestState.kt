@@ -1,24 +1,36 @@
 package com.malinskiy.marathon.execution.queue
 
-import com.malinskiy.marathon.device.DeviceInfo
-import com.malinskiy.marathon.execution.TestResult
 
+/**
+ * TestState accumulates all the information about a single test case for one pool
+ */
 sealed class TestState {
-    data class Added(val count: Int) : TestState()
+    data class Added(
+        val total: Int, 
+        val running: Int = 0,
+    ) : TestState()
+    
+    data class Passing(
+        val total: Int,
+        val running: Int,
+        val done: Int,
+    ) : TestState()
 
-    data class Executed(
-        val device: DeviceInfo,
-        val testResult: TestResult,
-        val count: Int
+    data class Failing(
+        val total: Int,
+        val running: Int,
+        val done: Int,
     ) : TestState()
 
     data class Failed(
-        val device: DeviceInfo,
-        val testResult: TestResult
+        val total: Int,
+        val running: Int,
+        val done: Int,
     ) : TestState()
 
     data class Passed(
-        val device: DeviceInfo,
-        val testResult: TestResult
+        val total: Int,
+        val running: Int,
+        val done: Int,
     ) : TestState()
 }
