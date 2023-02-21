@@ -132,7 +132,7 @@ class AppleSimulatorDevice(
     }
     override val coroutineContext: CoroutineContext = dispatcher
     override val remoteFileManager: RemoteFileManager = RemoteFileManager(this)
-    override val storagePath = "/tmp/marathon/$udid"
+    override val storagePath = "${RemoteFileManager.MARATHON_ROOT_PATH}/$udid"
     private lateinit var xcodeVersion: XcodeVersion
 
     /**
@@ -188,8 +188,8 @@ class AppleSimulatorDevice(
         async(CoroutineName("prepare $serialNumber")) {
             supervisorScope {
                 track.trackDevicePreparing(this@AppleSimulatorDevice) {
-                    remoteFileManager.removeRemoteDirectory()
-                    remoteFileManager.createRemoteDirectory()
+                    remoteFileManager.removeRemoteDirectories()
+                    remoteFileManager.createRemoteDirectories()
                     //Clean slate for the recorder
                     executeWorkerCommand(listOf("pkill", "-f", "'simctl io ${udid} recordVideo'"))
                     mutableListOf<Deferred<Unit>>().apply {

@@ -4,7 +4,6 @@ import com.malinskiy.marathon.config.Configuration
 import com.malinskiy.marathon.config.exceptions.ConfigurationException
 import com.malinskiy.marathon.config.vendor.VendorConfiguration
 import com.malinskiy.marathon.device.Device
-import com.malinskiy.marathon.device.DeviceProvider
 import com.malinskiy.marathon.exceptions.TestParsingException
 import com.malinskiy.marathon.execution.RemoteTestParser
 import com.malinskiy.marathon.execution.withRetry
@@ -56,7 +55,7 @@ class AppleTestParser(
 
         logger.debug { "Found test binary $testBinary for xctest $xctest" }
 
-        device.remoteFileManager.createRemoteDirectory()
+        device.remoteFileManager.createRemoteDirectories()
         val remoteXctest = device.remoteFileManager.remoteXctestFile()
         if (!device.pushFile(xctest, remoteXctest)) {
             throw TestParsingException("failed to push xctest for test parsing")

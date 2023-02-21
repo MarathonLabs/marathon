@@ -16,17 +16,23 @@ class RemoteFileManager(private val device: AppleDevice) {
     private val outputDir by lazy { device.storagePath }
 
     fun remoteDirectory(): String = outputDir
+    fun remoteArtifactDirectory(): String = MARATHON_ROOT_PATH.resolve("extraArtifacts")
 
-    suspend fun createRemoteDirectory(remoteDir: String = outputDir) {
+    suspend fun createRemoteDirectories() {
+        createRemoteDirectory(remoteDirectory())
+        createRemoteDirectory(remoteArtifactDirectory())
+    }
+
+    suspend fun createRemoteDirectory(path: String) {
         executeCommand(
-            listOf("mkdir", "-p", remoteDirectory()),
-            "Could not create remote directory ${remoteDirectory()}"
+            listOf("mkdir", "-p", path),
+            "Could not create remote directory $path"
         )
     }
 
-    suspend fun removeRemoteDirectory() {
+    suspend fun removeRemoteDirectories() {
         executeCommand(
-            listOf("rm", "-rf", remoteDirectory()),
+            listOf("rm", "-rf", MARATHON_ROOT_PATH),
             "Unable to remove directory ${remoteDirectory()}"
         )
     }
@@ -43,6 +49,7 @@ class RemoteFileManager(private val device: AppleDevice) {
     fun remoteXctestFile(): String = remoteFile(xctestFileName())
     fun remoteApplication(): String = remoteFile(appUnderTestFileName())
     fun remoteExtraApplication(name: String) = remoteFile(name)
+    fun remoteExtraArtifact(name: String) = remoteFile(name)
 
     /**
      * Omitting xcresult extension results in a symlink 
@@ -58,6 +65,7 @@ class RemoteFileManager(private val device: AppleDevice) {
         "${device.udid}.${batch.id}.xcresult"
 
     private fun remoteFile(file: String): String = remoteDirectory().resolve(file)
+    fun remoteArtifactFile(file: String): String = remoteArtifactDirectory().resolve(file)
 
     private suspend fun safeExecuteCommand(command: List<String>) {
         try {
@@ -132,6 +140,7 @@ class RemoteFileManager(private val device: AppleDevice) {
 
     companion object {
         const val FILE_SEPARATOR = "/"
+        const val MARATHON_ROOT_PATH = "/tmp/marathon"
     }
 }
 

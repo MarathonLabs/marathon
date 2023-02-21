@@ -24,7 +24,7 @@ class AppleApplicationInstaller(
         logger.debug { "Moving xctest to ${device.serialNumber}" }
         val remoteXctest = device.remoteFileManager.remoteXctestFile()
         withRetry(3, 1000L) {
-            device.remoteFileManager.createRemoteDirectory()
+            device.remoteFileManager.createRemoteDirectories()
             val remoteDirectory = device.remoteFileManager.remoteDirectory()
             if (!device.pushFolder(xctest, remoteXctest)) {
                 throw DeviceSetupException("Error transferring $xctest to ${device.serialNumber}")
@@ -55,6 +55,16 @@ class AppleApplicationInstaller(
                 device.install(remoteExtraApplication)
             } else {
                 logger.warn { "Extra application $it should be a directory with extension app" }
+            }
+        }
+
+        bundle.extraArtifacts?.forEach {
+            logger.debug { "Pushing extra artifact $it to ${device.serialNumber}" }
+            val remoteArtifactFile = device.remoteFileManager.remoteArtifactFile(it.name)
+            if (it.isDirectory) {
+                device.pushFolder(it, remoteArtifactFile)
+            } else {
+                device.pushFile(it, remoteArtifactFile)
             }
         }
     }
