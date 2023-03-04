@@ -116,7 +116,7 @@ class Scheduler(
 
         pools.computeIfAbsent(poolId) { id ->
             logger.debug { "pool actor ${id.name} is being created" }
-            DevicePoolActor(id, configuration, accumulator, analytics, shard, track, timer, parent, context, testBundleIdentifier)
+            DevicePoolActor(id, configuration, accumulator, analytics, shard, timer, parent, context, testBundleIdentifier)
         }
         pools[poolId]?.send(AddDevice(device)) ?: logger.debug {
             "not sending the AddDevice event " +

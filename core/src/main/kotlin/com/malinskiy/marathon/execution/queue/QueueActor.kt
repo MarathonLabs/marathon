@@ -35,7 +35,6 @@ class QueueActor(
     private val analytics: Analytics,
     private val pool: SendChannel<FromQueue>,
     private val poolId: DevicePoolId,
-    private val track: Track,
     private val timer: Timer,
     private val testBundleIdentifier: TestBundleIdentifier?,
     private val poolProgressAccumulator: PoolProgressAccumulator,

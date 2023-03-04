@@ -38,7 +38,7 @@ class TestResultReporterAllSuccessTest {
         debug = false
         analyticsTracking = false
     }.build()
-    private val strictConfig = defaultConfig.copy(executionStrategy = ExecutionStrategyConfiguration(ExecutionMode.ALL_SUCCESS, fast = false))
+    private val strictConfig = defaultConfig.copy(executionStrategy = ExecutionStrategyConfiguration(ExecutionMode.ALL_SUCCESS, fast = true))
     val test = generateTest()
     private val poolId = DevicePoolId("test")
 
@@ -66,9 +66,9 @@ class TestResultReporterAllSuccessTest {
         val r2 = TestResult(test, deviceInfo, "stub-batch", TestStatus.FAILURE, 2, 3)
         val r3 = TestResult(test, deviceInfo, "stub-batch", TestStatus.FAILURE, 4, 5)
 
-        filter.testFinished(deviceInfo, r1)
-        filter.testFailed(deviceInfo, r2)
-        filter.testFailed(deviceInfo, r3)
+        filter.testEnded(deviceInfo, r1)
+        filter.testEnded(deviceInfo, r2)
+        filter.testEnded(deviceInfo, r3)
 
         inOrder(track) {
             verify(track).test(poolId, deviceInfo, r1, true)
@@ -86,9 +86,9 @@ class TestResultReporterAllSuccessTest {
         val r2 = TestResult(test, deviceInfo, "stub-batch", TestStatus.FAILURE, 2, 3)
         val r3 = TestResult(test, deviceInfo, "stub-batch", TestStatus.PASSED, 4, 5)
 
-        filter.testFailed(deviceInfo, r1)
-        filter.testFailed(deviceInfo, r2)
-        filter.testFinished(deviceInfo, r3)
+        filter.testEnded(deviceInfo, r1)
+        filter.testEnded(deviceInfo, r2)
+        filter.testEnded(deviceInfo, r3)
 
         inOrder(track) {
             verify(track).test(poolId, deviceInfo, r1, false)
@@ -106,9 +106,9 @@ class TestResultReporterAllSuccessTest {
         val r2 = TestResult(test, deviceInfo, "stub-batch", TestStatus.FAILURE, 2, 3)
         val r3 = TestResult(test, deviceInfo, "stub-batch", TestStatus.FAILURE, 4, 5)
 
-        filter.testFinished(deviceInfo, r1)
-        filter.testFailed(deviceInfo, r2)
-        filter.testFailed(deviceInfo, r3)
+        filter.testEnded(deviceInfo, r1)
+        filter.testEnded(deviceInfo, r2)
+        filter.testEnded(deviceInfo, r3)
 
         inOrder(track) {
             verify(track).test(poolId, deviceInfo, r1, false)
@@ -126,9 +126,9 @@ class TestResultReporterAllSuccessTest {
         val r2 = TestResult(test, deviceInfo, "stub-batch", TestStatus.PASSED, 2, 3)
         val r3 = TestResult(test, deviceInfo, "stub-batch", TestStatus.PASSED, 4, 5)
 
-        filter.testFailed(deviceInfo, r1)
-        filter.testFinished(deviceInfo, r2)
-        filter.testFinished(deviceInfo, r3)
+        filter.testEnded(deviceInfo, r1)
+        filter.testEnded(deviceInfo, r2)
+        filter.testEnded(deviceInfo, r3)
 
         inOrder(track) {
             verify(track).test(poolId, deviceInfo, r1, true)

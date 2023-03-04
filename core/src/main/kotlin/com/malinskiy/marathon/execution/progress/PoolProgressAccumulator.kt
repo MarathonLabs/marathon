@@ -272,19 +272,22 @@ class PoolProgressAccumulator(
      * @param final used for incomplete tests to signal no more retries left, hence a decision on the status has to be made
      */
     fun testEnded(device: DeviceInfo, testResult: TestResult, final: Boolean = false): TestAction? {
-        return when(testResult.status) {
+        return when (testResult.status) {
             TestStatus.FAILURE -> {
                 println("${toPercent(progress())} | [${poolId.name}]-[${device.serialNumber}] ${testResult.test.toTestName()} failed")
                 tests[testResult.test.toTestName()]?.transition(TestEvent.Failed(device, testResult)).sideffect()
             }
+
             TestStatus.PASSED -> {
                 println("${toPercent(progress())} | [${poolId.name}]-[${device.serialNumber}] ${testResult.test.toTestName()} passed")
                 tests[testResult.test.toTestName()]?.transition(TestEvent.Passed(device, testResult)).sideffect()
             }
+
             TestStatus.IGNORED, TestStatus.ASSUMPTION_FAILURE -> {
                 println("${toPercent(progress())} | [${poolId.name}]-[${device.serialNumber}] ${testResult.test.toTestName()} ignored")
                 tests[testResult.test.toTestName()]?.transition(TestEvent.Passed(device, testResult)).sideffect()
             }
+
             TestStatus.INCOMPLETE -> {
                 println("${toPercent(progress())} | [${poolId.name}]-[${device.serialNumber}] ${testResult.test.toTestName()} incomplete")
                 tests[testResult.test.toTestName()]?.transition(TestEvent.Incomplete(device, testResult, final)).sideffect()
@@ -323,7 +326,13 @@ class PoolProgressAccumulator(
         val testResult: TestResult? = when (event) {
             is TestEvent.Passed -> event.testResult
             is TestEvent.Failed -> event.testResult
-            is TestEvent.Incomplete -> event.testResult
+            is TestEvent.Incomplete -> {
+                if (event.final) {
+                    event.testResult.copy(status = TestStatus.FAILURE)
+                } else {
+                    event.testResult
+                }
+            }
             else -> null
         }
         val device: DeviceInfo? = when (event) {
@@ -408,8 +417,8 @@ class PoolProgressAccumulator(
     }
 }
 
-private fun <STATE: Any, EVENT: Any, SIDE_EFFECT: Any> StateMachine.Transition<STATE, EVENT, SIDE_EFFECT>?.sideffect(): SIDE_EFFECT? {
-    return when(this) {
+private fun <STATE : Any, EVENT : Any, SIDE_EFFECT : Any> StateMachine.Transition<STATE, EVENT, SIDE_EFFECT>?.sideffect(): SIDE_EFFECT? {
+    return when (this) {
         is StateMachine.Transition.Invalid -> null
         is StateMachine.Transition.Valid -> this.sideEffect
         null -> null
