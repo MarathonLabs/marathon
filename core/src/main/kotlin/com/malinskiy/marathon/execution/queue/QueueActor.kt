@@ -119,9 +119,12 @@ class QueueActor(
         }
 
         if (uncompleted.isNotEmpty()) {
-            for (test in uncompleted) {
-                val testAction = poolProgressAccumulator.testEnded(device, test, final = false)
-                processTestAction(testAction, test)
+            for (testResult in uncompleted) {
+                val testAction = poolProgressAccumulator.testEnded(device, testResult, final = false)
+                when (testAction) {
+                    TestAction.Conclude -> processTestAction(testAction, testResult)
+                    null -> rerunTest(testResult.test)
+                }
             }
         }
     }

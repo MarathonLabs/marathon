@@ -20,7 +20,7 @@ data class ExecutionStrategyConfiguration(
  * @property ALL_SUCCESS test passes if and only if all the executions are passing
  *  this mode works only if there are no retries, i.e. no complex flakiness strategy, no retry strategy
  *  
- *  Why: when adding retries to tests with retry+flakiness strategies users want to trade-off cost for realiability, i.e. add more retries
+ *  Why: when adding retries to tests with retry+flakiness strategies users want to trade-off cost for reliability, i.e. add more retries
  *  and pass if one of them passes, so retries only make sense for the [ANY_SUCCESS] mode. When we use [ALL_SUCCESS] mode it means user
  *  wants to verify each test with a number of tries (they are not retries per se) and pass only if all of them succeed. This is the case
  *  when fixing a flaky test or adding a new test, and we want to have a signal that the test is fixed/not flaky.
