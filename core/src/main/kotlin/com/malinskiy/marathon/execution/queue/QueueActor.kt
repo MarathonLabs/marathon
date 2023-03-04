@@ -64,15 +64,19 @@ class QueueActor(
             is QueueMessage.RequestBatch -> {
                 onRequestBatch(msg.device)
             }
+
             is QueueMessage.IsEmpty -> {
                 msg.deferred.complete(queue.isEmpty() && activeBatches.isEmpty())
             }
+
             is QueueMessage.Terminate -> {
                 onTerminate()
             }
+
             is QueueMessage.Completed -> {
                 onBatchCompleted(msg.device, msg.results)
             }
+
             is QueueMessage.ReturnBatch -> {
                 onReturnBatch(msg.device, msg.batch)
             }
@@ -108,21 +112,17 @@ class QueueActor(
             uncompletedTestsRetryCount[it.test] = (uncompletedTestsRetryCount[it.test] ?: 0) + 1
         }
 
-        if (uncompletedRetryQuotaExceeded.isNotEmpty()) {
-            logger.debug { "uncompletedRetryQuotaExceeded for ${uncompletedRetryQuotaExceeded.joinToString(separator = ", ") { it.test.toTestName() }}" }
-            val uncompletedToFailed = uncompletedRetryQuotaExceeded.map {
-                it.copy(status = TestStatus.FAILURE)
-            }
-            for (test in uncompletedToFailed) {
-                poolProgressAccumulator.testEnded(device, test, final = true)
-            }
+        for (test in uncompletedRetryQuotaExceeded) {
+            logger.debug { "uncompletedTestRetryQuota exceeded for ${test.test.toTestName()}}" }
+            val testAction = poolProgressAccumulator.testEnded(device, test, final = true)
+            processTestAction(testAction, test)
         }
 
         if (uncompleted.isNotEmpty()) {
             for (test in uncompleted) {
-                poolProgressAccumulator.testEnded(device, test, final = false)
+                val testAction = poolProgressAccumulator.testEnded(device, test, final = false)
+                processTestAction(testAction, test)
             }
-            returnTests(uncompleted.map { it.test })
         }
     }
 
@@ -149,31 +149,35 @@ class QueueActor(
         }
     }
 
-    private fun returnTests(tests: Collection<Test>) {
-        queue.addAll(tests)
+    private fun rerunTest(test: Test) {
+        queue.add(test)
     }
 
     private fun onTerminate() {
         close()
     }
 
-    private fun handleFinishedTests(finished: Collection<TestResult>, device: DeviceInfo) {
-        finished.filter { testShard.flakyTests.contains(it.test) }.let { testResults ->
-            testResults.forEach {
+    private fun processTestAction(testAction: TestAction?, testResult: TestResult) {
+        when (testAction) {
+            TestAction.Conclude -> {
+                //Test has reached final state. No need to run any of the other retries
+                //This doesn't do anything with retries currently in progress
                 val oldSize = queue.size
-                queue.removeAll(listOf(it.test))
-                /**
-                 * Important edge case:
-                 * 1. Multiple runs of test X scheduled via flaky tests
-                 * 2. One run of test X finishes and removes other non started flaky retries
-                 * 3. Another parallel run of test X finishes and should be counted towards reducing the expected tests
-                 */
-                val diff = max(oldSize - queue.size, 1)
-                poolProgressAccumulator.removeTest(it.test, diff)
+                queue.removeAll(setOf(testResult.test))
+                val diff = oldSize - queue.size
+                if (diff >= 0) {
+                    poolProgressAccumulator.removeTest(testResult.test, diff)
+                }
             }
+
+            null -> Unit
         }
+    }
+
+    private fun handleFinishedTests(finished: Collection<TestResult>, device: DeviceInfo) {
         finished.forEach {
-            poolProgressAccumulator.testEnded(device, it)
+            val testAction = poolProgressAccumulator.testEnded(device, it)
+            processTestAction(testAction, it)
         }
     }
 
@@ -186,15 +190,18 @@ class QueueActor(
 
         retryList.forEach {
             poolProgressAccumulator.retryTest(it.test)
+            val testAction = poolProgressAccumulator.testEnded(device, it)
+            processTestAction(testAction, it)
+            rerunTest(it.test)
         }
-        queue.addAll(retryList.map { it.test })
 
         val (_, noRetries) = failed.partition { testResult ->
             retryList.map { retry -> retry.test }.contains(testResult.test)
         }
 
         noRetries.forEach {
-            poolProgressAccumulator.testEnded(device, it)
+            val testAction = poolProgressAccumulator.testEnded(device, it)
+            processTestAction(testAction, it)
         }
     }
 

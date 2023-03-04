@@ -271,23 +271,23 @@ class PoolProgressAccumulator(
     /**
      * @param final used for incomplete tests to signal no more retries left, hence a decision on the status has to be made
      */
-    fun testEnded(device: DeviceInfo, testResult: TestResult, final: Boolean = false) {
-        when(testResult.status) {
+    fun testEnded(device: DeviceInfo, testResult: TestResult, final: Boolean = false): TestAction? {
+        return when(testResult.status) {
             TestStatus.FAILURE -> {
-                tests[testResult.test.toTestName()]?.transition(TestEvent.Failed(device, testResult))
                 println("${toPercent(progress())} | [${poolId.name}]-[${device.serialNumber}] ${testResult.test.toTestName()} failed")
+                tests[testResult.test.toTestName()]?.transition(TestEvent.Failed(device, testResult)).sideffect()
             }
             TestStatus.PASSED -> {
-                tests[testResult.test.toTestName()]?.transition(TestEvent.Passed(device, testResult))
-                println("${toPercent(progress())} | [${poolId.name}]-[${device.serialNumber}] ${testResult.test.toTestName()} ended")
+                println("${toPercent(progress())} | [${poolId.name}]-[${device.serialNumber}] ${testResult.test.toTestName()} passed")
+                tests[testResult.test.toTestName()]?.transition(TestEvent.Passed(device, testResult)).sideffect()
             }
             TestStatus.IGNORED, TestStatus.ASSUMPTION_FAILURE -> {
-                tests[testResult.test.toTestName()]?.transition(TestEvent.Passed(device, testResult))
                 println("${toPercent(progress())} | [${poolId.name}]-[${device.serialNumber}] ${testResult.test.toTestName()} ignored")
+                tests[testResult.test.toTestName()]?.transition(TestEvent.Passed(device, testResult)).sideffect()
             }
             TestStatus.INCOMPLETE -> {
-                tests[testResult.test.toTestName()]?.transition(TestEvent.Incomplete(device, testResult, final))
                 println("${toPercent(progress())} | [${poolId.name}]-[${device.serialNumber}] ${testResult.test.toTestName()} incomplete")
+                tests[testResult.test.toTestName()]?.transition(TestEvent.Incomplete(device, testResult, final)).sideffect()
             }
         }
     }
@@ -295,12 +295,12 @@ class PoolProgressAccumulator(
     /**
      * Should always be called before testEnded, otherwise the FSM might transition into a terminal state prematurely
      */
-    fun retryTest(test: Test) {
-        tests[test.toTestName()]?.transition(TestEvent.AddRetry)
+    fun retryTest(test: Test): TestAction? {
+        return tests[test.toTestName()]?.transition(TestEvent.AddRetry).sideffect()
     }
 
-    fun removeTest(test: Test, diff: Int) {
-        tests[test.toTestName()]?.transition(TestEvent.RemoveAttempts(diff))
+    fun removeTest(test: Test, diff: Int): TestAction? {
+        return tests[test.toTestName()]?.transition(TestEvent.RemoveAttempts(diff)).sideffect()
     }
 
     private fun trackTestTransition(poolId: DevicePoolId, transition: StateMachine.Transition<TestState, TestEvent, TestAction>) {
@@ -405,5 +405,13 @@ class PoolProgressAccumulator(
 
     companion object {
         const val HUNDRED_PERCENT_IN_FLOAT: Float = 100.0f
+    }
+}
+
+private fun <STATE: Any, EVENT: Any, SIDE_EFFECT: Any> StateMachine.Transition<STATE, EVENT, SIDE_EFFECT>?.sideffect(): SIDE_EFFECT? {
+    return when(this) {
+        is StateMachine.Transition.Invalid -> null
+        is StateMachine.Transition.Valid -> this.sideEffect
+        null -> null
     }
 }

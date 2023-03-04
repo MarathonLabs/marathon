@@ -16,7 +16,7 @@ class ProgressReporter(private val batch: TestBatch, private val poolId: DeviceP
     }
 
     fun testPassed(test: Test) {
-        println("${batch.id} | [${poolId.name}]-[${device.serialNumber}] ${test.toTestName()} ended")
+        println("${batch.id} | [${poolId.name}]-[${device.serialNumber}] ${test.toTestName()} passed")
     }
 
     fun testIgnored(test: Test) {
