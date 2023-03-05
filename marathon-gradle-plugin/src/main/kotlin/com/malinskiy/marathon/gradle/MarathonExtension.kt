@@ -1,7 +1,7 @@
 package com.malinskiy.marathon.gradle
 
 import com.malinskiy.marathon.config.ScreenRecordingPolicy
-import com.malinskiy.marathon.config.vendor.VendorConfiguration
+import com.malinskiy.marathon.config.strategy.ExecutionStrategyConfiguration
 import com.malinskiy.marathon.config.vendor.android.AdbEndpoint
 import com.malinskiy.marathon.config.vendor.android.AllureConfiguration
 import com.malinskiy.marathon.config.vendor.android.FileSyncConfiguration
@@ -169,13 +169,12 @@ open class MarathonExtension {
      */
     var isCodeCoverageEnabled: Boolean? = null
 
-
     /**
-     * By default, if one of the test retries succeeds then the test is considered successfully executed. If you require success status only when
-     * all retries were executed successfully you can enable the strict mode. This may be useful to verify that flakiness of tests was fixed for
-     * example.
+     * When executing tests with retries there are multiple trade-offs to be made. Two execution strategies are supported: any success or all success.
+     * By default, any success strategy is used with fast execution i.e. if one of the test retries succeeds then the test is considered successfully
+     * executed and all non-started retries are removed.
      */
-    var strictMode: Boolean? = null
+    var executionStrategy: ExecutionStrategyConfiguration? = null
 
     /**
      * By default, tests that don't have any status reported after execution (for example a device disconnected during the execution) retry

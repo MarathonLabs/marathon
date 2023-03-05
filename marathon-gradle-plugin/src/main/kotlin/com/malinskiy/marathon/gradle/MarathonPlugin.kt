@@ -5,8 +5,6 @@ import com.android.build.api.variant.AndroidTest
 import com.android.build.api.variant.ApplicationAndroidComponentsExtension
 import com.android.build.api.variant.BuiltArtifactsLoader
 import com.android.build.api.variant.LibraryAndroidComponentsExtension
-import com.android.build.gradle.AppPlugin
-import com.android.build.gradle.LibraryPlugin
 import com.malinskiy.marathon.config.Configuration
 import com.malinskiy.marathon.config.vendor.VendorConfiguration
 import com.malinskiy.marathon.gradle.configuration.toStrategy
@@ -175,6 +173,7 @@ class MarathonPlugin : Plugin<Project> {
                 config.filteringConfiguration?.toFilteringConfiguration()?.let { filteringConfiguration = it }
                 config.ignoreFailures?.let { ignoreFailures = it }
                 config.isCodeCoverageEnabled?.let { isCodeCoverageEnabled = it }
+                config.executionStrategy?.let { executionStrategy = it }
                 config.uncompletedTestRetryQuota?.let { uncompletedTestRetryQuota = it }
                 config.testClassRegexes?.map { it.toRegex() }?.let { testClassRegexes = it }
                 config.includeSerialRegexes?.map { it.toRegex() }?.let { includeSerialRegexes = it }
