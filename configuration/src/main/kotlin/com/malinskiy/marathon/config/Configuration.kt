@@ -142,6 +142,7 @@ data class Configuration private constructor(
         result = 31 * result + deviceInitializationTimeoutMillis.hashCode()
         return result
     }
+
      data class Builder(
          val name: String,
          val outputDir: File,

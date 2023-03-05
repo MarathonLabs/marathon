@@ -6,7 +6,6 @@ import com.malinskiy.marathon.device.toDeviceInfo
 import com.malinskiy.marathon.execution.TestBatchResults
 import com.malinskiy.marathon.execution.TestResult
 import com.malinskiy.marathon.execution.TestStatus
-import com.malinskiy.marathon.execution.progress.ProgressReporter
 import com.malinskiy.marathon.execution.result.TemporalTestResult
 import com.malinskiy.marathon.ios.RemoteFileManager
 import com.malinskiy.marathon.ios.bin.xcrun.xcresulttool.ResultBundleFormat
@@ -38,19 +37,6 @@ class TestResultsListener(
 
     private val logger = MarathonLogging.logger {}
     private val enhanceUsingXcresult = true
-    private val progressReporter = ProgressReporter(testBatch, devicePoolId, device.toDeviceInfo())
-
-    override suspend fun testStarted(test: Test) {
-        progressReporter.testStarted(test)
-    }
-
-    override suspend fun testFailed(test: Test, startTime: Long, endTime: Long, trace: String?) {
-        progressReporter.testFailed(test)
-    }
-
-    override suspend fun testPassed(test: Test, startTime: Long, endTime: Long) {
-        progressReporter.testPassed(test)
-    }
 
     override suspend fun afterTestRun() {
         if(enhanceUsingXcresult) enhanceResults()

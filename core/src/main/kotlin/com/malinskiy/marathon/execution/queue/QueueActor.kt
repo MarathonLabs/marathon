@@ -2,7 +2,6 @@ package com.malinskiy.marathon.execution.queue
 
 import com.malinskiy.marathon.actor.Actor
 import com.malinskiy.marathon.analytics.external.Analytics
-import com.malinskiy.marathon.analytics.internal.pub.Track
 import com.malinskiy.marathon.config.Configuration
 import com.malinskiy.marathon.device.DeviceInfo
 import com.malinskiy.marathon.device.DevicePoolId
@@ -27,7 +26,6 @@ import kotlinx.coroutines.channels.SendChannel
 import java.util.PriorityQueue
 import java.util.Queue
 import kotlin.coroutines.CoroutineContext
-import kotlin.math.max
 
 class QueueActor(
     private val configuration: Configuration,
@@ -121,7 +119,7 @@ class QueueActor(
             for (testResult in uncompleted) {
                 val testAction = poolProgressAccumulator.testEnded(device, testResult, final = false)
                 when (testAction) {
-                    TestAction.Conclude -> processTestAction(testAction, testResult)
+                    TestAction.Complete -> processTestAction(testAction, testResult)
                     null -> rerunTest(testResult.test)
                 }
             }
@@ -161,7 +159,7 @@ class QueueActor(
 
     private fun processTestAction(testAction: TestAction?, testResult: TestResult) {
         when (testAction) {
-            TestAction.Conclude -> {
+            TestAction.Complete -> {
                 //Test has reached final state. No need to run any of the other retries
                 //This doesn't do anything with retries currently in progress
                 val oldSize = queue.size

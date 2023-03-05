@@ -50,6 +50,9 @@ class Scheduler(
 
     private val logger = MarathonLogging.logger("Scheduler")
 
+    /**
+     * @return true if scheduled tests passed successfully, false otherwise
+     */
     suspend fun execute() : Boolean {
         subscribeOnDevices(job)
         try {

@@ -37,7 +37,7 @@ class PoolProgressAccumulator(
                 when (executionStrategy.mode) {
                     ExecutionMode.ANY_SUCCESS -> {
                         if (executionStrategy.fast || total <= 1) {
-                            transitionTo(TestState.Passed(total = total, done = 1, running = running - 1), TestAction.Conclude)
+                            transitionTo(TestState.Passed(total = total, done = 1, running = running - 1), TestAction.Complete)
                         } else {
                             transitionTo(TestState.Passing(total = total, done = 1, running = running - 1))
                         }
@@ -45,7 +45,7 @@ class PoolProgressAccumulator(
 
                     ExecutionMode.ALL_SUCCESS -> {
                         if (total <= 1) {
-                            transitionTo(TestState.Passed(total = total, done = 1, running = running - 1), TestAction.Conclude)
+                            transitionTo(TestState.Passed(total = total, done = 1, running = running - 1), TestAction.Complete)
                         } else {
                             transitionTo(TestState.Passing(total = total, done = 1, running = running - 1))
                         }
@@ -56,7 +56,7 @@ class PoolProgressAccumulator(
                 when (executionStrategy.mode) {
                     ExecutionMode.ANY_SUCCESS -> {
                         if (total <= 1) {
-                            transitionTo(TestState.Failed(total = total, done = 1, running = running - 1), TestAction.Conclude)
+                            transitionTo(TestState.Failed(total = total, done = 1, running = running - 1), TestAction.Complete)
                         } else {
                             transitionTo(TestState.Failing(total = total, done = 1, running = running - 1))
                         }
@@ -64,7 +64,7 @@ class PoolProgressAccumulator(
 
                     ExecutionMode.ALL_SUCCESS -> {
                         if (executionStrategy.fast || total <= 1) {
-                            transitionTo(TestState.Failed(total = total, done = 1, running = running - 1), TestAction.Conclude)
+                            transitionTo(TestState.Failed(total = total, done = 1, running = running - 1), TestAction.Complete)
                         } else {
                             transitionTo(TestState.Failing(total = total, done = 1, running = running - 1))
                         }
@@ -73,7 +73,7 @@ class PoolProgressAccumulator(
             }
             on<TestEvent.Incomplete> {
                 if (it.final) {
-                    transitionTo(TestState.Failed(total = total, done = 0, running = running - 1), TestAction.Conclude)
+                    transitionTo(TestState.Failed(total = total, done = 0, running = running - 1), TestAction.Complete)
                 } else {
                     transitionTo(TestState.Added(total = total, running = running - 1))
                 }
@@ -93,7 +93,7 @@ class PoolProgressAccumulator(
                 when (executionStrategy.mode) {
                     ExecutionMode.ANY_SUCCESS -> {
                         if (executionStrategy.fast || done + 1 >= total) {
-                            transitionTo(TestState.Passed(total = total, running = running - 1, done = done + 1), TestAction.Conclude)
+                            transitionTo(TestState.Passed(total = total, running = running - 1, done = done + 1), TestAction.Complete)
                         } else {
                             transitionTo(TestState.Passing(total = total, running = running - 1, done = done + 1))
                         }
@@ -101,7 +101,7 @@ class PoolProgressAccumulator(
 
                     ExecutionMode.ALL_SUCCESS -> {
                         if (total <= done + 1) {
-                            transitionTo(TestState.Passed(total = total, running = running - 1, done = done + 1), TestAction.Conclude)
+                            transitionTo(TestState.Passed(total = total, running = running - 1, done = done + 1), TestAction.Complete)
                         } else {
                             transitionTo(TestState.Passing(total = total, running = running - 1, done = done + 1))
                         }
@@ -112,7 +112,7 @@ class PoolProgressAccumulator(
                 when (executionStrategy.mode) {
                     ExecutionMode.ANY_SUCCESS -> {
                         if (executionStrategy.fast || done + 1 >= total) {
-                            transitionTo(TestState.Passed(total = total, done = done + 1, running = running - 1), TestAction.Conclude)
+                            transitionTo(TestState.Passed(total = total, done = done + 1, running = running - 1), TestAction.Complete)
                         } else {
                             transitionTo(TestState.Passing(total = total, done = done + 1, running = running - 1))
                         }
@@ -120,7 +120,7 @@ class PoolProgressAccumulator(
 
                     ExecutionMode.ALL_SUCCESS -> {
                         if (executionStrategy.fast || done + 1 >= total) {
-                            transitionTo(TestState.Failed(total = total, done = done + 1, running = running - 1), TestAction.Conclude)
+                            transitionTo(TestState.Failed(total = total, done = done + 1, running = running - 1), TestAction.Complete)
                         } else {
                             transitionTo(TestState.Failing(total = total, done = done + 1, running = running - 1))
                         }
@@ -131,11 +131,11 @@ class PoolProgressAccumulator(
                 if (it.final) {
                     when (executionStrategy.mode) {
                         ExecutionMode.ANY_SUCCESS -> {
-                            transitionTo(TestState.Passed(total = total, done = done, running = running - 1), TestAction.Conclude)
+                            transitionTo(TestState.Passed(total = total, done = done, running = running - 1), TestAction.Complete)
                         }
 
                         ExecutionMode.ALL_SUCCESS -> {
-                            transitionTo(TestState.Failed(total = total, done = done, running = running - 1), TestAction.Conclude)
+                            transitionTo(TestState.Failed(total = total, done = done, running = running - 1), TestAction.Complete)
                         }
                     }
                 } else {
@@ -157,7 +157,7 @@ class PoolProgressAccumulator(
                 when (executionStrategy.mode) {
                     ExecutionMode.ANY_SUCCESS -> {
                         if (executionStrategy.fast || done + 1 >= total) {
-                            transitionTo(TestState.Passed(total = total, done = done + 1, running = running - 1), TestAction.Conclude)
+                            transitionTo(TestState.Passed(total = total, done = done + 1, running = running - 1), TestAction.Complete)
                         } else {
                             transitionTo(TestState.Passing(total = total, done = done + 1, running = running - 1))
                         }
@@ -165,7 +165,7 @@ class PoolProgressAccumulator(
 
                     ExecutionMode.ALL_SUCCESS -> {
                         if (executionStrategy.fast || done + 1 >= total) {
-                            transitionTo(TestState.Failed(total = total, done = done + 1, running = running - 1), TestAction.Conclude)
+                            transitionTo(TestState.Failed(total = total, done = done + 1, running = running - 1), TestAction.Complete)
                         } else {
                             transitionTo(TestState.Failing(total = total, done = done + 1, running = running - 1))
                         }
@@ -176,7 +176,7 @@ class PoolProgressAccumulator(
                 when (executionStrategy.mode) {
                     ExecutionMode.ANY_SUCCESS -> {
                         if (done + 1 >= total) {
-                            transitionTo(TestState.Failed(total = total, done = done + 1, running = running - 1), TestAction.Conclude)
+                            transitionTo(TestState.Failed(total = total, done = done + 1, running = running - 1), TestAction.Complete)
                         } else {
                             transitionTo(TestState.Failing(total = total, done = done + 1, running = running - 1))
                         }
@@ -184,7 +184,7 @@ class PoolProgressAccumulator(
 
                     ExecutionMode.ALL_SUCCESS -> {
                         if (executionStrategy.fast || done + 1 >= total) {
-                            transitionTo(TestState.Failed(total = total, done = done + 1, running = running - 1), TestAction.Conclude)
+                            transitionTo(TestState.Failed(total = total, done = done + 1, running = running - 1), TestAction.Complete)
                         } else {
                             transitionTo(TestState.Failing(total = total, done = done + 1, running = running - 1))
                         }
@@ -193,7 +193,7 @@ class PoolProgressAccumulator(
             }
             on<TestEvent.Incomplete> {
                 if (it.final) {
-                    transitionTo(TestState.Failed(total = total, done = done, running = running - 1), TestAction.Conclude)
+                    transitionTo(TestState.Failed(total = total, done = done, running = running - 1), TestAction.Complete)
                 } else {
                     transitionTo(TestState.Failing(total = total, done = done, running = running - 1))
                 }
@@ -264,7 +264,7 @@ class PoolProgressAccumulator(
     }
 
     fun testStarted(device: DeviceInfo, test: Test) {
-        tests[test.toTestName()]?.transition(TestEvent.Started)
+        transition(test, TestEvent.Started)
         println("${toPercent(progress())} | [${poolId.name}]-[${device.serialNumber}] ${test.toTestName()} started")
     }
 
@@ -275,42 +275,43 @@ class PoolProgressAccumulator(
         return when (testResult.status) {
             TestStatus.FAILURE -> {
                 println("${toPercent(progress())} | [${poolId.name}]-[${device.serialNumber}] ${testResult.test.toTestName()} failed")
-                tests[testResult.test.toTestName()]?.transition(TestEvent.Failed(device, testResult)).sideffect()
+                transition(testResult.test, TestEvent.Failed(device, testResult)).sideffect()
             }
 
             TestStatus.PASSED -> {
                 println("${toPercent(progress())} | [${poolId.name}]-[${device.serialNumber}] ${testResult.test.toTestName()} passed")
-                tests[testResult.test.toTestName()]?.transition(TestEvent.Passed(device, testResult)).sideffect()
+                transition(testResult.test, TestEvent.Passed(device, testResult)).sideffect()
             }
 
             TestStatus.IGNORED, TestStatus.ASSUMPTION_FAILURE -> {
                 println("${toPercent(progress())} | [${poolId.name}]-[${device.serialNumber}] ${testResult.test.toTestName()} ignored")
-                tests[testResult.test.toTestName()]?.transition(TestEvent.Passed(device, testResult)).sideffect()
+                transition(testResult.test, TestEvent.Passed(device, testResult)).sideffect()
             }
 
             TestStatus.INCOMPLETE -> {
                 println("${toPercent(progress())} | [${poolId.name}]-[${device.serialNumber}] ${testResult.test.toTestName()} incomplete")
-                tests[testResult.test.toTestName()]?.transition(TestEvent.Incomplete(device, testResult, final)).sideffect()
+                transition(testResult.test, TestEvent.Incomplete(device, testResult, final)).sideffect()
             }
         }
     }
+
 
     /**
      * Should always be called before testEnded, otherwise the FSM might transition into a terminal state prematurely
      */
     fun retryTest(test: Test): TestAction? {
-        return tests[test.toTestName()]?.transition(TestEvent.AddRetry).sideffect()
+        return transition(test, TestEvent.AddRetry).sideffect()
     }
 
     fun removeTest(test: Test, diff: Int): TestAction? {
-        return tests[test.toTestName()]?.transition(TestEvent.RemoveAttempts(diff)).sideffect()
+        return transition(test, TestEvent.RemoveAttempts(diff)).sideffect()
     }
 
     private fun trackTestTransition(poolId: DevicePoolId, transition: StateMachine.Transition<TestState, TestEvent, TestAction>) {
         val validTransition = transition as? StateMachine.Transition.Valid
         val final = if (validTransition is StateMachine.Transition.Valid) {
             when (validTransition.sideEffect) {
-                is TestAction.Conclude -> true
+                is TestAction.Complete -> true
                 else -> false
             }
         } else false
@@ -362,8 +363,8 @@ class PoolProgressAccumulator(
                     is TestState.Passed -> true
                     is TestState.Passing -> {
                         logger.error { "Expected to run ${it.key} more, but no terminal events received" }
-                        //The test is passing but the execution mode might require all the 
-                        //runs to pass before considering this an actual pass 
+                        //The test is passing but the execution mode might require all the
+                        //runs to pass before considering this an actual pass
                         executionStrategy.mode == ExecutionMode.ANY_SUCCESS
                     }
                 }
@@ -404,6 +405,10 @@ class PoolProgressAccumulator(
             }
         }
         return done.toFloat() / total.toFloat()
+    }
+
+    private fun transition(test: Test, transition: TestEvent): StateMachine.Transition<TestState, TestEvent, TestAction>? {
+        return tests[test.toTestName()]?.transition(transition)?.also { logger.warn { "No FSM registered for test ${test.toTestName()}" } }
     }
 
     private fun toPercent(float: Float): String {

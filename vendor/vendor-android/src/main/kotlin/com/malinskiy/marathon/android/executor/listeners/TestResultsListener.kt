@@ -29,7 +29,6 @@ class TestResultsListener(
 ) : AccumulatingResultTestRunListener(timer), AttachmentListener by attachmentCollector {
 
     private val logger = MarathonLogging.logger("TestRunResultsListener")
-    private val progressReporter = ProgressReporter(testBatch, poolId, device.toDeviceInfo())
 
     override suspend fun afterTestRun() {
         val results = mergeParameterisedResults(runResult.temporalTestResults)
