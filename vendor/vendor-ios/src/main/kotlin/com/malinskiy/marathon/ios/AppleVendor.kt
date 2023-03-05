@@ -34,6 +34,8 @@ val AppleVendor = module {
     }
     single<TestParser?> { AppleTestParser(get(), get(), get()) }
     single<MarathonLogConfigurator> { AppleLogConfigurator(get()) }
-    single<TestBundleIdentifier?> { AppleTestBundleIdentifier() }
-    single<AppleTestBundleIdentifier> { AppleTestBundleIdentifier() }
+
+    val appleTestBundleIdentifier = AppleTestBundleIdentifier()
+    single<TestBundleIdentifier?> { appleTestBundleIdentifier }
+    single<AppleTestBundleIdentifier> { appleTestBundleIdentifier }
 }
