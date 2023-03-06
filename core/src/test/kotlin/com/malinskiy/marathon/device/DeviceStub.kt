@@ -2,11 +2,9 @@ package com.malinskiy.marathon.device
 
 import com.malinskiy.marathon.config.Configuration
 import com.malinskiy.marathon.execution.TestBatchResults
-import com.malinskiy.marathon.execution.progress.ProgressReporter
 import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.test.TestBatch
 import kotlinx.coroutines.CompletableDeferred
-import mu.KLogger
 
 class DeviceStub(
     override var operatingSystem: OperatingSystem = OperatingSystem("25"),
@@ -24,8 +22,7 @@ class DeviceStub(
         configuration: Configuration,
         devicePoolId: DevicePoolId,
         testBatch: TestBatch,
-        deferred: CompletableDeferred<TestBatchResults>,
-        progressReporter: ProgressReporter
+        deferred: CompletableDeferred<TestBatchResults>
     ) {
     }
 

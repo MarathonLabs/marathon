@@ -13,6 +13,7 @@ import com.malinskiy.marathon.execution.TestBatchResults
 import com.malinskiy.marathon.execution.TestResult
 import com.malinskiy.marathon.execution.TestShard
 import com.malinskiy.marathon.execution.TestStatus
+import com.malinskiy.marathon.execution.progress.PoolProgressAccumulator
 import com.nhaarman.mockitokotlin2.KArgumentCaptor
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.argumentCaptor
@@ -115,7 +116,7 @@ class QueueActorTest {
 
             verify(track, times(1)).test(any(), any(), testResultCaptor.capture(), any())
             testResultCaptor.firstValue.test shouldBe TEST_1
-            testResultCaptor.firstValue.status shouldBe TestStatus.FAILURE
+            testResultCaptor.firstValue.status shouldBe TestStatus.INCOMPLETE
         }
     }
 
@@ -165,7 +166,7 @@ class QueueActorTest {
 
             verify(track).test(any(), any(), testResultCaptor.capture(), any())
             testResultCaptor.firstValue.test shouldBe TEST_1
-            testResultCaptor.firstValue.status shouldBe TestStatus.FAILURE
+            testResultCaptor.firstValue.status shouldBe TestStatus.INCOMPLETE
         }
     }
 
@@ -212,7 +213,7 @@ class QueueActorTest {
         testResultCaptor = argumentCaptor<TestResult>()
         testBatchResults = createBatchResult(
             uncompleted = listOf(
-                createTestResult(TEST_1, TestStatus.FAILURE)
+                createTestResult(TEST_1, TestStatus.INCOMPLETE)
             )
         )
     }
@@ -247,24 +248,27 @@ private fun createTestResult(test: MarathonTest, status: TestStatus) = TestResul
 
 private fun createQueueActor(
     configuration: Configuration,
-    tests: List<MarathonTest>,
+    tests: List<com.malinskiy.marathon.test.Test>,
     poolChannel: SendChannel<FromQueue>,
     analytics: Analytics,
-    track: Track,
-    job: Job
-) = QueueActor(
-    configuration,
-    TestShard(tests, emptyList()),
-    analytics,
-    poolChannel,
-    DevicePoolId("test"),
-    mock(),
-    track,
-    mock(),
-    null,
-    job,
-    Dispatchers.Unconfined
-)
+    job: Job,
+    track: Track
+): QueueActor {
+    val devicePoolId = DevicePoolId("test")
+    val testShard = TestShard(tests, emptyList())
+    return QueueActor(
+        configuration,
+        testShard,
+        analytics,
+        poolChannel,
+        devicePoolId,
+        mock(),
+        null,
+        PoolProgressAccumulator(devicePoolId, testShard, configuration, track),
+        job,
+        Dispatchers.Unconfined
+  )
+}
 
 private val DEFAULT_CONFIGURATION = Configuration.Builder(
     name = "",

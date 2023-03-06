@@ -12,7 +12,7 @@ import com.malinskiy.marathon.execution.DevicePoolMessage.FromScheduler
 import com.malinskiy.marathon.execution.DevicePoolMessage.FromScheduler.AddDevice
 import com.malinskiy.marathon.execution.DevicePoolMessage.FromScheduler.RemoveDevice
 import com.malinskiy.marathon.execution.bundle.TestBundleIdentifier
-import com.malinskiy.marathon.execution.progress.ProgressReporter
+import com.malinskiy.marathon.execution.progress.PoolProgressAccumulator
 import com.malinskiy.marathon.extension.toPoolingStrategy
 import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.time.Timer
@@ -32,13 +32,11 @@ import kotlin.coroutines.CoroutineContext
  * 1) Subscribe on DeviceProvider
  * 2) Create device pools using PoolingStrategy
  */
-
 class Scheduler(
     private val deviceProvider: DeviceProvider,
     private val analytics: Analytics,
     private val configuration: Configuration,
     private val shard: TestShard,
-    private val progressReporter: ProgressReporter,
     private val track: Track,
     private val timer: Timer,
     private val testBundleIdentifier: TestBundleIdentifier?,
@@ -46,12 +44,16 @@ class Scheduler(
 ) : CoroutineScope {
 
     private val job = Job()
-    private val pools = ConcurrentHashMap<DevicePoolId, SendChannel<FromScheduler>>()
+    private val pools = ConcurrentHashMap<DevicePoolId, DevicePoolActor>()
+    private val results = ConcurrentHashMap<DevicePoolId, PoolProgressAccumulator>()
     private val poolingStrategy = configuration.poolingStrategy.toPoolingStrategy()
 
     private val logger = MarathonLogging.logger("Scheduler")
 
-    suspend fun execute() {
+    /**
+     * @return true if scheduled tests passed successfully, false otherwise
+     */
+    suspend fun execute() : Boolean {
         subscribeOnDevices(job)
         try {
             withTimeout(deviceProvider.deviceInitializationTimeoutMillis) {
@@ -66,6 +68,8 @@ class Scheduler(
         for (child in job.children) {
             child.join()
         }
+
+        return results.all { it.value.aggregateResult() }
     }
 
     private fun subscribeOnDevices(job: Job): Job {
@@ -109,9 +113,13 @@ class Scheduler(
 
         val poolId = poolingStrategy.associate(device)
         logger.debug { "device ${device.serialNumber} associated with poolId ${poolId.name}" }
+        val accumulator = results.computeIfAbsent(poolId) { id ->
+            PoolProgressAccumulator(id, shard, configuration, track)
+        }
+
         pools.computeIfAbsent(poolId) { id ->
             logger.debug { "pool actor ${id.name} is being created" }
-            DevicePoolActor(id, configuration, analytics, shard, progressReporter, track, timer, parent, context, testBundleIdentifier)
+            DevicePoolActor(id, configuration, accumulator, analytics, shard, timer, parent, context, testBundleIdentifier)
         }
         pools[poolId]?.send(AddDevice(device)) ?: logger.debug {
             "not sending the AddDevice event " +

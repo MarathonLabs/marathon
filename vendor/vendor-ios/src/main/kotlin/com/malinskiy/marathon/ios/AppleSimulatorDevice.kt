@@ -20,7 +20,6 @@ import com.malinskiy.marathon.exceptions.DeviceSetupException
 import com.malinskiy.marathon.execution.TestBatchResults
 import com.malinskiy.marathon.execution.listener.LineListener
 import com.malinskiy.marathon.execution.listener.LogListener
-import com.malinskiy.marathon.execution.progress.ProgressReporter
 import com.malinskiy.marathon.io.FileManager
 import com.malinskiy.marathon.ios.bin.AppleBinaryEnvironment
 import com.malinskiy.marathon.ios.cmd.CommandExecutor
@@ -29,7 +28,6 @@ import com.malinskiy.marathon.ios.cmd.FileBridge
 import com.malinskiy.marathon.ios.executor.listener.AppleTestRunListener
 import com.malinskiy.marathon.ios.executor.listener.CompositeTestRunListener
 import com.malinskiy.marathon.ios.executor.listener.DebugTestRunListener
-import com.malinskiy.marathon.ios.executor.listener.ProgressReportingListener
 import com.malinskiy.marathon.ios.executor.listener.ResultBundleRunListener
 import com.malinskiy.marathon.ios.executor.listener.video.ScreenRecordingListener
 import com.malinskiy.marathon.ios.executor.listener.TestResultsListener
@@ -237,15 +235,14 @@ class AppleSimulatorDevice(
         configuration: Configuration,
         devicePoolId: DevicePoolId,
         testBatch: TestBatch,
-        deferred: CompletableDeferred<TestBatchResults>,
-        progressReporter: ProgressReporter
+        deferred: CompletableDeferred<TestBatchResults>
     ) {
         try {
             async(CoroutineName("execute $serialNumber")) {
                 supervisorScope {
                     var executionLineListeners = setOf<LineListener>()
                     try {
-                        val (listener, lineListeners) = createExecutionListeners(devicePoolId, testBatch, deferred, progressReporter)
+                        val (listener, lineListeners) = createExecutionListeners(devicePoolId, testBatch, deferred)
                         executionLineListeners = lineListeners.onEach { addLineListener(it) }
                         AppleDeviceTestRunner(this@AppleSimulatorDevice).execute(configuration, vendorConfiguration, testBatch, listener)
                     } finally {
@@ -285,15 +282,8 @@ class AppleSimulatorDevice(
         devicePoolId: DevicePoolId,
         testBatch: TestBatch,
         deferred: CompletableDeferred<TestBatchResults>,
-        progressReporter: ProgressReporter,
     ): Pair<CompositeTestRunListener, Set<LineListener>> {
         val logWriter = LogWriter(fileManager)
-
-        val progressReportingListener = ProgressReportingListener(
-            deviceInfo = toDeviceInfo(),
-            poolId = devicePoolId,
-            progressReporter = progressReporter,
-        )
 
         val attachmentProviders = mutableListOf<AttachmentProvider>()
         val recorderListener =
@@ -329,6 +319,7 @@ class AppleSimulatorDevice(
                     TestResultsListener(
                         testBatch,
                         this,
+                        devicePoolId,
                         deferred,
                         timer,
                         remoteFileManager,
@@ -336,7 +327,6 @@ class AppleSimulatorDevice(
                         attachmentProviders
                     ),
                     logListener,
-                    progressReportingListener,
                     DebugTestRunListener(this),
                     diagnosticLogsPathFinder,
                     sessionResultsPathFinder,

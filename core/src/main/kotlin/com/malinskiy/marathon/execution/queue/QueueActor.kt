@@ -2,18 +2,16 @@ package com.malinskiy.marathon.execution.queue
 
 import com.malinskiy.marathon.actor.Actor
 import com.malinskiy.marathon.analytics.external.Analytics
-import com.malinskiy.marathon.analytics.internal.pub.Track
 import com.malinskiy.marathon.config.Configuration
 import com.malinskiy.marathon.device.DeviceInfo
 import com.malinskiy.marathon.device.DevicePoolId
-import com.malinskiy.marathon.execution.DevicePoolMessage
 import com.malinskiy.marathon.execution.DevicePoolMessage.FromQueue
 import com.malinskiy.marathon.execution.TestBatchResults
 import com.malinskiy.marathon.execution.TestResult
 import com.malinskiy.marathon.execution.TestShard
 import com.malinskiy.marathon.execution.TestStatus
 import com.malinskiy.marathon.execution.bundle.TestBundleIdentifier
-import com.malinskiy.marathon.execution.progress.ProgressReporter
+import com.malinskiy.marathon.execution.progress.PoolProgressAccumulator
 import com.malinskiy.marathon.extension.toBatchingStrategy
 import com.malinskiy.marathon.extension.toRetryStrategy
 import com.malinskiy.marathon.extension.toSortingStrategy
@@ -28,7 +26,6 @@ import kotlinx.coroutines.channels.SendChannel
 import java.util.PriorityQueue
 import java.util.Queue
 import kotlin.coroutines.CoroutineContext
-import kotlin.math.max
 
 class QueueActor(
     private val configuration: Configuration,
@@ -36,10 +33,9 @@ class QueueActor(
     private val analytics: Analytics,
     private val pool: SendChannel<FromQueue>,
     private val poolId: DevicePoolId,
-    private val progressReporter: ProgressReporter,
-    private val track: Track,
     private val timer: Timer,
     private val testBundleIdentifier: TestBundleIdentifier?,
+    private val poolProgressAccumulator: PoolProgressAccumulator,
     poolJob: Job,
     coroutineContext: CoroutineContext
 ) :
@@ -56,11 +52,8 @@ class QueueActor(
     private val activeBatches = mutableMapOf<String, TestBatch>()
     private val uncompletedTestsRetryCount = mutableMapOf<Test, Int>()
 
-    private val testResultReporter = TestResultReporter(poolId, analytics, testShard, configuration, track)
-
     init {
         queue.addAll(testShard.tests + testShard.flakyTests)
-        progressReporter.testCountExpectation(poolId, queue.size)
     }
 
     override suspend fun receive(msg: QueueMessage) {
@@ -68,15 +61,19 @@ class QueueActor(
             is QueueMessage.RequestBatch -> {
                 onRequestBatch(msg.device)
             }
+
             is QueueMessage.IsEmpty -> {
                 msg.deferred.complete(queue.isEmpty() && activeBatches.isEmpty())
             }
+
             is QueueMessage.Terminate -> {
                 onTerminate()
             }
+
             is QueueMessage.Completed -> {
                 onBatchCompleted(msg.device, msg.results)
             }
+
             is QueueMessage.ReturnBatch -> {
                 onReturnBatch(msg.device, msg.batch)
             }
@@ -112,22 +109,20 @@ class QueueActor(
             uncompletedTestsRetryCount[it.test] = (uncompletedTestsRetryCount[it.test] ?: 0) + 1
         }
 
-        if (uncompletedRetryQuotaExceeded.isNotEmpty()) {
-            logger.debug { "uncompletedRetryQuotaExceeded for ${uncompletedRetryQuotaExceeded.joinToString(separator = ", ") { it.test.toTestName() }}" }
-            val uncompletedToFailed = uncompletedRetryQuotaExceeded.map {
-                it.copy(status = TestStatus.FAILURE)
-            }
-            for (test in uncompletedToFailed) {
-                testResultReporter.testIncomplete(device, test, final = true)
-            }
+        for (test in uncompletedRetryQuotaExceeded) {
+            logger.debug { "uncompletedTestRetryQuota exceeded for ${test.test.toTestName()}}" }
+            val testAction = poolProgressAccumulator.testEnded(device, test, final = true)
+            processTestAction(testAction, test)
         }
 
         if (uncompleted.isNotEmpty()) {
-            for (test in uncompleted) {
-                testResultReporter.testIncomplete(device, test, final = false)
+            for (testResult in uncompleted) {
+                val testAction = poolProgressAccumulator.testEnded(device, testResult, final = false)
+                when (testAction) {
+                    TestAction.Complete -> processTestAction(testAction, testResult)
+                    null -> rerunTest(testResult.test)
+                }
             }
-            returnTests(uncompleted.map { it.test })
-            progressReporter.addRetries(poolId, uncompleted.size)
         }
     }
 
@@ -154,32 +149,35 @@ class QueueActor(
         }
     }
 
-    private fun returnTests(tests: Collection<Test>) {
-        queue.addAll(tests)
+    private fun rerunTest(test: Test) {
+        queue.add(test)
     }
 
     private fun onTerminate() {
         close()
     }
 
-    private fun handleFinishedTests(finished: Collection<TestResult>, device: DeviceInfo) {
-        finished.filter { testShard.flakyTests.contains(it.test) }.let {
-            it.forEach {
+    private fun processTestAction(testAction: TestAction?, testResult: TestResult) {
+        when (testAction) {
+            TestAction.Complete -> {
+                //Test has reached final state. No need to run any of the other retries
+                //This doesn't do anything with retries currently in progress
                 val oldSize = queue.size
-                queue.removeAll(listOf(it.test))
-                /**
-                 * Important edge case:
-                 * 1. Multiple runs of test X scheduled via flaky tests
-                 * 2. One run of test X finishes and removes other non started flaky retries
-                 * 3. Another parallel run of test X finishes and should be counted towards reducing the expected tests
-                 */
-                val diff = max(oldSize - queue.size, 1)
-                testResultReporter.removeTest(it.test, diff)
-                progressReporter.removeTests(poolId, diff)
+                queue.removeAll(setOf(testResult.test))
+                val diff = oldSize - queue.size
+                if (diff >= 0) {
+                    poolProgressAccumulator.removeTest(testResult.test, diff)
+                }
             }
+
+            null -> Unit
         }
+    }
+
+    private fun handleFinishedTests(finished: Collection<TestResult>, device: DeviceInfo) {
         finished.forEach {
-            testResultReporter.testFinished(device, it)
+            val testAction = poolProgressAccumulator.testEnded(device, it)
+            processTestAction(testAction, it)
         }
     }
 
@@ -190,10 +188,11 @@ class QueueActor(
         logger.debug { "handle failed tests ${device.serialNumber}" }
         val retryList = retryStrategy.process(poolId, failed, testShard)
 
-        progressReporter.addRetries(poolId, retryList.size)
-        queue.addAll(retryList.map { it.test })
         retryList.forEach {
-            testResultReporter.retryTest(device, it)
+            poolProgressAccumulator.retryTest(it.test)
+            val testAction = poolProgressAccumulator.testEnded(device, it)
+            processTestAction(testAction, it)
+            rerunTest(it.test)
         }
 
         val (_, noRetries) = failed.partition { testResult ->
@@ -201,7 +200,8 @@ class QueueActor(
         }
 
         noRetries.forEach {
-            testResultReporter.testFailed(device, it)
+            val testAction = poolProgressAccumulator.testEnded(device, it)
+            processTestAction(testAction, it)
         }
     }
 
@@ -218,12 +218,11 @@ class QueueActor(
             return
         }
         if (queueIsEmpty && activeBatches.isEmpty()) {
-            pool.send(DevicePoolMessage.FromQueue.Terminated)
+            pool.send(FromQueue.Terminated)
             onTerminate()
         } else if (queueIsEmpty) {
             logger.debug {
-                "queue is empty but there are active batches present for " +
-                    "${activeBatches.keys.joinToString { it }}"
+                "queue is empty but there are active batches present for " + activeBatches.keys.joinToString { it }
             }
         }
     }

@@ -10,7 +10,6 @@ import com.malinskiy.marathon.exceptions.TestBatchExecutionException
 import com.malinskiy.marathon.execution.DevicePoolMessage
 import com.malinskiy.marathon.execution.DevicePoolMessage.FromDevice.IsReady
 import com.malinskiy.marathon.execution.TestBatchResults
-import com.malinskiy.marathon.execution.progress.ProgressReporter
 import com.malinskiy.marathon.execution.withRetry
 import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.test.TestBatch
@@ -29,7 +28,6 @@ class DeviceActor(
     private val pool: SendChannel<DevicePoolMessage>,
     private val configuration: Configuration,
     val device: Device,
-    private val progressReporter: ProgressReporter,
     parent: Job,
     context: CoroutineContext
 ) :
@@ -184,7 +182,7 @@ class DeviceActor(
         logger.debug { "executeBatch ${device.serialNumber}" }
         job = async {
             try {
-                device.execute(configuration, devicePoolId, batch, result, progressReporter)
+                device.execute(configuration, devicePoolId, batch, result)
                 state.transition(DeviceEvent.Complete)
             } catch (e: CancellationException) {
                 logger.warn(e) { "Device execution has been cancelled" }

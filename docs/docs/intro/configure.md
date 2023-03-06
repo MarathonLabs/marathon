@@ -375,16 +375,20 @@ marathon {
 </TabItem>
 </Tabs>
 
-### Strict mode
-By default, if one of the test retries succeeds then the test is considered successfully executed. If you require success status only when
-all retries were executed successfully you can enable the strict mode. This may be useful to verify that flakiness of tests was fixed for
-example.
+### Execution strategy
+When executing tests with retries there are multiple trade-offs to be made. Two execution strategies are supported: any success or all success.
+By default, `ANY_SUCCESS` strategy is used with fast execution i.e. if one of the test retries succeeds then the test is considered successfully
+executed and all non-started retries are removed.
+
+#### Any success
+Test passes if any of its executions are passing. This mode works only if there is no complex sharding strategy applied. This is the default.
 
 <Tabs>
 <TabItem value="YAML" label="Marathonfile">
 
 ```yaml
-strictMode: true
+executionStrategy:
+  mode: ANY_SUCCESS
 ```
 
 </TabItem>
@@ -392,7 +396,7 @@ strictMode: true
 
 ```kotlin
 marathon {
-  strictMode = true
+  executionStrategy = ExecutionStrategyConfiguration(ExecutionMode.ANY_SUCCESS)
 }
 ```
 
@@ -401,7 +405,100 @@ marathon {
 
 ```groovy
 marathon {
-  strictMode = true
+  executionStrategy = ExecutionStrategyConfiguration(ExecutionMode.ANY_SUCCESS)
+}
+```
+
+</TabItem>
+</Tabs>
+
+:::info
+
+Complex sharding with `ANY_SUCCESS` mode doesn't make sense when user asks for N number of tests to run explicitly, and we pass on the first one.
+
+:::
+
+#### All success
+Test passes if and only if all its executions are passing. This mode works only if there are no retries, i.e. no complex flakiness strategy, no retry strategy.
+
+<Tabs>
+<TabItem value="YAML" label="Marathonfile">
+
+```yaml
+executionStrategy:
+  mode: ALL_SUCCESS
+```
+
+</TabItem>
+<TabItem value="kts" label="Kotlin DSL">
+
+```kotlin
+marathon {
+  executionStrategy = ExecutionStrategyConfiguration(ExecutionMode.ALL_SUCCESS)
+}
+```
+
+</TabItem>
+<TabItem value="groovy" label="Groovy DSL">
+
+```groovy
+marathon {
+  executionStrategy = ExecutionStrategyConfiguration(ExecutionMode.ALL_SUCCESS)
+}
+```
+
+</TabItem>
+</Tabs>
+
+:::info
+
+Adding retries with retry/flakiness strategies means users wants to trade off cost for reliability, i.e. add more retries and pass if one 
+of test retries passes, so retries only make sense for `ANY_SUCCESS` mode. 
+
+When we use `ALL_SUCCESS` mode it means the user want to verify each test with a number of tries (they are not retries per se) and pass only if 
+all of them succeed. This is the case when fixing a flaky test or adding a new test, and we want to have a signal that the test is fixed/not flaky.
+
+:::
+
+#### Fast execution mode
+When the test reaches a state where a decision about its state can be made, marathon can remove additional in-progress retries.
+This decision point is different depending on the execution mode used. Let's walk through two examples.
+
+Assume `ANY_SUCCESS` strategy is used and 100 retries are scheduled for a test A via flakiness strategy. Let's say first 3 failed and the 4th attempt succeeded. At 
+this point the test should already be considered passed since `ANY_SUCCESS` out of all retries leads to the result by definition of `ANY_SUCCESS`
+execution strategy. To save cost one can remove additional non-started retries by using fast execution mode (this is the default behavior for
+`ANY_SUCCESS` strategy). On the other hand one could disable fast execution and get much more accurate statistics about this test by executing
+more retries and calculating the probability of passing as a measure of flakiness for test A.
+
+Assume `ALL_SUCCESS` strategy is used and 100 retries are scheduled using sharding strategy. Let's say first 3 passed and the 4th attempt failed.
+At this point the test should already be considered failed since any failure out of all retries leads to the result by definition of `ALL_SUCCESS`
+execution strategy. You can save cost by removing additional non-started retries by using fast execution mode (this is the default behaviour for
+`ALL_SUCCESS` strategy). On the other hand one could disable fast execution and verify the flakiness rate with a defined precision, in this case
+there are 100 retries, so you would get precision up to 1% for test A.
+
+<Tabs>
+<TabItem value="YAML" label="Marathonfile">
+
+```yaml
+executionStrategy:
+  fast: true
+```
+
+</TabItem>
+<TabItem value="kts" label="Kotlin DSL">
+
+```kotlin
+marathon {
+  executionStrategy = ExecutionStrategyConfiguration(fast = true)
+}
+```
+
+</TabItem>
+<TabItem value="groovy" label="Groovy DSL">
+
+```groovy
+marathon {
+  executionStrategy = ExecutionStrategyConfiguration(ExecutionMode.ALL_SUCCESS, true)
 }
 ```
 

@@ -1,6 +1,7 @@
 package com.malinskiy.marathon.ios.executor.listener
 
 import com.malinskiy.marathon.device.Device
+import com.malinskiy.marathon.device.DevicePoolId
 import com.malinskiy.marathon.device.toDeviceInfo
 import com.malinskiy.marathon.execution.TestBatchResults
 import com.malinskiy.marathon.execution.TestResult
@@ -25,6 +26,7 @@ import kotlin.system.measureTimeMillis
 class TestResultsListener(
     private val testBatch: TestBatch,
     private val device: Device,
+    private val devicePoolId: DevicePoolId,
     private val deferred: CompletableDeferred<TestBatchResults>,
     private val timer: Timer,
     private val remoteFileManager: RemoteFileManager,

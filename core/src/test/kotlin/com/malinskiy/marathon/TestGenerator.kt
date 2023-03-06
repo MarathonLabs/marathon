@@ -7,8 +7,8 @@ fun generateTest(
     pkg: String = "pkg",
     clazz: String = "clazz",
     method: String = "method",
-    annotations: List<MetaProperty> = emptyList()
-) = Test(pkg, clazz, method, annotations)
+    metaProperties: List<MetaProperty> = emptyList()
+) = Test(pkg, clazz, method, metaProperties)
 
 fun generateTests(
     count: Int,
