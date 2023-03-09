@@ -55,4 +55,18 @@ marathon {
 </TabItem>
 </Tabs>
 
+Note that dynamic properties must be named differently from fields they set. 
+
+You can use `findProperty()` for optional properties:
+
+```groovy
+marathon {
+  filteringConfiguration {
+    allowlist {
+      annotationFilter = findProperty('marathonAnnotations')?.split(',') ?: []
+    }
+  }
+}
+```
+
 For more info refer to the [Gradle's dynamic project properties](https://docs.gradle.org/current/javadoc/org/gradle/api/Project.html#properties)
