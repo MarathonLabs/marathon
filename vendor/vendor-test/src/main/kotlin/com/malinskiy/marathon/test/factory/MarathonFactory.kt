@@ -42,12 +42,11 @@ class MarathonFactory {
             single { Gson() }
             single<Clock> { Clock.systemDefaultZone() }
             single { timer ?: SystemTimer(get()) }
-            single { ProgressReporter(get()) }
             single {
                 val configuration = get<Configuration>()
                 MarathonTestParseCommand(configuration.outputDir)
             }
-            single { Marathon(get(), get(), get(), get(), get(), get(), get(), get(), get(), get(), get()) }
+            single { Marathon(get(), get(), get(), get(), get(), get(), get(), get(), get(), get()) }
         }
 
         val configurationModule = module {

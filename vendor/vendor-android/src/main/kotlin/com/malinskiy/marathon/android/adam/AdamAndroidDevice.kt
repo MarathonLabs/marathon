@@ -52,7 +52,6 @@ import com.malinskiy.marathon.device.NetworkState
 import com.malinskiy.marathon.device.file.measureFileTransfer
 import com.malinskiy.marathon.exceptions.DeviceLostException
 import com.malinskiy.marathon.execution.TestBatchResults
-import com.malinskiy.marathon.execution.progress.ProgressReporter
 import com.malinskiy.marathon.extension.escape
 import com.malinskiy.marathon.extension.withTimeout
 import com.malinskiy.marathon.extension.withTimeoutOrNull
@@ -383,13 +382,12 @@ class AdamAndroidDevice(
         configuration: Configuration,
         devicePoolId: DevicePoolId,
         testBatch: TestBatch,
-        deferred: CompletableDeferred<TestBatchResults>,
-        progressReporter: ProgressReporter
+        deferred: CompletableDeferred<TestBatchResults>
     ) {
         try {
             async(coroutineContext) {
                 supervisorScope {
-                    val listener = createExecutionListeners(configuration, devicePoolId, testBatch, deferred, progressReporter)
+                    val listener = createExecutionListeners(configuration, devicePoolId, testBatch, deferred)
                     AndroidDeviceTestRunner(this@AdamAndroidDevice, testBundleIdentifier).execute(configuration, testBatch, listener)
                 }
             }.await()

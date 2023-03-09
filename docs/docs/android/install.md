@@ -121,7 +121,6 @@ marathon {
   isCodeCoverageEnabled = false
   fallbackToScreenshots = false
   testOutputTimeoutMillis = 30_000
-  strictMode = false
   debug = true
   autoGrantPermission = true
 }

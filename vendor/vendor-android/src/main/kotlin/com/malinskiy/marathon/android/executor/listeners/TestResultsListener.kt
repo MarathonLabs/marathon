@@ -18,12 +18,11 @@ import com.malinskiy.marathon.test.toTestName
 import com.malinskiy.marathon.time.Timer
 import kotlinx.coroutines.CompletableDeferred
 
-class TestRunResultsTestRunListener(
+class TestResultsListener(
     private val testBatch: TestBatch,
     private val device: Device,
     private val deferred: CompletableDeferred<TestBatchResults>,
     private val timer: Timer,
-    private val progressReporter: ProgressReporter,
     private val poolId: DevicePoolId,
     attachmentProviders: List<AttachmentProvider>,
     private val attachmentCollector: AttachmentCollector = AttachmentCollector(attachmentProviders),
@@ -98,8 +97,6 @@ class TestRunResultsTestRunListener(
                     result[realIdentifier] = e.value
                 } else {
                     result[realIdentifier]?.status = maybeExistingParameterizedResult.status + e.value.status
-                    //Needed for proper result aggregation
-                    progressReporter.addTestDiscoveredDuringRuntime(poolId, test)
                 }
             } else {
                 result[test] = e.value

@@ -34,7 +34,6 @@ object TestConfigurationFactory {
                 allureConfiguration = allureConfiguration
             )
             this.isCodeCoverageEnabled = isCodeCoverageEnabled
-            strictMode = false
             debug = false
             analyticsTracking = false
         }.build()

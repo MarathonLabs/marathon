@@ -2,7 +2,6 @@ package com.malinskiy.marathon.device
 
 import com.malinskiy.marathon.config.Configuration
 import com.malinskiy.marathon.execution.TestBatchResults
-import com.malinskiy.marathon.execution.progress.ProgressReporter
 import com.malinskiy.marathon.test.TestBatch
 import kotlinx.coroutines.CompletableDeferred
 import mu.KLogger
@@ -45,7 +44,6 @@ interface Device {
         devicePoolId: DevicePoolId,
         testBatch: TestBatch,
         deferred: CompletableDeferred<TestBatchResults>,
-        progressReporter: ProgressReporter
     )
 
     /**

@@ -11,7 +11,6 @@ import com.malinskiy.marathon.exceptions.TestBatchExecutionException
 import com.malinskiy.marathon.execution.TestBatchResults
 import com.malinskiy.marathon.execution.TestResult
 import com.malinskiy.marathon.execution.TestStatus
-import com.malinskiy.marathon.execution.progress.ProgressReporter
 import com.malinskiy.marathon.log.MarathonLogging
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.delay
@@ -40,8 +39,7 @@ class StubDevice(
         configuration: Configuration,
         devicePoolId: DevicePoolId,
         testBatch: TestBatch,
-        deferred: CompletableDeferred<TestBatchResults>,
-        progressReporter: ProgressReporter
+        deferred: CompletableDeferred<TestBatchResults>
     ) {
         delay(testTimeMillis)
 
