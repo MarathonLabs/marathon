@@ -20,7 +20,7 @@ ASSEMBLE_TARGETS=""
 PUBLISH_TARGETS=""
 for i in ":core" ":vendor:vendor-android" ":marathon-gradle-plugin" ":report:execution-timeline" ":report:html-report" ":analytics:usage" ":configuration"; do
   ASSEMBLE_TARGETS="$ASSEMBLE_TARGETS $i:assemble"
-  PUBLISH_TARGETS="$PUBLISH_TARGETS $i:publishDefaultPublicationToOSSHRRepository"
+  PUBLISH_TARGETS="$PUBLISH_TARGETS $i:publishAllPublicationsToOSSHRRepository"
 done
 
 if [ -z "$GIT_TAG_NAME" ]; then
