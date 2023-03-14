@@ -408,7 +408,11 @@ class PoolProgressAccumulator(
     }
 
     private fun transition(test: Test, transition: TestEvent): StateMachine.Transition<TestState, TestEvent, TestAction>? {
-        return tests[test.toTestName()]?.transition(transition)?.also { logger.warn { "No FSM registered for test ${test.toTestName()}" } }
+        val testActionTransition = tests[test.toTestName()]?.transition(transition)
+        if (testActionTransition == null) {
+            logger.warn { "No FSM registered for test ${test.toTestName()}" }
+        }
+        return testActionTransition
     }
 
     private fun toPercent(float: Float): String {
