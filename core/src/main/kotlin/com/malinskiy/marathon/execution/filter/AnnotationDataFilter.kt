@@ -1,7 +1,6 @@
 package com.malinskiy.marathon.execution.filter
 
 import com.malinskiy.marathon.config.TestFilterConfiguration
-import com.malinskiy.marathon.execution.TestFilter
 import com.malinskiy.marathon.test.MetaProperty
 import com.malinskiy.marathon.test.Test
 
