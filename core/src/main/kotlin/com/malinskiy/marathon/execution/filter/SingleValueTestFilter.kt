@@ -1,6 +1,5 @@
 package com.malinskiy.marathon.execution.filter
 
-import com.malinskiy.marathon.execution.TestFilter
 import com.malinskiy.marathon.test.Test
 import java.io.File
 
@@ -15,7 +14,7 @@ open class SingleValueTestFilter(
             if (valuesFile.exists()) {
                 valuesFile.readLines().filter { it.isNotBlank() }
             } else {
-                null
+                emptyList()
             }
         }
     }

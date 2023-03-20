@@ -1,4 +1,4 @@
-package com.malinskiy.marathon.execution
+package com.malinskiy.marathon.execution.filter
 
 import com.malinskiy.marathon.test.Test
 
