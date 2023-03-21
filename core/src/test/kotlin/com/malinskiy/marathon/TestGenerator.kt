@@ -21,3 +21,17 @@ fun generateTests(
         Test("$pkg$it", "$clazz$it", "$method$it", annotations)
     }
 }
+fun generateClassGroupTests(
+    classCounts: Int,
+    methodCounts: Int,
+    pkg: String = "pkg",
+    clazz: String = "clazz",
+    method: String = "method",
+    annotations: List<MetaProperty> = emptyList()
+): List<Test> {
+    val tests = arrayListOf<Test>()
+    for (classNumber in 0 until classCounts)
+        for (methodNumber in 0 until methodCounts)
+            tests.add(Test(pkg, "$clazz$classNumber", "$method$methodNumber", annotations))
+    return tests
+}

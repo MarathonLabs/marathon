@@ -24,6 +24,7 @@ import com.malinskiy.marathon.execution.strategy.PoolingStrategy
 import com.malinskiy.marathon.execution.strategy.RetryStrategy
 import com.malinskiy.marathon.execution.strategy.ShardingStrategy
 import com.malinskiy.marathon.execution.strategy.SortingStrategy
+import com.malinskiy.marathon.execution.strategy.impl.batching.ClassNameBatchingStrategy
 import com.malinskiy.marathon.execution.strategy.impl.batching.FixedSizeBatchingStrategy
 import com.malinskiy.marathon.execution.strategy.impl.batching.IsolateBatchingStrategy
 import com.malinskiy.marathon.execution.strategy.impl.flakiness.IgnoreFlakinessStrategy
@@ -102,6 +103,7 @@ fun RetryStrategyConfiguration.toRetryStrategy(): RetryStrategy {
 fun BatchingStrategyConfiguration.toBatchingStrategy(): BatchingStrategy {
     return when (this) {
         is BatchingStrategyConfiguration.FixedSizeBatchingStrategyConfiguration -> FixedSizeBatchingStrategy(this)
+        is BatchingStrategyConfiguration.ClassNameBatchingStrategyConfiguration -> ClassNameBatchingStrategy(this)
         BatchingStrategyConfiguration.IsolateBatchingStrategyConfiguration -> IsolateBatchingStrategy()
     }
 }
