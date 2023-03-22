@@ -19,6 +19,7 @@ import com.malinskiy.marathon.execution.TestParser
 import com.malinskiy.marathon.execution.TestShard
 import com.malinskiy.marathon.execution.bundle.TestBundleIdentifier
 import com.malinskiy.marathon.execution.command.parse.MarathonTestParseCommand
+import com.malinskiy.marathon.execution.filter.applyTestFilters
 import com.malinskiy.marathon.execution.withRetry
 import com.malinskiy.marathon.extension.toFlakinessStrategy
 import com.malinskiy.marathon.extension.toShardingStrategy
@@ -62,7 +63,7 @@ class Marathon(
         logConfigurator.configure()
     }
 
-    fun run(executionCommand: ExecutionCommand = MarathonRunCommand) : Boolean = runBlocking {
+    fun run(executionCommand: ExecutionCommand = MarathonRunCommand): Boolean = runBlocking {
         try {
             async {
                 val hook = installShutdownHook { onFinish(analytics, deviceProvider) }
@@ -119,7 +120,10 @@ class Marathon(
         }
 
         if (parsedAllTests.isEmpty()) throw NoTestCasesFoundException("No tests cases were found")
-        val parsedFilteredTests = applyTestFilters(parsedAllTests)
+        val parsedFilteredTests = applyTestFilters(parsedAllTests,
+                                                   configuration.testClassRegexes,
+                                                   configuration.filteringConfiguration.allowlist,
+                                                   configuration.filteringConfiguration.blocklist)
         if (executionCommand is ParseCommand) {
             marathonTestParseCommand.execute(
                 tests = parsedFilteredTests,
@@ -191,16 +195,6 @@ class Marathon(
             tracker.close()
         }
     }
-
-    private fun applyTestFilters(parsedTests: List<Test>): List<Test> {
-        var tests = parsedTests.filter { test ->
-            configuration.testClassRegexes.all { it.matches(test.clazz) }
-        }
-        configuration.filteringConfiguration.allowlist.forEach { tests = it.toTestFilter().filter(tests) }
-        configuration.filteringConfiguration.blocklist.forEach { tests = it.toTestFilter().filterNot(tests) }
-        return tests
-    }
-
     private fun prepareTestShard(tests: List<Test>, analytics: Analytics): TestShard {
         val shardingStrategy = configuration.shardingStrategy.toShardingStrategy()
         val flakinessStrategy = configuration.flakinessStrategy.toFlakinessStrategy()
