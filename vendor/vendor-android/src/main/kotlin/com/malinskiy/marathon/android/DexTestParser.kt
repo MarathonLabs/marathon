@@ -19,6 +19,8 @@ class DexTestParser(
         val testBundles = vendorConfiguration.testBundlesCompat()
         return testBundles.flatMap { bundle ->
             val tests = DexParser.findTestMethods(bundle.testApplication.absolutePath)
+            val androidTestBundle =
+                AndroidTestBundle(bundle.application, bundle.testApplication, bundle.extraApplications, bundle.splitApks)
             return@flatMap tests.map {
                 val testName = it.testName
                 val annotations = it.annotations.map { annotation -> annotation.toMetaProperty() }
@@ -34,7 +36,7 @@ class DexTestParser(
                 val className = packageAndClassName.substring(lastDotIndex + 1 until packageAndClassName.length)
 
                 val test = Test(packageName, className, methodName, annotations)
-                testBundleIdentifier.put(test, AndroidTestBundle(bundle.application, bundle.testApplication, bundle.extraApplications, bundle.splitApks))
+                testBundleIdentifier.put(test, androidTestBundle)
                 test
             }
         }
