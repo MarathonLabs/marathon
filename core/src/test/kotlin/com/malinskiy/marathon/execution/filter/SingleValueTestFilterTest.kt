@@ -48,7 +48,7 @@ class SingleValueTestFilterTest {
     }
 
     @Test
-    fun `if empty allow list list file all tests should be blocked`() {
+    fun `if empty allow list file all tests should be blocked`() {
         val inputTests = listOf(
             MarathonTest("pkg", "clazz", "method", emptyList()),
             MarathonTest("pkg", "clazz", "method2", emptyList())
