@@ -80,10 +80,11 @@ private fun execute(cliConfiguration: CliConfiguration) {
         val success = marathon.run(marathonStartConfiguration.executionCommand)
 
         val shouldReportFailure = !configuration.ignoreFailures
-        if (!success && shouldReportFailure) {
-            throw PrintMessage(message = "Marathon execution failed", error = true)
-        } else {
-            throw PrintMessage(message = "Marathon execution finished", error = false)
+
+        when {
+            success -> throw PrintMessage(message = "Marathon execution finished", error = false)
+            shouldReportFailure -> throw PrintMessage(message = "Marathon execution finished with failures (Failures suppressed because ignoreFailures is `true`)", error = false)
+            else -> throw PrintMessage(message = "Marathon execution failed", error = true)
         }
     } finally {
         stopKoin()
