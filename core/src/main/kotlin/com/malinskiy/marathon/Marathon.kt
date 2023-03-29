@@ -114,7 +114,7 @@ class Marathon(
             }
 
             else -> {
-                throw ConfigurationException("unknown test parser type for ${testParser::class}, should inherit from either ${LocalTestParser::class.simpleName} or ${RemoteTestParser::class.simpleName}")
+                throw ConfigurationException("Unknown test parser type for ${testParser::class}, should inherit from either ${LocalTestParser::class.simpleName} or ${RemoteTestParser::class.simpleName}")
             }
         }
 
