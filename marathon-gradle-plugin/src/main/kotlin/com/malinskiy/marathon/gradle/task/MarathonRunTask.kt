@@ -47,7 +47,7 @@ open class MarathonRunTask @Inject constructor(objects: ObjectFactory) : Abstrac
 
     private fun getPlatformScript(marathonBuildDir: File) = when (OperatingSystem.current()) {
         OperatingSystem.WINDOWS -> {
-            Paths.get(marathonBuildDir.canonicalPath, "cli", "bin", "marathon.bat").toFile()
+            Paths.get(marathonBuildDir.canonicalPath, "bin", "marathon.bat").toFile()
         }
 
         else -> {
