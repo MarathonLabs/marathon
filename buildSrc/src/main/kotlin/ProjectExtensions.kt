@@ -1,14 +1,18 @@
 import org.gradle.api.Project
+import org.gradle.api.tasks.compile.JavaCompile
 import org.gradle.api.tasks.testing.Test
 import org.gradle.kotlin.dsl.named
 import org.gradle.kotlin.dsl.withType
 import org.gradle.testing.jacoco.tasks.JacocoReport
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
-fun Project.setupKotlinCompiler() {
+fun Project.setupKotlinCompiler(jvmTarget: String = "1.8") {
     tasks.withType<KotlinCompile> {
-        kotlinOptions.jvmTarget = "1.8"
+        kotlinOptions.jvmTarget = jvmTarget
         kotlinOptions.apiVersion = "1.5"
+    }
+    tasks.withType<JavaCompile> {
+        targetCompatibility = jvmTarget
     }
 }
 

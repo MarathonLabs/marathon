@@ -10,7 +10,7 @@ buildscript {
 }
 
 plugins {
-    id("com.github.ben-manes.versions") version "0.45.0"
+    id("com.github.ben-manes.versions") version "0.46.0"
 }
 
 fun isNonStable(version: String): Boolean {
@@ -28,9 +28,9 @@ tasks.withType<com.github.benmanes.gradle.versions.updates.DependencyUpdatesTask
 
 allprojects {
     repositories {
+        mavenLocal()
         maven { url = uri("$rootDir/../build/repository") }
         mavenCentral()
         google()
-        mavenLocal()
     }
 }

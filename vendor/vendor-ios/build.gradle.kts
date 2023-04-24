@@ -41,3 +41,5 @@ setupTestTask()
 tasks.jar.configure {
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 }
+
+tasks.findByPath("sourcesJar")?.dependsOn(tasks.findByPath("generateXcresulttoolSource"))

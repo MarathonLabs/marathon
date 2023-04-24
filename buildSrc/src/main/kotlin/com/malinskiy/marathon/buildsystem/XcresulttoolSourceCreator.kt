@@ -158,6 +158,7 @@ fun TypeSpec.Builder.primaryConstructor(properties: List<PropertySpec>): TypeSpe
                         String::class.asTypeName() -> {
                             defaultValue("\"\"")
                         }
+                        else -> Unit
                     }
                 }
             }

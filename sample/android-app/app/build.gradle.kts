@@ -4,21 +4,28 @@ import com.malinskiy.marathon.config.vendor.android.TestParserConfiguration
 plugins {
     id("com.android.application")
     id("kotlin-android")
-    id("com.malinskiy.marathon") version "0.8.0-SNAPSHOT"
+    id("com.malinskiy.marathon") version "0.8.2-SNAPSHOT"
 }
 
 android {
-    buildToolsVersion = "30.0.3"
+    buildToolsVersion = "33.0.0"
     compileSdk = 33
+
+    namespace = "com.example"
+    testNamespace = "com.example.test"
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8
     }
 
+    kotlinOptions {
+        jvmTarget = "1.8"
+    }
+
     packagingOptions {
-        exclude("META-INF/INDEX.LIST")
-        exclude("META-INF/io.netty.versions.properties")
+        resources.excludes.add("META-INF/INDEX.LIST")
+        resources.excludes.add("META-INF/io.netty.versions.properties")
     }
 
     defaultConfig {
@@ -35,10 +42,10 @@ android {
     buildTypes {
         getByName("release") {
             isMinifyEnabled = false
-            proguardFiles("proguard-rules.pro")
         }
         getByName("debug") {
-            isTestCoverageEnabled = false
+            isMinifyEnabled = false
+            enableAndroidTestCoverage = true
         }
     }
 }

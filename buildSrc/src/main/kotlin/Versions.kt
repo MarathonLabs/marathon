@@ -1,7 +1,7 @@
 object Versions {
-    val marathon = System.getenv("GIT_TAG_NAME") ?: "0.8.0"
+    val marathon = System.getenv("GIT_TAG_NAME") ?: "0.8.2"
 
-    val kotlin = "1.7.10"
+    val kotlin = "1.8.10"
     val coroutines = "1.6.4"
     val coroutinesTest = coroutines
 
@@ -14,7 +14,7 @@ object Versions {
     val bugsnag = "3.6.4"
 
     val junitGradle = "1.2.0"
-    val androidGradleVersion = "7.3.0"
+    val androidGradleVersion = "7.4.1"
     val gradlePluginPublish = "1.1.0"
     val gradlePluginShadow = "7.1.2"
 
