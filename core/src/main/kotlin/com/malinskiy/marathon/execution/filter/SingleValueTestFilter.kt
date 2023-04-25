@@ -1,6 +1,7 @@
 package com.malinskiy.marathon.execution.filter
 
 import com.malinskiy.marathon.execution.TestFilter
+import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.test.Test
 import java.io.File
 
@@ -10,12 +11,15 @@ open class SingleValueTestFilter(
     val file: File?,
     val predicate: SingleValueTestFilter.(test: Test, values: List<String>?) -> Boolean,
 ) : TestFilter {
+    private val log = MarathonLogging.logger("SingleValueTestFilter")
+
     private val fileValuesCache: List<String>? by lazy {
         file?.let { valuesFile ->
             if (valuesFile.exists()) {
                 valuesFile.readLines().filter { it.isNotBlank() }
             } else {
-                null
+                log.error { "Filtering configuration file ${valuesFile.absoluteFile} does not exist. Applying empty list." }
+                emptyList()
             }
         }
     }
