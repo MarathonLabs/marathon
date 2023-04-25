@@ -7,7 +7,7 @@ import com.malinskiy.marathon.config.strategy.PoolingStrategyConfiguration
 import com.malinskiy.marathon.config.strategy.RetryStrategyConfiguration
 import com.malinskiy.marathon.config.strategy.ShardingStrategyConfiguration
 import com.malinskiy.marathon.config.strategy.SortingStrategyConfiguration
-import com.malinskiy.marathon.execution.filter.TestFilter
+import com.malinskiy.marathon.execution.TestFilter
 import com.malinskiy.marathon.execution.filter.AllureTestFilter
 import com.malinskiy.marathon.execution.filter.AnnotationDataFilter
 import com.malinskiy.marathon.execution.filter.AnnotationFilter

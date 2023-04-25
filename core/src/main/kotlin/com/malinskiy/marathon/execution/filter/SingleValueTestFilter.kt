@@ -1,5 +1,6 @@
 package com.malinskiy.marathon.execution.filter
 
+import com.malinskiy.marathon.execution.TestFilter
 import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.test.Test
 import java.io.File
@@ -17,7 +18,7 @@ open class SingleValueTestFilter(
             if (valuesFile.exists()) {
                 valuesFile.readLines().filter { it.isNotBlank() }
             } else {
-                log.error { "Filtering configuration file ${valuesFile.absoluteFile} is not exist. Applying empty list." }
+                log.error { "Filtering configuration file ${valuesFile.absoluteFile} does not exist. Applying empty list." }
                 emptyList()
             }
         }

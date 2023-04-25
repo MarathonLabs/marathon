@@ -1,6 +1,7 @@
 package com.malinskiy.marathon.execution.filter
 
 import com.malinskiy.marathon.config.TestFilterConfiguration
+import com.malinskiy.marathon.execution.TestFilter
 import com.malinskiy.marathon.test.Test
 import com.malinskiy.marathon.test.toTestName
 import io.qameta.allure.testfilter.FileTestPlanSupplier
@@ -9,8 +10,7 @@ import io.qameta.allure.testfilter.TestPlanSupplier
 import io.qameta.allure.testfilter.TestPlanV1_0
 
 val ALLURE_ID_ANNOTATIONS = setOf("io.qameta.allure.AllureId", "io.qameta.allure.kotlin.AllureId")
-class AllureTestFilter(val cnf: TestFilterConfiguration.AllureFilterConfiguration, private val testPlanSupplier: TestPlanSupplier = FileTestPlanSupplier()) :
-    TestFilter {
+class AllureTestFilter(val cnf: TestFilterConfiguration.AllureFilterConfiguration, private val testPlanSupplier: TestPlanSupplier = FileTestPlanSupplier()) : TestFilter {
     private val testPlan: TestPlan? by lazy {
         val optional = testPlanSupplier.supply()
         if (optional.isPresent) {
