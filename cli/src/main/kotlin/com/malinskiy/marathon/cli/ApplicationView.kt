@@ -77,7 +77,12 @@ private fun execute(cliConfiguration: CliConfiguration) {
 
         UsageAnalytics.enable = marathonStartConfiguration.analyticsTracking
         UsageAnalytics.USAGE_TRACKER.trackEvent(Event(TrackActionType.RunType, "cli"))
-        val success = marathon.run(marathonStartConfiguration.executionCommand)
+        val success = try {
+            marathon.run(marathonStartConfiguration.executionCommand)
+        } catch (e: Exception) {
+            logger.error(e) {}
+            throw PrintMessage(message = "Marathon execution crashed", error = true)
+        }
 
         val shouldReportFailure = !configuration.ignoreFailures
         when {
