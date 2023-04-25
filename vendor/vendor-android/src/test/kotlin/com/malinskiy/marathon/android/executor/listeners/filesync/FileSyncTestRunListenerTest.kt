@@ -10,6 +10,7 @@ import com.malinskiy.marathon.android.adam.TestConfigurationFactory
 import com.malinskiy.marathon.android.adam.TestDeviceFactory
 import com.malinskiy.marathon.android.adam.boot
 import com.malinskiy.marathon.android.adam.features
+import com.malinskiy.marathon.android.adam.pullFile
 import com.malinskiy.marathon.android.adam.pushFile
 import com.malinskiy.marathon.android.adam.shell
 import com.malinskiy.marathon.config.vendor.VendorConfiguration
@@ -197,6 +198,47 @@ class FileSyncTestRunListenerTest {
                     
                     shell("mkdir -p /data/local/tmp/fixture4 && run-as com.example sh -c 'cd /data/data/com.example/fixture4 && tar cf - .' | tar xvf - -C /data/local/tmp/fixture4 && run-as com.example rm -R /data/data/com.example/fixture4", "")
                     shell("ls -l /data/local/tmp/fixture4", "")
+                }
+                features("emulator-5554")
+            }
+
+            device.setup()
+
+            val instrumentationInfo = InstrumentationInfo("com.example", "com.example.test", "androidx.test.runner.AndroidJUnitRunner")
+            listener.beforeTestRun(instrumentationInfo)
+            listener.afterTestRun()
+        }
+    }
+
+    @Test
+    fun testPullFolderWithEmptyFile() {
+        val tempDir = createTempDirectory().toFile()
+        val configuration = TestConfigurationFactory.create(
+            fileSyncConfiguration = FileSyncConfiguration(
+                pull = mutableSetOf(
+                    FileSyncEntry("fixture"),
+                )
+            )
+        )
+        val device = TestDeviceFactory.create(client, configuration, mock())
+        val poolId = DevicePoolId("testpool")
+        val fileManager = FileManager(1024, tempDir)
+        val androidConfiguration = configuration.vendorConfiguration as VendorConfiguration.AndroidConfiguration
+        val listener = FileSyncTestRunListener(poolId, device, androidConfiguration.fileSyncConfiguration, fileManager)
+
+        runBlocking {
+            server.multipleSessions {
+                serial("emulator-5554") {
+                    boot(externalStorage = "/sdcard")
+
+                    shell("rm -r /sdcard/fixture", "")
+                    shell("mkdir /sdcard/fixture", "")
+
+                    shell("ls -l /sdcard/fixture", """
+                        -rw-rw---- 1 u0_a100 media_rw 0 2023-04-25 18:34 empty_file
+                    """.trimIndent())
+
+                    pullFile(temp, "/sdcard/fixture/empty_file", "")
                 }
                 features("emulator-5554")
             }

@@ -151,16 +151,21 @@ class AdamAndroidDevice(
 
             measureFileTransfer(local) {
                 val stat = client.execute(CompatStatFileRequest(remoteFilePath, supportedFeatures), adbSerial)
-                if (stat.exists()) {
-                    val channel = client.execute(
-                        CompatPullFileRequest(remoteFilePath, local, supportedFeatures, coroutineScope = this, size = stat.size().toLong()),
-                        serial = adbSerial
-                    )
-                    for (update in channel) {
-                        progress = update
+                when {
+                    stat.exists() && stat.size() > 0.toULong() -> {
+                        val channel = client.execute(
+                            CompatPullFileRequest(remoteFilePath, local, supportedFeatures, coroutineScope = this, size = stat.size().toLong()),
+                            serial = adbSerial
+                        )
+                        for (update in channel) {
+                            progress = update
+                        }
                     }
-                } else {
-                    throw TransferException("Couldn't pull file $remoteFilePath from device $serialNumber because it doesn't exist")
+                    stat.exists() && stat.size() == 0.toULong() -> {
+                        local.createNewFile()
+                        progress = 1.0
+                    }
+                    else -> throw TransferException("Couldn't pull file $remoteFilePath from device $serialNumber because it doesn't exist")
                 }
             }
         } catch (e: PullFailedException) {
