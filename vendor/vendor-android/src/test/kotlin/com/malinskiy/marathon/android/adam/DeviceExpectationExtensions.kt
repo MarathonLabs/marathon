@@ -4,6 +4,7 @@ import com.malinskiy.adam.server.stub.dsl.DeviceExpectation
 import com.malinskiy.marathon.device.screenshot.Rotation
 import kotlinx.coroutines.delay
 import java.io.File
+import java.util.UUID
 
 fun DeviceExpectation.property(name: String, value: String) = shell("getprop $name", value)
 fun DeviceExpectation.shell(cmd: String, stdout: String, delay: Long? = null) {
@@ -39,7 +40,7 @@ fun DeviceExpectation.installSplitApk(
     files.forEach {
         installWriteSession(it, sessionId)
     }
-    
+
     installCommitSession(sessionId)
 
     shell("pm list packages", "")
@@ -87,17 +88,21 @@ fun DeviceExpectation.pushFile(tempDir: File, path: String, mode: String) {
     }
 }
 
-fun DeviceExpectation.pullFile(tempDir: File, path: String) {
-    val tempFile = File(tempDir, "send").apply {
+fun DeviceExpectation.pullFile(tempDir: File, path: String, contents: String = "X") {
+    val tempFile = File(tempDir, UUID.randomUUID().toString()).apply {
         delete()
-        writeText("X")
+        if (contents.isEmpty()) {
+            createNewFile()
+        } else {
+            writeText(contents)
+        }
     }
 
     session {
         respondOkay()
         expectCmd { "sync:" }.accept()
         expectStat { path }
-        respondStat(size = tempFile.length().toInt())
+        respondStat(size = tempFile.length().toInt(), lastModified = 1000)
     }
 
     session {
