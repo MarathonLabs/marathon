@@ -12,6 +12,7 @@ import java.time.Instant
 @JsonSubTypes(
     JsonSubTypes.Type(value = BatchingStrategyConfiguration.FixedSizeBatchingStrategyConfiguration::class, name = "fixed-size"),
     JsonSubTypes.Type(value = BatchingStrategyConfiguration.IsolateBatchingStrategyConfiguration::class, name = "isolate"),
+    JsonSubTypes.Type(value = BatchingStrategyConfiguration.ClassNameBatchingStrategyConfiguration::class, name = "class-name"),
 )
 sealed class BatchingStrategyConfiguration {
     data class FixedSizeBatchingStrategyConfiguration(
@@ -21,6 +22,8 @@ sealed class BatchingStrategyConfiguration {
         val timeLimit: Instant? = null,
         val lastMileLength: Int = 0
     ) : BatchingStrategyConfiguration()
+
+    object ClassNameBatchingStrategyConfiguration : BatchingStrategyConfiguration()
 
     object IsolateBatchingStrategyConfiguration : BatchingStrategyConfiguration()
 }

@@ -34,6 +34,7 @@ import com.malinskiy.marathon.usageanalytics.tracker.Event
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.async
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.supervisorScope
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeoutOrNull
 import org.koin.core.context.stopKoin
@@ -64,13 +65,14 @@ class Marathon(
 
     fun run(executionCommand: ExecutionCommand = MarathonRunCommand) : Boolean = runBlocking {
         try {
-            async {
-                val hook = installShutdownHook { onFinish(analytics, deviceProvider) }
-                val result = runAsync(executionCommand)
-                hook.uninstall()
-                result
-            }.apply {
-                invokeOnCompletion {
+            supervisorScope {
+                val child = async {
+                    val hook = installShutdownHook { onFinish(analytics, deviceProvider) }
+                    val result = runAsync(executionCommand)
+                    hook.uninstall()
+                    result
+                }
+                child.invokeOnCompletion {
                     //Marathon will usually clean up correctly unless exception is thrown
                     if (it != null) {
                         runBlocking {
@@ -80,7 +82,8 @@ class Marathon(
                         }
                     }
                 }
-            }.await()
+                child.await()
+            }
         } catch (th: Throwable) {
             log.error(th) {}
             when (th) {

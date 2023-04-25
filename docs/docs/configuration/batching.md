@@ -111,3 +111,41 @@ marathon {
 
 </TabItem>
 </Tabs>
+
+
+### Test class batching
+
+Each batch will be based on test class size. We can advice to use this configuration wisely to avoid cross runs side effects. 
+
+<Tabs>
+<TabItem value="YAML" label="Marathonfile">
+
+```yaml
+batchingStrategy:
+  type: "class-name"
+```
+
+</TabItem>
+<TabItem value="kts" label="Kotlin DSL">
+
+```kotlin
+marathon {
+    batchingStrategy {
+        className {}
+    }
+}
+```
+
+</TabItem>
+<TabItem value="groovy" label="Groovy DSL">
+
+```groovy
+marathon {
+  batchingStrategy {
+    className {}
+  }
+}
+```
+
+</TabItem>
+</Tabs>
