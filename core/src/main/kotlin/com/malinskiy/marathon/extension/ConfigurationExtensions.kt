@@ -103,7 +103,7 @@ fun RetryStrategyConfiguration.toRetryStrategy(): RetryStrategy {
 fun BatchingStrategyConfiguration.toBatchingStrategy(): BatchingStrategy {
     return when (this) {
         is BatchingStrategyConfiguration.FixedSizeBatchingStrategyConfiguration -> FixedSizeBatchingStrategy(this)
-        is BatchingStrategyConfiguration.ClassNameBatchingStrategyConfiguration -> ClassNameBatchingStrategy(this)
+        is BatchingStrategyConfiguration.ClassNameBatchingStrategyConfiguration -> ClassNameBatchingStrategy()
         BatchingStrategyConfiguration.IsolateBatchingStrategyConfiguration -> IsolateBatchingStrategy()
     }
 }
