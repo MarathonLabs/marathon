@@ -19,6 +19,8 @@ dependencies {
 }
 
 buildConfig {
+    useKotlinOutput { internalVisibility = false }
+
     buildConfigField("String", "VERSION", provider { "\"${Versions.marathon}\"" })
     buildConfigField("String", "RELEASE_MODE", provider {
         val releaseMode = Deployment.releaseMode ?: ""

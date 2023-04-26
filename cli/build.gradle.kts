@@ -51,6 +51,8 @@ setupKotlinCompiler()
 setupTestTask()
 
 buildConfig {
+    useKotlinOutput { internalVisibility = false }
+
     buildConfigField("String", "NAME", "\"${project.name}\"")
     buildConfigField("String", "VERSION", provider { "\"${Versions.marathon}\"" })
 }

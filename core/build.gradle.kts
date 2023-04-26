@@ -25,6 +25,8 @@ sourceSets {
 }
 
 buildConfig {
+    useKotlinOutput { internalVisibility = false }
+
     buildConfigField("String", "NAME", "\"${project.name}\"")
     buildConfigField("String", "VERSION", provider<String> { "\"${Versions.marathon}\"" })
     buildConfigField("String", "BUGSNAG_TOKEN", provider {
