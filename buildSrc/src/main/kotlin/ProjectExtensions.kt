@@ -12,6 +12,7 @@ fun Project.setupKotlinCompiler(jvmTarget: String = "1.8") {
         kotlinOptions.apiVersion = "1.5"
     }
     tasks.withType<JavaCompile> {
+        sourceCompatibility = jvmTarget
         targetCompatibility = jvmTarget
     }
 }

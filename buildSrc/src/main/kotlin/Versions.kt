@@ -16,7 +16,7 @@ object Versions {
     val junitGradle = "1.2.0"
     val androidGradleVersion = "7.4.1"
     val gradlePluginPublish = "1.2.0"
-    val gradlePluginShadow = "8.1.1"
+    val gradlePluginShadow = "7.1.2"
 
     val junit5 = "5.9.2"
     val kluent = "1.72"
@@ -33,10 +33,11 @@ object Versions {
     val influxDbClient = "2.23"
     val influxDb2Client = "6.8.0"
     val clikt = "3.5.2"
-    val jacksonDatabind = "2.15.0"
+    val jacksonDatabind = "2.14.2"
     val jacksonKotlin = jacksonDatabind
     val jacksonYaml = jacksonDatabind
     val jacksonJSR310 = jacksonDatabind
+    val jacksonAnnotations = jacksonDatabind
     val ddPlist = "1.27"
     val guava = "31.1-jre"
     val rsync4j = "3.2.7-1"
@@ -86,7 +87,7 @@ object Libraries {
     val influxDb2Client = "com.influxdb:influxdb-client-java:${Versions.influxDb2Client}"
     val clikt = "com.github.ajalt.clikt:clikt:${Versions.clikt}"
     val jacksonDatabind = "com.fasterxml.jackson.core:jackson-databind:${Versions.jacksonDatabind}"
-    val jacksonAnnotations = "com.fasterxml.jackson.core:jackson-annotations:${Versions.jacksonDatabind}"
+    val jacksonAnnotations = "com.fasterxml.jackson.core:jackson-annotations:${Versions.jacksonAnnotations}"
     val jacksonKotlin = "com.fasterxml.jackson.module:jackson-module-kotlin:${Versions.jacksonKotlin}"
     val jacksonYaml = "com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:${Versions.jacksonYaml}"
     val jacksonJSR310 = "com.fasterxml.jackson.datatype:jackson-datatype-jsr310:${Versions.jacksonJSR310}"
