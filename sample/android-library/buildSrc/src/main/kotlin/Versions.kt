@@ -1,8 +1,8 @@
 object Versions {
-    val kotlin = "1.7.10"
+    val kotlin = "1.8.10"
     val coroutines = "1.6.4"
 
-    val androidGradleVersion = "7.4.0"
+    val androidGradleVersion = "7.4.1"
     val espressoRunner = "1.5.2"
     val testJunit = "1.1.5"
 }

@@ -6,18 +6,18 @@ plugins {
     id("org.jetbrains.kotlin.jvm")
     id("org.jetbrains.dokka")
     jacoco
-    id("com.github.gmazzo.buildconfig") version "3.1.0"
+    id("com.github.gmazzo.buildconfig") version "4.0.1"
 }
 
 sourceSets {
     create("integrationTest") {
         compileClasspath += sourceSets["main"].output
         compileClasspath += sourceSets["test"].output
-        compileClasspath += configurations.testCompileClasspath
+        compileClasspath += configurations.testCompileClasspath.get()
 
         runtimeClasspath += sourceSets["main"].output
         runtimeClasspath += sourceSets["test"].output
-        runtimeClasspath += configurations.testRuntimeClasspath
+        runtimeClasspath += configurations.testRuntimeClasspath.get()
         withConvention(KotlinSourceSet::class) {
             kotlin.srcDirs("src/integrationTest/kotlin")
         }
@@ -25,6 +25,8 @@ sourceSets {
 }
 
 buildConfig {
+    useKotlinOutput { internalVisibility = false }
+
     buildConfigField("String", "NAME", "\"${project.name}\"")
     buildConfigField("String", "VERSION", provider<String> { "\"${Versions.marathon}\"" })
     buildConfigField("String", "BUGSNAG_TOKEN", provider {

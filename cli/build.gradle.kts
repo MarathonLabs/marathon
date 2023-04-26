@@ -4,7 +4,7 @@ plugins {
     jacoco
     id("org.jetbrains.kotlin.jvm")
     id("org.jetbrains.dokka")
-    id("com.github.gmazzo.buildconfig") version "3.1.0"
+    id("com.github.gmazzo.buildconfig") version "4.0.1"
 }
 
 val enableJDB = false
@@ -51,6 +51,8 @@ setupKotlinCompiler()
 setupTestTask()
 
 buildConfig {
+    useKotlinOutput { internalVisibility = false }
+
     buildConfigField("String", "NAME", "\"${project.name}\"")
     buildConfigField("String", "VERSION", provider { "\"${Versions.marathon}\"" })
 }
