@@ -84,10 +84,9 @@ private fun execute(cliConfiguration: CliConfiguration) {
             throw PrintMessage(message = "Marathon execution crashed", error = true)
         }
 
-        val shouldReportFailure = !configuration.ignoreFailures
         when {
             success -> throw PrintMessage(message = "Marathon execution finished", error = false)
-            shouldReportFailure -> throw PrintMessage(message = "Marathon execution finished with failures (Failures suppressed because ignoreFailures is `true`)", error = false)
+            configuration.ignoreFailures -> throw PrintMessage(message = "Marathon execution finished with failures (Failures suppressed because ignoreFailures is `true`)", error = false)
             else -> throw PrintMessage(message = "Marathon execution failed", error = true)
         }
     } finally {
