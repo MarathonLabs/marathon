@@ -82,6 +82,24 @@ extraApplications:
   - "/path/to/additional.app"
 ```
 
+#### Extra artifacts
+Marathon can push additional artifacts such as files and folders to the remote environment for testing:
+
+```yaml
+extraArtifacts: 
+  - "/path/to/my/folder"
+```
+
+To retrieve these artifacts from the test marathon passes an environment variable `TEST_EXTRA_ARTIFACTS` with the absolute path of the
+folder containing all of the `extraArtifacts`, e.g. for the example above `$TEST_EXTRA_ARTIFACTS/folder` will be a valid path to read.
+
+:::tip
+
+There is no unwrapping during the push process so a local folder `a` will be a remote folder `TEST_EXTRA_ARTIFACTS/a` and 
+a local file `b` will be a remote file `TEST_EXTRA_ARTIFACTS/b`.
+
+:::
+
 ### Devices
 By default, marathon will look for a file `Marathondevices` in the same folder as `Marathonfile` for the configuration of workers. You can 
 override this location with the following property:

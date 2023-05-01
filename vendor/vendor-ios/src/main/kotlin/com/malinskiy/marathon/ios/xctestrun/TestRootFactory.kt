@@ -25,7 +25,6 @@ class TestRootFactory(private val device: AppleSimulatorDevice, private val vend
         val remoteFileManager = device.remoteFileManager
 
         val testRoot = remoteFileManager.remoteTestRoot()
-        remoteFileManager.createRemoteDirectory(testRoot)
         val xctestrun = when (testType) {
             TestType.XCUITEST -> generateXCUITest(testRoot, remoteFileManager, bundleConfiguration)
             TestType.XCTEST -> generateXCTest(testRoot, remoteFileManager, bundleConfiguration)
@@ -102,6 +101,7 @@ class TestRootFactory(private val device: AppleSimulatorDevice, private val vend
                 .forEach {
                     put(it.key, it.value)
                 }
+            put(ENV_TEST_EXTRA_ARTIFACTS, remoteFileManager.remoteArtifactDirectory())
         }.toMap()
 
         return Xctestrun(
@@ -204,6 +204,7 @@ class TestRootFactory(private val device: AppleSimulatorDevice, private val vend
                 .forEach {
                     put(it.key, it.value)
                 }
+            put(ENV_TEST_EXTRA_ARTIFACTS, remoteFileManager.remoteArtifactDirectory())
         }.toMap()
 
         return Xctestrun(
@@ -272,5 +273,9 @@ class TestRootFactory(private val device: AppleSimulatorDevice, private val vend
                 device.binaryEnvironment.lipo.removeArch(testRunnerBinary, Arch.arm64)
             }
         }
+    }
+
+    companion object {
+        const val ENV_TEST_EXTRA_ARTIFACTS = "TEST_EXTRA_ARTIFACTS"
     }
 }
