@@ -8,12 +8,15 @@ import com.malinskiy.marathon.io.FileManager
 import com.malinskiy.marathon.io.FileType
 import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.report.Reporter
+import com.malinskiy.marathon.usageanalytics.Event
+import com.malinskiy.marathon.usageanalytics.tracker.UsageTracker
 import java.time.Duration
 import java.time.Instant
 
 internal class BillingReporter(
     private val fileManager: FileManager,
     private val gson: Gson,
+    private val usageTracker: UsageTracker,
 ) : Reporter {
     private val defaultStart = Instant.now()
     private val logger = MarathonLogging.logger {}
@@ -64,6 +67,9 @@ internal class BillingReporter(
             val json = gson.toJson(it)
             fileManager.createFile(FileType.BILL, it.pool, it.device).writeText(json)
         }
+
+        usageTracker.trackEvent(Event.Devices(bills.size))
+        usageTracker.trackEvent(Event.Executed(seconds = bills.sumOf { it.duration } / 1000))
     }
 }
 

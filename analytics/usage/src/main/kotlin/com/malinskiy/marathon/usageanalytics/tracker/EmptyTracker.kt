@@ -1,7 +1,9 @@
 package com.malinskiy.marathon.usageanalytics.tracker
 
-internal class EmptyTracker : UsageTracker {
-    override fun trackEvent(event: Event) {
+import com.malinskiy.marathon.usageanalytics.Event
 
-    }
+class EmptyTracker : UsageTracker {
+    override fun trackEvent(event: Event) = Unit
+    override fun meta(version: String, vendor: String) = Unit
+    override fun close() = Unit
 }

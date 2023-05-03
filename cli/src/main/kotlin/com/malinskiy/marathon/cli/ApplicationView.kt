@@ -21,9 +21,6 @@ import com.malinskiy.marathon.di.marathonStartKoin
 import com.malinskiy.marathon.exceptions.ExceptionsReporterFactory
 import com.malinskiy.marathon.ios.AppleVendor
 import com.malinskiy.marathon.log.MarathonLogging
-import com.malinskiy.marathon.usageanalytics.TrackActionType
-import com.malinskiy.marathon.usageanalytics.UsageAnalytics
-import com.malinskiy.marathon.usageanalytics.tracker.Event
 import org.koin.core.context.stopKoin
 import org.koin.dsl.module
 import kotlin.system.exitProcess
@@ -59,7 +56,8 @@ private fun execute(cliConfiguration: CliConfiguration) {
         }
 
         val configuration = ConfigurationFactory(
-            marathonfileDir = marathonStartConfiguration.marathonfile.canonicalFile.parentFile
+            marathonfileDir = marathonStartConfiguration.marathonfile.canonicalFile.parentFile,
+            analyticsTracking = marathonStartConfiguration.analyticsTracking,
         ).parse(marathonStartConfiguration.marathonfile)
         val vendorConfiguration = configuration.vendorConfiguration
         val modules = when (vendorConfiguration) {
@@ -75,8 +73,6 @@ private fun execute(cliConfiguration: CliConfiguration) {
         val application = marathonStartKoin(configuration, modules)
         val marathon: Marathon = application.koin.get()
 
-        UsageAnalytics.enable = marathonStartConfiguration.analyticsTracking
-        UsageAnalytics.USAGE_TRACKER.trackEvent(Event(TrackActionType.RunType, "cli"))
         val success = try {
             marathon.run(marathonStartConfiguration.executionCommand)
         } catch (e: Exception) {

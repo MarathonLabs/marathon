@@ -217,9 +217,9 @@ open class MarathonExtension {
 
     /**
      * To better understand the use-cases that marathon is used for we're asking you to provide us with anonymised information about your usage. By
-     * default, this is disabled. Use **true** to enable.
+     * default, this is enabled. Use **false** to disable.
      */
-    var analyticsTracking: Boolean = false
+    var analyticsTracking: Boolean = true
 
     /**
      * When the test run starts device provider is expected to provide some devices. This should not take more than 3 minutes by default. If your

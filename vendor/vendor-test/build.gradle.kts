@@ -15,6 +15,7 @@ dependencies {
     implementation(TestLibraries.kluent)
     implementation(TestLibraries.mockitoKotlin)
     implementation(project(":core"))
+    implementation(project(":analytics:usage"))
 }
 
 setupKotlinCompiler()

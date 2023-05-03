@@ -11,6 +11,9 @@ import com.malinskiy.marathon.io.FileManager
 import com.malinskiy.marathon.json.FileSerializer
 import com.malinskiy.marathon.time.SystemTimer
 import com.malinskiy.marathon.time.Timer
+import com.malinskiy.marathon.usageanalytics.tracker.EmptyTracker
+import com.malinskiy.marathon.usageanalytics.tracker.GrafanaCloud
+import com.malinskiy.marathon.usageanalytics.tracker.UsageTracker
 import org.koin.core.KoinApplication
 import org.koin.core.context.startKoin
 import org.koin.core.module.Module
@@ -20,8 +23,16 @@ import java.time.Clock
 
 val analyticsModule = module {
     single { Track() }
-    single { TrackerFactory(get(), get(), get(), get(), get()).create() }
+    single { TrackerFactory(get(), get(), get(), get(), get(), get()).create() }
     single { AnalyticsFactory(get()).create() }
+    single<UsageTracker> {
+        val configuration = get<Configuration>()
+        if(configuration.analyticsTracking) {
+            GrafanaCloud()
+        } else {
+            EmptyTracker()
+        }
+    }
 }
 
 val coreModule = module {
@@ -40,7 +51,7 @@ val coreModule = module {
         val configuration = get<Configuration>()
         MarathonTestParseCommand(configuration.outputDir)
     }
-    single { Marathon(get(), get(), get(), get(), get(), get(), get(), get(), get(), get()) }
+    single { Marathon(get(), get(), get(), get(), get(), get(), get(), get(), get(), get(), get()) }
 }
 
 fun marathonStartKoin(configuration: Configuration, modules: List<Module>): KoinApplication {
