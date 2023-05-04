@@ -29,11 +29,6 @@ import com.malinskiy.marathon.config.vendor.android.ScreenshotConfiguration
 import com.malinskiy.marathon.config.vendor.android.SerialStrategy
 import com.malinskiy.marathon.config.vendor.android.TimeoutConfiguration
 import com.malinskiy.marathon.config.vendor.android.VideoConfiguration
-import com.malinskiy.marathon.config.vendor.ios.AppleTestBundleConfiguration
-import com.malinskiy.marathon.config.vendor.ios.LifecycleConfiguration
-import com.malinskiy.marathon.config.vendor.ios.RsyncConfiguration
-import com.malinskiy.marathon.config.vendor.ios.SshAuthentication
-import com.malinskiy.marathon.config.vendor.ios.SshConfiguration
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
 import org.amshove.kluent.`should be equal to`
@@ -86,7 +81,10 @@ class ConfigurationFactoryTest {
                                 .configure(KotlinFeature.StrictNullChecks, false)
                                 .build())
             .registerModule(JavaTimeModule())
-        parser = ConfigurationFactory(marathonfileDir = mockMarathonFileDir, mapper = mapper)
+        parser = ConfigurationFactory(
+            marathonfileDir = mockMarathonFileDir,
+            mapper = mapper,
+        )
     }
 
     @Test
@@ -290,7 +288,11 @@ class ConfigurationFactoryTest {
                                 .configure(KotlinFeature.StrictNullChecks, false)
                                 .build())
             .registerModule(JavaTimeModule())
-        parser = ConfigurationFactory(marathonfileDir = mockMarathonFileDir, mapper = mapper, environmentReader = environmentReader)
+        parser = ConfigurationFactory(
+            marathonfileDir = mockMarathonFileDir,
+            environmentReader = environmentReader,
+            mapper = mapper,
+        )
         val configuration = parser.parse(file)
 
         configuration.vendorConfiguration shouldBeEqualTo VendorConfiguration.AndroidConfiguration(
@@ -314,7 +316,11 @@ class ConfigurationFactoryTest {
     fun `on configuration without androidSdk value should throw an exception when ANDROID_HOME is not set`() {
         val file = File(ConfigurationFactoryTest::class.java.getResource("/fixture/config/sample_7.yaml").file)
         parser =
-            ConfigurationFactory(marathonfileDir = mockMarathonFileDir, mapper = mapper, environmentReader = mockEnvironmentReader(null))
+            ConfigurationFactory(
+                marathonfileDir = mockMarathonFileDir,
+                environmentReader = mockEnvironmentReader(null),
+                mapper = mapper,
+            )
         assertThrows<ConfigurationException> {
             parser.parse(file)
         }

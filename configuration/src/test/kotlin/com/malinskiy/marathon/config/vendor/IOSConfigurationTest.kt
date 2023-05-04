@@ -4,7 +4,6 @@ package com.malinskiy.marathon.config.vendor
 import com.malinskiy.marathon.config.exceptions.ConfigurationException
 import com.malinskiy.marathon.config.serialization.ConfigurationFactory
 import com.malinskiy.marathon.config.serialization.ConfigurationFactoryTest
-import com.malinskiy.marathon.config.serialization.yaml.FileListProvider
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldThrow
 import org.junit.jupiter.api.Test

@@ -15,7 +15,7 @@ class MarathonRunCommonOptions : OptionGroup() {
         .default(File("Marathonfile"))
     val analyticsTracking by option("--analyticsTracking", help="Enable anonymous analytics tracking")
         .convert { it.toBoolean() }
-        .default(false)
+        .default(true)
     val bugsnagReporting by option("--bugsnag", help="Enable/Disable anonymous crash reporting. Enabled by default")
         .convert { it.toBoolean() }
         .default(true)

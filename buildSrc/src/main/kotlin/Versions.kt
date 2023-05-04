@@ -30,6 +30,7 @@ object Versions {
     val apacheCommonsText = "1.10.0"
     val apacheCommonsIO = "2.11.0"
     val apacheCommonsCodec = "1.15"
+    val okhttp = "4.10.0"
     val influxDbClient = "2.23"
     val influxDb2Client = "6.8.0"
     val clikt = "3.5.2"
@@ -52,7 +53,6 @@ object Versions {
     val allureKotlin = "2.4.0"
     val allureEnvironment = "1.0.0"
     val mockitoKotlin = "2.2.0"
-    val googleAnalitycsWrapper = "2.0.0"
     val dokka = "1.8.10"
     val koin = "3.4.0"
     val jsonAssert = "1.5.1"
@@ -104,6 +104,7 @@ object Libraries {
     val koin = "io.insert-koin:koin-core:${Versions.koin}"
     val bugsnag = "com.bugsnag:bugsnag:${Versions.bugsnag}"
     val kotlinProcess = "com.github.pgreze:kotlin-process:${Versions.kotlinProcess}"
+    val okhttp = "com.squareup.okhttp3:okhttp:${Versions.okhttp}"
 }
 
 object TestLibraries {
@@ -125,8 +126,4 @@ object TestLibraries {
     val testContainersJupiter = "org.testcontainers:junit-jupiter:${Versions.testContainers}"
     val testContainersInflux = "org.testcontainers:influxdb:${Versions.testContainers}"
     val adamServerStubJunit5 = "com.malinskiy.adam:server-stub-junit5:${Versions.adam}"
-}
-
-object Analytics {
-    val googleAnalyticsWrapper = "com.brsanthu:google-analytics-java:${Versions.googleAnalitycsWrapper}"
 }

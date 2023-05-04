@@ -9,6 +9,8 @@ import com.malinskiy.marathon.config.LogicalConfigurationValidator
 import com.malinskiy.marathon.config.MarathonRunCommand
 import com.malinskiy.marathon.config.ParseCommand
 import com.malinskiy.marathon.config.exceptions.ConfigurationException
+import com.malinskiy.marathon.config.vendor.VendorConfiguration
+import com.malinskiy.marathon.core.BuildConfig
 import com.malinskiy.marathon.device.DeviceProvider
 import com.malinskiy.marathon.exceptions.NoDevicesException
 import com.malinskiy.marathon.exceptions.NoTestCasesFoundException
@@ -28,9 +30,8 @@ import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.test.Test
 import com.malinskiy.marathon.test.toTestName
 import com.malinskiy.marathon.time.Timer
-import com.malinskiy.marathon.usageanalytics.TrackActionType
-import com.malinskiy.marathon.usageanalytics.UsageAnalytics
-import com.malinskiy.marathon.usageanalytics.tracker.Event
+import com.malinskiy.marathon.usageanalytics.Event
+import com.malinskiy.marathon.usageanalytics.tracker.UsageTracker
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.async
 import kotlinx.coroutines.runBlocking
@@ -53,7 +54,8 @@ class Marathon(
     private val analytics: Analytics,
     private val track: Track,
     private val timer: Timer,
-    private val marathonTestParseCommand: MarathonTestParseCommand
+    private val marathonTestParseCommand: MarathonTestParseCommand,
+    private val usageTracker: UsageTracker,
 ) {
     private val configurationValidator = LogicalConfigurationValidator()
     private val cleanedUp = AtomicBoolean(false)
@@ -63,7 +65,7 @@ class Marathon(
         logConfigurator.configure()
     }
 
-    fun run(executionCommand: ExecutionCommand = MarathonRunCommand) : Boolean = runBlocking {
+    fun run(executionCommand: ExecutionCommand = MarathonRunCommand): Boolean = runBlocking {
         try {
             supervisorScope {
                 val child = async {
@@ -99,7 +101,6 @@ class Marathon(
 
     suspend fun runAsync(executionCommand: ExecutionCommand = MarathonRunCommand): Boolean {
         configureLogging()
-        trackAnalytics(configuration)
 
         logSystemInformation()
         configurationValidator.validate(configuration)
@@ -121,8 +122,18 @@ class Marathon(
             }
         }
 
+        usageTracker.meta(
+            version = BuildConfig.VERSION, releaseMode = BuildConfig.RELEASE_MODE, vendor = when (configuration.vendorConfiguration) {
+                is VendorConfiguration.AndroidConfiguration -> "android"
+                is VendorConfiguration.EmptyVendorConfiguration -> "empty"
+                is VendorConfiguration.IOSConfiguration -> "ios"
+                VendorConfiguration.StubVendorConfiguration -> "testing"
+            }
+        )
+
         if (parsedAllTests.isEmpty()) throw NoTestCasesFoundException("No tests cases were found")
         val parsedFilteredTests = applyTestFilters(parsedAllTests)
+
         if (executionCommand is ParseCommand) {
             marathonTestParseCommand.execute(
                 tests = parsedFilteredTests,
@@ -131,6 +142,9 @@ class Marathon(
             stopKoin()
             return true
         }
+
+        usageTracker.trackEvent(Event.TestsTotal(parsedAllTests.size))
+        usageTracker.trackEvent(Event.TestsRun(parsedFilteredTests.size))
 
         val shard = prepareTestShard(parsedFilteredTests, analytics)
 
@@ -192,6 +206,7 @@ class Marathon(
             analytics.close()
             deviceProvider.terminate()
             tracker.close()
+            usageTracker.close()
         }
     }
 
@@ -209,17 +224,5 @@ class Marathon(
         val flakinessStrategy = configuration.flakinessStrategy.toFlakinessStrategy()
         val shard = shardingStrategy.createShard(tests)
         return flakinessStrategy.process(shard, analytics)
-    }
-
-    private fun trackAnalytics(configuration: Configuration) {
-        UsageAnalytics.USAGE_TRACKER.run {
-            trackEvent(Event(TrackActionType.VendorConfiguration, configuration.vendorConfiguration.javaClass.name))
-            trackEvent(Event(TrackActionType.PoolingStrategy, configuration.poolingStrategy.javaClass.name))
-            trackEvent(Event(TrackActionType.ShardingStrategy, configuration.shardingStrategy.javaClass.name))
-            trackEvent(Event(TrackActionType.SortingStrategy, configuration.sortingStrategy.javaClass.name))
-            trackEvent(Event(TrackActionType.RetryStrategy, configuration.retryStrategy.javaClass.name))
-            trackEvent(Event(TrackActionType.BatchingStrategy, configuration.batchingStrategy.javaClass.name))
-            trackEvent(Event(TrackActionType.FlakinessStrategy, configuration.flakinessStrategy.javaClass.name))
-        }
     }
 }

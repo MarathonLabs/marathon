@@ -313,13 +313,13 @@ marathon {
 
 ### Analytics tracking
 To better understand the use-cases that marathon is used for we're asking you to provide us with anonymised information about your usage. By
-default, this is disabled. Use **true** to enable.
+default, this is enabled. Use **false** to disable.
 
 <Tabs>
 <TabItem value="YAML" label="Marathonfile">
 
 ```yaml
-analyticsTracking: true
+analyticsTracking: false
 ```
 
 </TabItem>
@@ -327,7 +327,7 @@ analyticsTracking: true
 
 ```kotlin
 marathon {
-  analyticsTracking = true
+  analyticsTracking = false
 }
 ```
 
@@ -336,7 +336,7 @@ marathon {
 
 ```groovy
 marathon {
-  analyticsTracking = true
+  analyticsTracking = false
 }
 ```
 

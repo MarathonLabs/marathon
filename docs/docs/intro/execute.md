@@ -29,7 +29,7 @@ Usage: marathon run [OPTIONS]
 
 Options:
   -m, --marathonfile PATH    Marathonfile file path
-  --analyticsTracking VALUE  Enable anonymous analytics tracking
+  --analyticsTracking VALUE  Enable/Disable anonymous analytics tracking
   --bugsnag VALUE            Enable/Disable anonymous crash reporting. Enabled by default
   -h, --help                 Show this message and exit
 ```

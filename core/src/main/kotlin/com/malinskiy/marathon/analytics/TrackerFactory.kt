@@ -28,6 +28,7 @@ import com.malinskiy.marathon.report.test.TestJsonReporter
 import com.malinskiy.marathon.report.timeline.TimelineReporter
 import com.malinskiy.marathon.report.timeline.TimelineSummaryProvider
 import com.malinskiy.marathon.time.Timer
+import com.malinskiy.marathon.usageanalytics.tracker.UsageTracker
 import java.io.File
 
 internal class TrackerFactory(
@@ -35,7 +36,8 @@ internal class TrackerFactory(
     private val fileManager: FileManager,
     private val gson: Gson,
     private val timer: Timer,
-    private val track: Track
+    private val track: Track,
+    private val usageTracker: UsageTracker,
 ) {
 
     val log = MarathonLogging.logger("TrackerFactory")
@@ -89,7 +91,7 @@ internal class TrackerFactory(
         return ExecutionReportGenerator(
             listOf(
                 DeviceInfoJsonReporter(fileManager, gson),
-                BillingReporter(fileManager, gson),
+                BillingReporter(fileManager, gson, usageTracker),
                 JUnitReporter(configuration.outputDir),
                 TimelineReporter(TimelineSummaryProvider(), gson, configuration.outputDir),
                 RawJsonReporter(fileManager, gson),

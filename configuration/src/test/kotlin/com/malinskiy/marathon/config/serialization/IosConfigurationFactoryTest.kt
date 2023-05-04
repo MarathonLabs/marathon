@@ -45,7 +45,10 @@ class IosConfigurationFactoryTest {
         )
         registerModule(JavaTimeModule())
     }
-    private val parser: ConfigurationFactory = ConfigurationFactory(marathonfileDir = mockMarathonFileDir, mapper = mapper)
+    private val parser: ConfigurationFactory = ConfigurationFactory(
+        marathonfileDir = mockMarathonFileDir,
+        mapper = mapper,
+    )
 
     @Test
     fun `on config with ios vendor configuration should initialize a specific vendor configuration`() {

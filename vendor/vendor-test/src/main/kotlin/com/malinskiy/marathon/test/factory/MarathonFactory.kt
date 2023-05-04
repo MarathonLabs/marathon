@@ -46,7 +46,7 @@ class MarathonFactory {
                 val configuration = get<Configuration>()
                 MarathonTestParseCommand(configuration.outputDir)
             }
-            single { Marathon(get(), get(), get(), get(), get(), get(), get(), get(), get(), get()) }
+            single { Marathon(get(), get(), get(), get(), get(), get(), get(), get(), get(), get(), get()) }
         }
 
         val configurationModule = module {

@@ -43,6 +43,7 @@ class ConfigurationFactory(
         registerModule(JavaTimeModule())
     },
     private val environmentVariableSubstitutor: StringSubstitutor = StringSubstitutor(StringLookupFactory.INSTANCE.environmentVariableStringLookup()),
+    private val analyticsTracking: Boolean? = null,
 ) {
     fun parse(marathonfile: File): Configuration {
         val configWithEnvironmentVariablesReplaced = environmentVariableSubstitutor.replace(marathonfile.readText())
@@ -69,8 +70,13 @@ class ConfigurationFactory(
                         val resolvedApplication = it.application?.let { ddd -> marathonfileDir.resolve(ddd) }
                         val resolvedTestApplication = it.testApplication?.let { ddd -> marathonfileDir.resolve(ddd) }
                         val resolvedExtraApplications = it.extraApplications?.map { ddd -> marathonfileDir.resolve(ddd) }
-                        
-                        AppleTestBundleConfiguration(resolvedApplication, resolvedTestApplication,  resolvedExtraApplications, resolvedDerivedDataDir).apply { validate() }
+
+                        AppleTestBundleConfiguration(
+                            resolvedApplication,
+                            resolvedTestApplication,
+                            resolvedExtraApplications,
+                            resolvedDerivedDataDir
+                        ).apply { validate() }
                     }
                     val optionalDevices = configuration.vendorConfiguration.devicesFile?.resolveAgainst(marathonfileDir)
                         ?: marathonfileDir.resolve("Marathondevices")
@@ -89,7 +95,7 @@ class ConfigurationFactory(
                         authentication = optionalSshAuthentication,
                         knownHostsPath = optionalknownHostsPath,
                     )
-                    
+
                     configuration.vendorConfiguration.copy(
                         bundle = resolvedBundle,
                         devicesFile = optionalDevices,
@@ -101,7 +107,10 @@ class ConfigurationFactory(
                 is VendorConfiguration.EmptyVendorConfiguration -> throw ConfigurationException("No vendor configuration specified")
             }
 
-            return configuration.copy(vendorConfiguration = vendorConfiguration)
+            return configuration.copy(
+                vendorConfiguration = vendorConfiguration,
+                analyticsTracking = analyticsTracking ?: configuration.analyticsTracking
+            )
         } catch (e: JsonProcessingException) {
             throw ConfigurationException("Error parsing config file ${marathonfile.absolutePath}", e)
         }

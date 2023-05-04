@@ -1,9 +1,7 @@
 package com.malinskiy.marathon.gradle.task
 
 import com.android.build.api.variant.BuiltArtifacts
-import com.malinskiy.marathon.config.Configuration
 import com.malinskiy.marathon.config.serialization.ConfigurationFactory
-import com.malinskiy.marathon.config.vendor.VendorConfiguration
 import com.malinskiy.marathon.config.vendor.android.AndroidTestBundleConfiguration
 import com.malinskiy.marathon.gradle.GradleAndroidTestBundle
 import com.malinskiy.marathon.gradle.Const
@@ -69,7 +67,10 @@ open class GenerateMarathonfileTask @Inject constructor(objects: ObjectFactory) 
         }.build()
 
         // Write a Marathonfile
-        val configurationFactory = ConfigurationFactory(marathonfileDir = temporaryDir)
+        val configurationFactory = ConfigurationFactory(
+            marathonfileDir = temporaryDir,
+            analyticsTracking = cnf.analyticsTracking
+        )
         val yaml = configurationFactory.serialize(cnf)
         marathonfile.get().asFile.writeText(yaml)
     }
