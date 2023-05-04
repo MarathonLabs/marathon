@@ -123,7 +123,7 @@ class Marathon(
         }
 
         usageTracker.meta(
-            version = BuildConfig.VERSION, vendor = when (configuration.vendorConfiguration) {
+            version = BuildConfig.VERSION, releaseMode = BuildConfig.RELEASE_MODE, vendor = when (configuration.vendorConfiguration) {
                 is VendorConfiguration.AndroidConfiguration -> "android"
                 is VendorConfiguration.EmptyVendorConfiguration -> "empty"
                 is VendorConfiguration.IOSConfiguration -> "ios"

@@ -19,8 +19,9 @@ class GrafanaCloud : UsageTracker {
         accumulator.add(event)
     }
 
-    override fun meta(version: String, vendor: String) {
+    override fun meta(version: String, vendor: String, releaseMode: String) {
         tags["version"] = version
+        tags["releaseMode"] = releaseMode
         tags["vendor"] = vendor
         tags["id"] = UUID.randomUUID().toString()
     }
