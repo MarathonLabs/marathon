@@ -1,6 +1,7 @@
 package com.malinskiy.marathon.test.factory
 
 import com.google.gson.Gson
+import com.google.gson.GsonBuilder
 import com.malinskiy.marathon.Marathon
 import com.malinskiy.marathon.config.Configuration
 import com.malinskiy.marathon.device.DeviceProvider
@@ -10,6 +11,7 @@ import com.malinskiy.marathon.execution.bundle.TestBundleIdentifier
 import com.malinskiy.marathon.execution.command.parse.MarathonTestParseCommand
 import com.malinskiy.marathon.execution.progress.ProgressReporter
 import com.malinskiy.marathon.io.FileManager
+import com.malinskiy.marathon.json.FileSerializer
 import com.malinskiy.marathon.log.MarathonLogConfigurator
 import com.malinskiy.marathon.test.Mocks
 import com.malinskiy.marathon.test.StubDeviceProvider
@@ -18,6 +20,7 @@ import com.malinskiy.marathon.time.Timer
 import com.nhaarman.mockitokotlin2.mock
 import org.koin.core.context.startKoin
 import org.koin.dsl.module
+import java.io.File
 import java.time.Clock
 
 class MarathonFactory {
@@ -39,7 +42,10 @@ class MarathonFactory {
                 val configuration = get<Configuration>()
                 FileManager(configuration.outputConfiguration.maxPath, configuration.outputDir)
             }
-            single { Gson() }
+            single { GsonBuilder()
+                .registerTypeAdapter(File::class.java, FileSerializer())
+                .create()
+            }
             single<Clock> { Clock.systemDefaultZone() }
             single { timer ?: SystemTimer(get()) }
             single {
