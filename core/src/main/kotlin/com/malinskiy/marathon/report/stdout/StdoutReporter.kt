@@ -3,7 +3,7 @@ package com.malinskiy.marathon.report.stdout
 import com.malinskiy.marathon.analytics.internal.sub.ExecutionReport
 import com.malinskiy.marathon.report.Reporter
 import com.malinskiy.marathon.time.Timer
-import java.util.concurrent.TimeUnit
+import org.apache.commons.lang3.time.DurationFormatUtils
 
 class StdoutReporter(private val timer: Timer) : Reporter {
     override fun generate(executionReport: ExecutionReport) {
@@ -22,7 +22,7 @@ class StdoutReporter(private val timer: Timer) : Reporter {
                     .forEach { testName -> cliReportBuilder.appendLine("\t\t$testName") }
             }
 
-            cliReportBuilder.appendLine("\tFlakiness overhead: ${poolSummary.rawDurationMillis - poolSummary.durationMillis}ms")
+            cliReportBuilder.appendLine("\tFlakiness overhead: ${formatDuration(poolSummary.rawDurationMillis - poolSummary.durationMillis)}$")
             cliReportBuilder.appendLine("\tRaw: ${poolSummary.rawPassed.size} passed, ${poolSummary.rawFailed.size} failed, ${poolSummary.rawIgnored.size} ignored, ${poolSummary.rawIncomplete.size} incomplete tests")
 
             if(poolSummary.rawFailed.isNotEmpty()){
@@ -47,12 +47,10 @@ class StdoutReporter(private val timer: Timer) : Reporter {
                         }
             }
         }
-
-        val hours = TimeUnit.MILLISECONDS.toHours(timer.elapsedTimeMillis)
-        val minutes = TimeUnit.MILLISECONDS.toMinutes(timer.elapsedTimeMillis) % 60
-        val seconds = TimeUnit.MILLISECONDS.toSeconds(timer.elapsedTimeMillis) % 60
-        cliReportBuilder.appendLine("Total time: ${hours}H ${minutes}m ${seconds}s")
+        cliReportBuilder.appendLine("Total time: ${formatDuration(timer.elapsedTimeMillis)}")
 
         println(cliReportBuilder)
     }
+
+    private fun formatDuration(millis: Long) = if(millis > 0) DurationFormatUtils.formatDuration(millis, "H'H' mm'm' ss's'") else "0s"
 }
