@@ -52,5 +52,5 @@ class StdoutReporter(private val timer: Timer) : Reporter {
         println(cliReportBuilder)
     }
 
-    private fun formatDuration(millis: Long) = DurationFormatUtils.formatDuration(millis, "H'H' mm'm' ss's'")
+    private fun formatDuration(millis: Long) = if(millis > 0) DurationFormatUtils.formatDuration(millis, "H'H' mm'm' ss's'") else "0s"
 }
