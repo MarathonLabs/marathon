@@ -12,3 +12,4 @@ can [add it in a PR!](https://github.com/MarathonLabs/marathon/edit/develop/ADOP
 * [Wink](https://wink.ru)
 * [VTB](https://www.vtb.ru)
 * [CFT](https://www.cft.ru)
+* [DM-TECH](https://dmtech.team)
