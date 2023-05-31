@@ -44,9 +44,10 @@ name: "My application"
 outputDir: "derived-data/Marathon"
 testClassRegexes: ["^((?!Abstract).)*Tests$"]
 vendorConfiguration:
+  type: "iOS"
   bundle:
-    application: "build/my.app"
-    testApplication: "build/my.xctest"
+    application: "sample.app"
+    testApplication: "sampleUITests.xctest"
     testType: xcuitest
 ```
 
