@@ -44,9 +44,10 @@ name: "My application"
 outputDir: "derived-data/Marathon"
 testClassRegexes: ["^((?!Abstract).)*Tests$"]
 vendorConfiguration:
-  type: "iOS"
-  application: "build/my.app"
-  testApplication: "build/my.xctest"
+  bundle:
+    application: "build/my.app"
+    testApplication: "build/my.xctest"
+    testType: xcuitest
 ```
 
 </TabItem>
