@@ -152,6 +152,6 @@ class ScreenRecorderTestBatchListener(
 
 private suspend fun AndroidDevice.verifyHealthy(): Boolean {
     return withTimeoutOrNull(Duration.ofSeconds(10)) {
-        executeShellCommand("echo quickhealthcheck")?.let { it.contains("quickhealthcheck") } ?: false
+        executeShellCommand("echo quickhealthcheck")?.output?.let { it.contains("quickhealthcheck") } ?: false
     } ?: false
 }

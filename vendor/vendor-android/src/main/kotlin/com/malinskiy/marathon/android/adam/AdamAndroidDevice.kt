@@ -38,6 +38,7 @@ import com.malinskiy.marathon.android.AndroidAppInstaller
 import com.malinskiy.marathon.android.AndroidTestBundleIdentifier
 import com.malinskiy.marathon.android.BaseAndroidDevice
 import com.malinskiy.marathon.android.RemoteFileManager
+import com.malinskiy.marathon.android.adam.extension.toShellResult
 import com.malinskiy.marathon.android.exception.CommandRejectedException
 import com.malinskiy.marathon.android.exception.InstallException
 import com.malinskiy.marathon.exceptions.TransferException
@@ -70,6 +71,7 @@ import java.awt.image.BufferedImage
 import java.io.File
 import java.time.Duration
 import kotlin.coroutines.CoroutineContext
+import com.malinskiy.marathon.android.model.ShellCommandResult as MarathonShellCommandResult
 
 class AdamAndroidDevice(
     internal val client: AndroidDebugBridgeClient,
@@ -118,19 +120,19 @@ class AdamAndroidDevice(
 
     private var props: Map<String, String> = emptyMap()
 
-    override suspend fun executeShellCommand(command: String, errorMessage: String): String? {
+    override suspend fun executeShellCommand(command: String, errorMessage: String): MarathonShellCommandResult? {
         return try {
-            return client.execute(ShellCommandRequest(command), serial = adbSerial).output
+            return client.execute(ShellCommandRequest(command), serial = adbSerial).toShellResult()
         } catch (e: Exception) {
             logger.error(errorMessage, e)
             null
         }
     }
 
-    override suspend fun safeExecuteShellCommand(command: String, errorMessage: String): String? {
+    override suspend fun safeExecuteShellCommand(command: String, errorMessage: String): MarathonShellCommandResult? {
         return try {
             withTimeoutOrNull(androidConfiguration.timeoutConfiguration.shell) {
-                client.execute(ShellCommandRequest(command), serial = adbSerial).output
+                client.execute(ShellCommandRequest(command), serial = adbSerial).toShellResult()
             }
         } catch (e: Exception) {
             logger.error(errorMessage, e)
@@ -138,9 +140,9 @@ class AdamAndroidDevice(
         }
     }
 
-    override suspend fun criticalExecuteShellCommand(command: String, errorMessage: String): String {
+    override suspend fun criticalExecuteShellCommand(command: String, errorMessage: String): MarathonShellCommandResult {
         return withTimeoutOrNull(androidConfiguration.timeoutConfiguration.shell) {
-            client.execute(ShellCommandRequest(command), serial = adbSerial).output
+            client.execute(ShellCommandRequest(command), serial = adbSerial).toShellResult()
         } ?: throw CommandRejectedException(errorMessage)
     }
 
@@ -271,13 +273,13 @@ class AdamAndroidDevice(
         } ?: logger.warn { "Pushing $localFolderPath timed out. Ignoring" }
     }
 
-    override suspend fun safeUninstallPackage(appPackage: String, keepData: Boolean): String? {
+    override suspend fun safeUninstallPackage(appPackage: String, keepData: Boolean): MarathonShellCommandResult? {
         return withTimeoutOrNull(androidConfiguration.timeoutConfiguration.uninstall) {
-            client.execute(UninstallRemotePackageRequest(appPackage, keepData = keepData), serial = adbSerial).output
+            client.execute(UninstallRemotePackageRequest(appPackage, keepData = keepData), serial = adbSerial).toShellResult()
         }
     }
 
-    override suspend fun installPackage(absolutePath: String, reinstall: Boolean, optionalParams: List<String>): String? {
+    override suspend fun installPackage(absolutePath: String, reinstall: Boolean, optionalParams: List<String>): MarathonShellCommandResult {
         val file = File(absolutePath)
         //Very simple escaping for the name of the file
         val fileName = file.name.escape()
@@ -302,10 +304,10 @@ class AdamAndroidDevice(
         } ?: throw InstallException("Timeout transferring $absolutePath")
 
         safeExecuteShellCommand("rm $remotePath")
-        return result.output.trim()
+        return com.malinskiy.marathon.android.model.ShellCommandResult(result.output.trim(), result.exitCode)
     }
 
-    override suspend fun installSplitPackages(absolutePaths: List<String>, reinstall: Boolean, optionalParams: List<String>): String? {
+    override suspend fun installSplitPackages(absolutePaths: List<String>, reinstall: Boolean, optionalParams: List<String>): String {
         return withTimeoutOrNull(androidConfiguration.timeoutConfiguration.install) {
             val files = absolutePaths.map { File(it) }
             client.execute(

@@ -13,6 +13,7 @@ import com.malinskiy.marathon.android.executor.listeners.filesync.FileSyncTestRu
 import com.malinskiy.marathon.android.executor.listeners.screenshot.AdamScreenCaptureTestRunListener
 import com.malinskiy.marathon.android.executor.listeners.screenshot.ScreenCapturerTestRunListener
 import com.malinskiy.marathon.android.executor.listeners.video.ScreenRecorderTestBatchListener
+import com.malinskiy.marathon.android.model.ShellCommandResult
 import com.malinskiy.marathon.device.screenshot.Rotation
 import com.malinskiy.marathon.config.Configuration
 import com.malinskiy.marathon.config.ScreenRecordingPolicy
@@ -96,7 +97,7 @@ abstract class BaseAndroidDevice(
         manufacturer = getProperty("ro.product.manufacturer") ?: "Unknown"
         initialRotation = fetchRotation()
 
-        externalStorageMount = safeExecuteShellCommand("echo \$EXTERNAL_STORAGE")?.trim {
+        externalStorageMount = safeExecuteShellCommand("echo \$EXTERNAL_STORAGE")?.output?.trim {
             when (it) {
                 '\n' -> true
                 '\r' -> true
@@ -188,7 +189,7 @@ abstract class BaseAndroidDevice(
     }
 
 
-    override suspend fun safeClearPackage(packageName: String): String? =
+    override suspend fun safeClearPackage(packageName: String): ShellCommandResult? =
         safeExecuteShellCommand("pm clear $packageName", "Could not clear package $packageName on device: $serialNumber")
 
     protected suspend fun clearLogcat() = safeExecuteShellCommand("logcat -c", "Could not clear logcat on device: $serialNumber")
@@ -200,7 +201,7 @@ abstract class BaseAndroidDevice(
         if (md5.isNotEmpty() && md5cmd.isNotEmpty()) {
             val syncTimeMillis = measureTimeMillis {
                 do {
-                    val remoteMd5 = safeExecuteShellCommand("$md5cmd $remotePath") ?: ""
+                    val remoteMd5 = safeExecuteShellCommand("$md5cmd $remotePath")?.output ?: ""
                     delay(10)
                 } while (!remoteMd5.contains(md5))
             }
@@ -211,9 +212,7 @@ abstract class BaseAndroidDevice(
     }
 
     private suspend fun hasBinary(path: String): Boolean {
-        val output = safeExecuteShellCommand("ls $path")
-        val value: String = output?.trim { it <= ' ' } ?: return false
-        return !value.endsWith("No such file or directory")
+        return safeExecuteShellCommand("ls $path")?.exitCode == 0
     }
 
     private suspend fun waitForBoot(): Boolean {
@@ -328,7 +327,7 @@ abstract class BaseAndroidDevice(
     }
 
     private suspend fun fetchRotation() =
-        safeExecuteShellCommand("dumpsys input")?.let { dumpsysOutput ->
+        safeExecuteShellCommand("dumpsys input")?.output?.let { dumpsysOutput ->
             val start = dumpsysOutput.indexOf("SurfaceOrientation")
             if (start == -1) {
                 return@let null
