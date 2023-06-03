@@ -36,23 +36,15 @@ internal class BillingReporter(
             }
         }
 
-        val ends = mutableMapOf<String, Instant>();
-        executionReport.deviceDisconnectedEvents.forEach {
-            if (ends.contains(it.device.serialNumber)) {
-                //Only replace if event instant is after current one
-                if (ends[it.device.serialNumber]?.isBefore(it.instant) == true) {
-                    ends[it.device.serialNumber] = it.instant
-                }
-            } else {
-                ends[it.device.serialNumber] = it.instant
-            }
+        val testEventsByDeviceSerial = executionReport.testEvents.groupBy { it.device.serialNumber }
+        val ends = testEventsByDeviceSerial.mapValues { deviceEvents ->
+            deviceEvents.value.maxByOrNull { it.instant }?.instant
         }
 
-        val defaultEnd = Instant.now()
         val serials = starts.keys + ends.keys
         val bills: List<DeviceBill> = serials.mapNotNull {
             val start = starts[it] ?: defaultStart
-            val end = ends[it] ?: defaultEnd
+            val end = ends[it] ?: return@mapNotNull null
             val info = devices[it]
             val pool = pools[it]
             if (info != null && pool != null) {
