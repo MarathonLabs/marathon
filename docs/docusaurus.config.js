@@ -19,7 +19,15 @@ const config = {
 
     i18n: {
         defaultLocale: 'en',
-        locales: ['en'],
+        locales: ['en', 'zh'],
+        localeConfigs: {
+            en: {
+                htmlLang: 'en-US',
+            },
+            zh: {
+                htmlLang: 'zh_CN',
+            },
+        },
     },
 
     markdown: {
@@ -66,15 +74,15 @@ const config = {
                     ]
                 },
                 gtag: {
-                  trackingID: 'G-7RE7PPY2QW',
-                  anonymizeIP: false,
+                    trackingID: 'G-7RE7PPY2QW',
+                    anonymizeIP: false,
                 },
             },
         ],
     ],
 
     themeConfig:
-    /** @type {import('@docusaurus/preset-classic').ThemeConfig} */
+        /** @type {import('@docusaurus/preset-classic').ThemeConfig} */
         ({
 
             colorMode: {
@@ -97,6 +105,10 @@ const config = {
                         position: 'right',
                         dropdownActiveClassDisabled: true,
                         className: 'navbar__dropdown--versions',
+                    },
+                    {
+                        type: 'localeDropdown',
+                        position: 'right',
                     },
                     {
                         type: 'search',
