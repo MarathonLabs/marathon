@@ -69,6 +69,16 @@ const sidebars = {
                 'ios/examples',
             ],
         },
+        {
+            type: 'category',
+            label: 'Cloud',
+            collapsed: false,
+            items: [
+                'cloud',
+                'cloud/android_run',
+                'cloud/ios_run'
+            ],
+        },
     ],
 };
 
