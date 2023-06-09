@@ -67,13 +67,13 @@ class AndroidAppInstaller(configuration: Configuration) {
             try {
                 if (installed(device, appPackage)) {
                     logger.info("Uninstalling $appPackage from ${device.serialNumber}")
-                    val uninstallMessage = device.safeUninstallPackage(appPackage)?.trim()
+                    val uninstallMessage = device.safeUninstallPackage(appPackage)?.output?.trim()
                     uninstallMessage?.let { logger.debug { it } }
                 }
                 logger.info("Installing $appPackage, ${absolutePaths.joinToString()} to ${device.serialNumber}")
 
                 val installMessage = when {
-                    splitApks.isEmpty() -> device.installPackage(applicationApk.absolutePath, true, optionalParams(device))?.trim()
+                    splitApks.isEmpty() -> device.installPackage(applicationApk.absolutePath, true, optionalParams(device))?.output?.trim()
                     else -> device.installSplitPackages(absolutePaths, true, optionalParams(device))
                 }
                 installMessage?.let { logger.debug { it } }
@@ -91,7 +91,7 @@ class AndroidAppInstaller(configuration: Configuration) {
      * @throws DeviceSetupException if unable to verify
      */
     private suspend fun installed(device: AndroidDevice, appPackage: String): Boolean {
-        val lines = device.safeExecuteShellCommand("pm list packages")?.lines()
+        val lines = device.safeExecuteShellCommand("pm list packages")?.output?.lines()
             ?: throw DeviceSetupException("Unable to verify that package $appPackage is installed")
         return lines.any { it == "package:$appPackage" }
     }
