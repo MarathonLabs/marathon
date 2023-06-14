@@ -3,48 +3,38 @@ package com.malinskiy.marathon.config.vendor
 
 import com.malinskiy.marathon.config.exceptions.ConfigurationException
 import com.malinskiy.marathon.config.serialization.ConfigurationFactory
-import com.malinskiy.marathon.config.serialization.yaml.FileListProvider
+import com.malinskiy.marathon.config.serialization.ConfigurationFactoryTest
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldThrow
 import org.junit.jupiter.api.Test
 import java.io.File
+import kotlin.io.path.createTempDirectory
 
 class IOSConfigurationTest {
-    val mockMarathonFileDir = File("")
-    val mockXctestrunFile = File("Build/uitesting.xctestrun")
-    var mockDerivedDataFiles = { emptySequence<File>() }
-    val mockFileListProvider = object : FileListProvider {
-        override fun fileList(root: File): Iterable<File> = mockDerivedDataFiles().asIterable()
-    }
+    private val mockMarathonFileDir = File(ConfigurationFactoryTest::class.java.getResource("/fixture/config/ios").file)
+    val mockXctestFile = File(ConfigurationFactoryTest::class.java.getResource("/fixture/config/ios/derivedDataDir/ui.xctest").file)
 
     @Test
-    fun `when xctestrun is not specified should search for such file under derived data folder`() {
-        mockDerivedDataFiles =
-            { sequenceOf(File("."), mockXctestrunFile, File("runner.app")) }
-
+    fun `when applications are not specified should search for them under derived data folder`() {
         val marathonfile = File(IOSConfigurationTest::class.java.getResource("/fixture/config/ios/sample_1.yaml").file)
         val configurationFactory = ConfigurationFactory(
             marathonfileDir = mockMarathonFileDir,
-            fileListProvider = mockFileListProvider,
         )
 
         val configuration = configurationFactory.parse(marathonfile)
-        (configuration.vendorConfiguration as VendorConfiguration.IOSConfiguration).xctestrunPath shouldBeEqualTo mockXctestrunFile
+        (configuration.vendorConfiguration as VendorConfiguration.IOSConfiguration).bundle?.xctest shouldBeEqualTo mockXctestFile
     }
 
     @Test
-    fun `when xctestrun is not specified should throw an exception if such file is not available`() {
-        mockDerivedDataFiles = { sequenceOf(File("."), File("runner.app")) }
-
+    fun `when xctest is not specified should throw an exception if such file is not available`() {
         val thrower = {
             val marathonfile = File(IOSConfigurationTest::class.java.getResource("/fixture/config/ios/sample_1.yaml").file)
             val configurationFactory = ConfigurationFactory(
-                marathonfileDir = mockMarathonFileDir,
-                fileListProvider = mockFileListProvider,
+                marathonfileDir = createTempDirectory("xctest").toFile(),
             )
 
             val configuration = configurationFactory.parse(marathonfile)
-            (configuration.vendorConfiguration as VendorConfiguration.IOSConfiguration).xctestrunPath shouldBeEqualTo mockXctestrunFile
+            (configuration.vendorConfiguration as VendorConfiguration.IOSConfiguration).bundle?.xctest shouldBeEqualTo mockXctestFile
         }
 
         thrower shouldThrow ConfigurationException::class

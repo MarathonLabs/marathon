@@ -6,35 +6,44 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
 import com.fasterxml.jackson.dataformat.yaml.YAMLGenerator
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
+import com.fasterxml.jackson.module.kotlin.KotlinFeature
 import com.fasterxml.jackson.module.kotlin.KotlinModule
-import com.fasterxml.jackson.module.kotlin.SingletonSupport
 import com.malinskiy.marathon.config.Configuration
 import com.malinskiy.marathon.config.environment.EnvironmentReader
 import com.malinskiy.marathon.config.environment.SystemEnvironmentReader
 import com.malinskiy.marathon.config.exceptions.ConfigurationException
 import com.malinskiy.marathon.config.serialization.time.InstantTimeProviderImpl
-import com.malinskiy.marathon.config.serialization.yaml.DerivedDataFileListProvider
-import com.malinskiy.marathon.config.serialization.yaml.FileListProvider
 import com.malinskiy.marathon.config.serialization.yaml.SerializeModule
 import com.malinskiy.marathon.config.vendor.VendorConfiguration
+import com.malinskiy.marathon.config.vendor.ios.AppleTestBundleConfiguration
+import com.malinskiy.marathon.config.vendor.ios.SshAuthentication
 import org.apache.commons.text.StringSubstitutor
 import org.apache.commons.text.lookup.StringLookupFactory
 import java.io.File
 
 class ConfigurationFactory(
     private val marathonfileDir: File,
-    private val fileListProvider: FileListProvider = DerivedDataFileListProvider,
     private val environmentReader: EnvironmentReader = SystemEnvironmentReader(),
     private val mapper: ObjectMapper = ObjectMapper(
         YAMLFactory()
             .disable(YAMLGenerator.Feature.USE_NATIVE_TYPE_ID)
     ).apply {
         setSerializationInclusion(JsonInclude.Include.NON_NULL)
-        registerModule(SerializeModule(InstantTimeProviderImpl(), environmentReader, marathonfileDir, fileListProvider))
-        registerModule(KotlinModule(singletonSupport = SingletonSupport.CANONICALIZE))
+        registerModule(SerializeModule(InstantTimeProviderImpl(), marathonfileDir))
+        registerModule(
+            KotlinModule.Builder()
+                .withReflectionCacheSize(512)
+                .configure(KotlinFeature.NullToEmptyCollection, false)
+                .configure(KotlinFeature.NullToEmptyMap, false)
+                .configure(KotlinFeature.NullIsSameAsDefault, false)
+                .configure(KotlinFeature.SingletonSupport, true)
+                .configure(KotlinFeature.StrictNullChecks, false)
+                .build()
+        )
         registerModule(JavaTimeModule())
     },
     private val environmentVariableSubstitutor: StringSubstitutor = StringSubstitutor(StringLookupFactory.INSTANCE.environmentVariableStringLookup()),
+    private val analyticsTracking: Boolean? = null,
 ) {
     fun parse(marathonfile: File): Configuration {
         val configWithEnvironmentVariablesReplaced = environmentVariableSubstitutor.replace(marathonfile.readText())
@@ -52,31 +61,56 @@ class ConfigurationFactory(
                         configuration.vendorConfiguration
                     }
                 }
+
                 is VendorConfiguration.IOSConfiguration -> {
                     // Any relative path specified in Marathonfile should be resolved against the directory Marathonfile is in
-                    val resolvedDerivedDataDir = marathonfileDir.resolve(configuration.vendorConfiguration.derivedDataDir)
-                    val finalXCTestRunPath = configuration.vendorConfiguration.xctestrunPath?.resolveAgainst(marathonfileDir)
-                        ?: fileListProvider
-                            .fileList(resolvedDerivedDataDir)
-                            .firstOrNull { it.extension == "xctestrun" }
-                        ?: throw ConfigurationException("Unable to find an xctestrun file in derived data folder")
-                    val optionalSourceRoot = configuration.vendorConfiguration.sourceRoot.resolveAgainst(marathonfileDir)
+                    val iosConfiguration: VendorConfiguration.IOSConfiguration = configuration.vendorConfiguration
+                    val resolvedBundle = iosConfiguration.bundle?.let {
+                        val resolvedDerivedDataDir = it.derivedDataDir?.let { ddd -> marathonfileDir.resolve(ddd) }
+                        val resolvedApplication = it.application?.let { ddd -> marathonfileDir.resolve(ddd) }
+                        val resolvedTestApplication = it.testApplication?.let { ddd -> marathonfileDir.resolve(ddd) }
+                        val resolvedExtraApplications = it.extraApplications?.map { ddd -> marathonfileDir.resolve(ddd) }
+
+                        AppleTestBundleConfiguration(
+                            resolvedApplication,
+                            resolvedTestApplication,
+                            resolvedExtraApplications,
+                            resolvedDerivedDataDir
+                        ).apply { validate() }
+                    }
                     val optionalDevices = configuration.vendorConfiguration.devicesFile?.resolveAgainst(marathonfileDir)
                         ?: marathonfileDir.resolve("Marathondevices")
-                    val optionalKnownHostsPath = configuration.vendorConfiguration.knownHostsPath?.resolveAgainst(marathonfileDir)
+
+                    val optionalknownHostsPath = iosConfiguration.ssh.knownHostsPath?.resolveAgainst(marathonfileDir)
+                    val optionalSshAuthentication = when (iosConfiguration.ssh.authentication) {
+                        is SshAuthentication.PasswordAuthentication -> iosConfiguration.ssh.authentication
+                        is SshAuthentication.PublicKeyAuthentication -> iosConfiguration.ssh.authentication.copy(
+                            username = iosConfiguration.ssh.authentication.username,
+                            key = iosConfiguration.ssh.authentication.key.resolveAgainst(marathonfileDir)
+                        )
+
+                        null -> null
+                    }
+                    val optionalSshConfiguration = iosConfiguration.ssh.copy(
+                        authentication = optionalSshAuthentication,
+                        knownHostsPath = optionalknownHostsPath,
+                    )
 
                     configuration.vendorConfiguration.copy(
-                        derivedDataDir = resolvedDerivedDataDir,
-                        xctestrunPath = finalXCTestRunPath,
-                        sourceRoot = optionalSourceRoot,
+                        bundle = resolvedBundle,
                         devicesFile = optionalDevices,
-                        knownHostsPath = optionalKnownHostsPath,
+                        ssh = optionalSshConfiguration,
                     )
                 }
+
                 VendorConfiguration.StubVendorConfiguration -> configuration.vendorConfiguration
+                is VendorConfiguration.EmptyVendorConfiguration -> throw ConfigurationException("No vendor configuration specified")
             }
 
-            return configuration.copy(vendorConfiguration = vendorConfiguration)
+            return configuration.copy(
+                vendorConfiguration = vendorConfiguration,
+                analyticsTracking = analyticsTracking ?: configuration.analyticsTracking
+            )
         } catch (e: JsonProcessingException) {
             throw ConfigurationException("Error parsing config file ${marathonfile.absolutePath}", e)
         }

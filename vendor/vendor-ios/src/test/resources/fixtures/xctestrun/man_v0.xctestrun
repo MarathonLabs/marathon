@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple Computer//DTD PLIST 1.0//EN"
+"http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+     <key>TestTargetName</key>
+     <dict>
+          <key>TestBundlePath</key>
+          <string>__TESTHOST__/PlugIns/Tests.xctest</string>
+          <key>TestHostPath</key>
+          <string>__TESTROOT__/App-Runner.app</string>
+          <key>UITargetAppPath</key>
+          <string>__TESTROOT__/Target.app</string>
+          <key>TestingEnvironmentVariables</key>
+          <dict>
+    <key>DYLD_FRAMEWORK_PATH</key>
+    <string>__TESTROOT__:__PLATFORMS__/iPhoneOS.platform/Developer/Library/Frameworks</string>
+    <key>DYLD_LIBRARY_PATH</key>
+    <string>__TESTROOT__:__PLATFORMS__/iPhoneOS.platform/Developer/Library/Frameworks</string>
+    <key>XCODE_DBG_XPC_EXCLUSIONS</key>
+    <string>com.apple.dt.xctestSymbolicator</string>
+          </dict>
+     </dict>
+</dict>
+</plist>

@@ -1,7 +1,6 @@
 package com.example
 
 import androidx.test.ext.junit.rules.ActivityScenarioRule
-import androidx.test.rule.ActivityTestRule
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test

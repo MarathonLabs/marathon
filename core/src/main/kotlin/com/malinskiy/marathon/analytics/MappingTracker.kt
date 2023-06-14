@@ -2,6 +2,7 @@ package com.malinskiy.marathon.analytics
 
 import com.malinskiy.marathon.analytics.internal.pub.Tracker
 import com.malinskiy.marathon.analytics.internal.sub.DeviceConnectedEvent
+import com.malinskiy.marathon.analytics.internal.sub.DeviceDisconnectedEvent
 import com.malinskiy.marathon.analytics.internal.sub.DevicePreparingEvent
 import com.malinskiy.marathon.analytics.internal.sub.DeviceProviderPreparingEvent
 import com.malinskiy.marathon.analytics.internal.sub.TestEvent
@@ -14,6 +15,10 @@ import java.time.Instant
 class MappingTracker(private val trackerInternal: TrackerInternal) : Tracker {
     override fun deviceConnected(poolId: DevicePoolId, device: DeviceInfo) {
         trackerInternal.track(DeviceConnectedEvent(Instant.now(), poolId, device))
+    }
+
+    override fun deviceDisconnected(poolId: DevicePoolId, device: DeviceInfo) {
+        trackerInternal.track(DeviceDisconnectedEvent(Instant.now(), poolId, device))
     }
 
     override fun deviceProviderInit(serialNumber: String, startTime: Instant, finishTime: Instant) {

@@ -7,7 +7,7 @@ import com.google.gson.JsonSerializer
 import java.io.File
 import java.lang.reflect.Type
 
-internal class FileSerializer : JsonSerializer<File> {
+class FileSerializer : JsonSerializer<File> {
     override fun serialize(src: File, typeOfSrc: Type?, context: JsonSerializationContext?): JsonElement {
         return JsonPrimitive(src.absolutePath)
     }

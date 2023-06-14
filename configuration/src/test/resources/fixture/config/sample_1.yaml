@@ -68,8 +68,9 @@ excludeSerialRegexes:
   - "emulator-5002"
 ignoreFailures: false
 isCodeCoverageEnabled: false
-fallbackToScreenshots: false
-strictMode: true
+executionStrategy:
+  mode: ANY_SUCCESS
+  fast: true
 testBatchTimeoutMillis: 20000
 testOutputTimeoutMillis: 30000
 debug: true
@@ -80,6 +81,8 @@ vendorConfiguration:
   androidSdk: "/local/android"
   applicationApk: "kotlin-buildscript/build/outputs/apk/debug/kotlin-buildscript-debug.apk"
   testApplicationApk: "kotlin-buildscript/build/outputs/apk/androidTest/debug/kotlin-buildscript-debug-androidTest.apk"
+  splitApks:
+    - "kotlin-buildscript/build/outputs/apk/androidTest/debug/kotlin-buildscript-split-debug.apk"
   autoGrantPermission: true
   applicationPmClear: true
   testApplicationPmClear: true

@@ -27,6 +27,10 @@ class Track : Tracker {
         delegates.forEach { it.deviceConnected(poolId, device) }
     }
 
+    override fun deviceDisconnected(poolId: DevicePoolId, device: DeviceInfo) {
+        delegates.forEach { it.deviceDisconnected(poolId, device) }
+    }
+
     override fun test(poolId: DevicePoolId, device: DeviceInfo, testResult: TestResult, final: Boolean) {
         delegates.forEach { it.test(poolId, device, testResult, final) }
     }

@@ -18,10 +18,6 @@ analyticsConfiguration:
 #  maxCount: 3
 #  timeLimit: "-PT1H"
 screenRecordingPolicy: "ON_ANY"
-filteringConfiguration:
-  allowlist:
-    - type: "fully-qualified-test-name"
-      file: "Marathonfilter"
 vendorConfiguration:
   type: "Android"
   applicationApk: "app/build/outputs/apk/debug/app-debug.apk"
@@ -35,7 +31,7 @@ vendorConfiguration:
   applicationPmClear: true
   testApplicationPmClear: true
   waitForDevicesTimeoutMillis: 60000
-  # See https://marathonlabs.github.io/marathon/ven/android.html#test-parser before copy-pasting this
+  # See https://docs.marathonlabs.io/android/configure#test-parser before copy-pasting this
   testParserConfiguration:
     type: "remote"
     instrumentationArgs:
@@ -50,11 +46,11 @@ vendorConfiguration:
     - path: "fixtures/external-folder"
   allureConfiguration:
     enabled: true
-  # See https://marathonlabs.github.io/marathon/ven/android.html#test-access-configuration before copy-pasting this
+  # See https://docs.marathonlabs.io/android/configure#test-access-configuration before copy-pasting this
   testAccessConfiguration:
     adb: true
     grpc: true
     console: true
 deviceInitializationTimeoutMillis: 180000
-uncompletedTestRetryQuota: 3
+uncompletedTestRetryQuota: 1
 debug: true

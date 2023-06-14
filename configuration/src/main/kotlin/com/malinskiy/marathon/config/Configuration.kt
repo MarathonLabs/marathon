@@ -2,6 +2,7 @@ package com.malinskiy.marathon.config
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import com.malinskiy.marathon.config.strategy.BatchingStrategyConfiguration
+import com.malinskiy.marathon.config.strategy.ExecutionStrategyConfiguration
 import com.malinskiy.marathon.config.strategy.FlakinessStrategyConfiguration
 import com.malinskiy.marathon.config.strategy.PoolingStrategyConfiguration
 import com.malinskiy.marathon.config.strategy.RetryStrategyConfiguration
@@ -18,7 +19,7 @@ private const val DEFAULT_DEVICE_INITIALIZATION_TIMEOUT_MILLIS = 180_000L
 data class Configuration private constructor(
     val name: String,
     val outputDir: File,
-    
+
     val outputConfiguration: OutputConfiguration,
 
     val analyticsConfiguration: AnalyticsConfiguration,
@@ -31,9 +32,8 @@ data class Configuration private constructor(
     val filteringConfiguration: FilteringConfiguration,
 
     val ignoreFailures: Boolean,
+    val executionStrategy: ExecutionStrategyConfiguration,
     val isCodeCoverageEnabled: Boolean,
-    val fallbackToScreenshots: Boolean,
-    val strictMode: Boolean,
     val uncompletedTestRetryQuota: Int,
 
     val testClassRegexes: Collection<Regex>,
@@ -66,8 +66,7 @@ data class Configuration private constructor(
             "filtering" to filteringConfiguration.toString(),
             "ignoreFailures" to ignoreFailures.toString(),
             "isCodeCoverageEnabled" to isCodeCoverageEnabled.toString(),
-            "fallbackToScreenshots" to fallbackToScreenshots.toString(),
-            "strictMode" to strictMode.toString(),
+            "executionStrategy" to executionStrategy.toString(),
             "testClassRegexes" to testClassRegexes.toString(),
             "includeSerialRegexes" to includeSerialRegexes.toString(),
             "excludeSerialRegexes" to excludeSerialRegexes.toString(),
@@ -98,8 +97,7 @@ data class Configuration private constructor(
         if (filteringConfiguration != other.filteringConfiguration) return false
         if (ignoreFailures != other.ignoreFailures) return false
         if (isCodeCoverageEnabled != other.isCodeCoverageEnabled) return false
-        if (fallbackToScreenshots != other.fallbackToScreenshots) return false
-        if (strictMode != other.strictMode) return false
+        if (executionStrategy != other.executionStrategy) return false
         if (uncompletedTestRetryQuota != other.uncompletedTestRetryQuota) return false
         //For testing we need to compare configuration instances. Unfortunately Regex equality is broken so need to map it to String
         if (testClassRegexes.map { it.pattern } != other.testClassRegexes.map { it.pattern }) return false
@@ -130,8 +128,7 @@ data class Configuration private constructor(
         result = 31 * result + filteringConfiguration.hashCode()
         result = 31 * result + ignoreFailures.hashCode()
         result = 31 * result + isCodeCoverageEnabled.hashCode()
-        result = 31 * result + fallbackToScreenshots.hashCode()
-        result = 31 * result + strictMode.hashCode()
+        result = 31 * result + executionStrategy.hashCode()
         result = 31 * result + uncompletedTestRetryQuota
         result = 31 * result + testClassRegexes.hashCode()
         result = 31 * result + includeSerialRegexes.hashCode()
@@ -146,42 +143,39 @@ data class Configuration private constructor(
         return result
     }
 
+     data class Builder(
+         val name: String,
+         val outputDir: File,
+         var analyticsConfiguration: AnalyticsConfiguration = AnalyticsConfiguration.DisabledAnalytics,
+         var poolingStrategy: PoolingStrategyConfiguration = PoolingStrategyConfiguration.OmniPoolingStrategyConfiguration,
+         var shardingStrategy: ShardingStrategyConfiguration = ShardingStrategyConfiguration.ParallelShardingStrategyConfiguration,
+         var sortingStrategy: SortingStrategyConfiguration = SortingStrategyConfiguration.NoSortingStrategyConfiguration,
+         var batchingStrategy: BatchingStrategyConfiguration = BatchingStrategyConfiguration.IsolateBatchingStrategyConfiguration,
+         var flakinessStrategy: FlakinessStrategyConfiguration = FlakinessStrategyConfiguration.IgnoreFlakinessStrategyConfiguration,
+         var retryStrategy: RetryStrategyConfiguration = RetryStrategyConfiguration.NoRetryStrategyConfiguration,
+         var filteringConfiguration: FilteringConfiguration = FilteringConfiguration(emptyList(), emptyList()),
 
-    class Builder(
-        val name: String,
-        val outputDir: File,
-        val vendorConfiguration: VendorConfiguration,
+         var ignoreFailures: Boolean = false,
+         var isCodeCoverageEnabled: Boolean = false,
+         var executionStrategy: ExecutionStrategyConfiguration = ExecutionStrategyConfiguration(),
+         var uncompletedTestRetryQuota: Int = Integer.MAX_VALUE,
+
+         var testClassRegexes: Collection<Regex> = listOf(Regex("^((?!Abstract).)*Test[s]*$")),
+         var includeSerialRegexes: Collection<Regex> = emptyList(),
+         var excludeSerialRegexes: Collection<Regex> = emptyList(),
+
+         var testBatchTimeoutMillis: Long = DEFAULT_BATCH_EXECUTION_TIMEOUT_MILLIS,
+         var testOutputTimeoutMillis: Long = DEFAULT_OUTPUT_TIMEOUT_MILLIS,
+         var debug: Boolean = true,
+
+         var screenRecordingPolicy: ScreenRecordingPolicy = ScreenRecordingPolicy.ON_FAILURE,
+
+         var analyticsTracking: Boolean = false,
+         var deviceInitializationTimeoutMillis: Long = DEFAULT_DEVICE_INITIALIZATION_TIMEOUT_MILLIS,
+
+         var outputConfiguration: OutputConfiguration = OutputConfiguration(),
+         var vendorConfiguration: VendorConfiguration = VendorConfiguration.EmptyVendorConfiguration(),
     ) {
-        var analyticsConfiguration: AnalyticsConfiguration = AnalyticsConfiguration.DisabledAnalytics
-        var poolingStrategy: PoolingStrategyConfiguration = PoolingStrategyConfiguration.OmniPoolingStrategyConfiguration
-        var shardingStrategy: ShardingStrategyConfiguration = ShardingStrategyConfiguration.ParallelShardingStrategyConfiguration
-        var sortingStrategy: SortingStrategyConfiguration = SortingStrategyConfiguration.NoSortingStrategyConfiguration
-        var batchingStrategy: BatchingStrategyConfiguration = BatchingStrategyConfiguration.IsolateBatchingStrategyConfiguration
-        var flakinessStrategy: FlakinessStrategyConfiguration = FlakinessStrategyConfiguration.IgnoreFlakinessStrategyConfiguration
-        var retryStrategy: RetryStrategyConfiguration = RetryStrategyConfiguration.NoRetryStrategyConfiguration
-        var filteringConfiguration: FilteringConfiguration = FilteringConfiguration(emptyList(), emptyList())
-
-        var ignoreFailures: Boolean = false
-        var isCodeCoverageEnabled: Boolean = false
-        var fallbackToScreenshots: Boolean = false
-        var strictMode: Boolean = false
-        var uncompletedTestRetryQuota: Int = Integer.MAX_VALUE
-
-        var testClassRegexes: Collection<Regex> = listOf(Regex("^((?!Abstract).)*Test[s]*$"))
-        var includeSerialRegexes: Collection<Regex> = emptyList()
-        var excludeSerialRegexes: Collection<Regex> = emptyList()
-
-        var testBatchTimeoutMillis: Long = DEFAULT_BATCH_EXECUTION_TIMEOUT_MILLIS
-        var testOutputTimeoutMillis: Long = DEFAULT_OUTPUT_TIMEOUT_MILLIS
-        var debug: Boolean = true
-
-        var screenRecordingPolicy: ScreenRecordingPolicy = ScreenRecordingPolicy.ON_FAILURE
-
-        var analyticsTracking: Boolean = false
-        var deviceInitializationTimeoutMillis: Long = DEFAULT_DEVICE_INITIALIZATION_TIMEOUT_MILLIS
-
-        var outputConfiguration = OutputConfiguration()
-        
         fun build(): Configuration {
             return Configuration(
                 name = name,
@@ -197,8 +191,7 @@ data class Configuration private constructor(
                 filteringConfiguration = filteringConfiguration,
                 ignoreFailures = ignoreFailures,
                 isCodeCoverageEnabled = isCodeCoverageEnabled,
-                fallbackToScreenshots = fallbackToScreenshots,
-                strictMode = strictMode,
+                executionStrategy = executionStrategy,
                 uncompletedTestRetryQuota = uncompletedTestRetryQuota,
                 testClassRegexes = testClassRegexes,
                 includeSerialRegexes = includeSerialRegexes,

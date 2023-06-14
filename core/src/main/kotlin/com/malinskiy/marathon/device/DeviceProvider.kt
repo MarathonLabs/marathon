@@ -8,8 +8,17 @@ interface DeviceProvider {
         class DeviceDisconnected(val device: Device) : DeviceEvent()
     }
 
+    /**
+     * Informational for scheduler, device providers should not impose timeouts internally
+     */
     val deviceInitializationTimeoutMillis: Long
     suspend fun initialize()
+
+    /**
+     * Remote test parsers require a temp device
+     * This method should be called before reading from the [subscribe()] channel
+     */
+    suspend fun borrow() : Device
     suspend fun terminate()
     fun subscribe(): Channel<DeviceEvent>
 }

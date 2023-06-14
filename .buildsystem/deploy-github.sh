@@ -18,9 +18,9 @@ fi
 
 ASSEMBLE_TARGETS=""
 PUBLISH_TARGETS=""
-for i in ":core" ":vendor:vendor-android:base" ":vendor:vendor-android:ddmlib" ":vendor:vendor-android:adam" ":marathon-gradle-plugin" ":report:execution-timeline" ":report:html-report" ":analytics:usage" ":configuration"; do
+for i in ":core" ":vendor:vendor-android" ":report:execution-timeline" ":report:html-report" ":analytics:usage" ":configuration"; do
   ASSEMBLE_TARGETS="$ASSEMBLE_TARGETS $i:assemble"
-  PUBLISH_TARGETS="$PUBLISH_TARGETS $i:publishDefaultPublicationToGitHubRepository"
+  PUBLISH_TARGETS="$PUBLISH_TARGETS $i:publishAllPublicationsToGitHubRepository"
 done
 
 if [ -n "$GIT_TAG_NAME" ]; then

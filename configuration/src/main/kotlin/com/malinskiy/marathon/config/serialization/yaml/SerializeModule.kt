@@ -12,9 +12,7 @@ import java.io.File
 
 class SerializeModule(
     instantTimeProvider: InstantTimeProvider,
-    environmentReader: EnvironmentReader,
     marathonfileDir: File,
-    fileListProvider: FileListProvider
 ) :
     SimpleModule() {
     init {
@@ -40,11 +38,6 @@ class SerializeModule(
         )
 
         addSerializer(Regex::class.java, RegexSerializer())
-
         addDeserializer(File::class.java, FileDeserializer(marathonfileDir))
-        addDeserializer(
-            VendorConfiguration::class.java,
-            VendorConfigurationDeserializer(marathonfileDir, environmentReader, fileListProvider)
-        )
     }
 }

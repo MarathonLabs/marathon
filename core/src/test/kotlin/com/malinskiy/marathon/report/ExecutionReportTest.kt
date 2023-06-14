@@ -24,8 +24,8 @@ class ExecutionReportTest {
     val configuration = Configuration.Builder(
         name = "",
         outputDir = File("src/test/resources/output/"),
-        vendorConfiguration = VendorConfiguration.StubVendorConfiguration,
     ).apply {
+        vendorConfiguration = VendorConfiguration.StubVendorConfiguration
         analyticsConfiguration = AnalyticsConfiguration.DisabledAnalytics
         analyticsTracking = false
     }.build()
@@ -41,11 +41,12 @@ class ExecutionReportTest {
             healthy = true
         )
         ExecutionReport(
-            deviceProviderPreparingEvent = emptyList(),
-            devicePreparingEvents = emptyList(),
             deviceConnectedEvents = listOf(
                 DeviceConnectedEvent(Instant.now(), DevicePoolId("myPool"), device)
             ),
+            deviceDisconnectedEvents = emptyList(),
+            devicePreparingEvents = emptyList(),
+            deviceProviderPreparingEvent = emptyList(),
             testEvents = listOf(
                 createTestEvent(device, "test1", TestStatus.INCOMPLETE),
                 createTestEvent(device, "test2", TestStatus.PASSED),
@@ -65,11 +66,12 @@ class ExecutionReportTest {
             healthy = true
         )
         ExecutionReport(
-            deviceProviderPreparingEvent = emptyList(),
-            devicePreparingEvents = emptyList(),
             deviceConnectedEvents = listOf(
                 DeviceConnectedEvent(Instant.now(), DevicePoolId("myPool"), device)
             ),
+            deviceDisconnectedEvents = emptyList(),
+            devicePreparingEvents = emptyList(),
+            deviceProviderPreparingEvent = emptyList(),
             testEvents = listOf(
                 createTestEvent(device, "test2", TestStatus.FAILURE, false),
                 createTestEvent(device, "test2", TestStatus.FAILURE, false),

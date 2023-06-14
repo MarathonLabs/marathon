@@ -1,46 +1,55 @@
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-
 plugins {
-    `java-gradle-plugin`
     `kotlin-dsl`
     id("org.jetbrains.dokka")
     id("com.gradle.plugin-publish") version Versions.gradlePluginPublish
     id("com.github.johnrengelman.shadow") version Versions.gradlePluginShadow
 }
 
+project.version = Deployment.getVersion(project)
 
 gradlePlugin {
-    (plugins) {
+    website.set("https://docs.marathonlabs.io/")
+    vcsUrl.set("https://github.com/MarathonLabs/marathon")
+    plugins {
         create("marathon-gradle-plugin") {
-            id = "marathon"
+            id = "com.malinskiy.marathon"
             displayName = "Gradle plugin for Marathon test runner"
             description = "Marathon is a fast and platform-independent test runner focused on performance and stability"
+            tags.set(listOf("marathon", "test", "runner", "android"))
             implementationClass = "com.malinskiy.marathon.gradle.MarathonPlugin"
         }
     }
 }
 
-pluginBundle {
-    website = "https://marathonlabs.github.io/marathon/"
-    vcsUrl = "https://github.com/MarathonLabs/marathon"
-    tags = listOf("marathon", "test", "runner", "android")
-}
-
-Deployment.initialize(project)
+setupKotlinCompiler("11")
+//Tests are blackbox, no way to collect coverage anyway
+setupTestTask(jacoco = false)
 
 dependencies {
     shadow(gradleApi())
     shadow(localGroovy())
-    
+
     shadow(Libraries.kotlinLogging)
     implementation(project(":configuration"))
-    shadow(BuildPlugins.androidGradle)
+    compileOnly(BuildPlugins.androidGradle)
     shadow(Libraries.apacheCommonsCodec)
+
+    testImplementation(gradleTestKit())
+    testImplementation(TestLibraries.junit5)
+    testImplementation(TestLibraries.assertk)
+    testRuntimeOnly(TestLibraries.jupiterEngine)
+}
+
+tasks.withType<Test> {
+    dependsOn(rootProject.project("configuration").tasks.getByName("publishDefaultPublicationToMavenLocal"))
 }
 
 // needed to prevent inclusion of gradle-api into shadow JAR
 afterEvaluate {
     configurations["api"].dependencies.remove(dependencies.gradleApi())
+    tasks.test.configure {
+        dependsOn(tasks.named("publishToMavenLocal"))
+    }
 }
 
 tasks.processResources.configure {
@@ -61,9 +70,4 @@ tasks.shadowJar {
         "com.malinskiy.marathon.shadow.com.fasterxml.jackson"
     )
     archiveClassifier.set("")
-}
-
-tasks.withType<KotlinCompile> {
-    kotlinOptions.jvmTarget = "1.8"
-    kotlinOptions.apiVersion = "1.5"
 }

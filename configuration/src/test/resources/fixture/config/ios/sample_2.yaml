@@ -1,0 +1,21 @@
+name: "sample-app tests"
+outputDir: "./marathon"
+vendorConfiguration:
+  type: "iOS"
+  bundle:
+    derivedDataDir: "derivedDataDir"
+  ssh:
+    authentication:
+      type: "publicKey"
+      username: "testuser"
+      key: "/home/testuser/.ssh/id_rsa"
+    knownHostsPath: "known_hosts"
+    keepAliveInterval: PT300S
+    debug: true
+  lifecycle:
+    onPrepare: []
+  rsync:
+    remotePath: "/usr/local/bin/rsync"
+  hideRunnerOutput: true
+  compactOutput: true
+  devices: "Testdevices"

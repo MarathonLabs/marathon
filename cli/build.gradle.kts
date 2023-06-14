@@ -1,12 +1,10 @@
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-
 plugins {
     application
     id("idea")
+    jacoco
     id("org.jetbrains.kotlin.jvm")
     id("org.jetbrains.dokka")
-    id("org.junit.platform.gradle.plugin")
-    id("com.github.gmazzo.buildconfig") version "3.1.0"
+    id("com.github.gmazzo.buildconfig") version "4.0.1"
 }
 
 val enableJDB = false
@@ -34,30 +32,27 @@ distributions {
     }
 }
 
-tasks.withType<KotlinCompile> {
-    kotlinOptions.jvmTarget = "1.8"
-    kotlinOptions.apiVersion = "1.5"
-}
-
 dependencies {
     implementation(project(":core"))
     implementation(project(":vendor:vendor-ios"))
-    implementation(project(":vendor:vendor-android:base"))
-    implementation(project(":vendor:vendor-android:ddmlib"))
-    implementation(project(":vendor:vendor-android:adam"))
+    implementation(project(":vendor:vendor-android"))
     implementation(project(":analytics:usage"))
     implementation(Libraries.kotlinStdLib)
     implementation(Libraries.kotlinCoroutines)
     implementation(Libraries.kotlinLogging)
     implementation(Libraries.kotlinReflect)
     implementation(Libraries.logbackClassic)
-    implementation(Libraries.argParser)
+    implementation(Libraries.clikt)
     testRuntimeOnly(TestLibraries.jupiterEngine)
 }
 
-Deployment.initialize(project)
+setupDeployment()
+setupKotlinCompiler()
+setupTestTask()
 
 buildConfig {
+    useKotlinOutput { internalVisibility = false }
+
     buildConfigField("String", "NAME", "\"${project.name}\"")
     buildConfigField("String", "VERSION", provider { "\"${Versions.marathon}\"" })
 }
@@ -74,18 +69,6 @@ idea {
         generatedSourceDirs = generatedSourceDirs + file("${project.buildDir}/gen/buildconfig/src/main")
     }
 }
-
-tasks.withType<Test>().all {
-    tasks.getByName("check").dependsOn(this)
-    useJUnitPlatform()
-}
-
-junitPlatform {
-    enableStandardTestTask = true
-}
-
-tasks.getByName("junitPlatformTest").outputs.upToDateWhen { false }
-tasks.getByName("test").outputs.upToDateWhen { false }
 
 /**
  * Classpath is too long for commandline

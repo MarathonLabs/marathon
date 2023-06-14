@@ -66,8 +66,9 @@ excludeSerialRegexes:
   - "emulator-5002"
 ignoreFailures: false
 isCodeCoverageEnabled: false
-fallbackToScreenshots: false
-strictMode: true
+executionStrategy:
+  mode: ANY_SUCCESS
+  fast: true
 testBatchTimeoutMillis: 20000
 testOutputTimeoutMillis: 30000
 debug: true

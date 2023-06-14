@@ -1,0 +1,21 @@
+workers:
+  - transport:
+      type: local
+    devices:
+      - type: simulator
+        udid: "XXX"
+      - type: physical
+        udid: "YYY"
+  - transport:
+      type: ssh
+      addr: "node-1.device-farm.example.com"
+      port: 44
+      authentication:
+        type: password
+        username: vasya
+        password: pupking
+    devices:
+    - type: simulatorProfile
+      deviceType: com.apple.CoreSimulator.SimDeviceType.iPhone-X
+      runtime: com.apple.CoreSimulator.SimRuntime.iOS-16-2
+      newNamePrefix: prefix

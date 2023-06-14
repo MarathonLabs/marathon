@@ -22,16 +22,24 @@ data class Test(
     }
 }
 
-fun Test.toTestName(): String = "$pkg.$clazz#$method"
-fun Test.toSimpleSafeTestName(): String = "$clazz.$method"
-fun Test.toSafeTestName(): String = "$pkg.$clazz.$method"
-fun Test.toHumanReadableTestName(): String {
+fun Test.toTestName(packageSeparator: Char = '.', methodSeparator: Char = '#'): String {
     return StringBuilder().apply {
-        if (pkg.isNotBlank()) {
-            append("$pkg.")
-        }
-        append(clazz)
-        append('#')
+        append(toClassName(packageSeparator))
+        append(methodSeparator)
         append(method)
     }.toString()
 }
+
+fun Test.toClassName(separator: Char = '.'): String {
+    return StringBuilder().apply {
+        if (pkg.isNotBlank()) {
+            append(pkg)
+            append(separator)
+        }
+        append(clazz)
+    }.toString()
+}
+
+fun Test.toSimpleSafeTestName(): String = "$clazz.$method"
+
+fun Test.toSafeTestName() = toTestName(methodSeparator = '.')

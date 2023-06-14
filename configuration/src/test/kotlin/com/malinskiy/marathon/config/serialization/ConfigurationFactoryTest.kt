@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
 import com.fasterxml.jackson.dataformat.yaml.YAMLGenerator
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
+import com.fasterxml.jackson.module.kotlin.KotlinFeature
 import com.fasterxml.jackson.module.kotlin.KotlinModule
 import com.malinskiy.marathon.config.AnalyticsConfiguration
 import com.malinskiy.marathon.config.ScreenRecordingPolicy
@@ -12,7 +13,6 @@ import com.malinskiy.marathon.config.environment.EnvironmentConfiguration
 import com.malinskiy.marathon.config.environment.EnvironmentReader
 import com.malinskiy.marathon.config.exceptions.ConfigurationException
 import com.malinskiy.marathon.config.serialization.time.InstantTimeProvider
-import com.malinskiy.marathon.config.serialization.yaml.DerivedDataFileListProvider
 import com.malinskiy.marathon.config.serialization.yaml.SerializeModule
 import com.malinskiy.marathon.config.strategy.BatchingStrategyConfiguration
 import com.malinskiy.marathon.config.strategy.FlakinessStrategyConfiguration
@@ -22,6 +22,7 @@ import com.malinskiy.marathon.config.strategy.ShardingStrategyConfiguration
 import com.malinskiy.marathon.config.strategy.SortingStrategyConfiguration
 import com.malinskiy.marathon.config.vendor.VendorConfiguration
 import com.malinskiy.marathon.config.vendor.android.AllureConfiguration
+import com.malinskiy.marathon.config.vendor.android.AndroidTestBundleConfiguration
 import com.malinskiy.marathon.config.vendor.android.RecorderType
 import com.malinskiy.marathon.config.vendor.android.ScreenRecordConfiguration
 import com.malinskiy.marathon.config.vendor.android.ScreenshotConfiguration
@@ -46,7 +47,7 @@ import java.time.Instant
 import java.time.format.DateTimeFormatter
 
 class ConfigurationFactoryTest {
-    val mockMarathonFileDir = File(ConfigurationFactoryTest::class.java.getResource("/fixture/config/sample_3.yaml").file).parentFile
+    val mockMarathonFileDir = File(ConfigurationFactoryTest::class.java.getResource("/fixture/config").file).parentFile
 
     val referenceInstant: Instant = Instant.ofEpochSecond(1000000)
     private val mockInstantTimeProvider = object : InstantTimeProvider {
@@ -68,14 +69,22 @@ class ConfigurationFactoryTest {
         mapper.registerModule(
             SerializeModule(
                 mockInstantTimeProvider,
-                mockEnvironmentReader(),
                 mockMarathonFileDir,
-                DerivedDataFileListProvider
             )
         )
-            .registerModule(KotlinModule())
+            .registerModule(KotlinModule.Builder()
+                                .withReflectionCacheSize(512)
+                                .configure(KotlinFeature.NullToEmptyCollection, false)
+                                .configure(KotlinFeature.NullToEmptyMap, false)
+                                .configure(KotlinFeature.NullIsSameAsDefault, false)
+                                .configure(KotlinFeature.SingletonSupport, true)
+                                .configure(KotlinFeature.StrictNullChecks, false)
+                                .build())
             .registerModule(JavaTimeModule())
-        parser = ConfigurationFactory(marathonfileDir = mockMarathonFileDir, mapper = mapper)
+        parser = ConfigurationFactory(
+            marathonfileDir = mockMarathonFileDir,
+            mapper = mapper,
+        )
     }
 
     @Test
@@ -152,8 +161,6 @@ class ConfigurationFactoryTest {
         configuration.excludeSerialRegexes.joinToString(separator = "") { it.pattern } shouldBeEqualTo """emulator-5002""".toRegex().pattern
         configuration.ignoreFailures shouldBeEqualTo false
         configuration.isCodeCoverageEnabled shouldBeEqualTo false
-        configuration.fallbackToScreenshots shouldBeEqualTo false
-        configuration.strictMode shouldBeEqualTo true
         configuration.testBatchTimeoutMillis shouldBeEqualTo 20_000
         configuration.testOutputTimeoutMillis shouldBeEqualTo 30_000
         configuration.debug shouldBeEqualTo true
@@ -161,10 +168,12 @@ class ConfigurationFactoryTest {
 
         configuration.deviceInitializationTimeoutMillis shouldBeEqualTo 300_000
         configuration.vendorConfiguration shouldBeEqualTo VendorConfiguration.AndroidConfiguration(
-            VendorConfiguration.AndroidConfiguration.VendorType.ADAM,
             File("/local/android"),
             File(mockMarathonFileDir, "kotlin-buildscript/build/outputs/apk/debug/kotlin-buildscript-debug.apk"),
             File(mockMarathonFileDir, "kotlin-buildscript/build/outputs/apk/androidTest/debug/kotlin-buildscript-debug-androidTest.apk"),
+            listOf(
+                File(mockMarathonFileDir, "kotlin-buildscript/build/outputs/apk/androidTest/debug/kotlin-buildscript-split-debug.apk"),
+            ),
             null,
             null,
             true,
@@ -228,16 +237,15 @@ class ConfigurationFactoryTest {
         configuration.excludeSerialRegexes shouldBeEqualTo emptyList()
         configuration.ignoreFailures shouldBeEqualTo false
         configuration.isCodeCoverageEnabled shouldBeEqualTo false
-        configuration.fallbackToScreenshots shouldBeEqualTo false
         configuration.testBatchTimeoutMillis shouldBeEqualTo 1800_000
         configuration.testOutputTimeoutMillis shouldBeEqualTo 300_000
         configuration.debug shouldBeEqualTo true
         configuration.screenRecordingPolicy shouldBeEqualTo ScreenRecordingPolicy.ON_FAILURE
         configuration.vendorConfiguration shouldBeEqualTo VendorConfiguration.AndroidConfiguration(
-            VendorConfiguration.AndroidConfiguration.VendorType.ADAM,
             File("/local/android"),
             File(mockMarathonFileDir, "kotlin-buildscript/build/outputs/apk/debug/kotlin-buildscript-debug.apk"),
             File(mockMarathonFileDir, "kotlin-buildscript/build/outputs/apk/androidTest/debug/kotlin-buildscript-debug-androidTest.apk"),
+            null,
             null,
             null,
             false,
@@ -250,36 +258,7 @@ class ConfigurationFactoryTest {
         )
     }
 
-    @Test
-    fun `on config with ios vendor configuration should initialize a specific vendor configuration`() {
-        val file = File(ConfigurationFactoryTest::class.java.getResource("/fixture/config/sample_3.yaml").file)
-        val configuration = parser.parse(file)
 
-        configuration.vendorConfiguration shouldBeEqualTo VendorConfiguration.IOSConfiguration(
-            derivedDataDir = file.parentFile.resolve("a").canonicalFile,
-            xctestrunPath = file.parentFile.resolve("a/Build/Products/UITesting_iphonesimulator11.0-x86_64.xctestrun").canonicalFile,
-            remoteUsername = "testuser",
-            remotePrivateKey = File("/home/testuser/.ssh/id_rsa").canonicalFile,
-            knownHostsPath = file.parentFile.resolve("known_hosts").canonicalFile,
-            remoteRsyncPath = "/usr/local/bin/rsync",
-            debugSsh = true,
-            alwaysEraseSimulators = false,
-            hideRunnerOutput = true,
-            compactOutput = true,
-            keepAliveIntervalMillis = 300000L,
-            devicesFile = file.parentFile.resolve("Testdevices").canonicalFile,
-            sourceRoot = file.parentFile.resolve(".").canonicalFile,
-        )
-    }
-
-    @Test
-    fun `on configuration without an explicit remote rsync path should initialize a default one`() {
-        val file = File(ConfigurationFactoryTest::class.java.getResource("/fixture/config/sample_4.yaml").file)
-        val configuration = parser.parse(file)
-
-        val iosConfiguration = configuration.vendorConfiguration as VendorConfiguration.IOSConfiguration
-        iosConfiguration.remoteRsyncPath shouldBeEqualTo "/usr/bin/rsync"
-    }
 
     @Test
     fun `on configuration without an explicit xctestrun path should throw an exception`() {
@@ -297,21 +276,30 @@ class ConfigurationFactoryTest {
         mapper.registerModule(
             SerializeModule(
                 mockInstantTimeProvider,
-                environmentReader,
                 mockMarathonFileDir,
-                DerivedDataFileListProvider
             )
         )
-            .registerModule(KotlinModule())
+            .registerModule(KotlinModule.Builder()
+                                .withReflectionCacheSize(512)
+                                .configure(KotlinFeature.NullToEmptyCollection, false)
+                                .configure(KotlinFeature.NullToEmptyMap, false)
+                                .configure(KotlinFeature.NullIsSameAsDefault, false)
+                                .configure(KotlinFeature.SingletonSupport, true)
+                                .configure(KotlinFeature.StrictNullChecks, false)
+                                .build())
             .registerModule(JavaTimeModule())
-        parser = ConfigurationFactory(marathonfileDir = mockMarathonFileDir, mapper = mapper, environmentReader = environmentReader)
+        parser = ConfigurationFactory(
+            marathonfileDir = mockMarathonFileDir,
+            environmentReader = environmentReader,
+            mapper = mapper,
+        )
         val configuration = parser.parse(file)
 
         configuration.vendorConfiguration shouldBeEqualTo VendorConfiguration.AndroidConfiguration(
-            VendorConfiguration.AndroidConfiguration.VendorType.ADAM,
             environmentReader.read().androidSdk!!,
             File(mockMarathonFileDir, "kotlin-buildscript/build/outputs/apk/debug/kotlin-buildscript-debug.apk"),
             File(mockMarathonFileDir, "kotlin-buildscript/build/outputs/apk/androidTest/debug/kotlin-buildscript-debug-androidTest.apk"),
+            null,
             null,
             null,
             false,
@@ -328,7 +316,11 @@ class ConfigurationFactoryTest {
     fun `on configuration without androidSdk value should throw an exception when ANDROID_HOME is not set`() {
         val file = File(ConfigurationFactoryTest::class.java.getResource("/fixture/config/sample_7.yaml").file)
         parser =
-            ConfigurationFactory(marathonfileDir = mockMarathonFileDir, mapper = mapper, environmentReader = mockEnvironmentReader(null))
+            ConfigurationFactory(
+                marathonfileDir = mockMarathonFileDir,
+                environmentReader = mockEnvironmentReader(null),
+                mapper = mapper,
+            )
         assertThrows<ConfigurationException> {
             parser.parse(file)
         }
@@ -389,6 +381,33 @@ class ConfigurationFactoryTest {
             screenrecorder = Duration.ofHours(1),
             screencapturer = Duration.ofSeconds(1),
             socketIdleTimeout = Duration.ofSeconds(45)
+        )
+    }
+
+    @Test
+    fun `on configuration with multi module testing in Android`() {
+        val file = File(ConfigurationFactoryTest::class.java.getResource("/fixture/config/sample_12.yaml").file)
+        val configuration = parser.parse(file)
+
+        val outputs = (configuration.vendorConfiguration as VendorConfiguration.AndroidConfiguration).outputs
+
+        outputs shouldBeEqualTo listOf(
+            AndroidTestBundleConfiguration(
+                application = File(mockMarathonFileDir, "kotlin-buildscript/build/outputs/apk/debug/first-app-debug.apk"),
+                testApplication = File(mockMarathonFileDir, "kotlin-buildscript/build/outputs/apk/androidTest/debug/first-app-debug-androidTest.apk"),
+                extraApplications = null,
+                splitApks = listOf(
+                    File(mockMarathonFileDir, "kotlin-buildscript/build/outputs/apk/androidTest/debug/first-app-split-debug.apk")
+                )
+            ),
+            AndroidTestBundleConfiguration(
+                application = File(mockMarathonFileDir, "kotlin-buildscript/build/outputs/apk/debug/second-app-debug.apk"),
+                testApplication = File(mockMarathonFileDir, "kotlin-buildscript/build/outputs/apk/androidTest/debug/second-app-debug-androidTest.apk"),
+                extraApplications = null,
+                splitApks = listOf(
+                    File(mockMarathonFileDir, "kotlin-buildscript/build/outputs/apk/androidTest/debug/second-app-split-debug.apk")
+                )
+            )
         )
     }
 }

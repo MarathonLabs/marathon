@@ -1,76 +1,150 @@
 package com.malinskiy.marathon.ios
 
-import com.malinskiy.marathon.ios.cmd.remote.CommandResult
+import com.malinskiy.marathon.config.vendor.ios.Type
+import com.malinskiy.marathon.extension.escape
+import com.malinskiy.marathon.ios.RemoteFileManager.Companion.FILE_SEPARATOR
 import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.test.Test
-import java.io.File
-import java.util.Locale
-import java.util.UUID
+import com.malinskiy.marathon.test.TestBatch
+import com.malinskiy.marathon.test.toClassName
 
-object RemoteFileManager {
+/**
+ * We deliberately don't use File here since File depends on system file separator
+ */
+class RemoteFileManager(private val device: AppleDevice) {
+    private val logger = MarathonLogging.logger {}
+    private val outputDir by lazy { device.storagePath }
 
-    private val logger = MarathonLogging.logger(javaClass.simpleName)
+    fun remoteDirectory(): String = outputDir
 
-    private const val OUTPUT_DIR = "/tmp/marathon"
-
-    fun remoteDirectory(device: IOSDevice): File = File(OUTPUT_DIR)
-
-    fun createRemoteDirectory(device: IOSDevice) {
+    suspend fun createRemoteDirectory(remoteDir: String = outputDir) {
         executeCommand(
-            device,
-            """mkdir -p "${remoteDirectory(device)}"""",
-            "Could not create remote directory ${remoteDirectory(device)}"
+            listOf("mkdir", "-p", remoteDirectory()),
+            "Could not create remote directory ${remoteDirectory()}"
         )
     }
 
-    fun removeRemoteDirectory(device: IOSDevice) {
+    suspend fun removeRemoteDirectory() {
         executeCommand(
-            device,
-            """rm -rf "${remoteDirectory(device)}"""",
-            "Unable to remove directory ${remoteDirectory(device)}"
+            listOf("rm", "-rf", remoteDirectory()),
+            "Unable to remove directory ${remoteDirectory()}"
         )
     }
 
-    fun remoteXctestrunFile(device: IOSDevice): File = remoteFile(device, File(xctestrunFileName(device)))
-    fun remoteXcresultFile(device: IOSDevice): File = remoteFile(device, File(xcresultFileName(device)))
+    suspend fun removeRemotePath(path: String) {
+        executeCommand(
+            listOf("rm", "-rf", path),
+            "Unable to remove path $path"
+        )
+    }
 
-    private fun xctestrunFileName(device: IOSDevice): String = "${device.udid}.xctestrun"
-    private fun xcresultFileName(device: IOSDevice): String =
-        "${device.udid}.${UUID.randomUUID().toString().uppercase(Locale.ENGLISH)}.xcresult"
+    fun remoteXctestrunFile(): String = remoteFile(xctestrunFileName())
 
-    private fun remoteFile(device: IOSDevice, file: File): File = remoteDirectory(device = device).resolve(file)
+    fun remoteXctestFile(): String = remoteFile(xctestFileName())
+    fun remoteApplication(): String = remoteFile(appUnderTestFileName())
+    fun remoteExtraApplication(name: String) = remoteFile(name)
 
-    private fun executeCommand(device: IOSDevice, command: String, errorMessage: String): String? {
-        var output: CommandResult? = null
+    /**
+     * Omitting xcresult extension results in a symlink 
+     */
+    fun remoteXcresultFile(batch: TestBatch): String = remoteFile(xcresultFileName(batch))
+
+    fun xctestrunFileName(): String = "marathon.xctestrun"
+
+    private fun xctestFileName(): String  = "marathon.xctest"
+    fun appUnderTestFileName(): String  = "appUnderTest.app"
+    
+    private fun xcresultFileName(batch: TestBatch): String =
+        "${device.udid}.${batch.id}.xcresult"
+
+    private fun remoteFile(file: String): String = remoteDirectory().resolve(file)
+
+    private suspend fun safeExecuteCommand(command: List<String>) {
         try {
-            output = device.hostCommandExecutor.execBlocking(command)
+            device.executeWorkerCommand(command)
+        } catch (e: Exception) {
+            null
+        }
+    }
+    
+    private suspend fun executeCommand(command: List<String>, errorMessage: String): String? {
+        return try {
+            val result = device.executeWorkerCommand(command) ?: return null
+            val stderr = result.combinedStderr.trim()
+            if(stderr.isNotBlank()) {
+                logger.error { "cmd=${command.joinToString(" ")}, stderr=$stderr" }
+            }
+            result.combinedStdout.trim()
         } catch (e: Exception) {
             logger.error(errorMessage, e)
+            null
         }
-
-        if (output == null || output.exitStatus != 0) {
-            logger.error(errorMessage)
-        }
-
-        if (output != null) {
-            if (output.stderr.isNotEmpty()) {
-                logger.error(output.stderr)
-            }
-            if (output.stdout.isNotEmpty()) {
-                logger.info(output.stdout)
-                return output.stdout
-            }
-        }
-        return null
     }
 
-    fun remoteVideoForTest(test: Test): String {
-        return remoteFileForTest(videoFileName(test))
+    fun remoteVideoForTest(test: Test, testBatchId: String): String {
+        return remoteFileForTest(videoFileName(test, testBatchId))
+    }
+
+    fun remoteVideoPidfile() = remoteFileForTest(videoPidFileName(device.udid))
+
+    fun remoteScreenshot(udid: String, type: Type): String {
+        return remoteFileForTest(screenshotFileName(udid, type))
     }
 
     private fun remoteFileForTest(filename: String): String {
-        return "$OUTPUT_DIR/$filename"
+        return "${outputDir}$FILE_SEPARATOR$filename"
+    }
+    
+    private fun screenshotFileName(udid: String, type: Type): String {
+        return "$udid.${type.value}"
     }
 
-    private fun videoFileName(test: Test): String = "${test.pkg}-${test.clazz}-${test.method}.mp4"
+    private fun videoFileName(test: Test, testBatchId: String): String {
+        val testSuffix = "-$testBatchId.mp4"
+        val testName = "${test.toClassName('-')}-${test.method}".escape()
+        return "$testName$testSuffix"
+    }
+
+    fun parentOf(remoteXctestrunFile: String): String {
+        return remoteXctestrunFile.substringBeforeLast(FILE_SEPARATOR)
+    }
+
+    private fun videoPidFileName(udid: String) = "${udid}.pid"
+    fun remoteTestRoot() = remoteDirectory()
+    
+    fun joinPath(base: String, vararg args: String): String {
+        return listOf(
+            base.removeSuffix(FILE_SEPARATOR),
+            *args
+        ).joinToString(FILE_SEPARATOR)
+    }
+
+    suspend fun copy(src: String, dst: String, override: Boolean = true) {
+        if(override) {
+            safeExecuteCommand(
+                listOf("rm", "-R", dst)
+            )
+        }
+        executeCommand(
+            listOf("cp", "-R", src, dst), "failed to copy remote directory $src to $dst"
+        )
+    }
+
+    companion object {
+        const val FILE_SEPARATOR = "/"
+    }
+}
+
+/**
+ * Adds relative file to this, considering this as a directory. If relative has a root, relative is returned back. 
+ * For instance, "/foo/bar".resolve("gav") is "/foo/bar/gav". 
+ * 
+ * Returns:
+ * concatenated this and relative paths, or just relative if it's absolute.
+ */
+private fun String.resolve(file: String): String {
+    return when {
+        file.startsWith(FILE_SEPARATOR) -> file
+        else -> removeSuffix(FILE_SEPARATOR) + FILE_SEPARATOR + file.removeSuffix(FILE_SEPARATOR)
+    }
 }

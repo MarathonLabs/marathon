@@ -17,7 +17,7 @@ class InfluxMetricsProviderIntegrationTest : BaseMetricsProviderIntegrationTest(
         const val dbName = "marathonDb"
         const val rpName = "rpMarathon"
 
-        val container: KInfluxDBContainer = KInfluxDBContainer().withAuthEnabled(false)
+        val container: InfluxV1Container = InfluxV1Container().withAuthEnabled(false)
 
         val influxDb: InfluxDB by lazy {
             InfluxDbProvider(

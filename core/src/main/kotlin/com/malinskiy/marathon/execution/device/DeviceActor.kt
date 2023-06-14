@@ -10,7 +10,6 @@ import com.malinskiy.marathon.exceptions.TestBatchExecutionException
 import com.malinskiy.marathon.execution.DevicePoolMessage
 import com.malinskiy.marathon.execution.DevicePoolMessage.FromDevice.IsReady
 import com.malinskiy.marathon.execution.TestBatchResults
-import com.malinskiy.marathon.execution.progress.ProgressReporter
 import com.malinskiy.marathon.execution.withRetry
 import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.test.TestBatch
@@ -29,7 +28,6 @@ class DeviceActor(
     private val pool: SendChannel<DevicePoolMessage>,
     private val configuration: Configuration,
     val device: Device,
-    private val progressReporter: ProgressReporter,
     parent: Job,
     context: CoroutineContext
 ) :
@@ -95,27 +93,28 @@ class DeviceActor(
                 }
                 return@onTransition
             }
-            val sideEffect = validTransition.sideEffect
-            when (sideEffect) {
-                DeviceAction.Initialize -> {
-                    initialize()
-                }
-                is DeviceAction.NotifyIsReady -> {
-                    sideEffect.result?.let {
-                        sendResults(it)
+            validTransition.sideEffect?.let {sideEffect ->
+                when (sideEffect) {
+                    DeviceAction.Initialize -> {
+                        initialize()
                     }
-                    notifyIsReady()
-                }
-                is DeviceAction.ExecuteBatch -> {
-                    executeBatch(sideEffect.batch, sideEffect.result)
-                }
-                is DeviceAction.Terminate -> {
-                    val batch = sideEffect.batch
-                    if (batch == null) {
-                        terminate()
-                    } else {
-                        returnBatchAnd(batch, "Device ${device.serialNumber} terminated") {
+                    is DeviceAction.NotifyIsReady -> {
+                        sideEffect.result?.let {
+                            sendResults(it)
+                        }
+                        notifyIsReady()
+                    }
+                    is DeviceAction.ExecuteBatch -> {
+                        executeBatch(sideEffect.batch, sideEffect.result)
+                    }
+                    is DeviceAction.Terminate -> {
+                        val batch = sideEffect.batch
+                        if (batch == null) {
                             terminate()
+                        } else {
+                            returnBatchAnd(batch, "Device ${device.serialNumber} terminated") {
+                                terminate()
+                            }
                         }
                     }
                 }
@@ -166,8 +165,7 @@ class DeviceActor(
                         } catch (e: CancellationException) {
                             throw e
                         } catch (e: Exception) {
-                            logger.debug { "device ${device.serialNumber} initialization failed. Retrying" }
-                            logger.debug { e.message }
+                            logger.debug(e) { "device ${device.serialNumber} initialization failed. Retrying" }
                             throw e
                         }
                     }
@@ -184,7 +182,7 @@ class DeviceActor(
         logger.debug { "executeBatch ${device.serialNumber}" }
         job = async {
             try {
-                device.execute(configuration, devicePoolId, batch, result, progressReporter)
+                device.execute(configuration, devicePoolId, batch, result)
                 state.transition(DeviceEvent.Complete)
             } catch (e: CancellationException) {
                 logger.warn(e) { "Device execution has been cancelled" }

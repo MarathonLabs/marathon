@@ -11,7 +11,8 @@ import com.nhaarman.mockitokotlin2.whenever
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.test.TestCoroutineContext
+import kotlinx.coroutines.test.advanceTimeBy
+import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.shouldBe
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
@@ -28,9 +29,8 @@ class DisconnectingScenariosTest {
     }
 
     @Test
-    fun `two healthy devices on execution of two tests while one device disconnects should pass`() {
+    fun `two healthy devices on execution of two tests while one device disconnects should pass`() = runTest {
         var output: File? = null
-        val context = TestCoroutineContext("testing context")
         val timerStub: Timer = mock()
 
         val marathon = setupMarathon {
@@ -47,7 +47,7 @@ class DisconnectingScenariosTest {
                     listOf(test1, test2)
                 }
 
-                deviceProvider.context = context
+                deviceProvider.context = coroutineContext
 
                 devices {
                     delay(1000)
@@ -72,11 +72,11 @@ class DisconnectingScenariosTest {
         var i = 0L
         whenever(timerStub.currentTimeMillis()).then { i++ }
 
-        val job = GlobalScope.launch(context = context) {
+        val job = launch {
             marathon.runAsync()
         }
 
-        context.advanceTimeBy(20, TimeUnit.SECONDS)
+        advanceTimeBy(20_000)
 
         job.isCompleted shouldBe true
 

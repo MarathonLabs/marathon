@@ -1,0 +1,14 @@
+name: "sample-app tests"
+outputDir: "./marathon"
+vendorConfiguration:
+  type: "Android"
+  androidSdk: "/local/android"
+  outputs:
+    - application: "kotlin-buildscript/build/outputs/apk/debug/first-app-debug.apk"
+      testApplication: "kotlin-buildscript/build/outputs/apk/androidTest/debug/first-app-debug-androidTest.apk"
+      splitApks:
+        - "kotlin-buildscript/build/outputs/apk/androidTest/debug/first-app-split-debug.apk"
+    - application: "kotlin-buildscript/build/outputs/apk/debug/second-app-debug.apk"
+      testApplication: "kotlin-buildscript/build/outputs/apk/androidTest/debug/second-app-debug-androidTest.apk"
+      splitApks:
+        - "kotlin-buildscript/build/outputs/apk/androidTest/debug/second-app-split-debug.apk"

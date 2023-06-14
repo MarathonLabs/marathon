@@ -27,11 +27,14 @@ class FixedSizeBatchingStrategy(private val cnf: BatchingStrategyConfiguration.F
         while (counter < cnf.size && queue.isNotEmpty()) {
             counter++
             val item = queue.poll()
+            val itemBundleIdentifier = testBundleIdentifier?.identify(item)
+
             if (result.contains(item)) {
                 unbatchableTests.add(item)
-            } else if (testBundle != null && testBundleIdentifier?.identify(item) != testBundle) {
+            } else if (testBundle != null && testBundle != itemBundleIdentifier) {
                 unbatchableTests.add(item)
             } else {
+                testBundle = itemBundleIdentifier
                 result.add(item)
             }
 

@@ -1,21 +1,19 @@
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-
 plugins {
     `java-library`
     id("org.jetbrains.kotlin.jvm")
     id("org.jetbrains.dokka")
+    jacoco
 }
 
-Deployment.initialize(project)
-
-tasks.withType<KotlinCompile> {
-    kotlinOptions.jvmTarget = "1.8"
-    kotlinOptions.apiVersion = "1.5"
-}
+setupDeployment()
+setupKotlinCompiler()
+setupTestTask()
 
 dependencies {
-    implementation(Analytics.googleAnalyticsWrapper)
+    implementation(Libraries.okhttp)
     implementation(Libraries.kotlinStdLib)
+    testRuntimeOnly(TestLibraries.jupiterEngine)
+    testImplementation(TestLibraries.junit5)
     testImplementation(TestLibraries.kluent)
     testImplementation(TestLibraries.mockitoKotlin)
 }

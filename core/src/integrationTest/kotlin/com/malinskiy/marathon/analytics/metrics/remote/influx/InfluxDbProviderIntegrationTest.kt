@@ -18,7 +18,7 @@ class InfluxDbProviderIntegrationTest {
     private val database = "marathonTest"
     private val rpName = "rpMarathon"
 
-    private val container: KInfluxDBContainer = KInfluxDBContainer().withAuthEnabled(false)
+    private val container: InfluxV1Container = InfluxV1Container().withAuthEnabled(false)
 
     var thirdDbInstance: InfluxDB? = null
 

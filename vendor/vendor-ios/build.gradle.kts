@@ -1,11 +1,13 @@
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import com.malinskiy.marathon.buildsystem.XcresulttoolPlugin
 
 plugins {
     `java-library`
+    jacoco
     id("org.jetbrains.kotlin.jvm")
     id("org.jetbrains.dokka")
-    id("org.junit.platform.gradle.plugin")
 }
+
+apply<XcresulttoolPlugin>()
 
 dependencies {
     implementation(Libraries.kotlinStdLib)
@@ -21,29 +23,23 @@ dependencies {
     implementation(Libraries.jacksonKotlin)
     implementation(Libraries.jacksonYaml)
     implementation(Libraries.jansi)
+    implementation(Libraries.kotlinProcess)
     implementation(project(":core"))
     testImplementation(TestLibraries.kluent)
     testImplementation(TestLibraries.mockitoKotlin)
     testImplementation(TestLibraries.testContainers)
+    testImplementation(TestLibraries.testContainersJupiter)
     testImplementation(TestLibraries.junit5)
+    testImplementation(TestLibraries.coroutinesTest)
     testRuntimeOnly(TestLibraries.jupiterEngine)
 }
 
-Deployment.initialize(project)
+setupDeployment()
+setupKotlinCompiler()
+setupTestTask()
 
-tasks.withType<KotlinCompile> {
-    kotlinOptions.jvmTarget = "1.8"
-    kotlinOptions.apiVersion = "1.5"
+tasks.jar.configure {
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 }
 
-tasks.withType<Test>().all {
-    tasks.getByName("check").dependsOn(this)
-    useJUnitPlatform()
-}
-
-junitPlatform {
-    enableStandardTestTask = true
-}
-
-tasks.getByName("junitPlatformTest").outputs.upToDateWhen { false }
-tasks.getByName("test").outputs.upToDateWhen { false }
+tasks.findByPath("sourcesJar")?.dependsOn(tasks.findByPath("generateXcresulttoolSource"))

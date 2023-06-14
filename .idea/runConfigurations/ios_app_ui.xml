@@ -1,0 +1,12 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="ios-app-ui" type="JetRunConfigurationType">
+    <option name="MAIN_CLASS_NAME" value="com.malinskiy.marathon.cli.ApplicationViewKt" />
+    <module name="marathon.cli.main" />
+    <option name="PROGRAM_PARAMETERS" value="-m Marathonfile-uiTests" />
+    <shortenClasspath name="NONE" />
+    <option name="WORKING_DIRECTORY" value="sample/ios-app" />
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>

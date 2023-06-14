@@ -6,11 +6,14 @@ import com.malinskiy.marathon.analytics.TrackerFactory
 import com.malinskiy.marathon.analytics.external.AnalyticsFactory
 import com.malinskiy.marathon.analytics.internal.pub.Track
 import com.malinskiy.marathon.config.Configuration
-import com.malinskiy.marathon.execution.progress.ProgressReporter
+import com.malinskiy.marathon.execution.command.parse.MarathonTestParseCommand
 import com.malinskiy.marathon.io.FileManager
 import com.malinskiy.marathon.json.FileSerializer
 import com.malinskiy.marathon.time.SystemTimer
 import com.malinskiy.marathon.time.Timer
+import com.malinskiy.marathon.usageanalytics.tracker.EmptyTracker
+import com.malinskiy.marathon.usageanalytics.tracker.GrafanaCloud
+import com.malinskiy.marathon.usageanalytics.tracker.UsageTracker
 import org.koin.core.KoinApplication
 import org.koin.core.context.startKoin
 import org.koin.core.module.Module
@@ -20,8 +23,16 @@ import java.time.Clock
 
 val analyticsModule = module {
     single { Track() }
-    single { TrackerFactory(get(), get(), get(), get(), get()).create() }
+    single { TrackerFactory(get(), get(), get(), get(), get(), get()).create() }
     single { AnalyticsFactory(get()).create() }
+    single<UsageTracker> {
+        val configuration = get<Configuration>()
+        if(configuration.analyticsTracking) {
+            GrafanaCloud()
+        } else {
+            EmptyTracker()
+        }
+    }
 }
 
 val coreModule = module {
@@ -36,8 +47,11 @@ val coreModule = module {
     }
     single<Clock> { Clock.systemDefaultZone() }
     single<Timer> { SystemTimer(get()) }
-    single { ProgressReporter(get()) }
-    single { Marathon(get(), get(), get(), get(), get(), get(), get(), get(), get(), get()) }
+    single {
+        val configuration = get<Configuration>()
+        MarathonTestParseCommand(configuration.outputDir)
+    }
+    single { Marathon(get(), get(), get(), get(), get(), get(), get(), get(), get(), get(), get()) }
 }
 
 fun marathonStartKoin(configuration: Configuration, modules: List<Module>): KoinApplication {

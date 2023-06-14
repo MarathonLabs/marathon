@@ -7,8 +7,8 @@ fun generateTest(
     pkg: String = "pkg",
     clazz: String = "clazz",
     method: String = "method",
-    annotations: List<MetaProperty> = emptyList()
-) = Test(pkg, clazz, method, annotations)
+    metaProperties: List<MetaProperty> = emptyList()
+) = Test(pkg, clazz, method, metaProperties)
 
 fun generateTests(
     count: Int,
@@ -20,4 +20,18 @@ fun generateTests(
     return (0 until count).map {
         Test("$pkg$it", "$clazz$it", "$method$it", annotations)
     }
+}
+fun generateClassGroupTests(
+    classCounts: Int,
+    methodCounts: Int,
+    pkg: String = "pkg",
+    clazz: String = "clazz",
+    method: String = "method",
+    annotations: List<MetaProperty> = emptyList()
+): List<Test> {
+    val tests = arrayListOf<Test>()
+    for (classNumber in 0 until classCounts)
+        for (methodNumber in 0 until methodCounts)
+            tests.add(Test(pkg, "$clazz$classNumber", "$method$methodNumber", annotations))
+    return tests
 }

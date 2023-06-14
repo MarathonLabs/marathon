@@ -1,7 +1,7 @@
 package com.malinskiy.marathon.gradle
 
 import com.malinskiy.marathon.config.ScreenRecordingPolicy
-import com.malinskiy.marathon.config.vendor.VendorConfiguration
+import com.malinskiy.marathon.config.strategy.ExecutionStrategyConfiguration
 import com.malinskiy.marathon.config.vendor.android.AdbEndpoint
 import com.malinskiy.marathon.config.vendor.android.AllureConfiguration
 import com.malinskiy.marathon.config.vendor.android.FileSyncConfiguration
@@ -10,13 +10,13 @@ import com.malinskiy.marathon.config.vendor.android.SerialStrategy
 import com.malinskiy.marathon.config.vendor.android.TestAccessConfiguration
 import com.malinskiy.marathon.config.vendor.android.TestParserConfiguration
 import com.malinskiy.marathon.config.vendor.android.TimeoutConfiguration
+import com.malinskiy.marathon.gradle.configuration.PoolingStrategyConfiguration
 import groovy.lang.Closure
 import org.gradle.api.Action
-import org.gradle.api.Project
 import org.gradle.util.internal.ConfigureUtil
 import java.io.File
 
-open class MarathonExtension(project: Project) {
+open class MarathonExtension {
     /**
      * This string specifies the name of this test run configuration. It is used mainly in the generated test reports.
      */
@@ -149,11 +149,12 @@ open class MarathonExtension(project: Project) {
      */
     var baseOutputDir: String? = null
 
-    
+
     var outputConfiguration: OutputConfiguration? = null
     fun outputConfiguration(action: Action<OutputConfiguration>) {
         outputConfiguration = OutputConfiguration().also { action.execute(it) }
     }
+
     fun outputConfiguration(closure: Closure<OutputConfiguration>) = outputConfiguration(ConfigureUtil.configureUsing(closure))
 
     /**
@@ -168,15 +169,12 @@ open class MarathonExtension(project: Project) {
      */
     var isCodeCoverageEnabled: Boolean? = null
 
-
-    var fallbackToScreenshots: Boolean? = null
-
     /**
-     * By default, if one of the test retries succeeds then the test is considered successfully executed. If you require success status only when
-     * all retries were executed successfully you can enable the strict mode. This may be useful to verify that flakiness of tests was fixed for
-     * example.
+     * When executing tests with retries there are multiple trade-offs to be made. Two execution strategies are supported: any success or all success.
+     * By default, any success strategy is used with fast execution i.e. if one of the test retries succeeds then the test is considered successfully
+     * executed and all non-started retries are removed.
      */
-    var strictMode: Boolean? = null
+    var executionStrategy: ExecutionStrategyConfiguration? = null
 
     /**
      * By default, tests that don't have any status reported after execution (for example a device disconnected during the execution) retry
@@ -219,29 +217,15 @@ open class MarathonExtension(project: Project) {
 
     /**
      * To better understand the use-cases that marathon is used for we're asking you to provide us with anonymised information about your usage. By
-     * default, this is disabled. Use **true** to enable.
+     * default, this is enabled. Use **false** to disable.
      */
-    var analyticsTracking: Boolean = false
+    var analyticsTracking: Boolean = true
 
     /**
      * When the test run starts device provider is expected to provide some devices. This should not take more than 3 minutes by default. If your
      * setup requires this to be changed please override using this parameter
      */
     var deviceInitializationTimeoutMillis: Long? = null
-
-    /**
-     * The first implementation of marathon for Android relied heavily on AOSP's [ddmlib][4]. For a number of technical reasons we had to write our
-     * own implementation of the ADB client named [adam][6].
-     *
-     * The ddmlib's implementation is going to be deprecated in marathon **0.7.0** and by default adam is going to be handling all communication with
-     * devices.
-     *
-     * By **0.8.0**, ddmlib is going to be removed completely unless we find major issues.
-     *
-     * All the features supported in ddmlib's implementation transparently work without any changes. We ask you to test adam prior to the
-     * removal of ddmlib and submit your concerns/issues.
-     */
-    var vendor: VendorConfiguration.AndroidConfiguration.VendorType? = null
 
     /**
      * By default, marathon does not clear state between test batch executions. To mitigate potential test side-effects, one could add an option to clear the package data between test runs. Keep in mind that test side-effects might be present.
@@ -390,8 +374,6 @@ open class MarathonExtension(project: Project) {
      * In order to expose the adb server it should be started on all or public network interfaces using option `-a`. For example, if you want to
      * expose the adb server and start it in foreground explicitly on port 5037: `adb nodaemon server -a -P 5037`.
      *
-     * This functionality is only supported by vendor adam because ddmlib doesn't support connecting to a remote instance of adb server.
-     *
      */
     var adbServers: List<AdbEndpoint>? = null
 
@@ -404,7 +386,7 @@ open class MarathonExtension(project: Project) {
      * By default, instrumentation uses --no-window-animation flag. Use this option if you want to enable window animations
      */
     var disableWindowAnimation: Boolean? = null
-    
+
     /**
      * Configuration of analytics backend to be used for storing and retrieving test metrics. This plays a major part in optimising
      * performance and mitigating flakiness.

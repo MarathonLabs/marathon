@@ -1,5 +1,3 @@
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-
 plugins {
     `java-library`
     id("org.jetbrains.kotlin.jvm")
@@ -17,9 +15,7 @@ dependencies {
     implementation(TestLibraries.kluent)
     implementation(TestLibraries.mockitoKotlin)
     implementation(project(":core"))
+    implementation(project(":analytics:usage"))
 }
 
-tasks.withType<KotlinCompile> {
-    kotlinOptions.jvmTarget = "1.8"
-    kotlinOptions.apiVersion = "1.5"
-}
+setupKotlinCompiler()

@@ -56,7 +56,7 @@ object Deployment {
     }
 
     private fun initializePublishing(project: Project) {
-        project.version = Versions.marathon + versionSuffix
+        project.version = getVersion(project)
 
         project.plugins.apply("maven-publish")
 
@@ -80,9 +80,9 @@ object Deployment {
                         from(project.components["shadow"])
                     } else {
                         from(project.components["java"])
+                        artifact(sourcesJar)
+                        artifact(javadocJar)
                     }
-                    artifact(sourcesJar)
-                    artifact(javadocJar)
                 }
 
                 project.tasks.findByName("distZip")?.let { distZip ->
@@ -149,12 +149,12 @@ object Deployment {
         pom?.apply {
             name.set(project.name)
             url.set("https://github.com/MarathonLabs/marathon")
-            description.set("Android & iOS test runner")
+            description.set("Cross-platform test runner")
 
             licenses {
                 license {
-                    name.set("The Apache License, Version 2.0")
-                    url.set("http://www.apache.org/licenses/LICENSE-2.0.txt")
+                    name.set("GNU General Public License v2.0 only")
+                    url.set("https://www.gnu.org/licenses/old-licenses/gpl-2.0.txt")
                 }
             }
 
@@ -170,5 +170,14 @@ object Deployment {
                 url.set("https://github.com/MarathonLabs/marathon")
             }
         }
+    }
+
+    fun getVersion(project: Project): String {
+        val releaseMode: String? by project
+        val versionSuffix = when (releaseMode) {
+            "RELEASE" -> ""
+            else -> "-SNAPSHOT"
+        }
+        return Versions.marathon + versionSuffix
     }
 }

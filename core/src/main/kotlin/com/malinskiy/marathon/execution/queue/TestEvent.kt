@@ -4,6 +4,8 @@ import com.malinskiy.marathon.device.DeviceInfo
 import com.malinskiy.marathon.execution.TestResult
 
 sealed class TestEvent {
+    object Started : TestEvent()
+    
     data class Failed(
         val device: DeviceInfo,
         val testResult: TestResult
@@ -13,13 +15,10 @@ sealed class TestEvent {
         val device: DeviceInfo,
         val testResult: TestResult
     ) : TestEvent()
+    
+    data class RemoveAttempts(val count: Int) : TestEvent()
 
-    data class Remove(val diff: Int) : TestEvent()
-
-    data class Retry(
-        val device: DeviceInfo,
-        val testResult: TestResult
-    ) : TestEvent()
+    object AddRetry : TestEvent()
 
     data class Incomplete(
         val device: DeviceInfo,
