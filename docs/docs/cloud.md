@@ -15,9 +15,9 @@ This ensures an even distribution of tests across the provisioned devices.
 ## What you'll need
 
 To utilize Marathon Cloud, please ensure you have the following:
-- Marathon Cloud account (Sign up or Sign here)
-- API Key: You can create an API Key by following the link provided.
-- CLI or CI/CD plugin: Make sure you have the Command Line Interface (CLI) or the appropriate Continuous Integration/Continuous Deployment (CI/CD) plugin installed.
+- Marathon Cloud account ([Sign up or Sign here](https://cloud.marathonlabs.io/signup))
+- API Key: You can create an API Key by following the [link](https://cloud.marathonlabs.io/tokens) provided.
+- CLI or CI/CD plugin: Make sure you have the [Command Line Interface (CLI)](https://github.com/MarathonLabs/marathon-cloud-cli) or the appropriate Continuous Integration/Continuous Deployment (CI/CD) plugin installed.
 - Application with tests for iOS or Android
 
 ## Application requirements
