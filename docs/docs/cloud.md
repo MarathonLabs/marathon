@@ -32,7 +32,7 @@ In the opened Finder window, you'll find the required folders/applications for t
 
 ### Android
 
-Marathon Cloud supports tests written with UIAutomator, Espresso, and Kaspresso frameworks.
+Marathon Cloud supports tests written with UIAutomator, Cucumber, Espresso, and Kaspresso frameworks.
 You will need APK files for both the application and the tests.
 
 ## Installation
