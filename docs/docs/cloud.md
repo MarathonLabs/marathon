@@ -7,7 +7,7 @@ import TabItem from '@theme/TabItem';
 
 Marathon Cloud is a cloud testing infrastructure built on top of the Marathon test runner.
 It automatically provisions virtual devices to accommodate your tests within 15 minutes.
-The test execution is then delegated to Marathon Runner, which handles tasks such as batching, 
+The test execution is then delegated to Marathon test runner, which handles tasks such as batching, 
 sorting, preventive retries, and post-factum retries. 
 This ensures an even distribution of tests across the provisioned devices. 
 
