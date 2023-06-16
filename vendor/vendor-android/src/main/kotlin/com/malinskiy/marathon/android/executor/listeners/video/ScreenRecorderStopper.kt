@@ -15,9 +15,9 @@ internal class ScreenRecorderStopper(private val device: AndroidDevice) {
 
     private suspend fun grepPid(): String {
         val output = if (device.version.isGreaterOrEqualThan(26)) {
-            device.safeExecuteShellCommand("ps -A | grep screenrecord") ?: ""
+            device.safeExecuteShellCommand("ps -A | grep screenrecord")?.output ?: ""
         } else {
-            device.safeExecuteShellCommand("ps | grep screenrecord") ?: ""
+            device.safeExecuteShellCommand("ps | grep screenrecord")?.output ?: ""
         }
 
         if (output.isBlank()) {

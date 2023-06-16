@@ -1,6 +1,7 @@
 package com.malinskiy.marathon.android
 
 import com.android.sdklib.AndroidVersion
+import com.malinskiy.marathon.android.model.ShellCommandResult
 import com.malinskiy.marathon.device.screenshot.Rotation
 import com.malinskiy.marathon.config.vendor.android.VideoConfiguration
 import com.malinskiy.marathon.device.Device
@@ -24,17 +25,17 @@ interface AndroidDevice : Device, LogProducer, Screenshottable {
     /**
      * @return null if command did not complete successfully, otherwise cmd output
      */
-    suspend fun executeShellCommand(command: String, errorMessage: String = ""): String?
+    suspend fun executeShellCommand(command: String, errorMessage: String = ""): ShellCommandResult?
 
     /**
      * @return null if command did not complete successfully, otherwise cmd output
      */
-    suspend fun safeExecuteShellCommand(command: String, errorMessage: String = ""): String?
+    suspend fun safeExecuteShellCommand(command: String, errorMessage: String = ""): ShellCommandResult?
 
     /**
      * @throws com.malinskiy.marathon.android.exception.CommandRejectedException in case the command fails
      */
-    suspend fun criticalExecuteShellCommand(command: String, errorMessage: String = ""): String
+    suspend fun criticalExecuteShellCommand(command: String, errorMessage: String = ""): ShellCommandResult
 
     /**
      * @throws com.malinskiy.marathon.android.exception.TransferException
@@ -60,10 +61,10 @@ interface AndroidDevice : Device, LogProducer, Screenshottable {
     /**
      * @throws com.malinskiy.marathon.android.exception.InstallException in case of failure to push the apk
      */
-    suspend fun installPackage(absolutePath: String, reinstall: Boolean, optionalParams: List<String>): String?
-    suspend fun installSplitPackages(absolutePaths: List<String>, reinstall: Boolean, optionalParams: List<String>): String?
-    suspend fun safeUninstallPackage(appPackage: String, keepData: Boolean = false): String?
-    suspend fun safeClearPackage(packageName: String): String?
+    suspend fun installPackage(absolutePath: String, reinstall: Boolean, optionalParams: List<String>): ShellCommandResult?
+    suspend fun installSplitPackages(absolutePaths: List<String>, reinstall: Boolean, optionalParams: List<String>): String
+    suspend fun safeUninstallPackage(appPackage: String, keepData: Boolean = false): ShellCommandResult?
+    suspend fun safeClearPackage(packageName: String): ShellCommandResult?
     
     suspend fun safeStartScreenRecorder(remoteFilePath: String, options: VideoConfiguration)
 }

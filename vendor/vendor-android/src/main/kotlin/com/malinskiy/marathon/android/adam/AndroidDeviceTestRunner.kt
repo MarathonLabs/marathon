@@ -135,12 +135,12 @@ class AndroidDeviceTestRunner(private val device: AdamAndroidDevice, private val
         info: InstrumentationInfo
     ) {
         if (androidConfiguration.applicationPmClear) {
-            device.safeClearPackage(info.applicationPackage)?.trim()?.also {
+            device.safeClearPackage(info.applicationPackage)?.output?.trim()?.also {
                 logger.debug { "Package ${info.applicationPackage} cleared: $it" }
             }
         }
         if (androidConfiguration.testApplicationPmClear) {
-            device.safeClearPackage(info.instrumentationPackage)?.trim()?.also {
+            device.safeClearPackage(info.instrumentationPackage)?.output?.trim()?.also {
                 logger.debug { "Package ${info.instrumentationPackage} cleared: $it" }
             }
         }
@@ -149,14 +149,14 @@ class AndroidDeviceTestRunner(private val device: AdamAndroidDevice, private val
                 device.version.isGreaterOrEqualThan(30) -> {
                     val command = "appops set --uid ${info.applicationPackage} MANAGE_EXTERNAL_STORAGE allow"
                     device.criticalExecuteShellCommand(command).also {
-                        logger.debug { "File pull requested. Granted MANAGE_EXTERNAL_STORAGE to ${info.applicationPackage}: ${it.trim()}" }
+                        logger.debug { "File pull requested. Granted MANAGE_EXTERNAL_STORAGE to ${info.applicationPackage}: ${it.output.trim()}" }
                     }
                 }
                 device.version.equals(29) -> {
                     //API 29 doesn't have MANAGE_EXTERNAL_STORAGE, force legacy storage
                     val command = "appops set --uid ${info.applicationPackage} LEGACY_STORAGE allow"
                     device.criticalExecuteShellCommand(command).also {
-                        logger.debug { "File pull requested. Granted LEGACY_STORAGE to ${info.applicationPackage}: ${it.trim()}" }
+                        logger.debug { "File pull requested. Granted LEGACY_STORAGE to ${info.applicationPackage}: ${it.output.trim()}" }
                     }
                 }
             }
