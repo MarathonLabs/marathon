@@ -11,6 +11,7 @@ import NavbarIconLink from "./NavbarIconLink";
 import NavbarSeparator from "./NavbarSeparator";
 import NavbarCta from "./NavbarCta";
 
+
 // Related to https://github.com/facebook/docusaurus/issues/7227
 const ComponentTypes = {
   default: DefaultNavbarItem,
