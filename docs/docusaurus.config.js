@@ -19,15 +19,7 @@ const config = {
 
     i18n: {
         defaultLocale: 'en',
-        locales: ['en', 'zh'],
-        localeConfigs: {
-            en: {
-                htmlLang: 'en-US',
-            },
-            zh: {
-                htmlLang: 'zh_CN',
-            },
-        },
+        locales: ['en'],
     },
 
     markdown: {
@@ -105,10 +97,6 @@ const config = {
                         position: 'right',
                         dropdownActiveClassDisabled: true,
                         className: 'navbar__dropdown--versions',
-                    },
-                    {
-                        type: 'localeDropdown',
-                        position: 'right',
                     },
                     {
                         type: 'search',
