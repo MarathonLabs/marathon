@@ -66,15 +66,15 @@ const config = {
                     ]
                 },
                 gtag: {
-                  trackingID: 'G-7RE7PPY2QW',
-                  anonymizeIP: false,
+                    trackingID: 'G-7RE7PPY2QW',
+                    anonymizeIP: false,
                 },
             },
         ],
     ],
 
     themeConfig:
-    /** @type {import('@docusaurus/preset-classic').ThemeConfig} */
+        /** @type {import('@docusaurus/preset-classic').ThemeConfig} */
         ({
 
             colorMode: {
