@@ -16,6 +16,7 @@ import com.malinskiy.marathon.execution.filter.FragmentationFilter
 import com.malinskiy.marathon.execution.filter.FullyQualifiedClassnameFilter
 import com.malinskiy.marathon.execution.filter.FullyQualifiedTestnameFilter
 import com.malinskiy.marathon.execution.filter.SimpleClassnameFilter
+import com.malinskiy.marathon.execution.filter.SimpleTestNameFromFileFilter
 import com.malinskiy.marathon.execution.filter.TestMethodFilter
 import com.malinskiy.marathon.execution.filter.TestPackageFilter
 import com.malinskiy.marathon.execution.strategy.BatchingStrategy
@@ -61,6 +62,7 @@ fun FlakinessStrategyConfiguration.toFlakinessStrategy(): FlakinessStrategy {
 fun TestFilterConfiguration.toTestFilter(): TestFilter {
     return when (this) {
         is TestFilterConfiguration.AnnotationDataFilterConfiguration -> AnnotationDataFilter(this)
+        is TestFilterConfiguration.SimpleTestNameFromFileFilterConfiguration -> SimpleTestNameFromFileFilter(this)
         is TestFilterConfiguration.AnnotationFilterConfiguration -> AnnotationFilter(this)
         is TestFilterConfiguration.CompositionFilterConfiguration -> CompositionFilter(this.filters.map { it.toTestFilter() }, this.op)
         is TestFilterConfiguration.FragmentationFilterConfiguration -> FragmentationFilter(this)

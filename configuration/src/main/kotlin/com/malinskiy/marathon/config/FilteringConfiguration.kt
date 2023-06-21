@@ -27,6 +27,7 @@ data class FilteringConfiguration(
     ),
     JsonSubTypes.Type(value = TestFilterConfiguration.FullyQualifiedTestnameFilterConfiguration::class, name = "fully-qualified-test-name"),
     JsonSubTypes.Type(value = TestFilterConfiguration.SimpleClassnameFilterConfiguration::class, name = "simple-class-name"),
+    JsonSubTypes.Type(value = TestFilterConfiguration.SimpleTestNameFromFileFilterConfiguration::class, name = "simple-test-name-from-file"),
     JsonSubTypes.Type(value = TestFilterConfiguration.TestMethodFilterConfiguration::class, name = "method"),
     JsonSubTypes.Type(value = TestFilterConfiguration.TestPackageFilterConfiguration::class, name = "package"),
     JsonSubTypes.Type(value = TestFilterConfiguration.AllureFilterConfiguration::class, name = "allure"),
@@ -154,6 +155,19 @@ sealed class TestFilterConfiguration {
         }
 
         override fun hashCode(): Int = nameRegex.hashCode() + valueRegex.hashCode()
+    }
+
+    data class SimpleTestNameFromFileFilterConfiguration(
+        @JsonProperty("fileName") val fileName: String,
+        @JsonProperty("regex") val regex: Regex?
+    ): TestFilterConfiguration() {
+
+        override fun validate() {}
+
+        override fun equals(other: Any?): Boolean {
+            if (other !is SimpleTestNameFromFileFilterConfiguration) return false
+            return fileName.contentEquals(other.regex.toString())
+        }
     }
 
     data class FullyQualifiedTestnameFilterConfiguration(
