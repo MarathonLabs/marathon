@@ -3,7 +3,7 @@ import TabItem from '@theme/TabItem';
 
 # Introduction
 
-[Marathon Cloud](marathonlabs.io) revolutionizes your app testing experience. The platform provides infinite virtual devices and will automatically shard, sort, distribute, and retry your tests, allowing all tests to be completed in **a maximum of 15 minutes**. Firts **50 hours** are free!
+[Marathon Cloud](marathonlabs.io) revolutionizes your app testing experience. The platform provides infinite virtual devices and will automatically shard, sort, distribute, and retry your tests, allowing all tests to be completed in **a maximum of 15 minutes**. First **50 hours** are free!
 
 ## Getting started
 
@@ -31,10 +31,10 @@ To showcase the advantages of Marathon Cloud compared to other solutions, we've 
 <TabItem value="iOS" label="iOS">
 
 ```shell
-# Download prebuild iOS Application
+# Download the prebuilt iOS Application
 curl https://cloud.marathonlabs.io/samples/ios/sample.zip -o sample.zip
 
-# Download prebuild iOS Test Application
+# Download the prebuilt iOS Test Application
 curl https://cloud.marathonlabs.io/samples/ios/sampleUITests-Runner.zip -o sampleUITests-Runner.zip
 ```
 
@@ -42,10 +42,10 @@ curl https://cloud.marathonlabs.io/samples/ios/sampleUITests-Runner.zip -o sampl
 <TabItem value="Android" label="Android">
 
 ```shell
-# Download prebuild Android Application
+# Download the prebuilt Android Application
 curl https://cloud.marathonlabs.io/samples/android/app.apk -o app.apk
 
-# Download prebuild Android Test Application
+# Download the prebuilt Android Test Application
 curl https://cloud.marathonlabs.io/samples/android/appTest.apk -o appTest.apk
 ```
 
@@ -60,6 +60,6 @@ marathon-cloud -api_key api_key -apk app.apk -testapk appTest.apk
 ```
 For additional parameters, refer to the [marathon-cloud-cli README](https://github.com/MarathonLabs/marathon-cloud-cli/#installation).
 
-## How to from A to Z
+## How to go from A to Z
 
-If you are looking for a detailed documentation of Marathon Cloud then please read the correspondent article [for iOS](https://medium.marathonlabs.io/run-ios-tests-with-marathon-cloud-692a75213c86) and [for Android](https://medium.marathonlabs.io/run-android-tests-with-marathon-cloud-98de3bfb0ff0).
+If you are looking for detailed documentation of Marathon Cloud then please read the correspondent article [for iOS](https://medium.marathonlabs.io/run-ios-tests-with-marathon-cloud-692a75213c86) and [for Android](https://medium.marathonlabs.io/run-android-tests-with-marathon-cloud-98de3bfb0ff0).
