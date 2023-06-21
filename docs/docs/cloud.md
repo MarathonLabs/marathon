@@ -31,10 +31,10 @@ To showcase the advantages of Marathon Cloud compared to other solutions, we've 
 <TabItem value="iOS" label="iOS">
 
 ```shell
-# Download prebuild iOS Application
+# Download the prebuilt iOS Application
 curl https://cloud.marathonlabs.io/samples/ios/sample.zip -o sample.zip
 
-# Download prebuild iOS Test Application
+# Download the prebuilt iOS Test Application
 curl https://cloud.marathonlabs.io/samples/ios/sampleUITests-Runner.zip -o sampleUITests-Runner.zip
 ```
 
