@@ -53,6 +53,14 @@
         "ios/configure",
         "ios/examples"
       ]
+    },
+    {
+      "type": "category",
+      "label": "Cloud",
+      "collapsed": false,
+      "items": [
+        "cloud"
+      ]
     }
   ]
 }
