@@ -117,10 +117,10 @@ To showcase the advantages of Marathon Cloud compared to other solutions, we've 
 <TabItem value="iOS" label="iOS">
 
 ```shell
-# Download prebuild iOS Application
+# Download the prebuilt iOS Application
 curl https://cloud.marathonlabs.io/samples/ios/sample.zip -o sample.zip
 
-# Download prebuild iOS Test Application
+# Download the prebuilt iOS Test Application
 curl https://cloud.marathonlabs.io/samples/ios/sampleUITests-Runner.zip -o sampleUITests-Runner.zip
 ```
 
@@ -128,10 +128,10 @@ curl https://cloud.marathonlabs.io/samples/ios/sampleUITests-Runner.zip -o sampl
 <TabItem value="Android" label="Android">
 
 ```shell
-# Download prebuild Android Application
+# Download the prebuilt Android Application
 curl https://cloud.marathonlabs.io/samples/android/app.apk -o app.apk
 
-# Download prebuild Android Test Application
+# Download the prebuilt Android Test Application
 curl https://cloud.marathonlabs.io/samples/android/appTest.apk -o appTest.apk
 ```
 
