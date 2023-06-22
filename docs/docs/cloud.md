@@ -13,12 +13,7 @@ This ensures an even distribution of tests across the provisioned devices.
 
 ## Install
 
-The installation can be performed using [Homebrew](https://brew.sh/). Here's how to add the MarathonLabs repository:
-
-```shell
-brew tap malinskiy/tap
-```
-Next, install the Marathon Cloud CLI:
+The installation can be performed using [Homebrew](https://brew.sh/):
 ```shell
 brew install malinskiy/tap/marathon-cloud
 ```
@@ -26,7 +21,7 @@ Alternatively, you can download prebuilt binaries for Windows, Linux, or MacOS f
 
 ## API Key
 
-Token creation and management are available at [the Tokens page](https://dev.testwise.pro/tokens). Generate a token and save it somewhere safe for the next step.
+Token creation and management are available at [the Tokens page](https://cloud.marathonlabs.io/tokens). Generate a token and save it somewhere safe for the next step.
 
 ## Prepare bundles for testing
 
