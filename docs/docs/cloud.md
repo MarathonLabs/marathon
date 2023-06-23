@@ -51,7 +51,7 @@ xcodebuild build-for-testing \
   -derivedDataPath ./build
 ```
 
-Be sure to note the relative paths of applications, as they will be required for running the tests. In the context of our example, involving the `debug` build, these files can be located at the following paths:
+Note the relative paths of applications, as they will be required for running the tests. In the context of our example and `debug` build, these files can be located at the following paths:
 
 - Application: `/home/john/sample/build/Build/Products/Debug-iphonesimulator/sample.app`
 - Test APK: `/home/john/sample/build/Build/Products/Debug-iphonesimulator/sampleUITests-Runner.app`
