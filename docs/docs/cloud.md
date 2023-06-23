@@ -32,7 +32,7 @@ Both the application and the tests must be built for the **ARM architecture**.
 
 Before initiating the testing process for your iOS application, you’ll need to create two `.app` bundles: one for the application that's being tested, and another for the tests themselves. Typically, `debug` variants are utilized for this purpose.
 
-Imagine that our project is called "Sample". For this scenario, the code snippet below demonstrates how the building command should be presented:
+Let's say our project is called "Sample". The code snippet below shows how to build the .app bundle:
 
 ```shell
 # file structure
