@@ -107,7 +107,7 @@ Be sure to note the relative paths of the test APK and the app APK, as they will
 
 ## Samples (optional)
 
-To showcase the advantages of Marathon Cloud compared to other solutions, we've prepared a sample app with 300 tests, out of which 15% are flaky. During the initial run, our platform will gather information about the tests. During the second run, it will optimize it to fit within 15 minutes.
+To showcase the advantages of Marathon Cloud compared to other solutions, we've prepared a sample app with 300 tests, of which 15% are flaky. During the initial run, our platform will gather information about the tests. During the second run, it will optimize it to fit within 15 minutes.
 <Tabs>
 <TabItem value="iOS" label="iOS">
 
