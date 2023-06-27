@@ -30,7 +30,7 @@ Token creation and management are available at [the Tokens page](https://cloud.m
 Marathon Cloud supports tests written with **XCTest and XCUITest frameworks**.
 Both the application and the tests must be built for the **ARM architecture**.
 
-Before initiating the testing process for your iOS application, you’ll need to create two `.app` bundles: one for the application that's being tested (`.ipa` format for application is supported too), and another for the tests themselves. Typically, `debug` variants are utilized for this purpose.
+Before initiating the testing process for your iOS application, you’ll need to create two `.app` bundles: one for the application that's being tested, and another for the tests themselves. Typically, `debug` variants are utilized for this purpose.
 
 Let's say our project is called "Sample". The code snippet below shows how to build the .app bundle:
 
