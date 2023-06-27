@@ -30,7 +30,7 @@ Token creation and management are available at [the Tokens page](https://cloud.m
 Marathon Cloud supports tests written with **XCTest and XCUITest frameworks**.
 Both the application and the tests must be built for the **ARM architecture**.
 
-Before initiating the testing process for your iOS application, you’ll need to create two `.app` bundles: one for the application that's being tested (`.ipa` format for application is supported too), and another for the tests themselves. Typically, `debug` variants are utilized for this purpose.
+Before initiating the testing process for your iOS application, you’ll need to create two `.app` bundles: one for the application that's being tested, and another for the tests themselves. Typically, `debug` variants are utilized for this purpose.
 
 Let's say our project is called "Sample". The code snippet below shows how to build the .app bundle:
 
@@ -56,7 +56,7 @@ Note the relative paths of applications, as they will be required for running th
 - Application: `/home/john/sample/build/Build/Products/Debug-iphonesimulator/sample.app`
 - Test APK: `/home/john/sample/build/Build/Products/Debug-iphonesimulator/sampleUITests-Runner.app`
 
-One important thing to note is that `*.app` files are actually folders in disguise. To transfer them, it's necessary to convert these bundles into standard zip archives:
+One important thing to note is that `*.app` files are actually folders in disguise. To transfer them, it's necessary to convert these bundles into `.ipa` format or standard `zip` archives:
 
 ```shell
 # file structure
@@ -69,6 +69,7 @@ One important thing to note is that `*.app` files are actually folders in disgui
 #          ...
 #          |--sample.xcodeproj
 cd build/Build/Products/Debug-iphonesimulator
+# convert to zip archive in this example
 zip -r sample.zip sample.app
 zip -r sampleUITests-Runner.zip sampleUITests-runner.app 
 ```
@@ -142,9 +143,10 @@ Now you can start running your tests. Use the following command to execute the C
 
 ```shell
 marathon-cloud \
-	-api_key api_key \
-	-apk sample.zip \
-	-testapk sampleUITests-Runner.zip
+	-api-key api_key \
+	-app sample.zip \
+	-testapp sampleUITests-Runner.zip \
+	-platform iOS
 ```
 
 </TabItem>	
@@ -152,9 +154,10 @@ marathon-cloud \
 
 ```shell
 marathon-cloud \
-	-api_key api_key \
-	-apk app.apk \
-	-testapk appTest.apk
+	-api-key api_key \
+	-app app.apk \
+	-testapk appTest.apk \
+	-platform Android
 ```
 
 </TabItem>
