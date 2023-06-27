@@ -69,7 +69,7 @@ One important thing to note is that `*.app` files are actually folders in disgui
 #          ...
 #          |--sample.xcodeproj
 cd build/Build/Products/Debug-iphonesimulator
-# convert to zip archive in this format
+# convert to zip archive in this example
 zip -r sample.zip sample.app
 zip -r sampleUITests-Runner.zip sampleUITests-runner.app 
 ```
