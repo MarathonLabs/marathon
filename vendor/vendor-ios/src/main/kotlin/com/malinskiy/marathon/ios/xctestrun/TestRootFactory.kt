@@ -151,6 +151,7 @@ class TestRootFactory(private val device: AppleSimulatorDevice, private val vend
          * This is what Xcode does out of the box
          */
         val remoteXctest = joinPath(remoteTestApp, "PlugIns", bundleConfiguration.xctest.name)
+        remoteFileManager.createRemoteDirectory(joinPath(remoteTestApp, "PlugIns"))
         if (bundleConfiguration.xctest == Path.of(testApp.path, "PlugIns")) {
             //We already pushed it above
         } else {
