@@ -17,10 +17,10 @@ class RemoteFileManager(private val device: AppleDevice) {
 
     fun remoteDirectory(): String = outputDir
 
-    suspend fun createRemoteDirectory(remoteDir: String = outputDir) {
+    suspend fun createRemoteDirectory(remoteDir: String = remoteDirectory()) {
         executeCommand(
-            listOf("mkdir", "-p", remoteDirectory()),
-            "Could not create remote directory ${remoteDirectory()}"
+            listOf("mkdir", "-p", remoteDir),
+            "Could not create remote directory $remoteDir"
         )
     }
 
