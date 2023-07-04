@@ -9,4 +9,4 @@ To better understand this, picture having a test suite that requires 2 hours and
 
 # Calculating Time per Device
 
-The computation of time for each device during a test run is based on the span from the beginning of the first test on that device to the end of the last test on the same device. This means we don't factor in the device booting process or the application installation stage. We do, however, take into account the brief pauses between tests and the periodic device clean-ups that occur when using a batching strategy. Typically, pauses between tests take only fractions of a second, but clean-ups can require up to 6-8 seconds.
+The computation of time for each device during a test run is based on the time span from the beginning of the first test on that device to the end of the last test on the same device. This means we don't factor in the device booting process or the application installation stage. We do, however, take into account the brief pauses between tests and the periodic device clean-ups that occur when using a batching strategy. Typically, pauses between tests take only fractions of a second, but clean-ups can require up to 6-8 seconds.
