@@ -74,7 +74,9 @@ const sidebars = {
       label: 'Cloud',
       collapsed: false,
       items: [
-        'cloud'
+        'cloud/overview',
+        'cloud/getting-started',
+        'cloud/pricing'
       ]
     }
   ],
