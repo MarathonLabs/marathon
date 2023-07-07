@@ -95,7 +95,7 @@ class ScreenRecordingListener(
             stop()
         }
         lastRemoteFile = null
-        pullVideo(test, false)
+        pullVideo(test, success)
     }
 
     private suspend fun pullVideo(test: Test, success: Boolean) {
