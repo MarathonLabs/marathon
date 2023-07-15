@@ -19,9 +19,22 @@ It is much easier to supply the `.app` application bundle and `.xctest` bundle d
 archive and depending on runtime discovery of your bundles
 
 :::
+
+## Compatibility notes
+### XcodeGen
+For users of [XcodeGen][5] marathon requires you to specify the following in your project's spec to make sure Info.plist is generated for parsing your app's information:
+
+```yaml
+settings:
+  GENERATE_INFOPLIST_FILE: YES
+```
+
+See [XcodeGen docs][6] for more information.
  
 
 [1]: ios/workers.md
 [2]: https://en.wikipedia.org/wiki/Secure_Shell
 [3]: https://en.wikipedia.org/wiki/Rsync
 [4]: https://en.wikipedia.org/wiki/.ipa
+[5]: https://github.com/yonaskolb/XcodeGen
+[6]: https://github.com/yonaskolb/XcodeGen/blob/a9ed3cec0800ac9a8b4cd5cfb0bb3ee76429a22c/Docs/ProjectSpec.md
