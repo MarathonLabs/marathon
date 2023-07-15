@@ -261,9 +261,16 @@ If you specify custom ones then your values will be placed as a lower priority p
 
 ### Test run lifecycle
 Marathon provides two lifecycle hooks: `onPrepare` and `onDispose`. 
-For each you can specify one of the `TERMINATE` (terminate simulator), `SHUTDOWN` (shutdown simulator) and `ERASE` (erase simulator).
+For each you can specify one of the following actions: `SHUTDOWN` (shutdown simulator), `ERASE` (erase simulator) and `TERMINATE` (terminate simulator).
 
 These can be useful during provisioning of workers, e.g. you might want to erase the existing simulators before using them
+
+:::warning
+
+If you specify `TERMINATE` marathon will `kill -SIGKILL` the simulators. This usually results in simulators unable to boot with
+black screen as well as a number of zombie processes and can only be resolved by erasing the state. In most cases `SHUTDOWN` is the recommended action.
+
+:::
 
 :::tip
 
@@ -277,7 +284,7 @@ lifecycle:
   onPrepare:
     - ERASE
   onDispose:
-    - TERMINATE
+    - SHUTDOWN
 ```
 
 :::tip
