@@ -343,6 +343,37 @@ marathon {
 </TabItem>
 </Tabs>
 
+### BugSnag reporting
+To better understand crashes, we report crashes with anonymised info. By default, this is enabled. Use **false** to disable.
+
+<Tabs>
+<TabItem value="YAML" label="Marathonfile">
+
+```yaml
+bugsnagReporting: false
+```
+
+</TabItem>
+<TabItem value="kts" label="Kotlin DSL">
+
+```kotlin
+marathon {
+  bugsnagReporting = false
+}
+```
+
+</TabItem>
+<TabItem value="groovy" label="Groovy DSL">
+
+```groovy
+marathon {
+  bugsnagReporting = false
+}
+```
+
+</TabItem>
+</Tabs>
+
 ### Uncompleted test retry quota
 By default, tests that don't have any status reported after execution (for example a device disconnected during the execution) retry
 indefinitely. You can limit the number of total execution for such cases using this option.
