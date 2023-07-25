@@ -13,7 +13,7 @@ class MarathonRunCommonOptions : OptionGroup() {
     val marathonfile by option("--marathonfile", "-m", help="Marathonfile file path")
         .file()
         .default(File("Marathonfile"))
-    val analyticsTracking by option("--analyticsTracking", help="Enable anonymous analytics tracking")
+    val analyticsTracking by option("--analyticsTracking", help="Enable / Disable anonymous analytics tracking. Enabled by default.")
         .convert { it.toBoolean() }
         .default(true)
     val bugsnagReporting by option("--bugsnag", help="Enable/Disable anonymous crash reporting. Enabled by default")

@@ -181,8 +181,6 @@ class Marathon(
     }
 
     private fun logSystemInformation() {
-        log.info { "System Information:" }
-
         val properties = System.getProperties()
         val systemProperties = properties.filterKeys { it.toString().startsWith("java") || it.toString().startsWith("os") }
         systemProperties.forEach {

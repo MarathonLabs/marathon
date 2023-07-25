@@ -49,6 +49,7 @@ data class Configuration private constructor(
     val vendorConfiguration: VendorConfiguration,
 
     val analyticsTracking: Boolean,
+    val bugsnagReporting: Boolean,
     val deviceInitializationTimeoutMillis: Long,
 ) {
     fun toMap() =
@@ -109,6 +110,7 @@ data class Configuration private constructor(
         if (screenRecordingPolicy != other.screenRecordingPolicy) return false
         if (vendorConfiguration != other.vendorConfiguration) return false
         if (analyticsTracking != other.analyticsTracking) return false
+        if (bugsnagReporting != other.bugsnagReporting) return false
         if (deviceInitializationTimeoutMillis != other.deviceInitializationTimeoutMillis) return false
 
         return true
@@ -139,6 +141,7 @@ data class Configuration private constructor(
         result = 31 * result + screenRecordingPolicy.hashCode()
         result = 31 * result + vendorConfiguration.hashCode()
         result = 31 * result + analyticsTracking.hashCode()
+        result = 31 * result + bugsnagReporting.hashCode()
         result = 31 * result + deviceInitializationTimeoutMillis.hashCode()
         return result
     }
@@ -171,6 +174,7 @@ data class Configuration private constructor(
          var screenRecordingPolicy: ScreenRecordingPolicy = ScreenRecordingPolicy.ON_FAILURE,
 
          var analyticsTracking: Boolean = false,
+         var bugsnagReporting: Boolean = false,
          var deviceInitializationTimeoutMillis: Long = DEFAULT_DEVICE_INITIALIZATION_TIMEOUT_MILLIS,
 
          var outputConfiguration: OutputConfiguration = OutputConfiguration(),
@@ -202,6 +206,7 @@ data class Configuration private constructor(
                 screenRecordingPolicy = screenRecordingPolicy,
                 vendorConfiguration = vendorConfiguration,
                 analyticsTracking = analyticsTracking,
+                bugsnagReporting = bugsnagReporting,
                 deviceInitializationTimeoutMillis = deviceInitializationTimeoutMillis
             )
         }

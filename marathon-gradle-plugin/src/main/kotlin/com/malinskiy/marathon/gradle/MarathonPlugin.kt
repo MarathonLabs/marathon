@@ -183,6 +183,7 @@ class MarathonPlugin : Plugin<Project> {
                 config.debug?.let { debug = it }
                 config.screenRecordingPolicy?.let { screenRecordingPolicy = it }
                 config.analyticsTracking?.let { analyticsTracking = it }
+                config.bugsnagReporting?.let { bugsnagReporting = it }
                 config.deviceInitializationTimeoutMillis?.let {
                     deviceInitializationTimeoutMillis = deviceInitializationTimeoutMillis
                 }

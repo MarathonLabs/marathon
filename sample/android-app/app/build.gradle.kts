@@ -51,6 +51,8 @@ android {
 }
 
 marathon {
+    analyticsTracking = false
+    bugsnagReporting = false
     allureConfiguration {
         enabled = true
     }
