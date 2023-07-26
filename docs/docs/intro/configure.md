@@ -344,7 +344,12 @@ marathon {
 </TabItem>
 </Tabs>
 
-NOTE: analyticsTracking can also be enabled (default value) / disabled directly from the CLI. It is disabled if it's set to be disabled in either the config or the CLI.
+:::note
+
+analyticsTracking can also be enabled (default value) / disabled directly from the CLI. It is disabled if it's set to be disabled in either the config or the CLI.
+
+:::
+
 
 ### BugSnag reporting
 
@@ -378,7 +383,12 @@ marathon {
 </TabItem>
 </Tabs>
 
-NOTE: bugsnagReporting can also be enabled (default value) / disabled directly from the CLI. It is disabled if it's set to be disabled in either the config or the CLI.
+:::note
+
+bugsnagReporting can also be enabled (default value) / disabled directly from the CLI. It is disabled if it's set to be disabled in either the config or the CLI.
+
+:::
+
 
 ### Uncompleted test retry quota
 By default, tests that don't have any status reported after execution (for example a device disconnected during the execution) retry
