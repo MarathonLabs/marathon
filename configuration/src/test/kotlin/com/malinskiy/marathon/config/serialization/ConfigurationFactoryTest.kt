@@ -410,4 +410,42 @@ class ConfigurationFactoryTest {
             )
         )
     }
+
+    @Test
+    fun `on configuration with tracking enabled by default`() {
+        val file = File(ConfigurationFactoryTest::class.java.getResource("/fixture/config/sample_1.yaml").file)
+        parser = ConfigurationFactory(
+            file.parentFile,
+        )
+        val configuration = parser.parse(file)
+
+        configuration.analyticsTracking shouldBeEqualTo true
+        configuration.bugsnagReporting shouldBeEqualTo true
+    }
+
+    @Test
+    fun `on configuration with tracking disabled in cli`() {
+        val file = File(ConfigurationFactoryTest::class.java.getResource("/fixture/config/sample_1.yaml").file)
+        parser = ConfigurationFactory(
+            file.parentFile,
+            analyticsTracking = false,
+            bugsnagReporting = false,
+        )
+        val configuration = parser.parse(file)
+
+        configuration.analyticsTracking shouldBeEqualTo false
+        configuration.bugsnagReporting shouldBeEqualTo false
+    }
+
+    @Test
+    fun `on configuration with tracking disabled in config file`() {
+        val file = File(ConfigurationFactoryTest::class.java.getResource("/fixture/config/sample_1_no_tracking.yaml").file)
+        parser = ConfigurationFactory(
+            file.parentFile,
+        )
+        val configuration = parser.parse(file)
+
+        configuration.analyticsTracking shouldBeEqualTo false
+        configuration.bugsnagReporting shouldBeEqualTo false
+    }
 }

@@ -173,8 +173,8 @@ data class Configuration private constructor(
 
          var screenRecordingPolicy: ScreenRecordingPolicy = ScreenRecordingPolicy.ON_FAILURE,
 
-         var analyticsTracking: Boolean = false,
-         var bugsnagReporting: Boolean = false,
+         var analyticsTracking: Boolean = true,
+         var bugsnagReporting: Boolean = true,
          var deviceInitializationTimeoutMillis: Long = DEFAULT_DEVICE_INITIALIZATION_TIMEOUT_MILLIS,
 
          var outputConfiguration: OutputConfiguration = OutputConfiguration(),
