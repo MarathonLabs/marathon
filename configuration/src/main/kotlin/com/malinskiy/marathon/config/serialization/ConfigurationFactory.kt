@@ -112,8 +112,8 @@ class ConfigurationFactory(
                 // Default value for analyticsTracking / bugsnagReporting in both CLI and marathon / gradle config is true.
                 // If analyticsTracking / bugsnagReporting is set to false in either CLI or marathon / gradle config, it will be disabled.
                 // Note that it's not possible to set the CLI value when running marathon via gradle.
-                analyticsTracking = run {if (analyticsTracking == false || configuration.analyticsTracking == false) false else true},
-                bugsnagReporting = run {if (bugsnagReporting == false || configuration.bugsnagReporting == false) false else true}
+                analyticsTracking = if (analyticsTracking == false || configuration.analyticsTracking == false) false else true,
+                bugsnagReporting = if (bugsnagReporting == false || configuration.bugsnagReporting == false) false else true
             )
         } catch (e: JsonProcessingException) {
             throw ConfigurationException("Error parsing config file ${marathonfile.absolutePath}", e)
