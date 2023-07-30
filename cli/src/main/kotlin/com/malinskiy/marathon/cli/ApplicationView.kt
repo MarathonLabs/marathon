@@ -3,6 +3,7 @@ package com.malinskiy.marathon.cli
 import com.github.ajalt.clikt.core.PrintMessage
 import com.github.ajalt.clikt.core.subcommands
 import com.malinskiy.marathon.Marathon
+import com.malinskiy.marathon.exceptions.ExceptionsReporter
 import com.malinskiy.marathon.android.AndroidVendor
 import com.malinskiy.marathon.android.adam.di.adamModule
 import com.malinskiy.marathon.cli.args.CliConfiguration
@@ -45,10 +46,8 @@ private fun execute(cliConfiguration: CliConfiguration) {
         else -> throw IllegalArgumentException("Please handle the new format of cliConfiguration=$cliConfiguration")
     }
 
-    val bugsnagExceptionsReporter = ExceptionsReporterFactory.get(marathonStartConfiguration.bugsnagReporting)
+    var bugsnagExceptionsReporter: ExceptionsReporter? = null;
     try {
-        bugsnagExceptionsReporter.start(AppType.CLI)
-
         logger.info { "Checking ${marathonStartConfiguration.marathonfile} config" }
         if (!marathonStartConfiguration.marathonfile.isFile) {
             logger.error { "No config ${marathonStartConfiguration.marathonfile.absolutePath} present" }
@@ -58,7 +57,12 @@ private fun execute(cliConfiguration: CliConfiguration) {
         val configuration = ConfigurationFactory(
             marathonfileDir = marathonStartConfiguration.marathonfile.canonicalFile.parentFile,
             analyticsTracking = marathonStartConfiguration.analyticsTracking,
+            bugsnagReporting = marathonStartConfiguration.bugsnagReporting,
         ).parse(marathonStartConfiguration.marathonfile)
+
+        bugsnagExceptionsReporter = ExceptionsReporterFactory.get(configuration.bugsnagReporting)
+        bugsnagExceptionsReporter.start(AppType.CLI)
+
         val vendorConfiguration = configuration.vendorConfiguration
         val modules = when (vendorConfiguration) {
             is VendorConfiguration.IOSConfiguration -> {
@@ -87,6 +91,8 @@ private fun execute(cliConfiguration: CliConfiguration) {
         }
     } finally {
         stopKoin()
-        bugsnagExceptionsReporter.end()
+        if (bugsnagExceptionsReporter != null) {
+            bugsnagExceptionsReporter.end()
+        }
     }
 }

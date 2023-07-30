@@ -312,6 +312,7 @@ marathon {
 </Tabs>
 
 ### Analytics tracking
+
 To better understand the use-cases that marathon is used for we're asking you to provide us with anonymised information about your usage. By
 default, this is enabled. Use **false** to disable.
 
@@ -342,6 +343,52 @@ marathon {
 
 </TabItem>
 </Tabs>
+
+:::note
+
+analyticsTracking can also be enabled (default value) / disabled directly from the CLI. It is disabled if it's set to be disabled in either the config or the CLI.
+
+:::
+
+
+### BugSnag reporting
+
+To better understand crashes, we report crashes with anonymised info. By default, this is enabled. Use **false** to disable.
+
+<Tabs>
+<TabItem value="YAML" label="Marathonfile">
+
+```yaml
+bugsnagReporting: false
+```
+
+</TabItem>
+<TabItem value="kts" label="Kotlin DSL">
+
+```kotlin
+marathon {
+  bugsnagReporting = false
+}
+```
+
+</TabItem>
+<TabItem value="groovy" label="Groovy DSL">
+
+```groovy
+marathon {
+  bugsnagReporting = false
+}
+```
+
+</TabItem>
+</Tabs>
+
+:::note
+
+bugsnagReporting can also be enabled (default value) / disabled directly from the CLI. It is disabled if it's set to be disabled in either the config or the CLI.
+
+:::
+
 
 ### Uncompleted test retry quota
 By default, tests that don't have any status reported after execution (for example a device disconnected during the execution) retry

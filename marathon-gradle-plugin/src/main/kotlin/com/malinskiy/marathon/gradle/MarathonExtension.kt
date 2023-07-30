@@ -222,6 +222,11 @@ open class MarathonExtension {
     var analyticsTracking: Boolean = true
 
     /**
+     * Whether to report crashes to Bugsnag. By default, this is enabled. Use **false** to disable.
+     */
+    var bugsnagReporting: Boolean = true
+
+    /**
      * When the test run starts device provider is expected to provide some devices. This should not take more than 3 minutes by default. If your
      * setup requires this to be changed please override using this parameter
      */

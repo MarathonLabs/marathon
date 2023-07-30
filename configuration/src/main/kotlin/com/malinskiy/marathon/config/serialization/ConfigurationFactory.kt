@@ -44,6 +44,7 @@ class ConfigurationFactory(
     },
     private val environmentVariableSubstitutor: StringSubstitutor = StringSubstitutor(StringLookupFactory.INSTANCE.environmentVariableStringLookup()),
     private val analyticsTracking: Boolean? = null,
+    private val bugsnagReporting: Boolean? = null,
 ) {
     fun parse(marathonfile: File): Configuration {
         val configWithEnvironmentVariablesReplaced = environmentVariableSubstitutor.replace(marathonfile.readText())
@@ -106,10 +107,13 @@ class ConfigurationFactory(
                 VendorConfiguration.StubVendorConfiguration -> configuration.vendorConfiguration
                 is VendorConfiguration.EmptyVendorConfiguration -> throw ConfigurationException("No vendor configuration specified")
             }
-
             return configuration.copy(
                 vendorConfiguration = vendorConfiguration,
-                analyticsTracking = analyticsTracking ?: configuration.analyticsTracking
+                // Default value for analyticsTracking / bugsnagReporting in both CLI and marathon / gradle config is true.
+                // If analyticsTracking / bugsnagReporting is set to false in either CLI or marathon / gradle config, it will be disabled.
+                // Note that it's not possible to set the CLI value when running marathon via gradle.
+                analyticsTracking = if (analyticsTracking == false || configuration.analyticsTracking == false) false else true,
+                bugsnagReporting = if (bugsnagReporting == false || configuration.bugsnagReporting == false) false else true
             )
         } catch (e: JsonProcessingException) {
             throw ConfigurationException("Error parsing config file ${marathonfile.absolutePath}", e)

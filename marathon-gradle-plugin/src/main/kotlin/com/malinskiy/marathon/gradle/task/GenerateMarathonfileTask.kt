@@ -69,7 +69,8 @@ open class GenerateMarathonfileTask @Inject constructor(objects: ObjectFactory) 
         // Write a Marathonfile
         val configurationFactory = ConfigurationFactory(
             marathonfileDir = temporaryDir,
-            analyticsTracking = cnf.analyticsTracking
+            analyticsTracking = cnf.analyticsTracking,
+            bugsnagReporting = cnf.bugsnagReporting
         )
         val yaml = configurationFactory.serialize(cnf)
         marathonfile.get().asFile.writeText(yaml)
