@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalCoroutinesApi::class, ExperimentalTime::class)
+
 package com.malinskiy.marathon.scenario
 
 import com.malinskiy.marathon.config.strategy.RetryStrategyConfiguration
@@ -9,6 +11,7 @@ import com.malinskiy.marathon.test.setupMarathon
 import com.malinskiy.marathon.time.Timer
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -20,6 +23,7 @@ import org.junit.jupiter.api.Test
 import org.koin.core.context.stopKoin
 import java.io.File
 import java.util.concurrent.TimeUnit
+import kotlin.time.ExperimentalTime
 import com.malinskiy.marathon.test.Test as MarathonTest
 
 class UncompletedScenariosTest {

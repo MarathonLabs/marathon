@@ -81,13 +81,13 @@ private fun execute(cliConfiguration: CliConfiguration) {
             marathon.run(marathonStartConfiguration.executionCommand)
         } catch (e: Exception) {
             logger.error(e) {}
-            throw PrintMessage(message = "Marathon execution crashed", error = true)
+            throw PrintMessage(message = "Marathon execution crashed", statusCode = 1, printError = true)
         }
 
         when {
-            success -> throw PrintMessage(message = "Marathon execution finished", error = false)
-            configuration.ignoreFailures -> throw PrintMessage(message = "Marathon execution finished with failures (Failures suppressed because ignoreFailures is `true`)", error = false)
-            else -> throw PrintMessage(message = "Marathon execution failed", error = true)
+            success -> throw PrintMessage(message = "Marathon execution finished", statusCode = 1, printError = false)
+            configuration.ignoreFailures -> throw PrintMessage(message = "Marathon execution finished with failures (Failures suppressed because ignoreFailures is `true`)", statusCode = 1, printError = true)
+            else -> throw PrintMessage(message = "Marathon execution failed", statusCode = 1, printError = true)
         }
     } finally {
         stopKoin()

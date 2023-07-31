@@ -41,6 +41,7 @@ import kotlinx.coroutines.withTimeoutOrNull
 import org.koin.core.context.stopKoin
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.coroutines.coroutineContext
+import kotlin.system.measureTimeMillis
 
 private val log = MarathonLogging.logger {}
 
@@ -100,27 +101,30 @@ class Marathon(
     }
 
     suspend fun runAsync(executionCommand: ExecutionCommand = MarathonRunCommand): Boolean {
-        configureLogging()
+        var parsedAllTests: List<Test> = emptyList()
+        measureTimeMillis {
+            configureLogging()
 
-        logSystemInformation()
-        configurationValidator.validate(configuration)
+            logSystemInformation()
+            configurationValidator.validate(configuration)
 
-        deviceProvider.initialize()
-        val parsedAllTests = when (testParser) {
-            is LocalTestParser -> testParser.extract()
-            is RemoteTestParser<*> -> {
-                withRetry(3, 0) {
-                    withTimeoutOrNull(configuration.deviceInitializationTimeoutMillis) {
-                        val borrowedDevice = deviceProvider.borrow()
-                        testParser.extract(borrowedDevice)
-                    } ?: throw NoDevicesException("Timed out waiting for a temporary device for remote test parsing")
+            deviceProvider.initialize()
+            parsedAllTests = when (testParser) {
+                is LocalTestParser -> testParser.extract()
+                is RemoteTestParser<*> -> {
+                    withRetry(3, 0) {
+                        withTimeoutOrNull(configuration.deviceInitializationTimeoutMillis) {
+                            val borrowedDevice = deviceProvider.borrow()
+                            testParser.extract(borrowedDevice)
+                        } ?: throw NoDevicesException("Timed out waiting for a temporary device for remote test parsing")
+                    }
+                }
+
+                else -> {
+                    throw ConfigurationException("Unknown test parser type for ${testParser::class}, should inherit from either ${LocalTestParser::class.simpleName} or ${RemoteTestParser::class.simpleName}")
                 }
             }
-
-            else -> {
-                throw ConfigurationException("Unknown test parser type for ${testParser::class}, should inherit from either ${LocalTestParser::class.simpleName} or ${RemoteTestParser::class.simpleName}")
-            }
-        }
+        }.let { println("Took $it ms") }
 
         usageTracker.meta(
             version = BuildConfig.VERSION, releaseMode = BuildConfig.RELEASE_MODE, vendor = when (configuration.vendorConfiguration) {

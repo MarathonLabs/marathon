@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalCoroutinesApi::class, ExperimentalTime::class)
+
 package com.malinskiy.marathon.scenario
 
 import com.malinskiy.marathon.config.exceptions.ConfigurationException
@@ -7,6 +9,7 @@ import com.malinskiy.marathon.device.DeviceProvider
 import com.malinskiy.marathon.execution.TestStatus
 import com.malinskiy.marathon.test.StubDevice
 import com.malinskiy.marathon.test.setupMarathon
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.advanceTimeBy
@@ -18,6 +21,7 @@ import org.junit.jupiter.api.assertThrows
 import org.koin.core.context.stopKoin
 import java.io.File
 import java.time.Instant
+import kotlin.time.ExperimentalTime
 import com.malinskiy.marathon.test.Test as MarathonTest
 
 class InvalidConfigScenariosTest {

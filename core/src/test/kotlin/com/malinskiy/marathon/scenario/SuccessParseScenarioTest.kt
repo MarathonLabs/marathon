@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalCoroutinesApi::class, ExperimentalTime::class)
+
 package com.malinskiy.marathon.scenario
 
 import com.malinskiy.marathon.config.ParseCommand
@@ -5,6 +7,7 @@ import com.malinskiy.marathon.device.DeviceProvider
 import com.malinskiy.marathon.execution.TestStatus
 import com.malinskiy.marathon.test.StubDevice
 import com.malinskiy.marathon.test.setupMarathon
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -17,6 +20,7 @@ import org.junit.jupiter.api.Test
 import org.koin.core.context.stopKoin
 import java.io.File
 import java.util.concurrent.TimeUnit
+import kotlin.time.ExperimentalTime
 import com.malinskiy.marathon.test.Test as MarathonTest
 
 class SuccessParseScenarioTest {
