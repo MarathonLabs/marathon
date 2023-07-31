@@ -1,6 +1,9 @@
+@file:OptIn(ExperimentalTime::class)
+
 package com.malinskiy.marathon.ios.cmd
 
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
@@ -13,6 +16,7 @@ import org.amshove.kluent.shouldNotBeEqualTo
 import org.junit.jupiter.api.Test
 import java.nio.charset.Charset
 import java.time.Duration
+import kotlin.time.ExperimentalTime
 
 abstract class BaseCommandExecutorTest {
     abstract fun createExecutor(): CommandExecutor

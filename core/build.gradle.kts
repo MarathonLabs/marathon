@@ -6,7 +6,7 @@ plugins {
     id("org.jetbrains.kotlin.jvm")
     id("org.jetbrains.dokka")
     jacoco
-    id("com.github.gmazzo.buildconfig") version "4.0.1"
+    id("com.github.gmazzo.buildconfig") version "4.1.2"
 }
 
 sourceSets {

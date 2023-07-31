@@ -4,7 +4,7 @@ plugins {
     jacoco
     id("org.jetbrains.kotlin.jvm")
     id("org.jetbrains.dokka")
-    id("com.github.gmazzo.buildconfig") version "4.0.1"
+    id("com.github.gmazzo.buildconfig") version "4.1.2"
 }
 
 val enableJDB = false
