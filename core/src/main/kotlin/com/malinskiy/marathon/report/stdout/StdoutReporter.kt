@@ -22,7 +22,7 @@ class StdoutReporter(private val timer: Timer) : Reporter {
                     .forEach { testName -> cliReportBuilder.appendLine("\t\t$testName") }
             }
 
-            cliReportBuilder.appendLine("\tFlakiness overhead: ${formatDuration(poolSummary.rawDurationMillis - poolSummary.durationMillis)}$")
+            cliReportBuilder.appendLine("\tFlakiness overhead: ${formatDuration(poolSummary.rawDurationMillis - poolSummary.durationMillis)}")
             cliReportBuilder.appendLine("\tRaw: ${poolSummary.rawPassed.size} passed, ${poolSummary.rawFailed.size} failed, ${poolSummary.rawIgnored.size} ignored, ${poolSummary.rawIncomplete.size} incomplete tests")
 
             if(poolSummary.rawFailed.isNotEmpty()){
