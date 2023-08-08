@@ -23,8 +23,10 @@ internal class ScreenRecorderStopper(private val device: AndroidDevice) {
         if (output.isBlank()) {
             return ""
         }
-        val split = output.split("\\s+".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
-        val pid = split[1]
+
+        val lastLine = output.lines().last { it.isNotEmpty() }
+        val split = lastLine.split(' ').filter { it.isNotBlank() }
+        val pid = split.getOrNull(1)?.let { it.toIntOrNull()?.toString() } ?: ""
         logger.trace("Extracted PID {} from output {}", pid, output)
         return pid
     }
@@ -37,7 +39,7 @@ internal class ScreenRecorderStopper(private val device: AndroidDevice) {
                 device.safeExecuteShellCommand("kill -2 $pid")
                 return true
             } else {
-                logger.trace("Did not kill any screen recording process")
+                logger.warn { "Did not kill any screen recording process" }
             }
         } catch (e: Exception) {
             logger.error("Error while killing recording processes", e)
