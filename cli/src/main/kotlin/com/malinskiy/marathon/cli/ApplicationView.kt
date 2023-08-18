@@ -86,7 +86,7 @@ private fun execute(cliConfiguration: CliConfiguration) {
 
         when {
             success -> throw PrintMessage(message = "Marathon execution finished", statusCode = 0, printError = false)
-            configuration.ignoreFailures -> throw PrintMessage(message = "Marathon execution finished with failures (Failures suppressed because ignoreFailures is `true`)", statusCode = 1, printError = true)
+            configuration.ignoreFailures -> throw PrintMessage(message = "Marathon execution finished with failures (Failures suppressed because ignoreFailures is `true`)", statusCode = 0, printError = true)
             else -> throw PrintMessage(message = "Marathon execution failed", statusCode = 1, printError = true)
         }
     } finally {
