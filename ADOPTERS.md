@@ -13,3 +13,5 @@ can [add it in a PR!](https://github.com/MarathonLabs/marathon/edit/develop/ADOP
 * [VTB](https://www.vtb.ru)
 * [CFT](https://www.cft.ru)
 * [DM-TECH](https://dmtech.team)
+* [Aetna](https://www.aetna.com) 
+* [CVS Health](https://www.cvshealth.com)
