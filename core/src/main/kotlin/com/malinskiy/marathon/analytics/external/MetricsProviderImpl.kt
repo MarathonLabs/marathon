@@ -45,7 +45,10 @@ class MetricsProviderImpl(private val remoteDataStore: RemoteDataSource) : Metri
 
         val testName = test.toSafeTestName()
         return successRateMeasurements[key]?.get(testName) ?: {
-            logger.warn { "No success rate found for $testName. Using 0 i.e. fails all the time" }
+            if (!warningSuccessRateTimeReported.contains(testName)) {
+                logger.warn { "No success rate found for $testName. Using 0 i.e. fails all the time" }
+                warningSuccessRateTimeReported.add(testName)
+            }
             0.0
         }()
     }
@@ -77,10 +80,16 @@ class MetricsProviderImpl(private val remoteDataStore: RemoteDataSource) : Metri
         }
         val testName = test.toSafeTestName()
         return executionTimeMeasurements[key]?.get(testName) ?: {
-            logger.warn { "No execution time found for $testName. Using 300_000 seconds i.e. long test" }
+            if (!warningExecutionTimeReported.contains(testName)) {
+                logger.warn { "No execution time found for $testName. Using 300_000 seconds i.e. long test" }
+                warningExecutionTimeReported.add(testName)
+            }
             300_000.0
         }()
     }
+
+    private val warningExecutionTimeReported = hashSetOf<String>()
+    private val warningSuccessRateTimeReported = hashSetOf<String>()
 
     private fun fetchExecutionTime(percentile: Double, limit: Instant) = runBlocking {
         withRetry(3, RETRY_DELAY) {
