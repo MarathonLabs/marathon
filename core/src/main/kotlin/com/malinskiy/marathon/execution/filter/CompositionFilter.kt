@@ -40,10 +40,16 @@ class CompositionFilter(
 
 
     private fun filterWithSubtractOperation(tests: List<Test>): List<Test> {
-        return filters.fold(tests.toSet()) { acc, f ->
-            acc.subtract(f.filter(tests))
+        return when (filters.size) {
+            0, 1 -> tests
+            else -> {
+                val left = filters.first().filter(tests)
+                filters.slice(1..filters.size - 1).fold(left.toSet()) { acc, f ->
+                    acc.subtract(f.filter(left))
 
-        }.toList()
+                }.toList()
+            }
+        }
     }
 
     override fun equals(other: Any?): Boolean {

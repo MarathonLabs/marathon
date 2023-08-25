@@ -11,6 +11,7 @@ class CompositionFilterTest {
     private val dogTest = stubTest("FilterAnimalDogTest", "com.example.BestAnimal")
     private val catTest = stubTest("FilterAnimalCatTest", "")
     private val horseTest = stubTest("FilterAnimalHorseTest", "")
+    private val cubeTest = stubTest("FilterCubeTest", "")
     val tests = listOf(
         dogTest,
         catTest,
@@ -33,9 +34,9 @@ class CompositionFilterTest {
         TestFilterConfiguration.CompositionFilterConfiguration.OPERATION.INTERSECTION
     ).toTestFilter()
 
-    private val composition = TestFilterConfiguration.CompositionFilterConfiguration(
+    private val subtraction = TestFilterConfiguration.CompositionFilterConfiguration(
         listOf(
-            TestFilterConfiguration.SimpleClassnameFilterConfiguration(".*Dog.*".toRegex()),
+            TestFilterConfiguration.SimpleClassnameFilterConfiguration(".*Animal.*".toRegex()),
             TestFilterConfiguration.AnnotationFilterConfiguration("com.example.BestAnimal".toRegex())
         ),
         TestFilterConfiguration.CompositionFilterConfiguration.OPERATION.SUBTRACT
@@ -62,13 +63,13 @@ class CompositionFilterTest {
     }
 
     @Test
-    fun shouldFilterComposition() {
-        composition.filter(tests) shouldBeEqualTo listOf(catTest, horseTest)
+    fun shouldFilterSubtraction() {
+        subtraction.filter(tests + cubeTest) shouldBeEqualTo listOf(catTest, horseTest)
     }
 
     @Test
-    fun shouldFilterNotComposition() {
-        composition.filterNot(tests) shouldBeEqualTo listOf(dogTest)
+    fun shouldFilterNotSubtraction() {
+        subtraction.filterNot(tests + cubeTest) shouldBeEqualTo listOf(dogTest, cubeTest)
     }
 }
 
