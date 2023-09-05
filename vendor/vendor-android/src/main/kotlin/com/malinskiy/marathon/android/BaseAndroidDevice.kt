@@ -38,7 +38,6 @@ import com.malinskiy.marathon.time.Timer
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.isActive
 import java.util.UUID
 import kotlin.system.measureTimeMillis
 
@@ -79,11 +78,12 @@ abstract class BaseAndroidDevice(
         get() = initialRotation
 
     override suspend fun setup() {
-        booted = waitForBoot()
-        if(!booted) {
-            throw DeviceSetupException("Unable to configure device $serialNumber: not booted")
-        }
-        
+        booted = false
+        withTimeoutOrNull(androidConfiguration.timeoutConfiguration.boot) {
+            waitForBoot()
+            booted = true
+        } ?: throw DeviceSetupException("Unable to configure device $serialNumber: not booted")
+
         abi = getProperty("ro.product.cpu.abi") ?: abi
 
         val sdk = getProperty("ro.build.version.sdk")
@@ -215,28 +215,14 @@ abstract class BaseAndroidDevice(
         return safeExecuteShellCommand("ls $path")?.exitCode == 0
     }
 
-    private suspend fun waitForBoot(): Boolean {
-        var booted = false
-
-        for (i in 1..30) {
-            if (getProperty("sys.boot_completed", false) != null) {
-                logger.debug { "Device $serialNumber booted!" }
-                booted = true
-                break
-            } else {
-                delay(1000)
-                logger.debug { "Device $serialNumber is still booting..." }
-            }
-
-            if (Thread.interrupted() || !isActive) {
-                booted = true
-                break
-            }
+    private suspend fun waitForBoot() {
+        while (getProperty("sys.boot_completed", false) == null) {
+            logger.debug { "Device $serialNumber is still booting..." }
+            delay(1000)
         }
-
-        return booted
+        logger.debug { "Device $serialNumber booted!" }
     }
-    
+
     fun isLocalEmulator() = adbSerial.startsWith("emulator-")
 
     protected suspend fun AndroidDevice.isEmulator(): Boolean = when {

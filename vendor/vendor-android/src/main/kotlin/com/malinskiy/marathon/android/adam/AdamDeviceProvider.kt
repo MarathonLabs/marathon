@@ -179,10 +179,10 @@ class AdamDeviceProvider(
     }
 
     override suspend fun borrow(): AdamAndroidDevice {
-        var availableDevices = devices.filter { it.value.setupJob.isCompleted }
+        var availableDevices = devices.filter { it.value.setupJob.isCompleted && !it.value.setupJob.isCancelled }
         while(availableDevices.isEmpty()) {
             delay(200)
-            availableDevices = devices.filter { it.value.setupJob.isCompleted }
+            availableDevices = devices.filter { it.value.setupJob.isCompleted && !it.value.setupJob.isCancelled }
         }
         return availableDevices.values.random().device
     }
