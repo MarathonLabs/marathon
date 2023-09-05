@@ -14,4 +14,5 @@ data class TimeoutConfiguration(
     var screencapturer: Duration = Duration.ofMillis(300),
     var socketIdleTimeout: Duration = Duration.ofSeconds(30),
     var portForward: Duration = shell,
+    var boot: Duration = Duration.ofSeconds(30),
 )

@@ -112,12 +112,12 @@ class Marathon(
             parsedAllTests = when (testParser) {
                 is LocalTestParser -> testParser.extract()
                 is RemoteTestParser<*> -> {
-                    withRetry(3, 0) {
-                        withTimeoutOrNull(configuration.deviceInitializationTimeoutMillis) {
+                    withTimeoutOrNull(configuration.deviceInitializationTimeoutMillis) {
+                        withRetry(3, 0) {
                             val borrowedDevice = deviceProvider.borrow()
                             testParser.extract(borrowedDevice)
-                        } ?: throw NoDevicesException("Timed out waiting for a temporary device for remote test parsing")
-                    }
+                        }
+                    } ?: throw NoDevicesException("Timed out waiting for a temporary device for remote test parsing")
                 }
 
                 else -> {

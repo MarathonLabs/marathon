@@ -607,6 +607,7 @@ vendorConfiguration:
     install: "P1DT12H30M5S"
     screenrecorder: "PT1H"
     screencapturer: "PT1S"
+    boot: "PT30S"
 ```
 
 </TabItem>
