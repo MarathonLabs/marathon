@@ -141,7 +141,8 @@ sealed class VendorConfiguration {
         @JsonProperty("hideRunnerOutput") val hideRunnerOutput: Boolean = false,
         @JsonProperty("compactOutput") val compactOutput: Boolean = false,
         @JsonProperty("rsync") val rsync: RsyncConfiguration = RsyncConfiguration(),
-        
+        @JsonProperty("xcodebuildTestArgs") val xcodebuildTestArgs: Map<String, String> = emptyMap(),
+
         @JsonProperty("signing") val signing: SigningConfiguration = SigningConfiguration(),
     ) : VendorConfiguration() {
         fun validate() {

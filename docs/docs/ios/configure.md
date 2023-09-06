@@ -259,6 +259,21 @@ If you specify custom ones then your values will be placed as a lower priority p
 
 :::
 
+### xcodebuild test-without-building arguments
+You can specify additional arguments to pass to the underlying `xcodebuild test-without-building` invocation.
+```yaml
+xcodebuildTestArgs:
+  "-test-timeouts-enabled": "YES"
+  "-maximum-test-execution-time-allowance": "60"
+```
+
+It is impossible to override the following reserved arguments:
+- `-xctestrun`
+- `-enableCodeCoverage`
+- `-resultBundlePath`
+- `-destination-timeout`
+- `-destination`
+
 ### Test run lifecycle
 Marathon provides two lifecycle hooks: `onPrepare` and `onDispose`. 
 For each you can specify one of the following actions: `SHUTDOWN` (shutdown simulator), `ERASE` (erase simulator) and `TERMINATE` (terminate simulator).

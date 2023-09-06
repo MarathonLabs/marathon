@@ -18,7 +18,7 @@ class Xcrun(
     private val timeoutConfiguration = vendorConfiguration.timeoutConfiguration
 
     val simctl = Simctl(commandExecutor, configuration, vendorConfiguration, gson)
-    val xcodebuild = Xcodebuild(commandExecutor, configuration, timeoutConfiguration)
+    val xcodebuild = Xcodebuild(commandExecutor, configuration, vendorConfiguration, timeoutConfiguration)
     val xcresulttool = Xcresulttool(commandExecutor, timeoutConfiguration)
 
     suspend fun getSdkPlatformPath(sdk: Sdk): String {
