@@ -15,3 +15,4 @@ can [add it in a PR!](https://github.com/MarathonLabs/marathon/edit/develop/ADOP
 * [DM-TECH](https://dmtech.team)
 * [Aetna](https://www.aetna.com) 
 * [CVS Health](https://www.cvshealth.com)
+* [PITS Global Data Recovery Services](https://www.pitsdatarecovery.net/)
