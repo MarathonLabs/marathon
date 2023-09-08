@@ -22,6 +22,7 @@ import com.malinskiy.marathon.execution.listener.LineListener
 import com.malinskiy.marathon.execution.listener.LogListener
 import com.malinskiy.marathon.io.FileManager
 import com.malinskiy.marathon.ios.bin.AppleBinaryEnvironment
+import com.malinskiy.marathon.ios.bin.xcrun.simctl.service.ApplicationService
 import com.malinskiy.marathon.ios.cmd.CommandExecutor
 import com.malinskiy.marathon.ios.cmd.CommandResult
 import com.malinskiy.marathon.ios.cmd.FileBridge
@@ -105,12 +106,13 @@ class AppleSimulatorDevice(
     val arch: Arch
         get() = when {
             sdk == Sdk.IPHONESIMULATOR -> {
-                when(abi) {
+                when (abi) {
                     "x86_64" -> Arch.x86_64
                     "arm64" -> Arch.arm64
                     else -> Arch.arm64
                 }
             }
+
             udid.contains('-') -> Arch.arm64e
             else -> Arch.arm64
         }
@@ -126,7 +128,10 @@ class AppleSimulatorDevice(
     private lateinit var devicePlistPath: String
     private var deviceDescriptor: Map<*, *>? = null
     private val dispatcher by lazy {
-        newFixedThreadPoolContext(vendorConfiguration.threadingConfiguration.deviceThreads, "AppleSimulatorDevice - execution - ${commandExecutor.host.id}")
+        newFixedThreadPoolContext(
+            vendorConfiguration.threadingConfiguration.deviceThreads,
+            "AppleSimulatorDevice - execution - ${commandExecutor.host.id}"
+        )
     }
     override val coroutineContext: CoroutineContext = dispatcher
     override val remoteFileManager: RemoteFileManager = RemoteFileManager(this)
@@ -244,7 +249,7 @@ class AppleSimulatorDevice(
                     try {
                         val (listener, lineListeners) = createExecutionListeners(devicePoolId, testBatch, deferred)
                         executionLineListeners = lineListeners.onEach { addLineListener(it) }
-                        AppleDeviceTestRunner(this@AppleSimulatorDevice).execute(configuration, vendorConfiguration, testBatch, listener)
+                        AppleDeviceTestRunner(this@AppleSimulatorDevice, testBundleIdentifier).execute(configuration, vendorConfiguration, testBatch, listener)
                     } finally {
                         executionLineListeners.forEach { removeLineListener(it) }
                     }
@@ -749,5 +754,16 @@ class AppleSimulatorDevice(
 
     suspend fun grant(permission: Permission, bundleId: String): Boolean {
         return binaryEnvironment.xcrun.simctl.privacy.grant(udid, permission, bundleId).successful
+    }
+
+    suspend fun clearAppContainer(bundleId: String) {
+        binaryEnvironment.xcrun.simctl.application.terminateApplication(udid, bundleId)
+
+        val containerPath = binaryEnvironment.xcrun.simctl.application.containerPath(udid, bundleId, ApplicationService.ContainerType.DATA)
+        if (containerPath.successful) {
+            remoteFileManager.removeRemotePath(containerPath.combinedStdout.trim())
+        } else {
+            logger.warn { "Failed to clear app container:\nstdout: ${containerPath.combinedStdout}\nstderr: ${containerPath.combinedStderr}" }
+        }
     }
 }

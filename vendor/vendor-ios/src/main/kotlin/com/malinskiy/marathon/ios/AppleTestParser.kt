@@ -4,10 +4,10 @@ import com.malinskiy.marathon.config.Configuration
 import com.malinskiy.marathon.config.exceptions.ConfigurationException
 import com.malinskiy.marathon.config.vendor.VendorConfiguration
 import com.malinskiy.marathon.device.Device
-import com.malinskiy.marathon.device.DeviceProvider
 import com.malinskiy.marathon.exceptions.TestParsingException
 import com.malinskiy.marathon.execution.RemoteTestParser
 import com.malinskiy.marathon.execution.withRetry
+import com.malinskiy.marathon.ios.extensions.testBundle
 import com.malinskiy.marathon.ios.model.AppleTestBundle
 import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.test.Test
@@ -22,23 +22,11 @@ class AppleTestParser(
     private val logger = MarathonLogging.logger(AppleTestParser::class.java.simpleName)
 
     override suspend fun extract(device: Device): List<Test> {
-        val app = vendorConfiguration.bundle?.app ?: throw IllegalArgumentException("No application bundle provided")
-        val xctest = vendorConfiguration.bundle?.xctest ?: throw IllegalArgumentException("No test bundle provided")
-        val possibleTestBinaries = xctest.listFiles()?.filter { it.isFile && it.extension == "" }
-            ?: throw ConfigurationException("missing test binaries in xctest folder at $xctest")
-        val testBinary = when (possibleTestBinaries.size) {
-            0 -> throw ConfigurationException("missing test binaries in xctest folder at $xctest")
-            1 -> possibleTestBinaries[0]
-            else -> {
-                logger.warn { "Multiple test binaries present in xctest folder" }
-                possibleTestBinaries.find { it.name == xctest.nameWithoutExtension } ?: possibleTestBinaries.first()
-            }
-        }
-
+        val bundle = vendorConfiguration.testBundle()
         return withRetry(3, 0) {
             try {
                 val device = device as? AppleSimulatorDevice ?: throw ConfigurationException("Unexpected device type for remote test parsing")
-                return@withRetry parseTests(device, xctest, testBinary)
+                return@withRetry parseTests(device, bundle)
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {
@@ -50,9 +38,10 @@ class AppleTestParser(
 
     private suspend fun parseTests(
         device: AppleSimulatorDevice,
-        xctest: File,
-        testBinary: File
+        bundle: AppleTestBundle,
     ): List<Test> {
+        val testBinary = bundle.testBinary
+        val xctest = bundle.testApplication
 
         logger.debug { "Found test binary $testBinary for xctest $xctest" }
 
@@ -86,7 +75,7 @@ class AppleTestParser(
             }
 
 
-        val testBundle = AppleTestBundle(vendorConfiguration.bundle?.application, xctest, testBinary)
+        val testBundle = AppleTestBundle(vendorConfiguration.bundle?.application, xctest)
         swiftTests.forEach { testBundleIdentifier.put(it, testBundle) }
         objectiveCTests.forEach { testBundleIdentifier.put(it, testBundle) }
 
