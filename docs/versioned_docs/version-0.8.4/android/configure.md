@@ -595,7 +595,6 @@ With the introduction of [adam][4] we can precisely control the timeout of indiv
 ```yaml
 vendorConfiguration:
   type: "Android"
-  vendor: ADAM
   timeoutConfiguration:
     # ISO_8601 duration
     shell: "PT30S"
