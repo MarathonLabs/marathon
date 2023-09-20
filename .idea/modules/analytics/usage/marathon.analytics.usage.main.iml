@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module external.linked.project.id=":analytics:usage:main" external.linked.project.path="$MODULE_DIR$/../../../../analytics/usage" external.root.project.path="$MODULE_DIR$/../../../.." external.system.id="GRADLE" external.system.module.group="com.malinskiy.marathon" external.system.module.type="sourceSet" external.system.module.version="0.9.2" type="JAVA_MODULE" version="4">
+  <component name="FacetManager">
+    <facet external-system-id="GRADLE" type="kotlin-language" name="Kotlin">
+      <configuration version="5" platform="JVM 1.8" allPlatforms="JVM [1.8]" useProjectSettings="false">
+        <compilerSettings />
+        <compilerArguments>
+          <flagArguments>
+            <flagArg name="allowNoSourceFiles" arg="true" />
+            <flagArg name="noReflect" arg="true" />
+            <flagArg name="noStdlib" arg="true" />
+          </flagArguments>
+          <stringArguments>
+            <stringArg name="destination" arg="$MODULE_DIR$/../../../../analytics/usage/build/classes/kotlin/main" />
+            <stringArg name="jvmTarget" arg="1.8" />
+            <stringArg name="moduleName" arg="usage" />
+            <stringArg name="apiVersion" arg="1.5" />
+            <stringArg name="languageVersion" arg="1.8" />
+          </stringArguments>
+          <arrayArguments>
+            <arrayArg name="pluginClasspaths">
+              <args>
+                <arg>$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-scripting-jvm/1.8.10/85d7bed036617120f09209e52f38cae13809176f/kotlin-scripting-jvm-1.8.10.jar</arg>
+                <arg>$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-scripting-common/1.8.10/605352a419127937229ab574b50146a4bb4122fa/kotlin-scripting-common-1.8.10.jar</arg>
+                <arg>$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-stdlib/1.8.20/e72fc5e03ec6c064c678a6bd0d955c88d55b0c4a/kotlin-stdlib-1.8.20.jar</arg>
+                <arg>$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-stdlib-common/1.8.20/5eddaaf234c8c49d03eebeb6a14feb7f90faca71/kotlin-stdlib-common-1.8.20.jar</arg>
+                <arg>$USER_HOME$/.m2/repository/org/jetbrains/annotations/13.0/annotations-13.0.jar</arg>
+                <arg>$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-script-runtime/1.8.10/b13ea9c7e46d589139e56086a878763290e20bd5/kotlin-script-runtime-1.8.10.jar</arg>
+              </args>
+            </arrayArg>
+            <arrayArg name="pluginOptions" />
+          </arrayArguments>
+        </compilerArguments>
+      </configuration>
+    </facet>
+  </component>
+  <component name="NewModuleRootManager" LANGUAGE_LEVEL="JDK_1_8">
+    <output url="file://$MODULE_DIR$/../../../../analytics/usage/build/classes/kotlin/main" />
+    <exclude-output />
+    <content url="file://$MODULE_DIR$/../../../../analytics/usage/src/main">
+      <sourceFolder url="file://$MODULE_DIR$/../../../../analytics/usage/src/main/kotlin" isTestSource="false" />
+    </content>
+    <orderEntry type="inheritedJdk" />
+    <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="library" name="Gradle: com.squareup.okhttp3:okhttp:4.11.0" level="project" />
+    <orderEntry type="library" name="Gradle: org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.20" level="project" />
+    <orderEntry type="library" name="Gradle: org.jetbrains.kotlin:kotlin-stdlib:1.8.20" level="project" />
+    <orderEntry type="library" name="Gradle: org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.8.20" level="project" />
+    <orderEntry type="library" name="Gradle: com.squareup.okio:okio-jvm:3.2.0" level="project" />
+    <orderEntry type="library" name="Gradle: org.jetbrains.kotlin:kotlin-stdlib-common:1.8.20" level="project" />
+    <orderEntry type="module-library">
+      <library name="Gradle: org.jetbrains:annotations:13.0">
+        <CLASSES>
+          <root url="jar://$USER_HOME$/.m2/repository/org/jetbrains/annotations/13.0/annotations-13.0.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
+  </component>
+</module>

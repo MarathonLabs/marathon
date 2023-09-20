@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module external.linked.project.id=":core:main" external.linked.project.path="$MODULE_DIR$/../../../core" external.root.project.path="$MODULE_DIR$/../../.." external.system.id="GRADLE" external.system.module.group="com.malinskiy.marathon" external.system.module.type="sourceSet" external.system.module.version="0.9.2" type="JAVA_MODULE" version="4">
+  <component name="FacetManager">
+    <facet external-system-id="GRADLE" type="kotlin-language" name="Kotlin">
+      <configuration version="5" platform="JVM 1.8" allPlatforms="JVM [1.8]" useProjectSettings="false">
+        <compilerSettings />
+        <compilerArguments>
+          <flagArguments>
+            <flagArg name="allowNoSourceFiles" arg="true" />
+            <flagArg name="noReflect" arg="true" />
+            <flagArg name="noStdlib" arg="true" />
+          </flagArguments>
+          <stringArguments>
+            <stringArg name="destination" arg="$MODULE_DIR$/../../../core/build/classes/kotlin/main" />
+            <stringArg name="jvmTarget" arg="1.8" />
+            <stringArg name="moduleName" arg="core" />
+            <stringArg name="apiVersion" arg="1.5" />
+            <stringArg name="languageVersion" arg="1.8" />
+          </stringArguments>
+          <arrayArguments>
+            <arrayArg name="pluginClasspaths">
+              <args>
+                <arg>$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-scripting-jvm/1.8.10/85d7bed036617120f09209e52f38cae13809176f/kotlin-scripting-jvm-1.8.10.jar</arg>
+                <arg>$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-scripting-common/1.8.10/605352a419127937229ab574b50146a4bb4122fa/kotlin-scripting-common-1.8.10.jar</arg>
+                <arg>$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-stdlib/1.8.20/e72fc5e03ec6c064c678a6bd0d955c88d55b0c4a/kotlin-stdlib-1.8.20.jar</arg>
+                <arg>$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-stdlib-common/1.8.20/5eddaaf234c8c49d03eebeb6a14feb7f90faca71/kotlin-stdlib-common-1.8.20.jar</arg>
+                <arg>$USER_HOME$/.m2/repository/org/jetbrains/annotations/13.0/annotations-13.0.jar</arg>
+                <arg>$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.jetbrains.kotlin/kotlin-script-runtime/1.8.10/b13ea9c7e46d589139e56086a878763290e20bd5/kotlin-script-runtime-1.8.10.jar</arg>
+              </args>
+            </arrayArg>
+            <arrayArg name="pluginOptions" />
+          </arrayArguments>
+        </compilerArguments>
+      </configuration>
+    </facet>
+  </component>
+  <component name="NewModuleRootManager" LANGUAGE_LEVEL="JDK_1_8">
+    <output url="file://$MODULE_DIR$/../../../core/build/classes/java/main" />
+    <exclude-output />
+    <content url="file://$MODULE_DIR$/../../../core/build/generated/sources/buildConfig/main">
+      <sourceFolder url="file://$MODULE_DIR$/../../../core/build/generated/sources/buildConfig/main" isTestSource="false" />
+    </content>
+    <content url="file://$MODULE_DIR$/../../../core/src/main">
+      <sourceFolder url="file://$MODULE_DIR$/../../../core/src/main/kotlin" isTestSource="false" />
+    </content>
+    <orderEntry type="inheritedJdk" />
+    <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="module" module-name="marathon.configuration.main" />
+    <orderEntry type="library" name="Gradle: com.bugsnag:bugsnag:3.7.0" level="project" />
+    <orderEntry type="module" module-name="marathon.report.html-report.main" />
+    <orderEntry type="module" module-name="marathon.report.execution-timeline.main" />
+    <orderEntry type="library" name="Gradle: com.github.automatedowl:allure-environment-writer:1.0.0" level="project" />
+    <orderEntry type="library" name="Gradle: io.qameta.allure:allure-java-commons:2.23.0" level="project" />
+    <orderEntry type="library" name="Gradle: io.qameta.allure:allure-kotlin-commons:2.4.0" level="project" />
+    <orderEntry type="library" name="Gradle: io.qameta.allure:allure-test-filter:2.23.0" level="project" />
+    <orderEntry type="module" module-name="marathon.analytics.usage.main" />
+    <orderEntry type="library" name="Gradle: com.influxdb:influxdb-client-java:6.10.0" level="project" />
+    <orderEntry type="library" name="Gradle: com.google.code.gson:gson:2.10.1" level="project" />
+    <orderEntry type="library" name="Gradle: com.fasterxml.jackson.core:jackson-annotations:2.15.2" level="project" />
+    <orderEntry type="library" name="Gradle: commons-io:commons-io:2.11.0" level="project" />
+    <orderEntry type="library" name="Gradle: org.influxdb:influxdb-java:2.23" level="project" />
+    <orderEntry type="library" name="Gradle: org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.20" level="project" />
+    <orderEntry type="library" name="Gradle: ch.qos.logback:logback-classic:1.4.8" level="project" />
+    <orderEntry type="library" name="Gradle: org.imgscalr:imgscalr-lib:4.2" level="project" />
+    <orderEntry type="library" name="Gradle: com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.15.2" level="project" />
+    <orderEntry type="library" name="Gradle: com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.15.2" level="project" />
+    <orderEntry type="library" name="Gradle: com.fasterxml.jackson.module:jackson-module-kotlin:2.15.2" level="project" />
+    <orderEntry type="library" name="Gradle: com.fasterxml.jackson.core:jackson-databind:2.15.2" level="project" />
+    <orderEntry type="library" name="Gradle: org.apache.commons:commons-text:1.10.0" level="project" />
+    <orderEntry type="library" name="Gradle: io.insert-koin:koin-core-jvm:3.4.3" level="project" />
+    <orderEntry type="library" name="Gradle: org.slf4j:slf4j-api:2.0.7" level="project" />
+    <orderEntry type="library" name="Gradle: io.qameta.allure:allure-testng:2.8.1" level="project" />
+    <orderEntry type="library" name="Gradle: org.testng:testng:6.14.3" level="project" />
+    <orderEntry type="library" name="Gradle: com.google.guava:guava:27.0-jre" level="project" />
+    <orderEntry type="library" name="Gradle: io.qameta.allure:allure-model:2.23.0" level="project" />
+    <orderEntry type="library" name="Gradle: io.qameta.allure:allure-kotlin-model:2.4.0" level="project" />
+    <orderEntry type="library" name="Gradle: com.influxdb:influxdb-client-core:6.10.0" level="project" />
+    <orderEntry type="library" name="Gradle: com.squareup.retrofit2:converter-scalars:2.9.0" level="project" />
+    <orderEntry type="library" name="Gradle: com.squareup.retrofit2:converter-gson:2.9.0" level="project" />
+    <orderEntry type="library" name="Gradle: io.reactivex.rxjava3:rxjava:3.1.6" level="project" />
+    <orderEntry type="library" name="Gradle: com.squareup.retrofit2:adapter-rxjava3:2.9.0" level="project" />
+    <orderEntry type="library" name="Gradle: com.google.code.findbugs:jsr305:3.0.2" level="project" />
+    <orderEntry type="library" name="Gradle: org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.7.3" level="project" />
+    <orderEntry type="library" name="Gradle: io.github.microutils:kotlin-logging-jvm:3.0.5" level="project" />
+    <orderEntry type="library" name="Gradle: com.squareup.okhttp3:logging-interceptor:4.10.0" level="project" />
+    <orderEntry type="library" name="Gradle: com.squareup.retrofit2:converter-moshi:2.9.0" level="project" />
+    <orderEntry type="library" name="Gradle: com.squareup.retrofit2:retrofit:2.9.0" level="project" />
+    <orderEntry type="library" scope="PROVIDED" name="Gradle: com.squareup.okhttp3:okhttp:4.10.0" level="project" />
+    <orderEntry type="library" name="Gradle: org.msgpack:msgpack-core:0.9.3" level="project" />
+    <orderEntry type="library" name="Gradle: org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.8.20" level="project" />
+    <orderEntry type="library" name="Gradle: org.jetbrains.kotlin:kotlin-stdlib:1.8.20" level="project" />
+    <orderEntry type="library" name="Gradle: ch.qos.logback:logback-core:1.4.8" level="project" />
+    <orderEntry type="library" name="Gradle: com.fasterxml.jackson.core:jackson-core:2.15.2" level="project" />
+    <orderEntry type="library" name="Gradle: org.yaml:snakeyaml:2.0" level="project" />
+    <orderEntry type="library" name="Gradle: org.jetbrains.kotlin:kotlin-reflect:1.8.20" level="project" />
+    <orderEntry type="library" name="Gradle: org.apache.commons:commons-lang3:3.12.0" level="project" />
+    <orderEntry type="library" name="Gradle: org.jetbrains.kotlin:kotlin-stdlib-common:1.8.20" level="project" />
+    <orderEntry type="library" name="Gradle: io.qameta.allure:allure-descriptions-javadoc:2.8.1" level="project" />
+    <orderEntry type="library" name="Gradle: com.beust:jcommander:1.72" level="project" />
+    <orderEntry type="library" name="Gradle: org.apache-extras.beanshell:bsh:2.0b6" level="project" />
+    <orderEntry type="library" name="Gradle: com.google.guava:failureaccess:1.0" level="project" />
+    <orderEntry type="library" name="Gradle: com.google.guava:listenablefuture:9999.0-empty-to-avoid-conflict-with-guava" level="project" />
+    <orderEntry type="library" name="Gradle: org.checkerframework:checker-qual:2.5.2" level="project" />
+    <orderEntry type="library" name="Gradle: com.google.errorprone:error_prone_annotations:2.2.0" level="project" />
+    <orderEntry type="library" name="Gradle: com.google.j2objc:j2objc-annotations:1.1" level="project" />
+    <orderEntry type="library" name="Gradle: org.codehaus.mojo:animal-sniffer-annotations:1.17" level="project" />
+    <orderEntry type="library" name="Gradle: com.influxdb:influxdb-client-utils:6.10.0" level="project" />
+    <orderEntry type="library" name="Gradle: org.apache.commons:commons-csv:1.10.0" level="project" />
+    <orderEntry type="library" name="Gradle: org.reactivestreams:reactive-streams:1.0.4" level="project" />
+    <orderEntry type="library" name="Gradle: org.jetbrains:annotations:23.0.0" level="project" />
+    <orderEntry type="library" name="Gradle: com.squareup.moshi:moshi:1.8.0" level="project" />
+    <orderEntry type="library" name="Gradle: com.squareup.okio:okio-jvm:3.4.0" level="project" />
+    <orderEntry type="library" scope="RUNTIME" name="Gradle: com.squareup.okhttp3:okhttp:4.11.0" level="project" />
+    <orderEntry type="library" scope="RUNTIME" name="Gradle: org.jetbrains.kotlinx:kotlinx-serialization-json-jvm:1.2.1" level="project" />
+    <orderEntry type="library" scope="RUNTIME" name="Gradle: org.jetbrains.kotlinx:kotlinx-serialization-core-jvm:1.2.1" level="project" />
+  </component>
+</module>

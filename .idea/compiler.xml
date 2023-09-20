@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CompilerConfiguration">
+    <bytecodeTargetLevel target="17">
+      <module name="marathon.analytics.usage.main" target="1.8" />
+      <module name="marathon.analytics.usage.test" target="1.8" />
+      <module name="marathon.cli.main" target="1.8" />
+      <module name="marathon.cli.test" target="1.8" />
+      <module name="marathon.configuration.main" target="1.8" />
+      <module name="marathon.configuration.test" target="1.8" />
+      <module name="marathon.core.integrationTest" target="1.8" />
+      <module name="marathon.core.main" target="1.8" />
+      <module name="marathon.core.test" target="1.8" />
+      <module name="marathon.marathon-gradle-plugin.main" target="11" />
+      <module name="marathon.marathon-gradle-plugin.test" target="11" />
+      <module name="marathon.report.execution-timeline.main" target="1.8" />
+      <module name="marathon.report.execution-timeline.test" target="1.8" />
+      <module name="marathon.report.html-report.main" target="1.8" />
+      <module name="marathon.report.html-report.test" target="1.8" />
+      <module name="marathon.vendor.vendor-android.main" target="1.8" />
+      <module name="marathon.vendor.vendor-android.test" target="1.8" />
+      <module name="marathon.vendor.vendor-ios.main" target="1.8" />
+      <module name="marathon.vendor.vendor-ios.test" target="1.8" />
+      <module name="marathon.vendor.vendor-test.main" target="1.8" />
+      <module name="marathon.vendor.vendor-test.test" target="1.8" />
+    </bytecodeTargetLevel>
+  </component>
+</project>

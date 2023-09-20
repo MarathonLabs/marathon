@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/marathon.iml" filepath="$PROJECT_DIR$/.idea/modules/marathon.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/analytics/marathon.analytics.iml" filepath="$PROJECT_DIR$/.idea/modules/analytics/marathon.analytics.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/analytics/usage/marathon.analytics.usage.iml" filepath="$PROJECT_DIR$/.idea/modules/analytics/usage/marathon.analytics.usage.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/analytics/usage/marathon.analytics.usage.main.iml" filepath="$PROJECT_DIR$/.idea/modules/analytics/usage/marathon.analytics.usage.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/analytics/usage/marathon.analytics.usage.test.iml" filepath="$PROJECT_DIR$/.idea/modules/analytics/usage/marathon.analytics.usage.test.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/buildSrc/marathon.buildSrc.iml" filepath="$PROJECT_DIR$/.idea/modules/buildSrc/marathon.buildSrc.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/buildSrc/marathon.buildSrc.main.iml" filepath="$PROJECT_DIR$/.idea/modules/buildSrc/marathon.buildSrc.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/buildSrc/marathon.buildSrc.test.iml" filepath="$PROJECT_DIR$/.idea/modules/buildSrc/marathon.buildSrc.test.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/cli/marathon.cli.iml" filepath="$PROJECT_DIR$/.idea/modules/cli/marathon.cli.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/cli/marathon.cli.main.iml" filepath="$PROJECT_DIR$/.idea/modules/cli/marathon.cli.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/cli/marathon.cli.test.iml" filepath="$PROJECT_DIR$/.idea/modules/cli/marathon.cli.test.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/configuration/marathon.configuration.iml" filepath="$PROJECT_DIR$/.idea/modules/configuration/marathon.configuration.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/configuration/marathon.configuration.main.iml" filepath="$PROJECT_DIR$/.idea/modules/configuration/marathon.configuration.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/configuration/marathon.configuration.test.iml" filepath="$PROJECT_DIR$/.idea/modules/configuration/marathon.configuration.test.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/core/marathon.core.iml" filepath="$PROJECT_DIR$/.idea/modules/core/marathon.core.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/core/marathon.core.integrationTest.iml" filepath="$PROJECT_DIR$/.idea/modules/core/marathon.core.integrationTest.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/core/marathon.core.main.iml" filepath="$PROJECT_DIR$/.idea/modules/core/marathon.core.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/core/marathon.core.test.iml" filepath="$PROJECT_DIR$/.idea/modules/core/marathon.core.test.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/marathon-gradle-plugin/marathon.marathon-gradle-plugin.iml" filepath="$PROJECT_DIR$/.idea/modules/marathon-gradle-plugin/marathon.marathon-gradle-plugin.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/marathon-gradle-plugin/marathon.marathon-gradle-plugin.main.iml" filepath="$PROJECT_DIR$/.idea/modules/marathon-gradle-plugin/marathon.marathon-gradle-plugin.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/marathon-gradle-plugin/marathon.marathon-gradle-plugin.test.iml" filepath="$PROJECT_DIR$/.idea/modules/marathon-gradle-plugin/marathon.marathon-gradle-plugin.test.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/report/marathon.report.iml" filepath="$PROJECT_DIR$/.idea/modules/report/marathon.report.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/report/execution-timeline/marathon.report.execution-timeline.iml" filepath="$PROJECT_DIR$/.idea/modules/report/execution-timeline/marathon.report.execution-timeline.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/report/execution-timeline/marathon.report.execution-timeline.main.iml" filepath="$PROJECT_DIR$/.idea/modules/report/execution-timeline/marathon.report.execution-timeline.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/report/execution-timeline/marathon.report.execution-timeline.test.iml" filepath="$PROJECT_DIR$/.idea/modules/report/execution-timeline/marathon.report.execution-timeline.test.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/report/html-report/marathon.report.html-report.iml" filepath="$PROJECT_DIR$/.idea/modules/report/html-report/marathon.report.html-report.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/report/html-report/marathon.report.html-report.main.iml" filepath="$PROJECT_DIR$/.idea/modules/report/html-report/marathon.report.html-report.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/report/html-report/marathon.report.html-report.test.iml" filepath="$PROJECT_DIR$/.idea/modules/report/html-report/marathon.report.html-report.test.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/vendor/marathon.vendor.iml" filepath="$PROJECT_DIR$/.idea/modules/vendor/marathon.vendor.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/vendor/vendor-android/marathon.vendor.vendor-android.iml" filepath="$PROJECT_DIR$/.idea/modules/vendor/vendor-android/marathon.vendor.vendor-android.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/vendor/vendor-android/marathon.vendor.vendor-android.main.iml" filepath="$PROJECT_DIR$/.idea/modules/vendor/vendor-android/marathon.vendor.vendor-android.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/vendor/vendor-android/marathon.vendor.vendor-android.test.iml" filepath="$PROJECT_DIR$/.idea/modules/vendor/vendor-android/marathon.vendor.vendor-android.test.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/vendor/vendor-ios/marathon.vendor.vendor-ios.iml" filepath="$PROJECT_DIR$/.idea/modules/vendor/vendor-ios/marathon.vendor.vendor-ios.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/vendor/vendor-ios/marathon.vendor.vendor-ios.main.iml" filepath="$PROJECT_DIR$/.idea/modules/vendor/vendor-ios/marathon.vendor.vendor-ios.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/vendor/vendor-ios/marathon.vendor.vendor-ios.test.iml" filepath="$PROJECT_DIR$/.idea/modules/vendor/vendor-ios/marathon.vendor.vendor-ios.test.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/vendor/vendor-test/marathon.vendor.vendor-test.iml" filepath="$PROJECT_DIR$/.idea/modules/vendor/vendor-test/marathon.vendor.vendor-test.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/vendor/vendor-test/marathon.vendor.vendor-test.main.iml" filepath="$PROJECT_DIR$/.idea/modules/vendor/vendor-test/marathon.vendor.vendor-test.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/vendor/vendor-test/marathon.vendor.vendor-test.test.iml" filepath="$PROJECT_DIR$/.idea/modules/vendor/vendor-test/marathon.vendor.vendor-test.test.iml" />
+    </modules>
+  </component>
+</project>
