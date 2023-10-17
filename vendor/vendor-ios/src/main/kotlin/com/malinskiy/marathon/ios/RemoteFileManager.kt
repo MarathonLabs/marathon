@@ -41,6 +41,7 @@ class RemoteFileManager(private val device: AppleDevice) {
     fun remoteXctestrunFile(): String = remoteFile(xctestrunFileName())
 
     fun remoteXctestFile(): String = remoteFile(xctestFileName())
+    fun remoteXctestParserFile(): String = remoteFile(`libXctestParserFileName`())
     fun remoteApplication(): String = remoteFile(appUnderTestFileName())
     fun remoteExtraApplication(name: String) = remoteFile(name)
 
@@ -52,6 +53,8 @@ class RemoteFileManager(private val device: AppleDevice) {
     fun xctestrunFileName(): String = "marathon.xctestrun"
 
     private fun xctestFileName(): String  = "marathon.xctest"
+    private fun libXctestParserFileName(): String  = "libxctest-parser.dylib"
+
     fun appUnderTestFileName(): String  = "appUnderTest.app"
     
     private fun xcresultFileName(batch: TestBatch): String =

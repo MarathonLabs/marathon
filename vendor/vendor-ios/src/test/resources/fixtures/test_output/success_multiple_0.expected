@@ -1,0 +1,4 @@
+TestStarted(id=Test(pkg=sample_appUITests, clazz=FlakyTests, method=testTextFlaky1, metaProperties=[]))
+TestPassed(id=Test(pkg=sample_appUITests, clazz=FlakyTests, method=testTextFlaky1, metaProperties=[]), startTime=1537187691585, endTime=1537187696000)
+TestStarted(id=Test(pkg=sample_appUITests, clazz=FlakyTests, method=testTextFlaky2, metaProperties=[]))
+TestPassed(id=Test(pkg=sample_appUITests, clazz=FlakyTests, method=testTextFlaky2, metaProperties=[]), startTime=1537187691882, endTime=1537187696000)

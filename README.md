@@ -137,7 +137,8 @@ See [contributing docs][contributing]
 
 ## License
 
-See [LICENSE][LICENSE]
+Marathon codebase is GPL 2.0 [LICENSE][LICENSE] with following optional components under specific licenses:
+* [libxctest-parser][libxctest-parser-license]
 
 <!--
 Repo References
@@ -161,5 +162,6 @@ Link References
 [contributing]:https://docs.marathonlabs.io/intro/contribute
 [prs]:http://makeapullrequest.com "Make a Pull Request (external link) ➶"
 [LICENSE]:https://github.com/MarathonLabs/marathon/blob/-/LICENSE
+[libxctest-parser-license]: https://github.com/MarathonLabs/marathon/blob/-/vendor/vendor-ios/src/main/resources/EULA.md
 
 [marathon-cloud]:https://marathonlabs.io

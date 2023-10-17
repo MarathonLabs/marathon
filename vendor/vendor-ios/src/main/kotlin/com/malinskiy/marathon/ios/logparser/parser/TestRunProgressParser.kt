@@ -19,9 +19,9 @@ class TestRunProgressParser(
 
     val logger = MarathonLogging.logger(TestRunProgressParser::class.java.simpleName)
 
-    val TEST_CASE_STARTED = """Test Case '-\[([a-zA-Z0-9_.]+)\.([a-zA-Z0-9_]+) ([a-zA-Z0-9_]+)]' started\.""".toRegex()
+    val TEST_CASE_STARTED = """Test Case '-\[([a-zA-Z0-9_.]+) ([a-zA-Z0-9_]+)]' started\.""".toRegex()
     val TEST_CASE_FINISHED =
-        """Test Case '-\[([a-zA-Z0-9_.]+)\.([a-zA-Z0-9_]+) ([a-zA-Z0-9_]+)]' (passed|failed|skipped) \(([\d\.]+) seconds\)\.""".toRegex()
+        """Test Case '-\[([a-zA-Z0-9_.]+) ([a-zA-Z0-9_]+)]' (passed|failed|skipped) \(([\d\.]+) seconds\)\.""".toRegex()
 
     /**
      * $1 = file
@@ -61,11 +61,17 @@ class TestRunProgressParser(
 
     private fun parseTestFinished(line: String): TestEvent? {
         val matchResult = TEST_CASE_FINISHED.find(line)
-        val pkg = packageNameFormatter.format(matchResult?.groups?.get(1)?.value)
-        val clazz = matchResult?.groups?.get(2)?.value
-        val method = matchResult?.groups?.get(3)?.value
-        val result = matchResult?.groups?.get(4)?.value
-        val duration = matchResult?.groups?.get(5)?.value?.toFloat()
+        val pkgWithClass = matchResult?.groups?.get(1)?.value
+        var pkg: String? = null
+        var clazz: String? = null
+        if (pkgWithClass != null) {
+            pkg = packageNameFormatter.format(pkgWithClass.substringBeforeLast('.', missingDelimiterValue = ""))
+            clazz = pkgWithClass.substringAfter('.', missingDelimiterValue = pkgWithClass)
+        }
+
+        val method = matchResult?.groups?.get(2)?.value
+        val result = matchResult?.groups?.get(3)?.value
+        val duration = matchResult?.groups?.get(4)?.value?.toFloat()
 
         logger.debug { "Test $pkg.$clazz.$method finished with result <$result> after $duration seconds" }
 
@@ -101,9 +107,14 @@ class TestRunProgressParser(
     private fun parseTestStarted(line: String): TestStarted? {
         failingTestLine = null
         val matchResult = TEST_CASE_STARTED.find(line)
-        val pkg = packageNameFormatter.format(matchResult?.groups?.get(1)?.value)
-        val clazz = matchResult?.groups?.get(2)?.value
-        val method = matchResult?.groups?.get(3)?.value
+        val pkgWithClass = matchResult?.groups?.get(1)?.value
+        var pkg: String? = null
+        var clazz: String? = null
+        if (pkgWithClass != null) {
+            pkg = packageNameFormatter.format(pkgWithClass.substringBeforeLast('.', missingDelimiterValue = ""))
+            clazz = pkgWithClass.substringAfter('.', missingDelimiterValue = pkgWithClass)
+        }
+        val method = matchResult?.groups?.get(2)?.value
 
         return if (pkg != null && clazz != null && method != null) {
             val test = Test(pkg, clazz, method, emptyList())
