@@ -6,6 +6,9 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLGenerator
 import com.fasterxml.jackson.module.kotlin.KotlinFeature
 import com.fasterxml.jackson.module.kotlin.KotlinModule
 import com.google.gson.GsonBuilder
+import com.malinskiy.marathon.config.Configuration
+import com.malinskiy.marathon.config.vendor.VendorConfiguration
+import com.malinskiy.marathon.config.vendor.ios.TestParserConfiguration
 import com.malinskiy.marathon.device.DeviceProvider
 import com.malinskiy.marathon.execution.TestParser
 import com.malinskiy.marathon.execution.bundle.TestBundleIdentifier
@@ -32,7 +35,20 @@ val AppleVendor = module {
                 )
             AppleDeviceProvider(get(), get(), get(), gson, objectMapper, get(), get())
     }
-    single<TestParser?> { AppleTestParser(get(), get(), get()) }
+    single<TestParser?> {
+        val configuration = get<Configuration>()
+        val iosConfiguration = configuration.vendorConfiguration as? VendorConfiguration.IOSConfiguration
+        val testParserConfiguration = iosConfiguration?.testParserConfiguration
+        when {
+            testParserConfiguration != null && testParserConfiguration is TestParserConfiguration.XCTestParserConfiguration -> XCTestParser(
+                get(),
+                get(),
+                get()
+            )
+
+            else -> NmTestParser(get(), get(), get())
+        }
+    }
     single<MarathonLogConfigurator> { AppleLogConfigurator(get()) }
 
     val appleTestBundleIdentifier = AppleTestBundleIdentifier()

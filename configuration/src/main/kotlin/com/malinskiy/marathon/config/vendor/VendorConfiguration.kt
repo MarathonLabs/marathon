@@ -142,6 +142,7 @@ sealed class VendorConfiguration {
         @JsonProperty("compactOutput") val compactOutput: Boolean = false,
         @JsonProperty("rsync") val rsync: RsyncConfiguration = RsyncConfiguration(),
         @JsonProperty("xcodebuildTestArgs") val xcodebuildTestArgs: Map<String, String> = emptyMap(),
+        @JsonProperty("testParserConfiguration") val testParserConfiguration: com.malinskiy.marathon.config.vendor.ios.TestParserConfiguration = com.malinskiy.marathon.config.vendor.ios.TestParserConfiguration.NmTestParserConfiguration,
 
         @JsonProperty("signing") val signing: SigningConfiguration = SigningConfiguration(),
     ) : VendorConfiguration() {

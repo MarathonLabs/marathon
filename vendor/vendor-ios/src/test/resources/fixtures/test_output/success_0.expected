@@ -1,0 +1,2 @@
+TestStarted(id=Test(pkg=sample_appUITests, clazz=MoreTests, method=testPresentModal, metaProperties=[]))
+TestPassed(id=Test(pkg=sample_appUITests, clazz=MoreTests, method=testPresentModal, metaProperties=[]), startTime=1537187690685, endTime=1537187696000)

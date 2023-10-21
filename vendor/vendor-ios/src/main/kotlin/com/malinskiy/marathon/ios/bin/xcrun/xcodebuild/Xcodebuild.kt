@@ -25,7 +25,7 @@ class Xcodebuild(
         val args = mutableMapOf<String, String>().apply {
             putAll(vendorConfiguration.xcodebuildTestArgs)
             put("-enableCodeCoverage", codeCoverageFlag(request))
-            put("-resultBundlePath", request.xcresult)
+            request.xcresult?.let { put("-resultBundlePath", it) }
             put("-destination-timeout", timeoutConfiguration.testDestination.seconds.toString())
             put("-destination", "\'platform=iOS simulator,id=$udid\'")
         }
