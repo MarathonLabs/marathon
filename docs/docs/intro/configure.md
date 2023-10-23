@@ -113,42 +113,6 @@ Refer to platform configuration for additional options inside the `vendorConfigu
 
 ## Optional
 
-### Test class regular expression
-By default, test classes are found using the ```"^((?!Abstract).)*Test[s]*$"``` regex. You can override this if you need to.
-
-<Tabs>
-<TabItem value="YAML" label="Marathonfile">
-
-```yaml
-testClassRegexes:
-  - "^((?!Abstract).)*Test[s]*$"
-```
-
-</TabItem>
-<TabItem value="kts" label="Kotlin DSL">
-
-```kotlin
-marathon {
-  testClassRegexes = listOf(
-    "^((?!Abstract).)*Test[s]*$"
-  )
-}
-```
-
-</TabItem>
-<TabItem value="groovy" label="Groovy DSL">
-
-```groovy
-marathon {
-  testClassRegexes = [
-    "^((?!Abstract).)*Test[s]*\$"
-  ]
-}
-```
-
-</TabItem>
-</Tabs>
-
 ### Ignore failures
 By default, the build fails if some tests failed. If you want to the build to succeed even if some tests failed use *true*.
 

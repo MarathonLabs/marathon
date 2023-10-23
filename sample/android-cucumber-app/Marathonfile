@@ -1,8 +1,6 @@
 name: "android-cucumber-app tests"
 outputDir: "build/reports/marathon"
 isCodeCoverageEnabled: true
-testClassRegexes:
-  - ".*"
 retryStrategy:
   type: "fixed-quota"
   totalAllowedRetryQuota: 100

@@ -58,8 +58,6 @@ filteringConfiguration:
       regex: ".*"
     - type: "annotation"
       regex: ".*"
-testClassRegexes:
-  - "^((?!Abstract).)*Test$"
 includeSerialRegexes:
   - "emulator-500[2,4]"
 excludeSerialRegexes:

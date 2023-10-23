@@ -52,7 +52,7 @@ iOS:
 ```yaml
 name: "My application"
 outputDir: "derived-data/Marathon"
-testClassRegexes: ["^((?!Abstract).)*Tests$"]
+testClassRegexes: ["^((?!Abstract).)*Test[s]*$"]
 vendorConfiguration:
   type: "iOS"
   bundle:

@@ -19,6 +19,7 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.KotlinFeature
 import com.fasterxml.jackson.module.kotlin.KotlinModule
 import com.malinskiy.marathon.config.serialization.yaml.SerializeModule
+import com.malinskiy.marathon.config.vendor.ios.TestParserConfiguration
 
 class IosConfigurationFactoryTest {
     private val mockMarathonFileDir = File(ConfigurationFactoryTest::class.java.getResource("/fixture/config/ios").file)
