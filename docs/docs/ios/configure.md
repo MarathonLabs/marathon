@@ -480,7 +480,19 @@ We don't provide source code for the libxctest-parser module. By using libxctest
 Default test parser is nm.
 
 <Tabs>
-<TabItem value="YAML" label="Marathonfile">
+<TabItem value="nm" label="nm">
+
+```yaml
+vendorConfiguration:
+  type: "iOS"
+  testParserConfiguration:
+    type: "nm"
+    testClassRegexes:
+    - "^((?!Abstract).)*Test[s]*$"
+```
+
+</TabItem>
+<TabItem value="xctest" label="xctest">
 
 ```yaml
 vendorConfiguration:

@@ -18,22 +18,22 @@ import com.malinskiy.marathon.log.MarathonLogConfigurator
 import org.koin.dsl.module
 
 val AppleVendor = module {
-    single <DeviceProvider> {
-            val gson = GsonBuilder()
-                .registerTypeAdapter(SimctlDeviceList::class.java, SimctlDeviceListDeserializer())
-                .create()
-            val objectMapper = ObjectMapper(YAMLFactory().disable(YAMLGenerator.Feature.USE_NATIVE_TYPE_ID))
-                .registerModule(
-                    KotlinModule.Builder()
-                        .withReflectionCacheSize(512)
-                        .configure(KotlinFeature.NullToEmptyCollection, false)
-                        .configure(KotlinFeature.NullToEmptyMap, false)
-                        .configure(KotlinFeature.NullIsSameAsDefault, false)
-                        .configure(KotlinFeature.SingletonSupport, true)
-                        .configure(KotlinFeature.StrictNullChecks, false)
-                        .build()
-                )
-            AppleDeviceProvider(get(), get(), get(), gson, objectMapper, get(), get())
+    single<DeviceProvider> {
+        val gson = GsonBuilder()
+            .registerTypeAdapter(SimctlDeviceList::class.java, SimctlDeviceListDeserializer())
+            .create()
+        val objectMapper = ObjectMapper(YAMLFactory().disable(YAMLGenerator.Feature.USE_NATIVE_TYPE_ID))
+            .registerModule(
+                KotlinModule.Builder()
+                    .withReflectionCacheSize(512)
+                    .configure(KotlinFeature.NullToEmptyCollection, false)
+                    .configure(KotlinFeature.NullToEmptyMap, false)
+                    .configure(KotlinFeature.NullIsSameAsDefault, false)
+                    .configure(KotlinFeature.SingletonSupport, true)
+                    .configure(KotlinFeature.StrictNullChecks, false)
+                    .build()
+            )
+        AppleDeviceProvider(get(), get(), get(), gson, objectMapper, get(), get())
     }
     single<TestParser?> {
         val configuration = get<Configuration>()
@@ -46,7 +46,14 @@ val AppleVendor = module {
                 get()
             )
 
-            else -> NmTestParser(get(), get(), get())
+            testParserConfiguration != null && testParserConfiguration is TestParserConfiguration.NmTestParserConfiguration -> NmTestParser(
+                get(),
+                get(),
+                testParserConfiguration,
+                get()
+            )
+
+            else -> NmTestParser(get(), get(), TestParserConfiguration.NmTestParserConfiguration(), get())
         }
     }
     single<MarathonLogConfigurator> { AppleLogConfigurator(get()) }
