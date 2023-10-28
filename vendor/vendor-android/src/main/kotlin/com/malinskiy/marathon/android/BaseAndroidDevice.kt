@@ -174,7 +174,7 @@ abstract class BaseAndroidDevice(
     }
 
     private suspend fun detectFeatures(): List<DeviceFeature> {
-        val hasScreenRecord = when {
+        val screenRecordSupport = when {
             !version.isGreaterOrEqualThan(19) -> false
             else -> hasBinary("/system/bin/screenrecord")
         }
@@ -182,7 +182,7 @@ abstract class BaseAndroidDevice(
 
         val features = mutableListOf<DeviceFeature>()
 
-        if (hasScreenRecord) features.add(DeviceFeature.VIDEO)
+        if (screenRecordSupport) features.add(DeviceFeature.VIDEO)
         if (screenshotSupport) features.add(DeviceFeature.SCREENSHOT)
         return features
     }
