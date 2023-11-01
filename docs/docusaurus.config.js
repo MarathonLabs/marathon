@@ -38,6 +38,27 @@ const config = {
                 },
             },
         ],
+        [
+            '@docusaurus/plugin-content-docs',
+            {
+                id: 'runner',
+                path: 'runner',
+                routeBasePath: 'runner',
+                sidebarPath: require.resolve('./sidebars.js'),
+                editCurrentVersion: false,
+                remarkPlugins: [math],
+                rehypePlugins: [katex],
+                breadcrumbs: false,
+                versions: {
+                    current: {
+                        label: 'develop',
+                        path: 'next',
+                        banner: 'none',
+                    },
+                }
+            },
+        ],
+        
     ],
 
     presets: [
@@ -45,19 +66,12 @@ const config = {
             '@docusaurus/preset-classic',
             {
                 docs: {
-                    routeBasePath: '/',
-                    sidebarPath: require.resolve('./sidebars.js'),
-                    editCurrentVersion: false,
+                    path: 'cloud',
+                    routeBasePath: 'cloud',
+                    sidebarPath: require.resolve('./sidebarsCloud.js'),
                     remarkPlugins: [math],
                     rehypePlugins: [katex],
                     breadcrumbs: false,
-                    versions: {
-                        current: {
-                            label: 'develop',
-                            path: 'next',
-                            banner: 'none',
-                        },
-                    }
                 },
                 theme: {
                     customCss: [
@@ -74,81 +88,95 @@ const config = {
     ],
 
     themeConfig:
-        /** @type {import('@docusaurus/preset-classic').ThemeConfig} */
-        ({
+    /** @type {import('@docusaurus/preset-classic').ThemeConfig} */
+    ({
 
-            colorMode: {
-                defaultMode: 'light',
-                disableSwitch: true,
+        colorMode: {
+            defaultMode: 'light',
+            disableSwitch: true,
+        },
+        navbar: {
+            hideOnScroll: true,
+            logo: {
+                alt: 'Site Logo',
+                src: `/logos/marathon-text-docs-dark.svg`,
+                srcDark: `/logos/marathon-text-docs-light.svg`,
+                href: '/',
+                target: '_self',
+                width: 113,
             },
-            navbar: {
-                hideOnScroll: true,
-                logo: {
-                    alt: 'Site Logo',
-                    src: `/logos/marathon-text-docs-dark.svg`,
-                    srcDark: `/logos/marathon-text-docs-light.svg`,
-                    href: '/',
-                    target: '_self',
-                    width: 113,
+            items: [
+
+                {
+                    docsPluginId: "default",
+                    type: 'docsVersionDropdown',
+                    position: 'right',
+                    dropdownActiveClassDisabled: true,
+                    className: 'navbar__dropdown--versions cloud',
+                    
                 },
-                items: [
-                    {
-                        type: 'docsVersionDropdown',
-                        position: 'right',
-                        dropdownActiveClassDisabled: true,
-                        className: 'navbar__dropdown--versions',
-                    },
-                    {
-                        type: 'search',
-                        position: 'right',
-                    },
-                    {
-                        label: 'Support',
-                        position: 'right',
-                        items: [
-                            {
-                                href: 'https://bit.ly/2LLghaW',
-                                label: 'Slack',
-                                target: '_blank',
-                                rel: null,
-                            },
-                            {
-                                href: 'https://t.me/marathontestrunner',
-                                label: 'Telegram',
-                                target: '_blank',
-                                rel: null,
-                            },
-                        ],
-                        className: 'navbar__link--support',
-                    },
-                    {
-                        type: 'custom-separator',
-                        position: 'right',
-                    },
-                    {
-                        type: 'custom-iconLink',
-                        position: 'right',
-                        icon: {
-                            alt: 'github logo',
-                            src: `/logos/github.svg`,
-                            href: 'https://github.com/MarathonLabs/marathon',
+                {
+                    docsPluginId: "runner",
+                    type: 'docsVersionDropdown',
+                    position: 'right',
+                    dropdownActiveClassDisabled: true,
+                    className: 'navbar__dropdown--versions runner',
+                    
+                },
+
+                {
+                    type: 'search',
+                    position: 'right',
+
+                },
+                {
+
+                    label: 'Support',
+                    position: 'right',
+                    items: [
+                        {
+                            href: 'https://bit.ly/2LLghaW',
+                            label: 'Slack',
                             target: '_blank',
+                            rel: null,
                         },
+                        {
+                            href: 'https://t.me/marathontestrunner',
+                            label: 'Telegram',
+                            target: '_blank',
+                            rel: null,
+                        },
+                    ],
+                    className: 'navbar__link--support',
+                },
+                {
+                    type: 'custom-separator',
+                    position: 'right',
+                },
+                {
+                    type: 'custom-iconLink',
+                    position: 'right',
+                    icon: {
+                        alt: 'github logo',
+                        src: `/logos/github.svg`,
+                        href: 'https://github.com/MarathonLabs/marathon',
+                        target: '_blank',
                     },
-                ],
-            },
-            prism: {
-                theme: lightCodeTheme,
-                additionalLanguages: ["shell-session", "kotlin", "groovy"]
-            },
-            algolia: {
-                appId: '5FSD01C36S',
-                apiKey: '9a3b61683f7ae8215249da35b66fc74b',
-                indexName: 'malinskiy_marathon',
-                contextualSearch: true,
-                searchPagePath: false,
-            },
-        }),
+                },
+            ],
+        },
+        prism: {
+            theme: lightCodeTheme,
+            additionalLanguages: ["shell-session", "kotlin", "groovy"]
+        },
+        algolia: {
+            appId: '5FSD01C36S',
+            apiKey: '9a3b61683f7ae8215249da35b66fc74b',
+            indexName: 'malinskiy_marathon',
+            contextualSearch: true,
+            searchPagePath: false,
+        },
+    }),
     themes: [
         "@docusaurus/theme-mermaid",
     ],
@@ -157,7 +185,7 @@ const config = {
             href: 'https://cdn.jsdelivr.net/npm/katex@0.13.24/dist/katex.min.css',
             type: 'text/css',
             integrity:
-                'sha384-odtC+0UGzzFL/6PNoE8rX/SPcQDXBJ+uRepguP4QkPCm2LBxH3FA3y+fKSiJ+AmM',
+            'sha384-odtC+0UGzzFL/6PNoE8rX/SPcQDXBJ+uRepguP4QkPCm2LBxH3FA3y+fKSiJ+AmM',
             crossorigin: 'anonymous',
         },
     ],

@@ -185,3 +185,11 @@ iframe {
 .cordova-ee-card p {
   margin: 1rem 0 0;
 }
+
+html.plugin-id-default  .navbar__dropdown--versions.runner {
+    display: none !important;
+}
+
+.navbar__dropdown--versions.cloud {
+    display: none !important;
+}
