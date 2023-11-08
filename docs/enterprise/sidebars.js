@@ -13,18 +13,17 @@ Create as many sidebars as you want.
 
 /** @type {import('@docusaurus/plugin-content-docs').SidebarsConfig} */
 const sidebars = {
-  docs: [
-    {
-      type: 'category',
-      label: 'Getting started',
-      collapsed: false,
-      items: [
-        'index',
-        'cloud/overview',
-        'cloud/pricing'
-      ]
-    }
-  ],
+    docs: [
+        {
+            type: 'category',
+            label: 'Getting started',
+            collapsed: false,
+            items: [
+                'index',
+            ]
+        },
+
+    ],
 };
 
 module.exports = sidebars;

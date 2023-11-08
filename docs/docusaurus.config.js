@@ -44,7 +44,7 @@ const config = {
                 id: 'runner',
                 path: 'runner',
                 routeBasePath: 'runner',
-                sidebarPath: require.resolve('./sidebars.js'),
+                sidebarPath: require.resolve('./runner/sidebars.js'),
                 editCurrentVersion: false,
                 remarkPlugins: [math],
                 rehypePlugins: [katex],
@@ -58,7 +58,20 @@ const config = {
                 }
             },
         ],
-        
+        [
+            '@docusaurus/plugin-content-docs',
+            {
+                id: 'enterprise',
+                path: 'enterprise',
+                routeBasePath: 'enterprise',
+                sidebarPath: require.resolve('./enterprise/sidebars.js'),
+                editCurrentVersion: false,
+                remarkPlugins: [math],
+                rehypePlugins: [katex],
+                breadcrumbs: false,
+            },
+        ],
+
     ],
 
     presets: [
@@ -67,8 +80,8 @@ const config = {
             {
                 docs: {
                     path: 'cloud',
-                    routeBasePath: 'cloud',
-                    sidebarPath: require.resolve('./sidebarsCloud.js'),
+                    routeBasePath: '/',
+                    sidebarPath: require.resolve('./cloud/sidebars.js'),
                     remarkPlugins: [math],
                     rehypePlugins: [katex],
                     breadcrumbs: false,
@@ -106,14 +119,30 @@ const config = {
                 width: 113,
             },
             items: [
+                {
+                    type: 'docSidebar',
+                    position: 'left',
+                    sidebarId: 'docs',
+                    label: 'Cloud',
+                },
 
+                {
+                    to: 'runner', 
+                    label: 'OSS Runner', 
+                    position: 'left'
+                },
+                {
+                    to: 'enterprise', 
+                    label: 'Enterprise', 
+                    position: 'left'
+                },
                 {
                     docsPluginId: "default",
                     type: 'docsVersionDropdown',
                     position: 'right',
                     dropdownActiveClassDisabled: true,
                     className: 'navbar__dropdown--versions cloud',
-                    
+
                 },
                 {
                     docsPluginId: "runner",
@@ -121,7 +150,7 @@ const config = {
                     position: 'right',
                     dropdownActiveClassDisabled: true,
                     className: 'navbar__dropdown--versions runner',
-                    
+
                 },
 
                 {
