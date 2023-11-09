@@ -3,9 +3,12 @@ title: "Android"
 ---
 
 ### Supported frameworks
-Marathon Cloud supports tests written with 
-UIAutomator, Cucumber, Espresso, and [Kaspresso](https://github.com/KasperskyLab/Kaspresso) frameworks. 
-It is also supports tests written for Flutter apps with [Patrol](https://patrol.leancode.co/) framework. 
+Marathon Cloud supports tests written with: 
+- UIAutomator
+- Cucumber
+- Espresso
+- [Kaspresso](https://github.com/KasperskyLab/Kaspresso)
+- Flutter (with [Patrol](https://patrol.leancode.co/))
 
 ### Application and Test Application
 
