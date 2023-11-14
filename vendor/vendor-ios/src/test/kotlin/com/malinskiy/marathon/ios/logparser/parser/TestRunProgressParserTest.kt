@@ -5,10 +5,10 @@ import assertk.assertions.isEqualTo
 import com.malinskiy.marathon.ios.logparser.formatter.NoopPackageNameFormatter
 import com.malinskiy.marathon.ios.test.TestEvent
 import com.malinskiy.marathon.time.Timer
+import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.mockito.Mockito.mock
 import org.mockito.Mockito.reset
 
 class TestRunProgressParserTest {

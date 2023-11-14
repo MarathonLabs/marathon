@@ -5,6 +5,7 @@ plugins {
 }
 
 android {
+    namespace = "com.example.library"
     buildToolsVersion = "30.0.3"
     compileSdk = 33
 
