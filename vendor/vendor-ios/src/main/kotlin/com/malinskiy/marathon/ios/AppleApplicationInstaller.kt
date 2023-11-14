@@ -6,6 +6,7 @@ import com.malinskiy.marathon.config.vendor.VendorConfiguration
 import com.malinskiy.marathon.config.vendor.ios.TestType
 import com.malinskiy.marathon.exceptions.DeviceSetupException
 import com.malinskiy.marathon.execution.withRetry
+import com.malinskiy.marathon.ios.extensions.testBundle
 import com.malinskiy.marathon.ios.model.Sdk
 import com.malinskiy.marathon.ios.xctestrun.TestRootFactory
 import com.malinskiy.marathon.log.MarathonLogging
@@ -18,9 +19,9 @@ class AppleApplicationInstaller(
     private val logger = MarathonLogging.logger {}
 
     suspend fun prepareInstallation(device: AppleSimulatorDevice, useXctestParser: Boolean = false) {
-        val bundle = vendorConfiguration.bundle ?: throw ConfigurationException("no xctest found for configuration")
+        val bundle = vendorConfiguration.testBundle() ?: throw ConfigurationException("no xctest found for configuration")
 
-        val xctest = bundle.xctest
+        val xctest = bundle.testApplication
         logger.debug { "Moving xctest to ${device.serialNumber}" }
         val remoteXctest = device.remoteFileManager.remoteXctestFile()
         withRetry(3, 1000L) {
@@ -46,7 +47,7 @@ class AppleApplicationInstaller(
         TestRootFactory(device, vendorConfiguration).generate(testType, bundle, useXctestParser)
         grantPermissions(device)
 
-        bundle.extraApplications?.forEach {
+        vendorConfiguration.bundle?.extraApplications?.forEach {
             if (it.isDirectory && it.extension == "app") {
                 logger.debug { "Installing extra application $it to ${device.serialNumber}" }
                 val remoteExtraApplication = device.remoteFileManager.remoteExtraApplication(it.name)

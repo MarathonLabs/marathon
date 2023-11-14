@@ -16,11 +16,24 @@ class ApplicationService (commandExecutor: CommandExecutor,
         )
     }
 
+    suspend fun containerPath(udid: String, bundleId: String, containerType: ContainerType): CommandResult {
+        return criticalExec(
+            timeout = timeoutConfiguration.shell,
+            "get_app_container", udid, bundleId, containerType.value
+        )
+    }
+
+    enum class ContainerType(val value: String) {
+        APPLICATION("app"),
+        DATA("data"),
+        GROUPS("groups")
+    }
+
     /**
      * Terminates a running application with the given bundle ID on this device
      */
-    suspend fun terminateApplication(udid: String, bundleId: String): CommandResult {
-        return criticalExec(
+    suspend fun terminateApplication(udid: String, bundleId: String): CommandResult? {
+        return safeExecute(
             timeout = timeoutConfiguration.shell,
             "terminate", udid, bundleId
         )
