@@ -18,7 +18,7 @@ import com.malinskiy.marathon.test.toTestName
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.channels.ReceiveChannel
 
-class AppleDeviceTestRunner(private val device: AppleSimulatorDevice) {
+class AppleDeviceTestRunner(private val device: AppleSimulatorDevice, private val bundleIdentifier: AppleTestBundleIdentifier) {
     private val logger = MarathonLogging.logger {}
 
     suspend fun execute(
@@ -43,7 +43,15 @@ class AppleDeviceTestRunner(private val device: AppleSimulatorDevice) {
         )
         var channel: ReceiveChannel<List<TestEvent>>? = null
         try {
-            clearData(vendorConfiguration)
+            if (vendorConfiguration.dataContainerClear) {
+                val bundleIds = rawTestBatch.tests.map {
+                    bundleIdentifier.identify(it).appId
+                }.toSet()
+                bundleIds.forEach {
+                    device.clearAppContainer(it)
+                }
+            }
+
             listener.beforeTestRun()
 
             val localChannel = device.executeTestRequest(runnerRequest)
@@ -76,12 +84,5 @@ class AppleDeviceTestRunner(private val device: AppleSimulatorDevice) {
                 is TestRunEnded -> listener.testRunEnded()
             }
         }
-    }
-
-    private suspend fun clearData(vendorConfiguration: VendorConfiguration.IOSConfiguration) {
-//        if (vendorConfiguration.eraseSimulatorOnStart) {
-//            device.shutdown()
-//            device.erase()
-//        }
     }
 }

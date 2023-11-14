@@ -105,7 +105,7 @@ class XCTestParser(
             }
         }
 
-        val testBundle = AppleTestBundle(vendorConfiguration.bundle?.application, xctest, testBinary)
+        val testBundle = AppleTestBundle(vendorConfiguration.bundle?.application, xctest)
         val result = tests.toList()
         result.forEach { testBundleIdentifier.put(it, testBundle) }
 

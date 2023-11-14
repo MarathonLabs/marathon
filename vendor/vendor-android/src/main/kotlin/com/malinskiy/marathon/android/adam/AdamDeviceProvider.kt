@@ -67,6 +67,7 @@ class AdamDeviceProvider(
     private val socketFactory = VertxSocketFactory(idleTimeout = vendorConfiguration.timeoutConfiguration.socketIdleTimeout.toMillis())
     private val logcatManager: LogcatManager = LogcatManager()
     private lateinit var deviceEventsChannel: ReceiveChannel<Pair<AndroidDebugBridgeClient, List<Device>>>
+    private var deviceEventsChannelInitialized = false
     private val deviceEventsChannelMutex = Mutex()
     private val multiServerDeviceStateTracker = MultiServerDeviceStateTracker()
 
@@ -132,6 +133,7 @@ class AdamDeviceProvider(
                             }
                         }
                     }
+                    deviceEventsChannelInitialized = true
                 }
                 for ((client, currentDeviceList) in deviceEventsChannel) {
                     multiServerDeviceStateTracker.update(client, currentDeviceList).forEach { update ->
@@ -160,6 +162,7 @@ class AdamDeviceProvider(
                                     devices[serial] = ProvidedDevice(device, job)
                                 }
                             }
+
                             TrackingUpdate.DISCONNECTED -> {
                                 devices[serial]?.let { (device, job) ->
                                     if (job.isActive) {
@@ -169,6 +172,7 @@ class AdamDeviceProvider(
                                     device.dispose()
                                 }
                             }
+
                             TrackingUpdate.NOTHING_TO_DO -> Unit
                         }
                         logger.debug { "Device $serial changed state to $state" }
@@ -180,7 +184,7 @@ class AdamDeviceProvider(
 
     override suspend fun borrow(): AdamAndroidDevice {
         var availableDevices = devices.filter { it.value.setupJob.isCompleted && !it.value.setupJob.isCancelled }
-        while(availableDevices.isEmpty()) {
+        while (availableDevices.isEmpty()) {
             delay(200)
             availableDevices = devices.filter { it.value.setupJob.isCompleted && !it.value.setupJob.isCancelled }
         }
@@ -198,7 +202,9 @@ class AdamDeviceProvider(
         providerJob?.cancel()
         channel.close()
         deviceEventsChannelMutex.withLock {
-            deviceEventsChannel.cancel()
+            if (deviceEventsChannelInitialized) {
+                deviceEventsChannel.cancel()
+            }
         }
         logcatManager.close()
         socketFactory.close()
