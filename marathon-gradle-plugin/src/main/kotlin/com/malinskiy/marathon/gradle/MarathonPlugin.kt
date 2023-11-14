@@ -175,7 +175,6 @@ class MarathonPlugin : Plugin<Project> {
                 config.isCodeCoverageEnabled?.let { isCodeCoverageEnabled = it }
                 config.executionStrategy?.let { executionStrategy = it }
                 config.uncompletedTestRetryQuota?.let { uncompletedTestRetryQuota = it }
-                config.testClassRegexes?.map { it.toRegex() }?.let { testClassRegexes = it }
                 config.includeSerialRegexes?.map { it.toRegex() }?.let { includeSerialRegexes = it }
                 config.excludeSerialRegexes?.map { it.toRegex() }?.let { excludeSerialRegexes = it }
                 config.testBatchTimeoutMillis?.let { testBatchTimeoutMillis = it }

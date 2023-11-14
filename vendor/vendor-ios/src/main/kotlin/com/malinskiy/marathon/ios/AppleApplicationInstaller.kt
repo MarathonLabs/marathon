@@ -17,7 +17,7 @@ class AppleApplicationInstaller(
 ) {
     private val logger = MarathonLogging.logger {}
 
-    suspend fun prepareInstallation(device: AppleSimulatorDevice) {
+    suspend fun prepareInstallation(device: AppleSimulatorDevice, useXctestParser: Boolean = false) {
         val bundle = vendorConfiguration.bundle ?: throw ConfigurationException("no xctest found for configuration")
 
         val xctest = bundle.xctest
@@ -43,7 +43,7 @@ class AppleApplicationInstaller(
         }
         val remoteTestBinary = device.remoteFileManager.joinPath(remoteXctest, testBinary.name)
         val testType = getTestTypeFor(device, device.sdk, remoteTestBinary)
-        TestRootFactory(device, vendorConfiguration).generate(testType, bundle)
+        TestRootFactory(device, vendorConfiguration).generate(testType, bundle, useXctestParser)
         grantPermissions(device)
 
         bundle.extraApplications?.forEach {

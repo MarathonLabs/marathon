@@ -357,7 +357,7 @@ timeoutConfiguration:
   screenshot: PT10S
   video: PT300S
   erase: PT30S
-  shutdown: PT30S
+  shutdown: PT30S 
   delete: PT30S
   create: PT30S
   boot: PT30S
@@ -454,6 +454,58 @@ rsync:
   remotePath: "/usr/bin/rsync-custom"
 ```
 
+### Test parser
+
+:::tip
+
+If you need to parallelize the execution of tests generated at runtime
+(i.e. flutter) - xctest parser is your choice.
+
+:::
+
+Test parsing (collecting a list of tests expected to execute) can be done using either binary inspection using nm,
+or injecting marathon's proprietary blob and allows marathon to collect a list of tests expected to run without actually running them.
+
+:::note
+
+We don't provide source code for the libxctest-parser module. By using libxctest-parser you're automatically accepting it's [EULA][libxctest-parser-license]
+
+:::
+
+| YAML type |                                                                                                               Pros |                                                                                                      Const |
+|-----------|-------------------------------------------------------------------------------------------------------------------:|-----------------------------------------------------------------------------------------------------------:|
+| "nm"      |                                                               Doesn't require installation of apps onto the device |                                                      Doesn't support runtime-generated tests, e.g. flutter |
+| "xctest"  | Supports precise test parsing and any runtime-generated tests hence allows marathon to parallelize their execution | Requires a booted iOS device for parsing and a fake test run including installation of test app under test |
+
+Default test parser is nm.
+
+<Tabs>
+<TabItem value="nm" label="nm">
+
+```yaml
+vendorConfiguration:
+  type: "iOS"
+  testParserConfiguration:
+    type: "nm"
+    testClassRegexes:
+    - "^((?!Abstract).)*Test[s]*$"
+```
+
+</TabItem>
+<TabItem value="xctest" label="xctest">
+
+```yaml
+vendorConfiguration:
+  type: "iOS"
+  testParserConfiguration:
+    type: "xctest"
+```
+
+</TabItem>
+</Tabs>
+
+
 [1]: workers.md
 [2]: /configuration/dynamic-configuration.md
 [3]: https://en.wikipedia.org/wiki/ISO_8601
+[libxctest-parser-license]: https://github.com/MarathonLabs/marathon/blob/-/vendor/vendor-ios/src/main/resources/EULA.md

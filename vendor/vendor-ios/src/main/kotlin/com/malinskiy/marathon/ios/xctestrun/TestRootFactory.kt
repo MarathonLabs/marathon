@@ -21,14 +21,14 @@ import java.nio.file.Path
 import kotlin.io.path.createTempFile
 
 class TestRootFactory(private val device: AppleSimulatorDevice, private val vendorConfiguration: VendorConfiguration.IOSConfiguration) {
-    suspend fun generate(testType: TestType, bundleConfiguration: AppleTestBundleConfiguration) {
+    suspend fun generate(testType: TestType, bundleConfiguration: AppleTestBundleConfiguration, useXctestParser: Boolean) {
         val remoteFileManager = device.remoteFileManager
 
         val testRoot = remoteFileManager.remoteTestRoot()
         remoteFileManager.createRemoteDirectory(testRoot)
         val xctestrun = when (testType) {
-            TestType.XCUITEST -> generateXCUITest(testRoot, remoteFileManager, bundleConfiguration)
-            TestType.XCTEST -> generateXCTest(testRoot, remoteFileManager, bundleConfiguration)
+            TestType.XCUITEST -> generateXCUITest(testRoot, remoteFileManager, bundleConfiguration, useXctestParser)
+            TestType.XCTEST -> generateXCTest(testRoot, remoteFileManager, bundleConfiguration, useXctestParser)
             TestType.LOGIC_TEST -> TODO()
         }
 
@@ -47,7 +47,8 @@ class TestRootFactory(private val device: AppleSimulatorDevice, private val vend
     private suspend fun generateXCUITest(
         testRoot: String,
         remoteFileManager: RemoteFileManager,
-        bundleConfiguration: AppleTestBundleConfiguration
+        bundleConfiguration: AppleTestBundleConfiguration,
+        useLibParseTests: Boolean
     ): Xctestrun {
         val sdkPlatformPath = device.binaryEnvironment.xcrun.getSdkPlatformPath(device.sdk)
         val platformLibraryPath = remoteFileManager.joinPath(sdkPlatformPath, "Developer", "Library")
@@ -85,6 +86,11 @@ class TestRootFactory(private val device: AppleSimulatorDevice, private val vend
 
         val dyldFrameworks = mutableListOf("__TESTROOT__", frameworks, privateFrameworks, *userFrameworkPath.toTypedArray())
         val dyldLibraries = listOf("__TESTROOT__", usrLib, *userLibraryPath.toTypedArray())
+        val dyldInsertLibraries = if (useLibParseTests) {
+            listOf(remoteFileManager.remoteXctestParserFile())
+        } else {
+            emptyList()
+        }
         
         /**
          * If the app contains internal frameworks we need to add them to xctestrun
@@ -93,9 +99,11 @@ class TestRootFactory(private val device: AppleSimulatorDevice, private val vend
             dyldFrameworks.add("__TESTROOT__/${remoteFileManager.appUnderTestFileName()}/Frameworks")
         }
 
+
         val testEnv = mutableMapOf(
             "DYLD_FRAMEWORK_PATH" to dyldFrameworks.joinToString(":"),
-            "DYLD_LIBRARY_PATH" to dyldLibraries.joinToString(":")
+            "DYLD_LIBRARY_PATH" to dyldLibraries.joinToString(":"),
+            "DYLD_INSERT_LIBRARIES" to dyldInsertLibraries.joinToString(":")
         ).apply {
             vendorConfiguration.xctestrunEnv
                 .filterKeys { !setOf("DYLD_FRAMEWORK_PATH", "DYLD_LIBRARY_PATH").contains(it) }
@@ -131,7 +139,8 @@ class TestRootFactory(private val device: AppleSimulatorDevice, private val vend
     private suspend fun generateXCTest(
         testRoot: String,
         remoteFileManager: RemoteFileManager,
-        bundleConfiguration: AppleTestBundleConfiguration
+        bundleConfiguration: AppleTestBundleConfiguration,
+        useLibParseTests: Boolean
     ): Xctestrun {
         val testApp = bundleConfiguration.app ?: throw ConfigurationException("no application specified for XCTest")
         val xctestBundleInfo: BundleInfo = PropertyList.from(File(bundleConfiguration.xctest, "Info.plist"))
@@ -270,6 +279,9 @@ class TestRootFactory(private val device: AppleSimulatorDevice, private val vend
             val supportedArchs = device.binaryEnvironment.lipo.getArch(testBinary)
             if (supportedArchs.contains(Arch.x86_64) && device.arch != Arch.arm64) {
                 // Launch as plain x86_64 if test binary has been built for simulator and is targeting x86_64
+                device.binaryEnvironment.lipo.removeArch(testRunnerBinary, Arch.arm64)
+            } else if (supportedArchs.contains(Arch.x86_64) && !supportedArchs.contains(Arch.arm64)) {
+                // Launch as plain x86_64 if test binary supports only x86_64
                 device.binaryEnvironment.lipo.removeArch(testRunnerBinary, Arch.arm64)
             }
         }
