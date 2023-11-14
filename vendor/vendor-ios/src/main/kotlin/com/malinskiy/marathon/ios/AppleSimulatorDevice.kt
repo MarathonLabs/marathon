@@ -130,7 +130,7 @@ class AppleSimulatorDevice(
     }
     override val coroutineContext: CoroutineContext = dispatcher
     override val remoteFileManager: RemoteFileManager = RemoteFileManager(this)
-    override val storagePath = "/tmp/marathon/$udid"
+    override val storagePath = "$SHARED_PATH/$udid"
     private lateinit var xcodeVersion: XcodeVersion
 
     /**
@@ -188,6 +188,7 @@ class AppleSimulatorDevice(
                 track.trackDevicePreparing(this@AppleSimulatorDevice) {
                     remoteFileManager.removeRemoteDirectory()
                     remoteFileManager.createRemoteDirectory()
+                    remoteFileManager.createRemoteSharedDirectory()
                     //Clean slate for the recorder
                     executeWorkerCommand(listOf("pkill", "-f", "'simctl io ${udid} recordVideo'"))
                     mutableListOf<Deferred<Unit>>().apply {
@@ -749,5 +750,9 @@ class AppleSimulatorDevice(
 
     suspend fun grant(permission: Permission, bundleId: String): Boolean {
         return binaryEnvironment.xcrun.simctl.privacy.grant(udid, permission, bundleId).successful
+    }
+
+    companion object {
+        const val SHARED_PATH = "/tmp/marathon"
     }
 }

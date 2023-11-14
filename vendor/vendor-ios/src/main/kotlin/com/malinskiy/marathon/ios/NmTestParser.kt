@@ -58,6 +58,7 @@ class NmTestParser(
         logger.debug { "Found test binary $testBinary for xctest $xctest" }
 
         device.remoteFileManager.createRemoteDirectory()
+        device.remoteFileManager.createRemoteSharedDirectory()
         val remoteXctest = device.remoteFileManager.remoteXctestFile()
         if (!device.pushFile(xctest, remoteXctest)) {
             throw TestParsingException("failed to push xctest for test parsing")
