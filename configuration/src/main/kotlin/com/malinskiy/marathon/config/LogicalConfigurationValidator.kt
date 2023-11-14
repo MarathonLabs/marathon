@@ -27,6 +27,9 @@ class LogicalConfigurationValidator : ConfigurationValidator {
             is VendorConfiguration.IOSConfiguration -> {
                 configuration.vendorConfiguration.validate()
             }
+            is VendorConfiguration.AndroidConfiguration -> {
+                configuration.vendorConfiguration.validate()
+            }
 
             else -> Unit
         }

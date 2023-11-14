@@ -357,7 +357,7 @@ timeoutConfiguration:
   screenshot: PT10S
   video: PT300S
   erase: PT30S
-  shutdown: PT30S 
+  shutdown: PT30S
   delete: PT30S
   create: PT30S
   boot: PT30S
@@ -452,6 +452,15 @@ Override rsync binary on the remote worker
 ```yaml
 rsync:
   remotePath: "/usr/bin/rsync-custom"
+```
+
+### Clear state between test batch executions
+By default, marathon does not clear state between test batch executions. To mitigate potential test side effects, one could add an option to
+clear the container data between test runs. Keep in mind that test side effects might still be present.
+If you want to isolate tests even further, then you should consider reducing the batch size.
+
+```yaml
+dataContainerClear: true
 ```
 
 ### Test parser

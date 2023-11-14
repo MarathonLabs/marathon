@@ -1,10 +1,10 @@
 object Versions {
-    val kotlin = "1.8.10"
-    val coroutines = "1.6.4"
+    val kotlin = "1.9.10"
+    val coroutines = "1.7.3"
 
-    val androidGradleVersion = "7.4.1"
+    val androidGradleVersion = "8.1.3"
 
-    val kakao = "3.2.3"
+    val kakao = "3.4.1"
     val espresso = "3.5.1"
     val espressoRules = "1.5.0"
     val espressoRunner = "1.5.2"
@@ -13,7 +13,7 @@ object Versions {
     val appCompat = "1.6.1"
     val constraintLayout = "2.1.4"
     val allure = "2.4.0"
-    val adam = "0.5.0"
+    val adam = "0.5.2"
 }
 
 object BuildPlugins {
