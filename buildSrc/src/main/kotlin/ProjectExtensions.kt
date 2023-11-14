@@ -6,7 +6,7 @@ import org.gradle.kotlin.dsl.withType
 import org.gradle.testing.jacoco.tasks.JacocoReport
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
-fun Project.setupKotlinCompiler(jvmTarget: String = "1.8") {
+fun Project.setupKotlinCompiler(jvmTarget: String = "11") {
     tasks.withType<KotlinCompile> {
         kotlinOptions.jvmTarget = jvmTarget
         kotlinOptions.apiVersion = "1.5"

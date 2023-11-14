@@ -1,7 +1,7 @@
 package com.malinskiy.marathon.execution.result
 
 import com.malinskiy.marathon.execution.TestStatus
-import com.nhaarman.mockitokotlin2.mock
+import org.mockito.kotlin.mock
 import org.junit.jupiter.api.Test
 import com.malinskiy.marathon.test.Test as MarathonTest
 import assertk.assertThat

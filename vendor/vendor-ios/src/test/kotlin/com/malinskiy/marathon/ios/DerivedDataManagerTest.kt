@@ -4,9 +4,9 @@
 //import com.malinskiy.marathon.config.vendor.VendorConfiguration
 //import com.malinskiy.marathon.extension.relativePathTo
 //import com.malinskiy.marathon.log.MarathonLogging
-//import com.nhaarman.mockitokotlin2.mock
-//import com.nhaarman.mockitokotlin2.reset
-//import com.nhaarman.mockitokotlin2.whenever
+//import org.mockito.kotlin.mock
+//import org.mockito.kotlin.reset
+//import org.mockito.kotlin.whenever
 //import org.amshove.kluent.shouldBeEqualTo
 //import org.amshove.kluent.shouldNotBeEqualTo
 //import org.junit.jupiter.api.AfterEach

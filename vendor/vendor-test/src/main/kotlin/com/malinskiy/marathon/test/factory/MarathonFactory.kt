@@ -17,7 +17,7 @@ import com.malinskiy.marathon.test.Mocks
 import com.malinskiy.marathon.test.StubDeviceProvider
 import com.malinskiy.marathon.time.SystemTimer
 import com.malinskiy.marathon.time.Timer
-import com.nhaarman.mockitokotlin2.mock
+import org.mockito.kotlin.mock
 import org.koin.core.context.startKoin
 import org.koin.dsl.module
 import java.io.File

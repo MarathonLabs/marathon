@@ -1,9 +1,8 @@
 package com.malinskiy.marathon.analytics.metrics.remote.influx
 
-import com.nhaarman.mockitokotlin2.any
-import com.nhaarman.mockitokotlin2.eq
-import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.whenever
+import org.mockito.kotlin.any
+import org.mockito.kotlin.eq
+import org.mockito.kotlin.mock
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldEqual
 import org.amshove.kluent.shouldEqualTo
@@ -11,6 +10,7 @@ import org.influxdb.InfluxDB
 import org.influxdb.dto.Query
 import org.influxdb.dto.QueryResult
 import org.junit.jupiter.api.Test
+import org.mockito.kotlin.whenever
 import java.time.Instant
 
 
