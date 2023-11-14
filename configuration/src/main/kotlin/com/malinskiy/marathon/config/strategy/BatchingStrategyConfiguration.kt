@@ -1,5 +1,6 @@
 package com.malinskiy.marathon.config.strategy
 
+import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo
 import java.time.Instant
@@ -17,9 +18,9 @@ import java.time.Instant
 sealed class BatchingStrategyConfiguration {
     data class FixedSizeBatchingStrategyConfiguration(
         val size: Int,
-        val durationMillis: Long? = null,
-        val percentile: Double? = null,
-        val timeLimit: Instant? = null,
+        @JsonInclude(JsonInclude.Include.NON_NULL) val durationMillis: Long? = null,
+        @JsonInclude(JsonInclude.Include.NON_NULL) val percentile: Double? = null,
+        @JsonInclude(JsonInclude.Include.NON_NULL) val timeLimit: Instant? = null,
         val lastMileLength: Int = 0
     ) : BatchingStrategyConfiguration()
 

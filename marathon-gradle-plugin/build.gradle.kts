@@ -21,7 +21,7 @@ gradlePlugin {
     }
 }
 
-setupKotlinCompiler("11")
+setupKotlinCompiler()
 //Tests are blackbox, no way to collect coverage anyway
 setupTestTask(jacoco = false)
 

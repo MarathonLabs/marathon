@@ -6,7 +6,7 @@ plugins {
 
 android {
     namespace = "com.example.cucumber"
-    buildToolsVersion = "30.0.3"
+    buildToolsVersion = "34.0.0"
     compileSdk = 33
 
     defaultConfig {

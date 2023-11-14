@@ -1,6 +1,6 @@
 package com.malinskiy.marathon.test
 
-import com.nhaarman.mockitokotlin2.mock
+import org.mockito.kotlin.mock
 
 class Mocks {
     class TestParser {

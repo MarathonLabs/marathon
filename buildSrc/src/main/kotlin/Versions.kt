@@ -52,7 +52,7 @@ object Versions {
     val allureJava = "2.24.0"
     val allureKotlin = "2.4.0"
     val allureEnvironment = "1.0.0"
-    val mockitoKotlin = "2.2.0"
+    val mockitoKotlin = "5.1.0"
     val dokka = "1.9.10"
     val koin = "3.5.0"
     val jsonAssert = "1.5.1"
@@ -114,7 +114,7 @@ object TestLibraries {
     
     val junit = "junit:junit:${Versions.junit}"
 
-    val mockitoKotlin = "com.nhaarman.mockitokotlin2:mockito-kotlin:${Versions.mockitoKotlin}"
+    val mockitoKotlin = "org.mockito.kotlin:mockito-kotlin:${Versions.mockitoKotlin}"
     val jupiterEngine = "org.junit.jupiter:junit-jupiter-engine:${Versions.jupiterEngine}"
     val koin = "io.insert-koin:koin-test:${Versions.koin}"
     val jsonAssert = "org.skyscreamer:jsonassert:${Versions.jsonAssert}"
