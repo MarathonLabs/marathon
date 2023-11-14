@@ -10,6 +10,7 @@ import net.schmizz.sshj.transport.random.Random
 import net.schmizz.sshj.transport.random.SingletonRandomFactory
 import net.schmizz.sshj.common.Factory
 import net.schmizz.sshj.common.LoggerFactory
+import net.schmizz.sshj.common.SecurityUtils
 import org.slf4j.Logger
 
 internal class PerformanceDefaultConfig(
@@ -19,7 +20,7 @@ internal class PerformanceDefaultConfig(
         val bcFactory = MemoizingFactory(BouncyCastleRandom.Factory())
         val jceFactory = MemoizingFactory(JCERandom.Factory())
     }
-    
+
     init {
         val loggerFactory = object : LoggerFactory {
             override fun getLogger(clazz: Class<*>?): Logger {
@@ -44,19 +45,15 @@ internal class PerformanceDefaultConfig(
             )
         }
         setLoggerFactory(loggerFactory)
+        setRandomFactory {
+            SingletonRandomFactory(if (SecurityUtils.isBouncyCastleRegistered()) bcFactory else jceFactory)
+        }
     }
-    
-    
-    override fun initRandomFactory(bouncyCastleRegistered: Boolean) {
-        randomFactory = SingletonRandomFactory(if (bouncyCastleRegistered) bcFactory else jceFactory)
-    }
-    
-    
 
     class MemoizingFactory(private val factory: Factory<Random>) : Factory<Random> {
-        val random : Random by lazy { factory.create() }
+        val random: Random by lazy { factory.create() }
         override fun create(): Random {
             return random
         }
-   }
+    }
 }
