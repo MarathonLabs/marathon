@@ -37,12 +37,22 @@ class GrafanaCloud : UsageTracker {
             append(
                 events.map { event ->
                     when (event) {
-                        is Event.Devices -> Metric(name = "testing.device", value = event.total, tags = tags)
-                        is Event.Executed -> Metric(name = "testing.duration", value = event.seconds, tags = tags)
-                        is Event.TestsTotal -> Metric(name = "testing.test", value = event.total, tags = tags)
-                        is Event.TestsRun -> Metric(name = "testing.executed", value = event.value, tags = tags)
+                        is Event.Devices ->
+                            setOf(Metric(name = "testing.device", value = event.total, tags = tags))
+
+                        is Event.Executed -> {
+                            setOf(
+                                Metric(name = "testing.duration", value = event.seconds, tags = tags),
+                                Metric(name = "testing.flakiness", value = event.flakinessSeconds, tags = tags),
+                                Metric(name = "testing.result", value = if (event.success) 1 else 0, tags = tags),
+                                Metric(name = "testing.duration.run", value = event.durationSeconds, tags = tags),
+                            )
+                        }
+
+                        is Event.TestsTotal -> setOf(Metric(name = "testing.test", value = event.total, tags = tags))
+                        is Event.TestsRun -> setOf(Metric(name = "testing.executed", value = event.value, tags = tags))
                     }
-                }.joinToString(separator = ",") { it.toJson() }
+                }.flatten().joinToString(separator = ",") { it.toJson() }
             )
             append("]")
         }.toString()
