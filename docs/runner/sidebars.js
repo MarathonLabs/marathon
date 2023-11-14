@@ -69,16 +69,6 @@ const sidebars = {
         'ios/examples',
       ],
     },
-    {
-      type: 'category',
-      label: 'Cloud',
-      collapsed: false,
-      items: [
-        'cloud/overview',
-        'cloud/getting-started',
-        'cloud/pricing'
-      ]
-    }
   ],
 };
 
