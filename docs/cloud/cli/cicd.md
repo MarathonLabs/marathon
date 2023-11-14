@@ -9,13 +9,13 @@ Marathon Cloud offers several ways to run tests within your CI/CD platform:
 3. Marathon CLI
 
 ### Platform steps
-We prepared step for common platform so you could use it for your setup.
+We provide shared steps for the following platforms:
 - [Github Action](https://github.com/MarathonLabs/action-test)
 - [CircleCI Orb](https://circleci.com/developer/orbs/orb/marathonlabs/marathon-cloud-orb)
 - [Bitrise](https://bitrise.io/integrations/steps/run-tests-using-marathon-cloud)
 
 ### Docker image
-Certain platforms provide the option to employ the [Marathon Docker Image](https://hub.docker.com/r/marathonlabs/marathon-cloud) 
+Some platforms allow usage of [Marathon Docker Image](https://hub.docker.com/r/marathonlabs/marathon-cloud) 
 for each step. We recommend using it for Gitlab CI and Jenkins environments.
 
 ### Marathon CLI

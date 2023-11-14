@@ -14,6 +14,6 @@ Next, install the Marathon Cloud CLI:
 ```shell
 brew install malinskiy/tap/marathon-cloud
 ```
-Alternatively, you can download prebuild binaries for Windows, Linux, 
+Alternatively, you can download prebuilt binaries for Windows, Linux, 
 or MacOS from [the Release page](https://github.com/MarathonLabs/marathon-cloud-cli/releases).
 

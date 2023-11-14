@@ -3,7 +3,7 @@ title: "Parameters"
 ---
 
 ###
-You can find all the available marathon-cli parameters by running the command "marathon-cloud --help." 
+You can find all the available marathon-cli parameters by running the command `marathon-cloud --help.` 
 Below, you'll find a list of the parameters you can set.
 
 ```bash
