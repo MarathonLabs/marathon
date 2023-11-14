@@ -1,11 +1,11 @@
 package com.malinskiy.marathon.config.environment
 
 import com.malinskiy.marathon.cli.args.environmentConfiguration
-import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.whenever
+import org.mockito.kotlin.mock
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.mockito.kotlin.whenever
 import java.io.File
 
 class SystemEnvironmentReaderTest {
