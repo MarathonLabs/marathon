@@ -215,9 +215,7 @@ class Marathon(
     }
 
     private fun applyTestFilters(parsedTests: List<Test>): List<Test> {
-        var tests = parsedTests.filter { test ->
-            configuration.testClassRegexes.all { it.matches(test.clazz) }
-        }
+        var tests = parsedTests
         configuration.filteringConfiguration.allowlist.forEach { tests = it.toTestFilter().filter(tests) }
         configuration.filteringConfiguration.blocklist.forEach { tests = it.toTestFilter().filterNot(tests) }
         return tests

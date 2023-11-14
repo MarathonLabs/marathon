@@ -154,7 +154,6 @@ class ConfigurationFactoryTest {
             TestFilterConfiguration.AnnotationFilterConfiguration(".*".toRegex()),
             TestFilterConfiguration.AnnotationDataFilterConfiguration(".*".toRegex(), ".*".toRegex())
         )
-        configuration.testClassRegexes.map { it.toString() } shouldContainSame listOf("^((?!Abstract).)*Test$")
 
         // Regex doesn't have proper equals method. Need to check the patter itself
         configuration.includeSerialRegexes.joinToString(separator = "") { it.pattern } shouldBeEqualTo """emulator-500[2,4]""".toRegex().pattern
@@ -189,7 +188,7 @@ class ConfigurationFactoryTest {
                 screenshotConfiguration = ScreenshotConfiguration(false, 1080, 1920, 200)
             ),
             15000L,
-            AllureConfiguration()
+            AllureConfiguration(),
         )
     }
 
@@ -230,8 +229,6 @@ class ConfigurationFactoryTest {
 
         configuration.filteringConfiguration.allowlist.shouldBeEmpty()
         configuration.filteringConfiguration.blocklist.shouldBeEmpty()
-
-        configuration.testClassRegexes.map { it.toString() } shouldContainSame listOf("^((?!Abstract).)*Test[s]*$")
 
         configuration.includeSerialRegexes shouldBeEqualTo emptyList()
         configuration.excludeSerialRegexes shouldBeEqualTo emptyList()

@@ -1,6 +1,5 @@
 name: "sample-ios-app tests"
 outputDir: "report/marathon-uiTests"
-testClassRegexes: ["^((?!Abstract).)*Tests$"]
 screenRecordingPolicy: ON_ANY
 isCodeCoverageEnabled: true
 flakinessStrategy:

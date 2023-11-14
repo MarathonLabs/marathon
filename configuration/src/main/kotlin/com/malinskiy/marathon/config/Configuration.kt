@@ -36,7 +36,6 @@ data class Configuration private constructor(
     val isCodeCoverageEnabled: Boolean,
     val uncompletedTestRetryQuota: Int,
 
-    val testClassRegexes: Collection<Regex>,
     val includeSerialRegexes: Collection<Regex>,
     val excludeSerialRegexes: Collection<Regex>,
 
@@ -68,7 +67,6 @@ data class Configuration private constructor(
             "ignoreFailures" to ignoreFailures.toString(),
             "isCodeCoverageEnabled" to isCodeCoverageEnabled.toString(),
             "executionStrategy" to executionStrategy.toString(),
-            "testClassRegexes" to testClassRegexes.toString(),
             "includeSerialRegexes" to includeSerialRegexes.toString(),
             "excludeSerialRegexes" to excludeSerialRegexes.toString(),
             "testBatchTimeoutMillis" to testBatchTimeoutMillis.toString(),
@@ -100,8 +98,6 @@ data class Configuration private constructor(
         if (isCodeCoverageEnabled != other.isCodeCoverageEnabled) return false
         if (executionStrategy != other.executionStrategy) return false
         if (uncompletedTestRetryQuota != other.uncompletedTestRetryQuota) return false
-        //For testing we need to compare configuration instances. Unfortunately Regex equality is broken so need to map it to String
-        if (testClassRegexes.map { it.pattern } != other.testClassRegexes.map { it.pattern }) return false
         if (includeSerialRegexes.map { it.pattern } != other.includeSerialRegexes.map { it.pattern }) return false
         if (excludeSerialRegexes.map { it.pattern } != other.excludeSerialRegexes.map { it.pattern }) return false
         if (testBatchTimeoutMillis != other.testBatchTimeoutMillis) return false
@@ -132,7 +128,6 @@ data class Configuration private constructor(
         result = 31 * result + isCodeCoverageEnabled.hashCode()
         result = 31 * result + executionStrategy.hashCode()
         result = 31 * result + uncompletedTestRetryQuota
-        result = 31 * result + testClassRegexes.hashCode()
         result = 31 * result + includeSerialRegexes.hashCode()
         result = 31 * result + excludeSerialRegexes.hashCode()
         result = 31 * result + testBatchTimeoutMillis.hashCode()
@@ -163,7 +158,6 @@ data class Configuration private constructor(
          var executionStrategy: ExecutionStrategyConfiguration = ExecutionStrategyConfiguration(),
          var uncompletedTestRetryQuota: Int = Integer.MAX_VALUE,
 
-         var testClassRegexes: Collection<Regex> = listOf(Regex("^((?!Abstract).)*Test[s]*$")),
          var includeSerialRegexes: Collection<Regex> = emptyList(),
          var excludeSerialRegexes: Collection<Regex> = emptyList(),
 
@@ -197,7 +191,6 @@ data class Configuration private constructor(
                 isCodeCoverageEnabled = isCodeCoverageEnabled,
                 executionStrategy = executionStrategy,
                 uncompletedTestRetryQuota = uncompletedTestRetryQuota,
-                testClassRegexes = testClassRegexes,
                 includeSerialRegexes = includeSerialRegexes,
                 excludeSerialRegexes = excludeSerialRegexes,
                 testBatchTimeoutMillis = testBatchTimeoutMillis,

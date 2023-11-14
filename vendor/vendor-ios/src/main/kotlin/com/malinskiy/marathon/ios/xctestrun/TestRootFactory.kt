@@ -20,16 +20,16 @@ import kotlin.io.path.createTempFile
 
 class TestRootFactory(
     private val device: AppleSimulatorDevice,
-    private val vendorConfiguration: VendorConfiguration.IOSConfiguration,
+    private val vendorConfiguration: VendorConfiguration.IOSConfiguration
 ) {
-    suspend fun generate(testType: TestType, bundle: AppleTestBundle) {
+    suspend fun generate(testType: TestType, bundle: AppleTestBundle, useXctestParser: Boolean) {
         val remoteFileManager = device.remoteFileManager
 
         val testRoot = remoteFileManager.remoteTestRoot()
         remoteFileManager.createRemoteDirectory(testRoot)
         val xctestrun = when (testType) {
-            TestType.XCUITEST -> generateXCUITest(testRoot, remoteFileManager, bundle)
-            TestType.XCTEST -> generateXCTest(testRoot, remoteFileManager, bundle)
+            TestType.XCUITEST -> generateXCUITest(testRoot, remoteFileManager, bundle, useXctestParser)
+            TestType.XCTEST -> generateXCTest(testRoot, remoteFileManager, bundle, useXctestParser)
             TestType.LOGIC_TEST -> TODO()
         }
 
@@ -49,6 +49,7 @@ class TestRootFactory(
         testRoot: String,
         remoteFileManager: RemoteFileManager,
         bundle: AppleTestBundle,
+        useLibParseTests: Boolean
     ): Xctestrun {
         val sdkPlatformPath = device.binaryEnvironment.xcrun.getSdkPlatformPath(device.sdk)
         val platformLibraryPath = remoteFileManager.joinPath(sdkPlatformPath, "Developer", "Library")
@@ -82,6 +83,11 @@ class TestRootFactory(
 
         val dyldFrameworks = mutableListOf("__TESTROOT__", frameworks, privateFrameworks, *userFrameworkPath.toTypedArray())
         val dyldLibraries = listOf("__TESTROOT__", usrLib, *userLibraryPath.toTypedArray())
+        val dyldInsertLibraries = if (useLibParseTests) {
+            listOf(remoteFileManager.remoteXctestParserFile())
+        } else {
+            emptyList()
+        }
 
         /**
          * If the app contains internal frameworks we need to add them to xctestrun
@@ -90,9 +96,11 @@ class TestRootFactory(
             dyldFrameworks.add("__TESTROOT__/${remoteFileManager.appUnderTestFileName()}/Frameworks")
         }
 
+
         val testEnv = mutableMapOf(
             "DYLD_FRAMEWORK_PATH" to dyldFrameworks.joinToString(":"),
-            "DYLD_LIBRARY_PATH" to dyldLibraries.joinToString(":")
+            "DYLD_LIBRARY_PATH" to dyldLibraries.joinToString(":"),
+            "DYLD_INSERT_LIBRARIES" to dyldInsertLibraries.joinToString(":")
         ).apply {
             vendorConfiguration.xctestrunEnv
                 .filterKeys { !setOf("DYLD_FRAMEWORK_PATH", "DYLD_LIBRARY_PATH").contains(it) }
@@ -128,7 +136,8 @@ class TestRootFactory(
     private suspend fun generateXCTest(
         testRoot: String,
         remoteFileManager: RemoteFileManager,
-        bundle: AppleTestBundle
+        bundle: AppleTestBundle,
+        useLibParseTests: Boolean
     ): Xctestrun {
         val testApp = bundle.application ?: throw ConfigurationException("no application specified for XCTest")
 
@@ -260,6 +269,9 @@ class TestRootFactory(
             val supportedArchs = device.binaryEnvironment.lipo.getArch(testBinary)
             if (supportedArchs.contains(Arch.x86_64) && device.arch != Arch.arm64) {
                 // Launch as plain x86_64 if test binary has been built for simulator and is targeting x86_64
+                device.binaryEnvironment.lipo.removeArch(testRunnerBinary, Arch.arm64)
+            } else if (supportedArchs.contains(Arch.x86_64) && !supportedArchs.contains(Arch.arm64)) {
+                // Launch as plain x86_64 if test binary supports only x86_64
                 device.binaryEnvironment.lipo.removeArch(testRunnerBinary, Arch.arm64)
             }
         }

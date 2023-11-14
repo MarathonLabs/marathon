@@ -354,8 +354,8 @@ class AdamAndroidDevice(
         val screenRecorderCommand = options.toScreenRecorderCommand(remoteFilePath)
         try {
             withTimeoutOrNull(androidConfiguration.timeoutConfiguration.screenrecorder) {
-                val output = client.execute(ShellCommandRequest(screenRecorderCommand), serial = adbSerial)
-                logger.debug { "screenrecord output:\n $output" }
+                val result = client.execute(ShellCommandRequest(screenRecorderCommand), serial = adbSerial)
+                logger.debug { "screenrecord output:\n ${result.output},\n exit code: ${result.exitCode}" }
             }
         } catch (e: CancellationException) {
             //Ignore

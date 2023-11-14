@@ -60,8 +60,6 @@ filteringConfiguration:
     - type: "annotationData"
       nameRegex: ".*"
       valueRegex: ".*"
-testClassRegexes:
-  - "^((?!Abstract).)*Test$"
 includeSerialRegexes:
   - "emulator-500[2,4]"
 excludeSerialRegexes:

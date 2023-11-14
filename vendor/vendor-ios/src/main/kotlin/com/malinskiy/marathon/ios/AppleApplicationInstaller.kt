@@ -18,7 +18,7 @@ class AppleApplicationInstaller(
 ) {
     private val logger = MarathonLogging.logger {}
 
-    suspend fun prepareInstallation(device: AppleSimulatorDevice) {
+    suspend fun prepareInstallation(device: AppleSimulatorDevice, useXctestParser: Boolean = false) {
         val bundle = vendorConfiguration.testBundle() ?: throw ConfigurationException("no xctest found for configuration")
 
         val xctest = bundle.testApplication
@@ -26,7 +26,6 @@ class AppleApplicationInstaller(
         val remoteXctest = device.remoteFileManager.remoteXctestFile()
         withRetry(3, 1000L) {
             device.remoteFileManager.createRemoteDirectory()
-            val remoteDirectory = device.remoteFileManager.remoteDirectory()
             if (!device.pushFolder(xctest, remoteXctest)) {
                 throw DeviceSetupException("Error transferring $xctest to ${device.serialNumber}")
             }
@@ -45,7 +44,7 @@ class AppleApplicationInstaller(
         }
         val remoteTestBinary = device.remoteFileManager.joinPath(remoteXctest, testBinary.name)
         val testType = getTestTypeFor(device, device.sdk, remoteTestBinary)
-        TestRootFactory(device, vendorConfiguration).generate(testType, bundle)
+        TestRootFactory(device, vendorConfiguration).generate(testType, bundle, useXctestParser)
         grantPermissions(device)
 
         vendorConfiguration.bundle?.extraApplications?.forEach {

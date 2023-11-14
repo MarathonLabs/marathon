@@ -16,6 +16,7 @@ class RemoteFileManager(private val device: AppleDevice) {
     private val outputDir by lazy { device.storagePath }
 
     fun remoteDirectory(): String = outputDir
+    fun remoteSharedDirectory(): String = AppleSimulatorDevice.SHARED_PATH + "/shared/"
 
     suspend fun createRemoteDirectory(remoteDir: String = remoteDirectory()) {
         executeCommand(
@@ -23,6 +24,8 @@ class RemoteFileManager(private val device: AppleDevice) {
             "Could not create remote directory $remoteDir"
         )
     }
+
+    suspend fun createRemoteSharedDirectory() = createRemoteDirectory(remoteSharedDirectory())
 
     suspend fun removeRemoteDirectory() {
         executeCommand(
@@ -40,9 +43,10 @@ class RemoteFileManager(private val device: AppleDevice) {
 
     fun remoteXctestrunFile(): String = remoteFile(xctestrunFileName())
 
-    fun remoteXctestFile(): String = remoteFile(xctestFileName())
-    fun remoteApplication(): String = remoteFile(appUnderTestFileName())
-    fun remoteExtraApplication(name: String) = remoteFile(name)
+    fun remoteXctestFile(): String = remoteSharedFile(xctestFileName())
+    fun remoteXctestParserFile(): String = remoteSharedFile(`libXctestParserFileName`())
+    fun remoteApplication(): String = remoteSharedFile(appUnderTestFileName())
+    fun remoteExtraApplication(name: String) = remoteSharedFile(name)
 
     /**
      * Omitting xcresult extension results in a symlink 
@@ -52,12 +56,15 @@ class RemoteFileManager(private val device: AppleDevice) {
     fun xctestrunFileName(): String = "marathon.xctestrun"
 
     private fun xctestFileName(): String  = "marathon.xctest"
+    private fun libXctestParserFileName(): String  = "libxctest-parser.dylib"
+
     fun appUnderTestFileName(): String  = "appUnderTest.app"
     
     private fun xcresultFileName(batch: TestBatch): String =
         "${device.udid}.${batch.id}.xcresult"
 
     private fun remoteFile(file: String): String = remoteDirectory().resolve(file)
+    private fun remoteSharedFile(file: String): String = remoteSharedDirectory().resolve(file)
 
     private suspend fun safeExecuteCommand(command: List<String>) {
         try {

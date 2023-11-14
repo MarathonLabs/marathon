@@ -72,6 +72,26 @@ sealed class VendorConfiguration {
         @JsonProperty("disableWindowAnimation") val disableWindowAnimation: Boolean = DEFAULT_DISABLE_WINDOW_ANIMATION,
     ) : VendorConfiguration() {
         fun safeAndroidSdk(): File = androidSdk ?: throw ConfigurationException("No android SDK path specified")
+
+        fun validate() {
+            validateFile(applicationOutput)
+            validateFile(testApplicationOutput)
+            splitApks?.forEach { validateFile(it) }
+            extraApplicationsOutput?.forEach { validateFile(it) }
+            outputs?.forEach {
+                validateFile(it.application)
+                validateFile(it.testApplication)
+                it.splitApks?.forEach { apk -> validateFile(apk) }
+                it.extraApplications?.forEach { apk -> validateFile(apk) }
+            }
+        }
+
+        private fun validateFile(file: File?) {
+            if (file != null) {
+                if (!file.exists()) throw ConfigurationException("${file.absolutePath} does not exist")
+                if (!file.isFile) throw ConfigurationException("${file.absolutePath} must be a regular file")
+            }
+        }
     }
 
     class AndroidConfigurationBuilder {
@@ -143,6 +163,7 @@ sealed class VendorConfiguration {
         @JsonProperty("rsync") val rsync: RsyncConfiguration = RsyncConfiguration(),
         @JsonProperty("xcodebuildTestArgs") val xcodebuildTestArgs: Map<String, String> = emptyMap(),
         @JsonProperty("dataContainerClear") val dataContainerClear: Boolean = false,
+        @JsonProperty("testParserConfiguration") val testParserConfiguration: com.malinskiy.marathon.config.vendor.ios.TestParserConfiguration = com.malinskiy.marathon.config.vendor.ios.TestParserConfiguration.NmTestParserConfiguration(),
 
         @JsonProperty("signing") val signing: SigningConfiguration = SigningConfiguration(),
     ) : VendorConfiguration() {

@@ -113,7 +113,6 @@ marathon {
       add(SimpleClassnameFilterConfiguration("$^".toRegex()))
     }
   }
-  testClassRegexes = listOf("^((?!Abstract).)*Test$")
   includeSerialRegexes = emptyList()
   excludeSerialRegexes = emptyList()
   uncompletedTestRetryQuota = 100

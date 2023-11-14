@@ -3,6 +3,7 @@ package com.malinskiy.marathon.ios
 import com.malinskiy.marathon.config.Configuration
 import com.malinskiy.marathon.config.exceptions.ConfigurationException
 import com.malinskiy.marathon.config.vendor.VendorConfiguration
+import com.malinskiy.marathon.config.vendor.ios.TestParserConfiguration
 import com.malinskiy.marathon.device.Device
 import com.malinskiy.marathon.exceptions.TestParsingException
 import com.malinskiy.marathon.execution.RemoteTestParser
@@ -14,12 +15,13 @@ import com.malinskiy.marathon.test.Test
 import kotlinx.coroutines.CancellationException
 import java.io.File
 
-class AppleTestParser(
+class NmTestParser(
     private val configuration: Configuration,
     private val vendorConfiguration: VendorConfiguration.IOSConfiguration,
+    private val parserConfiguration: TestParserConfiguration.NmTestParserConfiguration,
     private val testBundleIdentifier: AppleTestBundleIdentifier
 ) : RemoteTestParser<AppleDeviceProvider> {
-    private val logger = MarathonLogging.logger(AppleTestParser::class.java.simpleName)
+    private val logger = MarathonLogging.logger(NmTestParser::class.java.simpleName)
 
     override suspend fun extract(device: Device): List<Test> {
         val bundle = vendorConfiguration.testBundle()
@@ -46,6 +48,7 @@ class AppleTestParser(
         logger.debug { "Found test binary $testBinary for xctest $xctest" }
 
         device.remoteFileManager.createRemoteDirectory()
+        device.remoteFileManager.createRemoteSharedDirectory()
         val remoteXctest = device.remoteFileManager.remoteXctestFile()
         if (!device.pushFile(xctest, remoteXctest)) {
             throw TestParsingException("failed to push xctest for test parsing")
@@ -79,7 +82,9 @@ class AppleTestParser(
         swiftTests.forEach { testBundleIdentifier.put(it, testBundle) }
         objectiveCTests.forEach { testBundleIdentifier.put(it, testBundle) }
 
-        return swiftTests + objectiveCTests
+        return (swiftTests + objectiveCTests).filter { test ->
+            parserConfiguration.testClassRegexes.all { it.matches(test.clazz) }
+        }
     }
 }
 
