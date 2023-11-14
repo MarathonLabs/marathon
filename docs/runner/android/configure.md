@@ -86,7 +86,7 @@ vendorConfiguration:
 </TabItem>
 </Tabs>
 
-#### Multi module testing
+#### Multi-module testing
 
 :::danger
 
@@ -119,7 +119,7 @@ Each entry consists of `testApplication` in case of library testing and `applica
 
 This mode is not supported by Gradle Plugin
 
-This mode is also not available for Android devices with version less Android 5.
+This mode is also not available for Android devices with versions below Android 5.
 
 :::
 Marathon supports testing dynamic feature modules:
@@ -213,7 +213,7 @@ marathon {
 
 ### Device serial number assignment
 
-This option allows to customise how marathon assigns a serial number to devices.
+This option allows customisation of how marathon assigns a serial number to devices.
 Possible values are:
 
 * ```automatic```
@@ -262,7 +262,7 @@ Notes on the source of serial number:
 
 ```ddms``` - Adb serial number(same as you see with `adb devices` command)
 
-```automatic``` - Sequantially checks all available options for first non empty value.
+```automatic``` - Sequentially checks all available options for first non-empty value.
 
 Priority order:
 
@@ -272,7 +272,7 @@ After 0.6:  ```marathon_property``` -> ```ddms``` -> ```boot_property``` -> ```h
 
 ### Install options
 
-By default, these will be ```-g -r``` (```-r``` prior to marshmallow). You can specify additional options to append to the default ones.
+By default, these will be ```-g -r``` (```-r``` prior to Marshmallow). You can specify additional options to append to the default ones.
 
 
 <Tabs>
@@ -307,7 +307,7 @@ marathon {
 
 ### Screen recorder configuration
 
-By default, device will record a 1280x720 1Mbps video of up to 180 seconds if it is supported. If on the other hand you want to force
+By default, the device will record a 1280x720 1Mbps video of up to 180 seconds if it is supported. If on the other hand you want to force
 screenshots or configure the recording parameters you can specify this as follows:
 
 :::tip
@@ -478,7 +478,7 @@ marathon {
 ### [Allure-kotlin][3] support
 
 This option enables collection of allure's data from devices.
-Configuration below works out of the box for allure-kotlin 2.3.0+.
+The configuration below works out of the box for allure-kotlin 2.3.0+.
 
 <Tabs>
 <TabItem value="YAML" label="Marathonfile">
@@ -517,7 +517,7 @@ marathon {
 
 Additional configuration parameters include **pathRoot** which has two options:
 
-* `EXTERNAL_STORAGE` that is usually the `/sdcard/` on most of the devices
+* `EXTERNAL_STORAGE` which is usually `/sdcard/` on most devices
 * `APP_DATA` which is usually `/data/data/$appPackage/`
 
 Besides the expected path root, you might need to provide the **relativeResultsDirectory**: this is the relative path to `pathRoot`. The
@@ -565,7 +565,7 @@ Please refer to [allure's documentation][3] on the usage of allure.
 
 :::tip
 
-Starting with allure 2.3.0 your test application no longer needs MANAGE_EXTERNAL_STORAGE permission to write allure's output, so there is no
+Starting with allure 2.3.0 your test application no longer needs the **MANAGE_EXTERNAL_STORAGE** permission to write allure's output, so there is no
 need to add any special permissions.
 
 :::
@@ -582,7 +582,7 @@ The on-device report gives you more flexibility and allows you to:
 * Capture window hierarchy
   and more.
 
-All allure output from devices will be collected under `$output/device-files/allure-results` folder.
+All allure output from devices will be collected under the `$output/device-files/allure-results` folder.
 
 ### Timeout configuration
 
@@ -637,7 +637,7 @@ marathon {
 ### Sync/pull files from device after test run
 
 Sometimes you need to pull some folders from each device after the test execution. It may be screenshots or logs or other debug information.
-To help with this marathon supports pulling files from devices at the end of the test batch execution. Here is how you can configure it:
+To help with this, marathon supports pulling files from devices at the end of the test batch execution. Here is how you can configure it:
 
 <Tabs>
 <TabItem value="YAML" label="Marathonfile">
@@ -909,13 +909,13 @@ marathon {
 ### Test access configuration
 :::info
 
-This is power-user feature of marathon that allows setting up GPS location on the emulator, simulating calls, SMS and more thanks to the
-access to device-under-test from the test itself.
+This is a power-user feature of marathon that allows setting up GPS locations on the emulator, simulating calls, SMS and more  thanks to 
+access to the device-under-test from the test itself.
 
 :::
 
 Marathon supports adam's junit extensions which allow tests to gain access to adb on all devices and emulator's control + gRPC port. See the
-[docs](https://malinskiy.github.io/adam/extensions/1-android-junit/) as well as the [PR](https://github.com/Malinskiy/adam/pull/30) for
+[docs](https://malinskiy.github.io/adam/extensions/1-android-junit/) as well as the [PR](https://github.com/Malinskiy/adam/pull/30) for a
 description on how this works.
 
 <Tabs>
@@ -950,14 +950,14 @@ marathon {
 
 ### Multiple adb servers
 
-Default configuration of marathon assumes that adb server is started locally and is available at `127.0.0.1:5037`. In some cases it may be
+The default configuration of marathon assumes that the adb server is started locally and is available at `127.0.0.1:5037`. In some cases it may be
 desirable to connect multiple adb servers instead of connecting devices to a single adb server. An example of this is distributed execution
 of tests using test access (calling adb commands from tests). For such scenario all emulators should be connected via a local (in relation
 to the emulator) adb server. Default port for each host is 5037.
 
 :::tip
 
-Adb server started on another machine should be exposed to external traffic, e.g. using option `-a`. For example, if you want to
+Adb servers started on another machine should be exposed to external traffic, e.g. using option `-a`. For example, if you want to
 expose the adb server and start it in foreground explicitly on port 5037: `adb nodaemon server -a -P 5037`.
 
 :::
@@ -1065,7 +1065,7 @@ found [here](https://malinskiy.github.io/adam/extensions/2-android-event-produce
 
 ### Enable window animations
 
-By default, marathon uses `--no-window-animation` flag. Use the following option if you want to enable window animations:
+By default, marathon uses the `--no-window-animation` flag. Use the following option if you want to enable window animations:
 
 <Tabs>
 <TabItem value="YAML" label="Marathonfile">
