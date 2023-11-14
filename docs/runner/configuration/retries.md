@@ -10,7 +10,8 @@ This is the logic that kicks in if preventive retries facilitated by flakiness c
 :::caution
 
 Retries from this configuration are added in-flight, i.e. after the tests were actually executed, hence
-there is no way to parallelize test run. This will significantly affect the performance
+there is no way to parallelize test run to achieve maximum utilization of devices. This will significantly affect the performance of the
+test run.
 
 :::
 
@@ -49,7 +50,7 @@ marathon {
 
 ### Fixed quota retry strategy
 
-Parameter **totalAllowedRetryQuota** below specifies how many retries at all (for all the tests is total) are allowed. 
+Parameter **totalAllowedRetryQuota** below specifies how many retries at all (for all the tests is total) are allowed.
 
 Parameter **retryPerTestQuota** controls how many retries can be done for each test individually.
 
