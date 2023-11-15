@@ -11,6 +11,13 @@
 .idea/**/usage.statistics.xml
 .idea/**/dictionaries
 .idea/**/shelf
+.idea/modules
+.idea/.name
+.idea/compiler.xml
+.idea/kotlinc.xml
+.idea/misc.xml
+.idea/modules.xml
+
 
 # Generated files
 .idea/**/contentModel.xml
@@ -27,6 +34,8 @@
 # Gradle
 .idea/**/gradle.xml
 .idea/**/libraries
+
+**/local.properties
 
 # Gradle and Maven with auto-import
 # When using Gradle or Maven with auto-import, you should exclude module files,
