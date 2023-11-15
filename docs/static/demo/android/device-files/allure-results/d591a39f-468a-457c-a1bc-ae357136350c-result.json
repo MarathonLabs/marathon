@@ -1,0 +1,73 @@
+{
+    "name": "testText3",
+    "start": 1700046198291,
+    "stop": 1700046198952,
+    "stage": "finished",
+    "description": null,
+    "descriptionHtml": null,
+    "status": "passed",
+    "statusDetails": null,
+    "steps": [
+    ],
+    "attachments": [
+    ],
+    "parameters": [
+    ],
+    "uuid": "d591a39f-468a-457c-a1bc-ae357136350c",
+    "historyId": "dd5b9c5f0b706f1afc395df39536eb28",
+    "fullName": "com.example.MainActivityTest.testText3",
+    "labels": [
+        {
+            "name": "package",
+            "value": "com.example"
+        },
+        {
+            "name": "testClass",
+            "value": "com.example.MainActivityTest"
+        },
+        {
+            "name": "testMethod",
+            "value": "testText3"
+        },
+        {
+            "name": "suite",
+            "value": "com.example.MainActivityTest"
+        },
+        {
+            "name": "host",
+            "value": "localhost"
+        },
+        {
+            "name": "thread",
+            "value": "Instr: androidx.test.runner.AndroidJUnitRunner(1566)"
+        },
+        {
+            "name": "framework",
+            "value": "junit4"
+        },
+        {
+            "name": "language",
+            "value": "kotlin"
+        },
+        {
+            "name": "severity",
+            "value": "critical"
+        },
+        {
+            "name": "owner",
+            "value": "user2"
+        },
+        {
+            "name": "epic",
+            "value": "General"
+        },
+        {
+            "name": "feature",
+            "value": "Text on main screen"
+        },
+        {
+            "name": "story",
+            "value": "Slow"
+        }
+    ]
+}

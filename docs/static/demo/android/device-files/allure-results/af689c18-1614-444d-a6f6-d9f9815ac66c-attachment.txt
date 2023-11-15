@@ -1,0 +1,147 @@
+--------- beginning of main
+11-15 21:02:51.772 14169 14186 W Settings: Setting always_finish_activities has moved from android.provider.Settings.System to android.provider.Settings.Global, returning read-only value.
+--------- beginning of system
+11-15 21:02:51.772   613   916 I ActivityTaskManager: START u0 {act=android.intent.action.MAIN cat=[android.intent.category.LAUNCHER] flg=0x10008000 cmp=com.example/.MainActivity} from uid 10252
+11-15 21:02:51.775   613  2056 W ActivityTaskManager: Tried to set launchTime (0) < mLastActivityLaunchTime (21719810)
+11-15 21:02:51.777   613  2056 D CoreBackPreview: Window{d9c45e8 u0 Splash Screen com.example}: Setting back callback OnBackInvokedCallbackInfo{mCallback=android.window.IOnBackInvokedCallback$Stub$Proxy@7d252a6, mPriority=0}
+11-15 21:02:51.777 14169 14169 D LifecycleMonitor: Lifecycle status change: com.example.MainActivity@4c6a03e in: PRE_ON_CREATE
+11-15 21:02:51.777 14169 14169 V ActivityScenario: Activity lifecycle changed event received but ignored because the reported transition was not ON_CREATE while the last known transition was PRE_ON_CREATE
+11-15 21:02:51.782 14169 14169 D LifecycleMonitor: Lifecycle status change: com.example.MainActivity@4c6a03e in: CREATED
+11-15 21:02:51.782 14169 14169 V ActivityScenario: Update currentActivityStage to CREATED, currentActivity=com.example.MainActivity@4c6a03e
+11-15 21:02:51.782 14169 14169 D LifecycleMonitor: Lifecycle status change: com.example.MainActivity@4c6a03e in: STARTED
+11-15 21:02:51.782 14169 14169 V ActivityScenario: Update currentActivityStage to STARTED, currentActivity=com.example.MainActivity@4c6a03e
+11-15 21:02:51.783 14169 14169 D LifecycleMonitor: Lifecycle status change: com.example.MainActivity@4c6a03e in: RESUMED
+11-15 21:02:51.783 14169 14169 V ActivityScenario: Update currentActivityStage to RESUMED, currentActivity=com.example.MainActivity@4c6a03e
+11-15 21:02:51.789   399   454 D goldfish-address-space: claimShared: Ask to claim region [0x3ec000000 0x3ec9e4000]
+11-15 21:02:51.790   613  2056 D CoreBackPreview: Window{e787f3d u0 com.example/com.example.MainActivity}: Setting back callback OnBackInvokedCallbackInfo{mCallback=android.window.IOnBackInvokedCallback$Stub$Proxy@6fea00, mPriority=0}
+11-15 21:02:51.791   613   613 W AccessibilityManagerService:  wait for adding window timeout: 455
+11-15 21:02:51.792   399   454 D goldfish-address-space: claimShared: Ask to claim region [0x3ec9e4000 0x3ed3c8000]
+11-15 21:02:51.794   399   454 D goldfish-address-space: claimShared: Ask to claim region [0x3ed3c8000 0x3eddac000]
+11-15 21:02:51.794   795  1038 W Parcel  : Expecting binder but got null!
+11-15 21:02:51.804   428   428 I BpBinder: onLastStrongRef automatically unlinking death recipients: <uncached descriptor>
+11-15 21:02:51.807   613   613 W AccessibilityManagerService:  wait for adding window timeout: 440
+11-15 21:02:51.809   399   454 D goldfish-address-space: claimShared: Ask to claim region [0x3eddac000 0x3ee790000]
+11-15 21:02:51.810   399   454 D goldfish-address-space: claimShared: Ask to claim region [0x3f2400000 0x3f2de4000]
+11-15 21:02:51.811   399   454 D goldfish-address-space: claimShared: Ask to claim region [0x3f0000000 0x3f09e4000]
+11-15 21:02:51.812 14169 14204 W Parcel  : Expecting binder but got null!
+11-15 21:02:51.813   613   628 W ziparchive: Unable to open '/data/app/~~Jf1L5s5AVgFDx185aOv0Zg==/com.example-HLZELAUNhhXRZW5_1J4VuA==/base.dm': No such file or directory
+11-15 21:02:51.814   613   628 I ActivityTaskManager: Displayed com.example/.MainActivity: +40ms
+11-15 21:02:51.822   613   916 W ActivityManager: Unable to start service Intent { act=android.service.smartspace.SmartspaceService cmp=com.google.android.as/com.google.android.apps.miphone.aiai.app.AiAiSmartspaceService } U=0: not found
+11-15 21:02:51.823   613   916 W RemoteSmartspaceService: could not bind to Intent { act=android.service.smartspace.SmartspaceService cmp=com.google.android.as/com.google.android.apps.miphone.aiai.app.AiAiSmartspaceService } using flags 67112961
+11-15 21:02:51.823   613   613 W ActivityManager: Unbind failed: could not find connection for android.app.LoadedApk$ServiceDispatcher$InnerConnection@f701c06
+11-15 21:02:51.825   613  2036 W InputManager-JNI: Input channel object 'd9c45e8 Splash Screen com.example (client)' was disposed without first being removed with the input manager!
+11-15 21:02:51.826   613  2066 D CoreBackPreview: Window{d9c45e8 u0 Splash Screen com.example EXITING}: Setting back callback null
+11-15 21:02:51.827  1494  1494 I GoogleInputMethodService: GoogleInputMethodService.onFinishInput():3220 
+11-15 21:02:51.827  1195  1886 D OneSearchSuggestProvider: Shut down the binder channel
+11-15 21:02:51.827  1494  1494 I GoogleInputMethodService: GoogleInputMethodService.updateDeviceLockedStatus():2114 repeatCheckTimes = 0, unlocked = true
+11-15 21:02:51.827  1494  1494 I GoogleInputMethodService: GoogleInputMethodService.onStartInput():1919 onStartInput(EditorInfo{inputType=0x0(NULL) imeOptions=0x0 privateImeOptions=null actionName=UNSPECIFIED actionLabel=null actionId=0 initialSelStart=-1 initialSelEnd=-1 initialCapsMode=0x0 hintText=null label=null packageName=com.example fieldId=-1 fieldName=null extras=null}, false)
+11-15 21:02:51.827  1195  2461 I s.nexuslauncher: oneway function results for code 2 on binder at 0x78b3f930a0e0 will be dropped but finished with status UNKNOWN_TRANSACTION
+11-15 21:02:51.827  1494  1494 I GoogleInputMethodService: GoogleInputMethodService.updateDeviceLockedStatus():2114 repeatCheckTimes = 2, unlocked = true
+11-15 21:02:51.828  1569  1569 I GsaVoiceInteractionSrv: Handling ACTION_STOP_HOTWORD
+11-15 21:02:51.828  1569  2204 E HwDetectorWithState: a: 3
+11-15 21:02:51.858 14169 14169 W com.example: Accessing hidden method Landroid/os/MessageQueue;->next()Landroid/os/Message; (unsupported, reflection, allowed)
+11-15 21:02:51.858 14169 14169 W com.example: Accessing hidden field Landroid/os/MessageQueue;->mMessages:Landroid/os/Message; (unsupported, reflection, allowed)
+11-15 21:02:51.858 14169 14169 W com.example: Accessing hidden method Landroid/os/Message;->recycleUnchecked()V (unsupported, reflection, allowed)
+11-15 21:02:51.859 14169 14169 W com.example: Accessing hidden method Landroid/view/WindowManagerGlobal;->getInstance()Landroid/view/WindowManagerGlobal; (unsupported, reflection, allowed)
+11-15 21:02:51.859 14169 14169 W com.example: Accessing hidden field Landroid/view/WindowManagerGlobal;->mViews:Ljava/util/ArrayList; (unsupported, reflection, allowed)
+11-15 21:02:51.859 14169 14169 W com.example: Accessing hidden field Landroid/view/WindowManagerGlobal;->mParams:Ljava/util/ArrayList; (unsupported, reflection, allowed)
+11-15 21:02:51.860 14169 14169 I ViewInteraction: Checking 'MatchesViewAssertion{viewMatcher=an instance of android.widget.TextView and view.getText() with or without transformation to match: is "Cafebabe"}' assertion on view (view.getId() is <2131230861/com.example:id/edittext>)
+11-15 21:02:51.865 14169 14169 D takeScreenshot: Found 1 global views to redraw
+11-15 21:02:51.888   399   454 D goldfish-address-space: claimShared: Ask to claim region [0x3ec000000 0x3ec9e4000]
+11-15 21:02:51.894 14149 14159 W System  : A resource was acquired at attached stack trace but never released. See java.io.Closeable for information on avoiding resource leaks.
+11-15 21:02:51.894 14149 14159 W System  : java.lang.Throwable: Explicit termination method 'HardwareBuffer.close' not called
+11-15 21:02:51.894 14149 14159 W System  : 	at dalvik.system.CloseGuard.openWithCallSite(CloseGuard.java:288)
+11-15 21:02:51.894 14149 14159 W System  : 	at dalvik.system.CloseGuard.open(CloseGuard.java:257)
+11-15 21:02:51.894 14149 14159 W System  : 	at android.hardware.HardwareBuffer.<init>(HardwareBuffer.java:272)
+11-15 21:02:51.894 14149 14159 W System  : A resource was acquired at attached stack trace but never released. See java.io.Closeable for information on avoiding resource leaks.
+11-15 21:02:51.894 14149 14159 W System  : java.lang.Throwable: Explicit termination method 'HardwareBuffer.close' not called
+11-15 21:02:51.894 14149 14159 W System  : 	at dalvik.system.CloseGuard.openWithCallSite(CloseGuard.java:288)
+11-15 21:02:51.894 14149 14159 W System  : 	at dalvik.system.CloseGuard.open(CloseGuard.java:257)
+11-15 21:02:51.894 14149 14159 W System  : 	at android.hardware.HardwareBuffer.<init>(HardwareBuffer.java:272)
+11-15 21:02:51.907  1584 11391 W MediaProvider: isAppCloneUserPair for user 0: false
+11-15 21:02:51.908  1584 11391 V MediaProvider: Inserted id:1000000137 less than next row id backup:1000001000.
+11-15 21:02:51.922   613   613 W AccessibilityManagerService:  wait for adding window timeout: 456
+11-15 21:02:51.924  5764  5764 E AbstractGmsTracer: Traced class shouldn't be obfuscated: IpaGcmTaskChimeraService [CONTEXT service_id=259 ]
+11-15 21:02:51.924  5764  5764 E AbstractGmsTracer: Traced class shouldn't be obfuscated: IpaGcmTaskChimeraService [CONTEXT service_id=259 ]
+11-15 21:02:51.931  1177  6770 I NetworkScheduler.Stats: (REDACTED) Task %s/%s started execution. cause:%s exec_start_elapsed_seconds: %s
+11-15 21:02:51.935  1177 13233 I NetworkScheduler.Stats: (REDACTED) Task %s/%s finished executing. cause:%s result: %s elapsed_millis: %s uptime_millis: %s exec_start_elapsed_seconds: %s
+11-15 21:02:51.954 13178 14444 I ProvidersCache: Provider returned no roots. Possibly naughty: com.google.android.apps.docs.storage
+11-15 21:02:51.993 14169 14186 I AccessibilityNodeInfoDumper: Skipping invisible child: android.view.accessibility.AccessibilityNodeInfo@11778; boundsInParent: Rect(0, 0 - 0, 147); boundsInScreen: Rect(1080, 63 - 1080, 210); packageName: com.example; className: android.widget.LinearLayout; text: null; error: null; maxTextLength: -1; stateDescription: null; contentDescription: null; tooltipText: null; viewIdResName: null; uniqueId: null; checkable: false; checked: false; focusable: false; focused: false; selected: false; clickable: false; longClickable: false; contextClickable: false; enabled: true; password: false; scrollable: false; importantForAccessibility: false; visible: false; actions: [AccessibilityAction: ACTION_SELECT - null, AccessibilityAction: ACTION_CLEAR_SELECTION - null, AccessibilityAction: ACTION_ACCESSIBILITY_FOCUS - null, AccessibilityAction: ACTION_SHOW_ON_SCREEN - null]; isTextSelectable: false
+11-15 21:02:51.993 14169 14186 I AccessibilityNodeInfoDumper: Skipping invisible child: android.view.accessibility.AccessibilityNodeInfo@113b7; boundsInParent: Rect(0, 0 - 1080, 63); boundsInScreen: Rect(0, 0 - 1080, 63); packageName: com.example; className: android.view.View; text: null; error: null; maxTextLength: -1; stateDescription: null; contentDescription: null; tooltipText: null; viewIdResName: android:id/statusBarBackground; uniqueId: null; checkable: false; checked: false; focusable: false; focused: false; selected: false; clickable: false; longClickable: false; contextClickable: false; enabled: true; password: false; scrollable: false; importantForAccessibility: false; visible: false; actions: [AccessibilityAction: ACTION_SELECT - null, AccessibilityAction: ACTION_CLEAR_SELECTION - null, AccessibilityAction: ACTION_ACCESSIBILITY_FOCUS - null, AccessibilityAction: ACTION_SHOW_ON_SCREEN - null]; isTextSelectable: false
+11-15 21:02:52.001   399   454 D goldfish-address-space: claimShared: Ask to claim region [0x3ec9e4000 0x3ed3c8000]
+11-15 21:02:52.081   613  2055 I ActivityTaskManager: START u0 {act=android.intent.action.MAIN cat=[android.intent.category.LAUNCHER] flg=0x10000000 cmp=com.example.test/androidx.test.core.app.InstrumentationActivityInvoker$EmptyActivity} from uid 10252
+11-15 21:02:52.084 14169 14169 D LifecycleMonitor: Lifecycle status change: com.example.MainActivity@4c6a03e in: PAUSED
+11-15 21:02:52.084 14169 14169 V ActivityScenario: Update currentActivityStage to PAUSED, currentActivity=com.example.MainActivity@4c6a03e
+11-15 21:02:52.084   613  2066 W ActivityTaskManager: Tried to set launchTime (0) < mLastActivityLaunchTime (21719986)
+11-15 21:02:52.086   613   916 D CoreBackPreview: Window{b806b3e u0 Splash Screen com.example.test}: Setting back callback OnBackInvokedCallbackInfo{mCallback=android.window.IOnBackInvokedCallback$Stub$Proxy@4d782b5, mPriority=0}
+11-15 21:02:52.089   399   454 D goldfish-address-space: claimShared: Ask to claim region [0x3ed3c8000 0x3eddac000]
+11-15 21:02:52.102   399   454 D goldfish-address-space: claimShared: Ask to claim region [0x3f2de4000 0x3f37c8000]
+11-15 21:02:52.102   399   454 D goldfish-address-space: claimShared: Ask to claim region [0x3f09e4000 0x3f13c8000]
+11-15 21:02:52.102   613  2056 D CoreBackPreview: Window{902536d u0 com.example.test/androidx.test.core.app.InstrumentationActivityInvoker$EmptyActivity}: Setting back callback OnBackInvokedCallbackInfo{mCallback=android.window.IOnBackInvokedCallback$Stub$Proxy@f9e033, mPriority=0}
+11-15 21:02:52.103   795  1038 W Parcel  : Expecting binder but got null!
+11-15 21:02:52.104   428   428 I BpBinder: onLastStrongRef automatically unlinking death recipients: <uncached descriptor>
+11-15 21:02:52.105   399   454 D goldfish-address-space: claimShared: Ask to claim region [0x3f13c8000 0x3f1a1c000]
+11-15 21:02:52.106   613   613 W AccessibilityManagerService:  wait for adding window timeout: 458
+11-15 21:02:52.107   399   454 D goldfish-address-space: claimShared: Ask to claim region [0x3f6164000 0x3f67b8000]
+11-15 21:02:52.111   399   454 D goldfish-address-space: claimShared: Ask to claim region [0x3f67b8000 0x3f719c000]
+11-15 21:02:52.112   399   454 D goldfish-address-space: claimShared: Ask to claim region [0x3f719c000 0x3f7b80000]
+11-15 21:02:52.113   399   454 D goldfish-address-space: claimShared: Ask to claim region [0x3f4000000 0x3f49e4000]
+11-15 21:02:52.114 13490 13575 W Parcel  : Expecting binder but got null!
+11-15 21:02:52.116  1195  1886 D OneSearchSuggestProvider: Created the binder channel successfully for end point service =com.google.android.apps.search.googleapp.search.suggest.plugins.onesearch.server.OneSearchSuggestService , mChannel=E2{delegate=w2{logId=433, target=directaddress:///AndroidComponentAddress%5BIntent%20%7B%20act=grpc.io.action.BIND%20cmp=com.google.android.googlequicksearchbox/com.google.android.apps.search.googleapp.search.suggest.plugins.onesearch.server.OneSearchSuggestService%20%7D%5D}} , mOneSearchConnection=Q1.d0@52259b6
+11-15 21:02:52.117   613  2056 W ActivityManager: Unable to start service Intent { act=android.service.smartspace.SmartspaceService cmp=com.google.android.as/com.google.android.apps.miphone.aiai.app.AiAiSmartspaceService } U=0: not found
+11-15 21:02:52.117   613  2056 W RemoteSmartspaceService: could not bind to Intent { act=android.service.smartspace.SmartspaceService cmp=com.google.android.as/com.google.android.apps.miphone.aiai.app.AiAiSmartspaceService } using flags 67112961
+11-15 21:02:52.117   613   613 W ActivityManager: Unbind failed: could not find connection for android.app.LoadedApk$ServiceDispatcher$InnerConnection@2f4c34c
+11-15 21:02:52.117  1195  1223 D QuickstepModelDelegate: notifyAppTargetEvent action=1 launchLocation=workspace/0/[-1,-1]/[1,1]
+11-15 21:02:52.123   399   454 D goldfish-address-space: claimShared: Ask to claim region [0x3f49e4000 0x3f53c8000]
+11-15 21:02:52.124   399   454 D goldfish-address-space: claimShared: Ask to claim region [0x3f53c8000 0x3f5dac000]
+11-15 21:02:52.124   399   454 D goldfish-address-space: claimShared: Ask to claim region [0x3f8000000 0x3f89e4000]
+11-15 21:02:52.125   613   916 W ActivityManager: Unable to start service Intent { act=android.service.smartspace.SmartspaceService cmp=com.google.android.as/com.google.android.apps.miphone.aiai.app.AiAiSmartspaceService } U=0: not found
+11-15 21:02:52.125   613   916 W RemoteSmartspaceService: could not bind to Intent { act=android.service.smartspace.SmartspaceService cmp=com.google.android.as/com.google.android.apps.miphone.aiai.app.AiAiSmartspaceService } using flags 67112961
+11-15 21:02:52.125   613   613 W ActivityManager: Unbind failed: could not find connection for android.app.LoadedApk$ServiceDispatcher$InnerConnection@5dce302
+11-15 21:02:52.126   399   454 D goldfish-address-space: claimShared: Ask to claim region [0x3f89e4000 0x3f93c8000]
+11-15 21:02:52.127  1569  1569 I GsaVoiceInteractionSrv: Handling ACTION_START_HOTWORD
+11-15 21:02:52.127  1569  2140 I GsaVoiceInteractionSrv: disregardVoiceMatch: false
+11-15 21:02:52.127  1569  2140 I GsaVoiceInteractionSrv: Cannot start hotword, hotword has been explicitly disabled.
+11-15 21:02:52.127  1755  1755 I A       : Created gRPC endpoint to "search" for service class com.google.android.apps.search.googleapp.search.suggest.plugins.onesearch.server.OneSearchSuggestService
+11-15 21:02:52.128   399   454 D goldfish-address-space: claimShared: Ask to claim region [0x3f93c8000 0x3f9dac000]
+11-15 21:02:52.129   399   454 D goldfish-address-space: claimShared: Ask to claim region [0x3f9dac000 0x3fa790000]
+11-15 21:02:52.132   613   631 W InputManager-JNI: Input channel object 'b806b3e Splash Screen com.example.test (client)' was disposed without first being removed with the input manager!
+11-15 21:02:52.140  1755  1755 W A       : Can't get WAA status for Mavatar!
+11-15 21:02:52.140  1755  1755 W A       : java.lang.NullPointerException: Attempt to invoke virtual method 'java.lang.Class java.lang.Object.getClass()' on a null object reference
+11-15 21:02:52.140  1755  1755 W A       : 	at com.google.apps.tiktok.dataservice.z.b(PG:1)
+11-15 21:02:52.140  1755  1755 W A       : 	at com.google.apps.tiktok.dataservice.at.a(PG:1)
+11-15 21:02:52.140  1755  1755 W A       : 	at com.google.apps.tiktok.tracing.ec.a(PG:2)
+11-15 21:02:52.140  1755  1755 W A       : 	at com.google.common.util.concurrent.aj.a(PG:2)
+11-15 21:02:52.140  1755  1755 W A       : 	at com.google.common.util.concurrent.ac.apply(PG:1)
+11-15 21:02:52.140  1755  1755 W A       : 	at com.google.common.util.concurrent.h.e(PG:2)
+11-15 21:02:52.140  1755  1755 W A       : 	at com.google.common.util.concurrent.j.run(PG:9)
+11-15 21:02:52.140  1755  1755 W A       : 	at com.google.common.util.concurrent.bf.execute(PG:1)
+11-15 21:02:52.140  1755  1755 W A       : 	at com.google.common.util.concurrent.d.i(PG:1)
+11-15 21:02:52.140  1755  1755 W A       : 	at com.google.common.util.concurrent.d.l(PG:12)
+11-15 21:02:52.140  1755  1755 W A       : 	at com.google.common.util.concurrent.d.n(PG:2)
+11-15 21:02:52.140  1755  1755 W A       : 	at com.google.common.util.concurrent.i.f(PG:1)
+11-15 21:02:52.140  1755  1755 W A       : 	at com.google.common.util.concurrent.j.run(PG:12)
+11-15 21:02:52.140  1755  1755 W A       : 	at com.google.android.libraries.i.ae.run(PG:1)
+11-15 21:02:52.140  1755  1755 W A       : 	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1137)
+11-15 21:02:52.140  1755  1755 W A       : 	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:637)
+11-15 21:02:52.140  1755  1755 W A       : 	at com.google.android.libraries.i.k.run(PG:2)
+11-15 21:02:52.140  1755  1755 W A       : 	at com.google.android.libraries.i.p.run(PG:4)
+11-15 21:02:52.140  1755  1755 W A       : 	at java.lang.Thread.run(Thread.java:1012)
+11-15 21:02:52.141   613  1648 W WindowManager: Failed looking up window session=Session{b4c63f3 795:u0a10142} callers=com.android.server.wm.WindowManagerService.windowForClientLocked:5972 com.android.server.wm.WindowManagerService.relayoutWindow:2264 com.android.server.wm.Session.relayout:253 
+11-15 21:02:52.141  1494  1494 I GoogleInputMethodService: GoogleInputMethodService.onFinishInput():3220 
+11-15 21:02:52.142   613   745 W WindowManager: Cannot find window which accessibility connection is added to
+11-15 21:02:52.142   613   745 W WindowManager: Failed looking up window session=Session{b4c63f3 795:u0a10142} callers=com.android.server.wm.WindowManagerService.windowForClientLocked:5972 com.android.server.wm.WindowManagerService.removeWindow:2047 com.android.server.wm.Session.remove:230 
+11-15 21:02:52.142   613  1648 W WindowManager: Failed looking up window session=Session{b4c63f3 795:u0a10142} callers=com.android.server.wm.WindowManagerService.windowForClientLocked:5972 com.android.server.wm.Session.setOnBackInvokedCallbackInfo:943 android.view.IWindowSession$Stub.onTransact:1180 
+11-15 21:02:52.142   613  1648 E WindowManager: setOnBackInvokedCallback(): No window state for package:com.android.systemui
+11-15 21:02:52.142  1494  1494 I GoogleInputMethodService: GoogleInputMethodService.updateDeviceLockedStatus():2114 repeatCheckTimes = 0, unlocked = true
+11-15 21:02:52.142  1494  1494 I GoogleInputMethodService: GoogleInputMethodService.onStartInput():1919 onStartInput(EditorInfo{inputType=0x0(NULL) imeOptions=0x0 privateImeOptions=null actionName=UNSPECIFIED actionLabel=null actionId=0 initialSelStart=-1 initialSelEnd=-1 initialCapsMode=0x0 hintText=null label=null packageName=com.google.android.apps.nexuslauncher fieldId=-1 fieldName=null extras=null}, false)
+11-15 21:02:52.142  1494  1494 I GoogleInputMethodService: GoogleInputMethodService.updateDeviceLockedStatus():2114 repeatCheckTimes = 2, unlocked = true
+11-15 21:02:52.143   613   613 W AccessibilityManagerService:  wait for adding window timeout: 459
+11-15 21:02:52.144 14169 14169 D LifecycleMonitor: Lifecycle status change: com.example.MainActivity@4c6a03e in: STOPPED
+11-15 21:02:52.144 14169 14169 V ActivityScenario: Update currentActivityStage to STOPPED, currentActivity=com.example.MainActivity@4c6a03e
+11-15 21:02:52.144 14169 14169 D LifecycleMonitor: Lifecycle status change: com.example.MainActivity@4c6a03e in: DESTROYED
+11-15 21:02:52.144 14169 14169 V ActivityScenario: Update currentActivityStage to DESTROYED, currentActivity=null
+11-15 21:02:52.144   613  2036 D CoreBackPreview: Window{e787f3d u0 com.example/com.example.MainActivity}: Setting back callback null
+11-15 21:02:52.146   613  2056 W InputManager-JNI: Input channel object 'e787f3d com.example/com.example.MainActivity (client)' was disposed without first being removed with the input manager!
+11-15 21:02:52.146   613  2055 D CoreBackPreview: Window{902536d u0 com.example.test/androidx.test.core.app.InstrumentationActivityInvoker$EmptyActivity}: Setting back callback null
+11-15 21:02:52.146   613   916 W InputManager-JNI: Input channel object '902536d com.example.test/androidx.test.core.app.InstrumentationActivityInvoker$EmptyActivity (client)' was disposed without first being removed with the input manager!

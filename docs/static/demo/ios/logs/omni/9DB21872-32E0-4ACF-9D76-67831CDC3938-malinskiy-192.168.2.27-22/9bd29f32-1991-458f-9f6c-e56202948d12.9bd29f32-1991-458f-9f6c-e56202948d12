@@ -1,0 +1,10 @@
+	 Executed 3 tests, with 3 failures (0 unexpected) in 31.319 (31.321) seconds
+Test Suite 'marathon.xctest' failed at 2023-11-15 22:36:41.163.
+	 Executed 4 tests, with 3 failures (0 unexpected) in 35.368 (35.372) seconds
+Test Suite 'Selected tests' failed at 2023-11-15 22:36:41.163.
+	 Executed 4 tests, with 3 failures (0 unexpected) in 35.368 (35.374) seconds
+
+Test session results, code coverage, and logs:
+	/tmp/marathon/9DB21872-32E0-4ACF-9D76-67831CDC3938/9DB21872-32E0-4ACF-9D76-67831CDC3938.9bd29f32-1991-458f-9f6c-e56202948d12.xcresult
+
+Testing started

@@ -1,0 +1,81 @@
+{
+    "name": "testTextFlaky",
+    "start": 1700046171453,
+    "stop": 1700046171849,
+    "stage": "finished",
+    "description": null,
+    "descriptionHtml": null,
+    "status": "failed",
+    "statusDetails": {
+        "message": "java.lang.AssertionError",
+        "trace": "java.lang.AssertionError\n\tat org.junit.Assert.fail(Assert.java:87)\n\tat org.junit.Assert.assertTrue(Assert.java:42)\n\tat org.junit.Assert.assertTrue(Assert.java:53)\n\tat com.example.MainActivityFlakyTest.testTextFlaky(MainActivityFlakyTest.kt:31)\n\tat java.lang.reflect.Method.invoke(Native Method)\n\tat org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:59)\n\tat org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)\n\tat org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:56)\n\tat org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17)\n\tat org.junit.rules.ExternalResource$1.evaluate(ExternalResource.java:54)\n\tat io.qameta.allure.android.rules.ScreenshotRule$apply$1.evaluate(ScreenshotRule.kt:22)\n\tat org.junit.runners.ParentRunner$3.evaluate(ParentRunner.java:306)\n\tat org.junit.runners.BlockJUnit4ClassRunner$1.evaluate(BlockJUnit4ClassRunner.java:100)\n\tat org.junit.runners.ParentRunner.runLeaf(ParentRunner.java:366)\n\tat org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:103)\n\tat org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:63)\n\tat org.junit.runners.ParentRunner$4.run(ParentRunner.java:331)\n\tat org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:79)\n\tat org.junit.runners.ParentRunner.runChildren(ParentRunner.java:329)\n\tat org.junit.runners.ParentRunner.access$100(ParentRunner.java:66)\n\tat org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:293)\n\tat org.junit.runners.ParentRunner$3.evaluate(ParentRunner.java:306)\n\tat org.junit.runners.ParentRunner.run(ParentRunner.java:413)\n\tat androidx.test.ext.junit.runners.AndroidJUnit4.run(AndroidJUnit4.java:162)\n\tat io.qameta.allure.android.runners.AllureAndroidJUnit4.run(AllureAndroidJUnitRunners.kt:29)\n\tat org.junit.runners.Suite.runChild(Suite.java:128)\n\tat org.junit.runners.Suite.runChild(Suite.java:27)\n\tat org.junit.runners.ParentRunner$4.run(ParentRunner.java:331)\n\tat org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:79)\n\tat org.junit.runners.ParentRunner.runChildren(ParentRunner.java:329)\n\tat org.junit.runners.ParentRunner.access$100(ParentRunner.java:66)\n\tat org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:293)\n\tat org.junit.runners.ParentRunner$3.evaluate(ParentRunner.java:306)\n\tat org.junit.runners.ParentRunner.run(ParentRunner.java:413)\n\tat org.junit.runner.JUnitCore.run(JUnitCore.java:137)\n\tat org.junit.runner.JUnitCore.run(JUnitCore.java:115)\n\tat androidx.test.internal.runner.TestExecutor.execute(TestExecutor.java:67)\n\tat androidx.test.internal.runner.TestExecutor.execute(TestExecutor.java:58)\n\tat androidx.test.runner.AndroidJUnitRunner.onStart(AndroidJUnitRunner.java:446)\n\tat android.app.Instrumentation$InstrumentationThread.run(Instrumentation.java:2145)\n"
+    },
+    "steps": [
+    ],
+    "attachments": [
+        {
+            "source": "6dc22a9d-0c2a-435c-8e6b-54f067f0784b-attachment.png",
+            "name": "ss_end",
+            "type": "image/png"
+        }
+    ],
+    "parameters": [
+    ],
+    "uuid": "2194b339-eeb1-4ca2-9779-941518c2c30d",
+    "historyId": "c2a53229ce3ad77e946ee9ce099c9158",
+    "fullName": "com.example.MainActivityFlakyTest.testTextFlaky",
+    "labels": [
+        {
+            "name": "package",
+            "value": "com.example"
+        },
+        {
+            "name": "testClass",
+            "value": "com.example.MainActivityFlakyTest"
+        },
+        {
+            "name": "testMethod",
+            "value": "testTextFlaky"
+        },
+        {
+            "name": "suite",
+            "value": "com.example.MainActivityFlakyTest"
+        },
+        {
+            "name": "host",
+            "value": "localhost"
+        },
+        {
+            "name": "thread",
+            "value": "Instr: androidx.test.runner.AndroidJUnitRunner(572)"
+        },
+        {
+            "name": "framework",
+            "value": "junit4"
+        },
+        {
+            "name": "language",
+            "value": "kotlin"
+        },
+        {
+            "name": "epic",
+            "value": "Marathon"
+        },
+        {
+            "name": "feature",
+            "value": "Flakiness"
+        },
+        {
+            "name": "story",
+            "value": "Flaky"
+        },
+        {
+            "name": "owner",
+            "value": "user2"
+        },
+        {
+            "name": "severity",
+            "value": "blocker"
+        }
+    ]
+}

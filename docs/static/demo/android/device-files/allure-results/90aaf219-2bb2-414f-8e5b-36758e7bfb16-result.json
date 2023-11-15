@@ -1,0 +1,110 @@
+{
+    "name": "testFailure",
+    "start": 1700046175128,
+    "stop": 1700046176021,
+    "stage": "finished",
+    "description": null,
+    "descriptionHtml": null,
+    "status": "failed",
+    "statusDetails": {
+        "message": "'an instance of android.widget.TextView and view.getText() with or without transformation to match: is \"Cafebabe\"' doesn't match the selected view.\nExpected: an instance of android.widget.TextView and view.getText() with or without transformation to match: is \"Cafebabe\"\n     Got: view.getText() was \"Test\"\nView Details: EditText{id=2131230861, res-name=edittext, visibility=VISIBLE, width=1080, height=1584, has-focus=false, has-focusable=true, has-window-focus=true, is-clickable=true, is-enabled=true, is-focused=false, is-focusable=true, is-layout-requested=false, is-selected=false, layout-params=androidx.constraintlayout.widget.ConstraintLayout$LayoutParams@YYYYYY, tag=null, root-is-layout-requested=false, has-input-connection=true, editor-info=[inputType=0x20001 imeOptions=0x40000006 privateImeOptions=null actionLabel=null actionId=0 initialSelStart=0 initialSelEnd=0 initialCapsMode=0x0 hintText=null label=null packageName=null fieldId=0 fieldName=null extras=null hintLocales=null contentMimeTypes=null ], x=0.0, y=0.0, text=Test, input-type=131073, ime-target=false, has-links=false}\n",
+        "trace": "androidx.test.espresso.base.AssertionErrorHandler$AssertionFailedWithCauseError: 'an instance of android.widget.TextView and view.getText() with or without transformation to match: is \"Cafebabe\"' doesn't match the selected view.\nExpected: an instance of android.widget.TextView and view.getText() with or without transformation to match: is \"Cafebabe\"\n     Got: view.getText() was \"Test\"\nView Details: EditText{id=2131230861, res-name=edittext, visibility=VISIBLE, width=1080, height=1584, has-focus=false, has-focusable=true, has-window-focus=true, is-clickable=true, is-enabled=true, is-focused=false, is-focusable=true, is-layout-requested=false, is-selected=false, layout-params=androidx.constraintlayout.widget.ConstraintLayout$LayoutParams@YYYYYY, tag=null, root-is-layout-requested=false, has-input-connection=true, editor-info=[inputType=0x20001 imeOptions=0x40000006 privateImeOptions=null actionLabel=null actionId=0 initialSelStart=0 initialSelEnd=0 initialCapsMode=0x0 hintText=null label=null packageName=null fieldId=0 fieldName=null extras=null hintLocales=null contentMimeTypes=null ], x=0.0, y=0.0, text=Test, input-type=131073, ime-target=false, has-links=false}\n\n\tat dalvik.system.VMStack.getThreadStackTrace(Native Method)\n\tat java.lang.Thread.getStackTrace(Thread.java:1720)\n\tat androidx.test.espresso.base.AssertionErrorHandler.handleSafely(AssertionErrorHandler.java:3)\n\tat androidx.test.espresso.base.AssertionErrorHandler.handleSafely(AssertionErrorHandler.java:1)\n\tat androidx.test.espresso.base.DefaultFailureHandler$TypedFailureHandler.handle(DefaultFailureHandler.java:4)\n\tat androidx.test.espresso.base.DefaultFailureHandler.handle(DefaultFailureHandler.java:5)\n\tat androidx.test.espresso.ViewInteraction.waitForAndHandleInteractionResults(ViewInteraction.java:5)\n\tat androidx.test.espresso.ViewInteraction.check(ViewInteraction.java:12)\n\tat io.github.kakaocup.kakao.delegate.ViewInteractionDelegate.check(ViewInteractionDelegate.kt:26)\n\tat io.github.kakaocup.kakao.text.TextViewAssertions$DefaultImpls.hasText(TextViewAssertions.kt:58)\n\tat io.github.kakaocup.kakao.edit.KEditText.hasText(KEditText.kt:18)\n\tat com.example.MainActivityAllureTest$testFailure$1$1$1.invoke(MainActivityAllureTest.kt:59)\n\tat com.example.MainActivityAllureTest$testFailure$1$1$1.invoke(MainActivityAllureTest.kt:58)\n\tat io.qameta.allure.kotlin.Allure.step(Allure.kt:60)\n\tat com.example.MainActivityAllureTest$testFailure$1$1.invoke(MainActivityAllureTest.kt:58)\n\tat com.example.MainActivityAllureTest$testFailure$1$1.invoke(MainActivityAllureTest.kt:57)\n\tat io.github.kakaocup.kakao.common.views.KDSLView.invoke(KDSLView.kt:12)\n\tat com.example.MainActivityAllureTest$testFailure$1.invoke(MainActivityAllureTest.kt:57)\n\tat com.example.MainActivityAllureTest$testFailure$1.invoke(MainActivityAllureTest.kt:56)\n\tat io.github.kakaocup.kakao.screen.Screen.invoke(Screen.kt:119)\n\tat com.example.MainActivityAllureTest.testFailure(MainActivityAllureTest.kt:56)\n\tat java.lang.reflect.Method.invoke(Native Method)\n\tat org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:59)\n\tat org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)\n\tat org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:56)\n\tat org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17)\n\tat io.qameta.allure.android.rules.WindowHierarchyRule$apply$1.evaluate(WindowHierarchyRule.kt:21)\n\tat io.qameta.allure.android.rules.ScreenshotRule$apply$1.evaluate(ScreenshotRule.kt:22)\n\tat org.junit.rules.ExternalResource$1.evaluate(ExternalResource.java:54)\n\tat io.qameta.allure.android.rules.LogcatRule$apply$1.evaluate(LogcatRule.kt:23)\n\tat org.junit.runners.ParentRunner$3.evaluate(ParentRunner.java:306)\n\tat org.junit.runners.BlockJUnit4ClassRunner$1.evaluate(BlockJUnit4ClassRunner.java:100)\n\tat org.junit.runners.ParentRunner.runLeaf(ParentRunner.java:366)\n\tat org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:103)\n\tat org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:63)\n\tat org.junit.runners.ParentRunner$4.run(ParentRunner.java:331)\n\tat org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:79)\n\tat org.junit.runners.ParentRunner.runChildren(ParentRunner.java:329)\n\tat org.junit.runners.ParentRunner.access$100(ParentRunner.java:66)\n\tat org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:293)\n\tat org.junit.runners.ParentRunner$3.evaluate(ParentRunner.java:306)\n\tat org.junit.runners.ParentRunner.run(ParentRunner.java:413)\n\tat androidx.test.ext.junit.runners.AndroidJUnit4.run(AndroidJUnit4.java:162)\n\tat io.qameta.allure.android.runners.AllureAndroidJUnit4.run(AllureAndroidJUnitRunners.kt:29)\n\tat org.junit.runners.Suite.runChild(Suite.java:128)\n\tat org.junit.runners.Suite.runChild(Suite.java:27)\n\tat org.junit.runners.ParentRunner$4.run(ParentRunner.java:331)\n\tat org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:79)\n\tat org.junit.runners.ParentRunner.runChildren(ParentRunner.java:329)\n\tat org.junit.runners.ParentRunner.access$100(ParentRunner.java:66)\n\tat org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:293)\n\tat org.junit.runners.ParentRunner$3.evaluate(ParentRunner.java:306)\n\tat org.junit.runners.ParentRunner.run(ParentRunner.java:413)\n\tat org.junit.runner.JUnitCore.run(JUnitCore.java:137)\n\tat org.junit.runner.JUnitCore.run(JUnitCore.java:115)\n\tat androidx.test.internal.runner.TestExecutor.execute(TestExecutor.java:67)\n\tat androidx.test.internal.runner.TestExecutor.execute(TestExecutor.java:58)\n\tat androidx.test.runner.AndroidJUnitRunner.onStart(AndroidJUnitRunner.java:446)\n\tat android.app.Instrumentation$InstrumentationThread.run(Instrumentation.java:2189)\nCaused by: junit.framework.AssertionFailedError: 'an instance of android.widget.TextView and view.getText() with or without transformation to match: is \"Cafebabe\"' doesn't match the selected view.\nExpected: an instance of android.widget.TextView and view.getText() with or without transformation to match: is \"Cafebabe\"\n     Got: view.getText() was \"Test\"\nView Details: EditText{id=2131230861, res-name=edittext, visibility=VISIBLE, width=1080, height=1584, has-focus=false, has-focusable=true, has-window-focus=true, is-clickable=true, is-enabled=true, is-focused=false, is-focusable=true, is-layout-requested=false, is-selected=false, layout-params=androidx.constraintlayout.widget.ConstraintLayout$LayoutParams@YYYYYY, tag=null, root-is-layout-requested=false, has-input-connection=true, editor-info=[inputType=0x20001 imeOptions=0x40000006 privateImeOptions=null actionLabel=null actionId=0 initialSelStart=0 initialSelEnd=0 initialCapsMode=0x0 hintText=null label=null packageName=null fieldId=0 fieldName=null extras=null hintLocales=null contentMimeTypes=null ], x=0.0, y=0.0, text=Test, input-type=131073, ime-target=false, has-links=false}\n\n\tat androidx.test.espresso.matcher.ViewMatchers.assertThat(ViewMatchers.java:16)\n\tat androidx.test.espresso.assertion.ViewAssertions$MatchesViewAssertion.check(ViewAssertions.java:7)\n\tat androidx.test.espresso.ViewInteraction$SingleExecutionViewAssertion.check(ViewInteraction.java:2)\n\tat androidx.test.espresso.ViewInteraction$2.call(ViewInteraction.java:14)\n\tat androidx.test.espresso.ViewInteraction$2.call(ViewInteraction.java:1)\n\tat java.util.concurrent.FutureTask.run(FutureTask.java:266)\n\tat android.os.Handler.handleCallback(Handler.java:883)\n\tat android.os.Handler.dispatchMessage(Handler.java:100)\n\tat android.os.Looper.loop(Looper.java:214)\n\tat android.app.ActivityThread.main(ActivityThread.java:7356)\n\tat java.lang.reflect.Method.invoke(Native Method)\n\tat com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:492)\n\tat com.android.internal.os.ZygoteInit.main(ZygoteInit.java:930)\n"
+    },
+    "steps": [
+        {
+            "name": "first step",
+            "start": 1700046175230,
+            "stop": 1700046175379,
+            "stage": "finished",
+            "description": null,
+            "descriptionHtml": null,
+            "status": "failed",
+            "statusDetails": {
+                "message": "'an instance of android.widget.TextView and view.getText() with or without transformation to match: is \"Cafebabe\"' doesn't match the selected view.\nExpected: an instance of android.widget.TextView and view.getText() with or without transformation to match: is \"Cafebabe\"\n     Got: view.getText() was \"Test\"\nView Details: EditText{id=2131230861, res-name=edittext, visibility=VISIBLE, width=1080, height=1584, has-focus=false, has-focusable=true, has-window-focus=true, is-clickable=true, is-enabled=true, is-focused=false, is-focusable=true, is-layout-requested=false, is-selected=false, layout-params=androidx.constraintlayout.widget.ConstraintLayout$LayoutParams@YYYYYY, tag=null, root-is-layout-requested=false, has-input-connection=true, editor-info=[inputType=0x20001 imeOptions=0x40000006 privateImeOptions=null actionLabel=null actionId=0 initialSelStart=0 initialSelEnd=0 initialCapsMode=0x0 hintText=null label=null packageName=null fieldId=0 fieldName=null extras=null hintLocales=null contentMimeTypes=null ], x=0.0, y=0.0, text=Test, input-type=131073, ime-target=false, has-links=false}\n",
+                "trace": "androidx.test.espresso.base.AssertionErrorHandler$AssertionFailedWithCauseError: 'an instance of android.widget.TextView and view.getText() with or without transformation to match: is \"Cafebabe\"' doesn't match the selected view.\nExpected: an instance of android.widget.TextView and view.getText() with or without transformation to match: is \"Cafebabe\"\n     Got: view.getText() was \"Test\"\nView Details: EditText{id=2131230861, res-name=edittext, visibility=VISIBLE, width=1080, height=1584, has-focus=false, has-focusable=true, has-window-focus=true, is-clickable=true, is-enabled=true, is-focused=false, is-focusable=true, is-layout-requested=false, is-selected=false, layout-params=androidx.constraintlayout.widget.ConstraintLayout$LayoutParams@YYYYYY, tag=null, root-is-layout-requested=false, has-input-connection=true, editor-info=[inputType=0x20001 imeOptions=0x40000006 privateImeOptions=null actionLabel=null actionId=0 initialSelStart=0 initialSelEnd=0 initialCapsMode=0x0 hintText=null label=null packageName=null fieldId=0 fieldName=null extras=null hintLocales=null contentMimeTypes=null ], x=0.0, y=0.0, text=Test, input-type=131073, ime-target=false, has-links=false}\n\n\tat dalvik.system.VMStack.getThreadStackTrace(Native Method)\n\tat java.lang.Thread.getStackTrace(Thread.java:1720)\n\tat androidx.test.espresso.base.AssertionErrorHandler.handleSafely(AssertionErrorHandler.java:3)\n\tat androidx.test.espresso.base.AssertionErrorHandler.handleSafely(AssertionErrorHandler.java:1)\n\tat androidx.test.espresso.base.DefaultFailureHandler$TypedFailureHandler.handle(DefaultFailureHandler.java:4)\n\tat androidx.test.espresso.base.DefaultFailureHandler.handle(DefaultFailureHandler.java:5)\n\tat androidx.test.espresso.ViewInteraction.waitForAndHandleInteractionResults(ViewInteraction.java:5)\n\tat androidx.test.espresso.ViewInteraction.check(ViewInteraction.java:12)\n\tat io.github.kakaocup.kakao.delegate.ViewInteractionDelegate.check(ViewInteractionDelegate.kt:26)\n\tat io.github.kakaocup.kakao.text.TextViewAssertions$DefaultImpls.hasText(TextViewAssertions.kt:58)\n\tat io.github.kakaocup.kakao.edit.KEditText.hasText(KEditText.kt:18)\n\tat com.example.MainActivityAllureTest$testFailure$1$1$1.invoke(MainActivityAllureTest.kt:59)\n\tat com.example.MainActivityAllureTest$testFailure$1$1$1.invoke(MainActivityAllureTest.kt:58)\n\tat io.qameta.allure.kotlin.Allure.step(Allure.kt:60)\n\tat com.example.MainActivityAllureTest$testFailure$1$1.invoke(MainActivityAllureTest.kt:58)\n\tat com.example.MainActivityAllureTest$testFailure$1$1.invoke(MainActivityAllureTest.kt:57)\n\tat io.github.kakaocup.kakao.common.views.KDSLView.invoke(KDSLView.kt:12)\n\tat com.example.MainActivityAllureTest$testFailure$1.invoke(MainActivityAllureTest.kt:57)\n\tat com.example.MainActivityAllureTest$testFailure$1.invoke(MainActivityAllureTest.kt:56)\n\tat io.github.kakaocup.kakao.screen.Screen.invoke(Screen.kt:119)\n\tat com.example.MainActivityAllureTest.testFailure(MainActivityAllureTest.kt:56)\n\tat java.lang.reflect.Method.invoke(Native Method)\n\tat org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:59)\n\tat org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)\n\tat org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:56)\n\tat org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17)\n\tat io.qameta.allure.android.rules.WindowHierarchyRule$apply$1.evaluate(WindowHierarchyRule.kt:21)\n\tat io.qameta.allure.android.rules.ScreenshotRule$apply$1.evaluate(ScreenshotRule.kt:22)\n\tat org.junit.rules.ExternalResource$1.evaluate(ExternalResource.java:54)\n\tat io.qameta.allure.android.rules.LogcatRule$apply$1.evaluate(LogcatRule.kt:23)\n\tat org.junit.runners.ParentRunner$3.evaluate(ParentRunner.java:306)\n\tat org.junit.runners.BlockJUnit4ClassRunner$1.evaluate(BlockJUnit4ClassRunner.java:100)\n\tat org.junit.runners.ParentRunner.runLeaf(ParentRunner.java:366)\n\tat org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:103)\n\tat org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:63)\n\tat org.junit.runners.ParentRunner$4.run(ParentRunner.java:331)\n\tat org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:79)\n\tat org.junit.runners.ParentRunner.runChildren(ParentRunner.java:329)\n\tat org.junit.runners.ParentRunner.access$100(ParentRunner.java:66)\n\tat org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:293)\n\tat org.junit.runners.ParentRunner$3.evaluate(ParentRunner.java:306)\n\tat org.junit.runners.ParentRunner.run(ParentRunner.java:413)\n\tat androidx.test.ext.junit.runners.AndroidJUnit4.run(AndroidJUnit4.java:162)\n\tat io.qameta.allure.android.runners.AllureAndroidJUnit4.run(AllureAndroidJUnitRunners.kt:29)\n\tat org.junit.runners.Suite.runChild(Suite.java:128)\n\tat org.junit.runners.Suite.runChild(Suite.java:27)\n\tat org.junit.runners.ParentRunner$4.run(ParentRunner.java:331)\n\tat org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:79)\n\tat org.junit.runners.ParentRunner.runChildren(ParentRunner.java:329)\n\tat org.junit.runners.ParentRunner.access$100(ParentRunner.java:66)\n\tat org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:293)\n\tat org.junit.runners.ParentRunner$3.evaluate(ParentRunner.java:306)\n\tat org.junit.runners.ParentRunner.run(ParentRunner.java:413)\n\tat org.junit.runner.JUnitCore.run(JUnitCore.java:137)\n\tat org.junit.runner.JUnitCore.run(JUnitCore.java:115)\n\tat androidx.test.internal.runner.TestExecutor.execute(TestExecutor.java:67)\n\tat androidx.test.internal.runner.TestExecutor.execute(TestExecutor.java:58)\n\tat androidx.test.runner.AndroidJUnitRunner.onStart(AndroidJUnitRunner.java:446)\n\tat android.app.Instrumentation$InstrumentationThread.run(Instrumentation.java:2189)\nCaused by: junit.framework.AssertionFailedError: 'an instance of android.widget.TextView and view.getText() with or without transformation to match: is \"Cafebabe\"' doesn't match the selected view.\nExpected: an instance of android.widget.TextView and view.getText() with or without transformation to match: is \"Cafebabe\"\n     Got: view.getText() was \"Test\"\nView Details: EditText{id=2131230861, res-name=edittext, visibility=VISIBLE, width=1080, height=1584, has-focus=false, has-focusable=true, has-window-focus=true, is-clickable=true, is-enabled=true, is-focused=false, is-focusable=true, is-layout-requested=false, is-selected=false, layout-params=androidx.constraintlayout.widget.ConstraintLayout$LayoutParams@YYYYYY, tag=null, root-is-layout-requested=false, has-input-connection=true, editor-info=[inputType=0x20001 imeOptions=0x40000006 privateImeOptions=null actionLabel=null actionId=0 initialSelStart=0 initialSelEnd=0 initialCapsMode=0x0 hintText=null label=null packageName=null fieldId=0 fieldName=null extras=null hintLocales=null contentMimeTypes=null ], x=0.0, y=0.0, text=Test, input-type=131073, ime-target=false, has-links=false}\n\n\tat androidx.test.espresso.matcher.ViewMatchers.assertThat(ViewMatchers.java:16)\n\tat androidx.test.espresso.assertion.ViewAssertions$MatchesViewAssertion.check(ViewAssertions.java:7)\n\tat androidx.test.espresso.ViewInteraction$SingleExecutionViewAssertion.check(ViewInteraction.java:2)\n\tat androidx.test.espresso.ViewInteraction$2.call(ViewInteraction.java:14)\n\tat androidx.test.espresso.ViewInteraction$2.call(ViewInteraction.java:1)\n\tat java.util.concurrent.FutureTask.run(FutureTask.java:266)\n\tat android.os.Handler.handleCallback(Handler.java:883)\n\tat android.os.Handler.dispatchMessage(Handler.java:100)\n\tat android.os.Looper.loop(Looper.java:214)\n\tat android.app.ActivityThread.main(ActivityThread.java:7356)\n\tat java.lang.reflect.Method.invoke(Native Method)\n\tat com.android.internal.os.RuntimeInit$MethodAndArgsCaller.run(RuntimeInit.java:492)\n\tat com.android.internal.os.ZygoteInit.main(ZygoteInit.java:930)\n"
+            },
+            "steps": [
+            ],
+            "attachments": [
+            ],
+            "parameters": [
+            ]
+        }
+    ],
+    "attachments": [
+        {
+            "source": "56ac2149-0cd8-4553-b27e-7450eecac98d-attachment.xml",
+            "name": "window-hierarchy",
+            "type": "text/xml"
+        },
+        {
+            "source": "415f8dd0-e2ef-4faa-bc0c-73216194c906-attachment.png",
+            "name": "ss_end",
+            "type": "image/png"
+        },
+        {
+            "source": "95aaa333-925a-45c5-8610-318aaf869cb2-attachment.txt",
+            "name": "logcat-dump",
+            "type": "text/plain"
+        }
+    ],
+    "parameters": [
+    ],
+    "uuid": "90aaf219-2bb2-414f-8e5b-36758e7bfb16",
+    "historyId": "31cd73d24b9bc308ba72c9f569383808",
+    "fullName": "com.example.MainActivityAllureTest.testFailure",
+    "labels": [
+        {
+            "name": "package",
+            "value": "com.example"
+        },
+        {
+            "name": "testClass",
+            "value": "com.example.MainActivityAllureTest"
+        },
+        {
+            "name": "testMethod",
+            "value": "testFailure"
+        },
+        {
+            "name": "suite",
+            "value": "com.example.MainActivityAllureTest"
+        },
+        {
+            "name": "host",
+            "value": "localhost"
+        },
+        {
+            "name": "thread",
+            "value": "Instr: androidx.test.runner.AndroidJUnitRunner(606)"
+        },
+        {
+            "name": "framework",
+            "value": "junit4"
+        },
+        {
+            "name": "language",
+            "value": "kotlin"
+        },
+        {
+            "name": "story",
+            "value": "Slow"
+        },
+        {
+            "name": "severity",
+            "value": "critical"
+        },
+        {
+            "name": "feature",
+            "value": "Text on main screen"
+        },
+        {
+            "name": "epic",
+            "value": "General"
+        },
+        {
+            "name": "owner",
+            "value": "user2"
+        }
+    ]
+}

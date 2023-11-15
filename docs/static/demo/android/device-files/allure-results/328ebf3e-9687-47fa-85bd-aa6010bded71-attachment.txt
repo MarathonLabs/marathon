@@ -1,0 +1,471 @@
+--------- beginning of main
+11-15 21:03:26.089 21283 21283 W app_process: type=1400 audit(0.0:253): avc: denied { read } for name="u:object_r:device_config_runtime_native_boot_prop:s0" dev="tmpfs" ino=7294 scontext=u:r:shell:s0 tcontext=u:object_r:device_config_runtime_native_boot_prop:s0 tclass=file permissive=0
+11-15 21:03:26.089 21283 21283 I chatty  : uid=2000(shell) main identical 1 line
+11-15 21:03:26.089 21283 21283 W app_process: type=1400 audit(0.0:255): avc: denied { read } for name="u:object_r:device_config_runtime_native_boot_prop:s0" dev="tmpfs" ino=7294 scontext=u:r:shell:s0 tcontext=u:object_r:device_config_runtime_native_boot_prop:s0 tclass=file permissive=0
+11-15 21:03:26.095 21283 21283 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+11-15 21:03:26.097 21283 21283 E libc    : Access denied finding property "persist.device_config.runtime_native_boot.enable_apex_image"
+11-15 21:03:26.097 21283 21283 I AndroidRuntime: Using default boot image
+11-15 21:03:26.097 21283 21283 E libc    : Access denied finding property "persist.device_config.runtime_native_boot.disable_lock_profiling"
+11-15 21:03:26.097 21283 21283 I AndroidRuntime: Leaving lock profiling enabled
+11-15 21:03:26.097 21283 21283 E libc    : Access denied finding property "persist.device_config.runtime_native_boot.enable_generational_cc"
+11-15 21:03:26.098 21283 21283 I app_process: Core platform API reporting enabled, enforcing=false
+11-15 21:03:26.154 21283 21283 D ICU     : Time zone APEX file found: /apex/com.android.tzdata/etc/icu/icu_tzdata.dat
+11-15 21:03:26.156 21283 21283 W app_process: Unexpected CPU variant for X86 using defaults: x86_64
+11-15 21:03:26.160 21283 21283 I app_process: The ClassLoaderContext is a special shared library.
+11-15 21:03:26.167 21283 21283 W app_process: JNI RegisterNativeMethods: attempt to register 0 native methods for android.media.AudioAttributes
+11-15 21:03:26.169 21283 21283 D AndroidRuntime: Calling main entry com.android.commands.am.Am
+--------- beginning of system
+11-15 21:03:26.171  1983  2771 I ActivityManager: Force stopping com.example appid=10142 user=0: start instr
+11-15 21:03:26.173  1983  1983 V SettingsProvider: Notifying for 0: content://settings/global/window_animation_scale
+11-15 21:03:26.173  1983  1983 V SettingsProvider: Notifying for 0: content://settings/global/transition_animation_scale
+11-15 21:03:26.173  1983  1983 V SettingsProvider: Notifying for 0: content://settings/global/animator_duration_scale
+11-15 21:03:26.184  1748  1748 D Zygote  : Forked child process 21298
+11-15 21:03:26.186  1983  2018 I ActivityManager: Start proc 21298:com.example/u0a142 for added application com.example
+11-15 21:03:26.186 21298 21298 I com.example: Late-enabling -Xcheck:jni
+11-15 21:03:26.192 21298 21298 E com.example: Unknown bits set in runtime_flags: 0x8000
+11-15 21:03:26.192 21298 21298 W com.example: Unexpected CPU variant for X86 using defaults: x86_64
+11-15 21:03:26.213 21298 21298 I com.example: The ClassLoaderContext is a special shared library.
+11-15 21:03:26.511 21298 21298 I chatty  : uid=10142(com.example) identical 2 lines
+11-15 21:03:26.511 21298 21298 I com.example: The ClassLoaderContext is a special shared library.
+11-15 21:03:26.768 21298 21298 W com.example: Accessing hidden method Landroid/app/Instrumentation;->execStartActivity(Landroid/content/Context;Landroid/os/IBinder;Landroid/os/IBinder;Landroid/app/Activity;Landroid/content/Intent;ILandroid/os/Bundle;)Landroid/app/Instrumentation$ActivityResult; (greylist, linking, allowed)
+11-15 21:03:26.768 21298 21298 W com.example: Accessing hidden method Landroid/app/Instrumentation;->execStartActivity(Landroid/content/Context;Landroid/os/IBinder;Landroid/os/IBinder;Ljava/lang/String;Landroid/content/Intent;ILandroid/os/Bundle;)Landroid/app/Instrumentation$ActivityResult; (greylist, linking, allowed)
+11-15 21:03:26.772 21298 21298 I MonitoringInstr: newApplication called!
+11-15 21:03:26.780 21298 21298 I MonitoringInstr: Instrumentation started!
+11-15 21:03:26.783 21298 21298 I AndroidJUnitRunner: onCreate Bundle[{coverageFile=/data/data/com.example/coverage/coverage-e5d84f75-4f68-4d8b-a800-b3bc12c61d71.ec, com.malinskiy.adam.android.ADB_SERIAL=emulator-5560, com.malinskiy.adam.android.GRPC_HOST=10.0.2.2, com.malinskiy.adam.android.GRPC_PORT=8560, coverage=true, class=com.example.MainActivityFlakyTest#testTextFlaky6,com.example.MainActivityFlakyTest#testTextFlaky3,com.example.MainActivityFlakyTest#testTextFlaky,com.example.MainActivityAllureTest#testText,com.example.MainActivityAllureTest#testFailure, com.malinskiy.adam.android.ADB_HOST=10.0.2.2, com.malinskiy.adam.android.ADB_PORT=5037, com.malinskiy.adam.android.CONSOLE_HOST=10.0.2.2, com.malinskiy.adam.android.CONSOLE_PORT=5560}]
+11-15 21:03:26.784 21298 21298 V TestEventClient: No service name argument was given (testDiscoveryService, testRunEventService or orchestratorService)
+11-15 21:03:26.785 21298 21330 D AndroidJUnitRunner: onStart is called.
+11-15 21:03:26.791 21298 21330 D TestRequestBuilder: Skipping class path scanning and directly running [com.example.MainActivityFlakyTest, com.example.MainActivityAllureTest]
+11-15 21:03:26.802 21298 21330 D AndroidJUnitRunner: Use the raw file system for managing file I/O.
+11-15 21:03:26.804 21298 21330 D TestExecutor: Adding listener androidx.test.internal.runner.listener.LogRunListener
+11-15 21:03:26.804 21298 21330 D TestExecutor: Adding listener androidx.test.internal.runner.listener.InstrumentationResultPrinter
+11-15 21:03:26.804 21298 21330 D TestExecutor: Adding listener androidx.test.internal.runner.listener.ActivityFinisherRunListener
+11-15 21:03:26.804 21298 21330 D TestExecutor: Adding listener androidx.test.internal.runner.listener.CoverageListener
+11-15 21:03:26.805 21298 21330 D TestExecutor: Adding listener androidx.test.internal.runner.listener.TraceRunListener
+11-15 21:03:26.807 21298 21330 I TestRunner: run started: 5 tests
+11-15 21:03:26.826 21298 21330 I TestRunner: started: testTextFlaky(com.example.MainActivityFlakyTest)
+11-15 21:03:26.863  1782  2591 E SurfaceFlinger: ro.sf.lcd_density must be defined as a build property
+11-15 21:03:26.868 21334 21338 I OMXClient: IOmx service obtained
+11-15 21:03:26.868  1847 19149 I OMXMaster: makeComponentInstance(OMX.google.h264.encoder) in android.hardwar process
+11-15 21:03:26.870 21334 21338 W OMXUtils: do not know color format 0x7f000789 = 2130708361
+11-15 21:03:26.870 21334 21338 I ACodec  : setupAVCEncoderParameters with [profile: Baseline] [level: Level41]
+11-15 21:03:26.870 21334 21338 I ACodec  : [OMX.google.h264.encoder] cannot encode color aspects. Ignoring.
+11-15 21:03:26.871 21334 21338 I ACodec  : [OMX.google.h264.encoder] cannot encode HDR static metadata. Ignoring.
+11-15 21:03:26.871 21334 21338 I ACodec  : setupVideoEncoder succeeded
+11-15 21:03:26.871 21334 21338 W OMXUtils: do not know color format 0x7f000789 = 2130708361
+11-15 21:03:26.871  1847 19149 E OMXNodeInstance: getConfig(0xf2719260:google.h264.encoder, ConfigLatency(0x6f800005)) ERROR: Undefined(0x80001001)
+11-15 21:03:26.871  1847 19149 E OMXNodeInstance: getConfig(0xf2719260:google.h264.encoder, ConfigAndroidVendorExtension(0x6f100004)) ERROR: Undefined(0x80001001)
+11-15 21:03:26.872  1847 19149 D GraphicBufferSource: setting dataspace: 0x104, acquired=0
+11-15 21:03:26.872  1847 19149 D GraphicBufferSource: requesting color aspects (R:2(Limited), P:1(BT709_5), M:1(BT709_5), T:3(SMPTE170M))
+11-15 21:03:26.877  1747 21342 E ResolverController: No valid NAT64 prefix (101, <unspecified>/0)
+11-15 21:03:26.881  1847 21340 D SoftAVCEnc: Params width 720 height 1280 level 41 colorFormat 0
+11-15 21:03:26.897  1768  1768 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 3690496
+11-15 21:03:26.899  1847  2175 D GraphicBufferSource: got buffer with new dataSpace #104
+11-15 21:03:26.900 21334 21338 D ACodec  : dataspace changed to 0x10c10000 (R:2(Limited), P:1(BT709_5), M:1(BT709_5), T:3(SMPTE170M)) (R:2(Limited), S:1(BT709), T:3(SMPTE_170M))
+11-15 21:03:26.901 21334 21334 I MPEG4Writer: limits: 4294967295/0 bytes/us, bit rate: -1 bps and the estimated moov size 3192 bytes
+11-15 21:03:26.903 21298 21330 W FileTestStorage: Output properties is not supported.
+11-15 21:03:26.903 21298 21330 I Tracing : Tracer added: class androidx.test.platform.tracing.AndroidXTracer
+11-15 21:03:26.910 21298 21330 D EventInjectionStrategy: Creating injection strategy with input manager.
+11-15 21:03:26.910 21298 21330 W com.example: Accessing hidden method Landroid/hardware/input/InputManager;->getInstance()Landroid/hardware/input/InputManager; (greylist, reflection, allowed)
+11-15 21:03:26.910 21298 21330 W com.example: Accessing hidden method Landroid/hardware/input/InputManager;->injectInputEvent(Landroid/view/InputEvent;I)Z (greylist, reflection, allowed)
+11-15 21:03:26.910 21298 21330 W com.example: Accessing hidden field Landroid/hardware/input/InputManager;->INJECT_INPUT_EVENT_MODE_WAIT_FOR_FINISH:I (greylist, reflection, allowed)
+11-15 21:03:26.919  1782  2591 E SurfaceFlinger: ro.sf.lcd_density must be defined as a build property
+11-15 21:03:26.919 21334 21345 I MPEG4Writer: setStartTimestampUs: 5759995263
+11-15 21:03:26.919 21334 21345 I MPEG4Writer: Earliest track starting time: 5759995263
+11-15 21:03:26.923 21298 21330 W Settings: Setting always_finish_activities has moved from android.provider.Settings.System to android.provider.Settings.Global, returning read-only value.
+11-15 21:03:26.926  1983  2771 I ActivityTaskManager: START u0 {act=android.intent.action.MAIN cat=[android.intent.category.LAUNCHER] flg=0x10008000 cmp=com.example/.MainActivity} from uid 10142
+11-15 21:03:26.933  1983 10391 W InputReader: Device has associated, but no associated display id.
+11-15 21:03:26.934  1983 10391 I chatty  : uid=1000(system) Binder:1983_16 identical 38 lines
+11-15 21:03:26.934  1983 10391 W InputReader: Device has associated, but no associated display id.
+11-15 21:03:26.935 21298 21298 W ActivityThread: handleWindowVisibility: no activity for token android.os.BinderProxy@bb1a14e
+11-15 21:03:26.937  1983  2012 E system_server: Invalid ID 0x00000000.
+11-15 21:03:26.938  1782  1811 E SurfaceFlinger: ro.sf.lcd_density must be defined as a build property
+11-15 21:03:26.939 21298 21298 D LifecycleMonitor: Lifecycle status change: com.example.MainActivity@a1c2b7c in: PRE_ON_CREATE
+11-15 21:03:26.939 21298 21298 V ActivityScenario: Activity lifecycle changed event received but ignored because the reported transition was not ON_CREATE while the last known transition was PRE_ON_CREATE
+11-15 21:03:26.941  1782  1811 E SurfaceFlinger: ro.sf.lcd_density must be defined as a build property
+11-15 21:03:26.941  1782  1811 E SurfaceFlinger: ro.sf.lcd_density must be defined as a build property
+11-15 21:03:26.942 21298 21355 D libEGL  : Emulator has host GPU support, qemu.gles is set to 1.
+11-15 21:03:26.929 21298 21298 W RenderThread: type=1400 audit(0.0:256): avc: denied { write } for name="property_service" dev="tmpfs" ino=7388 scontext=u:r:untrusted_app:s0:c142,c256,c512,c768 tcontext=u:object_r:property_socket:s0 tclass=sock_file permissive=0 app=com.example
+11-15 21:03:26.942 21298 21355 W libc    : Unable to set property "qemu.gles" to "1": connection failed; errno=13 (Permission denied)
+11-15 21:03:26.944 21298 21355 D libEGL  : loaded /vendor/lib64/egl/libEGL_emulation.so
+11-15 21:03:26.944 21298 21355 D libEGL  : loaded /vendor/lib64/egl/libGLESv1_CM_emulation.so
+11-15 21:03:26.945 21298 21355 D libEGL  : loaded /vendor/lib64/egl/libGLESv2_emulation.so
+11-15 21:03:26.947  1768  1768 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 8298496
+11-15 21:03:26.956  1782  1811 E SurfaceFlinger: ro.sf.lcd_density must be defined as a build property
+11-15 21:03:26.971  1782  1811 E SurfaceFlinger: ro.sf.lcd_density must be defined as a build property
+11-15 21:03:26.972  1983  2012 W InputReader: Device has associated, but no associated display id.
+11-15 21:03:26.972  1983  2012 I chatty  : uid=1000(system) android.anim identical 8 lines
+11-15 21:03:26.972  1983  2012 W InputReader: Device has associated, but no associated display id.
+11-15 21:03:26.988 21298 21298 D LifecycleMonitor: Lifecycle status change: com.example.MainActivity@a1c2b7c in: CREATED
+11-15 21:03:26.988 21298 21298 V ActivityScenario: Update currentActivityStage to CREATED, currentActivity=com.example.MainActivity@a1c2b7c
+11-15 21:03:26.989 21298 21298 D LifecycleMonitor: Lifecycle status change: com.example.MainActivity@a1c2b7c in: STARTED
+11-15 21:03:26.989 21298 21298 V ActivityScenario: Update currentActivityStage to STARTED, currentActivity=com.example.MainActivity@a1c2b7c
+11-15 21:03:26.990 21298 21298 D LifecycleMonitor: Lifecycle status change: com.example.MainActivity@a1c2b7c in: RESUMED
+11-15 21:03:26.991 21298 21298 V ActivityScenario: Update currentActivityStage to RESUMED, currentActivity=com.example.MainActivity@a1c2b7c
+11-15 21:03:26.995  1782  1811 E SurfaceFlinger: ro.sf.lcd_density must be defined as a build property
+11-15 21:03:26.997  2436  2801 D EGL_emulation: eglMakeCurrent: 0x7514eaad9340: ver 3 1 (tinfo 0x7514eaa7bb60)
+11-15 21:03:27.005 21298 21353 D HostConnection: HostConnection::get() New Host Connection established 0x7514ec882b80, tid 21353
+11-15 21:03:27.009  1782  2591 E SurfaceFlinger: ro.sf.lcd_density must be defined as a build property
+11-15 21:03:27.009 21298 21353 D HostConnection: HostComposition ext ANDROID_EMU_CHECKSUM_HELPER_v1 ANDROID_EMU_native_sync_v2 ANDROID_EMU_native_sync_v3 ANDROID_EMU_native_sync_v4 ANDROID_EMU_dma_v1 ANDROID_EMU_direct_mem ANDROID_EMU_vulkan ANDROID_EMU_deferred_vulkan_commands ANDROID_EMU_vulkan_create_resources_with_requirements ANDROID_EMU_vulkan_free_memory_sync ANDROID_EMU_vulkan_shader_float16_int8 ANDROID_EMU_vulkan_async_queue_submit ANDROID_EMU_sync_buffer_data ANDROID_EMU_vulkan_async_qsri GL_OES_EGL_image_external_essl3 GL_OES_vertex_array_object GL_KHR_texture_compression_astc_ldr ANDROID_EMU_host_side_tracing ANDROID_EMU_gles_max_version_3_1 
+11-15 21:03:27.010 21298 21353 W OpenGLRenderer: Failed to choose config with EGL_SWAP_BEHAVIOR_PRESERVED, retrying without...
+11-15 21:03:27.011 21298 21353 D EGL_emulation: eglCreateContext: 0x7514ec882d60: maj 3 min 1 rcv 4
+11-15 21:03:27.022 21298 21353 D EGL_emulation: eglMakeCurrent: 0x7514ec882d60: ver 3 1 (tinfo 0x7514ec818ea0)
+11-15 21:03:27.024 21298 21353 E eglCodecCommon: glUtilsParamSize: unknow param 0x000082da
+11-15 21:03:27.024 21298 21353 E eglCodecCommon: glUtilsParamSize: unknow param 0x000082da
+11-15 21:03:27.026  1768  1768 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 8298496
+11-15 21:03:27.027  1651  1651 I hwservicemanager: getTransport: Cannot find entry android.hardware.graphics.mapper@3.0::IMapper/default in either framework or device manifest.
+11-15 21:03:27.027 21298 21353 W Gralloc3: mapper 3.x is not supported
+11-15 21:03:27.028 21298 21353 D HostConnection: createUnique: call
+11-15 21:03:27.028 21298 21353 D HostConnection: HostConnection::get() New Host Connection established 0x7514ec882ea0, tid 21353
+11-15 21:03:27.029  1768  1768 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 3690496
+11-15 21:03:27.033 21298 21353 D HostConnection: HostComposition ext ANDROID_EMU_CHECKSUM_HELPER_v1 ANDROID_EMU_native_sync_v2 ANDROID_EMU_native_sync_v3 ANDROID_EMU_native_sync_v4 ANDROID_EMU_dma_v1 ANDROID_EMU_direct_mem ANDROID_EMU_vulkan ANDROID_EMU_deferred_vulkan_commands ANDROID_EMU_vulkan_create_resources_with_requirements ANDROID_EMU_vulkan_free_memory_sync ANDROID_EMU_vulkan_shader_float16_int8 ANDROID_EMU_vulkan_async_queue_submit ANDROID_EMU_sync_buffer_data ANDROID_EMU_vulkan_async_qsri GL_OES_EGL_image_external_essl3 GL_OES_vertex_array_object GL_KHR_texture_compression_astc_ldr ANDROID_EMU_host_side_tracing ANDROID_EMU_gles_max_version_3_1 
+11-15 21:03:27.033 21298 21353 D eglCodecCommon: allocate: Ask for block of size 0x1000
+11-15 21:03:27.033 21298 21353 D eglCodecCommon: allocate: ioctl allocate returned offset 0x3ff481000 size 0x2000
+11-15 21:03:27.033  1768  1768 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 8298496
+11-15 21:03:27.034  1768  1768 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 8298496
+11-15 21:03:27.035 21298 21353 D EGL_emulation: eglMakeCurrent: 0x7514ec882d60: ver 3 1 (tinfo 0x7514ec818ea0)
+11-15 21:03:27.046  1768  1768 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 3690496
+11-15 21:03:27.050  1983  2016 I ActivityTaskManager: Displayed com.example/.MainActivity: +121ms
+11-15 21:03:27.053  1768  1768 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 2076672
+11-15 21:03:27.057  1983 17344 D HostConnection: HostConnection::get() New Host Connection established 0x7514ec947e60, tid 17344
+11-15 21:03:27.057  1983 17344 D HostConnection: HostComposition ext ANDROID_EMU_CHECKSUM_HELPER_v1 ANDROID_EMU_native_sync_v2 ANDROID_EMU_native_sync_v3 ANDROID_EMU_native_sync_v4 ANDROID_EMU_dma_v1 ANDROID_EMU_direct_mem ANDROID_EMU_vulkan ANDROID_EMU_deferred_vulkan_commands ANDROID_EMU_vulkan_create_resources_with_requirements ANDROID_EMU_vulkan_free_memory_sync ANDROID_EMU_vulkan_shader_float16_int8 ANDROID_EMU_vulkan_async_queue_submit ANDROID_EMU_sync_buffer_data ANDROID_EMU_vulkan_async_qsri GL_OES_EGL_image_external_essl3 GL_OES_vertex_array_object GL_KHR_texture_compression_astc_ldr ANDROID_EMU_host_side_tracing ANDROID_EMU_gles_max_version_3_1 
+11-15 21:03:27.057  1983 17344 W OpenGLRenderer: Failed to choose config with EGL_SWAP_BEHAVIOR_PRESERVED, retrying without...
+11-15 21:03:27.058  1983 17344 D EGL_emulation: eglCreateContext: 0x7514ec948360: maj 3 min 1 rcv 4
+11-15 21:03:27.067  1782  2039 E SurfaceFlinger: ro.sf.lcd_density must be defined as a build property
+11-15 21:03:27.067  1983 16614 I ActivityTaskManager: START u0 {act=android.intent.action.MAIN cat=[android.intent.category.LAUNCHER] flg=0x10000000 cmp=com.example.test/androidx.test.core.app.InstrumentationActivityInvoker$EmptyActivity} from uid 10142
+11-15 21:03:27.071  1983  2012 E system_server: Invalid ID 0x00000000.
+11-15 21:03:27.074 21298 21298 D LifecycleMonitor: Lifecycle status change: com.example.MainActivity@a1c2b7c in: PAUSED
+11-15 21:03:27.074 21298 21298 V ActivityScenario: Update currentActivityStage to PAUSED, currentActivity=com.example.MainActivity@a1c2b7c
+11-15 21:03:27.074  1983  2771 W InputReader: Device has associated, but no associated display id.
+11-15 21:03:27.075  1983  2771 I chatty  : uid=1000(system) Binder:1983_C identical 48 lines
+11-15 21:03:27.075  1983  2771 W InputReader: Device has associated, but no associated display id.
+11-15 21:03:27.076 19734 19734 W ActivityThread: handleWindowVisibility: no activity for token android.os.BinderProxy@d7fa95c
+11-15 21:03:27.079  1768  1768 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 3690496
+11-15 21:03:27.081  1768  1768 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 8298496
+11-15 21:03:27.092  1983 17344 D EGL_emulation: eglMakeCurrent: 0x7514ec948360: ver 3 1 (tinfo 0x75149d6fd600)
+11-15 21:03:27.093  1983 17344 E eglCodecCommon: glUtilsParamSize: unknow param 0x000082da
+11-15 21:03:27.093  1983 17344 E eglCodecCommon: glUtilsParamSize: unknow param 0x000082da
+11-15 21:03:27.093  1983 10391 D HostConnection: HostConnection::get() New Host Connection established 0x7514ec96a960, tid 10391
+11-15 21:03:27.094  1983 10391 D HostConnection: HostComposition ext ANDROID_EMU_CHECKSUM_HELPER_v1 ANDROID_EMU_native_sync_v2 ANDROID_EMU_native_sync_v3 ANDROID_EMU_native_sync_v4 ANDROID_EMU_dma_v1 ANDROID_EMU_direct_mem ANDROID_EMU_vulkan ANDROID_EMU_deferred_vulkan_commands ANDROID_EMU_vulkan_create_resources_with_requirements ANDROID_EMU_vulkan_free_memory_sync ANDROID_EMU_vulkan_shader_float16_int8 ANDROID_EMU_vulkan_async_queue_submit ANDROID_EMU_sync_buffer_data ANDROID_EMU_vulkan_async_qsri GL_OES_EGL_image_external_essl3 GL_OES_vertex_array_object GL_KHR_texture_compression_astc_ldr ANDROID_EMU_host_side_tracing ANDROID_EMU_gles_max_version_3_1 
+11-15 21:03:27.096  1983  2012 W InputReader: Device has associated, but no associated display id.
+11-15 21:03:27.097  1983  2012 I chatty  : uid=1000(system) android.anim identical 18 lines
+11-15 21:03:27.097  1983  2012 W InputReader: Device has associated, but no associated display id.
+11-15 21:03:27.105  1782  2039 E SurfaceFlinger: ro.sf.lcd_density must be defined as a build property
+11-15 21:03:27.105  1768  1768 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 8298496
+11-15 21:03:27.113 21298 21353 D EGL_emulation: eglMakeCurrent: 0x7514ec882d60: ver 3 1 (tinfo 0x7514ec818ea0)
+11-15 21:03:27.117  1782  1811 E SurfaceFlinger: ro.sf.lcd_density must be defined as a build property
+11-15 21:03:27.121 21298 21298 D LifecycleMonitor: Lifecycle status change: com.example.MainActivity@a1c2b7c in: STOPPED
+11-15 21:03:27.121 21298 21298 V ActivityScenario: Update currentActivityStage to STOPPED, currentActivity=com.example.MainActivity@a1c2b7c
+11-15 21:03:27.123 21298 21298 D LifecycleMonitor: Lifecycle status change: com.example.MainActivity@a1c2b7c in: DESTROYED
+11-15 21:03:27.123 21298 21298 V ActivityScenario: Update currentActivityStage to DESTROYED, currentActivity=null
+11-15 21:03:27.123  1782  1811 E SurfaceFlinger: ro.sf.lcd_density must be defined as a build property
+11-15 21:03:27.131  1983  1983 V SettingsProvider: Notifying for 0: content://settings/secure/accessibility_enabled
+11-15 21:03:27.133  1768  1768 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 8298496
+11-15 21:03:27.134  1768  1768 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 8298496
+11-15 21:03:27.135 19734 19778 D EGL_emulation: eglMakeCurrent: 0x75157c13be20: ver 3 1 (tinfo 0x75157c1a26c0)
+11-15 21:03:27.135  1768  1768 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 8298496
+11-15 21:03:27.137  1983 10391 W InputReader: Device has associated, but no associated display id.
+11-15 21:03:27.137  1983 10391 I chatty  : uid=1000(system) Binder:1983_16 identical 8 lines
+11-15 21:03:27.137  1983 10391 W InputReader: Device has associated, but no associated display id.
+11-15 21:03:27.141  1768  1768 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 8298496
+11-15 21:03:27.142  1651  1651 I hwservicemanager: getTransport: Cannot find entry android.hardware.graphics.mapper@3.0::IMapper/default in either framework or device manifest.
+11-15 21:03:27.142 21283 21295 W Gralloc3: mapper 3.x is not supported
+11-15 21:03:27.143  1983  2016 I ActivityTaskManager: Displayed com.example.test/androidx.test.core.app.InstrumentationActivityInvoker$EmptyActivity: +73ms
+11-15 21:03:27.146 21283 21295 D HostConnection: createUnique: call
+11-15 21:03:27.146 21283 21295 D HostConnection: HostConnection::get() New Host Connection established 0x75dc3ad081c0, tid 21295
+11-15 21:03:27.151 21283 21295 D HostConnection: HostComposition ext ANDROID_EMU_CHECKSUM_HELPER_v1 ANDROID_EMU_native_sync_v2 ANDROID_EMU_native_sync_v3 ANDROID_EMU_native_sync_v4 ANDROID_EMU_dma_v1 ANDROID_EMU_direct_mem ANDROID_EMU_vulkan ANDROID_EMU_deferred_vulkan_commands ANDROID_EMU_vulkan_create_resources_with_requirements ANDROID_EMU_vulkan_free_memory_sync ANDROID_EMU_vulkan_shader_float16_int8 ANDROID_EMU_vulkan_async_queue_submit ANDROID_EMU_sync_buffer_data ANDROID_EMU_vulkan_async_qsri GL_OES_EGL_image_external_essl3 GL_OES_vertex_array_object GL_KHR_texture_compression_astc_ldr ANDROID_EMU_host_side_tracing ANDROID_EMU_gles_max_version_3_1 
+11-15 21:03:27.151 21283 21295 D eglCodecCommon: allocate: Ask for block of size 0x1000
+11-15 21:03:27.151 21283 21295 D eglCodecCommon: allocate: ioctl allocate returned offset 0x3ffff6000 size 0x2000
+11-15 21:03:27.155  1782  2039 E SurfaceFlinger: ro.sf.lcd_density must be defined as a build property
+11-15 21:03:27.155  1782  2039 E SurfaceFlinger: ro.sf.lcd_density must be defined as a build property
+11-15 21:03:27.155 21283 21390 D libEGL  : Emulator has host GPU support, qemu.gles is set to 1.
+11-15 21:03:27.156  1983  9978 W InputReader: Device has associated, but no associated display id.
+11-15 21:03:27.156  1983  9978 I chatty  : uid=1000(system) Binder:1983_15 identical 8 lines
+11-15 21:03:27.156  1983  9978 W InputReader: Device has associated, but no associated display id.
+11-15 21:03:27.158  1782  2039 E SurfaceFlinger: ro.sf.lcd_density must be defined as a build property
+11-15 21:03:27.159 21283 21390 W libc    : Unable to set property "qemu.gles" to "1": error code: 0x18
+11-15 21:03:27.159 21283 21390 D libEGL  : loaded /vendor/lib64/egl/libEGL_emulation.so
+11-15 21:03:27.160 21283 21390 D libEGL  : loaded /vendor/lib64/egl/libGLESv1_CM_emulation.so
+11-15 21:03:27.161 21283 21390 D libEGL  : loaded /vendor/lib64/egl/libGLESv2_emulation.so
+11-15 21:03:27.166  1768  1768 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 8298496
+11-15 21:03:27.167 21283 21390 D HostConnection: HostConnection::get() New Host Connection established 0x75dba94819a0, tid 21390
+11-15 21:03:27.168  1768  1768 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 8298496
+11-15 21:03:27.169  2436  2801 D EGL_emulation: eglMakeCurrent: 0x7514eaad9340: ver 3 1 (tinfo 0x7514eaa7bb60)
+11-15 21:03:27.172 21283 21390 D HostConnection: HostComposition ext ANDROID_EMU_CHECKSUM_HELPER_v1 ANDROID_EMU_native_sync_v2 ANDROID_EMU_native_sync_v3 ANDROID_EMU_native_sync_v4 ANDROID_EMU_dma_v1 ANDROID_EMU_direct_mem ANDROID_EMU_vulkan ANDROID_EMU_deferred_vulkan_commands ANDROID_EMU_vulkan_create_resources_with_requirements ANDROID_EMU_vulkan_free_memory_sync ANDROID_EMU_vulkan_shader_float16_int8 ANDROID_EMU_vulkan_async_queue_submit ANDROID_EMU_sync_buffer_data ANDROID_EMU_vulkan_async_qsri GL_OES_EGL_image_external_essl3 GL_OES_vertex_array_object GL_KHR_texture_compression_astc_ldr ANDROID_EMU_host_side_tracing ANDROID_EMU_gles_max_version_3_1 
+11-15 21:03:27.172  1983  2012 W InputReader: Device has associated, but no associated display id.
+11-15 21:03:27.172  1983  2012 I chatty  : uid=1000(system) android.anim identical 8 lines
+11-15 21:03:27.172  1983  2012 W InputReader: Device has associated, but no associated display id.
+11-15 21:03:27.172  1768  5164 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 8298496
+11-15 21:03:27.173  1768  1768 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 8298496
+11-15 21:03:27.179 19734 19778 D EGL_emulation: eglMakeCurrent: 0x75157c13be20: ver 3 1 (tinfo 0x75157c1a26c0)
+11-15 21:03:27.188 21283 21390 W OpenGLRenderer: Failed to choose config with EGL_SWAP_BEHAVIOR_PRESERVED, retrying without...
+11-15 21:03:27.190 21283 21390 D EGL_emulation: eglCreateContext: 0x75dba9481ae0: maj 3 min 1 rcv 4
+11-15 21:03:27.196  1782  1782 E Layer   : [Surface(name=AppWindowToken{96aee39 token=Token{186f600 ActivityRecord{88b483 u0 com.example.test/androidx.test.core.app.InstrumentationActivityInvoker$EmptyActivity t331}}})/@0x41d768c - animation-leash#0] No local sync point found
+11-15 21:03:27.196  1782  1782 E Layer   : [Surface(name=AppWindowToken{ae3cc56 token=Token{3103671 ActivityRecord{97fdc18 u0 com.android.launcher3/.Launcher t178}}})/@0xe235603 - animation-leash#0] No local sync point found
+11-15 21:03:27.201  1782  2979 E SurfaceFlinger: ro.sf.lcd_density must be defined as a build property
+11-15 21:03:27.202 21283 21390 D EGL_emulation: eglMakeCurrent: 0x75dba9481ae0: ver 3 1 (tinfo 0x75dba94188e0)
+11-15 21:03:27.202 21283 21390 E eglCodecCommon: glUtilsParamSize: unknow param 0x000082da
+11-15 21:03:27.206  1983  2010 I DropBoxManagerService: add tag=system_app_strictmode isTagEnabled=true flags=0x2
+11-15 21:03:27.203 21283 21390 E eglCodecCommon: glUtilsParamSize: unknow param 0x000082da
+11-15 21:03:27.206  1782  1811 E SurfaceFlinger: ro.sf.lcd_density must be defined as a build property
+11-15 21:03:27.215  1782  1830 E SurfaceFlinger: ro.sf.lcd_density must be defined as a build property
+11-15 21:03:27.246  1983  5275 D HostConnection: HostConnection::get() New Host Connection established 0x7514ec949800, tid 5275
+11-15 21:03:27.247  1983  5275 D HostConnection: HostComposition ext ANDROID_EMU_CHECKSUM_HELPER_v1 ANDROID_EMU_native_sync_v2 ANDROID_EMU_native_sync_v3 ANDROID_EMU_native_sync_v4 ANDROID_EMU_dma_v1 ANDROID_EMU_direct_mem ANDROID_EMU_vulkan ANDROID_EMU_deferred_vulkan_commands ANDROID_EMU_vulkan_create_resources_with_requirements ANDROID_EMU_vulkan_free_memory_sync ANDROID_EMU_vulkan_shader_float16_int8 ANDROID_EMU_vulkan_async_queue_submit ANDROID_EMU_sync_buffer_data ANDROID_EMU_vulkan_async_qsri GL_OES_EGL_image_external_essl3 GL_OES_vertex_array_object GL_KHR_texture_compression_astc_ldr ANDROID_EMU_host_side_tracing ANDROID_EMU_gles_max_version_3_1 
+11-15 21:03:27.247  1983  5275 W OpenGLRenderer: Failed to choose config with EGL_SWAP_BEHAVIOR_PRESERVED, retrying without...
+11-15 21:03:27.248  1983  5275 D EGL_emulation: eglCreateContext: 0x7514ec949940: maj 3 min 1 rcv 4
+11-15 21:03:27.256  1983  5275 D EGL_emulation: eglMakeCurrent: 0x7514ec949940: ver 3 1 (tinfo 0x7514ec891ca0)
+11-15 21:03:27.256  1983  5275 E eglCodecCommon: glUtilsParamSize: unknow param 0x000082da
+11-15 21:03:27.256  1983  5275 E eglCodecCommon: glUtilsParamSize: unknow param 0x000082da
+11-15 21:03:27.260  1782  1830 E SurfaceFlinger: ro.sf.lcd_density must be defined as a build property
+11-15 21:03:27.276  1782  1830 E SurfaceFlinger: ro.sf.lcd_density must be defined as a build property
+11-15 21:03:27.294 21298 21330 I TestRunner: finished: testTextFlaky(com.example.MainActivityFlakyTest)
+11-15 21:03:27.306 21298 21330 I TestRunner: started: testTextFlaky3(com.example.MainActivityFlakyTest)
+11-15 21:03:27.317 21298 21330 W Settings: Setting always_finish_activities has moved from android.provider.Settings.System to android.provider.Settings.Global, returning read-only value.
+11-15 21:03:27.208  1983  2010 I chatty  : uid=1000(system) android.io identical 2 lines
+11-15 21:03:27.209  1983  2010 I DropBoxManagerService: add tag=system_app_strictmode isTagEnabled=true flags=0x2
+11-15 21:03:27.318  1983  2771 I ActivityTaskManager: START u0 {act=android.intent.action.MAIN cat=[android.intent.category.LAUNCHER] flg=0x10008000 cmp=com.example/.MainActivity} from uid 10142
+11-15 21:03:27.319  1782  2039 E SurfaceFlinger: ro.sf.lcd_density must be defined as a build property
+11-15 21:03:27.320 21334 21334 D MPEG4Writer: Video track stopping. Stop source
+11-15 21:03:27.320 21334 21334 D MPEG4Writer: Video track source stopping
+11-15 21:03:27.320 21334 21334 D MPEG4Writer: Video track source stopped
+11-15 21:03:27.320 21334 21345 I MPEG4Writer: Received total/0-length (17/0) buffers and encoded 17 frames. - Video
+11-15 21:03:27.320 21334 21334 D MPEG4Writer: Video track stopped. Stop source
+11-15 21:03:27.320 21334 21334 D MPEG4Writer: Stopping writer thread
+11-15 21:03:27.320 21334 21344 D MPEG4Writer: 0 chunks are written in the last batch
+11-15 21:03:27.320 21334 21334 D MPEG4Writer: Writer thread stopped
+11-15 21:03:27.320 21334 21334 I MPEG4Writer: Ajust the moov start time from 5759995263 us -> 5759995263 us
+11-15 21:03:27.321  1983  2012 E system_server: Invalid ID 0x00000000.
+11-15 21:03:27.323 21334 21334 D MPEG4Writer: Video track stopping. Stop source
+11-15 21:03:27.324  1983  2771 W InputReader: Device has associated, but no associated display id.
+11-15 21:03:27.324  1983  2771 I chatty  : uid=1000(system) Binder:1983_C identical 28 lines
+11-15 21:03:27.324  1983  2771 W InputReader: Device has associated, but no associated display id.
+11-15 21:03:27.324 21298 21298 W ActivityThread: handleWindowVisibility: no activity for token android.os.BinderProxy@5d7f372
+11-15 21:03:27.325  1983  2771 W InputReader: Device has associated, but no associated display id.
+11-15 21:03:27.325  1983  2771 I chatty  : uid=1000(system) Binder:1983_C identical 8 lines
+11-15 21:03:27.325  1983  2771 W InputReader: Device has associated, but no associated display id.
+11-15 21:03:27.326 21298 21298 D LifecycleMonitor: Lifecycle status change: com.example.MainActivity@54b93c3 in: PRE_ON_CREATE
+11-15 21:03:27.326 21298 21298 V ActivityScenario: Activity lifecycle changed event received but ignored because the reported transition was not ON_CREATE while the last known transition was PRE_ON_CREATE
+11-15 21:03:27.331  1768  1768 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 8298496
+11-15 21:03:27.334 21298 21298 D LifecycleMonitor: Lifecycle status change: com.example.MainActivity@54b93c3 in: CREATED
+11-15 21:03:27.334 21298 21298 V ActivityScenario: Update currentActivityStage to CREATED, currentActivity=com.example.MainActivity@54b93c3
+11-15 21:03:27.335 21298 21298 D LifecycleMonitor: Lifecycle status change: com.example.MainActivity@54b93c3 in: STARTED
+11-15 21:03:27.335 21298 21298 V ActivityScenario: Update currentActivityStage to STARTED, currentActivity=com.example.MainActivity@54b93c3
+11-15 21:03:27.336 21298 21298 D LifecycleMonitor: Lifecycle status change: com.example.MainActivity@54b93c3 in: RESUMED
+11-15 21:03:27.336 21298 21298 V ActivityScenario: Update currentActivityStage to RESUMED, currentActivity=com.example.MainActivity@54b93c3
+11-15 21:03:27.339  2915 21423 I MediaProvider: Begin Intent { act=android.intent.action.MEDIA_SCANNER_SCAN_FILE dat=file:///sdcard/com.example.MainActivityFlakyTest-testTextFlaky-e5d84f75-4f68-4d8b-a800-b3bc12c61d71.mp4 flg=0x1400010 cmp=com.android.providers.media/.MediaService }
+11-15 21:03:27.342 21334 21334 D ScreenRecord: success
+11-15 21:03:27.352  1983  2012 W InputReader: Device has associated, but no associated display id.
+11-15 21:03:27.352  1983  2012 I chatty  : uid=1000(system) android.anim identical 8 lines
+11-15 21:03:27.352  1983  2012 W InputReader: Device has associated, but no associated display id.
+11-15 21:03:27.354  1768  1768 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 8298496
+11-15 21:03:27.355  1768  1768 I chatty  : uid=1000(system) allocator@2.0-s identical 1 line
+11-15 21:03:27.356  1768  1768 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 8298496
+11-15 21:03:27.356 21298 21353 D EGL_emulation: eglMakeCurrent: 0x7514ec882d60: ver 3 1 (tinfo 0x7514ec818ea0)
+11-15 21:03:27.364  1983  2016 I ActivityTaskManager: Displayed com.example/.MainActivity: +46ms
+11-15 21:03:27.366  2915 21423 W IsoInterface: Invalid box at 152 of length 1751411826 reached beyond end of parent 258
+11-15 21:03:27.368  2915 21423 I MediaProvider: End Intent { act=android.intent.action.MEDIA_SCANNER_SCAN_FILE dat=file:///sdcard/com.example.MainActivityFlakyTest-testTextFlaky-e5d84f75-4f68-4d8b-a800-b3bc12c61d71.mp4 flg=0x1400010 cmp=com.android.providers.media/.MediaService }
+11-15 21:03:27.379  2436  2801 D EGL_emulation: eglMakeCurrent: 0x7514eaad9340: ver 3 1 (tinfo 0x7514eaa7bb60)
+11-15 21:03:27.430  1983  5275 D HostConnection: HostConnection::get() New Host Connection established 0x7514ec949800, tid 5275
+11-15 21:03:27.430  1983  5275 D HostConnection: HostComposition ext ANDROID_EMU_CHECKSUM_HELPER_v1 ANDROID_EMU_native_sync_v2 ANDROID_EMU_native_sync_v3 ANDROID_EMU_native_sync_v4 ANDROID_EMU_dma_v1 ANDROID_EMU_direct_mem ANDROID_EMU_vulkan ANDROID_EMU_deferred_vulkan_commands ANDROID_EMU_vulkan_create_resources_with_requirements ANDROID_EMU_vulkan_free_memory_sync ANDROID_EMU_vulkan_shader_float16_int8 ANDROID_EMU_vulkan_async_queue_submit ANDROID_EMU_sync_buffer_data ANDROID_EMU_vulkan_async_qsri GL_OES_EGL_image_external_essl3 GL_OES_vertex_array_object GL_KHR_texture_compression_astc_ldr ANDROID_EMU_host_side_tracing ANDROID_EMU_gles_max_version_3_1 
+11-15 21:03:27.430  1983  5275 W OpenGLRenderer: Failed to choose config with EGL_SWAP_BEHAVIOR_PRESERVED, retrying without...
+11-15 21:03:27.431  1983  5275 D EGL_emulation: eglCreateContext: 0x7514ec949940: maj 3 min 1 rcv 4
+11-15 21:03:27.442  1983  5275 D EGL_emulation: eglMakeCurrent: 0x7514ec949940: ver 3 1 (tinfo 0x7514ec891ca0)
+11-15 21:03:27.443  1983  5275 E eglCodecCommon: glUtilsParamSize: unknow param 0x000082da
+11-15 21:03:27.482  1983  2338 I ActivityTaskManager: START u0 {act=android.intent.action.MAIN cat=[android.intent.category.LAUNCHER] flg=0x10000000 cmp=com.example.test/androidx.test.core.app.InstrumentationActivityInvoker$EmptyActivity} from uid 10142
+11-15 21:03:27.443  1983  5275 E eglCodecCommon: glUtilsParamSize: unknow param 0x000082da
+11-15 21:03:27.485 21298 21298 D LifecycleMonitor: Lifecycle status change: com.example.MainActivity@54b93c3 in: PAUSED
+11-15 21:03:27.485 21298 21298 V ActivityScenario: Update currentActivityStage to PAUSED, currentActivity=com.example.MainActivity@54b93c3
+11-15 21:03:27.485  1983  2771 W InputReader: Device has associated, but no associated display id.
+11-15 21:03:27.486  1983  2771 I chatty  : uid=1000(system) Binder:1983_C identical 48 lines
+11-15 21:03:27.486  1983  2771 W InputReader: Device has associated, but no associated display id.
+11-15 21:03:27.486 19734 19734 W ActivityThread: handleWindowVisibility: no activity for token android.os.BinderProxy@995b763
+11-15 21:03:27.487  1983  2012 E system_server: Invalid ID 0x00000000.
+11-15 21:03:27.499  1768  1768 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 8298496
+11-15 21:03:27.500  1768  1768 I chatty  : uid=1000(system) allocator@2.0-s identical 1 line
+11-15 21:03:27.502  1768  1768 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 8298496
+11-15 21:03:27.502 19734 19778 D EGL_emulation: eglMakeCurrent: 0x75157c13be20: ver 3 1 (tinfo 0x75157c1a26c0)
+11-15 21:03:27.505  1768  1768 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 8298496
+11-15 21:03:27.513  1983  2012 W InputReader: Device has associated, but no associated display id.
+11-15 21:03:27.513  1983  2012 I chatty  : uid=1000(system) android.anim identical 18 lines
+11-15 21:03:27.513  1983  2012 W InputReader: Device has associated, but no associated display id.
+11-15 21:03:27.513  1768  1768 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 8298496
+11-15 21:03:27.516  1983  2016 I ActivityTaskManager: Displayed com.example.test/androidx.test.core.app.InstrumentationActivityInvoker$EmptyActivity: +31ms
+11-15 21:03:27.516  1983  2338 W InputReader: Device has associated, but no associated display id.
+11-15 21:03:27.516  1983  2338 I chatty  : uid=1000(system) Binder:1983_9 identical 8 lines
+11-15 21:03:27.516  1983  2338 W InputReader: Device has associated, but no associated display id.
+11-15 21:03:27.529  1768  1768 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 8298496
+11-15 21:03:27.530 21298 21353 D EGL_emulation: eglMakeCurrent: 0x7514ec882d60: ver 3 1 (tinfo 0x7514ec818ea0)
+11-15 21:03:27.535  1983  2771 W InputReader: Device has associated, but no associated display id.
+11-15 21:03:27.535  1983  2771 I chatty  : uid=1000(system) Binder:1983_C identical 8 lines
+11-15 21:03:27.535  1983  2771 W InputReader: Device has associated, but no associated display id.
+11-15 21:03:27.538 21298 21298 D LifecycleMonitor: Lifecycle status change: com.example.MainActivity@54b93c3 in: STOPPED
+11-15 21:03:27.538 21298 21298 V ActivityScenario: Update currentActivityStage to STOPPED, currentActivity=com.example.MainActivity@54b93c3
+11-15 21:03:27.539 21298 21298 D LifecycleMonitor: Lifecycle status change: com.example.MainActivity@54b93c3 in: DESTROYED
+11-15 21:03:27.539 21298 21298 V ActivityScenario: Update currentActivityStage to DESTROYED, currentActivity=null
+11-15 21:03:27.541  1768  1768 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 8298496
+11-15 21:03:27.566  1768  1768 I chatty  : uid=1000(system) allocator@2.0-s identical 1 line
+11-15 21:03:27.569  1768  1768 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 8298496
+11-15 21:03:27.569  1768  5164 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 8298496
+11-15 21:03:27.570  2436  2801 D EGL_emulation: eglMakeCurrent: 0x7514eaad9340: ver 3 1 (tinfo 0x7514eaa7bb60)
+11-15 21:03:27.572  1983  2012 W InputReader: Device has associated, but no associated display id.
+11-15 21:03:27.572  1983  2012 I chatty  : uid=1000(system) android.anim identical 8 lines
+11-15 21:03:27.572  1983  2012 W InputReader: Device has associated, but no associated display id.
+11-15 21:03:27.573  1768  5164 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 8298496
+11-15 21:03:27.581 19734 19778 D EGL_emulation: eglMakeCurrent: 0x75157c13be20: ver 3 1 (tinfo 0x75157c1a26c0)
+11-15 21:03:27.592  1983  2010 I DropBoxManagerService: add tag=system_app_strictmode isTagEnabled=true flags=0x2
+11-15 21:03:27.609 21298 21330 I TestRunner: finished: testTextFlaky3(com.example.MainActivityFlakyTest)
+11-15 21:03:27.611 21298 21330 I TestRunner: started: testTextFlaky6(com.example.MainActivityFlakyTest)
+11-15 21:03:27.624 21298 21330 W Settings: Setting always_finish_activities has moved from android.provider.Settings.System to android.provider.Settings.Global, returning read-only value.
+11-15 21:03:27.593  1983  2010 I DropBoxManagerService: add tag=system_app_strictmode isTagEnabled=true flags=0x2
+11-15 21:03:27.625  1983 16614 I ActivityTaskManager: START u0 {act=android.intent.action.MAIN cat=[android.intent.category.LAUNCHER] flg=0x10008000 cmp=com.example/.MainActivity} from uid 10142
+11-15 21:03:27.628  1983  2771 W InputReader: Device has associated, but no associated display id.
+11-15 21:03:27.628  1983  2771 I chatty  : uid=1000(system) Binder:1983_C identical 28 lines
+11-15 21:03:27.628  1983  2771 W InputReader: Device has associated, but no associated display id.
+11-15 21:03:27.628 21298 21298 W ActivityThread: handleWindowVisibility: no activity for token android.os.BinderProxy@383ae59
+11-15 21:03:27.630  1983  2771 W InputReader: Device has associated, but no associated display id.
+11-15 21:03:27.630  1983  2771 I chatty  : uid=1000(system) Binder:1983_C identical 8 lines
+11-15 21:03:27.630  1983  2771 W InputReader: Device has associated, but no associated display id.
+11-15 21:03:27.631  1983  2012 E system_server: Invalid ID 0x00000000.
+11-15 21:03:27.633 21298 21298 D LifecycleMonitor: Lifecycle status change: com.example.MainActivity@68a1e in: PRE_ON_CREATE
+11-15 21:03:27.633 21298 21298 V ActivityScenario: Activity lifecycle changed event received but ignored because the reported transition was not ON_CREATE while the last known transition was PRE_ON_CREATE
+11-15 21:03:27.634  1983  2695 E TaskPersister: File error accessing recents directory (directory doesn't exist?).
+11-15 21:03:27.640 21298 21298 D LifecycleMonitor: Lifecycle status change: com.example.MainActivity@68a1e in: CREATED
+11-15 21:03:27.640 21298 21298 V ActivityScenario: Update currentActivityStage to CREATED, currentActivity=com.example.MainActivity@68a1e
+11-15 21:03:27.641 21298 21298 D LifecycleMonitor: Lifecycle status change: com.example.MainActivity@68a1e in: STARTED
+11-15 21:03:27.641 21298 21298 V ActivityScenario: Update currentActivityStage to STARTED, currentActivity=com.example.MainActivity@68a1e
+11-15 21:03:27.641 21298 21298 D LifecycleMonitor: Lifecycle status change: com.example.MainActivity@68a1e in: RESUMED
+11-15 21:03:27.641 21298 21298 V ActivityScenario: Update currentActivityStage to RESUMED, currentActivity=com.example.MainActivity@68a1e
+11-15 21:03:27.647  1768  5164 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 8298496
+11-15 21:03:27.654  1768  5164 I chatty  : uid=1000(system) HwBinder:1768_3 identical 2 lines
+11-15 21:03:27.655  1768  5164 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 8298496
+11-15 21:03:27.656 21298 21353 D EGL_emulation: eglMakeCurrent: 0x7514ec882d60: ver 3 1 (tinfo 0x7514ec818ea0)
+11-15 21:03:27.665  1983  2012 W InputReader: Device has associated, but no associated display id.
+11-15 21:03:27.665  1983  2012 I chatty  : uid=1000(system) android.anim identical 8 lines
+11-15 21:03:27.665  1983  2012 W InputReader: Device has associated, but no associated display id.
+11-15 21:03:27.672  1983  2016 I ActivityTaskManager: Displayed com.example/.MainActivity: +40ms
+11-15 21:03:27.681  1768  5164 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 8298496
+11-15 21:03:27.702  2436  2801 D EGL_emulation: eglMakeCurrent: 0x7514eaad9340: ver 3 1 (tinfo 0x7514eaa7bb60)
+11-15 21:03:27.795  1983  2338 I ActivityTaskManager: START u0 {act=android.intent.action.MAIN cat=[android.intent.category.LAUNCHER] flg=0x10000000 cmp=com.example.test/androidx.test.core.app.InstrumentationActivityInvoker$EmptyActivity} from uid 10142
+11-15 21:03:27.799 21298 21298 D LifecycleMonitor: Lifecycle status change: com.example.MainActivity@68a1e in: PAUSED
+11-15 21:03:27.799 21298 21298 V ActivityScenario: Update currentActivityStage to PAUSED, currentActivity=com.example.MainActivity@68a1e
+11-15 21:03:27.800  1983 12422 W InputReader: Device has associated, but no associated display id.
+11-15 21:03:27.801  1983 12422 I chatty  : uid=1000(system) Binder:1983_1D identical 37 lines
+11-15 21:03:27.801  1983 12422 W InputReader: Device has associated, but no associated display id.
+11-15 21:03:27.801 19734 19734 W ActivityThread: handleWindowVisibility: no activity for token android.os.BinderProxy@12bd342
+11-15 21:03:27.801  1983 12422 W InputReader: Device has associated, but no associated display id.
+11-15 21:03:27.802  1983 12422 I chatty  : uid=1000(system) Binder:1983_1D identical 9 lines
+11-15 21:03:27.802  1983 12422 W InputReader: Device has associated, but no associated display id.
+11-15 21:03:27.816  1768  5164 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 8298496
+11-15 21:03:27.818  1768  5164 I chatty  : uid=1000(system) HwBinder:1768_3 identical 1 line
+11-15 21:03:27.820  1768  5164 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 8298496
+11-15 21:03:27.821 19734 19778 D EGL_emulation: eglMakeCurrent: 0x75157c13be20: ver 3 1 (tinfo 0x75157c1a26c0)
+11-15 21:03:27.822  1768  5164 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 8298496
+11-15 21:03:27.823  1983 16614 W InputReader: Device has associated, but no associated display id.
+11-15 21:03:27.831  1983 16614 I chatty  : uid=1000(system) Binder:1983_20 identical 18 lines
+11-15 21:03:27.831  1983 16614 W InputReader: Device has associated, but no associated display id.
+11-15 21:03:27.846  1768  5164 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 8298496
+11-15 21:03:27.866  1768  5164 I chatty  : uid=1000(system) HwBinder:1768_3 identical 2 lines
+11-15 21:03:27.867  1768  5164 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 8298496
+11-15 21:03:27.867  2436  2801 D EGL_emulation: eglMakeCurrent: 0x7514eaad9340: ver 3 1 (tinfo 0x7514eaa7bb60)
+11-15 21:03:27.870  1983  2012 W InputReader: Device has associated, but no associated display id.
+11-15 21:03:27.870  1983  2012 I chatty  : uid=1000(system) android.anim identical 8 lines
+11-15 21:03:27.870  1983  2012 W InputReader: Device has associated, but no associated display id.
+11-15 21:03:27.870  1768  5164 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 8298496
+11-15 21:03:27.871  1983  2012 I WindowManager: Queue is too deep! Purged item with taskid=332
+11-15 21:03:27.880 21298 21353 D EGL_emulation: eglMakeCurrent: 0x7514ec882d60: ver 3 1 (tinfo 0x7514ec818ea0)
+11-15 21:03:27.884 19734 19778 D EGL_emulation: eglMakeCurrent: 0x75157c13be20: ver 3 1 (tinfo 0x75157c1a26c0)
+11-15 21:03:27.884 21298 21298 D LifecycleMonitor: Lifecycle status change: com.example.MainActivity@68a1e in: STOPPED
+11-15 21:03:27.884 21298 21298 V ActivityScenario: Update currentActivityStage to STOPPED, currentActivity=com.example.MainActivity@68a1e
+11-15 21:03:27.885 21298 21298 D LifecycleMonitor: Lifecycle status change: com.example.MainActivity@68a1e in: DESTROYED
+11-15 21:03:27.885 21298 21298 V ActivityScenario: Update currentActivityStage to DESTROYED, currentActivity=null
+11-15 21:03:27.886  1983  5275 D HostConnection: HostConnection::get() New Host Connection established 0x7514ec949800, tid 5275
+11-15 21:03:27.887  1983  5275 D HostConnection: HostComposition ext ANDROID_EMU_CHECKSUM_HELPER_v1 ANDROID_EMU_native_sync_v2 ANDROID_EMU_native_sync_v3 ANDROID_EMU_native_sync_v4 ANDROID_EMU_dma_v1 ANDROID_EMU_direct_mem ANDROID_EMU_vulkan ANDROID_EMU_deferred_vulkan_commands ANDROID_EMU_vulkan_create_resources_with_requirements ANDROID_EMU_vulkan_free_memory_sync ANDROID_EMU_vulkan_shader_float16_int8 ANDROID_EMU_vulkan_async_queue_submit ANDROID_EMU_sync_buffer_data ANDROID_EMU_vulkan_async_qsri GL_OES_EGL_image_external_essl3 GL_OES_vertex_array_object GL_KHR_texture_compression_astc_ldr ANDROID_EMU_host_side_tracing ANDROID_EMU_gles_max_version_3_1 
+11-15 21:03:27.888  1983  5275 W OpenGLRenderer: Failed to choose config with EGL_SWAP_BEHAVIOR_PRESERVED, retrying without...
+11-15 21:03:27.888  1983  5275 D EGL_emulation: eglCreateContext: 0x7514ec949940: maj 3 min 1 rcv 4
+11-15 21:03:27.894  1983  2010 I DropBoxManagerService: add tag=system_app_strictmode isTagEnabled=true flags=0x2
+11-15 21:03:27.896  1768  5164 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 8298496
+11-15 21:03:27.902  1983  5275 D EGL_emulation: eglMakeCurrent: 0x7514ec949940: ver 3 1 (tinfo 0x7514ec891ca0)
+11-15 21:03:27.902  1983  5275 E eglCodecCommon: glUtilsParamSize: unknow param 0x000082da
+11-15 21:03:27.902  1983  5275 E eglCodecCommon: glUtilsParamSize: unknow param 0x000082da
+11-15 21:03:28.124 21298 21330 I TestRunner: finished: testTextFlaky6(com.example.MainActivityFlakyTest)
+11-15 21:03:28.127 21298 21330 I TestRunner: started: testFailure(com.example.MainActivityAllureTest)
+11-15 21:03:28.142 21298 21330 W Settings: Setting always_finish_activities has moved from android.provider.Settings.System to android.provider.Settings.Global, returning read-only value.
+11-15 21:03:27.896  1983  2010 I DropBoxManagerService: add tag=system_app_strictmode isTagEnabled=true flags=0x2
+11-15 21:03:28.143  1983  4847 I ActivityTaskManager: START u0 {act=android.intent.action.MAIN cat=[android.intent.category.LAUNCHER] flg=0x10008000 cmp=com.example/.MainActivity} from uid 10142
+11-15 21:03:28.146  1983  2012 E system_server: Invalid ID 0x00000000.
+11-15 21:03:28.147  1983  4847 W InputReader: Device has associated, but no associated display id.
+11-15 21:03:28.148  1983  4847 I chatty  : uid=1000(system) Binder:1983_12 identical 38 lines
+11-15 21:03:28.148  1983  4847 W InputReader: Device has associated, but no associated display id.
+11-15 21:03:28.149 21298 21298 W ActivityThread: handleWindowVisibility: no activity for token android.os.BinderProxy@3346018
+11-15 21:03:28.150 21298 21298 D LifecycleMonitor: Lifecycle status change: com.example.MainActivity@d246a71 in: PRE_ON_CREATE
+11-15 21:03:28.150 21298 21298 V ActivityScenario: Activity lifecycle changed event received but ignored because the reported transition was not ON_CREATE while the last known transition was PRE_ON_CREATE
+11-15 21:03:28.157 21298 21298 D LifecycleMonitor: Lifecycle status change: com.example.MainActivity@d246a71 in: CREATED
+11-15 21:03:28.157 21298 21298 V ActivityScenario: Update currentActivityStage to CREATED, currentActivity=com.example.MainActivity@d246a71
+11-15 21:03:28.158 21298 21298 D LifecycleMonitor: Lifecycle status change: com.example.MainActivity@d246a71 in: STARTED
+11-15 21:03:28.158 21298 21298 V ActivityScenario: Update currentActivityStage to STARTED, currentActivity=com.example.MainActivity@d246a71
+11-15 21:03:28.158 21298 21298 D LifecycleMonitor: Lifecycle status change: com.example.MainActivity@d246a71 in: RESUMED
+11-15 21:03:28.158 21298 21298 V ActivityScenario: Update currentActivityStage to RESUMED, currentActivity=com.example.MainActivity@d246a71
+11-15 21:03:28.165  1768  5164 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 8298496
+11-15 21:03:28.177  1983  4847 W InputReader: Device has associated, but no associated display id.
+11-15 21:03:28.177  1983  4847 I chatty  : uid=1000(system) Binder:1983_12 identical 8 lines
+11-15 21:03:28.177  1983  4847 W InputReader: Device has associated, but no associated display id.
+11-15 21:03:28.179  1768  5164 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 8298496
+11-15 21:03:28.182  1768  5164 I chatty  : uid=1000(system) HwBinder:1768_3 identical 1 line
+11-15 21:03:28.183  1768  5164 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 8298496
+11-15 21:03:28.185 21298 21353 D EGL_emulation: eglMakeCurrent: 0x7514ec882d60: ver 3 1 (tinfo 0x7514ec818ea0)
+11-15 21:03:28.196  2436  2801 D EGL_emulation: eglMakeCurrent: 0x7514eaad9340: ver 3 1 (tinfo 0x7514eaa7bb60)
+11-15 21:03:28.198  1983  2016 I ActivityTaskManager: Displayed com.example/.MainActivity: +55ms
+11-15 21:03:28.218 21298 21298 W com.example: Accessing hidden method Landroid/os/MessageQueue;->next()Landroid/os/Message; (greylist, reflection, allowed)
+11-15 21:03:28.218 21298 21298 W com.example: Accessing hidden field Landroid/os/MessageQueue;->mMessages:Landroid/os/Message; (greylist, reflection, allowed)
+11-15 21:03:28.218 21298 21298 W com.example: Accessing hidden method Landroid/os/Message;->recycleUnchecked()V (greylist, reflection, allowed)
+11-15 21:03:28.219 21298 21330 W com.example: Accessing hidden method Lsun/misc/Unsafe;->getUnsafe()Lsun/misc/Unsafe; (greylist,core-platform-api, linking, allowed)
+11-15 21:03:28.219 21298 21330 W com.example: Accessing hidden method Lsun/misc/Unsafe;->objectFieldOffset(Ljava/lang/reflect/Field;)J (greylist,core-platform-api, linking, allowed)
+11-15 21:03:28.219 21298 21330 W com.example: Accessing hidden method Lsun/misc/Unsafe;->putObject(Ljava/lang/Object;JLjava/lang/Object;)V (greylist, linking, allowed)
+11-15 21:03:28.220 21298 21298 W com.example: Accessing hidden method Landroid/view/WindowManagerGlobal;->getInstance()Landroid/view/WindowManagerGlobal; (greylist, reflection, allowed)
+11-15 21:03:28.220 21298 21298 W com.example: Accessing hidden field Landroid/view/WindowManagerGlobal;->mViews:Ljava/util/ArrayList; (greylist, reflection, allowed)
+11-15 21:03:28.220 21298 21298 W com.example: Accessing hidden field Landroid/view/WindowManagerGlobal;->mParams:Ljava/util/ArrayList; (greylist, reflection, allowed)
+11-15 21:03:28.221 21298 21455 W com.example: Accessing hidden method Lsun/misc/Unsafe;->getObject(Ljava/lang/Object;J)Ljava/lang/Object; (greylist, linking, allowed)
+11-15 21:03:28.221 21298 21455 W com.example: Accessing hidden method Lsun/misc/Unsafe;->compareAndSwapObject(Ljava/lang/Object;JLjava/lang/Object;Ljava/lang/Object;)Z (greylist, linking, allowed)
+11-15 21:03:28.223 21298 21298 I ViewInteraction: Checking 'MatchesViewAssertion{viewMatcher=an instance of android.widget.TextView and view.getText() with or without transformation to match: is "Cafebabe"}' assertion on view (view.getId() is <2131230861/com.example:id/edittext>)
+11-15 21:03:28.228 21298 21298 D takeScreenshot: Found 1 global views to redraw
+11-15 21:03:28.247  1768  5164 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 8298496
+11-15 21:03:28.488  1983  5275 D HostConnection: HostConnection::get() New Host Connection established 0x7514ec949800, tid 5275
+11-15 21:03:28.488  1983  5275 D HostConnection: HostComposition ext ANDROID_EMU_CHECKSUM_HELPER_v1 ANDROID_EMU_native_sync_v2 ANDROID_EMU_native_sync_v3 ANDROID_EMU_native_sync_v4 ANDROID_EMU_dma_v1 ANDROID_EMU_direct_mem ANDROID_EMU_vulkan ANDROID_EMU_deferred_vulkan_commands ANDROID_EMU_vulkan_create_resources_with_requirements ANDROID_EMU_vulkan_free_memory_sync ANDROID_EMU_vulkan_shader_float16_int8 ANDROID_EMU_vulkan_async_queue_submit ANDROID_EMU_sync_buffer_data ANDROID_EMU_vulkan_async_qsri GL_OES_EGL_image_external_essl3 GL_OES_vertex_array_object GL_KHR_texture_compression_astc_ldr ANDROID_EMU_host_side_tracing ANDROID_EMU_gles_max_version_3_1 
+11-15 21:03:28.488  1983  5275 W OpenGLRenderer: Failed to choose config with EGL_SWAP_BEHAVIOR_PRESERVED, retrying without...
+11-15 21:03:28.488  1983  5275 D EGL_emulation: eglCreateContext: 0x7514ec949940: maj 3 min 1 rcv 4
+11-15 21:03:28.502  1983  5275 D EGL_emulation: eglMakeCurrent: 0x7514ec949940: ver 3 1 (tinfo 0x7514ec891ca0)
+11-15 21:03:28.503  1983  5275 E eglCodecCommon: glUtilsParamSize: unknow param 0x000082da
+11-15 21:03:28.503  1983  5275 E eglCodecCommon: glUtilsParamSize: unknow param 0x000082da
+11-15 21:03:28.793 21298 21330 I AccessibilityNodeInfoDumper: Skipping invisible child: android.view.accessibility.AccessibilityNodeInfo@11676; boundsInParent: Rect(0, 0 - 0, 147); boundsInScreen: Rect(1080, 63 - 1080, 210); packageName: com.example; className: android.widget.LinearLayout; text: null; error: null; maxTextLength: -1; contentDescription: null; tooltipText: null; viewIdResName: null; checkable: false; checked: false; focusable: false; focused: false; selected: false; clickable: false; longClickable: false; contextClickable: false; enabled: true; password: false; scrollable: false; importantForAccessibility: false; visible: false; actions: [AccessibilityAction: ACTION_SELECT - null, AccessibilityAction: ACTION_CLEAR_SELECTION - null, AccessibilityAction: ACTION_ACCESSIBILITY_FOCUS - null, AccessibilityAction: ACTION_SHOW_ON_SCREEN - null]
+11-15 21:03:28.793 21298 21330 I AccessibilityNodeInfoDumper: Skipping invisible child: android.view.accessibility.AccessibilityNodeInfo@112b5; boundsInParent: Rect(0, 0 - 1080, 63); boundsInScreen: Rect(0, 0 - 1080, 63); packageName: com.example; className: android.view.View; text: null; error: null; maxTextLength: -1; contentDescription: null; tooltipText: null; viewIdResName: android:id/statusBarBackground; checkable: false; checked: false; focusable: false; focused: false; selected: false; clickable: false; longClickable: false; contextClickable: false; enabled: true; password: false; scrollable: false; importantForAccessibility: false; visible: false; actions: [AccessibilityAction: ACTION_SELECT - null, AccessibilityAction: ACTION_CLEAR_SELECTION - null, AccessibilityAction: ACTION_ACCESSIBILITY_FOCUS - null, AccessibilityAction: ACTION_SHOW_ON_SCREEN - null]
+11-15 21:03:28.794 21298 21330 I AccessibilityNodeInfoDumper: Skipping invisible child: android.view.accessibility.AccessibilityNodeInfo@10ef4; boundsInParent: Rect(0, 0 - 1080, 126); boundsInScreen: Rect(0, 1794 - 1080, 1920); packageName: com.example; className: android.view.View; text: null; error: null; maxTextLength: -1; contentDescription: null; tooltipText: null; viewIdResName: android:id/navigationBarBackground; checkable: false; checked: false; focusable: false; focused: false; selected: false; clickable: false; longClickable: false; contextClickable: false; enabled: true; password: false; scrollable: false; importantForAccessibility: false; visible: false; actions: [AccessibilityAction: ACTION_SELECT - null, AccessibilityAction: ACTION_CLEAR_SELECTION - null, AccessibilityAction: ACTION_ACCESSIBILITY_FOCUS - null, AccessibilityAction: ACTION_SHOW_ON_SCREEN - null]
+11-15 21:03:28.798 21298 21330 I AccessibilityNodeInfoDumper: Skipping invisible child: android.view.accessibility.AccessibilityNodeInfo@20a6c; boundsInParent: Rect(0, 0 - 0, 63); boundsInScreen: Rect(540, 0 - 540, 63); packageName: com.android.systemui; className: android.widget.FrameLayout; text: null; error: null; maxTextLength: -1; contentDescription: null; tooltipText: null; viewIdResName: com.android.systemui:id/centered_icon_area; checkable: false; checked: false; focusable: false; focused: false; selected: false; clickable: false; longClickable: false; contextClickable: false; enabled: true; password: false; scrollable: false; importantForAccessibility: false; visible: false; actions: [AccessibilityAction: ACTION_SELECT - null, AccessibilityAction: ACTION_CLEAR_SELECTION - null, AccessibilityAction: ACTION_ACCESSIBILITY_FOCUS - null, AccessibilityAction: ACTION_SHOW_ON_SCREEN - null]
+11-15 21:03:28.799  1768  5164 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 8298496
+11-15 21:03:28.865  1983  2338 I ActivityTaskManager: START u0 {act=android.intent.action.MAIN cat=[android.intent.category.LAUNCHER] flg=0x10000000 cmp=com.example.test/androidx.test.core.app.InstrumentationActivityInvoker$EmptyActivity} from uid 10142
+11-15 21:03:28.868  1983  2012 E system_server: Invalid ID 0x00000000.
+11-15 21:03:28.868 21298 21298 D LifecycleMonitor: Lifecycle status change: com.example.MainActivity@d246a71 in: PAUSED
+11-15 21:03:28.868 21298 21298 V ActivityScenario: Update currentActivityStage to PAUSED, currentActivity=com.example.MainActivity@d246a71
+11-15 21:03:28.869  1983 16614 W InputReader: Device has associated, but no associated display id.
+11-15 21:03:28.870  1983 16614 I chatty  : uid=1000(system) Binder:1983_20 identical 48 lines
+11-15 21:03:28.870  1983 16614 W InputReader: Device has associated, but no associated display id.
+11-15 21:03:28.870 19734 19734 W ActivityThread: handleWindowVisibility: no activity for token android.os.BinderProxy@6affbfd
+11-15 21:03:28.880  1768  5164 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 8298496
+11-15 21:03:28.884  1768  5164 I chatty  : uid=1000(system) HwBinder:1768_3 identical 2 lines
+11-15 21:03:28.884  1768  5164 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 8298496
+11-15 21:03:28.890 19734 19778 D EGL_emulation: eglMakeCurrent: 0x75157c13be20: ver 3 1 (tinfo 0x75157c1a26c0)
+11-15 21:03:28.896  1983  2012 W InputReader: Device has associated, but no associated display id.
+11-15 21:03:28.896  1983  2012 I chatty  : uid=1000(system) android.anim identical 18 lines
+11-15 21:03:28.896  1983  2012 W InputReader: Device has associated, but no associated display id.
+11-15 21:03:28.897  1768  5164 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 8298496
+11-15 21:03:28.899  1983  2016 I ActivityTaskManager: Displayed com.example.test/androidx.test.core.app.InstrumentationActivityInvoker$EmptyActivity: +31ms
+11-15 21:03:28.899  1983  2780 W InputReader: Device has associated, but no associated display id.
+11-15 21:03:28.899  1983  2780 I chatty  : uid=1000(system) Binder:1983_F identical 8 lines
+11-15 21:03:28.899  1983  2780 W InputReader: Device has associated, but no associated display id.
+11-15 21:03:28.912  1768  5164 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 8298496
+11-15 21:03:28.915 21298 21353 D EGL_emulation: eglMakeCurrent: 0x7514ec882d60: ver 3 1 (tinfo 0x7514ec818ea0)
+11-15 21:03:28.917  1983  2338 W InputReader: Device has associated, but no associated display id.
+11-15 21:03:28.917  1983  2338 I chatty  : uid=1000(system) Binder:1983_9 identical 8 lines
+11-15 21:03:28.917  1983  2338 W InputReader: Device has associated, but no associated display id.
+11-15 21:03:28.922 21298 21298 D LifecycleMonitor: Lifecycle status change: com.example.MainActivity@d246a71 in: STOPPED
+11-15 21:03:28.922 21298 21298 V ActivityScenario: Update currentActivityStage to STOPPED, currentActivity=com.example.MainActivity@d246a71
+11-15 21:03:28.923 21298 21298 D LifecycleMonitor: Lifecycle status change: com.example.MainActivity@d246a71 in: DESTROYED
+11-15 21:03:28.923 21298 21298 V ActivityScenario: Update currentActivityStage to DESTROYED, currentActivity=null

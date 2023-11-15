@@ -1,0 +1,78 @@
+{
+    "name": "testTextFlaky8",
+    "start": 1700046160771,
+    "stop": 1700046161592,
+    "stage": "finished",
+    "description": null,
+    "descriptionHtml": null,
+    "status": "passed",
+    "statusDetails": null,
+    "steps": [
+    ],
+    "attachments": [
+        {
+            "source": "305a7c7e-6bde-4541-beca-f7a4ec1b1955-attachment.png",
+            "name": "ss_end",
+            "type": "image/png"
+        }
+    ],
+    "parameters": [
+    ],
+    "uuid": "871fe67c-3168-488f-9db4-e2ee55b93933",
+    "historyId": "8239c85681770a79bcbcfafd5997040e",
+    "fullName": "com.example.MainActivityFlakyTest.testTextFlaky8",
+    "labels": [
+        {
+            "name": "package",
+            "value": "com.example"
+        },
+        {
+            "name": "testClass",
+            "value": "com.example.MainActivityFlakyTest"
+        },
+        {
+            "name": "testMethod",
+            "value": "testTextFlaky8"
+        },
+        {
+            "name": "suite",
+            "value": "com.example.MainActivityFlakyTest"
+        },
+        {
+            "name": "host",
+            "value": "localhost"
+        },
+        {
+            "name": "thread",
+            "value": "Instr: androidx.test.runner.AndroidJUnitRunner(560)"
+        },
+        {
+            "name": "framework",
+            "value": "junit4"
+        },
+        {
+            "name": "language",
+            "value": "kotlin"
+        },
+        {
+            "name": "feature",
+            "value": "Flakiness"
+        },
+        {
+            "name": "epic",
+            "value": "Marathon"
+        },
+        {
+            "name": "owner",
+            "value": "user2"
+        },
+        {
+            "name": "severity",
+            "value": "blocker"
+        },
+        {
+            "name": "story",
+            "value": "Flaky"
+        }
+    ]
+}

@@ -1,0 +1,547 @@
+--------- beginning of main
+11-15 21:02:49.792  2233  2449 I GnssLocationProvider: WakeLock acquired by sendMessage(REPORT_SV_STATUS, 0, com.android.server.location.GnssLocationProvider$SvStatusInfo@5bca786)
+11-15 21:02:49.792  2233  2304 I GnssLocationProvider: WakeLock released by handleMessage(REPORT_SV_STATUS, 0, com.android.server.location.GnssLocationProvider$SvStatusInfo@5bca786)
+11-15 21:02:50.361 20013 20013 D AndroidRuntime: >>>>>> START com.android.internal.os.RuntimeInit uid 2000 <<<<<<
+11-15 21:02:50.383 20013 20013 W app_process: Unexpected CPU variant for X86 using defaults: x86_64
+11-15 21:02:50.384 20013 20013 I app_process: The ClassLoaderContext is a special shared library.
+11-15 21:02:50.393 20013 20013 D AndroidRuntime: Calling main entry com.android.commands.am.Am
+--------- beginning of system
+11-15 21:02:50.395  2233  2233 V SettingsProvider: Notifying for 0: content://settings/global/window_animation_scale
+11-15 21:02:50.395  2233  2233 V SettingsProvider: Notifying for 0: content://settings/global/transition_animation_scale
+11-15 21:02:50.395  2233  2233 V SettingsProvider: Notifying for 0: content://settings/global/animator_duration_scale
+11-15 21:02:50.395  2233  2259 I ActivityManager: Force stopping com.example appid=10108 user=0: start instr
+11-15 21:02:50.400 20025 20025 I com.example: Late-enabling -Xcheck:jni
+11-15 21:02:50.406 20025 20025 W com.example: Unexpected CPU variant for X86 using defaults: x86_64
+11-15 21:02:50.406  2233  2309 I ActivityManager: Start proc 20025:com.example/u0a108 for added application com.example
+11-15 21:02:50.416 20025 20025 I com.example: The ClassLoaderContext is a special shared library.
+11-15 21:02:50.712 20025 20025 I chatty  : uid=10108(com.example) identical 2 lines
+11-15 21:02:50.712 20025 20025 I com.example: The ClassLoaderContext is a special shared library.
+11-15 21:02:50.792  2233  2449 I GnssLocationProvider: WakeLock acquired by sendMessage(REPORT_SV_STATUS, 0, com.android.server.location.GnssLocationProvider$SvStatusInfo@4025847)
+11-15 21:02:50.792  2233  2304 I GnssLocationProvider: WakeLock released by handleMessage(REPORT_SV_STATUS, 0, com.android.server.location.GnssLocationProvider$SvStatusInfo@4025847)
+11-15 21:02:50.979 20025 20025 W com.example: Accessing hidden method Landroid/app/Instrumentation;->execStartActivity(Landroid/content/Context;Landroid/os/IBinder;Landroid/os/IBinder;Landroid/app/Activity;Landroid/content/Intent;ILandroid/os/Bundle;)Landroid/app/Instrumentation$ActivityResult; (light greylist, linking)
+11-15 21:02:50.979 20025 20025 W com.example: Accessing hidden method Landroid/app/Instrumentation;->execStartActivity(Landroid/content/Context;Landroid/os/IBinder;Landroid/os/IBinder;Ljava/lang/String;Landroid/content/Intent;ILandroid/os/Bundle;)Landroid/app/Instrumentation$ActivityResult; (light greylist, linking)
+11-15 21:02:50.982 20025 20025 I MonitoringInstr: newApplication called!
+11-15 21:02:50.984 20025 20025 W com.example: Accessing hidden field Landroid/os/Trace;->TRACE_TAG_APP:J (light greylist, reflection)
+11-15 21:02:50.984 20025 20025 W com.example: Accessing hidden method Landroid/os/Trace;->isTagEnabled(J)Z (light greylist, reflection)
+11-15 21:02:50.990 20025 20025 I MonitoringInstr: Instrumentation started!
+11-15 21:02:50.994 20025 20025 I AndroidJUnitRunner: onCreate Bundle[{coverageFile=/data/data/com.example/coverage/coverage-3cdb3624-1f94-48ad-aa0e-04b659821b37.ec, com.malinskiy.adam.android.ADB_SERIAL=emulator-5558, com.malinskiy.adam.android.GRPC_HOST=10.0.2.2, com.malinskiy.adam.android.GRPC_PORT=8558, coverage=true, class=com.example.MainActivityAllureTest#testFailure,com.example.MainActivityFlakyTest#testTextFlaky,com.example.FilePushTest#testExternalFolderPresent, com.malinskiy.adam.android.ADB_HOST=10.0.2.2, com.malinskiy.adam.android.ADB_PORT=5037, com.malinskiy.adam.android.CONSOLE_HOST=10.0.2.2, com.malinskiy.adam.android.CONSOLE_PORT=5558}]
+11-15 21:02:50.995 20025 20025 V TestEventClient: No service name argument was given (testDiscoveryService, testRunEventService or orchestratorService)
+11-15 21:02:50.996 20025 20049 D AndroidJUnitRunner: onStart is called.
+11-15 21:02:51.002 20025 20049 D TestRequestBuilder: Skipping class path scanning and directly running [com.example.FilePushTest, com.example.MainActivityFlakyTest, com.example.MainActivityAllureTest]
+11-15 21:02:51.015 20025 20049 D AndroidJUnitRunner: Use the raw file system for managing file I/O.
+11-15 21:02:51.018 20025 20049 D TestExecutor: Adding listener androidx.test.internal.runner.listener.LogRunListener
+11-15 21:02:51.018 20025 20049 D TestExecutor: Adding listener androidx.test.internal.runner.listener.InstrumentationResultPrinter
+11-15 21:02:51.018 20025 20049 D TestExecutor: Adding listener androidx.test.internal.runner.listener.ActivityFinisherRunListener
+11-15 21:02:51.018 20025 20049 D TestExecutor: Adding listener androidx.test.internal.runner.listener.CoverageListener
+11-15 21:02:51.018 20025 20049 D TestExecutor: Adding listener androidx.test.internal.runner.listener.TraceRunListener
+11-15 21:02:51.021 20025 20049 I TestRunner: run started: 3 tests
+11-15 21:02:51.022 20025 20049 I TestRunner: started: testExternalFolderPresent(com.example.FilePushTest)
+11-15 21:02:51.029 20025 20049 W Settings: Setting always_finish_activities has moved from android.provider.Settings.System to android.provider.Settings.Global, returning read-only value.
+11-15 21:02:51.030  2233 15050 I ActivityManager: START u0 {act=android.intent.action.MAIN cat=[android.intent.category.LAUNCHER] flg=0x10008000 cmp=com.example/.MainActivity} from uid 10108
+11-15 21:02:51.034 20025 20025 W ActivityThread: handleWindowVisibility: no activity for token android.os.BinderProxy@8c297ff
+11-15 21:02:51.041 20025 20025 D LifecycleMonitor: Lifecycle status change: com.example.MainActivity@7bbe32a in: PRE_ON_CREATE
+11-15 21:02:51.041 20025 20025 V ActivityScenario: Activity lifecycle changed event received but ignored because the reported transition was not ON_CREATE while the last known transition was PRE_ON_CREATE
+11-15 21:02:51.047 20025 20025 D OpenGLRenderer: Skia GL Pipeline
+11-15 21:02:51.049  1860  3515 E SurfaceFlinger: ro.sf.lcd_density must be defined as a build property
+11-15 21:02:51.050 20053 20058 I OMXClient: IOmx service obtained
+11-15 21:02:51.050  1880  2853 I OMXMaster: makeComponentInstance(OMX.google.h264.encoder) in omx@1.0-service process
+11-15 21:02:51.052 20053 20058 W OMXUtils: do not know color format 0x7f000789 = 2130708361
+11-15 21:02:51.053 20053 20058 I ACodec  : setupAVCEncoderParameters with [profile: Baseline] [level: Level41]
+11-15 21:02:51.053 20053 20058 I ACodec  : [OMX.google.h264.encoder] cannot encode color aspects. Ignoring.
+11-15 21:02:51.053 20053 20058 I ACodec  : [OMX.google.h264.encoder] cannot encode HDR static metadata. Ignoring.
+11-15 21:02:51.053 20053 20058 I ACodec  : setupVideoEncoder succeeded
+11-15 21:02:51.053 20053 20058 W OMXUtils: do not know color format 0x7f000789 = 2130708361
+11-15 21:02:51.053  1880  2853 E OMXNodeInstance: getConfig(0xece270e0:google.h264.encoder, ConfigLatency(0x6f800005)) ERROR: Undefined(0x80001001)
+11-15 21:02:51.053  1880  2853 E OMXNodeInstance: getConfig(0xece270e0:google.h264.encoder, ConfigAndroidVendorExtension(0x6f100004)) ERROR: Undefined(0x80001001)
+11-15 21:02:51.054  1880  2853 D GraphicBufferSource: setting dataspace: 0x104, acquired=0
+11-15 21:02:51.054  1880  2853 D GraphicBufferSource: requesting color aspects (R:2(Limited), P:1(BT709_5), M:1(BT709_5), T:3(SMPTE170M))
+11-15 21:02:51.055  1605  1605 W AshmemAllocator: ashmem_create_region(12) returning hidl_memory(0x7aba87c2c100, 12)
+11-15 21:02:51.057  1605  1605 W AshmemAllocator: ashmem_create_region(12) returning hidl_memory(0x7aba87c2c100, 12)
+11-15 21:02:51.057  1605  1605 W AshmemAllocator: ashmem_create_region(691200) returning hidl_memory(0x7aba87c2c100, 691200)
+11-15 21:02:51.057  1605  1605 W AshmemAllocator: ashmem_create_region(691200) returning hidl_memory(0x7aba87c2c100, 691200)
+11-15 21:02:51.058  1880 20060 D SoftAVCEnc: Params width 720 height 1280 level 41 colorFormat 0
+11-15 21:02:51.054  1860  1860 W Binder:1860_5: type=1400 audit(0.0:28): avc: denied { call } for scontext=u:r:surfaceflinger:s0 tcontext=u:r:mediacodec:s0 tclass=binder permissive=0 b/77924251
+11-15 21:02:51.062  1860  3515 E         : HpInterface: Wrong interface type.
+11-15 21:02:51.068  1618  1679 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 8298496
+11-15 21:02:51.068  1860  1860 E HWComposer: getHdrCapabilities failed for display -1: Invalid display
+11-15 21:02:51.068  1880  2853 W GraphicBufferSource: released unpopulated slots: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63]
+11-15 21:02:51.069  1618  1680 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 3690496
+11-15 21:02:51.072 20053 20056 D         : HostConnection::get() New Host Connection established 0x7e4ee9a2f080, tid 20056
+11-15 21:02:51.079  1860  1860 E HWComposer: getSupportedPerFrameMetadata failed for display -1: Invalid display
+11-15 21:02:51.079 20025 20025 D LifecycleMonitor: Lifecycle status change: com.example.MainActivity@7bbe32a in: CREATED
+11-15 21:02:51.080 20025 20025 V ActivityScenario: Update currentActivityStage to CREATED, currentActivity=com.example.MainActivity@7bbe32a
+11-15 21:02:51.081 20025 20025 D LifecycleMonitor: Lifecycle status change: com.example.MainActivity@7bbe32a in: STARTED
+11-15 21:02:51.081 20025 20025 V ActivityScenario: Update currentActivityStage to STARTED, currentActivity=com.example.MainActivity@7bbe32a
+11-15 21:02:51.082 20025 20025 D LifecycleMonitor: Lifecycle status change: com.example.MainActivity@7bbe32a in: RESUMED
+11-15 21:02:51.082 20025 20025 V ActivityScenario: Update currentActivityStage to RESUMED, currentActivity=com.example.MainActivity@7bbe32a
+11-15 21:02:51.082  1860  1860 D EGL_emulation: eglMakeCurrent: 0x7e5d038465a0: ver 3 1 (tinfo 0x7e5d0382d640)
+11-15 21:02:51.084  1880  2853 D GraphicBufferSource: got buffer with new dataSpace #104
+11-15 21:02:51.084 20053 20058 D ACodec  : dataspace changed to 0x10c10000 (R:2(Limited), P:1(BT709_5), M:1(BT709_5), T:3(SMPTE170M)) (R:2(Limited), S:1(BT709), T:3(SMPTE_170M))
+11-15 21:02:51.085  1618  1680 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 3690496
+11-15 21:02:51.085 20053 20053 I MPEG4Writer: limits: 4294967295/0 bytes/us, bit rate: -1 bps and the estimated moov size 3191 bytes
+11-15 21:02:51.085  1880 20060 D         : HostConnection::get() New Host Connection established 0xece745c0, tid 20060
+11-15 21:02:51.103  1860  1860 D EGL_emulation: eglMakeCurrent: 0x7e5d038465a0: ver 3 1 (tinfo 0x7e5d0382d640)
+11-15 21:02:51.105  1860  1860 D EGL_emulation: eglMakeCurrent: 0x7e5d038465a0: ver 3 1 (tinfo 0x7e5d0382d640)
+11-15 21:02:51.105  1860  1860 E HWComposer: getLayerReleaseFence failed for display -1: Invalid display
+11-15 21:02:51.105  1860  1860 I chatty  : uid=1000(system) /system/bin/surfaceflinger identical 2 lines
+11-15 21:02:51.105  1860  1860 E HWComposer: getLayerReleaseFence failed for display -1: Invalid display
+11-15 21:02:51.106  1860  1860 D EGL_emulation: eglMakeCurrent: 0x7e5d038465a0: ver 3 1 (tinfo 0x7e5d0382d640)
+11-15 21:02:51.108  1860  1860 D EGL_emulation: eglMakeCurrent: 0x7e5d038465a0: ver 3 1 (tinfo 0x7e5d0382d640)
+11-15 21:02:51.109  1860  3515 E SurfaceFlinger: ro.sf.lcd_density must be defined as a build property
+11-15 21:02:51.109 20053 20064 I MPEG4Writer: setStartTimestampUs: 1359556919
+11-15 21:02:51.109 20053 20064 I MPEG4Writer: Earliest track starting time: 1359556919
+11-15 21:02:51.111  1860  1860 D EGL_emulation: eglMakeCurrent: 0x7e5d038465a0: ver 3 1 (tinfo 0x7e5d0382d640)
+11-15 21:02:51.114  1860  1860 D EGL_emulation: eglMakeCurrent: 0x7e5d038465a0: ver 3 1 (tinfo 0x7e5d0382d640)
+11-15 21:02:51.114  1860  1860 E HWComposer: getLayerReleaseFence failed for display -1: Invalid display
+11-15 21:02:51.114  1860  1860 I chatty  : uid=1000(system) /system/bin/surfaceflinger identical 2 lines
+11-15 21:02:51.114  1860  1860 E HWComposer: getLayerReleaseFence failed for display -1: Invalid display
+11-15 21:02:51.115  1860  1860 D EGL_emulation: eglMakeCurrent: 0x7e5d038465a0: ver 3 1 (tinfo 0x7e5d0382d640)
+11-15 21:02:51.118  1860  3515 E SurfaceFlinger: ro.sf.lcd_density must be defined as a build property
+11-15 21:02:51.119  1860  1860 D EGL_emulation: eglMakeCurrent: 0x7e5d038465a0: ver 3 1 (tinfo 0x7e5d0382d640)
+11-15 21:02:51.120  1860  2009 E SurfaceFlinger: ro.sf.lcd_density must be defined as a build property
+11-15 21:02:51.124  1860  1860 D EGL_emulation: eglMakeCurrent: 0x7e5d038465a0: ver 3 1 (tinfo 0x7e5d0382d640)
+11-15 21:02:51.125  1860  1860 D EGL_emulation: eglMakeCurrent: 0x7e5d038465a0: ver 3 1 (tinfo 0x7e5d0382d640)
+11-15 21:02:51.126  1860  1860 E HWComposer: getLayerReleaseFence failed for display -1: Invalid display
+11-15 21:02:51.126  1860  1860 I chatty  : uid=1000(system) /system/bin/surfaceflinger identical 2 lines
+11-15 21:02:51.126  1860  1860 E HWComposer: getLayerReleaseFence failed for display -1: Invalid display
+11-15 21:02:51.126  1860  1860 D EGL_emulation: eglMakeCurrent: 0x7e5d038465a0: ver 3 1 (tinfo 0x7e5d0382d640)
+11-15 21:02:51.129  1860  2009 E SurfaceFlinger: ro.sf.lcd_density must be defined as a build property
+11-15 21:02:51.136  1860  1860 D EGL_emulation: eglMakeCurrent: 0x7e5d038465a0: ver 3 1 (tinfo 0x7e5d0382d640)
+11-15 21:02:51.137  3569  3733 D EGL_emulation: eglMakeCurrent: 0x7e63d8244cc0: ver 3 1 (tinfo 0x7e63d82b9200)
+11-15 21:02:51.137  2754  3067 D EGL_emulation: eglMakeCurrent: 0x7e63c6815b40: ver 3 1 (tinfo 0x7e63d69ea140)
+11-15 21:02:51.141  1860  1860 D EGL_emulation: eglMakeCurrent: 0x7e5d038465a0: ver 3 1 (tinfo 0x7e5d0382d640)
+11-15 21:02:51.142  1860  1860 D EGL_emulation: eglMakeCurrent: 0x7e5d038465a0: ver 3 1 (tinfo 0x7e5d0382d640)
+11-15 21:02:51.143  1860  1860 E HWComposer: getLayerReleaseFence failed for display -1: Invalid display
+11-15 21:02:51.143  1860  1860 I chatty  : uid=1000(system) /system/bin/surfaceflinger identical 1 line
+11-15 21:02:51.143  1860  1860 E HWComposer: getLayerReleaseFence failed for display -1: Invalid display
+11-15 21:02:51.143  1860  1860 D EGL_emulation: eglMakeCurrent: 0x7e5d038465a0: ver 3 1 (tinfo 0x7e5d0382d640)
+11-15 21:02:51.145 20025 20072 D         : HostConnection::get() New Host Connection established 0x7e63d823f480, tid 20072
+11-15 21:02:51.146  1618  1680 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 8298496
+11-15 21:02:51.146 20025 20072 I ConfigStore: android::hardware::configstore::V1_0::ISurfaceFlingerConfigs::hasWideColorDisplay retrieved: 0
+11-15 21:02:51.146 20025 20072 I ConfigStore: android::hardware::configstore::V1_0::ISurfaceFlingerConfigs::hasHDRDisplay retrieved: 0
+11-15 21:02:51.146  1860  3515 E SurfaceFlinger: ro.sf.lcd_density must be defined as a build property
+11-15 21:02:51.146 20025 20072 I OpenGLRenderer: Initialized EGL, version 1.4
+11-15 21:02:51.146 20025 20072 D OpenGLRenderer: Swap behavior 1
+11-15 21:02:51.146 20025 20072 W OpenGLRenderer: Failed to choose config with EGL_SWAP_BEHAVIOR_PRESERVED, retrying without...
+11-15 21:02:51.146 20025 20072 D OpenGLRenderer: Swap behavior 0
+11-15 21:02:51.147 20025 20072 D EGL_emulation: eglCreateContext: 0x7e63d8249e40: maj 3 min 1 rcv 4
+11-15 21:02:51.147  1618  1680 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 8298496
+11-15 21:02:51.156  1618  1680 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 8298496
+11-15 21:02:51.156 20025 20072 D EGL_emulation: eglMakeCurrent: 0x7e63d8249e40: ver 3 1 (tinfo 0x7e63d82d1040)
+11-15 21:02:51.157 20025 20072 E eglCodecCommon: glUtilsParamSize: unknow param 0x000082da
+11-15 21:02:51.157 20025 20072 E eglCodecCommon: glUtilsParamSize: unknow param 0x000082da
+11-15 21:02:51.157  1860  1860 D EGL_emulation: eglMakeCurrent: 0x7e5d038465a0: ver 3 1 (tinfo 0x7e5d0382d640)
+11-15 21:02:51.158  1860  2009 E SurfaceFlinger: ro.sf.lcd_density must be defined as a build property
+11-15 21:02:51.161  1860  1860 D EGL_emulation: eglMakeCurrent: 0x7e5d038465a0: ver 3 1 (tinfo 0x7e5d0382d640)
+11-15 21:02:51.162  1860  1860 D EGL_emulation: eglMakeCurrent: 0x7e5d038465a0: ver 3 1 (tinfo 0x7e5d0382d640)
+11-15 21:02:51.163  1860  1860 E HWComposer: getLayerReleaseFence failed for display -1: Invalid display
+11-15 21:02:51.163  1860  1860 I chatty  : uid=1000(system) /system/bin/surfaceflinger identical 1 line
+11-15 21:02:51.163  1860  1860 E HWComposer: getLayerReleaseFence failed for display -1: Invalid display
+11-15 21:02:51.163  1860  1860 D EGL_emulation: eglMakeCurrent: 0x7e5d038465a0: ver 3 1 (tinfo 0x7e5d0382d640)
+11-15 21:02:51.166  1860  2009 E SurfaceFlinger: ro.sf.lcd_density must be defined as a build property
+11-15 21:02:51.167 20025 20072 D EGL_emulation: eglMakeCurrent: 0x7e63d8249e40: ver 3 1 (tinfo 0x7e63d82d1040)
+11-15 21:02:51.169  1860  1860 D EGL_emulation: eglMakeCurrent: 0x7e5d038465a0: ver 3 1 (tinfo 0x7e5d0382d640)
+11-15 21:02:51.174  1860  1860 I chatty  : uid=1000(system) /system/bin/surfaceflinger identical 1 line
+11-15 21:02:51.176  1860  1860 D EGL_emulation: eglMakeCurrent: 0x7e5d038465a0: ver 3 1 (tinfo 0x7e5d0382d640)
+11-15 21:02:51.176  1860  1860 E HWComposer: getLayerReleaseFence failed for display -1: Invalid display
+11-15 21:02:51.176  1860  1860 I chatty  : uid=1000(system) /system/bin/surfaceflinger identical 1 line
+11-15 21:02:51.176  1860  1860 E HWComposer: getLayerReleaseFence failed for display -1: Invalid display
+11-15 21:02:51.176  1860  1860 D EGL_emulation: eglMakeCurrent: 0x7e5d038465a0: ver 3 1 (tinfo 0x7e5d0382d640)
+11-15 21:02:51.178  1860  2009 E SurfaceFlinger: ro.sf.lcd_density must be defined as a build property
+11-15 21:02:51.180  2233  2325 I ActivityManager: Displayed com.example/.MainActivity: +146ms (total +3s458ms)
+11-15 21:02:51.186  1860  3515 W SurfaceFlinger: Attempting to set client state on removed layer: Splash Screen com.example#0
+11-15 21:02:51.186  1860  3515 W SurfaceFlinger: Attempting to destroy on removed layer: Splash Screen com.example#0
+11-15 21:02:51.187  1860  1860 D EGL_emulation: eglMakeCurrent: 0x7e5d038465a0: ver 3 1 (tinfo 0x7e5d0382d640)
+11-15 21:02:51.191  1860  1860 I chatty  : uid=1000(system) /system/bin/surfaceflinger identical 1 line
+11-15 21:02:51.192  1860  1860 D EGL_emulation: eglMakeCurrent: 0x7e5d038465a0: ver 3 1 (tinfo 0x7e5d0382d640)
+11-15 21:02:51.192  1860  1860 E HWComposer: getLayerReleaseFence failed for display -1: Invalid display
+11-15 21:02:51.192  1860  1860 I chatty  : uid=1000(system) /system/bin/surfaceflinger identical 1 line
+11-15 21:02:51.192  1860  1860 E HWComposer: getLayerReleaseFence failed for display -1: Invalid display
+11-15 21:02:51.193  1860  1860 D EGL_emulation: eglMakeCurrent: 0x7e5d038465a0: ver 3 1 (tinfo 0x7e5d0382d640)
+11-15 21:02:51.195  1860  2672 E SurfaceFlinger: ro.sf.lcd_density must be defined as a build property
+11-15 21:02:51.203  1860  1860 D EGL_emulation: eglMakeCurrent: 0x7e5d038465a0: ver 3 1 (tinfo 0x7e5d0382d640)
+11-15 21:02:51.206  2233  8751 I ActivityManager: START u0 {act=android.intent.action.MAIN cat=[android.intent.category.LAUNCHER] flg=0x10000000 cmp=com.example.test/androidx.test.core.app.InstrumentationActivityInvoker$EmptyActivity} from uid 10108
+11-15 21:02:51.206  1860  1860 I chatty  : uid=1000(system) /system/bin/surfaceflinger identical 1 line
+11-15 21:02:51.209  1860  1860 D EGL_emulation: eglMakeCurrent: 0x7e5d038465a0: ver 3 1 (tinfo 0x7e5d0382d640)
+11-15 21:02:51.209  1860  1860 E HWComposer: getLayerReleaseFence failed for display -1: Invalid display
+11-15 21:02:51.209  1860  1860 I chatty  : uid=1000(system) /system/bin/surfaceflinger identical 1 line
+11-15 21:02:51.209  1860  1860 E HWComposer: getLayerReleaseFence failed for display -1: Invalid display
+11-15 21:02:51.210  1860  1860 D EGL_emulation: eglMakeCurrent: 0x7e5d038465a0: ver 3 1 (tinfo 0x7e5d0382d640)
+11-15 21:02:51.212 20025 20025 D LifecycleMonitor: Lifecycle status change: com.example.MainActivity@7bbe32a in: PAUSED
+11-15 21:02:51.213 20025 20025 V ActivityScenario: Update currentActivityStage to PAUSED, currentActivity=com.example.MainActivity@7bbe32a
+11-15 21:02:51.214 19505 19505 W ActivityThread: handleWindowVisibility: no activity for token android.os.BinderProxy@8485ac7
+11-15 21:02:51.219  1860  1860 D EGL_emulation: eglMakeCurrent: 0x7e5d038465a0: ver 3 1 (tinfo 0x7e5d0382d640)
+11-15 21:02:51.221  1618  1680 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 3690496
+11-15 21:02:51.221 20053 20055 D         : HostConnection::get() New Host Connection established 0x7e4ee962b300, tid 20055
+11-15 21:02:51.222  1860  1860 D EGL_emulation: eglMakeCurrent: 0x7e5d038465a0: ver 3 1 (tinfo 0x7e5d0382d640)
+11-15 21:02:51.223  1860  2672 E SurfaceFlinger: ro.sf.lcd_density must be defined as a build property
+11-15 21:02:51.225  1860  1860 D EGL_emulation: eglMakeCurrent: 0x7e5d038465a0: ver 3 1 (tinfo 0x7e5d0382d640)
+11-15 21:02:51.226  1860  1860 E HWComposer: getLayerReleaseFence failed for display -1: Invalid display
+11-15 21:02:51.226  1860  1860 I chatty  : uid=1000(system) /system/bin/surfaceflinger identical 1 line
+11-15 21:02:51.226  1860  1860 E HWComposer: getLayerReleaseFence failed for display -1: Invalid display
+11-15 21:02:51.226  1860  1860 D EGL_emulation: eglMakeCurrent: 0x7e5d038465a0: ver 3 1 (tinfo 0x7e5d0382d640)
+11-15 21:02:51.229  1860  3515 E SurfaceFlinger: ro.sf.lcd_density must be defined as a build property
+11-15 21:02:51.236  1860  1860 D EGL_emulation: eglMakeCurrent: 0x7e5d038465a0: ver 3 1 (tinfo 0x7e5d0382d640)
+11-15 21:02:51.237  1618  1680 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 8298496
+11-15 21:02:51.243  1860  1860 D EGL_emulation: eglMakeCurrent: 0x7e5d038465a0: ver 3 1 (tinfo 0x7e5d0382d640)
+11-15 21:02:51.248  1860  1860 D EGL_emulation: eglMakeCurrent: 0x7e5d038465a0: ver 3 1 (tinfo 0x7e5d0382d640)
+11-15 21:02:51.249  1860  1860 E HWComposer: getLayerReleaseFence failed for display -1: Invalid display
+11-15 21:02:51.249  1860  1860 I chatty  : uid=1000(system) /system/bin/surfaceflinger identical 1 line
+11-15 21:02:51.249  1860  1860 E HWComposer: getLayerReleaseFence failed for display -1: Invalid display
+11-15 21:02:51.249  1860  1860 D EGL_emulation: eglMakeCurrent: 0x7e5d038465a0: ver 3 1 (tinfo 0x7e5d0382d640)
+11-15 21:02:51.252  1618  1680 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 8298496
+11-15 21:02:51.253  1860  1860 D EGL_emulation: eglMakeCurrent: 0x7e5d038465a0: ver 3 1 (tinfo 0x7e5d0382d640)
+11-15 21:02:51.253  1618  1679 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 8298496
+11-15 21:02:51.253  1618  1680 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 8298496
+11-15 21:02:51.255  1618  1679 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 8298496
+11-15 21:02:51.256  1618  1679 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 8298496
+11-15 21:02:51.257  1860  2672 E SurfaceFlinger: ro.sf.lcd_density must be defined as a build property
+11-15 21:02:51.259  1860  1860 D EGL_emulation: eglMakeCurrent: 0x7e5d038465a0: ver 3 1 (tinfo 0x7e5d0382d640)
+11-15 21:02:51.265  1860  2009 E SurfaceFlinger: ro.sf.lcd_density must be defined as a build property
+11-15 21:02:51.266  1860  1860 D EGL_emulation: eglMakeCurrent: 0x7e5d038465a0: ver 3 1 (tinfo 0x7e5d0382d640)
+11-15 21:02:51.266  1860  1860 E HWComposer: getLayerReleaseFence failed for display -1: Invalid display
+11-15 21:02:51.266  1860  1860 I chatty  : uid=1000(system) /system/bin/surfaceflinger identical 1 line
+11-15 21:02:51.266  1860  1860 E HWComposer: getLayerReleaseFence failed for display -1: Invalid display
+11-15 21:02:51.267  1860  1860 D EGL_emulation: eglMakeCurrent: 0x7e5d038465a0: ver 3 1 (tinfo 0x7e5d0382d640)
+11-15 21:02:51.270  1860  1860 D EGL_emulation: eglMakeCurrent: 0x7e5d038465a0: ver 3 1 (tinfo 0x7e5d0382d640)
+11-15 21:02:51.272 19505 19550 D EGL_emulation: eglMakeCurrent: 0x7e63d68f9b40: ver 3 1 (tinfo 0x7e63de0cda40)
+11-15 21:02:51.274  1860  1860 D EGL_emulation: eglMakeCurrent: 0x7e5d038465a0: ver 3 1 (tinfo 0x7e5d0382d640)
+11-15 21:02:51.275  1860  1860 D EGL_emulation: eglMakeCurrent: 0x7e5d038465a0: ver 3 1 (tinfo 0x7e5d0382d640)
+11-15 21:02:51.275  1860  1860 E HWComposer: getLayerReleaseFence failed for display -1: Invalid display
+11-15 21:02:51.275  1860  1860 I chatty  : uid=1000(system) /system/bin/surfaceflinger identical 1 line
+11-15 21:02:51.275  1860  1860 E HWComposer: getLayerReleaseFence failed for display -1: Invalid display
+11-15 21:02:51.276  1860  1860 D EGL_emulation: eglMakeCurrent: 0x7e5d038465a0: ver 3 1 (tinfo 0x7e5d0382d640)
+11-15 21:02:51.280  1860  1893 E SurfaceFlinger: ro.sf.lcd_density must be defined as a build property
+11-15 21:02:51.287  1860  1860 D EGL_emulation: eglMakeCurrent: 0x7e5d038465a0: ver 3 1 (tinfo 0x7e5d0382d640)
+11-15 21:02:51.287 20025 20072 D EGL_emulation: eglMakeCurrent: 0x7e63d8249e40: ver 3 1 (tinfo 0x7e63d82d1040)
+11-15 21:02:51.288  1860  1893 W SurfaceFlinger: Attempting to set client state on removed layer: Splash Screen com.example.test#0
+11-15 21:02:51.288  1860  1893 W SurfaceFlinger: Attempting to destroy on removed layer: Splash Screen com.example.test#0
+11-15 21:02:51.292  1860  1860 D EGL_emulation: eglMakeCurrent: 0x7e5d038465a0: ver 3 1 (tinfo 0x7e5d0382d640)
+11-15 21:02:51.293  1860  1860 D EGL_emulation: eglMakeCurrent: 0x7e5d038465a0: ver 3 1 (tinfo 0x7e5d0382d640)
+11-15 21:02:51.293  1860  1860 E HWComposer: getLayerReleaseFence failed for display -1: Invalid display
+11-15 21:02:51.293  1860  1860 I chatty  : uid=1000(system) /system/bin/surfaceflinger identical 1 line
+11-15 21:02:51.293  1860  1860 E HWComposer: getLayerReleaseFence failed for display -1: Invalid display
+11-15 21:02:51.294  1860  1860 D EGL_emulation: eglMakeCurrent: 0x7e5d038465a0: ver 3 1 (tinfo 0x7e5d0382d640)
+11-15 21:02:51.296  1860  3515 E SurfaceFlinger: ro.sf.lcd_density must be defined as a build property
+11-15 21:02:51.304  1860  1860 D EGL_emulation: eglMakeCurrent: 0x7e5d038465a0: ver 3 1 (tinfo 0x7e5d0382d640)
+11-15 21:02:51.308  1860  1860 I chatty  : uid=1000(system) /system/bin/surfaceflinger identical 1 line
+11-15 21:02:51.309  1860  1860 D EGL_emulation: eglMakeCurrent: 0x7e5d038465a0: ver 3 1 (tinfo 0x7e5d0382d640)
+11-15 21:02:51.309  1860  1860 E HWComposer: getLayerReleaseFence failed for display -1: Invalid display
+11-15 21:02:51.309  1860  1860 I chatty  : uid=1000(system) /system/bin/surfaceflinger identical 1 line
+11-15 21:02:51.309  1860  1860 E HWComposer: getLayerReleaseFence failed for display -1: Invalid display
+11-15 21:02:51.310  1860  1860 D EGL_emulation: eglMakeCurrent: 0x7e5d038465a0: ver 3 1 (tinfo 0x7e5d0382d640)
+11-15 21:02:51.312  1860  3515 E SurfaceFlinger: ro.sf.lcd_density must be defined as a build property
+11-15 21:02:51.322  1618  1679 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 8298496
+11-15 21:02:51.322  1618  1679 I chatty  : uid=1000(system) HwBinder:1618_1 identical 1 line
+11-15 21:02:51.323  1618  1679 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 8298496
+11-15 21:02:51.337  1860  1860 D EGL_emulation: eglMakeCurrent: 0x7e5d038465a0: ver 3 1 (tinfo 0x7e5d0382d640)
+11-15 21:02:51.338  3569  3733 D EGL_emulation: eglMakeCurrent: 0x7e63d8244cc0: ver 3 1 (tinfo 0x7e63d82b9200)
+11-15 21:02:51.342  1860  1860 D EGL_emulation: eglMakeCurrent: 0x7e5d038465a0: ver 3 1 (tinfo 0x7e5d0382d640)
+11-15 21:02:51.343  1860  1860 D EGL_emulation: eglMakeCurrent: 0x7e5d038465a0: ver 3 1 (tinfo 0x7e5d0382d640)
+11-15 21:02:51.343  1860  1860 E HWComposer: getLayerReleaseFence failed for display -1: Invalid display
+11-15 21:02:51.343  1860  1860 I chatty  : uid=1000(system) /system/bin/surfaceflinger identical 1 line
+11-15 21:02:51.343  1860  1860 E HWComposer: getLayerReleaseFence failed for display -1: Invalid display
+11-15 21:02:51.344  1860  1860 D EGL_emulation: eglMakeCurrent: 0x7e5d038465a0: ver 3 1 (tinfo 0x7e5d0382d640)
+11-15 21:02:51.345  1618  1679 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 8298496
+11-15 21:02:51.347  1860  1893 E SurfaceFlinger: ro.sf.lcd_density must be defined as a build property
+11-15 21:02:51.350 20025 20025 D LifecycleMonitor: Lifecycle status change: com.example.MainActivity@7bbe32a in: STOPPED
+11-15 21:02:51.350 20025 20025 V ActivityScenario: Update currentActivityStage to STOPPED, currentActivity=com.example.MainActivity@7bbe32a
+11-15 21:02:51.351 20025 20025 D LifecycleMonitor: Lifecycle status change: com.example.MainActivity@7bbe32a in: DESTROYED
+11-15 21:02:51.351 20025 20025 V ActivityScenario: Update currentActivityStage to DESTROYED, currentActivity=null
+11-15 21:02:51.351 20025 20049 E TestRunner: failed: testExternalFolderPresent(com.example.FilePushTest)
+11-15 21:02:51.351 20025 20049 E TestRunner: ----- begin exception -----
+11-15 21:02:51.352 20025 20049 E TestRunner: java.io.FileNotFoundException: /data/local/tmp/external-folder/external-file-2 (No such file or directory)
+11-15 21:02:51.352 20025 20049 E TestRunner: 	at java.io.FileInputStream.open0(Native Method)
+11-15 21:02:51.352 20025 20049 E TestRunner: 	at java.io.FileInputStream.open(FileInputStream.java:231)
+11-15 21:02:51.352 20025 20049 E TestRunner: 	at java.io.FileInputStream.<init>(FileInputStream.java:165)
+11-15 21:02:51.352 20025 20049 E TestRunner: 	at kotlin.io.FilesKt__FileReadWriteKt.readText(FileReadWrite.kt:125)
+11-15 21:02:51.352 20025 20049 E TestRunner: 	at kotlin.io.FilesKt__FileReadWriteKt.readText$default(FileReadWrite.kt:125)
+11-15 21:02:51.352 20025 20049 E TestRunner: 	at com.example.FilePushTest.testExternalFolderPresent(FilePushTest.kt:22)
+11-15 21:02:51.352 20025 20049 E TestRunner: 	at java.lang.reflect.Method.invoke(Native Method)
+11-15 21:02:51.352 20025 20049 E TestRunner: 	at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:59)
+11-15 21:02:51.352 20025 20049 E TestRunner: 	at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+11-15 21:02:51.352 20025 20049 E TestRunner: 	at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:56)
+11-15 21:02:51.352 20025 20049 E TestRunner: 	at org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17)
+11-15 21:02:51.352 20025 20049 E TestRunner: 	at org.junit.rules.ExternalResource$1.evaluate(ExternalResource.java:54)
+11-15 21:02:51.352 20025 20049 E TestRunner: 	at org.junit.runners.ParentRunner$3.evaluate(ParentRunner.java:306)
+11-15 21:02:51.352 20025 20049 E TestRunner: 	at org.junit.runners.BlockJUnit4ClassRunner$1.evaluate(BlockJUnit4ClassRunner.java:100)
+11-15 21:02:51.352 20025 20049 E TestRunner: 	at org.junit.runners.ParentRunner.runLeaf(ParentRunner.java:366)
+11-15 21:02:51.352 20025 20049 E TestRunner: 	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:103)
+11-15 21:02:51.352 20025 20049 E TestRunner: 	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:63)
+11-15 21:02:51.352 20025 20049 E TestRunner: 	at org.junit.runners.ParentRunner$4.run(ParentRunner.java:331)
+11-15 21:02:51.352 20025 20049 E TestRunner: 	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:79)
+11-15 21:02:51.352 20025 20049 E TestRunner: 	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:329)
+11-15 21:02:51.352 20025 20049 E TestRunner: 	at org.junit.runners.ParentRunner.access$100(ParentRunner.java:66)
+11-15 21:02:51.352 20025 20049 E TestRunner: 	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:293)
+11-15 21:02:51.352 20025 20049 E TestRunner: 	at org.junit.runners.ParentRunner$3.evaluate(ParentRunner.java:306)
+11-15 21:02:51.352 20025 20049 E TestRunner: 	at org.junit.runners.ParentRunner.run(ParentRunner.java:413)
+11-15 21:02:51.352 20025 20049 E TestRunner: 	at org.junit.runners.Suite.runChild(Suite.java:128)
+11-15 21:02:51.352 20025 20049 E TestRunner: 	at org.junit.runners.Suite.runChild(Suite.java:27)
+11-15 21:02:51.352 20025 20049 E TestRunner: 	at org.junit.runners.ParentRunner$4.run(ParentRunner.java:331)
+11-15 21:02:51.352 20025 20049 E TestRunner: 	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:79)
+11-15 21:02:51.352 20025 20049 E TestRunner: 	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:329)
+11-15 21:02:51.352 20025 20049 E TestRunner: 	at org.junit.runners.ParentRunner.access$100(ParentRunner.java:66)
+11-15 21:02:51.352 20025 20049 E TestRunner: 	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:293)
+11-15 21:02:51.352 20025 20049 E TestRunner: 	at org.junit.runners.ParentRunner$3.evaluate(ParentRunner.java:306)
+11-15 21:02:51.352 20025 20049 E TestRunner: 	at org.junit.runners.ParentRunner.run(ParentRunner.java:413)
+11-15 21:02:51.352 20025 20049 E TestRunner: 	at org.junit.runner.JUnitCore.run(JUnitCore.java:137)
+11-15 21:02:51.352 20025 20049 E TestRunner: 	at org.junit.runner.JUnitCore.run(JUnitCore.java:115)
+11-15 21:02:51.352 20025 20049 E TestRunner: 	at androidx.test.internal.runner.TestExecutor.execute(TestExecutor.java:67)
+11-15 21:02:51.352 20025 20049 E TestRunner: 	at androidx.test.internal.runner.TestExecutor.execute(TestExecutor.java:58)
+11-15 21:02:51.352 20025 20049 E TestRunner: 	at androidx.test.runner.AndroidJUnitRunner.onStart(AndroidJUnitRunner.java:446)
+11-15 21:02:51.352 20025 20049 E TestRunner: 	at android.app.Instrumentation$InstrumentationThread.run(Instrumentation.java:2145)
+11-15 21:02:51.352 20025 20049 E TestRunner: ----- end exception -----
+11-15 21:02:51.352  1860  1893 W SurfaceFlinger: Attempting to destroy on removed layer: AppWindowToken{90b215e token=Token{66b1a99 ActivityRecord{cb497e0 u0 com.example/.MainActivity t162}}}#0
+11-15 21:02:51.353 20025 20049 I TestRunner: finished: testExternalFolderPresent(com.example.FilePushTest)
+11-15 21:02:51.354 19505 19550 D EGL_emulation: eglMakeCurrent: 0x7e63d68f9b40: ver 3 1 (tinfo 0x7e63de0cda40)
+11-15 21:02:51.355  1860  1860 D EGL_emulation: eglMakeCurrent: 0x7e5d038465a0: ver 3 1 (tinfo 0x7e5d0382d640)
+11-15 21:02:51.355  2754  3067 D EGL_emulation: eglMakeCurrent: 0x7e63c6815b40: ver 3 1 (tinfo 0x7e63d69ea140)
+11-15 21:02:51.359  1860  1860 D EGL_emulation: eglMakeCurrent: 0x7e5d038465a0: ver 3 1 (tinfo 0x7e5d0382d640)
+11-15 21:02:51.361  1860  1860 D EGL_emulation: eglMakeCurrent: 0x7e5d038465a0: ver 3 1 (tinfo 0x7e5d0382d640)
+11-15 21:02:51.361  1860  1860 E HWComposer: getLayerReleaseFence failed for display -1: Invalid display
+11-15 21:02:51.361  1860  1860 I chatty  : uid=1000(system) /system/bin/surfaceflinger identical 2 lines
+11-15 21:02:51.361  1860  1860 E HWComposer: getLayerReleaseFence failed for display -1: Invalid display
+11-15 21:02:51.362  1860  1860 D EGL_emulation: eglMakeCurrent: 0x7e5d038465a0: ver 3 1 (tinfo 0x7e5d0382d640)
+11-15 21:02:51.367  1860  2672 E SurfaceFlinger: ro.sf.lcd_density must be defined as a build property
+11-15 21:02:51.368  1860  3515 W SurfaceFlinger: Attempting to destroy on removed layer: AppWindowToken{9f0f4a5 token=Token{a58a29c ActivityRecord{971020f u0 com.example.test/androidx.test.core.app.InstrumentationActivityInvoker$EmptyActivity t163}}}#0
+11-15 21:02:51.370  1860  1860 W SurfaceFlinger: couldn't log to binary event log: overflow.
+11-15 21:02:51.371  1860  1860 D EGL_emulation: eglMakeCurrent: 0x7e5d038465a0: ver 3 1 (tinfo 0x7e5d0382d640)
+11-15 21:02:51.375  1860  1860 I chatty  : uid=1000(system) /system/bin/surfaceflinger identical 1 line
+11-15 21:02:51.377  1860  1860 D EGL_emulation: eglMakeCurrent: 0x7e5d038465a0: ver 3 1 (tinfo 0x7e5d0382d640)
+11-15 21:02:51.377  1860  1860 E HWComposer: getLayerReleaseFence failed for display -1: Invalid display
+11-15 21:02:51.377  1860  1860 I chatty  : uid=1000(system) /system/bin/surfaceflinger identical 2 lines
+11-15 21:02:51.377  1860  1860 E HWComposer: getLayerReleaseFence failed for display -1: Invalid display
+11-15 21:02:51.378  1860  1860 D EGL_emulation: eglMakeCurrent: 0x7e5d038465a0: ver 3 1 (tinfo 0x7e5d0382d640)
+11-15 21:02:51.382  1860  3515 E SurfaceFlinger: ro.sf.lcd_density must be defined as a build property
+11-15 21:02:51.383 20053 20053 D MPEG4Writer: Video track stopping. Stop source
+11-15 21:02:51.383 20053 20053 D MPEG4Writer: Video track source stopping
+11-15 21:02:51.383 20053 20053 D MPEG4Writer: Video track source stopped
+11-15 21:02:51.383 20053 20064 I MPEG4Writer: Received total/0-length (17/0) buffers and encoded 17 frames. - Video
+11-15 21:02:51.383 20053 20053 D MPEG4Writer: Video track stopped. Stop source
+11-15 21:02:51.383 20053 20053 D MPEG4Writer: Stopping writer thread
+11-15 21:02:51.383 20053 20063 D MPEG4Writer: 0 chunks are written in the last batch
+11-15 21:02:51.383 20053 20053 D MPEG4Writer: Writer thread stopped
+11-15 21:02:51.383 20053 20053 I MPEG4Writer: Ajust the moov start time from 1359556919 us -> 1359556919 us
+11-15 21:02:51.385 20025 20049 I TestRunner: started: testTextFlaky(com.example.MainActivityFlakyTest)
+11-15 21:02:51.386 20053 20053 D MPEG4Writer: Video track stopping. Stop source
+11-15 21:02:51.387  1880  1880 E BufferQueueProducer: [GraphicBufferSource] cancelBuffer: BufferQueue has been abandoned
+11-15 21:02:51.394  3523  3523 D MediaScannerReceiver: action: android.intent.action.MEDIA_SCANNER_SCAN_FILE path: /storage/emulated/0/com.example.FilePushTest-testExternalFolderPresent-3cdb3624-1f94-48ad-aa0e-04b659821b37.mp4
+11-15 21:02:51.398 20053 20053 D ScreenRecord: success
+11-15 21:02:51.409  2233  7652 I ConfigStore: android::hardware::configstore::V1_0::ISurfaceFlingerConfigs::hasWideColorDisplay retrieved: 0
+11-15 21:02:51.409  2233  7652 I ConfigStore: android::hardware::configstore::V1_0::ISurfaceFlingerConfigs::hasHDRDisplay retrieved: 0
+11-15 21:02:51.409  2233  7652 I OpenGLRenderer: Initialized EGL, version 1.4
+11-15 21:02:51.409  2233  7652 D OpenGLRenderer: Swap behavior 1
+11-15 21:02:51.410  2233  7652 W OpenGLRenderer: Failed to choose config with EGL_SWAP_BEHAVIOR_PRESERVED, retrying without...
+11-15 21:02:51.410  2233  7652 D OpenGLRenderer: Swap behavior 0
+11-15 21:02:51.410  2233  7652 D EGL_emulation: eglCreateContext: 0x7e63c1d0dee0: maj 3 min 1 rcv 4
+11-15 21:02:51.412  2233  7652 D EGL_emulation: eglMakeCurrent: 0x7e63c1d0dee0: ver 3 1 (tinfo 0x7e63c1ce6cc0)
+11-15 21:02:51.412  2233  7652 E eglCodecCommon: glUtilsParamSize: unknow param 0x000082da
+11-15 21:02:51.412  2233  7652 E eglCodecCommon: glUtilsParamSize: unknow param 0x000082da
+11-15 21:02:51.459 20025 20049 W FileTestStorage: Output properties is not supported.
+11-15 21:02:51.459 20025 20049 I Tracing : Tracer added: class androidx.test.platform.tracing.AndroidXTracer
+11-15 21:02:51.465 20025 20049 D EventInjectionStrategy: Creating injection strategy with input manager.
+11-15 21:02:51.466 20025 20049 W com.example: Accessing hidden method Landroid/hardware/input/InputManager;->getInstance()Landroid/hardware/input/InputManager; (light greylist, reflection)
+11-15 21:02:51.466 20025 20049 W com.example: Accessing hidden method Landroid/hardware/input/InputManager;->injectInputEvent(Landroid/view/InputEvent;I)Z (light greylist, reflection)
+11-15 21:02:51.466 20025 20049 W com.example: Accessing hidden field Landroid/hardware/input/InputManager;->INJECT_INPUT_EVENT_MODE_WAIT_FOR_FINISH:I (light greylist, reflection)
+11-15 21:02:51.475 20025 20049 W Settings: Setting always_finish_activities has moved from android.provider.Settings.System to android.provider.Settings.Global, returning read-only value.
+11-15 21:02:51.476  2233 15050 I ActivityManager: START u0 {act=android.intent.action.MAIN cat=[android.intent.category.LAUNCHER] flg=0x10008000 cmp=com.example/.MainActivity} from uid 10108
+11-15 21:02:51.480 20025 20025 W ActivityThread: handleWindowVisibility: no activity for token android.os.BinderProxy@a8227ee
+11-15 21:02:51.483 20025 20025 D LifecycleMonitor: Lifecycle status change: com.example.MainActivity@fdfa31c in: PRE_ON_CREATE
+11-15 21:02:51.483 20025 20025 V ActivityScenario: Activity lifecycle changed event received but ignored because the reported transition was not ON_CREATE while the last known transition was PRE_ON_CREATE
+11-15 21:02:51.493 20025 20025 D LifecycleMonitor: Lifecycle status change: com.example.MainActivity@fdfa31c in: CREATED
+11-15 21:02:51.493 20025 20025 V ActivityScenario: Update currentActivityStage to CREATED, currentActivity=com.example.MainActivity@fdfa31c
+11-15 21:02:51.494 20025 20025 D LifecycleMonitor: Lifecycle status change: com.example.MainActivity@fdfa31c in: STARTED
+11-15 21:02:51.494 20025 20025 V ActivityScenario: Update currentActivityStage to STARTED, currentActivity=com.example.MainActivity@fdfa31c
+11-15 21:02:51.495 20025 20025 D LifecycleMonitor: Lifecycle status change: com.example.MainActivity@fdfa31c in: RESUMED
+11-15 21:02:51.495 20025 20025 V ActivityScenario: Update currentActivityStage to RESUMED, currentActivity=com.example.MainActivity@fdfa31c
+11-15 21:02:51.505  1618  1679 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 8298496
+11-15 21:02:51.515  1618  1679 I chatty  : uid=1000(system) HwBinder:1618_1 identical 3 lines
+11-15 21:02:51.521  1618  1679 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 8298496
+11-15 21:02:51.525 20025 20072 D EGL_emulation: eglMakeCurrent: 0x7e63d8249e40: ver 3 1 (tinfo 0x7e63d82d1040)
+11-15 21:02:51.534  2233  2325 I ActivityManager: Displayed com.example/.MainActivity: +53ms (total +320ms)
+11-15 21:02:51.539  3569  3733 D EGL_emulation: eglMakeCurrent: 0x7e63d8244cc0: ver 3 1 (tinfo 0x7e63d82b9200)
+11-15 21:02:51.539  2754  3067 D EGL_emulation: eglMakeCurrent: 0x7e63c6815b40: ver 3 1 (tinfo 0x7e63d69ea140)
+11-15 21:02:51.539  1860  3515 W SurfaceFlinger: Attempting to set client state on removed layer: Splash Screen com.example#0
+11-15 21:02:51.539  1860  3515 W SurfaceFlinger: Attempting to destroy on removed layer: Splash Screen com.example#0
+11-15 21:02:51.542  2233  2259 I ActivityManager: START u0 {act=android.intent.action.MAIN cat=[android.intent.category.LAUNCHER] flg=0x10000000 cmp=com.example.test/androidx.test.core.app.InstrumentationActivityInvoker$EmptyActivity} from uid 10108
+11-15 21:02:51.545 20025 20025 D LifecycleMonitor: Lifecycle status change: com.example.MainActivity@fdfa31c in: PAUSED
+11-15 21:02:51.545 20025 20025 V ActivityScenario: Update currentActivityStage to PAUSED, currentActivity=com.example.MainActivity@fdfa31c
+11-15 21:02:51.546 19505 19505 W ActivityThread: handleWindowVisibility: no activity for token android.os.BinderProxy@e3074db
+11-15 21:02:51.559  1618  1679 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 8298496
+11-15 21:02:51.561  1618  1679 I chatty  : uid=1000(system) HwBinder:1618_1 identical 2 lines
+11-15 21:02:51.572  1618  1679 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 8298496
+11-15 21:02:51.572 19505 19550 D EGL_emulation: eglMakeCurrent: 0x7e63d68f9b40: ver 3 1 (tinfo 0x7e63de0cda40)
+11-15 21:02:51.584 20025 20025 W com.example: Accessing hidden method Landroid/os/Trace;->asyncTraceBegin(JLjava/lang/String;I)V (light greylist, reflection)
+11-15 21:02:51.584 20025 20025 W com.example: Accessing hidden method Landroid/os/Trace;->asyncTraceEnd(JLjava/lang/String;I)V (light greylist, reflection)
+11-15 21:02:51.584 20025 20025 W com.example: Accessing hidden method Landroid/os/Trace;->traceCounter(JLjava/lang/String;I)V (light greylist, reflection)
+11-15 21:02:51.589  1618  1679 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 8298496
+11-15 21:02:51.607  1860  1893 W SurfaceFlinger: Attempting to set client state on removed layer: Splash Screen com.example.test#0
+11-15 21:02:51.607  1860  1893 W SurfaceFlinger: Attempting to destroy on removed layer: Splash Screen com.example.test#0
+11-15 21:02:51.624  1618  1679 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 8298496
+11-15 21:02:51.625  1618  1679 I chatty  : uid=1000(system) HwBinder:1618_1 identical 1 line
+11-15 21:02:51.625  1618  1679 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 8298496
+11-15 21:02:51.640  3569  3733 D EGL_emulation: eglMakeCurrent: 0x7e63d8244cc0: ver 3 1 (tinfo 0x7e63d82b9200)
+11-15 21:02:51.642  1618  1679 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 8298496
+11-15 21:02:51.656  2754  3067 D EGL_emulation: eglMakeCurrent: 0x7e63c6815b40: ver 3 1 (tinfo 0x7e63d69ea140)
+11-15 21:02:51.657 19505 19550 D EGL_emulation: eglMakeCurrent: 0x7e63d68f9b40: ver 3 1 (tinfo 0x7e63de0cda40)
+11-15 21:02:51.657 20025 20072 D EGL_emulation: eglMakeCurrent: 0x7e63d8249e40: ver 3 1 (tinfo 0x7e63d82d1040)
+11-15 21:02:51.657  2754  3067 D EGL_emulation: eglMakeCurrent: 0x7e63c6815b40: ver 3 1 (tinfo 0x7e63d69ea140)
+11-15 21:02:51.658  2233  7652 I ConfigStore: android::hardware::configstore::V1_0::ISurfaceFlingerConfigs::hasWideColorDisplay retrieved: 0
+11-15 21:02:51.658  2233  7652 I ConfigStore: android::hardware::configstore::V1_0::ISurfaceFlingerConfigs::hasHDRDisplay retrieved: 0
+11-15 21:02:51.658  2233  7652 I OpenGLRenderer: Initialized EGL, version 1.4
+11-15 21:02:51.658  2233  7652 D OpenGLRenderer: Swap behavior 1
+11-15 21:02:51.658  2233  7652 W OpenGLRenderer: Failed to choose config with EGL_SWAP_BEHAVIOR_PRESERVED, retrying without...
+11-15 21:02:51.658  2233  7652 D OpenGLRenderer: Swap behavior 0
+11-15 21:02:51.659  2233  7652 D EGL_emulation: eglCreateContext: 0x7e63c1d0dee0: maj 3 min 1 rcv 4
+11-15 21:02:51.661  2233  7652 D EGL_emulation: eglMakeCurrent: 0x7e63c1d0dee0: ver 3 1 (tinfo 0x7e63c1ce6cc0)
+11-15 21:02:51.661  2233  7652 E eglCodecCommon: glUtilsParamSize: unknow param 0x000082da
+11-15 21:02:51.661  2233  7652 E eglCodecCommon: glUtilsParamSize: unknow param 0x000082da
+11-15 21:02:51.667  1860  1893 W SurfaceFlinger: Attempting to destroy on removed layer: AppWindowToken{416e345 token=Token{efca7bc ActivityRecord{2fb67af u0 com.example.test/androidx.test.core.app.InstrumentationActivityInvoker$EmptyActivity t165}}}#0
+11-15 21:02:51.668 20025 20025 D LifecycleMonitor: Lifecycle status change: com.example.MainActivity@fdfa31c in: STOPPED
+11-15 21:02:51.668 20025 20025 V ActivityScenario: Update currentActivityStage to STOPPED, currentActivity=com.example.MainActivity@fdfa31c
+11-15 21:02:51.668 20025 20025 D LifecycleMonitor: Lifecycle status change: com.example.MainActivity@fdfa31c in: DESTROYED
+11-15 21:02:51.668 20025 20025 V ActivityScenario: Update currentActivityStage to DESTROYED, currentActivity=null
+11-15 21:02:51.672  1860  1860 W SurfaceFlinger: couldn't log to binary event log: overflow.
+11-15 21:02:51.674  1860  2009 W SurfaceFlinger: Attempting to destroy on removed layer: AppWindowToken{3baf78a token=Token{530fdf5 ActivityRecord{df8bf2c u0 com.example/.MainActivity t164}}}#0
+11-15 21:02:51.675  2233  2233 V SettingsProvider: Notifying for 0: content://settings/secure/accessibility_enabled
+11-15 21:02:51.679  1618  1679 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 8298496
+11-15 21:02:51.683 20013 20021 D         : HostConnection::get() New Host Connection established 0x70c05819c4e0, tid 20021
+11-15 21:02:51.684 20013 20021 D OpenGLRenderer: Skia GL Pipeline
+11-15 21:02:51.684  1860  2672 E SurfaceFlinger: ro.sf.lcd_density must be defined as a build property
+11-15 21:02:51.685 20013 20140 D libEGL  : Emulator has host GPU support, qemu.gles is set to 1.
+11-15 21:02:51.687 20013 20140 W libc    : Unable to set property "qemu.gles" to "1": error code: 0x18
+11-15 21:02:51.687 20013 20140 E vndksupport: Could not load /vendor/lib64/egl/libGLES_emulation.so from sphal namespace: dlopen failed: library "/vendor/lib64/egl/libGLES_emulation.so" not found.
+11-15 21:02:51.687 20013 20140 E libEGL  : load_driver(/vendor/lib64/egl/libGLES_emulation.so): unknown
+11-15 21:02:51.688 20013 20140 D libEGL  : loaded /vendor/lib64/egl/libEGL_emulation.so
+11-15 21:02:51.688 20013 20140 D libEGL  : loaded /vendor/lib64/egl/libGLESv1_CM_emulation.so
+11-15 21:02:51.691 20013 20140 D libEGL  : loaded /vendor/lib64/egl/libGLESv2_emulation.so
+11-15 21:02:51.693 20013 20140 D         : HostConnection::get() New Host Connection established 0x70c052446000, tid 20140
+11-15 21:02:51.694 20013 20140 I ConfigStore: android::hardware::configstore::V1_0::ISurfaceFlingerConfigs::hasWideColorDisplay retrieved: 0
+11-15 21:02:51.694 20013 20140 I ConfigStore: android::hardware::configstore::V1_0::ISurfaceFlingerConfigs::hasHDRDisplay retrieved: 0
+11-15 21:02:51.694 20013 20140 I OpenGLRenderer: Initialized EGL, version 1.4
+11-15 21:02:51.694 20013 20140 D OpenGLRenderer: Swap behavior 1
+11-15 21:02:51.695 20013 20140 W OpenGLRenderer: Failed to choose config with EGL_SWAP_BEHAVIOR_PRESERVED, retrying without...
+11-15 21:02:51.695 20013 20140 D OpenGLRenderer: Swap behavior 0
+11-15 21:02:51.695 20013 20140 D EGL_emulation: eglCreateContext: 0x70c052436460: maj 3 min 1 rcv 4
+11-15 21:02:51.708 20013 20140 D EGL_emulation: eglMakeCurrent: 0x70c052436460: ver 3 1 (tinfo 0x70c0524173a0)
+11-15 21:02:51.709 20013 20140 E eglCodecCommon: glUtilsParamSize: unknow param 0x000082da
+11-15 21:02:51.709 20013 20140 E eglCodecCommon: glUtilsParamSize: unknow param 0x000082da
+11-15 21:02:51.710  1860  2009 E SurfaceFlinger: ro.sf.lcd_density must be defined as a build property
+11-15 21:02:51.792  2233  2449 I GnssLocationProvider: WakeLock acquired by sendMessage(REPORT_SV_STATUS, 0, com.android.server.location.GnssLocationProvider$SvStatusInfo@ceca9aa)
+11-15 21:02:51.792  2233  2304 I GnssLocationProvider: WakeLock released by handleMessage(REPORT_SV_STATUS, 0, com.android.server.location.GnssLocationProvider$SvStatusInfo@ceca9aa)
+11-15 21:02:51.846 20025 20049 E TestRunner: failed: testTextFlaky(com.example.MainActivityFlakyTest)
+11-15 21:02:51.846 20025 20049 E TestRunner: ----- begin exception -----
+11-15 21:02:51.846 20025 20049 E TestRunner: java.lang.AssertionError
+11-15 21:02:51.846 20025 20049 E TestRunner: 	at org.junit.Assert.fail(Assert.java:87)
+11-15 21:02:51.846 20025 20049 E TestRunner: 	at org.junit.Assert.assertTrue(Assert.java:42)
+11-15 21:02:51.846 20025 20049 E TestRunner: 	at org.junit.Assert.assertTrue(Assert.java:53)
+11-15 21:02:51.846 20025 20049 E TestRunner: 	at com.example.MainActivityFlakyTest.testTextFlaky(MainActivityFlakyTest.kt:31)
+11-15 21:02:51.846 20025 20049 E TestRunner: 	at java.lang.reflect.Method.invoke(Native Method)
+11-15 21:02:51.846 20025 20049 E TestRunner: 	at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:59)
+11-15 21:02:51.846 20025 20049 E TestRunner: 	at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+11-15 21:02:51.846 20025 20049 E TestRunner: 	at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:56)
+11-15 21:02:51.846 20025 20049 E TestRunner: 	at org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17)
+11-15 21:02:51.846 20025 20049 E TestRunner: 	at org.junit.rules.ExternalResource$1.evaluate(ExternalResource.java:54)
+11-15 21:02:51.846 20025 20049 E TestRunner: 	at io.qameta.allure.android.rules.ScreenshotRule$apply$1.evaluate(ScreenshotRule.kt:22)
+11-15 21:02:51.846 20025 20049 E TestRunner: 	at org.junit.runners.ParentRunner$3.evaluate(ParentRunner.java:306)
+11-15 21:02:51.846 20025 20049 E TestRunner: 	at org.junit.runners.BlockJUnit4ClassRunner$1.evaluate(BlockJUnit4ClassRunner.java:100)
+11-15 21:02:51.846 20025 20049 E TestRunner: 	at org.junit.runners.ParentRunner.runLeaf(ParentRunner.java:366)
+11-15 21:02:51.846 20025 20049 E TestRunner: 	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:103)
+11-15 21:02:51.846 20025 20049 E TestRunner: 	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:63)
+11-15 21:02:51.846 20025 20049 E TestRunner: 	at org.junit.runners.ParentRunner$4.run(ParentRunner.java:331)
+11-15 21:02:51.846 20025 20049 E TestRunner: 	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:79)
+11-15 21:02:51.846 20025 20049 E TestRunner: 	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:329)
+11-15 21:02:51.846 20025 20049 E TestRunner: 	at org.junit.runners.ParentRunner.access$100(ParentRunner.java:66)
+11-15 21:02:51.846 20025 20049 E TestRunner: 	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:293)
+11-15 21:02:51.846 20025 20049 E TestRunner: 	at org.junit.runners.ParentRunner$3.evaluate(ParentRunner.java:306)
+11-15 21:02:51.846 20025 20049 E TestRunner: 	at org.junit.runners.ParentRunner.run(ParentRunner.java:413)
+11-15 21:02:51.846 20025 20049 E TestRunner: 	at androidx.test.ext.junit.runners.AndroidJUnit4.run(AndroidJUnit4.java:162)
+11-15 21:02:51.846 20025 20049 E TestRunner: 	at io.qameta.allure.android.runners.AllureAndroidJUnit4.run(AllureAndroidJUnitRunners.kt:29)
+11-15 21:02:51.846 20025 20049 E TestRunner: 	at org.junit.runners.Suite.runChild(Suite.java:128)
+11-15 21:02:51.846 20025 20049 E TestRunner: 	at org.junit.runners.Suite.runChild(Suite.java:27)
+11-15 21:02:51.846 20025 20049 E TestRunner: 	at org.junit.runners.ParentRunner$4.run(ParentRunner.java:331)
+11-15 21:02:51.846 20025 20049 E TestRunner: 	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:79)
+11-15 21:02:51.846 20025 20049 E TestRunner: 	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:329)
+11-15 21:02:51.846 20025 20049 E TestRunner: 	at org.junit.runners.ParentRunner.access$100(ParentRunner.java:66)
+11-15 21:02:51.846 20025 20049 E TestRunner: 	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:293)
+11-15 21:02:51.846 20025 20049 E TestRunner: 	at org.junit.runners.ParentRunner$3.evaluate(ParentRunner.java:306)
+11-15 21:02:51.846 20025 20049 E TestRunner: 	at org.junit.runners.ParentRunner.run(ParentRunner.java:413)
+11-15 21:02:51.846 20025 20049 E TestRunner: 	at org.junit.runner.JUnitCore.run(JUnitCore.java:137)
+11-15 21:02:51.846 20025 20049 E TestRunner: 	at org.junit.runner.JUnitCore.run(JUnitCore.java:115)
+11-15 21:02:51.846 20025 20049 E TestRunner: 	at androidx.test.internal.runner.TestExecutor.execute(TestExecutor.java:67)
+11-15 21:02:51.846 20025 20049 E TestRunner: 	at androidx.test.internal.runner.TestExecutor.execute(TestExecutor.java:58)
+11-15 21:02:51.846 20025 20049 E TestRunner: 	at androidx.test.runner.AndroidJUnitRunner.onStart(AndroidJUnitRunner.java:446)
+11-15 21:02:51.846 20025 20049 E TestRunner: 	at android.app.Instrumentation$InstrumentationThread.run(Instrumentation.java:2145)
+11-15 21:02:51.846 20025 20049 E TestRunner: ----- end exception -----
+11-15 21:02:51.848 20025 20049 I TestRunner: finished: testTextFlaky(com.example.MainActivityFlakyTest)
+11-15 21:02:51.861 20025 20049 I TestRunner: started: testFailure(com.example.MainActivityAllureTest)
+11-15 21:02:51.880 20025 20049 W Settings: Setting always_finish_activities has moved from android.provider.Settings.System to android.provider.Settings.Global, returning read-only value.
+11-15 21:02:51.881  2233  2259 I ActivityManager: START u0 {act=android.intent.action.MAIN cat=[android.intent.category.LAUNCHER] flg=0x10008000 cmp=com.example/.MainActivity} from uid 10108
+11-15 21:02:51.884 20025 20025 W ActivityThread: handleWindowVisibility: no activity for token android.os.BinderProxy@93b1475
+11-15 21:02:51.887 20025 20025 D LifecycleMonitor: Lifecycle status change: com.example.MainActivity@36fdc7b in: PRE_ON_CREATE
+11-15 21:02:51.887 20025 20025 V ActivityScenario: Activity lifecycle changed event received but ignored because the reported transition was not ON_CREATE while the last known transition was PRE_ON_CREATE
+11-15 21:02:51.898 20025 20025 D LifecycleMonitor: Lifecycle status change: com.example.MainActivity@36fdc7b in: CREATED
+11-15 21:02:51.898 20025 20025 V ActivityScenario: Update currentActivityStage to CREATED, currentActivity=com.example.MainActivity@36fdc7b
+11-15 21:02:51.899 20025 20025 D LifecycleMonitor: Lifecycle status change: com.example.MainActivity@36fdc7b in: STARTED
+11-15 21:02:51.899 20025 20025 V ActivityScenario: Update currentActivityStage to STARTED, currentActivity=com.example.MainActivity@36fdc7b
+11-15 21:02:51.900 20025 20025 D LifecycleMonitor: Lifecycle status change: com.example.MainActivity@36fdc7b in: RESUMED
+11-15 21:02:51.900 20025 20025 V ActivityScenario: Update currentActivityStage to RESUMED, currentActivity=com.example.MainActivity@36fdc7b
+11-15 21:02:51.908  1618  1679 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 8298496
+11-15 21:02:51.918  1618  1679 I chatty  : uid=1000(system) HwBinder:1618_1 identical 3 lines
+11-15 21:02:51.925  1618  1679 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 8298496
+11-15 21:02:51.926 20025 20072 D EGL_emulation: eglMakeCurrent: 0x7e63d8249e40: ver 3 1 (tinfo 0x7e63d82d1040)
+11-15 21:02:51.941  2233  2325 I ActivityManager: Displayed com.example/.MainActivity: +56ms (total +395ms)
+11-15 21:02:51.958  2754  3067 D EGL_emulation: eglMakeCurrent: 0x7e63c6815b40: ver 3 1 (tinfo 0x7e63d69ea140)
+11-15 21:02:51.958  3569  3733 D EGL_emulation: eglMakeCurrent: 0x7e63d8244cc0: ver 3 1 (tinfo 0x7e63d82b9200)
+11-15 21:02:51.959  2754  3067 D EGL_emulation: eglMakeCurrent: 0x7e63c6815b40: ver 3 1 (tinfo 0x7e63d69ea140)
+11-15 21:02:51.960  1860  2009 W SurfaceFlinger: Attempting to set client state on removed layer: Splash Screen com.example#0
+11-15 21:02:51.960  1860  2009 W SurfaceFlinger: Attempting to destroy on removed layer: Splash Screen com.example#0
+11-15 21:02:51.984 20025 20025 W com.example: Accessing hidden method Landroid/os/MessageQueue;->next()Landroid/os/Message; (light greylist, reflection)
+11-15 21:02:51.984 20025 20025 W com.example: Accessing hidden field Landroid/os/MessageQueue;->mMessages:Landroid/os/Message; (light greylist, reflection)
+11-15 21:02:51.984 20025 20025 W com.example: Accessing hidden method Landroid/os/Message;->recycleUnchecked()V (light greylist, reflection)
+11-15 21:02:51.986 20025 20025 W com.example: Accessing hidden method Landroid/view/WindowManagerGlobal;->getInstance()Landroid/view/WindowManagerGlobal; (light greylist, reflection)
+11-15 21:02:51.986 20025 20025 W com.example: Accessing hidden field Landroid/view/WindowManagerGlobal;->mViews:Ljava/util/ArrayList; (light greylist, reflection)
+11-15 21:02:51.986 20025 20025 W com.example: Accessing hidden field Landroid/view/WindowManagerGlobal;->mParams:Ljava/util/ArrayList; (light greylist, reflection)
+11-15 21:02:51.988 20025 20025 I ViewInteraction: Checking 'MatchesViewAssertion{viewMatcher=an instance of android.widget.TextView and view.getText() with or without transformation to match: is "Cafebabe"}' assertion on view (view.getId() is <2131230861/com.example:id/edittext>)
+11-15 21:02:51.997 20025 20025 D takeScreenshot: Found 1 global views to redraw
+11-15 21:02:52.026  1618  1679 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 8298496
+11-15 21:02:52.031 20013 20016 D         : HostConnection::get() New Host Connection established 0x70c0524464e0, tid 20016
+11-15 21:02:52.080  2233  7652 I ConfigStore: android::hardware::configstore::V1_0::ISurfaceFlingerConfigs::hasWideColorDisplay retrieved: 0
+11-15 21:02:52.080  2233  7652 I ConfigStore: android::hardware::configstore::V1_0::ISurfaceFlingerConfigs::hasHDRDisplay retrieved: 0
+11-15 21:02:52.080  2233  7652 I OpenGLRenderer: Initialized EGL, version 1.4
+11-15 21:02:52.080  2233  7652 D OpenGLRenderer: Swap behavior 1
+11-15 21:02:52.081  2233  7652 W OpenGLRenderer: Failed to choose config with EGL_SWAP_BEHAVIOR_PRESERVED, retrying without...
+11-15 21:02:52.081  2233  7652 D OpenGLRenderer: Swap behavior 0
+11-15 21:02:52.081  2233  7652 D EGL_emulation: eglCreateContext: 0x7e63c1d0dee0: maj 3 min 1 rcv 4
+11-15 21:02:52.083  2233  7652 D EGL_emulation: eglMakeCurrent: 0x7e63c1d0dee0: ver 3 1 (tinfo 0x7e63c1ce6cc0)
+11-15 21:02:52.083  2233  7652 E eglCodecCommon: glUtilsParamSize: unknow param 0x000082da
+11-15 21:02:52.083  2233  7652 E eglCodecCommon: glUtilsParamSize: unknow param 0x000082da
+11-15 21:02:52.454 20025 20049 I AccessibilityNodeInfoDumper: Skipping invisible child: android.view.accessibility.AccessibilityNodeInfo@9703; boundsInParent: Rect(0, 0 - 0, 147); boundsInScreen: Rect(1080, 63 - 1080, 210); packageName: com.example; className: android.widget.LinearLayout; text: null; error: null; maxTextLength: -1; contentDescription: null; tooltipText: null; viewIdResName: null; checkable: false; checked: false; focusable: false; focused: false; selected: false; clickable: false; longClickable: false; contextClickable: false; enabled: true; password: false; scrollable: false; importantForAccessibility: false; visible: false; actions: [AccessibilityAction: ACTION_SELECT - null, AccessibilityAction: ACTION_CLEAR_SELECTION - null, AccessibilityAction: ACTION_ACCESSIBILITY_FOCUS - null, AccessibilityAction: ACTION_SHOW_ON_SCREEN - null]
+11-15 21:02:52.455 20025 20049 I AccessibilityNodeInfoDumper: Skipping invisible child: android.view.accessibility.AccessibilityNodeInfo@7cbc; boundsInParent: Rect(0, 0 - 1080, 63); boundsInScreen: Rect(0, 0 - 1080, 63); packageName: com.example; className: android.view.View; text: null; error: null; maxTextLength: -1; contentDescription: null; tooltipText: null; viewIdResName: android:id/statusBarBackground; checkable: false; checked: false; focusable: false; focused: false; selected: false; clickable: false; longClickable: false; contextClickable: false; enabled: true; password: false; scrollable: false; importantForAccessibility: false; visible: false; actions: [AccessibilityAction: ACTION_SELECT - null, AccessibilityAction: ACTION_CLEAR_SELECTION - null, AccessibilityAction: ACTION_ACCESSIBILITY_FOCUS - null, AccessibilityAction: ACTION_SHOW_ON_SCREEN - null]
+11-15 21:02:52.455 20025 20049 I AccessibilityNodeInfoDumper: Skipping invisible child: android.view.accessibility.AccessibilityNodeInfo@807d; boundsInParent: Rect(0, 0 - 1080, 126); boundsInScreen: Rect(0, 1794 - 1080, 1920); packageName: com.example; className: android.view.View; text: null; error: null; maxTextLength: -1; contentDescription: null; tooltipText: null; viewIdResName: android:id/navigationBarBackground; checkable: false; checked: false; focusable: false; focused: false; selected: false; clickable: false; longClickable: false; contextClickable: false; enabled: true; password: false; scrollable: false; importantForAccessibility: false; visible: false; actions: [AccessibilityAction: ACTION_SELECT - null, AccessibilityAction: ACTION_CLEAR_SELECTION - null, AccessibilityAction: ACTION_ACCESSIBILITY_FOCUS - null, AccessibilityAction: ACTION_SHOW_ON_SCREEN - null]
+11-15 21:02:52.466  1618  1679 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 8298496
+11-15 21:02:52.523  2233  8751 I ActivityManager: START u0 {act=android.intent.action.MAIN cat=[android.intent.category.LAUNCHER] flg=0x10000000 cmp=com.example.test/androidx.test.core.app.InstrumentationActivityInvoker$EmptyActivity} from uid 10108
+11-15 21:02:52.525 20025 20025 D LifecycleMonitor: Lifecycle status change: com.example.MainActivity@36fdc7b in: PAUSED
+11-15 21:02:52.525 20025 20025 V ActivityScenario: Update currentActivityStage to PAUSED, currentActivity=com.example.MainActivity@36fdc7b
+11-15 21:02:52.526 19505 19505 W ActivityThread: handleWindowVisibility: no activity for token android.os.BinderProxy@67d32af
+11-15 21:02:52.546  1618  1679 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 8298496
+11-15 21:02:52.550  1618  1679 I chatty  : uid=1000(system) HwBinder:1618_1 identical 3 lines
+11-15 21:02:52.562  1618  1679 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 8298496
+11-15 21:02:52.563 19505 19550 D EGL_emulation: eglMakeCurrent: 0x7e63d68f9b40: ver 3 1 (tinfo 0x7e63de0cda40)
+11-15 21:02:52.581  1860  2009 W SurfaceFlinger: Attempting to set client state on removed layer: Splash Screen com.example.test#0
+11-15 21:02:52.581  1860  2009 W SurfaceFlinger: Attempting to destroy on removed layer: Splash Screen com.example.test#0
+11-15 21:02:52.597  1618  1679 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 8298496
+11-15 21:02:52.598  1618  1679 I chatty  : uid=1000(system) HwBinder:1618_1 identical 1 line
+11-15 21:02:52.598  1618  1679 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 8298496
+11-15 21:02:52.613  3569  3733 D EGL_emulation: eglMakeCurrent: 0x7e63d8244cc0: ver 3 1 (tinfo 0x7e63d82b9200)
+11-15 21:02:52.615  1618  1679 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 8298496
+11-15 21:02:52.629  2754  3067 D EGL_emulation: eglMakeCurrent: 0x7e63c6815b40: ver 3 1 (tinfo 0x7e63d69ea140)
+11-15 21:02:52.630 20025 20072 D EGL_emulation: eglMakeCurrent: 0x7e63d8249e40: ver 3 1 (tinfo 0x7e63d82d1040)
+11-15 21:02:52.632 19505 19550 D EGL_emulation: eglMakeCurrent: 0x7e63d68f9b40: ver 3 1 (tinfo 0x7e63de0cda40)
+11-15 21:02:52.632  2754  3067 D EGL_emulation: eglMakeCurrent: 0x7e63c6815b40: ver 3 1 (tinfo 0x7e63d69ea140)
+11-15 21:02:52.632 20025 20025 D LifecycleMonitor: Lifecycle status change: com.example.MainActivity@36fdc7b in: STOPPED
+11-15 21:02:52.632 20025 20025 V ActivityScenario: Update currentActivityStage to STOPPED, currentActivity=com.example.MainActivity@36fdc7b
+11-15 21:02:52.633 20025 20025 D LifecycleMonitor: Lifecycle status change: com.example.MainActivity@36fdc7b in: DESTROYED
+11-15 21:02:52.633 20025 20025 V ActivityScenario: Update currentActivityStage to DESTROYED, currentActivity=null
+11-15 21:02:52.636  1860  2009 W SurfaceFlinger: Attempting to destroy on removed layer: AppWindowToken{43b676 token=Token{ef2f511 ActivityRecord{91f138 u0 com.example/.MainActivity t166}}}#0
+11-15 21:02:52.637  1860  2009 W SurfaceFlinger: Attempting to destroy on removed layer: AppWindowToken{b43d0e3 token=Token{d047112 ActivityRecord{505c89d u0 com.example.test/androidx.test.core.app.InstrumentationActivityInvoker$EmptyActivity t167}}}#0
