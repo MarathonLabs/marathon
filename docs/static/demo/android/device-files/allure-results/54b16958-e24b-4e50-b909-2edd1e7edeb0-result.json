@@ -1,0 +1,73 @@
+{
+    "name": "testScreencapture",
+    "start": 1700046161216,
+    "stop": 1700046161811,
+    "stage": "finished",
+    "description": null,
+    "descriptionHtml": null,
+    "status": "passed",
+    "statusDetails": null,
+    "steps": [
+    ],
+    "attachments": [
+    ],
+    "parameters": [
+    ],
+    "uuid": "54b16958-e24b-4e50-b909-2edd1e7edeb0",
+    "historyId": "713c405e1f98d4d18601310794a8d5c4",
+    "fullName": "com.example.ScreenshotTest.testScreencapture",
+    "labels": [
+        {
+            "name": "package",
+            "value": "com.example"
+        },
+        {
+            "name": "testClass",
+            "value": "com.example.ScreenshotTest"
+        },
+        {
+            "name": "testMethod",
+            "value": "testScreencapture"
+        },
+        {
+            "name": "suite",
+            "value": "com.example.ScreenshotTest"
+        },
+        {
+            "name": "host",
+            "value": "localhost"
+        },
+        {
+            "name": "thread",
+            "value": "Instr: androidx.test.runner.AndroidJUnitRunner(71)"
+        },
+        {
+            "name": "framework",
+            "value": "junit4"
+        },
+        {
+            "name": "language",
+            "value": "kotlin"
+        },
+        {
+            "name": "story",
+            "value": "Slow"
+        },
+        {
+            "name": "feature",
+            "value": "Graphics on main screen"
+        },
+        {
+            "name": "severity",
+            "value": "critical"
+        },
+        {
+            "name": "epic",
+            "value": "General"
+        },
+        {
+            "name": "owner",
+            "value": "user2"
+        }
+    ]
+}

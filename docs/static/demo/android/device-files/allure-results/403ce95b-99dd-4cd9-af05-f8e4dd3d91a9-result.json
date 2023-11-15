@@ -1,0 +1,76 @@
+{
+    "name": "testScreencapture",
+    "start": 1700046160287,
+    "stop": 1700046161177,
+    "stage": "finished",
+    "description": null,
+    "descriptionHtml": null,
+    "status": "broken",
+    "statusDetails": {
+        "message": "The directory /storage/emulated/0/Pictures/screenshots does not exist and could not be created or is not writable.",
+        "trace": "java.io.IOException: The directory /storage/emulated/0/Pictures/screenshots does not exist and could not be created or is not writable.\n\tat androidx.test.runner.screenshot.BasicScreenCaptureProcessor.process(BasicScreenCaptureProcessor.java:72)\n\tat com.malinskiy.adam.junit4.android.screencapture.AdamScreenCaptureProcessor.process(AdamScreenCaptureProcessor.kt:47)\n\tat androidx.test.runner.screenshot.ScreenCapture.process(ScreenCapture.java:144)\n\tat androidx.test.runner.screenshot.ScreenCapture.process(ScreenCapture.java:126)\n\tat com.example.ScreenshotTest$testScreencapture$1$1.invoke(ScreenshotTest.kt:32)\n\tat com.example.ScreenshotTest$testScreencapture$1$1.invoke(ScreenshotTest.kt:31)\n\tat io.github.kakaocup.kakao.common.views.KDSLView.invoke(KDSLView.kt:12)\n\tat com.example.ScreenshotTest$testScreencapture$1.invoke(ScreenshotTest.kt:31)\n\tat com.example.ScreenshotTest$testScreencapture$1.invoke(ScreenshotTest.kt:30)\n\tat io.github.kakaocup.kakao.screen.Screen.invoke(Screen.kt:119)\n\tat com.example.ScreenshotTest.testScreencapture(ScreenshotTest.kt:30)\n\tat java.lang.reflect.Method.invoke(Native Method)\n\tat org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:59)\n\tat org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)\n\tat org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:56)\n\tat org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17)\n\tat org.junit.rules.ExternalResource$1.evaluate(ExternalResource.java:54)\n\tat com.malinskiy.adam.junit4.android.screencapture.AdamScreenCaptureRule$apply$1.evaluate(AdamScreenCaptureRule.kt:34)\n\tat org.junit.runners.ParentRunner$3.evaluate(ParentRunner.java:306)\n\tat org.junit.runners.BlockJUnit4ClassRunner$1.evaluate(BlockJUnit4ClassRunner.java:100)\n\tat org.junit.runners.ParentRunner.runLeaf(ParentRunner.java:366)\n\tat org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:103)\n\tat org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:63)\n\tat org.junit.runners.ParentRunner$4.run(ParentRunner.java:331)\n\tat org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:79)\n\tat org.junit.runners.ParentRunner.runChildren(ParentRunner.java:329)\n\tat org.junit.runners.ParentRunner.access$100(ParentRunner.java:66)\n\tat org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:293)\n\tat org.junit.runners.ParentRunner$3.evaluate(ParentRunner.java:306)\n\tat org.junit.runners.ParentRunner.run(ParentRunner.java:413)\n\tat androidx.test.ext.junit.runners.AndroidJUnit4.run(AndroidJUnit4.java:162)\n\tat io.qameta.allure.android.runners.AllureAndroidJUnit4.run(AllureAndroidJUnitRunners.kt:29)\n\tat org.junit.runners.Suite.runChild(Suite.java:128)\n\tat org.junit.runners.Suite.runChild(Suite.java:27)\n\tat org.junit.runners.ParentRunner$4.run(ParentRunner.java:331)\n\tat org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:79)\n\tat org.junit.runners.ParentRunner.runChildren(ParentRunner.java:329)\n\tat org.junit.runners.ParentRunner.access$100(ParentRunner.java:66)\n\tat org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:293)\n\tat org.junit.runners.ParentRunner$3.evaluate(ParentRunner.java:306)\n\tat org.junit.runners.ParentRunner.run(ParentRunner.java:413)\n\tat org.junit.runner.JUnitCore.run(JUnitCore.java:137)\n\tat org.junit.runner.JUnitCore.run(JUnitCore.java:115)\n\tat androidx.test.internal.runner.TestExecutor.execute(TestExecutor.java:67)\n\tat androidx.test.internal.runner.TestExecutor.execute(TestExecutor.java:58)\n\tat androidx.test.runner.AndroidJUnitRunner.onStart(AndroidJUnitRunner.java:446)\n\tat android.app.Instrumentation$InstrumentationThread.run(Instrumentation.java:2189)\n"
+    },
+    "steps": [
+    ],
+    "attachments": [
+    ],
+    "parameters": [
+    ],
+    "uuid": "403ce95b-99dd-4cd9-af05-f8e4dd3d91a9",
+    "historyId": "713c405e1f98d4d18601310794a8d5c4",
+    "fullName": "com.example.ScreenshotTest.testScreencapture",
+    "labels": [
+        {
+            "name": "package",
+            "value": "com.example"
+        },
+        {
+            "name": "testClass",
+            "value": "com.example.ScreenshotTest"
+        },
+        {
+            "name": "testMethod",
+            "value": "testScreencapture"
+        },
+        {
+            "name": "suite",
+            "value": "com.example.ScreenshotTest"
+        },
+        {
+            "name": "host",
+            "value": "localhost"
+        },
+        {
+            "name": "thread",
+            "value": "Instr: androidx.test.runner.AndroidJUnitRunner(591)"
+        },
+        {
+            "name": "framework",
+            "value": "junit4"
+        },
+        {
+            "name": "language",
+            "value": "kotlin"
+        },
+        {
+            "name": "owner",
+            "value": "user2"
+        },
+        {
+            "name": "epic",
+            "value": "General"
+        },
+        {
+            "name": "story",
+            "value": "Slow"
+        },
+        {
+            "name": "feature",
+            "value": "Graphics on main screen"
+        },
+        {
+            "name": "severity",
+            "value": "critical"
+        }
+    ]
+}

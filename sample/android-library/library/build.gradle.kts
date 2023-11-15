@@ -1,7 +1,7 @@
 plugins {
     id("com.android.library")
     id("kotlin-android")
-    id("com.malinskiy.marathon") version "0.8.5-SNAPSHOT"
+    id("com.malinskiy.marathon") version "0.9.1-SNAPSHOT"
 }
 
 android {

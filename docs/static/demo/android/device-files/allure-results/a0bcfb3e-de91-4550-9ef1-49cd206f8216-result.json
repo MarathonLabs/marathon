@@ -1,0 +1,73 @@
+{
+    "name": "testVmState",
+    "start": 1700046208606,
+    "stop": 1700046208831,
+    "stage": "finished",
+    "description": "VM state is # com.android.emulator.control.VmRunState@7bca4\nstate: RUNNING\nstate_value: 1",
+    "descriptionHtml": null,
+    "status": "passed",
+    "statusDetails": null,
+    "steps": [
+    ],
+    "attachments": [
+    ],
+    "parameters": [
+    ],
+    "uuid": "a0bcfb3e-de91-4550-9ef1-49cd206f8216",
+    "historyId": "e9d05753eb05dcfd67393fcd5100f9a9",
+    "fullName": "com.example.GrpcActivityTest.testVmState",
+    "labels": [
+        {
+            "name": "package",
+            "value": "com.example"
+        },
+        {
+            "name": "testClass",
+            "value": "com.example.GrpcActivityTest"
+        },
+        {
+            "name": "testMethod",
+            "value": "testVmState"
+        },
+        {
+            "name": "suite",
+            "value": "com.example.GrpcActivityTest"
+        },
+        {
+            "name": "host",
+            "value": "localhost"
+        },
+        {
+            "name": "thread",
+            "value": "Instr: androidx.test.runner.AndroidJUnitRunner(71)"
+        },
+        {
+            "name": "framework",
+            "value": "junit4"
+        },
+        {
+            "name": "language",
+            "value": "kotlin"
+        },
+        {
+            "name": "severity",
+            "value": "critical"
+        },
+        {
+            "name": "epic",
+            "value": "Emulator"
+        },
+        {
+            "name": "owner",
+            "value": "user2"
+        },
+        {
+            "name": "feature",
+            "value": "gRPC"
+        },
+        {
+            "name": "story",
+            "value": "Slow"
+        }
+    ]
+}

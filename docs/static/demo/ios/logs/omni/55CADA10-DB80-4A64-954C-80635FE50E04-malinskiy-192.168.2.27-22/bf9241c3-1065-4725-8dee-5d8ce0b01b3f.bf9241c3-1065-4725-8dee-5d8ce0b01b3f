@@ -1,0 +1,11 @@
+Test Suite 'StoryboardTests' failed at 2023-11-15 22:36:29.140.
+	 Executed 1 test, with 1 failure (0 unexpected) in 5.440 (5.441) seconds
+Test Suite 'marathon.xctest' failed at 2023-11-15 22:36:29.140.
+	 Executed 4 tests, with 3 failures (0 unexpected) in 24.081 (24.088) seconds
+Test Suite 'Selected tests' failed at 2023-11-15 22:36:29.140.
+	 Executed 4 tests, with 3 failures (0 unexpected) in 24.081 (24.089) seconds
+
+Test session results, code coverage, and logs:
+	/tmp/marathon/55CADA10-DB80-4A64-954C-80635FE50E04/55CADA10-DB80-4A64-954C-80635FE50E04.bf9241c3-1065-4725-8dee-5d8ce0b01b3f.xcresult
+
+Testing started

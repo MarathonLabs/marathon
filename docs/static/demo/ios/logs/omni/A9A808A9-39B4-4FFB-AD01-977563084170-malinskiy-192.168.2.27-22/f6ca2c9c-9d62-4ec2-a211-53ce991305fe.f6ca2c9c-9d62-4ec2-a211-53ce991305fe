@@ -1,0 +1,11 @@
+Test Suite 'SlowTests' failed at 2023-11-15 22:38:37.246.
+	 Executed 1 test, with 1 failure (0 unexpected) in 9.593 (9.594) seconds
+Test Suite 'marathon.xctest' failed at 2023-11-15 22:38:37.246.
+	 Executed 1 test, with 1 failure (0 unexpected) in 9.593 (9.594) seconds
+Test Suite 'Selected tests' failed at 2023-11-15 22:38:37.246.
+	 Executed 1 test, with 1 failure (0 unexpected) in 9.593 (9.595) seconds
+
+Test session results, code coverage, and logs:
+	/tmp/marathon/A9A808A9-39B4-4FFB-AD01-977563084170/A9A808A9-39B4-4FFB-AD01-977563084170.f6ca2c9c-9d62-4ec2-a211-53ce991305fe.xcresult
+
+Testing started

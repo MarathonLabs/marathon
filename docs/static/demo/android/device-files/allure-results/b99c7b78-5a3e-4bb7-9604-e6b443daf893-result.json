@@ -1,0 +1,73 @@
+{
+    "name": "testTextSlow4",
+    "start": 1700046220515,
+    "stop": 1700046225772,
+    "stage": "finished",
+    "description": null,
+    "descriptionHtml": null,
+    "status": "passed",
+    "statusDetails": null,
+    "steps": [
+    ],
+    "attachments": [
+    ],
+    "parameters": [
+    ],
+    "uuid": "b99c7b78-5a3e-4bb7-9604-e6b443daf893",
+    "historyId": "e7a758e4dd1c8c4e622061d58352a7dc",
+    "fullName": "com.example.MainActivitySlowTest.testTextSlow4",
+    "labels": [
+        {
+            "name": "package",
+            "value": "com.example"
+        },
+        {
+            "name": "testClass",
+            "value": "com.example.MainActivitySlowTest"
+        },
+        {
+            "name": "testMethod",
+            "value": "testTextSlow4"
+        },
+        {
+            "name": "suite",
+            "value": "com.example.MainActivitySlowTest"
+        },
+        {
+            "name": "host",
+            "value": "localhost"
+        },
+        {
+            "name": "thread",
+            "value": "Instr: androidx.test.runner.AndroidJUnitRunner(580)"
+        },
+        {
+            "name": "framework",
+            "value": "junit4"
+        },
+        {
+            "name": "language",
+            "value": "kotlin"
+        },
+        {
+            "name": "feature",
+            "value": "Slow"
+        },
+        {
+            "name": "epic",
+            "value": "Marathon"
+        },
+        {
+            "name": "owner",
+            "value": "user1"
+        },
+        {
+            "name": "severity",
+            "value": "blocker"
+        },
+        {
+            "name": "story",
+            "value": "Slow"
+        }
+    ]
+}
