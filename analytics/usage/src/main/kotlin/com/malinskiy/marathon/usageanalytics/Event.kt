@@ -14,6 +14,9 @@ sealed class Event {
     ) : Event()
 
     data class Executed(
-        val seconds: Long
+        val seconds: Long,
+        val success: Boolean,
+        val flakinessSeconds: Long,
+        val durationSeconds: Long,
     ) : Event()
 }
