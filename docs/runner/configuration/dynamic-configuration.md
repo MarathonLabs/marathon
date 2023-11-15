@@ -9,7 +9,7 @@ Marathon allows you to pass dynamic variables to your marathon configuration, e.
 
 ## CLI
 
-Marathonfile support environment variable interpolation in the Marathonfile. Every occurance of `${X}` in the Marathonfile will be replaced 
+Marathonfile support environment variable interpolation in the Marathonfile. Every occurrence of `${X}` in the Marathonfile will be replaced 
 with the value of envvar `X` For example, if you want to dynamically pass the index of the test run to the fragmentation filter:
 
 ```yaml

@@ -9,7 +9,7 @@ const path = require("path");
 
 /** @type {import('@docusaurus/types').Config} */
 const config = {
-    title: 'Marathon docs',
+    title: 'Marathon',
     tagline: 'Cross-platform test runner written for Android and iOS projects',
     url: 'https://docs.marathonlabs.io/',
     baseUrl: '/',
@@ -53,7 +53,7 @@ const config = {
                     current: {
                         label: 'develop',
                         path: 'next',
-                        banner: 'none',
+                        banner: 'unreleased',
                     },
                 }
             },

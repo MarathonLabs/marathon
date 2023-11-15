@@ -118,7 +118,7 @@ body {
 }
 
 .theme-doc-version-banner {
-  display: none;
+    max-width: var(--doc-item-container-width);
 }
 
 .theme-doc-version-badge {

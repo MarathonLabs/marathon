@@ -50,7 +50,7 @@ plugins {
 All the test tasks will start with **marathon** prefix, for example **marathonDebugAndroidTest**.
 
 [1]: https://plugins.gradle.org
-[2]: /intro/install.md
+[2]: /runner/intro/install.md
 
 ## Configure
 
