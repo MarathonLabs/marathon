@@ -44,29 +44,30 @@
       }
     }
 
-    > .container {
-      > .row {
-        > .col {
-          display: flex;
-          justify-content: center;
-
-          min-width: 0;
+        > .container {
+            > .row {
+                > .col {
+                    display: flex;
+                    justify-content: center;
+                    flex-direction: column;
+                    min-width: 0;
+                    align-items: center;
+                }
+            }
         }
-      }
+
+        .spacer {
+            flex-basis: 5rem;
+
+            @media (max-width: 996px) {
+                display: none;
+            }
+        }
     }
 
-    .spacer {
-      flex-basis: 5rem;
-
-      @media (max-width: 996px) {
-        display: none;
-      }
+    [class*='docItemCol_'] {
+        margin-inline-start: auto;
+        margin-inline-end: auto;
     }
-  }
-
-  [class*='docItemCol_'] {
-    margin-inline-start: auto;
-    margin-inline-end: auto;
-  }
-  //#endregion
+    //#endregion
 }
