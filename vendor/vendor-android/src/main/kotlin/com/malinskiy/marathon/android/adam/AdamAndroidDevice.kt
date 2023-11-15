@@ -156,17 +156,25 @@ class AdamAndroidDevice(
                 when {
                     stat.exists() && stat.size() > 0.toULong() -> {
                         val channel = client.execute(
-                            CompatPullFileRequest(remoteFilePath, local, supportedFeatures, coroutineScope = this, size = stat.size().toLong()),
+                            CompatPullFileRequest(
+                                remoteFilePath,
+                                local,
+                                supportedFeatures,
+                                coroutineScope = this,
+                                size = stat.size().toLong()
+                            ),
                             serial = adbSerial
                         )
                         for (update in channel) {
                             progress = update
                         }
                     }
+
                     stat.exists() && stat.size() == 0.toULong() -> {
                         local.createNewFile()
                         progress = 1.0
                     }
+
                     else -> throw TransferException("Couldn't pull file $remoteFilePath from device $serialNumber because it doesn't exist")
                 }
             }
@@ -279,7 +287,11 @@ class AdamAndroidDevice(
         }
     }
 
-    override suspend fun installPackage(absolutePath: String, reinstall: Boolean, optionalParams: List<String>): MarathonShellCommandResult {
+    override suspend fun installPackage(
+        absolutePath: String,
+        reinstall: Boolean,
+        optionalParams: List<String>
+    ): MarathonShellCommandResult {
         val file = File(absolutePath)
         //Very simple escaping for the name of the file
         val fileName = file.name.escape()
@@ -355,7 +367,13 @@ class AdamAndroidDevice(
         try {
             withTimeoutOrNull(androidConfiguration.timeoutConfiguration.screenrecorder) {
                 val result = client.execute(ShellCommandRequest(screenRecorderCommand), serial = adbSerial)
-                logger.debug { "screenrecord output:\n ${result.output},\n exit code: ${result.exitCode}" }
+                logger.debug {
+                    StringBuilder().apply {
+                        append("screenrecord result: ")
+                        if (result.output.isNotBlank()) append("output='${result.output}'")
+                        append("exit code=${result.exitCode}")
+                    }.toString()
+                }
             }
         } catch (e: CancellationException) {
             //Ignore
