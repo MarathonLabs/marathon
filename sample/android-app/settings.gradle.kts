@@ -20,3 +20,4 @@ pluginManagement {
 rootProject.name = "android-app"
 rootProject.buildFileName = "build.gradle.kts"
 include("app")
+include("ui-tests")
