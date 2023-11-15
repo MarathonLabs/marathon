@@ -100,7 +100,6 @@ class MarathonPlugin : Plugin<Project> {
                             testArtifactLoader = project.objects.property(BuiltArtifactsLoader::class.java)
                                 .apply { set(testArtifactsLoader) },
                         )
-                        println(bundle)
 
                         val (generateMarathonfileTask, testTaskForVariant) = createTasks(
                             logger, androidTest.name, bundle, project, conf, sdkDirectory, wrapper, jsonServiceProvider
@@ -123,7 +122,6 @@ class MarathonPlugin : Plugin<Project> {
                         testArtifactLoader = project.objects.property(BuiltArtifactsLoader::class.java)
                             .apply { set(testArtifactsLoader) },
                     )
-                    println(bundle)
 
                     val (_, testTaskForVariant) = createTasks(
                         logger, androidTest.name, bundle, project, conf, sdkDirectory, wrapper, jsonServiceProvider
