@@ -29,8 +29,7 @@ import com.malinskiy.marathon.config.vendor.android.ScreenshotConfiguration
 import com.malinskiy.marathon.config.vendor.android.SerialStrategy
 import com.malinskiy.marathon.config.vendor.android.TimeoutConfiguration
 import com.malinskiy.marathon.config.vendor.android.VideoConfiguration
-import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.whenever
+import org.mockito.kotlin.mock
 import org.amshove.kluent.`should be equal to`
 import org.amshove.kluent.shouldBe
 import org.amshove.kluent.shouldBeEmpty
@@ -41,6 +40,7 @@ import org.amshove.kluent.shouldThrow
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
+import org.mockito.kotlin.whenever
 import java.io.File
 import java.time.Duration
 import java.time.Instant
@@ -154,7 +154,6 @@ class ConfigurationFactoryTest {
             TestFilterConfiguration.AnnotationFilterConfiguration(".*".toRegex()),
             TestFilterConfiguration.AnnotationDataFilterConfiguration(".*".toRegex(), ".*".toRegex())
         )
-        configuration.testClassRegexes.map { it.toString() } shouldContainSame listOf("^((?!Abstract).)*Test$")
 
         // Regex doesn't have proper equals method. Need to check the patter itself
         configuration.includeSerialRegexes.joinToString(separator = "") { it.pattern } shouldBeEqualTo """emulator-500[2,4]""".toRegex().pattern
@@ -189,7 +188,7 @@ class ConfigurationFactoryTest {
                 screenshotConfiguration = ScreenshotConfiguration(false, 1080, 1920, 200)
             ),
             15000L,
-            AllureConfiguration()
+            AllureConfiguration(),
         )
     }
 
@@ -230,8 +229,6 @@ class ConfigurationFactoryTest {
 
         configuration.filteringConfiguration.allowlist.shouldBeEmpty()
         configuration.filteringConfiguration.blocklist.shouldBeEmpty()
-
-        configuration.testClassRegexes.map { it.toString() } shouldContainSame listOf("^((?!Abstract).)*Test[s]*$")
 
         configuration.includeSerialRegexes shouldBeEqualTo emptyList()
         configuration.excludeSerialRegexes shouldBeEqualTo emptyList()

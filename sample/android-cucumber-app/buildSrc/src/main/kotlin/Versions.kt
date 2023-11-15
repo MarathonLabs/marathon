@@ -1,7 +1,7 @@
 object Versions {
-    val kotlin = "1.8.10"
+    val kotlin = "1.9.10"
 
-    val androidGradleVersion = "7.4.1"
+    val androidGradleVersion = "8.1.3"
 
     val cucumber = "4.9.0"
     val cucumberPicocontainer = "4.8.1"

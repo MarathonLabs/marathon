@@ -1,6 +1,5 @@
 name: "sample-ios-app tests"
 outputDir: "derived-data/Marathon"
-testClassRegexes: ["^((?!Abstract).)*Tests$"]
 poolingStrategy:
   - type: "omni"
 batchingStrategy:

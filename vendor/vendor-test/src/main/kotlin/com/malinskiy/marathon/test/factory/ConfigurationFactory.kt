@@ -15,8 +15,8 @@ import com.malinskiy.marathon.device.DeviceProvider
 import com.malinskiy.marathon.execution.LocalTestParser
 import com.malinskiy.marathon.test.StubDeviceProvider
 import com.malinskiy.marathon.test.Test
-import com.nhaarman.mockitokotlin2.whenever
 import kotlinx.coroutines.channels.Channel
+import org.mockito.kotlin.whenever
 import java.nio.file.Files
 
 class ConfigurationFactory(val testParser: LocalTestParser, val deviceProvider: StubDeviceProvider) {
@@ -38,7 +38,6 @@ class ConfigurationFactory(val testParser: LocalTestParser, val deviceProvider: 
     var retryStrategy: RetryStrategyConfiguration = RetryStrategyConfiguration.NoRetryStrategyConfiguration
     var shardingStrategy: ShardingStrategyConfiguration = ShardingStrategyConfiguration.ParallelShardingStrategyConfiguration
     var sortingStrategy: SortingStrategyConfiguration = SortingStrategyConfiguration.NoSortingStrategyConfiguration
-    var testClassRegexes = listOf(Regex("^((?!Abstract).)*Test[s]*$"))
     var testBatchTimeoutMillis = 180_000L
     var testOutputTimeoutMillis = 60_000L
     var analyticsTracking = false
@@ -69,7 +68,6 @@ class ConfigurationFactory(val testParser: LocalTestParser, val deviceProvider: 
         isCodeCoverageEnabled = this@ConfigurationFactory.isCodeCoverageEnabled
         strictMode = this@ConfigurationFactory.strictMode
         uncompletedTestRetryQuota = this@ConfigurationFactory.uncompletedTestRetryQuota
-        testClassRegexes = this@ConfigurationFactory.testClassRegexes
         includeSerialRegexes = this@ConfigurationFactory.includeSerialRegexes
         excludeSerialRegexes = this@ConfigurationFactory.excludeSerialRegexes
         testBatchTimeoutMillis = this@ConfigurationFactory.testBatchTimeoutMillis

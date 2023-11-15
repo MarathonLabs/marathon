@@ -1,8 +1,8 @@
 package com.malinskiy.marathon.time
 
-import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.reset
-import com.nhaarman.mockitokotlin2.whenever
+import org.mockito.kotlin.mock
+import org.mockito.kotlin.reset
+import org.mockito.kotlin.whenever
 import org.amshove.kluent.shouldEqualTo
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test

@@ -61,7 +61,13 @@ internal class BillingReporter(
         }
 
         usageTracker.trackEvent(Event.Devices(bills.size))
-        usageTracker.trackEvent(Event.Executed(seconds = bills.sumOf { it.duration } / 1000))
+        val result = executionReport.summary.pools.map { it.failed.size == 0 }.reduce { acc, b -> acc && b }
+        val flakiness = executionReport.summary.pools.sumOf { it.rawDurationMillis - it.durationMillis / 1000 }
+        val durationSeconds = ((Instant.now().toEpochMilli() - defaultStart.toEpochMilli()) / 1000)
+        usageTracker.trackEvent(Event.Executed(seconds = bills.sumOf { it.duration } / 1000,
+                                               success = result,
+                                               flakinessSeconds = flakiness,
+                                               durationSeconds = durationSeconds))
     }
 }
 

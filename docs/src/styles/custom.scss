@@ -118,7 +118,7 @@ body {
 }
 
 .theme-doc-version-banner {
-  display: none;
+    max-width: var(--doc-item-container-width);
 }
 
 .theme-doc-version-badge {
@@ -184,4 +184,47 @@ iframe {
 
 .cordova-ee-card p {
   margin: 1rem 0 0;
+}
+
+div[role=tabpanel].tab-content-with-text {
+    background: white;
+    padding: 4px;
+}
+
+#__docusaurus .navbar__item.navbar__link {
+    align-self: stretch;
+    display: flex;
+    align-items: center;
+    position: relative;
+    flex-wrap: wrap;
+    justify-content: space-around;
+    font-weight: 600;
+    font-size: 18px;
+    min-width: 120px;
+}
+
+#__docusaurus .navbar__item:not(.dropdown).navbar__link::after {
+    left: 2px;
+    right: 2px;
+}
+
+#__docusaurus .navbar__item:not(.dropdown).navbar__link--active {
+    color: var(--c-marathon-purple-bright);
+}
+
+#__docusaurus .navbar__item:not(.dropdown).navbar__link--active::after {
+    background: var(--c-marathon-purple-bright);
+}
+
+html.plugin-id-default  .navbar__dropdown--versions.runner {
+    display: none !important;
+}
+
+html.plugin-id-enterprise  .navbar__dropdown--versions.runner {
+    display: none !important;
+}
+
+
+.navbar__dropdown--versions.cloud {
+    display: none !important;
 }

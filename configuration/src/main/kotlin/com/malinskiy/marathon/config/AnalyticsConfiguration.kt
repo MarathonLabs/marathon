@@ -34,6 +34,13 @@ sealed class AnalyticsConfiguration {
                 val default: RetentionPolicyConfiguration = RetentionPolicyConfiguration("rpMarathon", "30d", "30m", 2, true)
             }
         }
+
+        /**
+         * Hide sensitive information
+         */
+        override fun toString(): String {
+            return "InfluxDbConfiguration(url='*****', user='*****', password='*****', dbName='$dbName', retentionPolicyConfiguration=$retentionPolicyConfiguration)"
+        }
     }
 
     data class InfluxDb2Configuration(
@@ -51,6 +58,12 @@ sealed class AnalyticsConfiguration {
                 val default: RetentionPolicyConfiguration = RetentionPolicyConfiguration(86400 * 30, 0L)
             }
         }
+
+        override fun toString(): String {
+            return "InfluxDb2Configuration(url='*****', token='*****', organization='$organization', bucket='$bucket', retentionPolicyConfiguration=$retentionPolicyConfiguration)"
+        }
+
+
     }
 
     data class GraphiteConfiguration(

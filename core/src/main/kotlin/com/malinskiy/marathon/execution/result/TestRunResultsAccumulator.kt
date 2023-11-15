@@ -107,7 +107,7 @@ class TestRunResultsAccumulator(private val timer: Timer) {
                 TestStatus.INCOMPLETE,
                 lastCompletedTestEndTime,
                 timer.currentTimeMillis(),
-                runFailureMessage
+                runFailureMessage ?: "Test didn't complete. Either the test results are missing due to timeout or testing runtime crashed"
             )
         }
     }

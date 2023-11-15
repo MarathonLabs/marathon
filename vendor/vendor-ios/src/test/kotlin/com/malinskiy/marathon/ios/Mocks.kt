@@ -7,7 +7,7 @@
 //import com.malinskiy.marathon.ios.configuration.RemoteSimulator
 //import com.malinskiy.marathon.ios.simctl.model.SimctlDeviceList
 //import com.malinskiy.marathon.ios.simctl.model.SimctlDeviceListDeserializer
-//import com.nhaarman.mockitokotlin2.mock
+//import org.mockito.kotlin.mock
 //import java.time.Duration
 //
 //class Mocks {

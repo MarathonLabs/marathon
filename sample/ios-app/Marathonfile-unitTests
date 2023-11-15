@@ -1,6 +1,5 @@
 name: "sample-ios-app tests"
 outputDir: "report/marathon-unitTests"
-testClassRegexes: ["^((?!Abstract).)*Tests$"]
 screenRecordingPolicy: ON_ANY
 isCodeCoverageEnabled: true
 flakinessStrategy:
@@ -27,6 +26,8 @@ vendorConfiguration:
       username: malinskiy
       key: ${HOME}/.ssh/marathon
     knownHostsPath: ${HOME}/.ssh/known_hosts
+  testParserConfiguration:
+    type: nm
   xcresult:
     pull: true
     remoteClean: true

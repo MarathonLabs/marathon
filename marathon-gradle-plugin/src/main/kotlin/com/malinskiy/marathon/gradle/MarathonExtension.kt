@@ -182,12 +182,6 @@ open class MarathonExtension {
      */
     var uncompletedTestRetryQuota: Int? = null
 
-    /**
-     * By default, test classes are found using the ```"^((?!Abstract).)*Test[s]*$"``` regex. You can override this if you need to.
-     */
-    var testClassRegexes: Collection<String>? = null
-
-
     var includeSerialRegexes: Collection<String>? = null
     var excludeSerialRegexes: Collection<String>? = null
 

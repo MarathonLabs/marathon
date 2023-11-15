@@ -23,12 +23,11 @@ import com.malinskiy.marathon.execution.AttachmentType
 import com.malinskiy.marathon.execution.TestBatchResults
 import com.malinskiy.marathon.execution.TestResult
 import com.malinskiy.marathon.execution.TestStatus
-import com.malinskiy.marathon.execution.progress.ProgressReporter
 import com.malinskiy.marathon.report.attachment.AttachmentProvider
 import com.malinskiy.marathon.test.TestBatch
-import com.nhaarman.mockitokotlin2.any
-import com.nhaarman.mockitokotlin2.mock
-import com.nhaarman.mockitokotlin2.verify
+import org.mockito.kotlin.any
+import org.mockito.kotlin.mock
+import org.mockito.kotlin.verify
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Test
@@ -155,7 +154,7 @@ class TestResultsListenerTest {
             assertThat(result.finished).isEmpty()
             assertThat(result.failed).isEmpty()
             assertThat(result.uncompleted).containsOnly(
-                TestResult(test1.toTest(), device.toDeviceInfo(), batch.id, TestStatus.INCOMPLETE, 0, 0),
+                TestResult(test1.toTest(), device.toDeviceInfo(), batch.id, TestStatus.INCOMPLETE, 0, 0, "Test didn't complete. Either the test results are missing due to timeout or testing runtime crashed"),
             )
         }
     }

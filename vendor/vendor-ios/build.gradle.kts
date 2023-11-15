@@ -26,6 +26,7 @@ dependencies {
     implementation(Libraries.kotlinProcess)
     implementation(project(":core"))
     testImplementation(TestLibraries.kluent)
+    testImplementation(TestLibraries.assertk)
     testImplementation(TestLibraries.mockitoKotlin)
     testImplementation(TestLibraries.testContainers)
     testImplementation(TestLibraries.testContainersJupiter)
