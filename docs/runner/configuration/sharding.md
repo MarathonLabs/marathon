@@ -9,14 +9,20 @@ Sharding is a mechanism that allows the marathon to affect the tests scheduled f
 
 :::caution
 
-Sharding in marathon is NOT related to splitting the tests into parallel runs. 
+Sharding in marathon is NOT related to splitting the tests into parallel runs.
 If you're looking for parallelization of marathon runs - check out the [fragmentation filter][1]
 
 :::
 
 ### Parallel sharding
 
-Executes each test using available devices. This is the default behaviour.
+Executes each test in parallel using any available device in a device pool. This is the default behaviour.
+
+For example, two tests T1, T2 running using default `omni` pool with two devices D1 and D2 will be executed in parallel.
+
+If you have more than one pool, then the parallel sharding happens in each pool independently.
+For example, two tests T1, T2 running using device pools P1 (devices D1 and D2) and P2 (devices D3 and D4) will execute tests T1 and T2 in
+parallel at least two times, e.g. T1 on D1, T2 on D2, T1 on D3 and T on D4. In short, all tests will run in parallel in each pool.
 
 <Tabs>
 <TabItem value="YAML" label="Marathonfile">
@@ -31,7 +37,7 @@ shardingStrategy:
 
 ```kotlin
 marathon {
-  shardingStrategy {}
+    shardingStrategy {}
 }
 ```
 
@@ -40,7 +46,7 @@ marathon {
 
 ```groovy
 marathon {
-  shardingStrategy {}
+    shardingStrategy {}
 }
 ```
 
@@ -66,11 +72,11 @@ shardingStrategy:
 
 ```kotlin
 marathon {
-  shardingStrategy {
-    countSharding {
-      count = 5
+    shardingStrategy {
+        countSharding {
+            count = 5
+        }
     }
-  }
 }
 ```
 
@@ -79,11 +85,11 @@ marathon {
 
 ```groovy
 marathon {
-  shardingStrategy {
-    countSharding {
-      count = 5
+    shardingStrategy {
+        countSharding {
+            count = 5
+        }
     }
-  }
 }
 ```
 
