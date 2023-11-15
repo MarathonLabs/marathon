@@ -79,6 +79,6 @@ For more help and examples continue through the rest of the Documentation sectio
 # Requirements
 Marathon requires Java Runtime Environment 8 or higher.
 
-[1]: /intro/install
-[2]: /intro/configure
+[1]: /runner/intro/install
+[2]: /runner/intro/configure
 [3]: https://github.com/MarathonLabs/marathon/tree/develop/sample

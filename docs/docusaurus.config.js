@@ -53,7 +53,7 @@ const config = {
                     current: {
                         label: 'develop',
                         path: 'next',
-                        banner: 'none',
+                        banner: 'unreleased',
                     },
                 }
             },
