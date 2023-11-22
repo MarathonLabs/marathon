@@ -6,7 +6,7 @@ title: "Getting started"
 
 ### Android
 
-Marathon Cloud supports tests written with **UIAutomator, Cucumber, Espresso, and [Kaspresso](https://github.com/KasperskyLab/Kaspresso) frameworks**.
+Marathon Cloud supports tests written with **UIAutomator, Cucumber, Espresso, [Kakao](https://github.com/kakaocup/kakao), and [Kaspresso](https://github.com/KasperskyLab/Kaspresso) frameworks**.
 
 Before initiating the testing process for your application, you’ll require two APK files: one for the application that’s being tested, and another for the tests themselves. Typically, `debug` variants are utilized for this purpose.
 
