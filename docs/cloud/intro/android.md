@@ -7,6 +7,7 @@ Marathon Cloud supports tests written with:
 - UIAutomator
 - Cucumber
 - Espresso
+- [Kakao](https://github.com/kakaocup/kakao)
 - [Kaspresso](https://github.com/KasperskyLab/Kaspresso)
 - Flutter (with [Patrol](https://patrol.leancode.co/))
 
