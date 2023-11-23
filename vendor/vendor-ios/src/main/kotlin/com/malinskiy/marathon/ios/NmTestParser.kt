@@ -78,7 +78,7 @@ class NmTestParser(
             }
 
 
-        val testBundle = AppleTestBundle(vendorConfiguration.bundle?.application, xctest)
+        val testBundle = AppleTestBundle(vendorConfiguration.bundle?.app, xctest)
         swiftTests.forEach { testBundleIdentifier.put(it, testBundle) }
         objectiveCTests.forEach { testBundleIdentifier.put(it, testBundle) }
 
