@@ -21,5 +21,6 @@ sealed interface Transport {
         @JsonProperty("addr") val addr: String,
         @JsonProperty("port") val port: Int = 22,
         @JsonProperty("authentication") val authentication: SshAuthentication? = null,
+        @JsonProperty("checkReachability") val checkReachability: Boolean = true,
     ) : Transport
 }
