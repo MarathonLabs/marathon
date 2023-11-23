@@ -76,7 +76,7 @@ class ConnectionFactory(private val configuration: Configuration, private val ve
 
     private fun createRemoteCommandExecutor(transport: Transport.Ssh): SshjCommandExecutor? {
         return try {
-            val hostAddress = transport.addr.toInetAddressOrNull() ?: throw DeviceFailureException(DeviceFailureReason.UnreachableHost)
+            val hostAddress = transport.toInetAddressOrNull() ?: throw DeviceFailureException(DeviceFailureReason.UnreachableHost)
             val connectionId = "${hostAddress.hostAddress}:${transport.port}"
             val authConfig = transport.authentication ?: vendorConfiguration.ssh.authentication
             val sshAuthentication = when (authConfig) {
@@ -117,23 +117,27 @@ class ConnectionFactory(private val configuration: Configuration, private val ve
         }
     }
 
-    private fun String.toInetAddressOrNull(): InetAddress? {
+    private fun Transport.Ssh.toInetAddressOrNull(): InetAddress? {
         val address = try {
-            InetAddress.getByName(this)
+            InetAddress.getByName(this.addr)
         } catch (e: UnknownHostException) {
             logger.error("Error resolving host $this: $e")
             return null
         }
-        return if (try {
-                address.isReachable(vendorConfiguration.timeoutConfiguration.reachability.toMillis().toInt())
-            } catch (e: IOException) {
-                logger.error("Error checking reachability of $this: $e")
-                false
+        return if (this.checkReachability) {
+            if (try {
+                    address.isReachable(vendorConfiguration.timeoutConfiguration.reachability.toMillis().toInt())
+                } catch (e: IOException) {
+                    logger.error("Error checking reachability of $this: $e")
+                    false
+                }
+            ) {
+                address
+            } else {
+                null
             }
-        ) {
-            address
         } else {
-            null
+            address
         }
     }
 
