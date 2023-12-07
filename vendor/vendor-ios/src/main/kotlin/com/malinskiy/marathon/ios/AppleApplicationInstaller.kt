@@ -26,6 +26,7 @@ class AppleApplicationInstaller(
         val remoteXctest = device.remoteFileManager.remoteXctestFile()
         withRetry(3, 1000L) {
             device.remoteFileManager.createRemoteDirectory()
+            device.remoteFileManager.createRemoteSharedDirectory()
             if (!device.pushFolder(xctest, remoteXctest)) {
                 throw DeviceSetupException("Error transferring $xctest to ${device.serialNumber}")
             }
