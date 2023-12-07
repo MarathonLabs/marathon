@@ -14,10 +14,21 @@ class RawJsonReporter(
 
     override fun generate(executionReport: ExecutionReport) {
         val testResults = executionReport.testEvents.map {
+            val metaPropertiesList = it.testResult.test.metaProperties.map { metaProp ->
+                val valuesAsStringMap = metaProp.values.mapValues { (_, value) ->
+                    value?.toString() ?: ""
+                }
+                StringMetaProperty(
+                    name = metaProp.name,
+                    values = valuesAsStringMap
+                )
+            }
+
             RawTestRun(
                 it.testResult.test.pkg,
                 it.testResult.test.clazz,
                 it.testResult.test.method,
+                metaPropertiesList,
                 it.device.serialNumber,
                 it.testResult.status,
                 it.testResult.isIgnored,
@@ -35,11 +46,17 @@ class RawJsonReporter(
         @SerializedName("package") val pkg: String,
         @SerializedName("class") val clazz: String,
         @SerializedName("method") val method: String,
+        @SerializedName("metaProperties") val metaProperties: List<StringMetaProperty>,
         @SerializedName("deviceSerial") val deviceSerial: String,
         @SerializedName("status") val status: TestStatus,
         @SerializedName("ignored") val ignored: Boolean,
         @SerializedName("success") val success: Boolean,
         @SerializedName("timestamp") val timestamp: Long,
         @SerializedName("duration") val duration: Long
+    )
+
+    data class StringMetaProperty(
+        @SerializedName("name") val name: String,
+        @SerializedName("values") val values: Map<String, String> = emptyMap()
     )
 }

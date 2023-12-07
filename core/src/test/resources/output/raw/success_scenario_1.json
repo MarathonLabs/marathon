@@ -3,6 +3,14 @@
     "package": "test",
     "class": "SimpleTest",
     "method": "test",
+    "metaProperties": [
+      {
+        "name": "someAnnotation",
+        "values": {
+          "value": "someValue"
+        }
+      }
+    ],
     "deviceSerial": "serial-1",
     "status": "PASSED",
     "ignored": false,
