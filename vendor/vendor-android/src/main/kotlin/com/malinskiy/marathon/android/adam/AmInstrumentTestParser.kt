@@ -33,6 +33,7 @@ import kotlinx.coroutines.NonCancellable.isActive
 import kotlinx.coroutines.withTimeoutOrNull
 
 private const val LISTENER_ARGUMENT = "listener"
+private const val TEST_ANNOTATION_PRODUCER = "com.malinskiy.adam.junit4.android.listener.TestAnnotationProducer"
 
 class AmInstrumentTestParser(
     private val configuration: Configuration,
@@ -79,7 +80,8 @@ class AmInstrumentTestParser(
             val testParserConfiguration = vendorConfiguration.testParserConfiguration
             val overrides: Map<String, String> = when {
                 testParserConfiguration is TestParserConfiguration.RemoteTestParserConfiguration -> {
-                    if (blockListenerArgumentOverride) testParserConfiguration.instrumentationArgs.filterKeys { it != LISTENER_ARGUMENT }
+                    if (blockListenerArgumentOverride) testParserConfiguration.instrumentationArgs
+                        .filterNot { it.key == LISTENER_ARGUMENT && it.value == TEST_ANNOTATION_PRODUCER }
                     else testParserConfiguration.instrumentationArgs
                 }
                 else -> emptyMap()
@@ -126,7 +128,8 @@ class AmInstrumentTestParser(
                             }
 
                             is TestRunFailed -> {
-                                if (overrides.containsKey(LISTENER_ARGUMENT)) throw PossibleListenerIssueException()
+                                if (overrides.containsKey(LISTENER_ARGUMENT) && overrides[LISTENER_ARGUMENT] == TEST_ANNOTATION_PRODUCER)
+                                    throw PossibleListenerIssueException()
                             }
                             is TestRunStopped -> Unit
                             is TestRunEnded -> Unit
