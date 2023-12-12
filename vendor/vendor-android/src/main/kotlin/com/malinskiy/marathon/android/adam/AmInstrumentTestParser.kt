@@ -125,7 +125,9 @@ class AmInstrumentTestParser(
                                 testBundleIdentifier.put(test, androidTestBundle)
                             }
 
-                            is TestRunFailed -> Unit
+                            is TestRunFailed -> {
+                                if (overrides.containsKey(LISTENER_ARGUMENT)) throw PossibleListenerIssueException()
+                            }
                             is TestRunStopped -> Unit
                             is TestRunEnded -> Unit
                         }
@@ -138,7 +140,6 @@ class AmInstrumentTestParser(
                     "Bundle ${bundle.id} did not report any test annotations. If you need test annotations retrieval, remote test parser requires additional setup " +
                         "see https://docs.marathonlabs.io/android/configure#test-parser"
                 }
-                if (overrides.containsKey(LISTENER_ARGUMENT)) throw PossibleListenerIssueException()
             }
 
             tests
