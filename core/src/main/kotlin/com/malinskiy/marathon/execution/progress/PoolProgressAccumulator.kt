@@ -19,8 +19,8 @@ import kotlin.math.roundToInt
 
 class PoolProgressAccumulator(
     private val poolId: DevicePoolId,
-    val shard: TestShard,
-    val configuration: Configuration,
+    shard: TestShard,
+    configuration: Configuration,
     private val track: Track
 ) {
     private val tests: HashMap<String, TestExecutionData> = HashMap()
