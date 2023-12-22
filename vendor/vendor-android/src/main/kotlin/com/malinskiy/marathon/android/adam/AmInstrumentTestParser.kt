@@ -32,6 +32,9 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.NonCancellable.isActive
 import kotlinx.coroutines.withTimeoutOrNull
 
+private const val LISTENER_ARGUMENT = "listener"
+private const val TEST_ANNOTATION_PRODUCER = "com.malinskiy.adam.junit4.android.listener.TestAnnotationProducer"
+
 class AmInstrumentTestParser(
     private val configuration: Configuration,
     private val testBundleIdentifier: AndroidTestBundleIdentifier,
@@ -42,15 +45,22 @@ class AmInstrumentTestParser(
 
     override suspend fun extract(device: Device): List<Test> {
         val testBundles = vendorConfiguration.testBundlesCompat()
+        var blockListenerArgumentOverride = false
         return withRetry(3, 0) {
             try {
                 val device = device as? AdamAndroidDevice ?: throw ConfigurationException("Unexpected device type for remote test parsing")
-                return@withRetry parseTests(device, configuration, vendorConfiguration, testBundles)
+                return@withRetry parseTests(device, configuration, vendorConfiguration, testBundles, blockListenerArgumentOverride)
             } catch (e: CancellationException) {
                 throw e
-            } catch (e: Exception) {
-                logger.debug(e) { "Remote parsing failed. Retrying" }
+            } catch (e: PossibleListenerIssueException) {
+                logger.warn { "The previous parse operation failed. The most possible reason is " +
+                    "a developer missed this step https://docs.marathonlabs.io/android/configure#test-parser. " +
+                    "The next attempt will be done without overridden testrun listener." }
+                blockListenerArgumentOverride = true
                 throw e
+            } catch (throwable: Throwable) {
+                logger.debug(throwable) { "Remote parsing failed. Retrying" }
+                throw throwable
             }
         }
     }
@@ -59,7 +69,8 @@ class AmInstrumentTestParser(
         device: AdamAndroidDevice,
         configuration: Configuration,
         vendorConfiguration: VendorConfiguration.AndroidConfiguration,
-        testBundles: List<AndroidTestBundle>
+        testBundles: List<AndroidTestBundle>,
+        blockListenerArgumentOverride: Boolean,
     ): List<Test> {
         return testBundles.flatMap { bundle ->
             val androidTestBundle =
@@ -68,7 +79,11 @@ class AmInstrumentTestParser(
 
             val testParserConfiguration = vendorConfiguration.testParserConfiguration
             val overrides: Map<String, String> = when {
-                testParserConfiguration is TestParserConfiguration.RemoteTestParserConfiguration -> testParserConfiguration.instrumentationArgs
+                testParserConfiguration is TestParserConfiguration.RemoteTestParserConfiguration -> {
+                    if (blockListenerArgumentOverride) testParserConfiguration.instrumentationArgs
+                        .filterNot { it.key == LISTENER_ARGUMENT && it.value == TEST_ANNOTATION_PRODUCER }
+                    else testParserConfiguration.instrumentationArgs
+                }
                 else -> emptyMap()
             }
 
@@ -112,7 +127,10 @@ class AmInstrumentTestParser(
                                 testBundleIdentifier.put(test, androidTestBundle)
                             }
 
-                            is TestRunFailed -> Unit
+                            is TestRunFailed -> {
+                                if (overrides.containsKey(LISTENER_ARGUMENT) && overrides[LISTENER_ARGUMENT] == TEST_ANNOTATION_PRODUCER)
+                                    throw PossibleListenerIssueException()
+                            }
                             is TestRunStopped -> Unit
                             is TestRunEnded -> Unit
                         }
@@ -131,3 +149,5 @@ class AmInstrumentTestParser(
         }
     }
 }
+
+private class PossibleListenerIssueException : RuntimeException()
