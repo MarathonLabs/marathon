@@ -59,10 +59,14 @@ class Parse(
         .file()
         .default(File("Marathonfile"))
     private val parseOutputFileName by option("--output", "-o", help="Output file name in yaml format")
+    private val includeFlakyTests by option("--include-flaky-tests", "-f", help="Include/Exclude flaky tests that will be run too in the output")
+        .convert { it.toBoolean() }
+        .default(false)
     override fun run() {
         val parseCommandCliConfiguration = ParseCommandCliConfiguration(
             marathonfile = marathonfile,
-            outputFileName = parseOutputFileName
+            outputFileName = parseOutputFileName,
+            includeFlakyTests = includeFlakyTests,
         )
         starter(parseCommandCliConfiguration)
     }

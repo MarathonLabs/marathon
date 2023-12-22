@@ -14,5 +14,6 @@ data class MarathonRunCommandCliConfiguration(
 
 data class ParseCommandCliConfiguration(
     val marathonfile: File,
-    val outputFileName: String?
+    val outputFileName: String?,
+    val includeFlakyTests: Boolean,
 ) : CliConfiguration()
