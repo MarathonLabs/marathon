@@ -35,7 +35,6 @@ import com.malinskiy.marathon.ios.executor.listener.TestResultsListener
 import com.malinskiy.marathon.ios.executor.listener.TestRunListenerAdapter
 import com.malinskiy.marathon.ios.executor.listener.screenshot.ScreenCapturerTestRunListener
 import com.malinskiy.marathon.ios.logparser.XctestEventProducer
-import com.malinskiy.marathon.ios.logparser.formatter.NoopPackageNameFormatter
 import com.malinskiy.marathon.ios.logparser.parser.DebugLogPrinter
 import com.malinskiy.marathon.ios.logparser.parser.DeviceFailureException
 import com.malinskiy.marathon.ios.logparser.parser.DiagnosticLogsPathFinder
@@ -349,7 +348,7 @@ class AppleSimulatorDevice(
                 withContext(Dispatchers.IO) {
                     val deferredStdout = supervisorScope {
                         async {
-                            val testEventProducer = XctestEventProducer(NoopPackageNameFormatter, timer)
+                            val testEventProducer = XctestEventProducer(request.testTargetName ?: "", timer)
                             for (line in session.stdout) {
                                 testEventProducer.process(line)?.let {
                                     send(it)

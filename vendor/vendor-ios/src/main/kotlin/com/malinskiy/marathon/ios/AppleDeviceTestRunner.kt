@@ -3,6 +3,7 @@ package com.malinskiy.marathon.ios
 import com.malinskiy.marathon.config.Configuration
 import com.malinskiy.marathon.config.vendor.VendorConfiguration
 import com.malinskiy.marathon.ios.executor.listener.AppleTestRunListener
+import com.malinskiy.marathon.ios.extensions.testBundle
 import com.malinskiy.marathon.ios.test.TestEvent
 import com.malinskiy.marathon.ios.test.TestPassed
 import com.malinskiy.marathon.ios.test.TestFailed
@@ -40,6 +41,7 @@ class AppleDeviceTestRunner(private val device: AppleSimulatorDevice, private va
             tests = rawTestBatch.tests,
             xcresult = remoteXcresultPath,
             coverage = configuration.isCodeCoverageEnabled,
+            testTargetName = vendorConfiguration.testBundle().testBundleId,
         )
         var channel: ReceiveChannel<List<TestEvent>>? = null
         try {
