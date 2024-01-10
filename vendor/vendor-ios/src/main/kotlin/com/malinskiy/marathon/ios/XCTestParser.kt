@@ -7,6 +7,7 @@ import com.malinskiy.marathon.device.Device
 import com.malinskiy.marathon.exceptions.TestParsingException
 import com.malinskiy.marathon.execution.RemoteTestParser
 import com.malinskiy.marathon.execution.withRetry
+import com.malinskiy.marathon.ios.extensions.testBundle
 import com.malinskiy.marathon.ios.model.AppleTestBundle
 import com.malinskiy.marathon.ios.test.TestEvent
 import com.malinskiy.marathon.ios.test.TestRequest
@@ -77,7 +78,9 @@ class XCTestParser(
                 for (event in events) {
                     when (event) {
                         is TestStarted -> {
-                            tests.add(event.id)
+                            //Target name is never printed via xcodebuild. We create it using the bundle id in com.malinskiy.marathon.ios.xctestrun.TestRootFactory
+                            val testWithTargetName = event.id.copy(pkg = vendorConfiguration.testBundle().testBundleId)
+                            tests.add(testWithTargetName)
                         }
                         else -> Unit
                     }
