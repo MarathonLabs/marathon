@@ -36,6 +36,10 @@ class DebugTestRunListener(private val device: AndroidDevice) : AndroidTestRunLi
         logger.info { "testIgnored ${device.serialNumber} test = $test" }
     }
 
+    override suspend fun testRunFailing(error: String, stackTrace: String) {
+        logger.info { "testRunFailing ${device.serialNumber} errorMessage = $error trace = $stackTrace" }
+    }
+
     override suspend fun testRunFailed(errorMessage: String) {
         logger.info { "testRunFailed ${device.serialNumber} errorMessage = $errorMessage" }
     }
