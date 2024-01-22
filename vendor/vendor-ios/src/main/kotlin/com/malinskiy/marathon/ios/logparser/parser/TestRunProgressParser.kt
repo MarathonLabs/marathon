@@ -1,7 +1,6 @@
 package com.malinskiy.marathon.ios.logparser.parser
 
 import com.malinskiy.marathon.ios.logparser.TestEventProducer
-import com.malinskiy.marathon.ios.logparser.formatter.PackageNameFormatter
 import com.malinskiy.marathon.ios.test.TestEvent
 import com.malinskiy.marathon.ios.test.TestFailed
 import com.malinskiy.marathon.ios.test.TestIgnored
@@ -14,14 +13,14 @@ import kotlin.math.roundToInt
 
 class TestRunProgressParser(
     private val timer: Timer,
-    private val packageNameFormatter: PackageNameFormatter,
+    private val targetName: String,
 ) : TestEventProducer {
 
     val logger = MarathonLogging.logger(TestRunProgressParser::class.java.simpleName)
 
-    val TEST_CASE_STARTED = """Test Case '-\[([a-zA-Z0-9_.]+) ([a-zA-Z0-9_]+)]' started\.""".toRegex()
+    val TEST_CASE_STARTED = """Test Case '-\[([a-zA-Z0-9_.]+) ([a-zA-Z0-9_ ]+)]' started\.""".toRegex()
     val TEST_CASE_FINISHED =
-        """Test Case '-\[([a-zA-Z0-9_.]+) ([a-zA-Z0-9_]+)]' (passed|failed|skipped) \(([\d\.]+) seconds\)\.""".toRegex()
+        """Test Case '-\[([a-zA-Z0-9_.]+) ([a-zA-Z0-9_ ]+)]' (passed|failed|skipped) \(([\d\.]+) seconds\)\.""".toRegex()
 
     /**
      * $1 = file
@@ -65,8 +64,13 @@ class TestRunProgressParser(
         var pkg: String? = null
         var clazz: String? = null
         if (pkgWithClass != null) {
-            pkg = packageNameFormatter.format(pkgWithClass.substringBeforeLast('.', missingDelimiterValue = ""))
-            clazz = pkgWithClass.substringAfter('.', missingDelimiterValue = pkgWithClass)
+            if (pkgWithClass.contains('.')) {
+                pkg = pkgWithClass.substringBeforeLast('.', missingDelimiterValue = "")
+                clazz = pkgWithClass.substringAfter('.', missingDelimiterValue = pkgWithClass)
+            } else {
+                pkg = targetName
+                clazz = pkgWithClass
+            }
         }
 
         val method = matchResult?.groups?.get(2)?.value
@@ -111,8 +115,13 @@ class TestRunProgressParser(
         var pkg: String? = null
         var clazz: String? = null
         if (pkgWithClass != null) {
-            pkg = packageNameFormatter.format(pkgWithClass.substringBeforeLast('.', missingDelimiterValue = ""))
-            clazz = pkgWithClass.substringAfter('.', missingDelimiterValue = pkgWithClass)
+            if (pkgWithClass.contains('.')) {
+                pkg = pkgWithClass.substringBeforeLast('.', missingDelimiterValue = "")
+                clazz = pkgWithClass.substringAfter('.', missingDelimiterValue = pkgWithClass)
+            } else {
+                pkg = targetName
+                clazz = pkgWithClass
+            }
         }
         val method = matchResult?.groups?.get(2)?.value
 

@@ -6,7 +6,7 @@ object Versions {
     val coroutinesTest = coroutines
 
     val androidCommon = "31.1.3"
-    val adam = "0.5.2"
+    val adam = "0.5.3"
     val dexTestParser = "2.3.4"
     val kotlinLogging = "3.0.5"
     val logbackClassic = "1.4.11"
