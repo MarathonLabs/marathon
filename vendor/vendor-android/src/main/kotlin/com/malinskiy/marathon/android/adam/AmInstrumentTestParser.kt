@@ -74,6 +74,9 @@ class AmInstrumentTestParser(
         testBundles: List<AndroidTestBundle>,
         blockListenerArgumentOverride: Boolean,
     ): List<Test> {
+        val androidAppInstaller = AndroidAppInstaller(configuration)
+        androidAppInstaller.prepareInstallation(device)
+
         return testBundles.flatMap { bundle ->
             val androidTestBundle =
                 AndroidTestBundle(bundle.application, bundle.testApplication, bundle.extraApplications, bundle.splitApks)
@@ -100,8 +103,6 @@ class AmInstrumentTestParser(
                 supportedFeatures = device.supportedFeatures,
                 coroutineScope = device,
             )
-            val androidAppInstaller = AndroidAppInstaller(configuration)
-            androidAppInstaller.prepareInstallation(device)
             val channel = device.executeTestRequest(runnerRequest)
             var observedAnnotations = false
 
