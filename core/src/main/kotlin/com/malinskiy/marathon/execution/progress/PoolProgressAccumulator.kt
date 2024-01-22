@@ -20,10 +20,10 @@ import kotlin.math.roundToInt
 class PoolProgressAccumulator(
     private val poolId: DevicePoolId,
     shard: TestShard,
-    private val configuration: Configuration,
+    configuration: Configuration,
     private val track: Track
 ) {
-    private val tests: HashMap<String, StateMachine<TestState, TestEvent, TestAction>> = HashMap()
+    private val tests: HashMap<String, TestExecutionData> = HashMap()
     private val logger = MarathonLogging.logger {}
     private val executionStrategy = configuration.executionStrategy
 
@@ -257,7 +257,7 @@ class PoolProgressAccumulator(
         val allTests = shard.tests + shard.flakyTests
         allTests.groupBy { it }.map {
             val count = it.value.size
-            it.key.toTestName() to createState(count)
+            it.key.toTestName() to TestExecutionData(it.key, createState(count))
         }.also {
             tests.putAll(it)
         }
@@ -319,7 +319,12 @@ class PoolProgressAccumulator(
         val (testResult: TestResult?, device: DeviceInfo?) = extractEventAndDevice(transition)
         if (testResult == null || device == null) return
 
-        track.test(poolId, device, testResult, final)
+        val testNameFromTestResult = testResult.test.toTestName()
+        val originalTest = tests[testNameFromTestResult]?.originalTest
+        val updatedTestResult = if (originalTest == null) testResult
+        else testResult.copy(test = originalTest)
+
+        track.test(poolId, device, updatedTestResult, final)
     }
 
     private fun extractEventAndDevice(transition: StateMachine.Transition<TestState, TestEvent, TestAction>): Pair<TestResult?, DeviceInfo?> {
@@ -348,7 +353,7 @@ class PoolProgressAccumulator(
     fun aggregateResult(): Boolean {
         synchronized(tests) {
             return tests.map {
-                when (it.value.state) {
+                when (it.value.state.state) {
                     is TestState.Added -> {
                         logger.error { "Expected to run ${it.key} but no events received" }
                         false
@@ -377,7 +382,7 @@ class PoolProgressAccumulator(
         var total = 0
 
         tests.values.forEach {
-            val state = it.state
+            val state = it.state.state
             when (state) {
                 is TestState.Added -> {
                     total += state.total
@@ -408,7 +413,7 @@ class PoolProgressAccumulator(
     }
 
     private fun transition(test: Test, transition: TestEvent): StateMachine.Transition<TestState, TestEvent, TestAction>? {
-        val testActionTransition = tests[test.toTestName()]?.transition(transition)
+        val testActionTransition = tests[test.toTestName()]?.state?.transition(transition)
         if (testActionTransition == null) {
             logger.warn { "No FSM registered for test ${test.toTestName()}" }
         }
@@ -433,3 +438,8 @@ private fun <STATE : Any, EVENT : Any, SIDE_EFFECT : Any> StateMachine.Transitio
         null -> null
     }
 }
+
+private data class TestExecutionData(
+    val originalTest: Test,
+    val state: StateMachine<TestState, TestEvent, TestAction>
+)
