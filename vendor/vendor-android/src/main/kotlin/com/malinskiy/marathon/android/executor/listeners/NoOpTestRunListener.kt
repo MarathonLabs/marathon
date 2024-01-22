@@ -15,6 +15,8 @@ open class NoOpTestRunListener : AndroidTestRunListener {
 
     override suspend fun testEnded(test: TestIdentifier, testMetrics: Map<String, String>) {}
 
+    override suspend fun testRunFailing(error: String, stackTrace: String) {}
+
     override suspend fun testRunFailed(errorMessage: String) {}
 
     override suspend fun testRunStopped(elapsedTime: Long) {}
