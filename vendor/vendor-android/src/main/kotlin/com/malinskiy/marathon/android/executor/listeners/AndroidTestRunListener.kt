@@ -18,6 +18,8 @@ interface AndroidTestRunListener {
 
     suspend fun testEnded(test: TestIdentifier, testMetrics: Map<String, String>) {}
 
+    suspend fun testRunFailing(error: String, stackTrace: String) {}
+
     suspend fun testRunFailed(errorMessage: String) {}
 
     suspend fun testRunStopped(elapsedTime: Long) {}

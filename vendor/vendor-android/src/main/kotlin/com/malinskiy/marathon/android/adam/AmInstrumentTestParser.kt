@@ -8,6 +8,7 @@ import com.malinskiy.adam.request.testrunner.TestFailed
 import com.malinskiy.adam.request.testrunner.TestIgnored
 import com.malinskiy.adam.request.testrunner.TestRunEnded
 import com.malinskiy.adam.request.testrunner.TestRunFailed
+import com.malinskiy.adam.request.testrunner.TestRunFailing
 import com.malinskiy.adam.request.testrunner.TestRunStartedEvent
 import com.malinskiy.adam.request.testrunner.TestRunStopped
 import com.malinskiy.adam.request.testrunner.TestRunnerRequest
@@ -52,10 +53,11 @@ class AmInstrumentTestParser(
                 return@withRetry parseTests(device, configuration, vendorConfiguration, testBundles, blockListenerArgumentOverride)
             } catch (e: CancellationException) {
                 throw e
-            } catch (e: PossibleListenerIssueException) {
-                logger.warn { "The previous parse operation failed. The most possible reason is " +
-                    "a developer missed this step https://docs.marathonlabs.io/android/configure#test-parser. " +
-                    "The next attempt will be done without overridden testrun listener." }
+            } catch (e: TestAnnotationProducerNotFoundException) {
+                logger.warn {
+                    "Previous parsing attempt failed due to test parser misconfiguration: test annotation producer was not found. See https://docs.marathonlabs.io/runner/android/configure#test-parser. " +
+                        "Next parsing attempt will remove overridden test run listener."
+                }
                 blockListenerArgumentOverride = true
                 throw e
             } catch (throwable: Throwable) {
@@ -84,6 +86,7 @@ class AmInstrumentTestParser(
                         .filterNot { it.key == LISTENER_ARGUMENT && it.value == TEST_ANNOTATION_PRODUCER }
                     else testParserConfiguration.instrumentationArgs
                 }
+
                 else -> emptyMap()
             }
 
@@ -127,12 +130,17 @@ class AmInstrumentTestParser(
                                 testBundleIdentifier.put(test, androidTestBundle)
                             }
 
-                            is TestRunFailed -> {
-                                if (overrides.containsKey(LISTENER_ARGUMENT) && overrides[LISTENER_ARGUMENT] == TEST_ANNOTATION_PRODUCER)
-                                    throw PossibleListenerIssueException()
+                            is TestRunFailing -> {
+                                // Error message is stable, see https://github.com/android/android-test/blame/1ae53b93e02cc363311f6564a35edeea1b075103/runner/android_junit_runner/java/androidx/test/internal/runner/RunnerArgs.java#L624
+                                if (event.error.contains("Could not find extra class $TEST_ANNOTATION_PRODUCER")) {
+                                    throw TestAnnotationProducerNotFoundException()
+                                }
                             }
+
+                            is TestRunFailed -> Unit
                             is TestRunStopped -> Unit
                             is TestRunEnded -> Unit
+
                         }
                     }
                 }
@@ -141,7 +149,7 @@ class AmInstrumentTestParser(
             if (!observedAnnotations) {
                 logger.warn {
                     "Bundle ${bundle.id} did not report any test annotations. If you need test annotations retrieval, remote test parser requires additional setup " +
-                        "see https://docs.marathonlabs.io/android/configure#test-parser"
+                        "see https://docs.marathonlabs.io/runner/android/configure#test-parser"
                 }
             }
 
@@ -150,4 +158,4 @@ class AmInstrumentTestParser(
     }
 }
 
-private class PossibleListenerIssueException : RuntimeException()
+private class TestAnnotationProducerNotFoundException : RuntimeException()
