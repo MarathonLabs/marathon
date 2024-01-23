@@ -70,6 +70,7 @@ import kotlinx.coroutines.withContext
 import java.awt.image.BufferedImage
 import java.io.File
 import java.time.Duration
+import java.util.concurrent.CopyOnWriteArrayList
 import kotlin.coroutines.CoroutineContext
 import com.malinskiy.marathon.android.model.ShellCommandResult as MarathonShellCommandResult
 
@@ -345,18 +346,14 @@ class AdamAndroidDevice(
         }
     }
 
-    private val logcatListeners = mutableListOf<LineListener>()
+    private val logcatListeners = CopyOnWriteArrayList<LineListener>()
 
     override fun addLineListener(listener: LineListener) {
-        synchronized(logcatListeners) {
-            logcatListeners.add(listener)
-        }
+        logcatListeners.add(listener)
     }
 
     override fun removeLineListener(listener: LineListener) {
-        synchronized(logcatListeners) {
-            logcatListeners.remove(listener)
-        }
+        logcatListeners.remove(listener)
     }
 
     override suspend fun safeStartScreenRecorder(
