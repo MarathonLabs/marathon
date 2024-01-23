@@ -137,10 +137,12 @@ class Marathon(
 
         if (parsedAllTests.isEmpty()) throw NoTestCasesFoundException("No tests cases were found")
         val parsedFilteredTests = applyTestFilters(parsedAllTests)
-        val shard = prepareTestShard(parsedFilteredTests, analytics)
 
         if (executionCommand is ParseCommand) {
-            val flakyTests = if (executionCommand.includeFlakyTests) shard.flakyTests.toList() else emptyList()
+            // Delay potentially querying remote TSDB unless user requested to get flaky tests
+            val flakyTests = if (executionCommand.includeFlakyTests) {
+                prepareTestShard(parsedFilteredTests, analytics).flakyTests.toList()
+            } else emptyList()
             marathonTestParseCommand.execute(
                 tests = parsedFilteredTests,
                 flakyTests = flakyTests,
@@ -149,6 +151,8 @@ class Marathon(
             stopKoin()
             return true
         }
+
+        val shard = prepareTestShard(parsedFilteredTests, analytics)
 
         usageTracker.trackEvent(Event.TestsTotal(parsedAllTests.size))
         usageTracker.trackEvent(Event.TestsRun(parsedFilteredTests.size))

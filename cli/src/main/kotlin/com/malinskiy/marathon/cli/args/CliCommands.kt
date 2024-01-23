@@ -59,7 +59,7 @@ class Parse(
         .file()
         .default(File("Marathonfile"))
     private val parseOutputFileName by option("--output", "-o", help="Output file name in yaml format")
-    private val includeFlakyTests by option("--include-flaky-tests", "-f", help="Include/Exclude flaky tests that will be run too in the output")
+    private val includeFlakyTests by option("--include-flaky-tests", "-f", help="Include/exclude flaky tests that will have preventive retries according to the current flakinessStrategy")
         .convert { it.toBoolean() }
         .default(false)
     override fun run() {
