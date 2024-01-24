@@ -71,6 +71,7 @@ import net.schmizz.sshj.transport.TransportException
 import java.awt.image.BufferedImage
 import java.io.File
 import java.time.Duration
+import java.util.concurrent.CopyOnWriteArrayList
 import javax.imageio.ImageIO
 import kotlin.coroutines.CoroutineContext
 
@@ -249,7 +250,12 @@ class AppleSimulatorDevice(
                     try {
                         val (listener, lineListeners) = createExecutionListeners(devicePoolId, testBatch, deferred)
                         executionLineListeners = lineListeners.onEach { addLineListener(it) }
-                        AppleDeviceTestRunner(this@AppleSimulatorDevice, testBundleIdentifier).execute(configuration, vendorConfiguration, testBatch, listener)
+                        AppleDeviceTestRunner(this@AppleSimulatorDevice, testBundleIdentifier).execute(
+                            configuration,
+                            vendorConfiguration,
+                            testBatch,
+                            listener
+                        )
                     } finally {
                         executionLineListeners.forEach { removeLineListener(it) }
                     }
@@ -664,18 +670,14 @@ class AppleSimulatorDevice(
             }
     }
 
-    private val lineListeners = mutableListOf<LineListener>()
+    private val lineListeners = CopyOnWriteArrayList<LineListener>()
 
     override fun addLineListener(listener: LineListener) {
-        synchronized(lineListeners) {
-            lineListeners.add(listener)
-        }
+        lineListeners.add(listener)
     }
 
     override fun removeLineListener(listener: LineListener) {
-        synchronized(lineListeners) {
-            lineListeners.remove(listener)
-        }
+        lineListeners.remove(listener)
     }
 
     private fun prepareRecorderListener(
