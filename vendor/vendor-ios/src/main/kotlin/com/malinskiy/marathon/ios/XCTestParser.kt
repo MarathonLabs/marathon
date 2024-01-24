@@ -6,6 +6,7 @@ import com.malinskiy.marathon.config.vendor.VendorConfiguration
 import com.malinskiy.marathon.device.Device
 import com.malinskiy.marathon.exceptions.TestParsingException
 import com.malinskiy.marathon.execution.RemoteTestParser
+import com.malinskiy.marathon.execution.listener.LineListener
 import com.malinskiy.marathon.execution.withRetry
 import com.malinskiy.marathon.ios.extensions.testBundle
 import com.malinskiy.marathon.ios.model.AppleTestBundle
@@ -22,7 +23,7 @@ class XCTestParser(
     private val configuration: Configuration,
     private val vendorConfiguration: VendorConfiguration.IOSConfiguration,
     private val testBundleIdentifier: AppleTestBundleIdentifier
-) : RemoteTestParser<AppleDeviceProvider> {
+) : RemoteTestParser<AppleDeviceProvider>, LineListener {
     private val logger = MarathonLogging.logger(XCTestParser::class.java.simpleName)
 
     override suspend fun extract(device: Device): List<Test> {
@@ -72,6 +73,8 @@ class XCTestParser(
         var channel: ReceiveChannel<List<TestEvent>>? = null
         var tests = mutableSetOf<Test>()
         try {
+            lineBuffer.setLength(0)
+            device.addLineListener(this)
             val localChannel = device.executeTestRequest(runnerRequest)
             channel = localChannel
             for (events in localChannel) {
@@ -94,6 +97,7 @@ class XCTestParser(
             logger.error(e) { errorMessage }
         } finally {
             channel?.cancel()
+            device.removeLineListener(this)
         }
 
         val xctest = vendorConfiguration.bundle?.xctest ?: throw IllegalArgumentException("No test bundle provided")
@@ -108,10 +112,20 @@ class XCTestParser(
             }
         }
 
+        if (tests.size == 0) {
+            logger.warn { "XCTestParser failed to parse tests. xcodebuild output:" + System.lineSeparator() + "$lineBuffer" }
+        }
+
         val testBundle = AppleTestBundle(vendorConfiguration.bundle?.app, xctest)
         val result = tests.toList()
         result.forEach { testBundleIdentifier.put(it, testBundle) }
 
         return result
+    }
+
+    private val lineBuffer = StringBuffer()
+
+    override suspend fun onLine(line: String) {
+        lineBuffer.appendLine(line)
     }
 }
