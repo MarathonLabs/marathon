@@ -5,16 +5,16 @@ object Versions {
     val coroutines = "1.7.3"
     val coroutinesTest = coroutines
 
-    val androidCommon = "31.1.3"
+    val androidCommon = "31.2.2"
     val adam = "0.5.3"
     val dexTestParser = "2.3.4"
     val kotlinLogging = "3.0.5"
-    val logbackClassic = "1.4.11"
+    val logbackClassic = "1.4.14"
     val axmlParser = "1.0"
     val bugsnag = "3.7.1"
 
     val junitGradle = "1.2.0"
-    val androidGradleVersion = "8.1.3"
+    val androidGradleVersion = "8.2.2"
     val gradlePluginPublish = "1.2.1"
     val gradlePluginShadow = "8.1.1"
 
@@ -31,33 +31,33 @@ object Versions {
     val apacheCommonsIO = "2.11.0"
     val apacheCommonsCodec = "1.15"
     val okhttp = "4.12.0"
-    val influxDbClient = "2.23"
-    val influxDb2Client = "6.10.0"
-    val clikt = "4.2.1"
+    val influxDbClient = "2.24"
+    val influxDb2Client = "6.12.0"
+    val clikt = "4.2.2"
     val jacksonDatabind = "2.15.3"
     val jacksonKotlin = jacksonDatabind
     val jacksonYaml = jacksonDatabind
     val jacksonJSR310 = jacksonDatabind
     val jacksonAnnotations = jacksonDatabind
     val ddPlist = "1.27"
-    val guava = "32.1.3-jre"
-    val rsync4j = "3.2.7-5"
-    val sshj = "0.37.0"
+    val guava = "33.0.0-jre"
+    val rsync4j = "3.2.7-6"
+    val sshj = "0.38.0"
     val kotlinProcess = "1.4.1"
-    val testContainers = "1.19.1"
+    val testContainers = "1.19.4"
     val jupiterEngine = junit5
     val jansi = "2.4.1"
     val scalr = "4.2"
-    val allureTestFilter = "2.24.0"
-    val allureJava = "2.24.0"
+    val allureTestFilter = "2.25.0"
+    val allureJava = "2.25.0"
     val allureKotlin = "2.4.0"
     val allureEnvironment = "1.0.0"
-    val mockitoKotlin = "5.1.0"
+    val mockitoKotlin = "5.2.1"
     val dokka = "1.9.10"
-    val koin = "3.5.0"
+    val koin = "3.5.3"
     val jsonAssert = "1.5.1"
     val xmlUnit = "2.9.1"
-    val assertk = "0.27.0"
+    val assertk = "0.28.0"
 }
 
 object BuildPlugins {
