@@ -16,8 +16,8 @@ buildscript {
 
 
 plugins {
-    id("io.gitlab.arturbosch.detekt") version "1.23.3"
-    id("com.github.ben-manes.versions") version "0.49.0"
+    id("io.gitlab.arturbosch.detekt") version "1.23.4"
+    id("com.github.ben-manes.versions") version "0.51.0"
 }
 
 configure<DetektExtension> {
