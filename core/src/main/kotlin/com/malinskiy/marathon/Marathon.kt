@@ -139,18 +139,23 @@ class Marathon(
         val parsedFilteredTests = applyTestFilters(parsedAllTests)
 
         if (executionCommand is ParseCommand) {
+            // Delay potentially querying remote TSDB unless user requested to get flaky tests
+            val flakyTests = if (executionCommand.includeFlakyTests) {
+                prepareTestShard(parsedFilteredTests, analytics).flakyTests.toList()
+            } else emptyList()
             marathonTestParseCommand.execute(
                 tests = parsedFilteredTests,
+                flakyTests = flakyTests,
                 outputFileName = executionCommand.outputFileName
             )
             stopKoin()
             return true
         }
 
+        val shard = prepareTestShard(parsedFilteredTests, analytics)
+
         usageTracker.trackEvent(Event.TestsTotal(parsedAllTests.size))
         usageTracker.trackEvent(Event.TestsRun(parsedFilteredTests.size))
-
-        val shard = prepareTestShard(parsedFilteredTests, analytics)
 
         log.info("Scheduling ${parsedFilteredTests.size} tests")
         log.debug(parsedFilteredTests.joinToString(", ") { it.toTestName() })

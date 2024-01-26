@@ -37,14 +37,18 @@ Options:
 ## Parse command
 ```shell-session
 foo@bar $ marathon parse -h
-Usage: marathon parse [OPTIONS]
+Usage: marathon parse [<options>]
 
   Print the list of tests without executing them
 
 Options:
-  -m, --marathonfile PATH  Marathonfile file path
-  -o, --output TEXT        Output file name in yaml format
-  -h, --help               Show this message and exit
+  -m, --marathonfile=<path>  Marathonfile file path
+  -o, --output=<text>        Output file name in yaml format
+  -f, --include-flaky-tests=<value>
+                             Include/exclude flaky tests that will have
+                             preventive retries according to the current
+                             flakinessStrategy
+  -h, --help                 Show this message and exit
 ```
 
 ## Version command

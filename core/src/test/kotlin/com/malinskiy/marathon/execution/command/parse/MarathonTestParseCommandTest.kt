@@ -26,7 +26,7 @@ class MarathonTestParseCommandTest {
     fun `test parse command should create a file with zero tests`() {
         val testList = listOf<com.malinskiy.marathon.test.Test>()
 
-        marathonTestParseCommand.execute(testList, RESULT_FILE_NAME)
+        marathonTestParseCommand.execute(testList, emptyList(), RESULT_FILE_NAME)
 
         val file = File(tempRootDir.absolutePath, RESULT_FILE_NAME_WITH_EXT)
         file.exists() shouldBe true
@@ -40,7 +40,7 @@ class MarathonTestParseCommandTest {
         val test1 = com.malinskiy.marathon.test.Test("com.example", "SimpleTest", "method1", emptyList())
         val testList = listOf(test1)
 
-        marathonTestParseCommand.execute(testList, RESULT_FILE_NAME)
+        marathonTestParseCommand.execute(testList, emptyList(), RESULT_FILE_NAME)
 
         val file = File(tempRootDir.absolutePath, RESULT_FILE_NAME_WITH_EXT)
         file.exists() shouldBe true
@@ -56,13 +56,33 @@ class MarathonTestParseCommandTest {
         val test3 = com.malinskiy.marathon.test.Test("com.example", "SimpleTest", "method3", emptyList())
         val testList = listOf(test1, test2, test3)
 
-        marathonTestParseCommand.execute(testList, RESULT_FILE_NAME)
+        marathonTestParseCommand.execute(testList, emptyList(), RESULT_FILE_NAME)
 
         val file = File(tempRootDir.absolutePath, RESULT_FILE_NAME_WITH_EXT)
         file.exists() shouldBe true
 
         val content = file.readText()
         content.trimIndent() shouldBeEqualTo severalTestsResult
+    }
+
+    @Test
+    fun `test parse command should create a file with several tests and flaky tests`() {
+        val test1 = com.malinskiy.marathon.test.Test("com.example", "SimpleTest", "method1", emptyList())
+        val test2 = com.malinskiy.marathon.test.Test("com.example", "SimpleTest", "method2", emptyList())
+        val test3 = com.malinskiy.marathon.test.Test("com.example", "SimpleTest", "method3", emptyList())
+        val testList = listOf(test1, test2, test3)
+
+        val flakyTest1 = com.malinskiy.marathon.test.Test("com.example", "SimpleTest", "method1", emptyList())
+        val flakyTest2 = com.malinskiy.marathon.test.Test("com.example", "SimpleTest", "method2", emptyList())
+        val flakyTestList = listOf(flakyTest1, flakyTest2)
+
+        marathonTestParseCommand.execute(testList, flakyTestList, RESULT_FILE_NAME)
+
+        val file = File(tempRootDir.absolutePath, RESULT_FILE_NAME_WITH_EXT)
+        file.exists() shouldBe true
+
+        val content = file.readText()
+        content.trimIndent() shouldBeEqualTo severalTestsAndFlakyTestsResult
     }
 }
 
@@ -89,4 +109,28 @@ tests:
 - pkg: "com.example"
   clazz: "SimpleTest"
   method: "method3"
+  metaProperties: []""".trimIndent()
+
+private val severalTestsAndFlakyTestsResult: String = """---
+tests:
+- pkg: "com.example"
+  clazz: "SimpleTest"
+  method: "method1"
+  metaProperties: []
+- pkg: "com.example"
+  clazz: "SimpleTest"
+  method: "method2"
+  metaProperties: []
+- pkg: "com.example"
+  clazz: "SimpleTest"
+  method: "method3"
+  metaProperties: []
+flakyTests:
+- pkg: "com.example"
+  clazz: "SimpleTest"
+  method: "method1"
+  metaProperties: []
+- pkg: "com.example"
+  clazz: "SimpleTest"
+  method: "method2"
   metaProperties: []""".trimIndent()
