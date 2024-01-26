@@ -97,11 +97,15 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v3
+      - uses: little-core-labs/get-git-tag@v3.0.2
+        if: ${{ startsWith(github.ref, 'refs/tags/') }}
+      - name: Set output
+        run: echo "version=$GIT_TAG_NAME" >> $GITHUB_OUTPUT
       - name: Send Telegram Release message
         uses: appleboy/telegram-action@master
         with:
           to: ${{ secrets.TELEGRAM_TO }}
           token: ${{ secrets.TELEGRAM_TOKEN }}
           message: |
-            New Marathon version has been submitted to Maven central and will be available soon https://github.com/MarathonLabs/marathon/releases/
+            New Marathon version ${{ steps.notify.outputs.version }} has been submitted to Maven central and will be available soon https://github.com/MarathonLabs/marathon/releases/
 
