@@ -16,10 +16,8 @@ import kotlin.io.path.absolutePathString
 
 class FileManagerTest {
     private val output = Files.createTempDir()
-    private val fileManager = FileManager(MAX_PATH, output)
 
     private companion object {
-        val MAX_PATH = 255
         val poolId = DevicePoolId("testPoolId")
         val deviceInfo = DeviceInfo(
             operatingSystem = OperatingSystem("23"),
@@ -56,30 +54,32 @@ class FileManagerTest {
 
     @Test
     fun createFilenameNormalLengthTest() {
+        val fileManager = FileManager(0, 255, output)
         val file = fileManager.createFile(FileType.LOG, poolId, deviceInfo, shortNameTest, batchId)
         file.name shouldBeEqualTo "com.example.Clazz#method-batchId.log"
     }
 
     @Test
-    fun createFilenameLongLengthMethodTest() {
+    fun createFilenameLongLengthMethodLimitedPathTest() {
+        val fileManager = FileManager(255, 0, output)
         val file = fileManager.createFile(FileType.LOG, poolId, deviceInfo, longNameTest, batchId)
         file.absolutePath.length shouldBeEqualTo 255
         val filenameLimit = 255 - file.parentFile.absolutePath.length - File.separator.length
-        val fqtnLimit = filenameLimit - "-${batchId}.log".length
-        file.name shouldBeEqualTo "${longNameTest.toTestName().escape().take(fqtnLimit)}-${batchId}.log"
+        file.name shouldBeEqualTo "${longNameTest.toTestName()}-${batchId}.log".escape().take(filenameLimit)
     }
 
     @Test
     fun testCreateFilenameNamedParameterizedLong() {
+        val fileManager = FileManager(255, 0, output)
         val file = fileManager.createFile(FileType.LOG, poolId, deviceInfo, longNamedParameterizedTest, batchId)
         file.absolutePath.length shouldBeEqualTo 255
         val filenameLimit = 255 - file.parentFile.absolutePath.length - File.separator.length
-        val fqtnLimit = filenameLimit - "-${batchId}.log".length
-        file.name shouldBeEqualTo "${longNamedParameterizedTest.toTestName().escape().take(fqtnLimit)}-${batchId}.log"
+        file.name shouldBeEqualTo "${longNamedParameterizedTest.toTestName()}-${batchId}.log".escape().take(filenameLimit)
     }
 
     @Test
     fun testDeviceSerialEscaping() {
+        val fileManager = FileManager(0, 255, output)
         val file = fileManager.createFile(
             FileType.LOG, poolId, DeviceInfo(
                 operatingSystem = OperatingSystem("23"),
@@ -95,7 +95,7 @@ class FileManagerTest {
     }
 
     @Test
-    fun testTooLongOutputFolder() {
+    fun testTooLongOutputPathUnlimitedFilename() {
         val test = com.malinskiy.marathon.test.Test(
             pkg = "com.xxyyzzxxyy.android.abcdefgh.abcdefghi",
             clazz = "PackageNameTest",
@@ -105,9 +105,10 @@ class FileManagerTest {
 
         val tempDir = Files.createTempDir()
         val proposedPath = Paths.get(tempDir.absolutePath, FileType.LOG.name, poolId.name, deviceInfo.safeSerialNumber)
-        val additionalPathCharacters = MAX_PATH - proposedPath.absolutePathString().length
+        val limitedMaxPath = 255
+        val additionalPathCharacters = limitedMaxPath - proposedPath.absolutePathString().length
         val limitedOutputDirectory = File(tempDir, "x".repeat(additionalPathCharacters))
-        val limitedFileManager = FileManager(MAX_PATH, limitedOutputDirectory)
+        val limitedFileManager = FileManager(limitedMaxPath, 0, limitedOutputDirectory)
         val file = limitedFileManager.createFile(FileType.LOG, poolId, deviceInfo, test, batchId)
     } 
 }

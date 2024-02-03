@@ -105,9 +105,9 @@ class ScreenCapturerTestRunListenerTest {
             }
 
             device.setup()
-            whenever(fileManager.createFile(FileType.SCREENSHOT, devicePoolId, device.toDeviceInfo(), test1.toTest(), batch.id))
+            whenever(fileManager.createFile(FileType.SCREENSHOT, devicePoolId, device.toDeviceInfo(), test = test1.toTest(), testBatchId = batch.id))
                 .thenReturn(screenshot)
-            whenever(fileManager.createFile(FileType.SCREENSHOT, devicePoolId, device.toDeviceInfo(), batch.id))
+            whenever(fileManager.createFile(FileType.SCREENSHOT, devicePoolId, device.toDeviceInfo(), testBatchId = batch.id))
                 .thenReturn(screenshotBatch)
 
             val listener = ScreenCapturerTestRunListener(
@@ -126,8 +126,8 @@ class ScreenCapturerTestRunListenerTest {
             delay(300)
             listener.testRunFailed("Problems are all around us")
 
-            verify(fileManager, times(2)).createFile(FileType.SCREENSHOT, devicePoolId, device.toDeviceInfo(), test1.toTest(), batch.id)
-            verify(fileManager, times(1)).createFile(FileType.SCREENSHOT, devicePoolId, device.toDeviceInfo(), batch.id)
+            verify(fileManager, times(2)).createFile(FileType.SCREENSHOT, devicePoolId, device.toDeviceInfo(), test = test1.toTest(), testBatchId = batch.id)
+            verify(fileManager, times(1)).createFile(FileType.SCREENSHOT, devicePoolId, device.toDeviceInfo(), testBatchId = batch.id)
         }
     }
 

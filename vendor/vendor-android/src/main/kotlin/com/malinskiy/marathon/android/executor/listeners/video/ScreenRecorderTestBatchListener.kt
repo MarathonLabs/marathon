@@ -135,7 +135,7 @@ class ScreenRecorderTestBatchListener(
      * This can be called both when test times out and device unavailable
      */
     private suspend fun pullLastBatchVideo(remoteFilePath: String) {
-        val localVideoFile = fileManager.createFile(FileType.VIDEO, pool, device.toDeviceInfo(), testBatchId)
+        val localVideoFile = fileManager.createFile(FileType.VIDEO, pool, device.toDeviceInfo(), testBatchId = testBatchId)
         val millis = measureTimeMillis {
             device.safePullFile(remoteFilePath, localVideoFile.toString())
         }

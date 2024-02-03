@@ -105,7 +105,7 @@ class ScreenCapturerTestRunListener(
             val existingRecording = fileManager.createFile(FileType.SCREENSHOT, pool, device.toDeviceInfo(), id.toTest(), testBatchId)
             if (existingRecording.length() > 0) {
                 //Moving existing recording for a test as a failure for a batch
-                existingRecording.renameTo(fileManager.createFile(FileType.SCREENSHOT, pool, device.toDeviceInfo(), testBatchId))
+                existingRecording.renameTo(fileManager.createFile(FileType.SCREENSHOT, pool, device.toDeviceInfo(), testBatchId = testBatchId))
             }
         }
     }

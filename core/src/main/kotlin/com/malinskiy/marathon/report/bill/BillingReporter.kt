@@ -57,7 +57,7 @@ internal class BillingReporter(
 
         bills.forEach {
             val json = gson.toJson(it)
-            fileManager.createFile(FileType.BILL, it.pool, it.device).writeText(json)
+            fileManager.createFile(FileType.BILL, it.pool, device = it.device).writeText(json)
         }
 
         usageTracker.trackEvent(Event.Devices(bills.size))

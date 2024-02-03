@@ -12,35 +12,32 @@ import java.nio.file.Path
 import java.nio.file.Paths.get
 import java.util.UUID
 
+/**
+ * Validation logic should check filename first, then check if the resulting path is within max path len
+ */
 @Suppress("TooManyFunctions")
-class FileManager(private val maxPath: Int, private val output: File) {
+class FileManager(private val maxPath: Int, private val maxFilename: Int, private val output: File) {
     val log = MarathonLogging.logger("FileManager")
 
-    fun createFile(fileType: FileType, pool: DevicePoolId, device: DeviceInfo, test: Test, testBatchId: String? = null): File {
-        val directory = createDirectory(fileType, pool, device)
-        val filename = createFilename(test, fileType, maxPath - (directory.toAbsolutePath().toString().length + 1), testBatchId)
-        return createFile(directory, filename)
-    }
-
-    fun createFile(fileType: FileType, pool: DevicePoolId, device: DeviceInfo, testBatchId: String): File {
-        val directory = createDirectory(fileType, pool, device)
-        val filename = createFilename(fileType, testBatchId)
-        return createFile(directory, filename)
-    }
-
-    fun createFile(fileType: FileType, pool: DevicePoolId, device: DeviceInfo): File {
-        val directory = createDirectory(fileType, pool)
-        val filename = createFilename(device, fileType)
+    fun createFile(fileType: FileType, pool: DevicePoolId, device: DeviceInfo, test: Test? = null, testBatchId: String? = null): File {
+        val directory = when {
+            test != null || testBatchId != null -> createDirectory(fileType, pool, device)
+            else -> createDirectory(fileType, pool)
+        }
+        val filename = when {
+            test != null -> createTestFilename(test, fileType, testBatchId)
+            testBatchId != null -> createBatchFilename(testBatchId, fileType)
+            else -> createDeviceFilename(device, fileType)
+        }
         return createFile(directory, filename)
     }
 
     fun createScreenshotFile(extension: String, pool: DevicePoolId, device: DeviceInfo, test: Test, testBatchId: String): File {
         val directory = createDirectory(FileType.SCREENSHOT, pool, device)
         val filename =
-            createFilename(
+            createTestFilename(
                 test,
                 FileType.SCREENSHOT,
-                maxPath - (directory.toAbsolutePath().toString().length + 1),
                 testBatchId = null,
                 extension,
                 UUID.randomUUID().toString()
@@ -48,49 +45,68 @@ class FileManager(private val maxPath: Int, private val output: File) {
         return createFile(directory, filename)
     }
 
-    fun createFolder(folderType: FolderType): File = createDirectories(get(output.absolutePath, folderType.dir)).toFile()
-    fun createFolder(folderType: FolderType, pool: DevicePoolId, device: DeviceInfo): File =
-        createDirectories(get(output.absolutePath, folderType.dir, pool.name, device.safeSerialNumber)).toFile()
+    fun createFolder(folderType: FolderType, pool: DevicePoolId? = null, device: DeviceInfo? = null): File {
+        var path = get(output.absolutePath, folderType.dir)
+        if (pool != null) {
+            path = path.resolve(pool.name)
+        }
+        if (device != null) {
+            path = path.resolve(device.safeSerialNumber)
+        }
 
-    fun createFolder(folderType: FolderType, pool: DevicePoolId): File =
-        createDirectories(get(output.absolutePath, folderType.dir, pool.name)).toFile()
+        val maybeTooLongPath = path.toFile()
+        path = if (maxPath > 0 && maybeTooLongPath.absolutePath.length > maxPath) {
+            val trimmed = maybeTooLongPath.absolutePath.take(maxPath)
+            log.error { "Directory path length cannot exceed $maxPath characters and has been trimmed from $maybeTooLongPath to $trimmed and can create a conflict. " +
+                "This happened because the combination of file path, pool name and device serial is too long." }
+            File(trimmed)
+        } else {
+            maybeTooLongPath
+        }.toPath()
 
-    fun createFolder(folderType: FolderType, device: DeviceInfo): File =
-        createDirectories(get(output.absolutePath, folderType.dir, device.safeSerialNumber)).toFile()
-
-    fun createTestResultFile(filename: String): File {
-        val resultsFolder = get(output.absolutePath, FileType.TEST_RESULT.dir).toFile()
-        resultsFolder.mkdirs()
-        return File(resultsFolder, filename)
+        return createDirectories(path).toFile()
     }
 
-    private fun createDirectory(fileType: FileType, pool: DevicePoolId, device: DeviceInfo): Path =
-        createDirectories(getDirectory(fileType, pool, device))
+    fun createTestResultFile(filename: String): File {
+        val resultsFolder = get(output.absolutePath, FileType.TEST_RESULT.dir)
+        resultsFolder.toFile().mkdirs()
+        return createFile(resultsFolder, filename)
+    }
 
-    private fun createDirectory(fileType: FileType, pool: DevicePoolId): Path =
-        createDirectories(getDirectory(fileType, pool))
+    private fun createDirectory(fileType: FileType, pool: DevicePoolId, device: DeviceInfo? = null): Path {
+        return createDirectories(getDirectory(fileType, pool, serial = device?.safeSerialNumber))
+    }
 
-    private fun getDirectory(fileType: FileType, pool: DevicePoolId, device: DeviceInfo): Path =
-        getDirectory(fileType, pool, device.safeSerialNumber)
-
-    private fun getDirectory(fileType: FileType, pool: DevicePoolId, serial: String): Path =
-        get(output.absolutePath, fileType.dir, pool.name, serial)
-
-    private fun getDirectory(fileType: FileType, pool: DevicePoolId): Path =
-        get(output.absolutePath, fileType.dir, pool.name)
+    private fun getDirectory(fileType: FileType, pool: DevicePoolId, serial: String? = null): Path {
+        val path = get(output.absolutePath, fileType.dir, pool.name)
+        return serial?.let {
+            path.resolve(serial)
+        } ?: path
+    }
 
     private fun createFile(directory: Path, filename: String): File {
-        val maybeTooLongPath = File(directory.toFile(), filename)
-        return if (maybeTooLongPath.absolutePath.length > maxPath) {
+        val trimmedFilename = if (maxFilename > 0 && filename.length > maxFilename) {
+            val safeFilename = filename.take(maxFilename)
+            log.error {
+                "File name length cannot exceed $maxFilename characters and has been trimmed to $safeFilename and can create a conflict." +
+                    "This usually happens because the test name is too long."
+            }
+            safeFilename
+        } else {
+            filename
+        }
+        val maybeTooLongPath = File(directory.toFile(), trimmedFilename)
+        return if (maxPath > 0 && maybeTooLongPath.absolutePath.length > maxPath) {
             val trimmed = maybeTooLongPath.absolutePath.substring(0 until maxPath)
-            log.error { "File path length cannot exceed $maxPath characters and has been trimmed to $trimmed and can create a conflict. This happened because the combination of file path, test class name, and test name is too long." }
+            log.error { "File path length cannot exceed $maxPath characters and has been trimmed from $maybeTooLongPath to $trimmed and can create a conflict. " +
+                "This happened because the combination of file path, test class name, and test name is too long." }
             File(trimmed)
         } else {
             maybeTooLongPath
         }
     }
 
-    private fun createFilename(fileType: FileType, testBatchId: String): String {
+    private fun createBatchFilename(testBatchId: String, fileType: FileType): String {
         return StringBuilder().apply {
             append(testBatchId)
             if (fileType.suffix.isNotEmpty()) {
@@ -99,10 +115,9 @@ class FileManager(private val maxPath: Int, private val output: File) {
         }.toString()
     }
 
-    private fun createFilename(
+    private fun createTestFilename(
         test: Test,
         fileType: FileType,
-        limit: Int,
         testBatchId: String? = null,
         overrideExtension: String? = null,
         id: String? = null,
@@ -120,22 +135,11 @@ class FileManager(private val maxPath: Int, private val output: File) {
                 append(".${fileType.suffix}")
             }
         }.toString()
-        val rawTestName = test.toTestName().escape()
-        val testName = when {
-            limit - testSuffix.length >= 0 -> rawTestName.take(limit - testSuffix.length)
-            else -> ""
-        }
-        val fileName = "$testName$testSuffix"
-        if (rawTestName.length > testName.length) {
-            when {
-                limit >= 0 -> log.error { "File name length cannot exceed $limit characters and has been trimmed to $fileName and can create a conflict. This happened because the combination of file path, test class name, and test name is too long." }
-                else -> log.error { "Base path for writing a file ${rawTestName}$testSuffix is already maxed out and is ${-limit} characters more than the allowed limit of ${maxPath}." }
-            }
-        }
-        return fileName
+        val testName = test.toTestName().escape()
+        return "$testName$testSuffix"
     }
 
-    private fun createFilename(device: DeviceInfo, fileType: FileType): String {
+    private fun createDeviceFilename(device: DeviceInfo, fileType: FileType): String {
         return StringBuilder().apply {
             append(device.safeSerialNumber)
             if (fileType.suffix.isNotEmpty()) {

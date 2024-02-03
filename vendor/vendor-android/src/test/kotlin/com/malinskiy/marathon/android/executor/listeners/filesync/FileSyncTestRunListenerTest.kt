@@ -92,7 +92,7 @@ class FileSyncTestRunListenerTest {
                 AggregationMode.DEVICE_AND_POOL -> verify(fileManager, times(1)).createFolder(
                     FolderType.DEVICE_FILES,
                     poolId,
-                    device.toDeviceInfo()
+                    device = device.toDeviceInfo()
                 )
                 AggregationMode.DEVICE -> verify(fileManager, times(1)).createFolder(FolderType.DEVICE_FILES, device.toDeviceInfo())
                 AggregationMode.POOL -> verify(fileManager, times(1)).createFolder(FolderType.DEVICE_FILES, poolId)
@@ -169,7 +169,7 @@ class FileSyncTestRunListenerTest {
         )
         val device = TestDeviceFactory.create(client, configuration, mock())
         val poolId = DevicePoolId("testpool")
-        val fileManager = FileManager(1024, tempDir)
+        val fileManager = FileManager(1024, configuration.outputConfiguration.maxFilename, tempDir)
         val androidConfiguration = configuration.vendorConfiguration as VendorConfiguration.AndroidConfiguration
         val listener = FileSyncTestRunListener(poolId, device, androidConfiguration.fileSyncConfiguration, fileManager)
 
@@ -222,7 +222,7 @@ class FileSyncTestRunListenerTest {
         )
         val device = TestDeviceFactory.create(client, configuration, mock())
         val poolId = DevicePoolId("testpool")
-        val fileManager = FileManager(1024, tempDir)
+        val fileManager = FileManager(1024, configuration.outputConfiguration.maxFilename, tempDir)
         val androidConfiguration = configuration.vendorConfiguration as VendorConfiguration.AndroidConfiguration
         val listener = FileSyncTestRunListener(poolId, device, androidConfiguration.fileSyncConfiguration, fileManager)
 

@@ -236,7 +236,11 @@ abstract class BaseAndroidDevice(
         testBatch: TestBatch,
         deferred: CompletableDeferred<TestBatchResults>,
     ): CompositeTestRunListener {
-        val fileManager = FileManager(configuration.outputConfiguration.maxPath, configuration.outputDir)
+        val fileManager = FileManager(
+            configuration.outputConfiguration.maxPath,
+            configuration.outputConfiguration.maxFilename,
+            configuration.outputDir
+        )
         val attachmentProviders = mutableListOf<AttachmentProvider>()
 
         val features = this.deviceFeatures

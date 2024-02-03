@@ -158,7 +158,7 @@ class ScreenRecordingListener(
     }
 
     private suspend fun pullLastBatchVideo(remoteFilePath: String) {
-        val localVideoFile = fileManager.createFile(FileType.VIDEO, pool, device.toDeviceInfo(), testBatchId)
+        val localVideoFile = fileManager.createFile(FileType.VIDEO, pool, device.toDeviceInfo(), testBatchId = testBatchId)
         val millis = measureTimeMillis {
             device.pullFile(remoteFilePath, localVideoFile)
         }
