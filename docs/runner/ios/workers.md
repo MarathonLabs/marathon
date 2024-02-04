@@ -69,6 +69,7 @@ Ssh transport accepts three parameters:
 1. **addr** - address of the host
 2. **port** - port of the ssh server, defaults to 22
 3. **authentication** - override for authentication specifically for this worker
+4. **checkReachability** - optional flag for enabling/disabling ICMP-based ping that might not work in certain network environments
 
 ## Providing simulator devices
 Each worker definition has a list of devices that can be used on that worker
