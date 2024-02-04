@@ -617,18 +617,24 @@ marathon {
 
 ### Output configuration
 
-#### Max file path
+#### Max file name length
 
-By default, the max file path for any output file is capped at 255 characters due to limitations of some OSs. This is the reason why some
-test runs have lots of "File path length cannot exceed" messages in the log. Since there is currently no API to programmatically
-establish this limit, it's the user's responsibility to set a larger value if the OS supports this and the user desires it.
+By default, the max file name length for any output file is capped at 255 characters due to limitations of most file systems. This is the 
+reason why some test runs have lots of "File name length cannot exceed" messages in the log. Since there is currently no API to 
+programmatically establish this limit, it's the user's responsibility to set a larger value if the OS supports this and the user desires it.
+
+:::info
+
+Value 0 is equivalent to unlimited file path length
+
+:::
 
 <Tabs>
 <TabItem value="YAML" label="Marathonfile">
 
 ```yaml
 outputConfiguration:
-  maxPath: 1024
+  maxFilename: 1024
 ```
 
 </TabItem>
@@ -637,7 +643,7 @@ outputConfiguration:
 ```kotlin
 marathon {
   outputConfiguration {
-    maxPath = 1024
+    maxFilename = 1024
   }
 }
 ```
@@ -648,12 +654,57 @@ marathon {
 ```groovy
 marathon {
   outputConfiguration {
-    maxPath = 1024
+    maxFilename = 1024
   }
 }
 ```
 
 </TabItem>
 </Tabs>
+
+#### Max file path length
+
+By default, the max file path length for any output file is unlimited which is the default for most file systems. If the user has some 
+specific constraints then it's possible to limit the max file path length:
+
+:::info
+
+Value 0 is equivalent to unlimited file path length
+
+:::
+
+<Tabs>
+<TabItem value="YAML" label="Marathonfile">
+
+```yaml
+outputConfiguration:
+  maxPath: 32767
+```
+
+</TabItem>
+<TabItem value="kts" label="Kotlin DSL">
+
+```kotlin
+marathon {
+  outputConfiguration {
+    maxPath = 32767
+  }
+}
+```
+
+</TabItem>
+<TabItem value="groovy" label="Groovy DSL">
+
+```groovy
+marathon {
+  outputConfiguration {
+    maxPath = 32767
+  }
+}
+```
+
+</TabItem>
+</Tabs>
+
 
 [1]: https://github.com/MarathonLabs/marathon/blob/develop/configuration/src/main/kotlin/com/malinskiy/marathon/config/serialization/ConfigurationFactory.kt

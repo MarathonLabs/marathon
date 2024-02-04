@@ -84,10 +84,10 @@ class ScreenCapturerTestRunListener(
     override suspend fun testRunFailed(errorMessage: String, reason: DeviceFailureReason) {
         supervisorJob?.cancelAndJoin()
         lastTestIdentifier?.let { id ->
-            val existingRecording = fileManager.createFile(FileType.SCREENSHOT, pool, device.toDeviceInfo(), id, testBatchId)
+            val existingRecording = fileManager.createFile(FileType.SCREENSHOT, pool, device.toDeviceInfo(), test =  id, testBatchId = testBatchId)
             if (existingRecording.length() > 0) {
                 //Moving existing recording for a test as a failure for a batch
-                existingRecording.renameTo(fileManager.createFile(FileType.SCREENSHOT, pool, device.toDeviceInfo(), testBatchId))
+                existingRecording.renameTo(fileManager.createFile(FileType.SCREENSHOT, pool, device.toDeviceInfo(), testBatchId = testBatchId))
             }
         }
     }

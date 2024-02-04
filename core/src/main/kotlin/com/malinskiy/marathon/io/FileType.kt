@@ -9,6 +9,9 @@ enum class FileType(val dir: String, val suffix: String) {
     VIDEO("video", "mp4"),
     SCREENSHOT("screenshot", "gif"),
     SCREENSHOT_PNG("screenshot", "png"),
+    SCREENSHOT_JPG("screenshot", "jpg"),
+    SCREENSHOT_WEBP("screenshot", "jpg"),
+    SCREENSHOT_GIF("screenshot", "jpg"),
     XCTESTRUN("xctestrun", "xctestrun"),
     BILL("bill", "json"),
 }

@@ -38,7 +38,7 @@ val analyticsModule = module {
 val coreModule = module {
     single {
         val configuration = get<Configuration>()
-        FileManager(configuration.outputConfiguration.maxPath, configuration.outputDir) 
+        FileManager(configuration.outputConfiguration.maxPath, configuration.outputConfiguration.maxFilename, configuration.outputDir)
     }
     single {
         GsonBuilder()

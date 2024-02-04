@@ -1,6 +1,5 @@
 package com.malinskiy.marathon.test.factory
 
-import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.malinskiy.marathon.Marathon
 import com.malinskiy.marathon.config.Configuration
@@ -9,7 +8,6 @@ import com.malinskiy.marathon.di.analyticsModule
 import com.malinskiy.marathon.execution.TestParser
 import com.malinskiy.marathon.execution.bundle.TestBundleIdentifier
 import com.malinskiy.marathon.execution.command.parse.MarathonTestParseCommand
-import com.malinskiy.marathon.execution.progress.ProgressReporter
 import com.malinskiy.marathon.io.FileManager
 import com.malinskiy.marathon.json.FileSerializer
 import com.malinskiy.marathon.log.MarathonLogConfigurator
@@ -40,7 +38,11 @@ class MarathonFactory {
         val coreTestModule = module {
             single {
                 val configuration = get<Configuration>()
-                FileManager(configuration.outputConfiguration.maxPath, configuration.outputDir)
+                FileManager(
+                    configuration.outputConfiguration.maxPath,
+                    configuration.outputConfiguration.maxFilename,
+                    configuration.outputDir
+                )
             }
             single { GsonBuilder()
                 .registerTypeAdapter(File::class.java, FileSerializer())

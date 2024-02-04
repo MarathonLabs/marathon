@@ -100,9 +100,9 @@ class FileSyncTestRunListener(
         super.afterTestRun()
         configuration.pull.forEach { entry ->
             val localFolder = when (entry.aggregationMode) {
-                AggregationMode.DEVICE_AND_POOL -> fileManager.createFolder(FolderType.DEVICE_FILES, pool, device.toDeviceInfo())
-                AggregationMode.DEVICE -> fileManager.createFolder(FolderType.DEVICE_FILES, device.toDeviceInfo())
-                AggregationMode.POOL -> fileManager.createFolder(FolderType.DEVICE_FILES, pool)
+                AggregationMode.DEVICE_AND_POOL -> fileManager.createFolder(FolderType.DEVICE_FILES, pool = pool, device = device.toDeviceInfo())
+                AggregationMode.DEVICE -> fileManager.createFolder(FolderType.DEVICE_FILES, device = device.toDeviceInfo())
+                AggregationMode.POOL -> fileManager.createFolder(FolderType.DEVICE_FILES, pool = pool)
                 AggregationMode.TEST_RUN -> fileManager.createFolder(FolderType.DEVICE_FILES)
             }
 

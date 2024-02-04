@@ -24,7 +24,7 @@ class ResultBundleRunListener(
         super.afterTestRun()
         val remotePath = device.remoteFileManager.remoteXcresultFile(batch)
         if (xcresultConfiguration.pull) {
-            val localPath = File(fileManager.createFolder(FolderType.DEVICE_FILES, poolId, device.toDeviceInfo()), "xcresult").apply { mkdirs() }
+            val localPath = File(fileManager.createFolder(FolderType.DEVICE_FILES, poolId, device = device.toDeviceInfo()), "xcresult").apply { mkdirs() }
             if (!device.pullFolder(remotePath, localPath)) {
                 logger.warn { "failed to pull result bundle" }
             } else {

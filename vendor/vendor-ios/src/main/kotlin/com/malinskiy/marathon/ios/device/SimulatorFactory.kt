@@ -25,7 +25,11 @@ class SimulatorFactory(
     private val timer: Timer,
 ) {
     private val logger = MarathonLogging.logger {}
-    private val fileManager = FileManager(configuration.outputConfiguration.maxPath, configuration.outputDir)
+    private val fileManager = FileManager(
+        configuration.outputConfiguration.maxPath,
+        configuration.outputConfiguration.maxFilename,
+        configuration.outputDir
+    )
 
     suspend fun create(
         commandExecutor: CommandExecutor,

@@ -193,7 +193,7 @@ class ScreenRecorderTestRunListenerTest {
             }
 
             device.setup()
-            whenever(fileManager.createFile(FileType.VIDEO, devicePoolId, device.toDeviceInfo(), batch.id))
+            whenever(fileManager.createFile(FileType.VIDEO, devicePoolId, device.toDeviceInfo(), testBatchId = batch.id))
                 .thenReturn(videoFile)
 
             listener.testRunStarted("Testing", 1)

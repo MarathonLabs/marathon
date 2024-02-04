@@ -8,9 +8,11 @@ import com.malinskiy.marathon.device.toDeviceInfo
 import com.malinskiy.marathon.execution.Attachment
 import com.malinskiy.marathon.execution.AttachmentType
 import com.malinskiy.marathon.io.FileManager
+import com.malinskiy.marathon.io.FileType
 import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.report.attachment.AttachmentListener
 import com.malinskiy.marathon.report.attachment.AttachmentProvider
+import java.util.UUID
 
 class AdamScreenCaptureTestRunListener(
     private val pool: DevicePoolId,
@@ -27,14 +29,30 @@ class AdamScreenCaptureTestRunListener(
         val screenshots = testMetrics.filterKeys { it == "com.malinskiy.adam.junit4.android.screencapture.AdamScreenCaptureProcessor.v1" }
         screenshots.values.forEach { path ->
             val extension = path.substringAfterLast('.')
-            val attachmentType = when (extension) {
-                "jpeg", "jpg" -> AttachmentType.SCREENSHOT_JPEG
-                "png" -> AttachmentType.SCREENSHOT_PNG
-                "webp" -> AttachmentType.SCREENSHOT_WEBP
-                else -> null
+            var attachmentType: AttachmentType? = null
+            var fileType: FileType? = null
+            when (extension) {
+                "jpeg", "jpg" -> {
+                    attachmentType = AttachmentType.SCREENSHOT_JPEG
+                    fileType = FileType.SCREENSHOT_JPG
+                }
+                "png" -> {
+                    attachmentType = AttachmentType.SCREENSHOT_PNG
+                    fileType = FileType.SCREENSHOT_PNG
+                }
+                "webp" -> {
+                    attachmentType = AttachmentType.SCREENSHOT_WEBP
+                    fileType = FileType.SCREENSHOT_WEBP
+                }
+                "gif" -> {
+                    attachmentType = AttachmentType.SCREENSHOT_GIF
+                    fileType = FileType.SCREENSHOT_GIF
+                }
+                else -> Unit
             }
-            if (attachmentType != null) {
-                val localFile = fileManager.createScreenshotFile(extension, pool, device.toDeviceInfo(), test.toTest(), testBatchId)
+
+            if (attachmentType != null && fileType != null) {
+                val localFile = fileManager.createFile(fileType, pool, device.toDeviceInfo(), test.toTest(), testBatchId = testBatchId, id = UUID.randomUUID().toString())
                 device.safePullFile(path, localFile.absolutePath)
                 logger.debug { "Received screen capture file $path" }
                 attachmentListeners.forEach {
