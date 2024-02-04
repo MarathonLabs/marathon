@@ -95,6 +95,25 @@ class FileManagerTest {
     }
 
     @Test
+    fun testScreenshotfile() {
+        val fileManager = FileManager(0, 255, output)
+        val file = fileManager.createFile(
+            FileType.SCREENSHOT_PNG, poolId, DeviceInfo(
+                operatingSystem = OperatingSystem("23"),
+                serialNumber = "127.0.0.1:5037:emulator-5554",
+                model = "Android SDK built for x86",
+                manufacturer = "unknown",
+                networkState = NetworkState.CONNECTED,
+                deviceFeatures = listOf(DeviceFeature.SCREENSHOT, DeviceFeature.VIDEO),
+                healthy = true
+            ),
+            test = shortNameTest,
+            id = "on-device-test",
+        )
+        file.name shouldBeEqualTo "com.example.Clazz#method-on-device-test.png"
+    }
+
+    @Test
     fun testTooLongOutputPathUnlimitedFilename() {
         val test = com.malinskiy.marathon.test.Test(
             pkg = "com.xxyyzzxxyy.android.abcdefgh.abcdefghi",
@@ -110,5 +129,7 @@ class FileManagerTest {
         val limitedOutputDirectory = File(tempDir, "x".repeat(additionalPathCharacters))
         val limitedFileManager = FileManager(limitedMaxPath, 0, limitedOutputDirectory)
         val file = limitedFileManager.createFile(FileType.LOG, poolId, deviceInfo, test, batchId)
-    } 
+
+        file.path.length shouldBeEqualTo 255
+    }
 }

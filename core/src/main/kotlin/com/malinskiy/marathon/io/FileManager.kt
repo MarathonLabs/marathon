@@ -19,29 +19,23 @@ import java.util.UUID
 class FileManager(private val maxPath: Int, private val maxFilename: Int, private val output: File) {
     val log = MarathonLogging.logger("FileManager")
 
-    fun createFile(fileType: FileType, pool: DevicePoolId, device: DeviceInfo, test: Test? = null, testBatchId: String? = null): File {
+    fun createFile(
+        fileType: FileType,
+        pool: DevicePoolId,
+        device: DeviceInfo,
+        test: Test? = null,
+        testBatchId: String? = null,
+        id: String? = null
+    ): File {
         val directory = when {
             test != null || testBatchId != null -> createDirectory(fileType, pool, device)
             else -> createDirectory(fileType, pool)
         }
         val filename = when {
-            test != null -> createTestFilename(test, fileType, testBatchId)
-            testBatchId != null -> createBatchFilename(testBatchId, fileType)
-            else -> createDeviceFilename(device, fileType)
+            test != null -> createTestFilename(test, fileType, testBatchId, id = id)
+            testBatchId != null -> createBatchFilename(testBatchId, fileType, id = id)
+            else -> createDeviceFilename(device, fileType, id = id)
         }
-        return createFile(directory, filename)
-    }
-
-    fun createScreenshotFile(extension: String, pool: DevicePoolId, device: DeviceInfo, test: Test, testBatchId: String): File {
-        val directory = createDirectory(FileType.SCREENSHOT, pool, device)
-        val filename =
-            createTestFilename(
-                test,
-                FileType.SCREENSHOT,
-                testBatchId = null,
-                extension,
-                UUID.randomUUID().toString()
-            )
         return createFile(directory, filename)
     }
 
@@ -57,8 +51,10 @@ class FileManager(private val maxPath: Int, private val maxFilename: Int, privat
         val maybeTooLongPath = path.toFile()
         path = if (maxPath > 0 && maybeTooLongPath.absolutePath.length > maxPath) {
             val trimmed = maybeTooLongPath.absolutePath.take(maxPath)
-            log.error { "Directory path length cannot exceed $maxPath characters and has been trimmed from $maybeTooLongPath to $trimmed and can create a conflict. " +
-                "This happened because the combination of file path, pool name and device serial is too long." }
+            log.error {
+                "Directory path length cannot exceed $maxPath characters and has been trimmed from $maybeTooLongPath to $trimmed and can create a conflict. " +
+                    "This happened because the combination of file path, pool name and device serial is too long."
+            }
             File(trimmed)
         } else {
             maybeTooLongPath
@@ -98,17 +94,22 @@ class FileManager(private val maxPath: Int, private val maxFilename: Int, privat
         val maybeTooLongPath = File(directory.toFile(), trimmedFilename)
         return if (maxPath > 0 && maybeTooLongPath.absolutePath.length > maxPath) {
             val trimmed = maybeTooLongPath.absolutePath.substring(0 until maxPath)
-            log.error { "File path length cannot exceed $maxPath characters and has been trimmed from $maybeTooLongPath to $trimmed and can create a conflict. " +
-                "This happened because the combination of file path, test class name, and test name is too long." }
+            log.error {
+                "File path length cannot exceed $maxPath characters and has been trimmed from $maybeTooLongPath to $trimmed and can create a conflict. " +
+                    "This happened because the combination of file path, test class name, and test name is too long."
+            }
             File(trimmed)
         } else {
             maybeTooLongPath
         }
     }
 
-    private fun createBatchFilename(testBatchId: String, fileType: FileType): String {
+    private fun createBatchFilename(testBatchId: String, fileType: FileType, id: String? = null): String {
         return StringBuilder().apply {
             append(testBatchId)
+            if (id != null) {
+                append("-$id")
+            }
             if (fileType.suffix.isNotEmpty()) {
                 append(".$testBatchId")
             }
@@ -139,9 +140,12 @@ class FileManager(private val maxPath: Int, private val maxFilename: Int, privat
         return "$testName$testSuffix"
     }
 
-    private fun createDeviceFilename(device: DeviceInfo, fileType: FileType): String {
+    private fun createDeviceFilename(device: DeviceInfo, fileType: FileType, id: String? = null): String {
         return StringBuilder().apply {
             append(device.safeSerialNumber)
+            if (id != null) {
+                append("-$id")
+            }
             if (fileType.suffix.isNotEmpty()) {
                 append(".${fileType.suffix}")
             }
