@@ -1,0 +1,17 @@
+Test Suite 'All tests' started at 2024-02-07 13:58:21.952
+Test Suite 'marathon.xctest' started at 2024-02-07 13:58:21.953
+Test Suite 'RunnerUITests' started at 2024-02-07 13:58:21.953
+    t =      nans Suite Tear Down
+Test Case '-[RunnerUITests ab.example_test+tty]' started.
+Test Case '-[RunnerUITests ab.example_test+tty]' passed (0.206 seconds).
+Test Suite 'RunnerUITests' passed at 2024-02-07 13:58:22.159.
+	 Executed 1 test, with 0 failures (0 unexpected) in 0.206 (0.206) seconds
+Test Suite 'marathon.xctest' passed at 2024-02-07 13:58:22.160.
+	 Executed 1 test, with 0 failures (0 unexpected) in 0.206 (0.207) seconds
+Test Suite 'All tests' passed at 2024-02-07 13:58:22.160.
+	 Executed 1 test, with 0 failures (0 unexpected) in 0.206 (0.207) seconds
+
+Test session results, code coverage, and logs:
+	/Users/xxx/Library/Developer/Xcode/DerivedData/temporary-asdgsga/Logs/Test/Test-Transient Testing-2024.02.07_13-57-27-+0000.xcresult
+
+** TEST EXECUTE SUCCEEDED **
