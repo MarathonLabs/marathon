@@ -18,9 +18,9 @@ class TestRunProgressParser(
 
     val logger = MarathonLogging.logger(TestRunProgressParser::class.java.simpleName)
 
-    val TEST_CASE_STARTED = """Test Case '-\[([a-zA-Z0-9_.]+) ([a-zA-Z0-9_ ]+)]' started\.""".toRegex()
+    val TEST_CASE_STARTED = """Test Case '-\[(.+) (.+)]' started\.""".toRegex()
     val TEST_CASE_FINISHED =
-        """Test Case '-\[([a-zA-Z0-9_.]+) ([a-zA-Z0-9_ ]+)]' (passed|failed|skipped) \(([\d\.]+) seconds\)\.""".toRegex()
+        """Test Case '-\[(.+) (.+)]' (passed|failed|skipped) \(([\d\.]+) seconds\)\.""".toRegex()
 
     /**
      * $1 = file
