@@ -138,10 +138,14 @@ class AmInstrumentTestParser(
                                 }
                             }
 
-                            is TestRunFailed -> Unit
+                            is TestRunFailed -> {
+                                //Happens on Android Wear if classpath is misconfigured
+                                if (event.error.contains("Process crashed")) {
+                                    throw TestAnnotationProducerNotFoundException()
+                                }
+                            }
                             is TestRunStopped -> Unit
                             is TestRunEnded -> Unit
-
                         }
                     }
                 }
