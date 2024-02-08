@@ -42,7 +42,7 @@ class TestRunProgressParserTest {
         val parser = TestRunProgressParser(mockTimer, "testTarget")
 
         val events = mutableListOf<TestEvent>()
-        javaClass.getResourceAsStream("/fixtures/test_output/patrol.log").bufferedReader().use {
+        javaClass.getResourceAsStream("/fixtures/test_output/patrol_0.log").bufferedReader().use {
             it.lines().forEach { line ->
                 parser.process(line)?.let {
                     events.addAll(it)
@@ -51,7 +51,7 @@ class TestRunProgressParserTest {
         }
 
         assertThat(events.map { it.toString() }.reduce { acc, s -> acc + "\n" + s })
-            .isEqualTo(javaClass.getResourceAsStream("/fixtures/test_output/patrol.expected").reader().readText().trimEnd())
+            .isEqualTo(javaClass.getResourceAsStream("/fixtures/test_output/patrol_0.expected").reader().readText().trimEnd())
     }
 
     @Test
@@ -89,10 +89,19 @@ class TestRunProgressParserTest {
     }
 
     @Test
-    fun testX() {
-        val parser = TestRunProgressParser(mockTimer, "")
+    fun testSample4() {
+        val parser = TestRunProgressParser(mockTimer, "testTarget")
 
-//        """Test Case '-[sample_appUITests.MoreTests testPresentModal]' started."""
-        parser.process("""Test Case '-[RunnerUITests androidAppTest___tapsAround]' started.""")
+        val events = mutableListOf<TestEvent>()
+        javaClass.getResourceAsStream("/fixtures/test_output/patrol_1.log").bufferedReader().use {
+            it.lines().forEach { line ->
+                parser.process(line)?.let {
+                    events.addAll(it)
+                }
+            }
+        }
+
+        assertThat(events.map { it.toString() }.reduce { acc, s -> acc + "\n" + s })
+            .isEqualTo(javaClass.getResourceAsStream("/fixtures/test_output/patrol_1.expected").reader().readText().trimEnd())
     }
 }

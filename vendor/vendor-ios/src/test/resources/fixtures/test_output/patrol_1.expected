@@ -1,0 +1,2 @@
+TestStarted(id=Test(pkg=testTarget, clazz=RunnerUITests, method=ab.example_test+tty, metaProperties=[]))
+TestPassed(id=Test(pkg=testTarget, clazz=RunnerUITests, method=ab.example_test+tty, metaProperties=[]), startTime=1537187695794, endTime=1537187696000)
