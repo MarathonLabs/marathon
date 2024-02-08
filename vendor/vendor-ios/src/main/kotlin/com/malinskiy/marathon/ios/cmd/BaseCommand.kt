@@ -1,11 +1,17 @@
 package com.malinskiy.marathon.ios.cmd
 
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CompletableJob
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.channels.ReceiveChannel
+import kotlinx.coroutines.channels.onClosed
+import kotlinx.coroutines.channels.onFailure
+import kotlinx.coroutines.channels.onSuccess
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.supervisorScope
 import kotlinx.coroutines.withContext
@@ -19,29 +25,37 @@ abstract class BaseCommand(
     override suspend fun await(): CommandResult = withContext(Dispatchers.IO) {
         val deferredStdout = supervisorScope {
             async(job) {
-                val stdoutBuffer = mutableListOf<String>()
-                for (line in stdout) {
-                    stdoutBuffer.add(line)
+                val buffer = mutableListOf<String>()
+                while(true) {
+                    val channelResult = stdout.receiveCatching()
+                    channelResult.onSuccess { buffer.add(it) }
+                    channelResult.onClosed { if (it != null) cancel(CancellationException("Channel closed", it)) }
+                    channelResult.onFailure { if (it != null) cancel(CancellationException("Channel failed", it)) }
+
+                    if (!channelResult.isSuccess) break
                 }
-                stdoutBuffer
+                buffer
             }
         }
 
         val deferredStderr = supervisorScope {
             async(job) {
-                val stderrBuffer = mutableListOf<String>()
-                for (line in stderr) {
-                    stderrBuffer.add(line)
+                val buffer = mutableListOf<String>()
+                while(true) {
+                    val channelResult = stderr.receiveCatching()
+                    channelResult.onSuccess { buffer.add(it) }
+                    channelResult.onClosed { if (it != null) cancel(CancellationException("Channel closed", it)) }
+                    channelResult.onFailure { if (it != null) cancel(CancellationException("Channel failed", it)) }
+
+                    if (!channelResult.isSuccess) break
                 }
-                stderrBuffer
+                buffer
             }
         }
 
-        val out = deferredStdout.await()
-        val err = deferredStderr.await()
-        val exitCode = exitCode.await()
+        val (out, err, exitCode) = awaitAll(deferredStdout, deferredStderr, exitCode)
 
-        CommandResult(out, err, exitCode)
+        CommandResult(out as List<String>, err as List<String>, exitCode as Int)
     }
 
     override suspend fun drain() {

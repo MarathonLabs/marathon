@@ -4,8 +4,6 @@ import com.malinskiy.marathon.ios.cmd.BaseCommand
 import kotlinx.coroutines.CompletableJob
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.channels.ReceiveChannel
-import kotlinx.coroutines.channels.SendChannel
-import kotlinx.coroutines.channels.trySendBlocking
 import net.schmizz.sshj.connection.channel.direct.Session
 import net.schmizz.sshj.connection.channel.direct.Signal
 import java.util.concurrent.atomic.AtomicBoolean
@@ -32,6 +30,10 @@ class SshjCommandSession(
 
     override fun close() {
         if (!closed.getAndSet(true)) {
+            if (command.isOpen) {
+                terminate()
+            }
+            command.close()
             command.join()
             super.close()
         }

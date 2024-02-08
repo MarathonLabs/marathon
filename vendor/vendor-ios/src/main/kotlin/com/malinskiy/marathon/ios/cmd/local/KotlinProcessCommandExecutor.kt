@@ -66,7 +66,7 @@ class KotlinProcessCommandExecutor(
         }
         
         val stdout = produceLinesManually(job, process.inputStream, idleTimeout, charset, channelCapacity) { process.isAlive && !exitCode.isCompleted }
-        val stderr = produceLinesManually(job, process.errorStream, idleTimeout, charset, channelCapacity) { process.isAlive && !exitCode.isCompleted }
+        val stderr = produceLinesManually(job, process.errorStream, maxOf(idleTimeout, timeout), charset, channelCapacity) { process.isAlive && !exitCode.isCompleted }
 
        
         return KotlinProcessCommand(

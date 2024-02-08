@@ -55,9 +55,11 @@ class SshjCommandExecutor(
             }
         }
         val cmd = session.exec(escapedCmd)
-        
+
         val stdout = produceLinesManually(job, cmd.inputStream, idleTimeout, charset, channelCapacity) { cmd.isOpen && !cmd.isEOF }
-        val stderr = produceLinesManually(job, cmd.errorStream, idleTimeout, charset, channelCapacity) { cmd.isOpen && !cmd.isEOF }
+        //Idling on stderr should not be considered bad
+        //It would be nice to combine stdout and stderr but simple version here is enough for now
+        val stderr = produceLinesManually(job, cmd.errorStream, maxOf(idleTimeout, timeout), charset, channelCapacity) { cmd.isOpen && !cmd.isEOF }
         val exitCode: Deferred<Int?> = async(job) {
             val result = withTimeoutOrNull(timeout) {
                 cmd.suspendFor()
@@ -91,7 +93,7 @@ private fun String.isShellscaped(): Boolean {
 
 private val SHELL_SPECIAL_CHARS = setOf('"',' ','$','\'','\\','#','=','[',']','!','>','<','|',';','{','}','(',')','*','?','~','&')
 private fun String.containsShellSpecialChars(): Boolean {
-    return any { 
+    return any {
         SHELL_SPECIAL_CHARS.contains(it)
     }
 }

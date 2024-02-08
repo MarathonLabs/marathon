@@ -66,6 +66,13 @@ fun CoroutineScope.produceLinesManually(
                         available > 0 -> inputStream.read(byteArray, 0, min(available, byteArray.size))
                         else -> 0
                     }
+
+                    val timeSinceLastOutputMillis = System.currentTimeMillis() - lastOutputTimeMillis
+                    if (timeSinceLastOutputMillis > idleTimeout.toMillis()) {
+                        close(TimeoutException("idle timeout $idleTimeout reached"))
+                        break
+                    }
+
                     // if there was nothing to read
                     if (count == 0) {
                         // if session received EOF or has been closed, reading stops
@@ -77,11 +84,6 @@ fun CoroutineScope.produceLinesManually(
                     } else if (count == -1) {
                         break
                     } else {
-                        val timeSinceLastOutputMillis = System.currentTimeMillis() - lastOutputTimeMillis
-                        if (timeSinceLastOutputMillis > idleTimeout.toMillis()) {
-                            close(TimeoutException("idle timeout $idleTimeout reached"))
-                            break
-                        }
                         lineBuffer.append(byteArray, count)
                         lastOutputTimeMillis = System.currentTimeMillis()
                     }
