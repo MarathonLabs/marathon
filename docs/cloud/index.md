@@ -64,13 +64,13 @@ Now you can start running your tests. Use the following command to execute the C
 <TabItem value="iOS" label="iOS">
 
 ```shell
-marathon-cloud -api_key generated_api_key -apk sample.zip -testapk sampleUITests-Runner.zip -platform iOS
+marathon-cloud run ios --api_key generated_api_key --application sample.zip --test-application sampleUITests-Runner.zip
 ```
 </TabItem>
 <TabItem value="Android" label="Android">
 
 ```shell
-marathon-cloud -api_key api_key -apk app.apk -testapk appTest.apk -platform Android
+marathon-cloud run android --api_key generated_api_key --application app.apk --test-application appTest.apk
 ```
 </TabItem>
 </Tabs>

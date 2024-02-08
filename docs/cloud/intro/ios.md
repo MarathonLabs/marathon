@@ -22,10 +22,10 @@ Let's say our project is called "Sample". The code snippet below shows how to bu
 #          |--sample.xcodeproj
 
 xcodebuild build-for-testing \
-             -project sample.xcodeproj \
-             -scheme sample \
-             -destination 'platform=iOS Simulator,name=iPhone 14,OS=16.1' \
-             -derivedDataPath ./build
+   -project sample.xcodeproj \
+   -scheme sample \
+   -destination 'platform=iOS Simulator,name=iPhone 14,OS=16.1' \
+   -derivedDataPath ./build
 ```
 
 Note the relative paths of applications, as they will be required for running the tests. In the context of our example and `debug` build, these files can be located at the following paths:
