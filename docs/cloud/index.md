@@ -3,6 +3,7 @@ import TabItem from '@theme/TabItem';
 
 # Quick start
 
+
 ### Install
 The installation can be performed using [Homebrew](https://brew.sh/). Here’s how to add the MarathonLabs repository:
 ```shell
@@ -64,13 +65,15 @@ Now you can start running your tests. Use the following command to execute the C
 <TabItem value="iOS" label="iOS">
 
 ```shell
-marathon-cloud run ios --api_key generated_api_key --application sample.zip --test-application sampleUITests-Runner.zip
+export MARATHON_CLOUD_API_KEY=generated_api_key
+marathon-cloud run ios --application sample.zip --test-application sampleUITests-Runner.zip
 ```
 </TabItem>
 <TabItem value="Android" label="Android">
 
 ```shell
-marathon-cloud run android --api_key generated_api_key --application app.apk --test-application appTest.apk
+export MARATHON_CLOUD_API_KEY=generated_api_key
+marathon-cloud run android --application app.apk --test-application appTest.apk
 ```
 </TabItem>
 </Tabs>
