@@ -1,10 +1,16 @@
 package com.malinskiy.marathon.ios.xctestrun.v2
 
 import com.malinskiy.marathon.apple.ios.plist.PropertyList
+import com.malinskiy.marathon.apple.ios.xctestrun.v2.CodeCoverageBuildableInfo
+import com.malinskiy.marathon.apple.ios.xctestrun.v2.TestConfiguration
+import com.malinskiy.marathon.apple.ios.xctestrun.v2.TestPlan
+import com.malinskiy.marathon.apple.ios.xctestrun.v2.TestTarget
+import com.malinskiy.marathon.apple.ios.xctestrun.v2.Xctestrun
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.Test
 import java.io.ByteArrayOutputStream
 import java.io.File
+import com.malinskiy.marathon.apple.ios.xctestrun.v2.Metadata as Metadata
 
 class XctestrunTest {
     @Test

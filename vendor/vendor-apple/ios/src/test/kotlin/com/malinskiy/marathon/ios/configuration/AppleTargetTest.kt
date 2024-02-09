@@ -1,5 +1,6 @@
 package com.malinskiy.marathon.ios.configuration
 
+import com.malinskiy.marathon.apple.ios.configuration.AppleTarget
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.CsvSource

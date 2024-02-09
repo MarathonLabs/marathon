@@ -1,6 +1,8 @@
 package com.malinskiy.marathon.ios.xctestrun.v0
 
 import com.malinskiy.marathon.apple.ios.plist.PropertyList
+import com.malinskiy.marathon.apple.ios.xctestrun.v0.TestTarget
+import com.malinskiy.marathon.apple.ios.xctestrun.v0.Xctestrun
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.Test
 import java.io.ByteArrayOutputStream

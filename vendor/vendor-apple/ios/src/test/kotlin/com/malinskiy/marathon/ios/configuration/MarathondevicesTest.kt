@@ -6,6 +6,10 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLGenerator
 import com.fasterxml.jackson.module.kotlin.KotlinFeature
 import com.fasterxml.jackson.module.kotlin.KotlinModule
 import com.fasterxml.jackson.module.kotlin.readValue
+import com.malinskiy.marathon.apple.ios.configuration.AppleTarget
+import com.malinskiy.marathon.apple.ios.configuration.Marathondevices
+import com.malinskiy.marathon.apple.ios.configuration.Transport
+import com.malinskiy.marathon.apple.ios.configuration.Worker
 import com.malinskiy.marathon.config.vendor.ios.SshAuthentication
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.BeforeEach

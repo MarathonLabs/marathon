@@ -2,6 +2,7 @@ package com.malinskiy.marathon.ios.logparser.parser
 
 import assertk.assertThat
 import assertk.assertions.isEqualTo
+import com.malinskiy.marathon.apple.ios.logparser.parser.TestRunProgressParser
 import com.malinskiy.marathon.apple.ios.test.TestEvent
 import com.malinskiy.marathon.time.Timer
 import org.junit.jupiter.api.BeforeEach

@@ -2,6 +2,7 @@
 
 package com.malinskiy.marathon.ios.cmd
 
+import com.malinskiy.marathon.apple.ios.cmd.CommandExecutor
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
