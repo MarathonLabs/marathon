@@ -20,7 +20,7 @@ import com.malinskiy.marathon.config.serialization.ConfigurationFactory
 import com.malinskiy.marathon.config.vendor.VendorConfiguration
 import com.malinskiy.marathon.di.marathonStartKoin
 import com.malinskiy.marathon.exceptions.ExceptionsReporterFactory
-import com.malinskiy.marathon.ios.AppleVendor
+import com.malinskiy.marathon.apple.ios.AppleVendor
 import com.malinskiy.marathon.log.MarathonLogging
 import org.koin.core.context.stopKoin
 import org.koin.dsl.module
