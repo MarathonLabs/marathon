@@ -5,11 +5,11 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
 import com.fasterxml.jackson.dataformat.yaml.YAMLGenerator
 import com.malinskiy.marathon.config.serialization.time.InstantTimeProvider
 import com.malinskiy.marathon.config.vendor.VendorConfiguration
-import com.malinskiy.marathon.config.vendor.ios.AppleTestBundleConfiguration
-import com.malinskiy.marathon.config.vendor.ios.LifecycleConfiguration
-import com.malinskiy.marathon.config.vendor.ios.RsyncConfiguration
-import com.malinskiy.marathon.config.vendor.ios.SshAuthentication
-import com.malinskiy.marathon.config.vendor.ios.SshConfiguration
+import com.malinskiy.marathon.config.vendor.apple.AppleTestBundleConfiguration
+import com.malinskiy.marathon.config.vendor.apple.ios.LifecycleConfiguration
+import com.malinskiy.marathon.config.vendor.apple.RsyncConfiguration
+import com.malinskiy.marathon.config.vendor.apple.SshAuthentication
+import com.malinskiy.marathon.config.vendor.apple.SshConfiguration
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.Test
 import java.io.File

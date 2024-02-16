@@ -57,6 +57,7 @@ val coreModule = module {
 fun marathonStartKoin(configuration: Configuration, modules: List<Module>): KoinApplication {
     val configurationModule = module {
         single { configuration }
+        single { configuration.vendorConfiguration }
     }
 
     return startKoin {

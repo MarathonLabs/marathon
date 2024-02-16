@@ -1,5 +1,3 @@
-import com.malinskiy.marathon.buildsystem.XcresulttoolPlugin
-
 plugins {
     `java-library`
     jacoco
@@ -7,33 +5,8 @@ plugins {
     id("org.jetbrains.dokka")
 }
 
-apply<XcresulttoolPlugin>()
-
 dependencies {
-    implementation(Libraries.kotlinStdLib)
-    implementation(Libraries.kotlinCoroutines)
-    implementation(Libraries.kotlinLogging)
-    implementation(Libraries.kotlinReflect)
-    implementation(Libraries.logbackClassic)
-    implementation(Libraries.ddPlist)
-    implementation(Libraries.guava)
-    implementation(Libraries.rsync4j)
-
-    implementation(Libraries.gson)
-    implementation(Libraries.jacksonKotlin)
-    implementation(Libraries.jacksonYaml)
-    implementation(Libraries.jansi)
-    implementation(Libraries.kotlinProcess)
-    implementation(project(":core"))
     implementation(project(":vendor:vendor-apple:base"))
-    testImplementation(TestLibraries.kluent)
-    testImplementation(TestLibraries.assertk)
-    testImplementation(TestLibraries.mockitoKotlin)
-    testImplementation(TestLibraries.testContainers)
-    testImplementation(TestLibraries.testContainersJupiter)
-    testImplementation(TestLibraries.junit5)
-    testImplementation(TestLibraries.coroutinesTest)
-    testRuntimeOnly(TestLibraries.jupiterEngine)
 }
 
 setupDeployment()
@@ -43,5 +16,3 @@ setupTestTask()
 tasks.jar.configure {
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 }
-
-tasks.findByPath("sourcesJar")?.dependsOn(tasks.findByPath("generateXcresulttoolSource"))

@@ -1,7 +1,7 @@
 package com.malinskiy.marathon.apple.ios
 
-import com.malinskiy.marathon.config.vendor.ios.RecorderType
-import com.malinskiy.marathon.config.vendor.ios.ScreenRecordConfiguration
+import com.malinskiy.marathon.config.vendor.apple.ios.RecorderType
+import com.malinskiy.marathon.config.vendor.apple.ios.ScreenRecordConfiguration
 import com.malinskiy.marathon.device.DeviceFeature
 
 object RecorderTypeSelector {

@@ -1,8 +1,9 @@
 package com.malinskiy.marathon.apple.ios.listener
 
-import com.malinskiy.marathon.apple.ios.RemoteFileManager
-import com.malinskiy.marathon.apple.ios.bin.xcrun.xcresulttool.ResultBundleFormat
-import com.malinskiy.marathon.apple.ios.bin.xcrun.xcresulttool.Xcresulttool
+import com.malinskiy.marathon.apple.RemoteFileManager
+import com.malinskiy.marathon.apple.bin.xcrun.xcresulttool.ResultBundleFormat
+import com.malinskiy.marathon.apple.bin.xcrun.xcresulttool.Xcresulttool
+import com.malinskiy.marathon.apple.listener.AccumulatingTestResultListener
 import com.malinskiy.marathon.device.Device
 import com.malinskiy.marathon.device.DevicePoolId
 import com.malinskiy.marathon.device.toDeviceInfo

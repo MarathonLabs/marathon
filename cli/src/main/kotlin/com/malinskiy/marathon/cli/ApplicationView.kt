@@ -20,7 +20,7 @@ import com.malinskiy.marathon.config.serialization.ConfigurationFactory
 import com.malinskiy.marathon.config.vendor.VendorConfiguration
 import com.malinskiy.marathon.di.marathonStartKoin
 import com.malinskiy.marathon.exceptions.ExceptionsReporterFactory
-import com.malinskiy.marathon.apple.ios.AppleVendor
+import com.malinskiy.marathon.apple.ios.IosVendor
 import com.malinskiy.marathon.log.MarathonLogging
 import org.koin.core.context.stopKoin
 import org.koin.dsl.module
@@ -66,7 +66,7 @@ private fun execute(cliConfiguration: CliConfiguration) {
         val vendorConfiguration = configuration.vendorConfiguration
         val modules = when (vendorConfiguration) {
             is VendorConfiguration.IOSConfiguration -> {
-                AppleVendor + module { single { vendorConfiguration } }
+                IosVendor + module { single { vendorConfiguration } }
             }
             is VendorConfiguration.AndroidConfiguration -> {
                 AndroidVendor + module { single { vendorConfiguration } } + listOf(adamModule)

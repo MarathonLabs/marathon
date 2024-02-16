@@ -14,17 +14,19 @@ import com.malinskiy.marathon.config.vendor.android.TestAccessConfiguration
 import com.malinskiy.marathon.config.vendor.android.TestParserConfiguration
 import com.malinskiy.marathon.config.vendor.android.ThreadingConfiguration
 import com.malinskiy.marathon.config.vendor.android.TimeoutConfiguration
-import com.malinskiy.marathon.config.vendor.ios.AppleTestBundleConfiguration
-import com.malinskiy.marathon.config.vendor.ios.LifecycleConfiguration
-import com.malinskiy.marathon.config.vendor.ios.PermissionsConfiguration
-import com.malinskiy.marathon.config.vendor.ios.RsyncConfiguration
-import com.malinskiy.marathon.config.vendor.ios.SigningConfiguration
-import com.malinskiy.marathon.config.vendor.ios.SshConfiguration
-import com.malinskiy.marathon.config.vendor.ios.XcresultConfiguration
+import com.malinskiy.marathon.config.vendor.apple.AppleTestBundleConfiguration
+import com.malinskiy.marathon.config.vendor.apple.ios.LifecycleConfiguration
+import com.malinskiy.marathon.config.vendor.apple.ios.PermissionsConfiguration
+import com.malinskiy.marathon.config.vendor.apple.RsyncConfiguration
+import com.malinskiy.marathon.config.vendor.apple.ios.SigningConfiguration
+import com.malinskiy.marathon.config.vendor.apple.SshConfiguration
+import com.malinskiy.marathon.config.vendor.apple.ios.XcresultConfiguration
 import java.io.File
-import com.malinskiy.marathon.config.vendor.ios.ScreenRecordConfiguration as AppleScreenRecordConfiguration
-import com.malinskiy.marathon.config.vendor.ios.ThreadingConfiguration as IosThreadingConfiguration
-import com.malinskiy.marathon.config.vendor.ios.TimeoutConfiguration as AppleTimeoutConfiguration
+import com.malinskiy.marathon.config.vendor.apple.TestParserConfiguration as AppleTestParserConfiguration
+import com.malinskiy.marathon.config.vendor.apple.ios.ScreenRecordConfiguration as IosScreenRecordConfiguration
+import com.malinskiy.marathon.config.vendor.apple.ThreadingConfiguration as AppleThreadingConfiguration
+import com.malinskiy.marathon.config.vendor.apple.ios.TimeoutConfiguration as IosTimeoutConfiguration
+import com.malinskiy.marathon.config.vendor.apple.macos.TimeoutConfiguration as MacosTimeoutConfiguration1
 
 const val DEFAULT_INIT_TIMEOUT_MILLIS = 30_000
 const val DEFAULT_AUTO_GRANT_PERMISSION = false
@@ -42,6 +44,7 @@ const val DEFAULT_WAIT_FOR_DEVICES_TIMEOUT = 30000L
 @JsonSubTypes(
     JsonSubTypes.Type(value = VendorConfiguration.AndroidConfiguration::class, name = "Android"),
     JsonSubTypes.Type(value = VendorConfiguration.IOSConfiguration::class, name = "iOS"),
+    JsonSubTypes.Type(value = VendorConfiguration.MacosConfiguration::class, name = "macOS"),
     JsonSubTypes.Type(value = VendorConfiguration.StubVendorConfiguration::class, name = "stub"),
     JsonSubTypes.Type(value = VendorConfiguration.EmptyVendorConfiguration::class, name = "empty"),
 )
@@ -152,18 +155,43 @@ sealed class VendorConfiguration {
         @JsonProperty("ssh") val ssh: SshConfiguration = SshConfiguration(),
 
         @JsonProperty("xcresult") val xcresult: XcresultConfiguration = XcresultConfiguration(),
-        @JsonProperty("screenRecordConfiguration") val screenRecordConfiguration: AppleScreenRecordConfiguration = AppleScreenRecordConfiguration(),
+        @JsonProperty("screenRecordConfiguration") val screenRecordConfiguration: IosScreenRecordConfiguration = IosScreenRecordConfiguration(),
         @JsonProperty("xctestrunEnv") val xctestrunEnv: Map<String, String> = emptyMap(),
         @JsonProperty("lifecycle") val lifecycleConfiguration: LifecycleConfiguration = LifecycleConfiguration(),
         @JsonProperty("permissions") val permissions: PermissionsConfiguration = PermissionsConfiguration(),
-        @JsonProperty("timeoutConfiguration") val timeoutConfiguration: AppleTimeoutConfiguration = AppleTimeoutConfiguration(),
-        @JsonProperty("threadingConfiguration") val threadingConfiguration: IosThreadingConfiguration = IosThreadingConfiguration(),
+        @JsonProperty("timeoutConfiguration") val timeoutConfiguration: IosTimeoutConfiguration = IosTimeoutConfiguration(),
+        @JsonProperty("threadingConfiguration") val threadingConfiguration: AppleThreadingConfiguration = AppleThreadingConfiguration(),
         @JsonProperty("hideRunnerOutput") val hideRunnerOutput: Boolean = false,
         @JsonProperty("compactOutput") val compactOutput: Boolean = false,
         @JsonProperty("rsync") val rsync: RsyncConfiguration = RsyncConfiguration(),
         @JsonProperty("xcodebuildTestArgs") val xcodebuildTestArgs: Map<String, String> = emptyMap(),
         @JsonProperty("dataContainerClear") val dataContainerClear: Boolean = false,
-        @JsonProperty("testParserConfiguration") val testParserConfiguration: com.malinskiy.marathon.config.vendor.ios.TestParserConfiguration = com.malinskiy.marathon.config.vendor.ios.TestParserConfiguration.NmTestParserConfiguration(),
+        @JsonProperty("testParserConfiguration") val testParserConfiguration: AppleTestParserConfiguration = AppleTestParserConfiguration.NmTestParserConfiguration(),
+
+        @JsonProperty("signing") val signing: SigningConfiguration = SigningConfiguration(),
+    ) : VendorConfiguration() {
+        fun validate() {
+            ssh.validate()
+
+            val testBundleConfiguration = bundle ?: throw ConfigurationException("bundles must contain at least one valid entry")
+            testBundleConfiguration.validate()
+        }
+    }
+
+    data class MacosConfiguration(
+        @JsonProperty("bundle") val bundle: AppleTestBundleConfiguration? = null,
+        @JsonProperty("devices") val devicesFile: File? = null,
+        @JsonProperty("ssh") val ssh: SshConfiguration = SshConfiguration(),
+
+        @JsonProperty("xcresult") val xcresult: XcresultConfiguration = XcresultConfiguration(),
+        @JsonProperty("xctestrunEnv") val xctestrunEnv: Map<String, String> = emptyMap(),
+        @JsonProperty("timeoutConfiguration") val timeoutConfiguration: MacosTimeoutConfiguration1 = MacosTimeoutConfiguration1(),
+        @JsonProperty("threadingConfiguration") val threadingConfiguration: AppleThreadingConfiguration = AppleThreadingConfiguration(),
+        @JsonProperty("hideRunnerOutput") val hideRunnerOutput: Boolean = false,
+        @JsonProperty("compactOutput") val compactOutput: Boolean = false,
+        @JsonProperty("rsync") val rsync: RsyncConfiguration = RsyncConfiguration(),
+        @JsonProperty("xcodebuildTestArgs") val xcodebuildTestArgs: Map<String, String> = emptyMap(),
+        @JsonProperty("testParserConfiguration") val testParserConfiguration: AppleTestParserConfiguration = AppleTestParserConfiguration.NmTestParserConfiguration(),
 
         @JsonProperty("signing") val signing: SigningConfiguration = SigningConfiguration(),
     ) : VendorConfiguration() {

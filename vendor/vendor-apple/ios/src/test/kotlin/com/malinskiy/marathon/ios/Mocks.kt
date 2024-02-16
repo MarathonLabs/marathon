@@ -2,8 +2,8 @@
 //
 //import com.google.gson.GsonBuilder
 //import com.malinskiy.marathon.config.vendor.VendorConfiguration
-//import com.malinskiy.marathon.apple.ios.cmd.CommandResult
-//import com.malinskiy.marathon.apple.ios.cmd.CommandSession
+//import com.malinskiy.marathon.apple.cmd.CommandResult
+//import com.malinskiy.marathon.apple.cmd.CommandSession
 //import com.malinskiy.marathon.apple.ios.configuration.RemoteSimulator
 //import com.malinskiy.marathon.apple.ios.simctl.model.SimctlDeviceList
 //import com.malinskiy.marathon.apple.ios.simctl.model.SimctlDeviceListDeserializer

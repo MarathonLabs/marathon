@@ -2,35 +2,38 @@ package com.malinskiy.marathon.apple.ios
 
 import com.dd.plist.PropertyListParser
 import com.malinskiy.marathon.analytics.internal.pub.Track
-import com.malinskiy.marathon.apple.ios.bin.AppleBinaryEnvironment
-import com.malinskiy.marathon.apple.ios.bin.xcrun.simctl.service.ApplicationService
-import com.malinskiy.marathon.apple.ios.cmd.CommandExecutor
-import com.malinskiy.marathon.apple.ios.cmd.CommandResult
-import com.malinskiy.marathon.apple.ios.cmd.FileBridge
-import com.malinskiy.marathon.apple.ios.listener.AppleTestRunListener
-import com.malinskiy.marathon.apple.ios.listener.CompositeTestRunListener
-import com.malinskiy.marathon.apple.ios.listener.DebugTestRunListener
-import com.malinskiy.marathon.apple.ios.listener.ResultBundleRunListener
+import com.malinskiy.marathon.apple.AppleDevice
+import com.malinskiy.marathon.apple.AppleDeviceTestRunner
+import com.malinskiy.marathon.apple.AppleTestBundleIdentifier
+import com.malinskiy.marathon.apple.RemoteFileManager
+import com.malinskiy.marathon.apple.bin.AppleBinaryEnvironment
+import com.malinskiy.marathon.apple.bin.xcrun.simctl.service.ApplicationService
+import com.malinskiy.marathon.apple.cmd.CommandExecutor
+import com.malinskiy.marathon.apple.cmd.CommandResult
+import com.malinskiy.marathon.apple.cmd.FileBridge
+import com.malinskiy.marathon.apple.extensions.testBundle
+import com.malinskiy.marathon.apple.ios.listener.DataContainerClearListener
+import com.malinskiy.marathon.apple.listener.AppleTestRunListener
+import com.malinskiy.marathon.apple.listener.CompositeTestRunListener
+import com.malinskiy.marathon.apple.listener.DebugTestRunListener
+import com.malinskiy.marathon.apple.listener.ResultBundleRunListener
 import com.malinskiy.marathon.apple.ios.listener.TestResultsListener
-import com.malinskiy.marathon.apple.ios.listener.TestRunListenerAdapter
+import com.malinskiy.marathon.apple.listener.TestRunListenerAdapter
 import com.malinskiy.marathon.apple.ios.listener.screenshot.ScreenCapturerTestRunListener
 import com.malinskiy.marathon.apple.ios.listener.video.ScreenRecordingListener
-import com.malinskiy.marathon.apple.ios.logparser.XctestEventProducer
-import com.malinskiy.marathon.apple.ios.logparser.parser.DebugLogPrinter
-import com.malinskiy.marathon.apple.ios.logparser.parser.DeviceFailureException
-import com.malinskiy.marathon.apple.ios.logparser.parser.DiagnosticLogsPathFinder
-import com.malinskiy.marathon.apple.ios.logparser.parser.SessionResultsPathFinder
-import com.malinskiy.marathon.apple.ios.model.Arch
-import com.malinskiy.marathon.apple.ios.model.Sdk
+import com.malinskiy.marathon.apple.model.Sdk
 import com.malinskiy.marathon.apple.ios.model.Simulator
-import com.malinskiy.marathon.apple.ios.model.XcodeVersion
-import com.malinskiy.marathon.apple.ios.test.TestEvent
-import com.malinskiy.marathon.apple.ios.test.TestRequest
+import com.malinskiy.marathon.apple.logparser.parser.DeviceFailureException
+import com.malinskiy.marathon.apple.logparser.parser.DiagnosticLogsPathFinder
+import com.malinskiy.marathon.apple.logparser.parser.SessionResultsPathFinder
+import com.malinskiy.marathon.apple.model.XcodeVersion
+import com.malinskiy.marathon.apple.test.TestEvent
+import com.malinskiy.marathon.apple.test.TestRequest
 import com.malinskiy.marathon.config.Configuration
 import com.malinskiy.marathon.config.ScreenRecordingPolicy
 import com.malinskiy.marathon.config.vendor.VendorConfiguration
-import com.malinskiy.marathon.config.vendor.ios.LifecycleAction
-import com.malinskiy.marathon.config.vendor.ios.Permission
+import com.malinskiy.marathon.config.vendor.apple.ios.LifecycleAction
+import com.malinskiy.marathon.config.vendor.apple.ios.Permission
 import com.malinskiy.marathon.device.DeviceFeature
 import com.malinskiy.marathon.device.DevicePoolId
 import com.malinskiy.marathon.device.NetworkState
@@ -77,8 +80,8 @@ import kotlin.coroutines.CoroutineContext
 
 class AppleSimulatorDevice(
     override val udid: String,
-    var sdk: Sdk,
-    val binaryEnvironment: AppleBinaryEnvironment,
+    override var sdk: Sdk,
+    override val binaryEnvironment: AppleBinaryEnvironment,
     private val testBundleIdentifier: AppleTestBundleIdentifier,
     val fileManager: FileManager,
     private val configuration: Configuration,
@@ -103,19 +106,6 @@ class AppleSimulatorDevice(
     override val healthy: Boolean = true
     override var abi: String = "Unknown"
     private lateinit var version: String
-    val arch: Arch
-        get() = when {
-            sdk == Sdk.IPHONESIMULATOR -> {
-                when (abi) {
-                    "x86_64" -> Arch.x86_64
-                    "arm64" -> Arch.arm64
-                    else -> Arch.arm64
-                }
-            }
-
-            udid.contains('-') -> Arch.arm64e
-            else -> Arch.arm64
-        }
 
     override val orientation: Rotation = Rotation.ROTATION_0
     private lateinit var runtimeVersion: String
@@ -135,7 +125,7 @@ class AppleSimulatorDevice(
     }
     override val coroutineContext: CoroutineContext = dispatcher
     override val remoteFileManager: RemoteFileManager = RemoteFileManager(this)
-    override val storagePath = "$SHARED_PATH/$udid"
+    override val storagePath = "${AppleDevice.SHARED_PATH}/$udid"
     private lateinit var xcodeVersion: XcodeVersion
 
     /**
@@ -198,10 +188,8 @@ class AppleSimulatorDevice(
                     executeWorkerCommand(listOf("pkill", "-f", "'simctl io ${udid} recordVideo'"))
                     mutableListOf<Deferred<Unit>>().apply {
                         add(async {
-                            AppleApplicationInstaller(
-                                configuration,
+                            AppleSimulatorApplicationInstaller(
                                 vendorConfiguration,
-                                testBundleIdentifier,
                             ).prepareInstallation(this@AppleSimulatorDevice)
                         })
                         add(async {
@@ -252,7 +240,7 @@ class AppleSimulatorDevice(
                         executionLineListeners = lineListeners.onEach { addLineListener(it) }
                         AppleDeviceTestRunner(this@AppleSimulatorDevice, testBundleIdentifier).execute(
                             configuration,
-                            vendorConfiguration,
+                            vendorConfiguration.testBundle(),
                             testBatch,
                             listener
                         )
@@ -316,7 +304,8 @@ class AppleSimulatorDevice(
 
         val diagnosticLogsPathFinder = DiagnosticLogsPathFinder()
         val sessionResultsPathFinder = SessionResultsPathFinder()
-        val debugLogPrinter = DebugLogPrinter(hideRunnerOutput = vendorConfiguration.hideRunnerOutput)
+        val debugLogPrinter =
+            com.malinskiy.marathon.apple.logparser.parser.DebugLogPrinter(hideRunnerOutput = vendorConfiguration.hideRunnerOutput)
 
         val logListeners = setOf(
             diagnosticLogsPathFinder,
@@ -343,6 +332,7 @@ class AppleSimulatorDevice(
                     sessionResultsPathFinder,
                     recorderListener,
                     ResultBundleRunListener(this, vendorConfiguration.xcresult, devicePoolId, testBatch, fileManager),
+                    DataContainerClearListener(this, vendorConfiguration.dataContainerClear, testBatch, testBundleIdentifier)
                 )
             ), logListeners
         )
@@ -354,7 +344,8 @@ class AppleSimulatorDevice(
                 withContext(Dispatchers.IO) {
                     val deferredStdout = supervisorScope {
                         async {
-                            val testEventProducer = XctestEventProducer(request.testTargetName ?: "", timer)
+                            val testEventProducer =
+                                com.malinskiy.marathon.apple.logparser.XctestEventProducer(request.testTargetName ?: "", timer)
                             for (line in session.stdout) {
                                 testEventProducer.process(line)?.let {
                                     send(it)
@@ -767,9 +758,5 @@ class AppleSimulatorDevice(
         } else {
             logger.warn { "Failed to clear app container:\nstdout: ${containerPath.combinedStdout}\nstderr: ${containerPath.combinedStderr}" }
         }
-    }
-
-    companion object {
-        const val SHARED_PATH = "/tmp/marathon"
     }
 }

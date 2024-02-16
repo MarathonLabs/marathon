@@ -1,10 +1,10 @@
 package com.malinskiy.marathon.apple.ios.listener.screenshot
 
-import com.malinskiy.marathon.apple.ios.AppleDevice
-import com.malinskiy.marathon.apple.ios.listener.AppleTestRunListener
-import com.malinskiy.marathon.apple.ios.logparser.parser.DeviceFailureReason
+import com.malinskiy.marathon.apple.AppleDevice
+import com.malinskiy.marathon.apple.listener.AppleTestRunListener
+import com.malinskiy.marathon.apple.logparser.parser.DeviceFailureReason
 import com.malinskiy.marathon.config.ScreenRecordingPolicy
-import com.malinskiy.marathon.config.vendor.ios.ScreenshotConfiguration
+import com.malinskiy.marathon.config.vendor.apple.ios.ScreenshotConfiguration
 import com.malinskiy.marathon.device.DevicePoolId
 import com.malinskiy.marathon.device.screenshot.ScreenCapturer
 import com.malinskiy.marathon.device.toDeviceInfo

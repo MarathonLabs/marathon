@@ -1,20 +1,30 @@
 package com.malinskiy.marathon.apple.ios.device
 
+import com.fasterxml.jackson.databind.JsonMappingException
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.module.kotlin.readValue
 import com.google.gson.Gson
 import com.malinskiy.marathon.actor.unboundedChannel
+import com.malinskiy.marathon.analytics.internal.pub.Track
+import com.malinskiy.marathon.apple.AppleTestBundleIdentifier
+import com.malinskiy.marathon.apple.bin.AppleBinaryEnvironment
+import com.malinskiy.marathon.apple.bin.xcrun.simctl.model.SimctlDevice
+import com.malinskiy.marathon.apple.bin.xcrun.simctl.model.SimctlListDevicesOutput
 import com.malinskiy.marathon.apple.ios.AppleSimulatorDevice
-import com.malinskiy.marathon.apple.ios.bin.AppleBinaryEnvironment
-import com.malinskiy.marathon.apple.ios.bin.xcrun.simctl.model.SimctlDevice
-import com.malinskiy.marathon.apple.ios.bin.xcrun.simctl.model.SimctlListDevicesOutput
-import com.malinskiy.marathon.apple.ios.cmd.CommandExecutor
-import com.malinskiy.marathon.apple.ios.cmd.FileBridge
-import com.malinskiy.marathon.apple.ios.configuration.AppleTarget
-import com.malinskiy.marathon.apple.ios.configuration.Transport
+import com.malinskiy.marathon.apple.cmd.CommandExecutor
+import com.malinskiy.marathon.apple.cmd.FileBridge
+import com.malinskiy.marathon.apple.configuration.AppleTarget
+import com.malinskiy.marathon.apple.configuration.Marathondevices
+import com.malinskiy.marathon.apple.configuration.Transport
+import com.malinskiy.marathon.apple.configuration.Worker
+import com.malinskiy.marathon.apple.device.ConnectionFactory
 import com.malinskiy.marathon.config.Configuration
 import com.malinskiy.marathon.config.vendor.VendorConfiguration
 import com.malinskiy.marathon.device.Device
 import com.malinskiy.marathon.device.DeviceProvider
+import com.malinskiy.marathon.exceptions.NoDevicesException
 import com.malinskiy.marathon.log.MarathonLogging
+import com.malinskiy.marathon.time.Timer
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Job
@@ -24,8 +34,12 @@ import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.newFixedThreadPoolContext
 import kotlinx.coroutines.supervisorScope
 import kotlinx.coroutines.withContext
+import org.apache.commons.text.StringSubstitutor
+import org.apache.commons.text.lookup.StringLookupFactory
+import java.io.File
 import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.coroutines.CoroutineContext
@@ -35,24 +49,49 @@ private const val MAX_CONNECTION_ATTEMPTS = 16
 class AppleSimulatorProvider(
     private val configuration: Configuration,
     private val vendorConfiguration: VendorConfiguration.IOSConfiguration,
+    private val testBundleIdentifier: AppleTestBundleIdentifier,
     private val gson: Gson,
-    override val coroutineContext: CoroutineContext,
-    override val deviceInitializationTimeoutMillis: Long,
-    private val simulatorFactory: SimulatorFactory,
-    private val hosts: Map<Transport, List<AppleTarget>>,
+    private val objectMapper: ObjectMapper,
+    private val track: Track,
+    private val timer: Timer
 ) : DeviceProvider, CoroutineScope {
 
     private val logger = MarathonLogging.logger(AppleSimulatorProvider::class.java.simpleName)
+
+    private val dispatcher =
+        newFixedThreadPoolContext(vendorConfiguration.threadingConfiguration.deviceProviderThreads, "AppleDeviceProvider")
+    override val coroutineContext: CoroutineContext
+        get() = dispatcher
+    override val deviceInitializationTimeoutMillis = configuration.deviceInitializationTimeoutMillis
 
     private val job = Job()
 
     private val devices = ConcurrentHashMap<String, AppleSimulatorDevice>()
     private val channel: Channel<DeviceProvider.DeviceEvent> = unboundedChannel()
     private val connectionFactory = ConnectionFactory(configuration, vendorConfiguration)
+    private val environmentVariableSubstitutor = StringSubstitutor(StringLookupFactory.INSTANCE.environmentVariableStringLookup())
+    private val simulatorFactory = SimulatorFactory(configuration, vendorConfiguration, testBundleIdentifier, gson, track, timer)
 
     override fun subscribe() = channel
 
     override suspend fun initialize() = withContext(coroutineContext) {
+        logger.debug("Initializing AppleSimulatorProvider")
+        val file = vendorConfiguration.devicesFile ?: File(System.getProperty("user.dir"), "Marathondevices")
+        val devicesWithEnvironmentVariablesReplaced = environmentVariableSubstitutor.replace(file.readText())
+        val workers: List<Worker> = try {
+            objectMapper.readValue<Marathondevices>(devicesWithEnvironmentVariablesReplaced).workers
+        } catch (e: JsonMappingException) {
+            throw NoDevicesException("Invalid Marathondevices file ${file.absolutePath} format", e)
+        }
+        if (workers.isEmpty()) {
+            throw NoDevicesException("No workers found in the ${file.absolutePath}")
+        }
+        val hosts: Map<Transport, List<AppleTarget>> = mutableMapOf<Transport, List<AppleTarget>>().apply {
+            workers.map {
+                put(it.transport, it.devices)
+            }
+        }
+
         logger.debug { "Establishing communication with [${hosts.keys.joinToString()}]" }
         val deferred = hosts.map { (transport, targets) ->
             async {
@@ -179,6 +218,7 @@ class AppleSimulatorProvider(
                 is AppleTarget.Simulator -> simulators.add(device)
                 is AppleTarget.Physical -> physical.add(device)
                 is AppleTarget.SimulatorProfile -> simulatorProfiles.add(device)
+                is AppleTarget.Host -> logger.warn { "iOS vendor runs do not use host device for testing. Skipping" }
             }
         }
         val availableUdids = simulatorDevices.keys
@@ -228,13 +268,14 @@ class AppleSimulatorProvider(
     }
 
     override suspend fun terminate() = withContext(NonCancellable) {
-        logger.info("stops providing anything")
-        channel.close()
-        if (logger.isDebugEnabled) {
-            // print out final summary on attempted simulator connections
-//            printFailingSimulatorSummary()
-        }
-        val deferredDispose = devices.map { (uuid, device) ->
+        withContext(NonCancellable) {
+            logger.debug { "Terminating AppleSimulatorProvider" }
+            channel.close()
+            if (logger.isDebugEnabled) {
+                // print out final summary on attempted simulator connections
+                //printFailingSimulatorSummary()
+            }
+            val deferredDispose = devices.map { (uuid, device) ->
                 async {
                     try {
                         dispose(device)
@@ -245,8 +286,10 @@ class AppleSimulatorProvider(
                     logger.debug("Disposed device ${device.udid}")
                 }
             }
-        deferredDispose.awaitAll()
-        devices.clear()
+            deferredDispose.awaitAll()
+            devices.clear()
+        }
+        dispatcher.close()
     }
 
 //    suspend fun onDisconnect(device: AppleSimulatorDevice, remoteSimulator: AppleTarget.Simulator, reason: DeviceFailureReason) =
