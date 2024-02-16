@@ -12,7 +12,7 @@ jobs:
           java-version: '11'
       - name: test
         run: |
-          chmod 0600 $GITHUB_WORKSPACE/vendor/vendor-ios/src/test/resources/fixtures/derived-data-manager/test_rsa
+          chmod 0600 $GITHUB_WORKSPACE/vendor/vendor-apple/base/src/test/resources/fixtures/derived-data-manager/test_rsa
           ./gradlew clean test jacocoTestReport integrationTest
           bash <(curl -s https://codecov.io/bash)
       - name: Publish Test Report
