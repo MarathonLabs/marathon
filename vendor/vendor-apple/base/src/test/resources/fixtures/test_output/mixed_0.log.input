@@ -1,0 +1,55 @@
+Test Suite 'Selected tests' started at 2018-09-15 20:02:22.316
+Test Suite 'sample-appUITests.xctest' started at 2018-09-15 20:02:22.317
+Test Suite 'FlakyTests' started at 2018-09-15 20:02:22.317
+Test Case '-[sample_appUITests.FlakyTests testTextFlaky3]' started.
+    t =     0.00s Start Test at 2018-09-15 20:02:22.318
+    t =     0.05s Set Up
+    t =     0.05s     Open com.agoda.sample-app
+    t =     0.08s         Launch com.agoda.sample-app
+    t =     5.43s             Wait for com.agoda.sample-app to idle
+    t =     6.68s Tear Down
+Test Case '-[sample_appUITests.FlakyTests testTextFlaky3]' passed (6.879 seconds).
+Test Case '-[sample_appUITests.FlakyTests testTextFlaky4]' started.
+    t =     0.00s Start Test at 2018-09-15 20:02:29.198
+    t =     0.01s Set Up
+    t =     0.11s     Open com.agoda.sample-app
+    t =     0.12s         Launch com.agoda.sample-app
+    t =     0.12s             Terminate com.agoda.sample-app:9038
+    t =     2.85s             Wait for com.agoda.sample-app to idle
+    t =     3.87s Tear Down
+Test Case '-[sample_appUITests.FlakyTests testTextFlaky4]' passed (4.072 seconds).
+Test Case '-[sample_appUITests.FlakyTests testTextFlaky5]' started.
+    t =     0.00s Start Test at 2018-09-15 20:02:33.270
+    t =     0.01s Set Up
+    t =     0.12s     Open com.agoda.sample-app
+    t =     0.13s         Launch com.agoda.sample-app
+    t =     0.13s             Terminate com.agoda.sample-app:9058
+    t =     2.86s             Wait for com.agoda.sample-app to idle
+    t =     4.10s Tear Down
+Test Case '-[sample_appUITests.FlakyTests testTextFlaky5]' passed (4.301 seconds).
+Test Case '-[sample_appUITests.FlakyTests testTextFlaky6]' started.
+    t =     0.00s Start Test at 2018-09-15 20:02:37.571
+    t =     0.01s Set Up
+    t =     0.11s     Open com.agoda.sample-app
+    t =     0.13s         Launch com.agoda.sample-app
+    t =     0.13s             Terminate com.agoda.sample-app:9079
+    t =     3.06s             Wait for com.agoda.sample-app to idle
+    t =     4.13s Assertion Failure: FlakyTests.swift:63: XCTAssertTrue failed -
+    t =     4.14s Tear Down
+Test Case '-[sample_appUITests.FlakyTests testTextFlaky6]' failed (4.341 seconds).
+Test Case '-[sample_appUITests.FlakyTests testTextFlaky7]' started.
+    t =     0.00s Start Test at 2018-09-15 20:02:41.912
+    t =     0.01s Set Up
+    t =     0.11s     Open com.agoda.sample-app
+    t =     0.12s         Launch com.agoda.sample-app
+    t =     0.12s             Terminate com.agoda.sample-app:9093
+    t =     2.86s             Wait for com.agoda.sample-app to idle
+    t =     4.03s Assertion Failure: FlakyTests.swift:68: XCTAssertTrue failed -
+    t =     4.04s Tear Down
+Test Case '-[sample_appUITests.FlakyTests testTextFlaky7]' failed (4.243 seconds).
+Test Suite 'FlakyTests' failed at 2018-09-15 20:02:46.156.
+	 Executed 5 tests, with 2 failures (0 unexpected) in 23.836 (23.839) seconds
+Test Suite 'sample-appUITests.xctest' failed at 2018-09-15 20:02:46.156.
+	 Executed 5 tests, with 2 failures (0 unexpected) in 23.836 (23.839) seconds
+Test Suite 'Selected tests' failed at 2018-09-15 20:02:46.157.
+	 Executed 5 tests, with 2 failures (0 unexpected) in 23.836 (23.840) seconds

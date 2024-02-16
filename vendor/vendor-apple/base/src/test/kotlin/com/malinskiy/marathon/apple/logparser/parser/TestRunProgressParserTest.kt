@@ -25,7 +25,7 @@ class TestRunProgressParserTest {
         val parser = TestRunProgressParser(mockTimer, "")
 
         val events = mutableListOf<TestEvent>()
-        javaClass.getResourceAsStream("/fixtures/test_output/success_0.log").bufferedReader().use {
+        javaClass.getResourceAsStream("/fixtures/test_output/success_0.log.input").bufferedReader().use {
             it.lines().forEach { line ->
                 parser.process(line)?.let {
                     events.addAll(it)
@@ -42,7 +42,7 @@ class TestRunProgressParserTest {
         val parser = TestRunProgressParser(mockTimer, "testTarget")
 
         val events = mutableListOf<TestEvent>()
-        javaClass.getResourceAsStream("/fixtures/test_output/patrol_0.log").bufferedReader().use {
+        javaClass.getResourceAsStream("/fixtures/test_output/patrol_0.log.input").bufferedReader().use {
             it.lines().forEach { line ->
                 parser.process(line)?.let {
                     events.addAll(it)
@@ -59,7 +59,7 @@ class TestRunProgressParserTest {
         val parser = TestRunProgressParser(mockTimer, "")
 
         val events = mutableListOf<TestEvent>()
-        javaClass.getResourceAsStream("/fixtures/test_output/success_multiple_0.log").bufferedReader().use {
+        javaClass.getResourceAsStream("/fixtures/test_output/success_multiple_0.log.input").bufferedReader().use {
             it.lines().forEach { line ->
                 parser.process(line)?.let {
                     events.addAll(it)
@@ -76,7 +76,7 @@ class TestRunProgressParserTest {
         val parser = TestRunProgressParser(mockTimer, "testTarget")
 
         val events = mutableListOf<TestEvent>()
-        javaClass.getResourceAsStream("/fixtures/test_output/success_multiple_0.log").bufferedReader().use {
+        javaClass.getResourceAsStream("/fixtures/test_output/success_multiple_0.log.input").bufferedReader().use {
             it.lines().forEach { line ->
                 parser.process(line)?.let {
                     events.addAll(it)
@@ -93,7 +93,7 @@ class TestRunProgressParserTest {
         val parser = TestRunProgressParser(mockTimer, "testTarget")
 
         val events = mutableListOf<TestEvent>()
-        javaClass.getResourceAsStream("/fixtures/test_output/patrol_1.log").bufferedReader().use {
+        javaClass.getResourceAsStream("/fixtures/test_output/patrol_1.log.input").bufferedReader().use {
             it.lines().forEach { line ->
                 parser.process(line)?.let {
                     events.addAll(it)

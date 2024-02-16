@@ -1,0 +1,27 @@
+Test Suite 'Selected tests' started at 2018-09-15 17:54:10.750
+Test Suite 'sample-appUITests.xctest' started at 2018-09-15 17:54:10.750
+Test Suite 'FlakyTests' started at 2018-09-15 17:54:10.751
+Test Case '-[sample_appUITests.FlakyTests testTextFlaky1]' started.
+    t =     0.00s Start Test at 2018-09-15 17:54:10.751
+    t =     0.04s Set Up
+    t =     0.04s     Open com.agoda.sample-app
+    t =     0.06s         Launch com.agoda.sample-app
+    t =     2.98s             Wait for com.agoda.sample-app to idle
+    t =     4.21s Tear Down
+Test Case '-[sample_appUITests.FlakyTests testTextFlaky1]' passed (4.415 seconds).
+Test Case '-[sample_appUITests.FlakyTests testTextFlaky2]' started.
+    t =     0.00s Start Test at 2018-09-15 17:54:15.166
+    t =     0.01s Set Up
+    t =     0.11s     Open com.agoda.sample-app
+    t =     0.12s         Launch com.agoda.sample-app
+    t =     0.12s             Terminate com.agoda.sample-app:2190
+    t =     2.80s             Wait for com.agoda.sample-app to idle
+    t =     3.92s Tear Down
+Test Case '-[sample_appUITests.FlakyTests testTextFlaky2]' passed (4.118 seconds).
+Test Suite 'FlakyTests' passed at 2018-09-15 17:54:19.285.
+	 Executed 2 tests, with 0 failures (0 unexpected) in 8.533 (8.534) seconds
+Test Suite 'sample-appUITests.xctest' passed at 2018-09-15 17:54:19.285.
+	 Executed 2 tests, with 0 failures (0 unexpected) in 8.533 (8.535) seconds
+Test Suite 'Selected tests' passed at 2018-09-15 17:54:19.286.
+	 Executed 2 tests, with 0 failures (0 unexpected) in 8.533 (8.536) seconds
+** TEST EXECUTE SUCCEEDED **
