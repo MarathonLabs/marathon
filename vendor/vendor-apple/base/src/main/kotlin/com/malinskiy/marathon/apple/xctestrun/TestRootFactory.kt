@@ -82,13 +82,14 @@ class TestRootFactory(
         val userFrameworkPath =
             xctestrunEnv["DYLD_FRAMEWORK_PATH"]?.split(":")?.filter { it.isNotBlank() } ?: emptySet()
         val userLibraryPath = xctestrunEnv["DYLD_LIBRARY_PATH"]?.split(":")?.filter { it.isNotBlank() } ?: emptySet()
+        val userInsertLibraries = xctestrunEnv["DYLD_INSERT_LIBRARIES"]?.split(":")?.filter { it.isNotBlank() } ?: emptySet()
 
         val dyldFrameworks = mutableListOf("__TESTROOT__", frameworks, privateFrameworks, *userFrameworkPath.toTypedArray())
         val dyldLibraries = listOf("__TESTROOT__", usrLib, *userLibraryPath.toTypedArray())
         val dyldInsertLibraries = if (useLibParseTests) {
-            listOf(remoteFileManager.remoteXctestParserFile())
+            listOf(remoteFileManager.remoteXctestParserFile(), *userInsertLibraries.toTypedArray())
         } else {
-            emptyList()
+            listOf(*userInsertLibraries.toTypedArray())
         }
 
         /**
@@ -105,7 +106,7 @@ class TestRootFactory(
             "DYLD_INSERT_LIBRARIES" to dyldInsertLibraries.joinToString(":")
         ).apply {
             xctestrunEnv
-                .filterKeys { !setOf("DYLD_FRAMEWORK_PATH", "DYLD_LIBRARY_PATH").contains(it) }
+                .filterKeys { !setOf("DYLD_FRAMEWORK_PATH", "DYLD_LIBRARY_PATH", "DYLD_INSERT_LIBRARIES").contains(it) }
                 .forEach {
                     put(it.key, it.value)
                 }
