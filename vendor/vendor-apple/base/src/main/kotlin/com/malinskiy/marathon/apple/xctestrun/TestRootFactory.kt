@@ -1,6 +1,5 @@
 package com.malinskiy.marathon.apple.xctestrun
 
-import com.fasterxml.jackson.annotation.JsonProperty
 import com.malinskiy.marathon.apple.AppleDevice
 import com.malinskiy.marathon.apple.RemoteFileManager
 import com.malinskiy.marathon.apple.model.AppleTestBundle
@@ -23,7 +22,7 @@ class TestRootFactory(
     private val device: AppleDevice,
     private val xctestrunEnv: Map<String, String>,
     private val xcresultConfiguration: XcresultConfiguration,
-    ) {
+) {
     suspend fun generate(testType: TestType, bundle: AppleTestBundle, useXctestParser: Boolean) {
         val remoteFileManager = device.remoteFileManager
 
@@ -63,10 +62,13 @@ class TestRootFactory(
         if (!device.pushFolder(testApp, remoteTestApp)) {
             throw DeviceSetupException("failed to push app under test to remote device")
         }
-        val runnerPlugins = remoteFileManager.joinPath(testRunnerApp, "PlugIns")
+        val runnerPlugins = when (device.sdk) {
+            Sdk.IPHONEOS, Sdk.IPHONESIMULATOR -> remoteFileManager.joinPath(testRunnerApp, "PlugIns")
+            Sdk.MACOS -> remoteFileManager.joinPath(testRunnerApp, "Contents", "PlugIns")
+        }
         remoteFileManager.createRemoteDirectory(runnerPlugins)
         val remoteXctest = remoteFileManager.remoteXctestFile()
-        remoteFileManager.copy(remoteXctest, runnerPlugins)
+        remoteFileManager.copy(remoteXctest, runnerPlugins, override = false)
 
         if (device.sdk == Sdk.IPHONEOS) {
             TODO("generate phone provisioning")
@@ -237,19 +239,27 @@ class TestRootFactory(
         platformLibraryPath: String,
         bundle: AppleTestBundle,
     ): String {
-        val testBinary = joinPath(device.remoteFileManager.remoteXctestFile(), bundle.testApplication.nameWithoutExtension)
+        val remoteTestBinary = joinPath(
+            device.remoteFileManager.remoteXctestFile(),
+            *bundle.relativeTestBinaryPath,
+            bundle.testBinary.nameWithoutExtension
+        )
         val baseApp = joinPath(platformLibraryPath, "Xcode", "Agents", "XCTRunner.app")
         val runnerBinaryName = "${bundle.testBundleId}-Runner"
         val testRunnerApp = joinPath(testRoot, "$runnerBinaryName.app")
         device.remoteFileManager.copy(baseApp, testRunnerApp)
 
-        val baseTestRunnerBinary = joinPath(testRunnerApp, "XCTRunner")
-        val testRunnerBinary = joinPath(testRunnerApp, runnerBinaryName)
+        val baseTestRunnerBinary = joinPath(testRunnerApp, *bundle.relativeTestBinaryPath, "XCTRunner")
+        val testRunnerBinary = joinPath(testRunnerApp, *bundle.relativeTestBinaryPath, runnerBinaryName)
         device.remoteFileManager.copy(baseTestRunnerBinary, testRunnerBinary)
 
-        matchArchitectures(testBinary, testRunnerBinary)
+        matchArchitectures(remoteTestBinary, testRunnerBinary)
 
-        val plist = joinPath(testRunnerApp, "Info.plist")
+        val plist = when (device.sdk) {
+            Sdk.IPHONEOS, Sdk.IPHONESIMULATOR -> joinPath(testRunnerApp, "Info.plist")
+            Sdk.MACOS -> joinPath(testRunnerApp, "Contents", "Info.plist")
+        }
+
         device.binaryEnvironment.plistBuddy.apply {
             set(plist, "CFBundleName", runnerBinaryName)
             set(plist, "CFBundleExecutable", runnerBinaryName)

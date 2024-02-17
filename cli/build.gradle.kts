@@ -35,6 +35,7 @@ distributions {
 dependencies {
     implementation(project(":core"))
     implementation(project(":vendor:vendor-apple:ios"))
+    implementation(project(":vendor:vendor-apple:macos"))
     implementation(project(":vendor:vendor-android"))
     implementation(project(":analytics:usage"))
     implementation(Libraries.kotlinStdLib)

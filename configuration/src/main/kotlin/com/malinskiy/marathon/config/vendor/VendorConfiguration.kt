@@ -13,20 +13,19 @@ import com.malinskiy.marathon.config.vendor.android.SerialStrategy
 import com.malinskiy.marathon.config.vendor.android.TestAccessConfiguration
 import com.malinskiy.marathon.config.vendor.android.TestParserConfiguration
 import com.malinskiy.marathon.config.vendor.android.ThreadingConfiguration
-import com.malinskiy.marathon.config.vendor.android.TimeoutConfiguration
 import com.malinskiy.marathon.config.vendor.apple.AppleTestBundleConfiguration
 import com.malinskiy.marathon.config.vendor.apple.ios.LifecycleConfiguration
 import com.malinskiy.marathon.config.vendor.apple.ios.PermissionsConfiguration
 import com.malinskiy.marathon.config.vendor.apple.RsyncConfiguration
 import com.malinskiy.marathon.config.vendor.apple.ios.SigningConfiguration
 import com.malinskiy.marathon.config.vendor.apple.SshConfiguration
+import com.malinskiy.marathon.config.vendor.apple.TimeoutConfiguration as AppleTimeoutConfiguration
 import com.malinskiy.marathon.config.vendor.apple.ios.XcresultConfiguration
 import java.io.File
+import com.malinskiy.marathon.config.vendor.android.TimeoutConfiguration as AndroidTimeoutConfiguration
 import com.malinskiy.marathon.config.vendor.apple.TestParserConfiguration as AppleTestParserConfiguration
 import com.malinskiy.marathon.config.vendor.apple.ios.ScreenRecordConfiguration as IosScreenRecordConfiguration
 import com.malinskiy.marathon.config.vendor.apple.ThreadingConfiguration as AppleThreadingConfiguration
-import com.malinskiy.marathon.config.vendor.apple.ios.TimeoutConfiguration as IosTimeoutConfiguration
-import com.malinskiy.marathon.config.vendor.apple.macos.TimeoutConfiguration as MacosTimeoutConfiguration1
 
 const val DEFAULT_INIT_TIMEOUT_MILLIS = 30_000
 const val DEFAULT_AUTO_GRANT_PERMISSION = false
@@ -66,7 +65,7 @@ sealed class VendorConfiguration {
         @JsonProperty("screenRecordConfiguration") val screenRecordConfiguration: ScreenRecordConfiguration = ScreenRecordConfiguration(),
         @JsonProperty("waitForDevicesTimeoutMillis") val waitForDevicesTimeoutMillis: Long = DEFAULT_WAIT_FOR_DEVICES_TIMEOUT,
         @JsonProperty("allureConfiguration") val allureConfiguration: AllureConfiguration = AllureConfiguration(),
-        @JsonProperty("timeoutConfiguration") val timeoutConfiguration: TimeoutConfiguration = TimeoutConfiguration(),
+        @JsonProperty("timeoutConfiguration") val timeoutConfiguration: AndroidTimeoutConfiguration = AndroidTimeoutConfiguration(),
         @JsonProperty("fileSyncConfiguration") val fileSyncConfiguration: FileSyncConfiguration = FileSyncConfiguration(),
         @JsonProperty("threadingConfiguration") val threadingConfiguration: ThreadingConfiguration = ThreadingConfiguration(),
         @JsonProperty("testParserConfiguration") val testParserConfiguration: TestParserConfiguration = TestParserConfiguration.LocalTestParserConfiguration,
@@ -114,7 +113,7 @@ sealed class VendorConfiguration {
         var screenRecordConfiguration: ScreenRecordConfiguration = ScreenRecordConfiguration()
         var waitForDevicesTimeoutMillis: Long = DEFAULT_WAIT_FOR_DEVICES_TIMEOUT
         var allureConfiguration: AllureConfiguration = AllureConfiguration()
-        var timeoutConfiguration: TimeoutConfiguration = TimeoutConfiguration()
+        var timeoutConfiguration: AndroidTimeoutConfiguration = AndroidTimeoutConfiguration()
         var fileSyncConfiguration: FileSyncConfiguration = FileSyncConfiguration()
         var threadingConfiguration: ThreadingConfiguration = ThreadingConfiguration()
         var testParserConfiguration: TestParserConfiguration = TestParserConfiguration.LocalTestParserConfiguration
@@ -159,7 +158,7 @@ sealed class VendorConfiguration {
         @JsonProperty("xctestrunEnv") val xctestrunEnv: Map<String, String> = emptyMap(),
         @JsonProperty("lifecycle") val lifecycleConfiguration: LifecycleConfiguration = LifecycleConfiguration(),
         @JsonProperty("permissions") val permissions: PermissionsConfiguration = PermissionsConfiguration(),
-        @JsonProperty("timeoutConfiguration") val timeoutConfiguration: IosTimeoutConfiguration = IosTimeoutConfiguration(),
+        @JsonProperty("timeoutConfiguration") val timeoutConfiguration: AppleTimeoutConfiguration = AppleTimeoutConfiguration(),
         @JsonProperty("threadingConfiguration") val threadingConfiguration: AppleThreadingConfiguration = AppleThreadingConfiguration(),
         @JsonProperty("hideRunnerOutput") val hideRunnerOutput: Boolean = false,
         @JsonProperty("compactOutput") val compactOutput: Boolean = false,
@@ -185,7 +184,7 @@ sealed class VendorConfiguration {
 
         @JsonProperty("xcresult") val xcresult: XcresultConfiguration = XcresultConfiguration(),
         @JsonProperty("xctestrunEnv") val xctestrunEnv: Map<String, String> = emptyMap(),
-        @JsonProperty("timeoutConfiguration") val timeoutConfiguration: MacosTimeoutConfiguration1 = MacosTimeoutConfiguration1(),
+        @JsonProperty("timeoutConfiguration") val timeoutConfiguration: AppleTimeoutConfiguration = AppleTimeoutConfiguration(),
         @JsonProperty("threadingConfiguration") val threadingConfiguration: AppleThreadingConfiguration = AppleThreadingConfiguration(),
         @JsonProperty("hideRunnerOutput") val hideRunnerOutput: Boolean = false,
         @JsonProperty("compactOutput") val compactOutput: Boolean = false,

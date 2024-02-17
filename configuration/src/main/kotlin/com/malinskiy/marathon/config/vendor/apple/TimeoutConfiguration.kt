@@ -1,4 +1,4 @@
-package com.malinskiy.marathon.config.vendor.apple.ios
+package com.malinskiy.marathon.config.vendor.apple
 
 import com.fasterxml.jackson.annotation.JsonProperty
 import java.time.Duration

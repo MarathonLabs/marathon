@@ -1,6 +1,6 @@
 package com.malinskiy.marathon.apple
 
-import com.malinskiy.marathon.apple.extensions.testBundle
+import com.malinskiy.marathon.apple.extensions.bundleConfiguration
 import com.malinskiy.marathon.apple.model.AppleTestBundle
 import com.malinskiy.marathon.config.Configuration
 import com.malinskiy.marathon.config.exceptions.ConfigurationException
@@ -25,10 +25,13 @@ class NmTestParser(
     private val logger = MarathonLogging.logger(NmTestParser::class.java.simpleName)
 
     override suspend fun extract(device: Device): List<Test> {
-        val bundle = vendorConfiguration.testBundle()
         return withRetry(3, 0) {
             try {
                 val device = device as? AppleDevice ?: throw ConfigurationException("Unexpected device type for remote test parsing")
+                val bundleConfiguration = vendorConfiguration.bundleConfiguration()
+                val xctest = bundleConfiguration?.xctest ?: throw IllegalArgumentException("No test bundle provided")
+                val app = bundleConfiguration.app
+                val bundle = AppleTestBundle(app, xctest, device.sdk)
                 return@withRetry parseTests(device, bundle)
             } catch (e: CancellationException) {
                 throw e
@@ -44,6 +47,7 @@ class NmTestParser(
         bundle: AppleTestBundle,
     ): List<Test> {
         val testBinary = bundle.testBinary
+        val relativeTestBinaryPath = bundle.relativeTestBinaryPath
         val xctest = bundle.testApplication
 
         logger.debug { "Found test binary $testBinary for xctest $xctest" }
@@ -54,7 +58,7 @@ class NmTestParser(
         if (!device.pushFile(xctest, remoteXctest)) {
             throw TestParsingException("failed to push xctest for test parsing")
         }
-        val remoteTestBinary = device.remoteFileManager.joinPath(remoteXctest, testBinary.name)
+        val remoteTestBinary = device.remoteFileManager.joinPath(remoteXctest, *relativeTestBinaryPath, testBinary.name)
 
         val rawSwiftTests = device.binaryEnvironment.nm.swiftTests(remoteTestBinary)
         val swiftTests = rawSwiftTests.map { it.trim().split('.') }

@@ -4,7 +4,7 @@ import com.malinskiy.marathon.apple.bin.xcrun.simctl.SimctlService
 import com.malinskiy.marathon.apple.cmd.CommandExecutor
 import com.malinskiy.marathon.apple.cmd.CommandResult
 import com.malinskiy.marathon.config.vendor.apple.ios.Permission
-import com.malinskiy.marathon.config.vendor.apple.ios.TimeoutConfiguration
+import com.malinskiy.marathon.config.vendor.apple.TimeoutConfiguration
 
 class PrivacyService(commandExecutor: CommandExecutor,
                      private val timeoutConfiguration: TimeoutConfiguration,

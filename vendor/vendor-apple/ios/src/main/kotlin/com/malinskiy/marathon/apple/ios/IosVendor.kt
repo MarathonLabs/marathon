@@ -63,8 +63,8 @@ val IosVendor = module {
             else -> NmTestParser(get(), get(), TestParserConfiguration.NmTestParserConfiguration(), get())
         }
     }
-    single<AppleApplicationInstaller<AppleSimulatorDevice>> { AppleApplicationInstaller(get()) }
-    single<MarathonLogConfigurator> { AppleLogConfigurator(get()) }
+    single<AppleApplicationInstaller<AppleSimulatorDevice>> { AppleSimulatorApplicationInstaller(get()) }
+    single<MarathonLogConfigurator> { AppleLogConfigurator(get<VendorConfiguration.IOSConfiguration>().compactOutput) }
 
     val appleTestBundleIdentifier = AppleTestBundleIdentifier()
     single<TestBundleIdentifier?> { appleTestBundleIdentifier }

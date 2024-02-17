@@ -136,6 +136,8 @@ class RemoteFileManager(private val device: AppleDevice) {
         )
     }
 
+    private fun String.bashEscape() = "'" + replace("'", "'\\''") + "'"
+
     companion object {
         const val FILE_SEPARATOR = "/"
     }

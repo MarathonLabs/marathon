@@ -7,7 +7,6 @@ import ch.qos.logback.classic.PatternLayout
 import ch.qos.logback.classic.spi.ILoggingEvent
 import ch.qos.logback.core.ConsoleAppender
 import ch.qos.logback.core.encoder.LayoutWrappingEncoder
-import com.malinskiy.marathon.config.vendor.VendorConfiguration
 import com.malinskiy.marathon.log.MarathonLogConfigurator
 import com.malinskiy.marathon.report.timeline.TimelineSummaryProvider
 import net.schmizz.sshj.DefaultConfig
@@ -16,11 +15,10 @@ import net.schmizz.sshj.transport.kex.Curve25519SHA256
 import net.schmizz.sshj.transport.random.BouncyCastleRandom
 import org.slf4j.LoggerFactory
 
-class AppleLogConfigurator(private val vendorConfiguration: VendorConfiguration.IOSConfiguration) : MarathonLogConfigurator {
+class AppleLogConfigurator(private val compactOutput: Boolean) : MarathonLogConfigurator {
     override fun configure() {
         val loggerContext = LoggerFactory.getILoggerFactory() as LoggerContext
 
-        val compactOutput = vendorConfiguration.compactOutput
         val layout = PatternLayout()
         layout.pattern = if (compactOutput) {
             "%highlight(%.-1level [%thread] <%logger{48}> %msg%n)"

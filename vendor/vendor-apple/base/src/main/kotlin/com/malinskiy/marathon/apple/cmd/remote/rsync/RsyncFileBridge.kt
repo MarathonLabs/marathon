@@ -3,6 +3,11 @@ package com.malinskiy.marathon.apple.cmd.remote.rsync
 import com.github.fracpete.rsync4j.RSync
 import com.malinskiy.marathon.apple.cmd.FileBridge
 import com.malinskiy.marathon.apple.cmd.remote.rsync.a
+import com.malinskiy.marathon.config.Configuration
+import com.malinskiy.marathon.config.vendor.VendorConfiguration.IOSConfiguration
+import com.malinskiy.marathon.config.vendor.apple.RsyncConfiguration
+import com.malinskiy.marathon.config.vendor.apple.SshAuthentication
+import com.malinskiy.marathon.config.vendor.apple.SshConfiguration
 import kotlinx.coroutines.sync.withLock
 import java.io.File
 import java.util.concurrent.ConcurrentHashMap
@@ -17,9 +22,10 @@ import java.util.concurrent.locks.Lock
  */
 class RsyncFileBridge(
     private val target: RsyncTarget,
-    private val configuration: com.malinskiy.marathon.config.Configuration,
-    private val vendorConfiguration: com.malinskiy.marathon.config.vendor.VendorConfiguration.IOSConfiguration,
-    private val authentication: com.malinskiy.marathon.config.vendor.apple.SshAuthentication?,
+    private val configuration: Configuration,
+    private val sshConfiguration: SshConfiguration,
+    private val rsyncConfiguration: RsyncConfiguration,
+    private val authentication: SshAuthentication?,
 ) : FileBridge {
     private val logger = com.malinskiy.marathon.log.MarathonLogging.logger {}
 
@@ -87,42 +93,42 @@ class RsyncFileBridge(
     private val rsyncVersion: String
         get() {
             val output = com.github.fracpete.processoutput4j.output.CollectingProcessOutput()
-            output.monitor(com.github.fracpete.rsync4j.RSync().source("/tmp").destination("/tmp").version(true).builder())
+            output.monitor(RSync().source("/tmp").destination("/tmp").version(true).builder())
             return output.stdOut.replace("""(?s)\n.*\z""".toRegex(), "")
         }
 
-    private fun getRsyncBase(): com.github.fracpete.rsync4j.RSync {
-        return com.github.fracpete.rsync4j.RSync()
+    private fun getRsyncBase(): RSync {
+        return RSync()
             .a()
             .partial(true)
             .partialDir(".rsync-partial")
             .delayUpdates(true)
-            .rsyncPath(vendorConfiguration.rsync.remotePath)
+            .rsyncPath(rsyncConfiguration.remotePath)
             .verbose(configuration.debug)
     }
 
-    private fun com.github.fracpete.rsync4j.RSync.authenticate(): com.github.fracpete.rsync4j.RSync {
+    private fun RSync.authenticate(): RSync {
         return when (authentication) {
-            is com.malinskiy.marathon.config.vendor.apple.SshAuthentication.PasswordAuthentication -> {
+            is SshAuthentication.PasswordAuthentication -> {
                 sshPass(
                     com.github.fracpete.rsync4j.SshPass().password(authentication.password)
                 ).rsh(
                     "ssh -o 'StrictHostKeyChecking no' -F /dev/null " +
                         "-l ${authentication.username} " +
                         "-p ${target.port} " +
-                        when (configuration.debug && vendorConfiguration.ssh.debug) {
+                        when (configuration.debug && sshConfiguration.debug) {
                             true -> "-vvv"
                             else -> ""
                         }
                 )
             }
-            is com.malinskiy.marathon.config.vendor.apple.SshAuthentication.PublicKeyAuthentication -> {
+            is SshAuthentication.PublicKeyAuthentication -> {
                 rsh(
                     "ssh -o 'StrictHostKeyChecking no' -F /dev/null " +
                         "-i ${authentication.key} " +
                         "-l ${authentication.username} " +
                         "-p ${target.port} " +
-                        when (configuration.debug && vendorConfiguration.ssh.debug) {
+                        when (configuration.debug && sshConfiguration.debug) {
                             true -> "-vvv"
                             else -> ""
                         }

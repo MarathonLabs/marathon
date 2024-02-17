@@ -11,6 +11,9 @@ import com.malinskiy.marathon.apple.cmd.remote.ssh.sshj.SshjCommandExecutorFacto
 import com.malinskiy.marathon.apple.configuration.Transport
 import com.malinskiy.marathon.apple.logparser.parser.DeviceFailureException
 import com.malinskiy.marathon.apple.logparser.parser.DeviceFailureReason
+import com.malinskiy.marathon.config.Configuration
+import com.malinskiy.marathon.config.vendor.apple.RsyncConfiguration
+import com.malinskiy.marathon.config.vendor.apple.SshConfiguration
 import net.schmizz.sshj.connection.ConnectionException
 import net.schmizz.sshj.transport.TransportException
 import net.schmizz.sshj.transport.verification.HostKeyVerifier
@@ -19,11 +22,17 @@ import net.schmizz.sshj.transport.verification.PromiscuousVerifier
 import java.io.IOException
 import java.net.InetAddress
 import java.net.UnknownHostException
+import java.time.Duration
 
 /**
  * Simple implementation of reference counting for closing connections
  */
-class ConnectionFactory(private val configuration: com.malinskiy.marathon.config.Configuration, private val vendorConfiguration: com.malinskiy.marathon.config.vendor.VendorConfiguration.IOSConfiguration) {
+class ConnectionFactory(
+    private val configuration: Configuration,
+    private val sshConfiguration: SshConfiguration,
+    private val rsyncConfiguration: RsyncConfiguration,
+    private val reachabilityTimeout: Duration
+) {
     private val logger = com.malinskiy.marathon.log.MarathonLogging.logger {}
     private val fileBridges = hashMapOf<RsyncTarget, RsyncFileBridge>()
     private val sshCommandExecutors = hashMapOf<Transport.Ssh, SshjCommandExecutor>()
@@ -62,7 +71,7 @@ class ConnectionFactory(private val configuration: com.malinskiy.marathon.config
     }
 
     fun createRemote(transport: Transport.Ssh): Pair<CommandExecutor?, FileBridge> {
-        return if (vendorConfiguration.ssh.shareWorkerConnection) {
+        return if (sshConfiguration.shareWorkerConnection) {
             Pair(getOrCreateSshCommandExecutor(transport), getOrCreateFileBridge(transport.addr, transport.port, transport.authentication))
         } else {
             Pair(createRemoteCommandExecutor(transport), getOrCreateFileBridge(transport.addr, transport.port, transport.authentication))
@@ -73,7 +82,7 @@ class ConnectionFactory(private val configuration: com.malinskiy.marathon.config
         return try {
             val hostAddress = transport.toInetAddressOrNull() ?: throw DeviceFailureException(DeviceFailureReason.UnreachableHost)
             val connectionId = "${hostAddress.hostAddress}:${transport.port}"
-            val authConfig = transport.authentication ?: vendorConfiguration.ssh.authentication
+            val authConfig = transport.authentication ?: sshConfiguration.authentication
             val sshAuthentication = when (authConfig) {
                 is com.malinskiy.marathon.config.vendor.apple.SshAuthentication.PasswordAuthentication -> com.malinskiy.marathon.apple.cmd.remote.ssh.sshj.auth.SshAuthentication.PasswordAuthentication(
                     authConfig.username,
@@ -87,7 +96,7 @@ class ConnectionFactory(private val configuration: com.malinskiy.marathon.config
 
                 null -> throw com.malinskiy.marathon.config.exceptions.ConfigurationException("no ssh auth provided for ${transport.addr}:${transport.port}")
             }
-            val hostKeyVerifier: HostKeyVerifier = vendorConfiguration.ssh.knownHostsPath?.let {
+            val hostKeyVerifier: HostKeyVerifier = sshConfiguration.knownHostsPath?.let {
                 OpenSSHKnownHosts(it)
             } ?: PromiscuousVerifier()
             return try {
@@ -96,7 +105,7 @@ class ConnectionFactory(private val configuration: com.malinskiy.marathon.config
                     port = transport.port,
                     authentication = sshAuthentication,
                     hostKeyVerifier = hostKeyVerifier,
-                    debug = vendorConfiguration.ssh.debug,
+                    debug = sshConfiguration.debug,
                 )
             } catch (e: TransportException) {
                 throw DeviceFailureException(DeviceFailureReason.UnreachableHost, e)
@@ -121,7 +130,7 @@ class ConnectionFactory(private val configuration: com.malinskiy.marathon.config
         }
         return if (this.checkReachability) {
             if (try {
-                    address.isReachable(vendorConfiguration.timeoutConfiguration.reachability.toMillis().toInt())
+                    address.isReachable(reachabilityTimeout.toMillis().toInt())
                 } catch (e: IOException) {
                     logger.error("Error checking reachability of $this: $e")
                     false
@@ -147,15 +156,20 @@ class ConnectionFactory(private val configuration: com.malinskiy.marathon.config
     /**
      * Rsync doesn't work in parallel for the same host, so we have to share the same bridge
      */
-    private fun getOrCreateFileBridge(addr: String, port: Int, authentication: com.malinskiy.marathon.config.vendor.apple.SshAuthentication?): FileBridge {
+    private fun getOrCreateFileBridge(
+        addr: String,
+        port: Int,
+        authentication: com.malinskiy.marathon.config.vendor.apple.SshAuthentication?
+    ): FileBridge {
         synchronized(fileBridges) {
             val rsyncSshTarget = RsyncTarget(addr, port)
             return fileBridges.getOrElse(rsyncSshTarget) {
                 val defaultBridge = RsyncFileBridge(
                     rsyncSshTarget,
                     configuration,
-                    vendorConfiguration,
-                    authentication ?: vendorConfiguration.ssh.authentication
+                    sshConfiguration,
+                    rsyncConfiguration,
+                    authentication ?: sshConfiguration.authentication
                 )
                 fileBridges[rsyncSshTarget] = defaultBridge
                 defaultBridge

@@ -46,11 +46,3 @@ fun VendorConfiguration.xcresultConfiguration(): XcresultConfiguration? {
         else -> null
     }
 }
-
-fun VendorConfiguration.testBundle(): AppleTestBundle {
-    return bundleConfiguration()?.let {
-        val xctest = it.xctest
-        val app = it.app
-        AppleTestBundle(app, xctest)
-    } ?: throw IllegalArgumentException("No test bundle provided")
-}

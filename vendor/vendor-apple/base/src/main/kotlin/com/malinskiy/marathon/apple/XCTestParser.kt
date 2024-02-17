@@ -1,7 +1,6 @@
 package com.malinskiy.marathon.apple
 
 import com.malinskiy.marathon.apple.extensions.bundleConfiguration
-import com.malinskiy.marathon.apple.extensions.testBundle
 import com.malinskiy.marathon.apple.model.AppleTestBundle
 import com.malinskiy.marathon.apple.test.TestEvent
 import com.malinskiy.marathon.apple.test.TestRequest
@@ -23,7 +22,7 @@ import kotlin.io.path.outputStream
 
 class XCTestParser<T: AppleDevice>(
     private val configuration: Configuration,
-    private val vendorConfiguration: VendorConfiguration.IOSConfiguration,
+    private val vendorConfiguration: VendorConfiguration.MacosConfiguration,
     private val testBundleIdentifier: AppleTestBundleIdentifier,
     private val applicationInstaller: AppleApplicationInstaller<T>,
 ) : RemoteTestParser<DeviceProvider>, LineListener {
@@ -34,7 +33,11 @@ class XCTestParser<T: AppleDevice>(
             try {
                 val device =
                     device as? T ?: throw ConfigurationException("Unexpected device type for remote test parsing")
-                return@withRetry parseTests(device, configuration, vendorConfiguration, applicationInstaller)
+                val bundleConfiguration = vendorConfiguration.bundleConfiguration()
+                val xctest = bundleConfiguration?.xctest ?: throw IllegalArgumentException("No test bundle provided")
+                val app = bundleConfiguration.app
+                val bundle = AppleTestBundle(app, xctest, device.sdk)
+                return@withRetry parseTests(device, bundle, applicationInstaller)
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {
@@ -46,13 +49,12 @@ class XCTestParser<T: AppleDevice>(
 
     private suspend fun parseTests(
         device: AppleDevice,
-        configuration: Configuration,
-        vendorConfiguration: VendorConfiguration,
+        bundle: AppleTestBundle,
         applicationInstaller: AppleApplicationInstaller<T>,
     ): List<Test> {
         applicationInstaller.prepareInstallation(device, useXctestParser = true)
 
-        val platform = "iPhoneSimulator"
+        val platform = device.sdk.platformName
         val dylib = javaClass.getResourceAsStream("/libxctest-parser/$platform/libxctest-parser.dylib")
         val tempFile = kotlin.io.path.createTempFile().apply {
             outputStream().use {
@@ -86,11 +88,12 @@ class XCTestParser<T: AppleDevice>(
                     when (event) {
                         is TestStarted -> {
                             //Target name is never printed via xcodebuild. We create it using the bundle id in com.malinskiy.marathon.ios.xctestrun.TestRootFactory
-                            val testWithTargetName = event.id.copy(pkg = vendorConfiguration.testBundle().testBundleId)
+                            val testWithTargetName = event.id.copy(pkg = bundle.testBundleId)
                             tests.add(testWithTargetName)
                         }
                         else -> Unit
                     }
+
                 }
             }
 
@@ -104,25 +107,12 @@ class XCTestParser<T: AppleDevice>(
             device.removeLineListener(this)
         }
 
-        val xctest = vendorConfiguration.bundleConfiguration()?.xctest ?: throw IllegalArgumentException("No test bundle provided")
-        val possibleTestBinaries = xctest.listFiles()?.filter { it.isFile && it.extension == "" }
-            ?: throw ConfigurationException("missing test binaries in xctest folder at $xctest")
-        val testBinary = when (possibleTestBinaries.size) {
-            0 -> throw ConfigurationException("missing test binaries in xctest folder at $xctest")
-            1 -> possibleTestBinaries[0]
-            else -> {
-                logger.warn { "Multiple test binaries present in xctest folder" }
-                possibleTestBinaries.find { it.name == xctest.nameWithoutExtension } ?: possibleTestBinaries.first()
-            }
-        }
-
         if (tests.size == 0) {
             logger.warn { "XCTestParser failed to parse tests. xcodebuild output:" + System.lineSeparator() + "$lineBuffer" }
         }
 
-        val testBundle = AppleTestBundle(vendorConfiguration.bundleConfiguration()?.app, xctest)
         val result = tests.toList()
-        result.forEach { testBundleIdentifier.put(it, testBundle) }
+        result.forEach { testBundleIdentifier.put(it, bundle) }
 
         return result
     }

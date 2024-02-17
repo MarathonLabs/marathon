@@ -2,7 +2,7 @@ package com.malinskiy.marathon.apple.bin.xcrun.simctl
 
 import com.malinskiy.marathon.apple.cmd.CommandExecutor
 import com.malinskiy.marathon.apple.cmd.CommandResult
-import com.malinskiy.marathon.config.vendor.apple.ios.TimeoutConfiguration
+import com.malinskiy.marathon.config.vendor.apple.TimeoutConfiguration
 import java.time.Duration
 
 abstract class SimctlService(private val commandExecutor: CommandExecutor) {

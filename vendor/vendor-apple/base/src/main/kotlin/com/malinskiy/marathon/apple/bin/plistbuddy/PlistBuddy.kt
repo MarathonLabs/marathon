@@ -2,7 +2,7 @@ package com.malinskiy.marathon.apple.bin.plistbuddy
 
 import com.malinskiy.marathon.apple.cmd.CommandExecutor
 import com.malinskiy.marathon.apple.cmd.CommandResult
-import com.malinskiy.marathon.config.vendor.apple.ios.TimeoutConfiguration
+import com.malinskiy.marathon.config.vendor.apple.TimeoutConfiguration
 
 /**
  * read and write values to plists

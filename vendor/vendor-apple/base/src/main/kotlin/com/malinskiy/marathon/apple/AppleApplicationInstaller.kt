@@ -24,7 +24,8 @@ open class AppleApplicationInstaller<in T: AppleDevice>(
         val xcresultConfiguration = vendorConfiguration.xcresultConfiguration() ?: throw IllegalArgumentException("No xcresult configuration provided")
         val xctest = bundleConfiguration?.xctest ?: throw IllegalArgumentException("No test bundle provided")
         val app = bundleConfiguration.app
-        val bundle = AppleTestBundle(app, xctest)
+        val bundle = AppleTestBundle(app, xctest, device.sdk)
+        val relativeTestBinaryPath = bundle.relativeTestBinaryPath
 
         logger.debug { "Moving xctest to ${device.serialNumber}" }
         val remoteXctest = device.remoteFileManager.remoteXctestFile()
@@ -37,21 +38,11 @@ open class AppleApplicationInstaller<in T: AppleDevice>(
         }
         logger.debug { "Generating test root for ${device.serialNumber}" }
 
-        val possibleTestBinaries = xctest.listFiles()?.filter { it.isFile && it.extension == "" }
-            ?: throw ConfigurationException("missing test binaries in xctest folder at $xctest")
-        val testBinary = when (possibleTestBinaries.size) {
-            0 -> throw ConfigurationException("missing test binaries in xctest folder at $xctest")
-            1 -> possibleTestBinaries[0]
-            else -> {
-                logger.warn { "Multiple test binaries present in xctest folder" }
-                possibleTestBinaries.find { it.name == xctest.nameWithoutExtension } ?: possibleTestBinaries.first()
-            }
-        }
-        val remoteTestBinary = device.remoteFileManager.joinPath(remoteXctest, testBinary.name)
+        val testBinary = bundle.testBinary
+        val remoteTestBinary = device.remoteFileManager.joinPath(remoteXctest, *relativeTestBinaryPath, testBinary.name)
         val testType = getTestTypeFor(device, device.sdk, remoteTestBinary)
         TestRootFactory(device, xctestrunEnv, xcresultConfiguration).generate(testType, bundle, useXctestParser)
         afterInstall(device as T)
-
 
         bundleConfiguration.extraApplications?.forEach {
             if (it.isDirectory && it.extension == "app") {

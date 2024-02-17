@@ -3,7 +3,7 @@ package com.malinskiy.marathon.apple.bin.lipo
 import com.malinskiy.marathon.apple.cmd.CommandExecutor
 import com.malinskiy.marathon.apple.cmd.CommandResult
 import com.malinskiy.marathon.apple.model.Arch
-import com.malinskiy.marathon.config.vendor.apple.ios.TimeoutConfiguration
+import com.malinskiy.marathon.config.vendor.apple.TimeoutConfiguration
 import com.malinskiy.marathon.exceptions.DeviceSetupException
 import java.time.Duration
 

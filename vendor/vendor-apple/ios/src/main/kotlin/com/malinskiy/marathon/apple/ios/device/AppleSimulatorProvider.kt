@@ -68,7 +68,12 @@ class AppleSimulatorProvider(
 
     private val devices = ConcurrentHashMap<String, AppleSimulatorDevice>()
     private val channel: Channel<DeviceProvider.DeviceEvent> = unboundedChannel()
-    private val connectionFactory = ConnectionFactory(configuration, vendorConfiguration)
+    private val connectionFactory = ConnectionFactory(
+        configuration,
+        vendorConfiguration.ssh,
+        vendorConfiguration.rsync,
+        vendorConfiguration.timeoutConfiguration.reachability
+    )
     private val environmentVariableSubstitutor = StringSubstitutor(StringLookupFactory.INSTANCE.environmentVariableStringLookup())
     private val simulatorFactory = SimulatorFactory(configuration, vendorConfiguration, testBundleIdentifier, gson, track, timer)
 
@@ -115,7 +120,7 @@ class AppleSimulatorProvider(
             return
         }
 
-        val bin = AppleBinaryEnvironment(commandExecutor, configuration, vendorConfiguration, gson)
+        val bin = AppleBinaryEnvironment(commandExecutor, configuration, vendorConfiguration.timeoutConfiguration, gson)
         val plan = plan(transport, bin, targets)
         val deferredExisting = createExisting(plan, transport)
         val deferredProvisioning = createNew(transport, plan, bin)

@@ -1,7 +1,7 @@
 package com.malinskiy.marathon.apple.bin.getconf
 
 import com.malinskiy.marathon.apple.cmd.CommandExecutor
-import com.malinskiy.marathon.config.vendor.apple.ios.TimeoutConfiguration
+import com.malinskiy.marathon.config.vendor.apple.TimeoutConfiguration
 
 /**
  * retrieve standard configuration variables

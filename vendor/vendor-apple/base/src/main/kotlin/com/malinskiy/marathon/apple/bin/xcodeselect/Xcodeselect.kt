@@ -2,7 +2,7 @@ package com.malinskiy.marathon.apple.bin.xcodeselect
 
 import com.malinskiy.marathon.apple.cmd.CommandExecutor
 import com.malinskiy.marathon.apple.model.Sdk
-import com.malinskiy.marathon.config.vendor.apple.ios.TimeoutConfiguration
+import com.malinskiy.marathon.config.vendor.apple.TimeoutConfiguration
 
 /**
  * Manages the active developer directory for Xcode and BSD tools

@@ -36,7 +36,7 @@ class SimulatorFactory(
         fileBridge: FileBridge,
         udid: String,
     ): AppleSimulatorDevice {
-        val bin = AppleBinaryEnvironment(commandExecutor, configuration, vendorConfiguration, gson)
+        val bin = AppleBinaryEnvironment(commandExecutor, configuration, vendorConfiguration.timeoutConfiguration, gson)
         val simctlDevice = try {
             val simctlDevices = bin.xcrun.simctl.device.listDevices()
             simctlDevices.find { it.udid == udid }?.apply {

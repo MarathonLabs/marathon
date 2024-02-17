@@ -9,17 +9,14 @@ import com.malinskiy.marathon.apple.bin.xcrun.simctl.service.SimulatorService
 import com.malinskiy.marathon.apple.cmd.CommandExecutor
 import com.malinskiy.marathon.config.Configuration
 import com.malinskiy.marathon.config.vendor.VendorConfiguration
-import com.malinskiy.marathon.config.vendor.apple.ios.TimeoutConfiguration
+import com.malinskiy.marathon.config.vendor.apple.TimeoutConfiguration
 import com.malinskiy.marathon.log.MarathonLogging
 
 class Simctl(
     private val commandExecutor: CommandExecutor,
-    private val configuration: Configuration,
-    private val vendorConfiguration: VendorConfiguration.IOSConfiguration,
+    private val timeoutConfiguration: TimeoutConfiguration,
     private val gson: Gson
 ) {
-    private val logger = MarathonLogging.logger {}
-    private val timeoutConfiguration: TimeoutConfiguration = vendorConfiguration.timeoutConfiguration
     val device = DeviceService(commandExecutor, timeoutConfiguration, gson)
 
     val simulator = SimulatorService(commandExecutor, timeoutConfiguration)

@@ -8,7 +8,7 @@ import com.malinskiy.marathon.apple.bin.xcrun.simctl.SimctlService
 import com.malinskiy.marathon.apple.cmd.CommandExecutor
 import com.malinskiy.marathon.apple.logparser.parser.DeviceFailureException
 import com.malinskiy.marathon.apple.logparser.parser.DeviceFailureReason
-import com.malinskiy.marathon.config.vendor.apple.ios.TimeoutConfiguration
+import com.malinskiy.marathon.config.vendor.apple.TimeoutConfiguration
 import com.malinskiy.marathon.log.MarathonLogging
 
 class DeviceService(

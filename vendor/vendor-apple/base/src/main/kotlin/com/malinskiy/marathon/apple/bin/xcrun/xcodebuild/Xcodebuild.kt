@@ -2,11 +2,12 @@ package com.malinskiy.marathon.apple.bin.xcrun.xcodebuild
 
 import com.malinskiy.marathon.apple.cmd.CommandExecutor
 import com.malinskiy.marathon.apple.cmd.CommandSession
+import com.malinskiy.marathon.apple.model.Platform
+import com.malinskiy.marathon.apple.model.Sdk
 import com.malinskiy.marathon.apple.model.XcodeVersion
 import com.malinskiy.marathon.apple.test.TestRequest
 import com.malinskiy.marathon.config.Configuration
-import com.malinskiy.marathon.config.vendor.VendorConfiguration
-import com.malinskiy.marathon.config.vendor.apple.ios.TimeoutConfiguration
+import com.malinskiy.marathon.config.vendor.apple.TimeoutConfiguration
 import com.malinskiy.marathon.log.MarathonLogging
 import java.time.Duration
 
@@ -16,18 +17,17 @@ import java.time.Duration
 class Xcodebuild(
     private val commandExecutor: CommandExecutor,
     private val configuration: Configuration,
-    private val vendorConfiguration: VendorConfiguration.IOSConfiguration,
     private val timeoutConfiguration: TimeoutConfiguration,
 ) {
     private val logger = MarathonLogging.logger {}
 
-    suspend fun testWithoutBuilding(udid: String, request: TestRequest): CommandSession {
+    suspend fun testWithoutBuilding(udid: String, sdk: Sdk, request: TestRequest, xcodebuildTestArgs: Map<String, String>): CommandSession {
         val args = mutableMapOf<String, String>().apply {
-            putAll(vendorConfiguration.xcodebuildTestArgs)
+            putAll(xcodebuildTestArgs)
             put("-enableCodeCoverage", codeCoverageFlag(request))
             request.xcresult?.let { put("-resultBundlePath", it) }
             put("-destination-timeout", timeoutConfiguration.testDestination.seconds.toString())
-            put("-destination", "\'platform=iOS simulator,id=$udid\'")
+            put("-destination", "\'platform=${sdk.destination},arch=arm64,id=$udid\'")
         }
             .filterKeys { it != "-xctestrun" }
             .toList()

@@ -11,13 +11,13 @@ import com.malinskiy.marathon.apple.bin.xcrun.simctl.service.ApplicationService
 import com.malinskiy.marathon.apple.cmd.CommandExecutor
 import com.malinskiy.marathon.apple.cmd.CommandResult
 import com.malinskiy.marathon.apple.cmd.FileBridge
-import com.malinskiy.marathon.apple.extensions.testBundle
+import com.malinskiy.marathon.apple.extensions.bundleConfiguration
 import com.malinskiy.marathon.apple.ios.listener.DataContainerClearListener
 import com.malinskiy.marathon.apple.listener.AppleTestRunListener
 import com.malinskiy.marathon.apple.listener.CompositeTestRunListener
 import com.malinskiy.marathon.apple.listener.DebugTestRunListener
 import com.malinskiy.marathon.apple.listener.ResultBundleRunListener
-import com.malinskiy.marathon.apple.ios.listener.TestResultsListener
+import com.malinskiy.marathon.apple.listener.TestResultsListener
 import com.malinskiy.marathon.apple.listener.TestRunListenerAdapter
 import com.malinskiy.marathon.apple.ios.listener.screenshot.ScreenCapturerTestRunListener
 import com.malinskiy.marathon.apple.ios.listener.video.ScreenRecordingListener
@@ -26,6 +26,7 @@ import com.malinskiy.marathon.apple.ios.model.Simulator
 import com.malinskiy.marathon.apple.logparser.parser.DeviceFailureException
 import com.malinskiy.marathon.apple.logparser.parser.DiagnosticLogsPathFinder
 import com.malinskiy.marathon.apple.logparser.parser.SessionResultsPathFinder
+import com.malinskiy.marathon.apple.model.AppleTestBundle
 import com.malinskiy.marathon.apple.model.XcodeVersion
 import com.malinskiy.marathon.apple.test.TestEvent
 import com.malinskiy.marathon.apple.test.TestRequest
@@ -127,6 +128,7 @@ class AppleSimulatorDevice(
     override val remoteFileManager: RemoteFileManager = RemoteFileManager(this)
     override val storagePath = "${AppleDevice.SHARED_PATH}/$udid"
     private lateinit var xcodeVersion: XcodeVersion
+    private lateinit var testBundle: AppleTestBundle
 
     /**
      * Called only once per device's lifetime
@@ -191,6 +193,11 @@ class AppleSimulatorDevice(
                             AppleSimulatorApplicationInstaller(
                                 vendorConfiguration,
                             ).prepareInstallation(this@AppleSimulatorDevice)
+                            testBundle = vendorConfiguration.bundleConfiguration()?.let {
+                                val xctest = it.xctest
+                                val app = it.app
+                                AppleTestBundle(app, xctest, sdk)
+                            } ?: throw IllegalArgumentException("No test bundle provided")
                         })
                         add(async {
                             handleLifecycle(vendorConfiguration.lifecycleConfiguration.onPrepare)
@@ -240,7 +247,7 @@ class AppleSimulatorDevice(
                         executionLineListeners = lineListeners.onEach { addLineListener(it) }
                         AppleDeviceTestRunner(this@AppleSimulatorDevice, testBundleIdentifier).execute(
                             configuration,
-                            vendorConfiguration.testBundle(),
+                            testBundle,
                             testBatch,
                             listener
                         )
@@ -340,7 +347,7 @@ class AppleSimulatorDevice(
 
     override suspend fun executeTestRequest(request: TestRequest): ReceiveChannel<List<TestEvent>> {
         return produce {
-            binaryEnvironment.xcrun.xcodebuild.testWithoutBuilding(udid, request).use { session ->
+            binaryEnvironment.xcrun.xcodebuild.testWithoutBuilding(udid, sdk, request, vendorConfiguration.xcodebuildTestArgs).use { session ->
                 withContext(Dispatchers.IO) {
                     val deferredStdout = supervisorScope {
                         async {

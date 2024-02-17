@@ -7,18 +7,17 @@ import com.malinskiy.marathon.apple.bin.xcrun.xcresulttool.Xcresulttool
 import com.malinskiy.marathon.apple.cmd.CommandExecutor
 import com.malinskiy.marathon.apple.model.Sdk
 import com.malinskiy.marathon.config.Configuration
-import com.malinskiy.marathon.config.vendor.VendorConfiguration
+import com.malinskiy.marathon.config.vendor.apple.TimeoutConfiguration
 
 class Xcrun(
     private val commandExecutor: CommandExecutor,
     configuration: Configuration,
-    vendorConfiguration: VendorConfiguration.IOSConfiguration,
+    private val timeoutConfiguration: TimeoutConfiguration,
     gson: Gson
 ) {
-    private val timeoutConfiguration = vendorConfiguration.timeoutConfiguration
 
-    val simctl = Simctl(commandExecutor, configuration, vendorConfiguration, gson)
-    val xcodebuild = Xcodebuild(commandExecutor, configuration, vendorConfiguration, timeoutConfiguration)
+    val simctl = Simctl(commandExecutor, timeoutConfiguration, gson)
+    val xcodebuild = Xcodebuild(commandExecutor, configuration, timeoutConfiguration)
     val xcresulttool = Xcresulttool(commandExecutor, timeoutConfiguration)
 
     suspend fun getSdkPlatformPath(sdk: Sdk): String {

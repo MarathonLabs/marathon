@@ -6,7 +6,7 @@ import com.malinskiy.marathon.apple.cmd.CommandResult
 import com.malinskiy.marathon.config.vendor.apple.ios.Codec
 import com.malinskiy.marathon.config.vendor.apple.ios.Display
 import com.malinskiy.marathon.config.vendor.apple.ios.Mask
-import com.malinskiy.marathon.config.vendor.apple.ios.TimeoutConfiguration
+import com.malinskiy.marathon.config.vendor.apple.TimeoutConfiguration
 import com.malinskiy.marathon.config.vendor.apple.ios.Type
 import com.malinskiy.marathon.log.MarathonLogging
 

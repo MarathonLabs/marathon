@@ -6,7 +6,7 @@ import com.fasterxml.jackson.module.kotlin.KotlinFeature
 import com.fasterxml.jackson.module.kotlin.KotlinModule
 import com.google.gson.JsonSyntaxException
 import com.malinskiy.marathon.apple.cmd.CommandExecutor
-import com.malinskiy.marathon.config.vendor.apple.ios.TimeoutConfiguration
+import com.malinskiy.marathon.config.vendor.apple.TimeoutConfiguration
 import com.malinskiy.marathon.log.MarathonLogging
 
 /**

@@ -21,6 +21,7 @@ import com.malinskiy.marathon.config.vendor.VendorConfiguration
 import com.malinskiy.marathon.di.marathonStartKoin
 import com.malinskiy.marathon.exceptions.ExceptionsReporterFactory
 import com.malinskiy.marathon.apple.ios.IosVendor
+import com.malinskiy.marathon.apple.macos.MacosVendor
 import com.malinskiy.marathon.log.MarathonLogging
 import org.koin.core.context.stopKoin
 import org.koin.dsl.module
@@ -70,6 +71,9 @@ private fun execute(cliConfiguration: CliConfiguration) {
             }
             is VendorConfiguration.AndroidConfiguration -> {
                 AndroidVendor + module { single { vendorConfiguration } } + listOf(adamModule)
+            }
+            is VendorConfiguration.MacosConfiguration -> {
+                MacosVendor + module { single { vendorConfiguration } }
             }
             else -> throw ConfigurationException("No vendor config present in ${marathonStartConfiguration.marathonfile.absolutePath}")
         }
