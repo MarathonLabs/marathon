@@ -47,7 +47,7 @@ class NmTestParser(
         bundle: AppleTestBundle,
     ): List<Test> {
         val testBinary = bundle.testBinary
-        val relativeTestBinaryPath = bundle.relativeTestBinaryPath
+        val relativeTestBinaryPath = bundle.relativeBinaryPath
         val xctest = bundle.testApplication
 
         logger.debug { "Found test binary $testBinary for xctest $xctest" }

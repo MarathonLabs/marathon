@@ -1,6 +1,7 @@
 package com.malinskiy.marathon.apple.bin
 
 import com.google.gson.Gson
+import com.malinskiy.marathon.apple.bin.chmod.Chmod
 import com.malinskiy.marathon.apple.bin.codesign.Codesign
 import com.malinskiy.marathon.apple.bin.getconf.Getconf
 import com.malinskiy.marathon.apple.bin.ioreg.Ioreg
@@ -32,5 +33,6 @@ class AppleBinaryEnvironment(
     val ioreg: Ioreg = Ioreg(commandExecutor, timeoutConfiguration)
     val systemProfiler: SystemProfiler = SystemProfiler(commandExecutor, timeoutConfiguration)
     val swvers: SwVers = SwVers(commandExecutor, timeoutConfiguration)
+    val chmod: Chmod = Chmod(commandExecutor, timeoutConfiguration)
     val xcrun: Xcrun = Xcrun(commandExecutor, configuration, timeoutConfiguration, gson)
 }

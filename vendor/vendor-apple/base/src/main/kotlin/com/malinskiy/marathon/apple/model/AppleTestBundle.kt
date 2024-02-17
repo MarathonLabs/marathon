@@ -39,14 +39,14 @@ class AppleTestBundle(
         }
         PropertyList.from(file)
     }
-    val testBundleId = (testBundleInfo.naming.bundleName ?: testApplication.nameWithoutExtension).replace('-', '_')
+    val testBundleId = (testBundleInfo.naming.bundleName ?: testApplication.nameWithoutExtension).replace("[- ]".toRegex(), "_")
 
     val testBinary: File by lazy {
         val possibleTestBinaries = when (sdk) {
             Sdk.IPHONEOS, Sdk.IPHONESIMULATOR -> testApplication.listFiles()?.filter { it.isFile && it.extension == "" }
                 ?: throw ConfigurationException("missing test binaries in xctest folder at $testApplication")
 
-            Sdk.MACOS -> Paths.get(testApplication.absolutePath, *relativeTestBinaryPath).toFile().listFiles()
+            Sdk.MACOS -> Paths.get(testApplication.absolutePath, *relativeBinaryPath).toFile().listFiles()
                 ?.filter { it.isFile && it.extension == "" }
                 ?: throw ConfigurationException("missing test binaries in xctest folder at $testApplication")
         }
@@ -60,10 +60,29 @@ class AppleTestBundle(
         }
     }
 
+    val applicationBinary: File? by lazy {
+        application?.let { application ->
+            when (sdk) {
+                Sdk.IPHONEOS, Sdk.IPHONESIMULATOR -> application.listFiles()?.filter { it.isFile && it.extension == "" }
+                Sdk.MACOS -> Paths.get(application.absolutePath, *relativeBinaryPath).toFile().listFiles()
+                    ?.filter { it.isFile && it.extension == "" }
+            }?.let { possibleBinaries ->
+                when (possibleBinaries.size) {
+                    0 -> null
+                    1 -> possibleBinaries[0]
+                    else -> {
+                        logger.warn { "Multiple application binaries present in app folder" }
+                        possibleBinaries[0]
+                    }
+                }
+            }
+        }
+    }
+
     /**
-     * Path of the test binary relative to the xctest folder
+     * Path of the app and test binaries relative to the bundle's (app/xctest) folder
      */
-    val relativeTestBinaryPath: Array<String> by lazy {
+    val relativeBinaryPath: Array<String> by lazy {
         when (sdk) {
             Sdk.IPHONEOS, Sdk.IPHONESIMULATOR -> emptyArray()
             Sdk.MACOS -> arrayOf("Contents", "MacOS")

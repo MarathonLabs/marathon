@@ -25,7 +25,7 @@ open class AppleApplicationInstaller<in T: AppleDevice>(
         val xctest = bundleConfiguration?.xctest ?: throw IllegalArgumentException("No test bundle provided")
         val app = bundleConfiguration.app
         val bundle = AppleTestBundle(app, xctest, device.sdk)
-        val relativeTestBinaryPath = bundle.relativeTestBinaryPath
+        val relativeTestBinaryPath = bundle.relativeBinaryPath
 
         logger.debug { "Moving xctest to ${device.serialNumber}" }
         val remoteXctest = device.remoteFileManager.remoteXctestFile()
