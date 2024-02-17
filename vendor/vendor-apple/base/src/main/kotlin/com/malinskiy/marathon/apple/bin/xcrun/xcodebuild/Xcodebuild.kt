@@ -27,7 +27,7 @@ class Xcodebuild(
             put("-enableCodeCoverage", codeCoverageFlag(request))
             request.xcresult?.let { put("-resultBundlePath", it) }
             put("-destination-timeout", timeoutConfiguration.testDestination.seconds.toString())
-            put("-destination", "\'platform=${sdk.destination},arch=arm64,id=$udid\'")
+            put("-destination", "\'platform=${sdk.destination},id=$udid\'")
         }
             .filterKeys { it != "-xctestrun" }
             .toList()

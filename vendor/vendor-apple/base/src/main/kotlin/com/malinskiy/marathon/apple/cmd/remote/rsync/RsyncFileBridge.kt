@@ -158,6 +158,7 @@ private fun RSync.a(): RSync {
         .owner(true)
         .devices(true)
         .specials(true)
+        .delete(true) //Cleans up previous runs when sharing paths
 }
 
 private fun File.isDescendantOf(dir: File): Boolean {

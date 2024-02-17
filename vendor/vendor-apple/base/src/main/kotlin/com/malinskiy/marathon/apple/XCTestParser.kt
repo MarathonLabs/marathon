@@ -22,7 +22,7 @@ import kotlin.io.path.outputStream
 
 class XCTestParser<T: AppleDevice>(
     private val configuration: Configuration,
-    private val vendorConfiguration: VendorConfiguration.MacosConfiguration,
+    private val vendorConfiguration: VendorConfiguration,
     private val testBundleIdentifier: AppleTestBundleIdentifier,
     private val applicationInstaller: AppleApplicationInstaller<T>,
 ) : RemoteTestParser<DeviceProvider>, LineListener {
