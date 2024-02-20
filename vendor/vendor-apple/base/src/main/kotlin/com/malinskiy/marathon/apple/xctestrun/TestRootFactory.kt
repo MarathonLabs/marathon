@@ -64,7 +64,7 @@ class TestRootFactory(
         }
         ensureApplicationBinaryIsExecutable(remoteFileManager, bundle)
         val runnerPlugins = when (device.sdk) {
-            Sdk.IPHONEOS, Sdk.IPHONESIMULATOR -> remoteFileManager.joinPath(testRunnerApp, "PlugIns")
+            Sdk.IPHONEOS, Sdk.IPHONESIMULATOR, Sdk.TV, Sdk.TV_SIMULATOR, Sdk.WATCH, Sdk.WATCH_SIMULATOR, Sdk.VISION , Sdk.VISION_SIMULATOR -> remoteFileManager.joinPath(testRunnerApp, "PlugIns")
             Sdk.MACOS -> remoteFileManager.joinPath(testRunnerApp, "Contents", "PlugIns")
         }
         remoteFileManager.createRemoteDirectory(runnerPlugins)
@@ -273,7 +273,7 @@ class TestRootFactory(
         matchArchitectures(remoteTestBinary, testRunnerBinary)
 
         val plist = when (device.sdk) {
-            Sdk.IPHONEOS, Sdk.IPHONESIMULATOR -> joinPath(testRunnerApp, "Info.plist")
+            Sdk.IPHONEOS, Sdk.IPHONESIMULATOR, Sdk.TV, Sdk.TV_SIMULATOR, Sdk.WATCH, Sdk.WATCH_SIMULATOR, Sdk.VISION , Sdk.VISION_SIMULATOR -> joinPath(testRunnerApp, "Info.plist")
             Sdk.MACOS -> joinPath(testRunnerApp, "Contents", "Info.plist")
         }
 
