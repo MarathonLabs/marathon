@@ -7,4 +7,5 @@ class BundleInfo(delegate: NSDictionary) : PropertyList<NSDictionary>(delegate) 
     val categorization = Categorization(delegate)
     val identification = Identification(delegate)
     val naming = Naming(delegate)
+    val undocumented = Undocumented(delegate)
 }

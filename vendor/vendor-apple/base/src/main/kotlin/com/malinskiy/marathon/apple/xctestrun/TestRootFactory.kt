@@ -2,15 +2,19 @@ package com.malinskiy.marathon.apple.xctestrun
 
 import com.malinskiy.marathon.apple.AppleDevice
 import com.malinskiy.marathon.apple.RemoteFileManager
+import com.malinskiy.marathon.apple.logparser.parser.DeviceFailureException
+import com.malinskiy.marathon.apple.logparser.parser.DeviceFailureReason
 import com.malinskiy.marathon.apple.model.AppleTestBundle
 import com.malinskiy.marathon.apple.model.Arch
 import com.malinskiy.marathon.apple.model.Sdk
+import com.malinskiy.marathon.apple.plist.bundle.BundleInfo
 import com.malinskiy.marathon.apple.xctestrun.v2.TestConfiguration
 import com.malinskiy.marathon.apple.xctestrun.v2.TestTarget
 import com.malinskiy.marathon.apple.xctestrun.v2.Xctestrun
 import com.malinskiy.marathon.config.exceptions.ConfigurationException
 import com.malinskiy.marathon.config.vendor.apple.TestType
 import com.malinskiy.marathon.config.vendor.apple.ios.XcresultConfiguration
+import com.malinskiy.marathon.exceptions.DeviceLostException
 import com.malinskiy.marathon.exceptions.DeviceSetupException
 import com.malinskiy.marathon.exceptions.TransferException
 import java.io.File
@@ -28,6 +32,8 @@ class TestRootFactory(
 
         val testRoot = remoteFileManager.remoteTestRoot()
         remoteFileManager.createRemoteDirectory(testRoot)
+        validateDeviceCompatibility(device, bundle)
+
         val xctestrun = when (testType) {
             TestType.XCUITEST -> generateXCUITest(testRoot, remoteFileManager, bundle, useXctestParser)
             TestType.XCTEST -> generateXCTest(testRoot, remoteFileManager, bundle, useXctestParser)
@@ -43,6 +49,29 @@ class TestRootFactory(
             }
         } finally {
             tempXctestrunfile.delete()
+        }
+    }
+
+    private fun validateDeviceCompatibility(device: AppleDevice, bundle: AppleTestBundle) {
+        bundle.applicationBundleInfo?.let { validateDeviceBundle(it, device) }
+        validateDeviceBundle(bundle.testBundleInfo, device)
+    }
+
+    private fun validateDeviceBundle(bundle: BundleInfo, device: AppleDevice) {
+        val bundleSupportedPlatforms = bundle.undocumented.bundleSupportedPlatforms
+        val platform = device.sdk.platformName
+        if (!bundleSupportedPlatforms.contains(platform)) {
+            throw DeviceLostException(
+                DeviceFailureException(
+                    reason = DeviceFailureReason.IncompatibleDevice,
+                    message = "Device ${device.serialNumber} with platform $platform " +
+                        "is incompatible with bundle's supported platforms [${
+                            bundleSupportedPlatforms.joinToString(
+                                ","
+                            )
+                        }]"
+                )
+            )
         }
     }
 
