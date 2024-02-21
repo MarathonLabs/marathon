@@ -20,8 +20,8 @@ enum class Sdk(val value: String) {
             TV_SIMULATOR -> "AppleTVSimulator"
             WATCH -> "WatchOS"
             WATCH_SIMULATOR -> "WatchSimulator"
-            VISION -> "visionOS"
-            VISION_SIMULATOR -> "visionOSSimulator"
+            VISION -> "XROS"
+            VISION_SIMULATOR -> "XRSimulator"
         }
     }
 

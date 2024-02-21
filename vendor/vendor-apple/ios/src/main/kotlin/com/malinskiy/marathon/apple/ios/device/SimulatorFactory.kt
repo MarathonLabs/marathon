@@ -49,9 +49,24 @@ class SimulatorFactory(
             throw e
         }
 
+        val simulatorId = simctlDevice.deviceTypeIdentifier?.removePrefix("com.apple.CoreSimulator.SimDeviceType.") ?: ""
+        val sdk = if (simulatorId.startsWith("iPhone")) {
+            Sdk.IPHONESIMULATOR
+        } else if (simulatorId.startsWith("iPad")) {
+            Sdk.IPHONESIMULATOR
+        } else if (simulatorId.startsWith("Apple-TV")) {
+            Sdk.TV_SIMULATOR
+        } else if (simulatorId.startsWith("Apple-Watch")) {
+            Sdk.WATCH_SIMULATOR
+        } else if (simulatorId.startsWith("Apple-Vision")) {
+            Sdk.VISION_SIMULATOR
+        } else {
+            Sdk.IPHONESIMULATOR
+        }
+
         val device = AppleSimulatorDevice(
             simctlDevice.udid,
-            Sdk.IPHONESIMULATOR,
+            sdk,
             bin,
             testBundleIdentifier,
             fileManager,
@@ -62,7 +77,8 @@ class SimulatorFactory(
             track,
             timer
         )
-        track.trackProviderDevicePreparing(device) {
+        track.trackProviderDevicePreparing(device)
+        {
             device.setup()
         }
         return device

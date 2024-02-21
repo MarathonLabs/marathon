@@ -320,7 +320,8 @@ class TestRootFactory(
     private suspend fun matchArchitectures(testBinary: String, testRunnerBinary: String) {
         if (device.arch == Arch.arm64e) {
             val supportedArchs = device.binaryEnvironment.lipo.getArch(testBinary)
-            if (!supportedArchs.contains(Arch.arm64e)) {
+            val testRunnerArchs = device.binaryEnvironment.lipo.getArch(testRunnerBinary)
+            if (!supportedArchs.contains(Arch.arm64e) && testRunnerArchs.contains(Arch.arm64e)) {
                 // Launch as plain arm64 if arm64e is not supported
                 device.binaryEnvironment.lipo.removeArch(testRunnerBinary, Arch.arm64e)
             }
