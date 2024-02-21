@@ -60,6 +60,8 @@ Options:
           Marathon Cloud API key [env: MARATHON_CLOUD_API_KEY=]
       --base-url <BASE_URL>
           Base url for Marathon Cloud API [default: https://cloud.marathonlabs.io/api/v1]
+      --instrumentation-arg <INSTRUMENTATION_ARG>
+          Instrumentation arguments, example: FOO=BAR
   -h, --help
           Print help
           
@@ -94,6 +96,9 @@ Options:
           Marathon Cloud API key [env: MARATHON_CLOUD_API_KEY=]
       --base-url <BASE_URL>
           Base url for Marathon Cloud API [default: https://cloud.marathonlabs.io/api/v1]
+      --xctestrun-env <XCTESTRUN_ENV>
+          xctestrun environment variables, example FOO=BAR
+
   -h, --help
           Print help
 ```
