@@ -196,7 +196,8 @@ class AppleSimulatorDevice(
                             testBundle = vendorConfiguration.bundleConfiguration()?.let {
                                 val xctest = it.xctest
                                 val app = it.app
-                                AppleTestBundle(app, xctest, sdk)
+                                val testApp = it.testApp
+                                AppleTestBundle(app, testApp, xctest, sdk)
                             } ?: throw IllegalArgumentException("No test bundle provided")
                         })
                         add(async {

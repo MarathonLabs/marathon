@@ -76,7 +76,7 @@ class AppleMacosProvider(
     override fun subscribe() = channel
 
     override suspend fun initialize() = withContext(coroutineContext) {
-        logger.debug("Initializing AppleSimulatorProvider")
+        logger.debug("Initializing AppleMacosProvider")
         val file = vendorConfiguration.devicesFile ?: File(System.getProperty("user.dir"), "Marathondevices")
         val devicesWithEnvironmentVariablesReplaced = environmentVariableSubstitutor.replace(file.readText())
         val workers: List<Worker> = try {

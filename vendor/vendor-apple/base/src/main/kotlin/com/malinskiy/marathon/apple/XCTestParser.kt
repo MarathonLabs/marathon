@@ -36,7 +36,8 @@ class XCTestParser<T: AppleDevice>(
                 val bundleConfiguration = vendorConfiguration.bundleConfiguration()
                 val xctest = bundleConfiguration?.xctest ?: throw IllegalArgumentException("No test bundle provided")
                 val app = bundleConfiguration.app
-                val bundle = AppleTestBundle(app, xctest, device.sdk)
+                val testApp = bundleConfiguration.testApp
+                val bundle = AppleTestBundle(app, testApp, xctest, device.sdk)
                 return@withRetry parseTests(device, bundle, applicationInstaller)
             } catch (e: CancellationException) {
                 throw e

@@ -17,6 +17,7 @@ import com.malinskiy.marathon.config.vendor.apple.ios.XcresultConfiguration
 import com.malinskiy.marathon.exceptions.DeviceLostException
 import com.malinskiy.marathon.exceptions.DeviceSetupException
 import com.malinskiy.marathon.exceptions.TransferException
+import com.malinskiy.marathon.extension.relativePathTo
 import java.io.File
 import java.nio.file.Path
 import kotlin.io.path.createTempFile
@@ -84,7 +85,22 @@ class TestRootFactory(
         val sdkPlatformPath = device.binaryEnvironment.xcrun.getSdkPlatformPath(device.sdk)
         val platformLibraryPath = remoteFileManager.joinPath(sdkPlatformPath, "Developer", "Library")
 
-        val testRunnerApp = generateTestRunnerApp(testRoot, platformLibraryPath, bundle)
+        val (testRunnerApp, remoteXctest) = if (bundle.testApplication != null) {
+            reuseTestRunnerApp(testRoot, bundle, bundle.testApplication)
+        } else {
+            val testRunnerApp = generateTestRunnerApp(testRoot, platformLibraryPath, bundle)
+
+            val runnerPlugins = when (device.sdk) {
+                Sdk.IPHONEOS, Sdk.IPHONESIMULATOR, Sdk.TV, Sdk.TV_SIMULATOR, Sdk.WATCH, Sdk.WATCH_SIMULATOR, Sdk.VISION , Sdk.VISION_SIMULATOR -> remoteFileManager.joinPath(testRunnerApp, "PlugIns")
+                Sdk.MACOS -> remoteFileManager.joinPath(testRunnerApp, "Contents", "PlugIns")
+            }
+            remoteFileManager.createRemoteDirectory(runnerPlugins)
+            val remoteXctest = remoteFileManager.remoteXctestFile()
+            remoteFileManager.copy(remoteXctest, runnerPlugins, override = false)
+
+            Pair(testRunnerApp, remoteXctest)
+        }
+
         val testApp = bundle.application ?: throw ConfigurationException("no application specified for XCUITest")
 
         val remoteTestApp = device.remoteFileManager.remoteApplication()
@@ -92,13 +108,6 @@ class TestRootFactory(
             throw DeviceSetupException("failed to push app under test to remote device")
         }
         ensureApplicationBinaryIsExecutable(remoteFileManager, bundle)
-        val runnerPlugins = when (device.sdk) {
-            Sdk.IPHONEOS, Sdk.IPHONESIMULATOR, Sdk.TV, Sdk.TV_SIMULATOR, Sdk.WATCH, Sdk.WATCH_SIMULATOR, Sdk.VISION , Sdk.VISION_SIMULATOR -> remoteFileManager.joinPath(testRunnerApp, "PlugIns")
-            Sdk.MACOS -> remoteFileManager.joinPath(testRunnerApp, "Contents", "PlugIns")
-        }
-        remoteFileManager.createRemoteDirectory(runnerPlugins)
-        val remoteXctest = remoteFileManager.remoteXctestFile()
-        remoteFileManager.copy(remoteXctest, runnerPlugins, override = false)
 
         if (device.sdk == Sdk.IPHONEOS) {
             TODO("generate phone provisioning")
@@ -130,7 +139,6 @@ class TestRootFactory(
         if (File(testApp, "Frameworks").exists()) {
             dyldFrameworks.add("__TESTROOT__/${remoteFileManager.appUnderTestFileName()}/Frameworks")
         }
-
 
         val testEnv = mutableMapOf(
             "DYLD_FRAMEWORK_PATH" to dyldFrameworks.joinToString(":"),
@@ -186,12 +194,12 @@ class TestRootFactory(
          * A common scenario is to place xctest for unit tests inside the app's PlugIns.
          * This is what Xcode does out of the box
          */
-        val remoteXctest = joinPath(remoteTestApp, "PlugIns", bundle.testApplication.name)
+        val remoteXctest = joinPath(remoteTestApp, "PlugIns", bundle.xctestBundle.name)
         remoteFileManager.createRemoteDirectory(joinPath(remoteTestApp, "PlugIns"))
-        if (bundle.testApplication == Path.of(testApp.path, "PlugIns")) {
+        if (bundle.xctestBundle == Path.of(testApp.path, "PlugIns")) {
             //We already pushed it above
         } else {
-            if (!device.pushFolder(bundle.testApplication, remoteXctest)) {
+            if (!device.pushFolder(bundle.xctestBundle, remoteXctest)) {
                 throw DeviceSetupException("failed to push xctest to remote device")
             }
             ensureApplicationBinaryIsExecutable(remoteFileManager, bundle)
@@ -314,6 +322,31 @@ class TestRootFactory(
 
         return testRunnerApp
     }
+
+    private suspend fun reuseTestRunnerApp(
+        testRoot: String,
+        bundle: AppleTestBundle,
+        testApplication: File, //For null safety
+    ): Pair<String, String> {
+        val sharedTestRunnerApp = device.remoteFileManager.remoteTestRunnerApplication()
+        val runnerBinaryName = "${bundle.testBundleId}-Runner"
+        val testRunnerApp = joinPath(testRoot, "$runnerBinaryName.app")
+        device.remoteFileManager.copy(sharedTestRunnerApp, testRunnerApp)
+
+        val testRunnerBinary = device.remoteFileManager.joinPath(sharedTestRunnerApp, *bundle.relativeBinaryPath, bundle.testRunnerBinary.name)
+        val relativePath = bundle.xctestBundle.relativePathTo(testApplication).split(File.separator)
+        val remoteXctest = device.remoteFileManager.joinPath(testRunnerApp, *relativePath.toTypedArray())
+        val remoteTestBinary = joinPath(
+            remoteXctest,
+            *bundle.relativeBinaryPath,
+            bundle.testBinary.nameWithoutExtension
+        )
+
+        matchArchitectures(remoteTestBinary, testRunnerBinary)
+
+        return Pair(testRunnerApp, remoteXctest)
+    }
+
 
     private fun joinPath(base: String, vararg args: String) = device.remoteFileManager.joinPath(base, *args)
 

@@ -1,6 +1,5 @@
 package com.malinskiy.marathon.apple.extensions
 
-import com.malinskiy.marathon.apple.model.AppleTestBundle
 import com.malinskiy.marathon.config.vendor.VendorConfiguration
 import com.malinskiy.marathon.config.vendor.apple.AppleTestBundleConfiguration
 import com.malinskiy.marathon.config.vendor.apple.ios.XcresultConfiguration

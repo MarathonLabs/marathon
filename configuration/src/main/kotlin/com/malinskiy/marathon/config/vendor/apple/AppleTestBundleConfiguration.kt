@@ -22,15 +22,19 @@ data class AppleTestBundleConfiguration(
         File(file.parentFile, file.nameWithoutExtension).apply { deleteRecursively(); mkdirs() }
     }
 ) {
-    @JsonIgnore var app: File? = null
-    @JsonIgnore lateinit var xctest: File
+    @JsonIgnore
+    var app: File? = null
+    @JsonIgnore
+    var testApp: File? = null
+    @JsonIgnore
+    lateinit var xctest: File
 
     fun validate() {
         when {
             application != null && testApplication != null -> {
                 app = when {
                     application.isFile && setOf("ipa", "zip").contains(application.extension) -> {
-                        extractAndValidateContainsDirectory(application, "app")
+                        extractAndFindDirectory(application, "app", validate = true)
                     }
 
                     application.isDirectory && (application.extension == "app") -> {
@@ -39,29 +43,45 @@ data class AppleTestBundleConfiguration(
 
                     else -> throw ConfigurationException("application should be .ipa/.zip archive or a .app folder")
                 }
-                xctest = when {
+                when {
                     testApplication.isFile && setOf("ipa", "zip").contains(testApplication.extension) -> {
-                        extractAndValidateContainsDirectory(testApplication, "xctest")
+                        val extracted = extract(testApplication)
+                        val possibleTestApp = findDirectoryInDirectory(extracted, "app", validate = false)
+                        if (possibleTestApp != null) {
+                            testApp = possibleTestApp
+                            xctest = findDirectoryInDirectory(possibleTestApp, "xctest", validate = true)
+                                ?: throw ConfigurationException("Unable to find xctest bundle")
+                        } else {
+                            xctest = findDirectoryInDirectory(extracted, "xctest", validate = true)
+                                ?: throw ConfigurationException("Unable to find xctest bundle")
+                        }
+                    }
+
+                    testApplication.isDirectory && testApplication.extension == "app" -> {
+                        testApp = testApplication
+                        xctest = findDirectoryInDirectory(testApplication, "xctest", validate = true)
+                            ?: throw ConfigurationException("Unable to find xctest bundle")
                     }
 
                     testApplication.isDirectory && testApplication.extension == "xctest" -> {
-                        testApplication
+                        xctest = testApplication
                     }
 
-                    else -> throw ConfigurationException("test application should be .ipa/.zip archive or a .xctest folder")
+                    else -> throw ConfigurationException("test application should be .ipa/.zip archive or a .app/.xctest folder")
                 }
             }
 
             derivedDataDir != null -> {
-                xctest = findDirectoryInDirectory(derivedDataDir, "xctest")
-                app = findDirectoryInDirectory(derivedDataDir, "app")
+                xctest =
+                    findDirectoryInDirectory(derivedDataDir, "xctest", true) ?: throw ConfigurationException("Unable to find xctest bundle")
+                app = findDirectoryInDirectory(derivedDataDir, "app", true)
             }
 
             else -> throw ConfigurationException("please specify your application and test application either with files or provide derived data folder")
         }
     }
 
-    private fun findDirectoryInDirectory(directory: File, extension: String): File {
+    private fun findDirectoryInDirectory(directory: File, extension: String, validate: Boolean): File? {
         var found = mutableListOf<File>()
         directory.walkTopDown().forEach {
             if (it.isDirectory && it.extension == extension) {
@@ -69,15 +89,15 @@ data class AppleTestBundleConfiguration(
             }
         }
         when {
-            found.isEmpty() -> throw ConfigurationException("Unable to find an $extension directory in ${directory.absolutePath}")
+            found.isEmpty() && validate -> throw ConfigurationException("Unable to find an $extension directory in ${directory.absolutePath}")
             found.size > 1 -> throw ConfigurationException("Ambiguous $extension configuration in derived data folder [${found.joinToString { it.absolutePath }}]. Please specify parameters explicitly")
         }
-        return found.first()
+        return found.firstOrNull()
     }
 
-    private fun extractAndValidateContainsDirectory(file: File, extension: String): File {
+    private fun extractAndFindDirectory(file: File, extension: String, validate: Boolean): File? {
         val extracted = extract(file)
-        return findDirectoryInDirectory(extracted, extension)
+        return findDirectoryInDirectory(extracted, extension, validate)
     }
 
     private fun extract(file: File): File {

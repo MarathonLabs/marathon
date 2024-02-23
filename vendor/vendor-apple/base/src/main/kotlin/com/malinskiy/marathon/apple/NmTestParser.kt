@@ -31,7 +31,8 @@ class NmTestParser(
                 val bundleConfiguration = vendorConfiguration.bundleConfiguration()
                 val xctest = bundleConfiguration?.xctest ?: throw IllegalArgumentException("No test bundle provided")
                 val app = bundleConfiguration.app
-                val bundle = AppleTestBundle(app, xctest, device.sdk)
+                val testApp = bundleConfiguration.testApp
+                val bundle = AppleTestBundle(app, testApp, xctest, device.sdk)
                 return@withRetry parseTests(device, bundle)
             } catch (e: CancellationException) {
                 throw e
@@ -48,7 +49,7 @@ class NmTestParser(
     ): List<Test> {
         val testBinary = bundle.testBinary
         val relativeTestBinaryPath = bundle.relativeBinaryPath
-        val xctest = bundle.testApplication
+        val xctest = bundle.xctestBundle
 
         logger.debug { "Found test binary $testBinary for xctest $xctest" }
 

@@ -11,9 +11,11 @@ import com.malinskiy.marathon.config.vendor.VendorConfiguration
 import com.malinskiy.marathon.config.vendor.apple.TestType
 import com.malinskiy.marathon.exceptions.DeviceSetupException
 import com.malinskiy.marathon.execution.withRetry
+import com.malinskiy.marathon.extension.relativePathTo
 import com.malinskiy.marathon.log.MarathonLogging
+import java.io.File
 
-open class AppleApplicationInstaller<in T: AppleDevice>(
+open class AppleApplicationInstaller<in T : AppleDevice>(
     protected open val vendorConfiguration: VendorConfiguration,
 ) {
     private val logger = MarathonLogging.logger {}
@@ -21,24 +23,41 @@ open class AppleApplicationInstaller<in T: AppleDevice>(
     suspend fun prepareInstallation(device: AppleDevice, useXctestParser: Boolean = false) {
         val bundleConfiguration = vendorConfiguration.bundleConfiguration()
         val xctestrunEnv = vendorConfiguration.xctestrunEnv() ?: throw IllegalArgumentException("No xctestrunEnv provided")
-        val xcresultConfiguration = vendorConfiguration.xcresultConfiguration() ?: throw IllegalArgumentException("No xcresult configuration provided")
+        val xcresultConfiguration =
+            vendorConfiguration.xcresultConfiguration() ?: throw IllegalArgumentException("No xcresult configuration provided")
         val xctest = bundleConfiguration?.xctest ?: throw IllegalArgumentException("No test bundle provided")
         val app = bundleConfiguration.app
-        val bundle = AppleTestBundle(app, xctest, device.sdk)
+        val testApp = bundleConfiguration.testApp
+        val bundle = AppleTestBundle(app, testApp, xctest, device.sdk)
         val relativeTestBinaryPath = bundle.relativeBinaryPath
+        val testBinary = bundle.testBinary
+        var remoteXctest = ""
 
-        logger.debug { "Moving xctest to ${device.serialNumber}" }
-        val remoteXctest = device.remoteFileManager.remoteXctestFile()
-        withRetry(3, 1000L) {
-            device.remoteFileManager.createRemoteDirectory()
-            device.remoteFileManager.createRemoteSharedDirectory()
-            if (!device.pushFolder(xctest, remoteXctest)) {
-                throw DeviceSetupException("Error transferring $xctest to ${device.serialNumber}")
+        if (testApp != null) {
+            logger.debug { "Moving xctest runner application to ${device.serialNumber}" }
+            val remoteTestRunnerApplication = device.remoteFileManager.remoteTestRunnerApplication()
+            val relativePath = xctest.relativePathTo(testApp).split(File.separator)
+            remoteXctest = device.remoteFileManager.joinPath(remoteTestRunnerApplication, *relativePath.toTypedArray())
+            withRetry(3, 1000L) {
+                device.remoteFileManager.createRemoteDirectory()
+                device.remoteFileManager.createRemoteSharedDirectory()
+                if (!device.pushFolder(testApp, remoteTestRunnerApplication)) {
+                    throw DeviceSetupException("Error transferring $xctest to ${device.serialNumber}")
+                }
+            }
+        } else {
+            logger.debug { "Moving xctest to ${device.serialNumber}" }
+            remoteXctest = device.remoteFileManager.remoteXctestFile()
+            withRetry(3, 1000L) {
+                device.remoteFileManager.createRemoteDirectory()
+                device.remoteFileManager.createRemoteSharedDirectory()
+                if (!device.pushFolder(xctest, remoteXctest)) {
+                    throw DeviceSetupException("Error transferring $xctest to ${device.serialNumber}")
+                }
             }
         }
-        logger.debug { "Generating test root for ${device.serialNumber}" }
 
-        val testBinary = bundle.testBinary
+        logger.debug { "Generating test root for ${device.serialNumber}" }
         val remoteTestBinary = device.remoteFileManager.joinPath(remoteXctest, *relativeTestBinaryPath, testBinary.name)
         val testType = getTestTypeFor(device, device.sdk, remoteTestBinary)
         TestRootFactory(device, xctestrunEnv, xcresultConfiguration).generate(testType, bundle, useXctestParser)

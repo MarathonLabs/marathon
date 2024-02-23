@@ -114,7 +114,7 @@ class MacosDevice(
     private val dispatcher by lazy {
         newFixedThreadPoolContext(
             vendorConfiguration.threadingConfiguration.deviceThreads,
-            "AppleSimulatorDevice - execution - ${commandExecutor.host.id}"
+            "MacosDevice - execution - ${commandExecutor.host.id}"
         )
     }
     override val coroutineContext: CoroutineContext = dispatcher
@@ -155,40 +155,41 @@ class MacosDevice(
 
     override suspend fun executeTestRequest(request: TestRequest): ReceiveChannel<List<TestEvent>> {
         return produce {
-            binaryEnvironment.xcrun.xcodebuild.testWithoutBuilding(udid, sdk, request, vendorConfiguration.xcodebuildTestArgs).use { session ->
-                withContext(Dispatchers.IO) {
-                    val deferredStdout = supervisorScope {
-                        async {
-                            val testEventProducer =
-                                XctestEventProducer(request.testTargetName ?: "", timer)
-                            for (line in session.stdout) {
-                                testEventProducer.process(line)?.let {
-                                    send(it)
-                                }
-                                lineListeners.forEach { it.onLine(line) }
-                            }
-                        }
-                    }
-
-                    val deferredStderr = supervisorScope {
-                        async {
-                            for (line in session.stderr) {
-                                if (line.trim().isNotBlank()) {
-                                    logger.error { "simulator $udid: stderr=$line" }
+            binaryEnvironment.xcrun.xcodebuild.testWithoutBuilding(udid, sdk, request, vendorConfiguration.xcodebuildTestArgs)
+                .use { session ->
+                    withContext(Dispatchers.IO) {
+                        val deferredStdout = supervisorScope {
+                            async {
+                                val testEventProducer =
+                                    XctestEventProducer(request.testTargetName ?: "", timer)
+                                for (line in session.stdout) {
+                                    testEventProducer.process(line)?.let {
+                                        send(it)
+                                    }
+                                    lineListeners.forEach { it.onLine(line) }
                                 }
                             }
                         }
-                    }
 
-                    deferredStderr.await()
-                    deferredStdout.await()
-                    val exitCode = session.exitCode.await()
-                    // 70 = no devices
-                    // 65 = ** TEST EXECUTE FAILED **: crash
-                    logger.debug { "Finished test batch execution with exit status $exitCode" }
-                    close()
+                        val deferredStderr = supervisorScope {
+                            async {
+                                for (line in session.stderr) {
+                                    if (line.trim().isNotBlank()) {
+                                        logger.error { "simulator $udid: stderr=$line" }
+                                    }
+                                }
+                            }
+                        }
+
+                        deferredStderr.await()
+                        deferredStdout.await()
+                        val exitCode = session.exitCode.await()
+                        // 70 = no devices
+                        // 65 = ** TEST EXECUTE FAILED **: crash
+                        logger.debug { "Finished test batch execution with exit status $exitCode" }
+                        close()
+                    }
                 }
-            }
         }
 
     }
@@ -270,7 +271,8 @@ class MacosDevice(
                             testBundle = vendorConfiguration.bundleConfiguration()?.let {
                                 val xctest = it.xctest
                                 val app = it.app
-                                AppleTestBundle(app, xctest, sdk)
+                                val testApp = it.testApp
+                                AppleTestBundle(app, testApp, xctest, sdk)
                             } ?: throw IllegalArgumentException("No test bundle provided")
                         })
                     }.awaitAll()
