@@ -2,6 +2,7 @@ package com.malinskiy.marathon.apple
 
 import com.malinskiy.marathon.apple.bin.AppleBinaryEnvironment
 import com.malinskiy.marathon.apple.cmd.CommandResult
+import com.malinskiy.marathon.apple.configuration.Transport
 import com.malinskiy.marathon.apple.model.Arch
 import com.malinskiy.marathon.apple.model.Sdk
 import com.malinskiy.marathon.apple.test.TestEvent
@@ -18,6 +19,7 @@ interface AppleDevice : Device, Screenshottable, LogProducer {
     val udid: String
     val remoteFileManager: RemoteFileManager
     val storagePath: String
+    val transport: Transport
 
     val arch: Arch
         get() = when {

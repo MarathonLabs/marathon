@@ -54,7 +54,6 @@ class AppleMacosProvider(
         newFixedThreadPoolContext(vendorConfiguration.threadingConfiguration.deviceProviderThreads, "AppleDeviceProvider")
     override val coroutineContext: CoroutineContext
         get() = dispatcher
-    override val deviceInitializationTimeoutMillis = configuration.deviceInitializationTimeoutMillis
 
     private val job = Job()
 

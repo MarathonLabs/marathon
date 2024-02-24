@@ -6,6 +6,7 @@ import com.fasterxml.jackson.module.kotlin.readValue
 import com.google.gson.Gson
 import com.malinskiy.marathon.actor.unboundedChannel
 import com.malinskiy.marathon.analytics.internal.pub.Track
+import com.malinskiy.marathon.apple.AppleDevice
 import com.malinskiy.marathon.apple.AppleTestBundleIdentifier
 import com.malinskiy.marathon.apple.bin.AppleBinaryEnvironment
 import com.malinskiy.marathon.apple.bin.xcrun.simctl.model.SimctlDevice
@@ -33,18 +34,18 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.newFixedThreadPoolContext
 import kotlinx.coroutines.supervisorScope
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.yield
 import org.apache.commons.text.StringSubstitutor
 import org.apache.commons.text.lookup.StringLookupFactory
 import java.io.File
 import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.coroutines.CoroutineContext
-
-private const val MAX_CONNECTION_ATTEMPTS = 16
 
 class AppleSimulatorProvider(
     private val configuration: Configuration,
@@ -62,9 +63,8 @@ class AppleSimulatorProvider(
         newFixedThreadPoolContext(vendorConfiguration.threadingConfiguration.deviceProviderThreads, "AppleDeviceProvider")
     override val coroutineContext: CoroutineContext
         get() = dispatcher
-    override val deviceInitializationTimeoutMillis = configuration.deviceInitializationTimeoutMillis
 
-    private val job = Job()
+    private var monitoringJob: Job? = null
 
     private val devices = ConcurrentHashMap<String, AppleSimulatorDevice>()
     private val channel: Channel<DeviceProvider.DeviceEvent> = unboundedChannel()
@@ -79,7 +79,7 @@ class AppleSimulatorProvider(
 
     override fun subscribe() = channel
 
-    override suspend fun initialize() = withContext(coroutineContext) {
+    override suspend fun initialize() {
         logger.debug("Initializing AppleSimulatorProvider")
         val file = vendorConfiguration.devicesFile ?: File(System.getProperty("user.dir"), "Marathondevices")
         val devicesWithEnvironmentVariablesReplaced = environmentVariableSubstitutor.replace(file.readText())
@@ -104,6 +104,29 @@ class AppleSimulatorProvider(
             }
         }
         awaitAll(*deferred.toTypedArray())
+
+        monitoringJob = launch {
+            while (isActive) {
+                var recreate = mutableSetOf<AppleDevice>()
+                devices.values.forEach { device ->
+                    if (!device.commandExecutor.connected) {
+                        channel.send(DeviceProvider.DeviceEvent.DeviceDisconnected(device))
+                        device.dispose()
+                        recreate.add(device)
+                    }
+                }
+                val byTransport = recreate.groupBy { it.transport }
+                byTransport.forEach { (transport, devices) ->
+                    val plan = ProvisioningPlan(existingSimulators = devices.map {
+                        logger.warn { "Re-provisioning ${it.serialNumber}" }
+                        it.udid
+                    }.toSet(), emptyList(), emptySet())
+                    createExisting(plan, transport)
+                }
+                recreate.clear()
+                delay(16)
+            }
+        }
         Unit
     }
 
@@ -136,7 +159,7 @@ class AppleSimulatorProvider(
                     if (commandExecutor == null) {
                         return@async
                     }
-                    val simulator = createSimulator(udid, commandExecutor, fileBridge)
+                    val simulator = createSimulator(udid, transport, commandExecutor, fileBridge)
                     connect(transport, simulator)
                 }
             }
@@ -145,10 +168,11 @@ class AppleSimulatorProvider(
 
     private suspend fun createSimulator(
         udid: String,
+        transport: Transport,
         commandExecutor: CommandExecutor,
         fileBridge: FileBridge,
     ): AppleSimulatorDevice {
-        return simulatorFactory.create(commandExecutor, fileBridge, udid)
+        return simulatorFactory.create(transport, commandExecutor, fileBridge, udid)
     }
 
     private suspend fun createNew(
@@ -176,7 +200,7 @@ class AppleSimulatorProvider(
                         if (commandExecutor == null) {
                             return@async
                         }
-                        val simulator = createSimulator(udid, commandExecutor, fileBridge)
+                        val simulator = createSimulator(udid, transport, commandExecutor, fileBridge)
                         connect(transport, simulator)
                     } else {
                         logger.error { "Failed to create simulator for profile $profile" }
@@ -275,6 +299,7 @@ class AppleSimulatorProvider(
     override suspend fun terminate() = withContext(NonCancellable) {
         withContext(NonCancellable) {
             logger.debug { "Terminating AppleSimulatorProvider" }
+            monitoringJob?.cancel()
             channel.close()
             if (logger.isDebugEnabled) {
                 // print out final summary on attempted simulator connections

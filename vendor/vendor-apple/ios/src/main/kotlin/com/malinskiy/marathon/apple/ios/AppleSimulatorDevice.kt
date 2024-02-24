@@ -11,6 +11,7 @@ import com.malinskiy.marathon.apple.bin.xcrun.simctl.service.ApplicationService
 import com.malinskiy.marathon.apple.cmd.CommandExecutor
 import com.malinskiy.marathon.apple.cmd.CommandResult
 import com.malinskiy.marathon.apple.cmd.FileBridge
+import com.malinskiy.marathon.apple.configuration.Transport
 import com.malinskiy.marathon.apple.extensions.bundleConfiguration
 import com.malinskiy.marathon.apple.ios.listener.DataContainerClearListener
 import com.malinskiy.marathon.apple.listener.AppleTestRunListener
@@ -24,6 +25,7 @@ import com.malinskiy.marathon.apple.ios.listener.video.ScreenRecordingListener
 import com.malinskiy.marathon.apple.model.Sdk
 import com.malinskiy.marathon.apple.ios.model.Simulator
 import com.malinskiy.marathon.apple.logparser.parser.DeviceFailureException
+import com.malinskiy.marathon.apple.logparser.parser.DeviceFailureReason
 import com.malinskiy.marathon.apple.logparser.parser.DiagnosticLogsPathFinder
 import com.malinskiy.marathon.apple.logparser.parser.SessionResultsPathFinder
 import com.malinskiy.marathon.apple.model.AppleTestBundle
@@ -45,6 +47,7 @@ import com.malinskiy.marathon.device.screenshot.Rotation
 import com.malinskiy.marathon.device.toDeviceInfo
 import com.malinskiy.marathon.exceptions.DeviceLostException
 import com.malinskiy.marathon.exceptions.DeviceSetupException
+import com.malinskiy.marathon.exceptions.IncompatibleDeviceException
 import com.malinskiy.marathon.execution.TestBatchResults
 import com.malinskiy.marathon.execution.listener.LineListener
 import com.malinskiy.marathon.execution.listener.LogListener
@@ -76,11 +79,13 @@ import java.awt.image.BufferedImage
 import java.io.File
 import java.time.Duration
 import java.util.concurrent.CopyOnWriteArrayList
+import java.util.concurrent.RejectedExecutionException
 import javax.imageio.ImageIO
 import kotlin.coroutines.CoroutineContext
 
 class AppleSimulatorDevice(
     override val udid: String,
+    override val transport: Transport,
     override var sdk: Sdk,
     override val binaryEnvironment: AppleBinaryEnvironment,
     private val testBundleIdentifier: AppleTestBundleIdentifier,
@@ -134,53 +139,55 @@ class AppleSimulatorDevice(
      * Called only once per device's lifetime
      */
     override suspend fun setup() {
-        val simctlDevices = binaryEnvironment.xcrun.simctl.device.listDevices()
-        val simctlDevice = simctlDevices.find { it.udid == udid } ?: throw DeviceSetupException("simulator $udid not found")
-        env = fetchEnvvars()
+        withContext(coroutineContext) {
+            val simctlDevices = binaryEnvironment.xcrun.simctl.device.listDevices()
+            val simctlDevice = simctlDevices.find { it.udid == udid } ?: throw DeviceSetupException("simulator $udid not found")
+            env = fetchEnvvars()
 
-        xcodeVersion = binaryEnvironment.xcrun.xcodebuild.getVersion()
+            xcodeVersion = binaryEnvironment.xcrun.xcodebuild.getVersion()
 
-        home = env["HOME"]
-            ?: binaryEnvironment.xcrun.simctl.simulator.getenv(udid, "SIMULATOR_HOST_HOME")
-                ?: ""
-        if (home.isBlank()) {
-            throw DeviceSetupException("simulator $udid: invalid value $home for environment variable HOME")
+            home = env["HOME"]
+                ?: binaryEnvironment.xcrun.simctl.simulator.getenv(udid, "SIMULATOR_HOST_HOME")
+                    ?: ""
+            if (home.isBlank()) {
+                throw DeviceSetupException("simulator $udid: invalid value $home for environment variable HOME")
+            }
+            val logDirectory = simctlDevice.logPath ?: "$home/Library/Developer/CoreSimulator/Devices/$udid"
+            logFile = "$logDirectory/system.log"
+            rootPath = binaryEnvironment.xcrun.simctl.simulator.getenv(udid, "HOME")?.let {
+                if (it.endsWith("/data")) {
+                    it.substringBefore("/data")
+                } else {
+                    it
+                }
+            } ?: "$home/Library/Developer/CoreSimulator/Devices/$udid"
+
+            devicePlistPath = "$rootPath/device.plist"
+            fetchDeviceDescriptor()
+
+            deviceType = simctlDevice.deviceTypeIdentifier
+                ?: getDeviceProperty<String>("deviceType")?.trim()
+                    ?: throw DeviceSetupException("simulator $udid: unable to detect deviceType")
+
+            model = getSimpleEnvProperty("SIMULATOR_MODEL_IDENTIFIER", deviceType)
+            manufacturer = "Apple"
+            runtimeBuildVersion = getSimpleEnvProperty("SIMULATOR_RUNTIME_BUILD_VERSION")
+            runtimeVersion = getSimpleEnvProperty("SIMULATOR_RUNTIME_VERSION")
+            version = getSimpleEnvProperty("SIMULATOR_VERSION_INFO")
+            abi = executeWorkerCommand(listOf("uname", "-m"))?.let {
+                if (it.successful) {
+                    it.combinedStdout.trim()
+                } else {
+                    null
+                }
+            } ?: "Unknown"
+
+            deviceFeatures = detectFeatures()
         }
-        val logDirectory = simctlDevice.logPath ?: "$home/Library/Developer/CoreSimulator/Devices/$udid"
-        logFile = "$logDirectory/system.log"
-        rootPath = binaryEnvironment.xcrun.simctl.simulator.getenv(udid, "HOME")?.let {
-            if (it.endsWith("/data")) {
-                it.substringBefore("/data")
-            } else {
-                it
-            }
-        } ?: "$home/Library/Developer/CoreSimulator/Devices/$udid"
-
-        devicePlistPath = "$rootPath/device.plist"
-        fetchDeviceDescriptor()
-
-        deviceType = simctlDevice.deviceTypeIdentifier
-            ?: getDeviceProperty<String>("deviceType")?.trim()
-                ?: throw DeviceSetupException("simulator $udid: unable to detect deviceType")
-
-        model = getSimpleEnvProperty("SIMULATOR_MODEL_IDENTIFIER", deviceType)
-        manufacturer = "Apple"
-        runtimeBuildVersion = getSimpleEnvProperty("SIMULATOR_RUNTIME_BUILD_VERSION")
-        runtimeVersion = getSimpleEnvProperty("SIMULATOR_RUNTIME_VERSION")
-        version = getSimpleEnvProperty("SIMULATOR_VERSION_INFO")
-        abi = executeWorkerCommand(listOf("uname", "-m"))?.let {
-            if (it.successful) {
-                it.combinedStdout.trim()
-            } else {
-                null
-            }
-        } ?: "Unknown"
-
-        deviceFeatures = detectFeatures()
     }
 
     override suspend fun prepare(configuration: Configuration) {
-        async(CoroutineName("prepare $serialNumber")) {
+        async(coroutineContext + CoroutineName("prepare $serialNumber")) {
             supervisorScope {
                 track.trackDevicePreparing(this@AppleSimulatorDevice) {
                     remoteFileManager.removeRemoteDirectory()
@@ -240,7 +247,7 @@ class AppleSimulatorDevice(
         deferred: CompletableDeferred<TestBatchResults>
     ) {
         try {
-            async(CoroutineName("execute $serialNumber")) {
+            async(coroutineContext + CoroutineName("execute $serialNumber")) {
                 supervisorScope {
                     var executionLineListeners = setOf<LineListener>()
                     try {
@@ -266,7 +273,13 @@ class AppleSimulatorDevice(
         } catch (e: IllegalStateException) {
             throw DeviceLostException(e)
         } catch (e: DeviceFailureException) {
-            throw DeviceLostException(e)
+            when (e.reason) {
+                DeviceFailureReason.InvalidSimulatorIdentifier, DeviceFailureReason.IncompatibleDevice -> throw IncompatibleDeviceException(
+                    e
+                )
+
+                else -> throw DeviceLostException(e)
+            }
         }
     }
 
@@ -348,40 +361,41 @@ class AppleSimulatorDevice(
 
     override suspend fun executeTestRequest(request: TestRequest): ReceiveChannel<List<TestEvent>> {
         return produce {
-            binaryEnvironment.xcrun.xcodebuild.testWithoutBuilding(udid, sdk, request, vendorConfiguration.xcodebuildTestArgs).use { session ->
-                withContext(Dispatchers.IO) {
-                    val deferredStdout = supervisorScope {
-                        async {
-                            val testEventProducer =
-                                com.malinskiy.marathon.apple.logparser.XctestEventProducer(request.testTargetName ?: "", timer)
-                            for (line in session.stdout) {
-                                testEventProducer.process(line)?.let {
-                                    send(it)
-                                }
-                                lineListeners.forEach { it.onLine(line) }
-                            }
-                        }
-                    }
-
-                    val deferredStderr = supervisorScope {
-                        async {
-                            for (line in session.stderr) {
-                                if (line.trim().isNotBlank()) {
-                                    logger.error { "simulator $udid: stderr=$line" }
+            binaryEnvironment.xcrun.xcodebuild.testWithoutBuilding(udid, sdk, request, vendorConfiguration.xcodebuildTestArgs)
+                .use { session ->
+                    withContext(Dispatchers.IO) {
+                        val deferredStdout = supervisorScope {
+                            async {
+                                val testEventProducer =
+                                    com.malinskiy.marathon.apple.logparser.XctestEventProducer(request.testTargetName ?: "", timer)
+                                for (line in session.stdout) {
+                                    testEventProducer.process(line)?.let {
+                                        send(it)
+                                    }
+                                    lineListeners.forEach { it.onLine(line) }
                                 }
                             }
                         }
-                    }
 
-                    deferredStderr.await()
-                    deferredStdout.await()
-                    val exitCode = session.exitCode.await()
-                    // 70 = no devices
-                    // 65 = ** TEST EXECUTE FAILED **: crash
-                    logger.debug { "Finished test batch execution with exit status $exitCode" }
-                    close()
+                        val deferredStderr = supervisorScope {
+                            async {
+                                for (line in session.stderr) {
+                                    if (line.trim().isNotBlank()) {
+                                        logger.error { "simulator $udid: stderr=$line" }
+                                    }
+                                }
+                            }
+                        }
+
+                        deferredStderr.await()
+                        deferredStdout.await()
+                        val exitCode = session.exitCode.await()
+                        // 70 = no devices
+                        // 65 = ** TEST EXECUTE FAILED **: crash
+                        logger.debug { "Finished test batch execution with exit status $exitCode" }
+                        close()
+                    }
                 }
-            }
         }
     }
 

@@ -7,6 +7,7 @@ import com.malinskiy.marathon.apple.AppleTestBundleIdentifier
 import com.malinskiy.marathon.apple.bin.AppleBinaryEnvironment
 import com.malinskiy.marathon.apple.cmd.CommandExecutor
 import com.malinskiy.marathon.apple.cmd.FileBridge
+import com.malinskiy.marathon.apple.configuration.Transport
 import com.malinskiy.marathon.apple.logparser.parser.DeviceFailureException
 import com.malinskiy.marathon.apple.logparser.parser.DeviceFailureReason
 import com.malinskiy.marathon.apple.model.Sdk
@@ -32,6 +33,7 @@ class SimulatorFactory(
     )
 
     suspend fun create(
+        transport: Transport,
         commandExecutor: CommandExecutor,
         fileBridge: FileBridge,
         udid: String,
@@ -66,6 +68,7 @@ class SimulatorFactory(
 
         val device = AppleSimulatorDevice(
             simctlDevice.udid,
+            transport,
             sdk,
             bin,
             testBundleIdentifier,

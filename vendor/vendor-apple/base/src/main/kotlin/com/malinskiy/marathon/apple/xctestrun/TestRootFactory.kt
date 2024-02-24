@@ -62,16 +62,14 @@ class TestRootFactory(
         val bundleSupportedPlatforms = bundle.undocumented.bundleSupportedPlatforms
         val platform = device.sdk.platformName
         if (!bundleSupportedPlatforms.contains(platform)) {
-            throw DeviceLostException(
-                DeviceFailureException(
-                    reason = DeviceFailureReason.IncompatibleDevice,
-                    message = "Device ${device.serialNumber} with platform $platform " +
-                        "is incompatible with bundle's supported platforms [${
-                            bundleSupportedPlatforms.joinToString(
-                                ","
-                            )
-                        }]"
-                )
+            throw DeviceFailureException(
+                reason = DeviceFailureReason.IncompatibleDevice,
+                message = "Device ${device.serialNumber} with platform $platform " +
+                    "is incompatible with bundle's supported platforms [${
+                        bundleSupportedPlatforms.joinToString(
+                            ","
+                        )
+                    }]"
             )
         }
     }
@@ -91,7 +89,11 @@ class TestRootFactory(
             val testRunnerApp = generateTestRunnerApp(testRoot, platformLibraryPath, bundle)
 
             val runnerPlugins = when (device.sdk) {
-                Sdk.IPHONEOS, Sdk.IPHONESIMULATOR, Sdk.TV, Sdk.TV_SIMULATOR, Sdk.WATCH, Sdk.WATCH_SIMULATOR, Sdk.VISION , Sdk.VISION_SIMULATOR -> remoteFileManager.joinPath(testRunnerApp, "PlugIns")
+                Sdk.IPHONEOS, Sdk.IPHONESIMULATOR, Sdk.TV, Sdk.TV_SIMULATOR, Sdk.WATCH, Sdk.WATCH_SIMULATOR, Sdk.VISION, Sdk.VISION_SIMULATOR -> remoteFileManager.joinPath(
+                    testRunnerApp,
+                    "PlugIns"
+                )
+
                 Sdk.MACOS -> remoteFileManager.joinPath(testRunnerApp, "Contents", "PlugIns")
             }
             remoteFileManager.createRemoteDirectory(runnerPlugins)
@@ -310,7 +312,11 @@ class TestRootFactory(
         matchArchitectures(remoteTestBinary, testRunnerBinary)
 
         val plist = when (device.sdk) {
-            Sdk.IPHONEOS, Sdk.IPHONESIMULATOR, Sdk.TV, Sdk.TV_SIMULATOR, Sdk.WATCH, Sdk.WATCH_SIMULATOR, Sdk.VISION , Sdk.VISION_SIMULATOR -> joinPath(testRunnerApp, "Info.plist")
+            Sdk.IPHONEOS, Sdk.IPHONESIMULATOR, Sdk.TV, Sdk.TV_SIMULATOR, Sdk.WATCH, Sdk.WATCH_SIMULATOR, Sdk.VISION, Sdk.VISION_SIMULATOR -> joinPath(
+                testRunnerApp,
+                "Info.plist"
+            )
+
             Sdk.MACOS -> joinPath(testRunnerApp, "Contents", "Info.plist")
         }
 
@@ -333,7 +339,8 @@ class TestRootFactory(
         val testRunnerApp = joinPath(testRoot, "$runnerBinaryName.app")
         device.remoteFileManager.copy(sharedTestRunnerApp, testRunnerApp)
 
-        val testRunnerBinary = device.remoteFileManager.joinPath(sharedTestRunnerApp, *bundle.relativeBinaryPath, bundle.testRunnerBinary.name)
+        val testRunnerBinary =
+            device.remoteFileManager.joinPath(sharedTestRunnerApp, *bundle.relativeBinaryPath, bundle.testRunnerBinary.name)
         val relativePath = bundle.xctestBundle.relativePathTo(testApplication).split(File.separator)
         val remoteXctest = device.remoteFileManager.joinPath(testRunnerApp, *relativePath.toTypedArray())
         val remoteTestBinary = joinPath(
