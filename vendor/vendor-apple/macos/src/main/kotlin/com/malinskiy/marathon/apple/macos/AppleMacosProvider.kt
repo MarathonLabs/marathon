@@ -205,7 +205,7 @@ class AppleMacosProvider(
     }
 
     private fun connect(transport: Transport, device: MacosDevice) {
-        devices.put(device.udid, device)
+        devices.put(device.serialNumber, device)
             ?.let {
                 logger.error("replaced existing device $it with new $device.")
                 dispose(it)
