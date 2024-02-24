@@ -328,7 +328,8 @@ class AppleSimulatorProvider(
     }
 
     private fun connect(transport: Transport, device: AppleSimulatorDevice) {
-        devices.put(device.udid, device)
+        //Should not use udid as key here to support multiple devices with the same udid across transports
+        devices.put(device.serialNumber, device)
             ?.let {
                 logger.error("replaced existing device $it with new $device.")
                 dispose(it)
