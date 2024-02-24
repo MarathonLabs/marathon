@@ -11,6 +11,7 @@ import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import java.time.Duration
 import java.time.Instant
 import java.time.temporal.ChronoUnit
 
@@ -65,7 +66,7 @@ class InfluxDb2ProviderIntegrationTest {
         thirdDbInstance = provider.createDb()
 
         val metricsProvider =
-            MetricsProviderImpl(InfluxDB2DataSource(thirdDbInstance!!, bucket))
+            MetricsProviderImpl(InfluxDB2DataSource(thirdDbInstance!!, bucket), .0, Duration.ofMinutes(5))
 
         val result1 = metricsProvider.executionTime(
             test,

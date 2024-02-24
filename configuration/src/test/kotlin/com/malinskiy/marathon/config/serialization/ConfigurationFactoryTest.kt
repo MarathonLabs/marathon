@@ -9,6 +9,7 @@ import com.fasterxml.jackson.module.kotlin.KotlinModule
 import com.malinskiy.marathon.config.AnalyticsConfiguration
 import com.malinskiy.marathon.config.ScreenRecordingPolicy
 import com.malinskiy.marathon.config.TestFilterConfiguration
+import com.malinskiy.marathon.config.analytics.Defaults
 import com.malinskiy.marathon.config.environment.EnvironmentConfiguration
 import com.malinskiy.marathon.config.environment.EnvironmentReader
 import com.malinskiy.marathon.config.exceptions.ConfigurationException
@@ -72,14 +73,16 @@ class ConfigurationFactoryTest {
                 mockMarathonFileDir,
             )
         )
-            .registerModule(KotlinModule.Builder()
-                                .withReflectionCacheSize(512)
-                                .configure(KotlinFeature.NullToEmptyCollection, false)
-                                .configure(KotlinFeature.NullToEmptyMap, false)
-                                .configure(KotlinFeature.NullIsSameAsDefault, false)
-                                .configure(KotlinFeature.SingletonSupport, true)
-                                .configure(KotlinFeature.StrictNullChecks, false)
-                                .build())
+            .registerModule(
+                KotlinModule.Builder()
+                    .withReflectionCacheSize(512)
+                    .configure(KotlinFeature.NullToEmptyCollection, false)
+                    .configure(KotlinFeature.NullToEmptyMap, false)
+                    .configure(KotlinFeature.NullIsSameAsDefault, false)
+                    .configure(KotlinFeature.SingletonSupport, true)
+                    .configure(KotlinFeature.StrictNullChecks, false)
+                    .build()
+            )
             .registerModule(JavaTimeModule())
         parser = ConfigurationFactory(
             marathonfileDir = mockMarathonFileDir,
@@ -99,7 +102,8 @@ class ConfigurationFactoryTest {
             user = "root",
             password = "root",
             dbName = "marathon",
-            retentionPolicyConfiguration = AnalyticsConfiguration.InfluxDbConfiguration.RetentionPolicyConfiguration.default
+            retentionPolicyConfiguration = AnalyticsConfiguration.InfluxDbConfiguration.RetentionPolicyConfiguration.default,
+            defaults = Defaults(),
         )
         val poolingStrategyConfiguration = configuration.poolingStrategy as PoolingStrategyConfiguration.ComboPoolingStrategyConfiguration
         poolingStrategyConfiguration.list[0] shouldBeInstanceOf PoolingStrategyConfiguration.OmniPoolingStrategyConfiguration::class
@@ -208,7 +212,8 @@ class ConfigurationFactoryTest {
                 "1h",
                 5,
                 false
-            )
+            ),
+            defaults = Defaults(),
         )
     }
 
@@ -256,7 +261,6 @@ class ConfigurationFactoryTest {
     }
 
 
-
     @Test
     fun `on configuration without an explicit xctestrun path should throw an exception`() {
         val file = File(ConfigurationFactoryTest::class.java.getResource("/fixture/config/sample_5.yaml").file)
@@ -276,14 +280,16 @@ class ConfigurationFactoryTest {
                 mockMarathonFileDir,
             )
         )
-            .registerModule(KotlinModule.Builder()
-                                .withReflectionCacheSize(512)
-                                .configure(KotlinFeature.NullToEmptyCollection, false)
-                                .configure(KotlinFeature.NullToEmptyMap, false)
-                                .configure(KotlinFeature.NullIsSameAsDefault, false)
-                                .configure(KotlinFeature.SingletonSupport, true)
-                                .configure(KotlinFeature.StrictNullChecks, false)
-                                .build())
+            .registerModule(
+                KotlinModule.Builder()
+                    .withReflectionCacheSize(512)
+                    .configure(KotlinFeature.NullToEmptyCollection, false)
+                    .configure(KotlinFeature.NullToEmptyMap, false)
+                    .configure(KotlinFeature.NullIsSameAsDefault, false)
+                    .configure(KotlinFeature.SingletonSupport, true)
+                    .configure(KotlinFeature.StrictNullChecks, false)
+                    .build()
+            )
             .registerModule(JavaTimeModule())
         parser = ConfigurationFactory(
             marathonfileDir = mockMarathonFileDir,
@@ -391,7 +397,10 @@ class ConfigurationFactoryTest {
         outputs shouldBeEqualTo listOf(
             AndroidTestBundleConfiguration(
                 application = File(mockMarathonFileDir, "kotlin-buildscript/build/outputs/apk/debug/first-app-debug.apk"),
-                testApplication = File(mockMarathonFileDir, "kotlin-buildscript/build/outputs/apk/androidTest/debug/first-app-debug-androidTest.apk"),
+                testApplication = File(
+                    mockMarathonFileDir,
+                    "kotlin-buildscript/build/outputs/apk/androidTest/debug/first-app-debug-androidTest.apk"
+                ),
                 extraApplications = null,
                 splitApks = listOf(
                     File(mockMarathonFileDir, "kotlin-buildscript/build/outputs/apk/androidTest/debug/first-app-split-debug.apk")
@@ -399,7 +408,10 @@ class ConfigurationFactoryTest {
             ),
             AndroidTestBundleConfiguration(
                 application = File(mockMarathonFileDir, "kotlin-buildscript/build/outputs/apk/debug/second-app-debug.apk"),
-                testApplication = File(mockMarathonFileDir, "kotlin-buildscript/build/outputs/apk/androidTest/debug/second-app-debug-androidTest.apk"),
+                testApplication = File(
+                    mockMarathonFileDir,
+                    "kotlin-buildscript/build/outputs/apk/androidTest/debug/second-app-debug-androidTest.apk"
+                ),
                 extraApplications = null,
                 splitApks = listOf(
                     File(mockMarathonFileDir, "kotlin-buildscript/build/outputs/apk/androidTest/debug/second-app-split-debug.apk")

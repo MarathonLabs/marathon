@@ -2,6 +2,7 @@ package com.malinskiy.marathon.config
 
 import com.fasterxml.jackson.annotation.JsonSubTypes
 import com.fasterxml.jackson.annotation.JsonTypeInfo
+import com.malinskiy.marathon.config.analytics.Defaults
 
 @JsonTypeInfo(
     use = JsonTypeInfo.Id.NAME,
@@ -21,7 +22,8 @@ sealed class AnalyticsConfiguration {
         val user: String,
         val password: String,
         val dbName: String,
-        val retentionPolicyConfiguration: RetentionPolicyConfiguration
+        val retentionPolicyConfiguration: RetentionPolicyConfiguration,
+        val defaults: Defaults = Defaults(),
     ) : AnalyticsConfiguration() {
         data class RetentionPolicyConfiguration(
             val name: String,
@@ -48,7 +50,8 @@ sealed class AnalyticsConfiguration {
         val token: String,
         val organization: String,
         val bucket: String,
-        val retentionPolicyConfiguration: RetentionPolicyConfiguration = RetentionPolicyConfiguration.default
+        val retentionPolicyConfiguration: RetentionPolicyConfiguration = RetentionPolicyConfiguration.default,
+        val defaults: Defaults = Defaults(),
     ) : AnalyticsConfiguration() {
         data class RetentionPolicyConfiguration(
             val everySeconds: Int,
@@ -69,6 +72,7 @@ sealed class AnalyticsConfiguration {
     data class GraphiteConfiguration(
         val host: String,
         val port: Int?,
-        val prefix: String?
+        val prefix: String?,
+        val defaults: Defaults = Defaults(),
     ) : AnalyticsConfiguration()
 }
