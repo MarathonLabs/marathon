@@ -1,6 +1,7 @@
 package com.malinskiy.marathon.gradle
 
 import com.malinskiy.marathon.config.AnalyticsConfiguration
+import com.malinskiy.marathon.config.analytics.Defaults
 import groovy.lang.Closure
 import org.gradle.api.Action
 import org.gradle.util.internal.ConfigureUtil
@@ -35,6 +36,7 @@ class InfluxConfig {
     var password: String = ""
     var dbName: String = ""
     var retentionPolicy: RetentionPolicy? = null
+    var defaults: Defaults = Defaults()
 }
 
 class Influx2Config {
@@ -43,6 +45,7 @@ class Influx2Config {
     var organization: String = ""
     var bucket: String = ""
     var retentionPolicy: Influx2RetentionPolicy? = null
+    var defaults: Defaults = Defaults()
 }
 
 class Influx2RetentionPolicy {
@@ -62,6 +65,7 @@ class GraphiteConfig {
     var host: String = ""
     var port: String? = null
     var prefix: String? = null
+    var defaults: Defaults = Defaults()
 }
 
 fun AnalyticsConfig.toAnalyticsConfiguration(): AnalyticsConfiguration {
@@ -75,7 +79,8 @@ fun AnalyticsConfig.toAnalyticsConfiguration(): AnalyticsConfiguration {
             organization = influx2.organization,
             bucket = influx2.bucket,
             retentionPolicyConfiguration = influx2.retentionPolicy?.toRetentionPolicy()
-                ?: AnalyticsConfiguration.InfluxDb2Configuration.RetentionPolicyConfiguration.default
+                ?: AnalyticsConfiguration.InfluxDb2Configuration.RetentionPolicyConfiguration.default,
+            defaults = influx2.defaults
         )
         influx != null -> AnalyticsConfiguration.InfluxDbConfiguration(
             dbName = influx.dbName,
@@ -83,12 +88,14 @@ fun AnalyticsConfig.toAnalyticsConfiguration(): AnalyticsConfiguration {
             password = influx.password,
             url = influx.url,
             retentionPolicyConfiguration = influx.retentionPolicy?.toRetentionPolicy()
-                ?: AnalyticsConfiguration.InfluxDbConfiguration.RetentionPolicyConfiguration.default
+                ?: AnalyticsConfiguration.InfluxDbConfiguration.RetentionPolicyConfiguration.default,
+            defaults = influx.defaults
         )
         graphite != null -> AnalyticsConfiguration.GraphiteConfiguration(
             host = graphite.host,
             port = graphite.port?.toIntOrNull(),
-            prefix = graphite.prefix
+            prefix = graphite.prefix,
+            defaults = graphite.defaults
         )
         else -> AnalyticsConfiguration.DisabledAnalytics
     }

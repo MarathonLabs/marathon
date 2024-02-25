@@ -6,6 +6,7 @@ import com.malinskiy.marathon.analytics.metrics.remote.RemoteDataSource
 import com.malinskiy.marathon.analytics.metrics.remote.SuccessRate
 import com.malinskiy.marathon.generateTest
 import com.malinskiy.marathon.test.toSafeTestName
+import org.amshove.kluent.shouldBeEqualTo
 import org.mockito.kotlin.mock
 import org.amshove.kluent.shouldEqualTo
 import org.junit.jupiter.api.Test
@@ -13,13 +14,14 @@ import org.mockito.kotlin.eq
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.verifyNoMoreInteractions
 import org.mockito.kotlin.whenever
+import java.time.Duration
 import java.time.Instant
 
 class MetricsProviderImplTest {
     @Test
     fun testExecutionTimeFromCache() {
         val dataStore = mock<RemoteDataSource>()
-        val provider = MetricsProviderImpl(dataStore)
+        val provider = MetricsProviderImpl(dataStore, .0, Duration.ofMinutes(5))
         val test = generateTest()
         val requestPercentile = 90.0
         val resultTime = 100.5
@@ -32,16 +34,16 @@ class MetricsProviderImplTest {
                 eq(limit)
             )
         ).thenReturn(list)
-        provider.executionTime(test, requestPercentile, limit) shouldEqualTo resultTime
+        provider.executionTime(test, requestPercentile, limit) shouldBeEqualTo resultTime
         verify(dataStore).requestAllExecutionTimes(eq(requestPercentile), eq(limit))
         verifyNoMoreInteractions(dataStore)
-        provider.executionTime(test, requestPercentile, limit) shouldEqualTo resultTime
+        provider.executionTime(test, requestPercentile, limit) shouldBeEqualTo resultTime
     }
 
     @Test
     fun testExecutionTimeFromMissingCache() {
         val dataStore = mock<RemoteDataSource>()
-        val provider = MetricsProviderImpl(dataStore)
+        val provider = MetricsProviderImpl(dataStore, .0, Duration.ofMinutes(5))
         val test = generateTest()
         val firstPercent = 80.0
         val firstTime = 900.0
@@ -54,7 +56,7 @@ class MetricsProviderImplTest {
                 eq(firstLimit)
             )
         ).thenReturn(firstList)
-        provider.executionTime(test, firstPercent, firstLimit) shouldEqualTo firstTime
+        provider.executionTime(test, firstPercent, firstLimit) shouldBeEqualTo firstTime
         verify(dataStore).requestAllExecutionTimes(eq(firstPercent), eq(firstLimit))
 
         val secondLimit = Instant.now()
@@ -68,36 +70,36 @@ class MetricsProviderImplTest {
                 eq(secondLimit)
             )
         ).thenReturn(secondList)
-        provider.executionTime(test, secondPercent, secondLimit) shouldEqualTo secondTime
+        provider.executionTime(test, secondPercent, secondLimit) shouldBeEqualTo secondTime
         verify(dataStore).requestAllExecutionTimes(eq(secondPercent), eq(secondLimit))
     }
 
     @Test
     fun testSuccessRateFromCache() {
         val dataStore = mock<RemoteDataSource>()
-        val provider = MetricsProviderImpl(dataStore)
+        val provider = MetricsProviderImpl(dataStore, .0, Duration.ofMinutes(5))
         val test = generateTest()
         val mean = 90.0
         val limit = Instant.now()
         val list = listOf(SuccessRate(test.toSafeTestName(), mean), SuccessRate("test", 80.0))
         whenever(dataStore.requestAllSuccessRates(limit)).thenReturn(list)
-        provider.successRate(test, limit) shouldEqualTo mean
+        provider.successRate(test, limit) shouldBeEqualTo mean
         verify(dataStore).requestAllSuccessRates(eq(limit))
         verifyNoMoreInteractions(dataStore)
-        provider.successRate(test, limit) shouldEqualTo mean
+        provider.successRate(test, limit) shouldBeEqualTo mean
     }
 
     @Test
     fun testSuccessRateWithMissingCache() {
         val dataStore = mock<RemoteDataSource>()
-        val provider = MetricsProviderImpl(dataStore)
+        val provider = MetricsProviderImpl(dataStore, .0, Duration.ofMinutes(5))
         val test = generateTest()
         val firstMean = 90.0
         val firstLimit = Instant.now().minusSeconds(60)
         val firstList =
             listOf(SuccessRate(test.toSafeTestName(), firstMean), SuccessRate("test", 80.0))
         whenever(dataStore.requestAllSuccessRates(firstLimit)).thenReturn(firstList)
-        provider.successRate(test, firstLimit) shouldEqualTo firstMean
+        provider.successRate(test, firstLimit) shouldBeEqualTo firstMean
         verify(dataStore).requestAllSuccessRates(eq(firstLimit))
 
         val secondLimit = Instant.now()
@@ -105,7 +107,7 @@ class MetricsProviderImplTest {
         val secondList =
             listOf(SuccessRate(test.toSafeTestName(), secondMean), SuccessRate("test", 90.0))
         whenever(dataStore.requestAllSuccessRates(secondLimit)).thenReturn(secondList)
-        provider.successRate(test, secondLimit) shouldEqualTo secondMean
+        provider.successRate(test, secondLimit) shouldBeEqualTo secondMean
         verify(dataStore).requestAllSuccessRates(eq(secondLimit))
     }
 }

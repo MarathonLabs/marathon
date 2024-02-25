@@ -77,6 +77,7 @@ class ConfigurationSerializationTest {
             )
             registerModule(JavaTimeModule())
             configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false)
+            configure(SerializationFeature.WRITE_DURATIONS_AS_TIMESTAMPS, false)
         }
         parser = ConfigurationFactory(
             marathonfileDir = marathonfileDir,

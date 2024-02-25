@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.DeserializationContext
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer
 import com.malinskiy.marathon.config.AnalyticsConfiguration
+import com.malinskiy.marathon.config.analytics.Defaults
 import com.malinskiy.marathon.config.exceptions.ConfigurationException
 
 class InfluxDbConfigurationDeserializer
@@ -23,11 +24,15 @@ class InfluxDbConfigurationDeserializer
             retentionPolicyNode?.let { ctxt?.readValue(retentionPolicyNode, policyClazz) }
                 ?: AnalyticsConfiguration.InfluxDbConfiguration.RetentionPolicyConfiguration.default
 
+        val defaults = node?.get("defaults")?.let {
+            ctxt?.readTreeAsValue(it, Defaults::class.java)
+        } ?: Defaults()
+
         if (url == null) throw ConfigurationException("InfluxDbConfigurationDeserializer: url should be specified")
         if (user == null) throw ConfigurationException("InfluxDbConfigurationDeserializer: user should be specified")
         if (password == null) throw ConfigurationException("InfluxDbConfigurationDeserializer: password should be specified")
         if (dbName == null) throw ConfigurationException("InfluxDbConfigurationDeserializer: dbName should be specified")
 
-        return AnalyticsConfiguration.InfluxDbConfiguration(url, user, password, dbName, retentionPolicyConfiguration)
+        return AnalyticsConfiguration.InfluxDbConfiguration(url, user, password, dbName, retentionPolicyConfiguration, defaults)
     }
 }

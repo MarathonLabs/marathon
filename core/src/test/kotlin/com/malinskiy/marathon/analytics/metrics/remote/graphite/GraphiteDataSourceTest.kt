@@ -27,7 +27,7 @@ internal class GraphiteDataSourceTest {
         val rate = provider.requestAllSuccessRates(limit)
 
         rate.size shouldEqualTo 1
-        rate[0].mean shouldEqualTo 0.5
+        rate[0].mean shouldBeEqualTo 0.5
         rate[0].testName shouldBeEqualTo "com.example.SingleTest.method"
     }
 
@@ -47,6 +47,6 @@ internal class GraphiteDataSourceTest {
 
         rate.size shouldEqual 1
         rate[0].testName shouldBeEqualTo "com.example.SingleTest.method"
-        rate[0].percentile shouldEqualTo 5000.0
+        rate[0].percentile shouldBeEqualTo 5000.0
     }
 }

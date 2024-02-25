@@ -2,6 +2,7 @@ package com.malinskiy.marathon.config.serialization
 
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.core.JsonProcessingException
+import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory
@@ -43,6 +44,7 @@ class ConfigurationFactory(
         )
         registerModule(JavaTimeModule())
         configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false)
+        configure(SerializationFeature.WRITE_DURATIONS_AS_TIMESTAMPS, false)
     },
     private val environmentVariableSubstitutor: StringSubstitutor = StringSubstitutor(StringLookupFactory.INSTANCE.environmentVariableStringLookup()),
     private val analyticsTracking: Boolean? = null,
