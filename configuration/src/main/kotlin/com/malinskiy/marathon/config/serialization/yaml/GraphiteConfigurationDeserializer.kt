@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.DeserializationContext
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer
 import com.malinskiy.marathon.config.AnalyticsConfiguration
+import com.malinskiy.marathon.config.analytics.Defaults
 import com.malinskiy.marathon.config.exceptions.ConfigurationException
 
 class GraphiteConfigurationDeserializer
@@ -17,6 +18,9 @@ class GraphiteConfigurationDeserializer
         val host = node?.get("host")?.asText()
         val portString = node?.get("port")?.asText()
         val prefix = node?.get("prefix")?.asText()
+        val defaults = node?.get("defaults")?.let {
+            ctxt?.readTreeAsValue(it, Defaults::class.java)
+        } ?: Defaults()
 
         val port = portString?.toIntOrNull()
 
@@ -24,6 +28,6 @@ class GraphiteConfigurationDeserializer
         if (portString != null && port == null) throw ConfigurationException("GraphiteConfigurationDeserializer: port should be a number, e.g. 2003")
         if (prefix?.isEmpty() == true) throw ConfigurationException("GraphiteConfigurationDeserializer: prefix cannot be empty")
 
-        return AnalyticsConfiguration.GraphiteConfiguration(host, port, prefix)
+        return AnalyticsConfiguration.GraphiteConfiguration(host, port, prefix, defaults)
     }
 }

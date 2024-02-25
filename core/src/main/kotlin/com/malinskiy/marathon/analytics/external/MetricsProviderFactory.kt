@@ -28,7 +28,7 @@ internal class MetricsProviderFactory(configuration: Configuration) {
         return try {
             val db = InfluxDbProvider(configuration, debug).createDb()
             val dataSource = InfluxDBDataSource(db, configuration.dbName, configuration.retentionPolicyConfiguration.name)
-            MetricsProviderImpl(dataSource)
+            MetricsProviderImpl(dataSource, configuration.defaults.successRate, configuration.defaults.duration)
         } catch (e: Exception) {
             fallback
         }
@@ -38,13 +38,13 @@ internal class MetricsProviderFactory(configuration: Configuration) {
         return try {
             val db = InfluxDb2Provider(configuration, debug).createDb()
             val dataSource = InfluxDB2DataSource(db, configuration.bucket)
-            MetricsProviderImpl(dataSource)
+            MetricsProviderImpl(dataSource, configuration.defaults.successRate, configuration.defaults.duration)
         } catch (e: Exception) {
             fallback
         }
     }
 
     private fun createGraphiteMetricsProvider(configuration: GraphiteConfiguration): MetricsProvider {
-        return MetricsProviderImpl(GraphiteDataSource(QueryableGraphiteClient(configuration.host), configuration.prefix))
+        return MetricsProviderImpl(GraphiteDataSource(QueryableGraphiteClient(configuration.host), configuration.prefix), configuration.defaults.successRate, configuration.defaults.duration)
     }
 }

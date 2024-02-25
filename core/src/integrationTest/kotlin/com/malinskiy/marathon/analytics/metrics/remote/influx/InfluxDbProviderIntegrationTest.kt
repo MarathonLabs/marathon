@@ -6,11 +6,13 @@ import com.malinskiy.marathon.analytics.external.influx.InfluxDbTracker
 import com.malinskiy.marathon.analytics.metrics.remote.getTestEvents
 import com.malinskiy.marathon.config.AnalyticsConfiguration
 import com.malinskiy.marathon.generateTest
+import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldEqualTo
 import org.influxdb.InfluxDB
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import java.time.Duration
 import java.time.Instant
 import java.time.temporal.ChronoUnit
 
@@ -57,13 +59,13 @@ class InfluxDbProviderIntegrationTest {
         thirdDbInstance = provider.createDb()
 
         val metricsProvider =
-            MetricsProviderImpl(InfluxDBDataSource(thirdDbInstance!!, database, rpName))
+            MetricsProviderImpl(InfluxDBDataSource(thirdDbInstance!!, database, rpName), .0, Duration.ofMinutes(5))
 
         val result = metricsProvider.executionTime(
             test,
             50.0,
             Instant.now().minus(2, ChronoUnit.DAYS)
         )
-        result shouldEqualTo 5000.0
+        result shouldBeEqualTo 5000.0
     }
 }
