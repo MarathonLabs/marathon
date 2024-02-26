@@ -2,6 +2,7 @@ package com.malinskiy.marathon.apple.cmd.remote.ssh.sshj
 
 import com.malinskiy.marathon.apple.cmd.CommandExecutor
 import com.malinskiy.marathon.apple.cmd.CommandSession
+import com.malinskiy.marathon.apple.extensions.Durations
 import com.malinskiy.marathon.apple.extensions.produceLinesManually
 import com.malinskiy.marathon.extension.withTimeoutOrNull
 import com.malinskiy.marathon.log.MarathonLogging
@@ -20,6 +21,7 @@ import java.io.IOException
 import java.nio.charset.Charset
 import java.time.Duration
 import java.util.concurrent.TimeUnit
+import java.util.concurrent.atomic.AtomicLong
 import kotlin.coroutines.coroutineContext
 
 class SshjCommandExecutor(
@@ -53,9 +55,10 @@ class SshjCommandExecutor(
             }
         }
         val cmd = session.exec(escapedCmd)
-        
-        val stdout = produceLinesManually(job, cmd.inputStream, idleTimeout, charset, channelCapacity) { cmd.isOpen && !cmd.isEOF }
-        val stderr = produceLinesManually(job, cmd.errorStream, idleTimeout, charset, channelCapacity) { cmd.isOpen && !cmd.isEOF }
+
+        val lastOutputTimeMillis = AtomicLong(System.currentTimeMillis())
+        val stdout = produceLinesManually(job, cmd.inputStream, lastOutputTimeMillis, idleTimeout, charset, channelCapacity) { cmd.isOpen && !cmd.isEOF }
+        val stderr = produceLinesManually(job, cmd.errorStream, lastOutputTimeMillis, idleTimeout, charset, channelCapacity) { cmd.isOpen && !cmd.isEOF }
         val exitCode: Deferred<Int?> = async(job) {
             val result = withTimeoutOrNull(timeout) {
                 cmd.suspendFor()

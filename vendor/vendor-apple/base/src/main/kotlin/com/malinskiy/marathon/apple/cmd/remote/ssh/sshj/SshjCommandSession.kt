@@ -30,6 +30,11 @@ class SshjCommandSession(
 
     override fun close() {
         if (!closed.getAndSet(true)) {
+            if (command.isOpen) {
+                terminate()
+            }
+            command.close()
+
             command.join()
             super.close()
         }

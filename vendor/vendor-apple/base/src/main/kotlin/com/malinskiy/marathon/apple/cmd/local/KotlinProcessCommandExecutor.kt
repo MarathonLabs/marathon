@@ -16,6 +16,7 @@ import kotlinx.coroutines.delay
 import java.io.File
 import java.nio.charset.Charset
 import java.time.Duration
+import java.util.concurrent.atomic.AtomicLong
 
 /**
  * Note: doesn't support idle timeout currently
@@ -64,11 +65,11 @@ class KotlinProcessCommandExecutor(
                 process.suspendFor()
             }
         }
-        
-        val stdout = produceLinesManually(job, process.inputStream, idleTimeout, charset, channelCapacity) { process.isAlive && !exitCode.isCompleted }
-        val stderr = produceLinesManually(job, process.errorStream, idleTimeout, charset, channelCapacity) { process.isAlive && !exitCode.isCompleted }
 
-       
+        val lastOutputTimeMillis = AtomicLong(System.currentTimeMillis())
+        val stdout = produceLinesManually(job, process.inputStream, lastOutputTimeMillis, idleTimeout, charset, channelCapacity) { process.isAlive && !exitCode.isCompleted }
+        val stderr = produceLinesManually(job, process.errorStream, lastOutputTimeMillis, idleTimeout, charset, channelCapacity) { process.isAlive && !exitCode.isCompleted }
+
         return KotlinProcessCommand(
             process, job, stdout, stderr, exitCode, destroyForcibly
         )

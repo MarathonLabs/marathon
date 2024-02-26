@@ -12,6 +12,7 @@ import java.io.InputStream
 import java.nio.charset.Charset
 import java.time.Duration
 import java.util.concurrent.TimeoutException
+import java.util.concurrent.atomic.AtomicLong
 import kotlin.math.min
 
 fun CoroutineScope.produceLines(
@@ -38,6 +39,7 @@ fun CoroutineScope.produceLines(
 fun CoroutineScope.produceLinesManually(
     job: Job,
     inputStream: InputStream,
+    lastOutputTimeMillis: AtomicLong,
     idleTimeout: Duration,
     charset: Charset,
     channelCapacity: Int,
@@ -45,8 +47,6 @@ fun CoroutineScope.produceLinesManually(
 ): ReceiveChannel<String> {
     return produce(capacity = channelCapacity, context = job) {
         inputStream.buffered().use { inputStream ->
-
-            var lastOutputTimeMillis = System.currentTimeMillis()
             LineBuffer(charset, onLine = { send(it) }).use { lineBuffer ->
                 val byteArray = ByteArray(16384)
                 while (coroutineContext.isActive && !channel.isClosedForSend && !job.isCancelled) {
@@ -66,6 +66,15 @@ fun CoroutineScope.produceLinesManually(
                         available > 0 -> inputStream.read(byteArray, 0, min(available, byteArray.size))
                         else -> 0
                     }
+
+                    //Check we didn't go over idle timeout
+                    val lastOutput = lastOutputTimeMillis.get()
+                    val timeSinceLastOutputMillis = System.currentTimeMillis() - lastOutput
+                    if (timeSinceLastOutputMillis > idleTimeout.toMillis()) {
+                        close(TimeoutException("idle timeout $idleTimeout reached"))
+                        break
+                    }
+
                     // if there was nothing to read
                     if (count == 0) {
                         // if session received EOF or has been closed, reading stops
@@ -77,13 +86,9 @@ fun CoroutineScope.produceLinesManually(
                     } else if (count == -1) {
                         break
                     } else {
-                        val timeSinceLastOutputMillis = System.currentTimeMillis() - lastOutputTimeMillis
-                        if (timeSinceLastOutputMillis > idleTimeout.toMillis()) {
-                            close(TimeoutException("idle timeout $idleTimeout reached"))
-                            break
-                        }
                         lineBuffer.append(byteArray, count)
-                        lastOutputTimeMillis = System.currentTimeMillis()
+                        //Check we didn't go over idle timeout
+                        lastOutputTimeMillis.set(System.currentTimeMillis())
                     }
                     // immediately send any full lines for parsing
                     lineBuffer.flush()
