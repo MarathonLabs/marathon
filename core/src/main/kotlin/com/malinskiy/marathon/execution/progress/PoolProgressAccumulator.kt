@@ -219,7 +219,7 @@ class PoolProgressAccumulator(
                 transitionTo(TestState.Failed(total = total, running = running - 1, done = done))
             }
             on<TestEvent.AddRetry> {
-                transitionTo(TestState.Failed(total = total + 1, running = running, done = done))
+                transitionTo(TestState.Failed(total = total, running = running, done = done), TestAction.Complete)
             }
             on<TestEvent.RemoveAttempts> {
                 transitionTo(TestState.Failed(total = total - it.count, running = running, done = done))
@@ -239,7 +239,7 @@ class PoolProgressAccumulator(
                 transitionTo(TestState.Passed(total = total, running = running - 1, done = done))
             }
             on<TestEvent.AddRetry> {
-                transitionTo(TestState.Passed(total = total + 1, running = running, done = done))
+                transitionTo(TestState.Passed(total = total, running = running, done = done), TestAction.Complete)
             }
             on<TestEvent.RemoveAttempts> {
                 transitionTo(TestState.Passed(total = total - it.count, running = running, done = done))
