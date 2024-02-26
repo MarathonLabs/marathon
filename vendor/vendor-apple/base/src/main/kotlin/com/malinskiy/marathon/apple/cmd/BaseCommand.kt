@@ -57,7 +57,7 @@ abstract class BaseCommand(
 
         val (out, err, exitCode) = awaitAll(deferredStdout, deferredStderr, exitCode)
 
-        CommandResult(out as List<String>, err as List<String>, exitCode as Int)
+        CommandResult(out as List<String>, err as List<String>, exitCode as Int?)
     }
 
     override suspend fun drain() {
