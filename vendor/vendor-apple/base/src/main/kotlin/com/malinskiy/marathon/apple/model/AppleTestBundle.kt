@@ -9,6 +9,18 @@ import com.malinskiy.marathon.log.MarathonLogging
 import java.io.File
 import java.nio.file.Paths
 
+private val File.isAppleBinary: Boolean
+    get() {
+        inputStream().use {
+            if (length() < 4) return false
+
+            val header = UByteArray(4)
+            it.read(header.asByteArray())
+
+            return header.contentEquals(AppleTestBundle.FAT_MAGIC) || header.contentEquals(AppleTestBundle.MH_MAGIC) || header.contentEquals(AppleTestBundle.MH_MAGIC_64)
+        }
+    }
+
 class AppleTestBundle(
     val application: File?,
     val testApplication: File?,
@@ -53,11 +65,11 @@ class AppleTestBundle(
     val testBinary: File by lazy {
         val possibleTestBinaries = when (sdk) {
             Sdk.IPHONEOS, Sdk.IPHONESIMULATOR, Sdk.TV, Sdk.TV_SIMULATOR, Sdk.WATCH, Sdk.WATCH_SIMULATOR, Sdk.VISION, Sdk.VISION_SIMULATOR -> xctestBundle.listFiles()
-                ?.filter { it.isFile && it.extension == "" }
+                ?.filter { it.isFile && it.extension == "" && it.isAppleBinary }
                 ?: throw ConfigurationException("missing test binaries in xctest folder at $xctestBundle")
 
             Sdk.MACOS -> Paths.get(xctestBundle.absolutePath, *relativeBinaryPath).toFile().listFiles()
-                ?.filter { it.isFile && it.extension == "" }
+                ?.filter { it.isFile && it.extension == "" && it.isAppleBinary }
                 ?: throw ConfigurationException("missing test binaries in xctest folder at $xctestBundle")
         }
         when (possibleTestBinaries.size) {
@@ -77,11 +89,11 @@ class AppleTestBundle(
 
         val possibleTestRunnerBinaries = when (sdk) {
             Sdk.IPHONEOS, Sdk.IPHONESIMULATOR, Sdk.TV, Sdk.TV_SIMULATOR, Sdk.WATCH, Sdk.WATCH_SIMULATOR, Sdk.VISION, Sdk.VISION_SIMULATOR -> testApplication.listFiles()
-                ?.filter { it.isFile && it.extension == "" }
+                ?.filter { it.isFile && it.extension == "" && it.isAppleBinary  }
                 ?: throw ConfigurationException("missing test binaries in test runner folder at $testApplication")
 
             Sdk.MACOS -> Paths.get(testApplication.absolutePath, *relativeBinaryPath).toFile().listFiles()
-                ?.filter { it.isFile && it.extension == "" }
+                ?.filter { it.isFile && it.extension == "" && it.isAppleBinary  }
                 ?: throw ConfigurationException("missing test binaries in test runner folder at $testApplication")
         }
         when (possibleTestRunnerBinaries.size) {
@@ -98,10 +110,10 @@ class AppleTestBundle(
         application?.let { application ->
             when (sdk) {
                 Sdk.IPHONEOS, Sdk.IPHONESIMULATOR, Sdk.TV, Sdk.TV_SIMULATOR, Sdk.WATCH, Sdk.WATCH_SIMULATOR, Sdk.VISION, Sdk.VISION_SIMULATOR -> application.listFiles()
-                    ?.filter { it.isFile && it.extension == "" }
+                    ?.filter { it.isFile && it.extension == "" && it.isAppleBinary  }
 
                 Sdk.MACOS -> Paths.get(application.absolutePath, *relativeBinaryPath).toFile().listFiles()
-                    ?.filter { it.isFile && it.extension == "" }
+                    ?.filter { it.isFile && it.extension == "" && it.isAppleBinary  }
             }?.let { possibleBinaries ->
                 when (possibleBinaries.size) {
                     0 -> null
@@ -123,5 +135,14 @@ class AppleTestBundle(
             Sdk.IPHONEOS, Sdk.IPHONESIMULATOR, Sdk.TV, Sdk.TV_SIMULATOR, Sdk.WATCH, Sdk.WATCH_SIMULATOR, Sdk.VISION, Sdk.VISION_SIMULATOR -> emptyArray()
             Sdk.MACOS -> arrayOf("Contents", "MacOS")
         }
+    }
+
+    /**
+     * See mach-o specification for these
+     */
+    companion object {
+        val FAT_MAGIC: UByteArray = ubyteArrayOf(0xca.toUByte(), 0xfe.toUByte(), 0xba.toUByte(), 0xbe.toUByte()).reversedArray()
+        val MH_MAGIC: UByteArray = ubyteArrayOf(0xfe.toUByte(), 0xed.toUByte(), 0xfa.toUByte(), 0xce.toUByte()).reversedArray()
+        val MH_MAGIC_64: UByteArray = ubyteArrayOf(0xfe.toUByte(), 0xed.toUByte(), 0xfa.toUByte(), 0xcf.toUByte()).reversedArray()
     }
 }
