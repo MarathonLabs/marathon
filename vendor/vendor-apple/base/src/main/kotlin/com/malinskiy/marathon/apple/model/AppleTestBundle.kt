@@ -17,7 +17,8 @@ private val File.isAppleBinary: Boolean
             val header = UByteArray(4)
             it.read(header.asByteArray())
 
-            return header.contentEquals(AppleTestBundle.FAT_MAGIC) || header.contentEquals(AppleTestBundle.MH_MAGIC) || header.contentEquals(AppleTestBundle.MH_MAGIC_64)
+            return header.contentEquals(AppleTestBundle.FAT_MAGIC) || header.contentEquals(AppleTestBundle.MH_MAGIC) || header.contentEquals(AppleTestBundle.MH_MAGIC_64) ||
+                header.contentEquals(AppleTestBundle.FAT_CIGAM) || header.contentEquals(AppleTestBundle.MH_CIGAM) || header.contentEquals(AppleTestBundle.MH_CIGAM_64)
         }
     }
 
@@ -139,10 +140,14 @@ class AppleTestBundle(
 
     /**
      * See mach-o specification for these
+     * https://opensource.apple.com/source/xnu/xnu-4570.71.2/EXTERNAL_HEADERS/mach-o/loader.h.auto.html
      */
     companion object {
-        val FAT_MAGIC: UByteArray = ubyteArrayOf(0xca.toUByte(), 0xfe.toUByte(), 0xba.toUByte(), 0xbe.toUByte()).reversedArray()
-        val MH_MAGIC: UByteArray = ubyteArrayOf(0xfe.toUByte(), 0xed.toUByte(), 0xfa.toUByte(), 0xce.toUByte()).reversedArray()
-        val MH_MAGIC_64: UByteArray = ubyteArrayOf(0xfe.toUByte(), 0xed.toUByte(), 0xfa.toUByte(), 0xcf.toUByte()).reversedArray()
+        val FAT_MAGIC: UByteArray = ubyteArrayOf(0xca.toUByte(), 0xfe.toUByte(), 0xba.toUByte(), 0xbe.toUByte())
+        val FAT_CIGAM = FAT_MAGIC.reversedArray()
+        val MH_MAGIC: UByteArray = ubyteArrayOf(0xfe.toUByte(), 0xed.toUByte(), 0xfa.toUByte(), 0xce.toUByte())
+        val MH_CIGAM = MH_MAGIC.reversedArray()
+        val MH_MAGIC_64: UByteArray = ubyteArrayOf(0xfe.toUByte(), 0xed.toUByte(), 0xfa.toUByte(), 0xcf.toUByte())
+        val MH_CIGAM_64 = MH_MAGIC_64.reversedArray()
     }
 }
