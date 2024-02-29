@@ -4,6 +4,7 @@ import com.malinskiy.marathon.apple.AppleDevice
 import com.malinskiy.marathon.apple.RemoteFileManager
 import com.malinskiy.marathon.apple.logparser.parser.DeviceFailureException
 import com.malinskiy.marathon.apple.logparser.parser.DeviceFailureReason
+import com.malinskiy.marathon.apple.model.AppleOperatingSystemVersion
 import com.malinskiy.marathon.apple.model.AppleTestBundle
 import com.malinskiy.marathon.apple.model.Arch
 import com.malinskiy.marathon.apple.model.Sdk
@@ -14,8 +15,8 @@ import com.malinskiy.marathon.apple.xctestrun.v2.Xctestrun
 import com.malinskiy.marathon.config.exceptions.ConfigurationException
 import com.malinskiy.marathon.config.vendor.apple.TestType
 import com.malinskiy.marathon.config.vendor.apple.ios.XcresultConfiguration
-import com.malinskiy.marathon.exceptions.DeviceLostException
 import com.malinskiy.marathon.exceptions.DeviceSetupException
+import com.malinskiy.marathon.exceptions.IncompatibleDeviceException
 import com.malinskiy.marathon.exceptions.TransferException
 import com.malinskiy.marathon.extension.relativePathTo
 import java.io.File
@@ -71,6 +72,17 @@ class TestRootFactory(
                         )
                     }]"
             )
+        }
+
+        if (device.sdk == Sdk.MACOS) {
+            val lsMinimumSystemVersion = bundle.operatingSystemVersion.lsMinimumSystemVersion
+            if (lsMinimumSystemVersion != null) {
+                val bundleMinVersion = AppleOperatingSystemVersion(lsMinimumSystemVersion)
+                val deviceVersion = AppleOperatingSystemVersion(device.operatingSystem.version)
+                if (deviceVersion < bundleMinVersion) {
+                    throw IncompatibleDeviceException("Device ${device.serialNumber} with os version ${device.operatingSystem.version} is incompatible with bundle's minimum required version $lsMinimumSystemVersion")
+                }
+            }
         }
     }
 
