@@ -3,7 +3,6 @@ package com.malinskiy.marathon.config.vendor.apple.ios
 import com.fasterxml.jackson.annotation.JsonProperty
 
 data class PermissionsConfiguration(
-    @JsonProperty("bundleId") val bundleId: String? = null,
     @JsonProperty("grant") val grant: Set<Permission> = emptySet(),
 )
 

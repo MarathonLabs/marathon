@@ -3,11 +3,13 @@ package com.malinskiy.marathon.apple.bin
 import com.google.gson.Gson
 import com.malinskiy.marathon.apple.bin.chmod.Chmod
 import com.malinskiy.marathon.apple.bin.codesign.Codesign
+import com.malinskiy.marathon.apple.bin.csrutil.Csrutil
 import com.malinskiy.marathon.apple.bin.getconf.Getconf
 import com.malinskiy.marathon.apple.bin.ioreg.Ioreg
 import com.malinskiy.marathon.apple.bin.lipo.Lipo
 import com.malinskiy.marathon.apple.bin.nm.Nm
 import com.malinskiy.marathon.apple.bin.plistbuddy.PlistBuddy
+import com.malinskiy.marathon.apple.bin.sqlite3.Sqlite3
 import com.malinskiy.marathon.apple.bin.swvers.SwVers
 import com.malinskiy.marathon.apple.bin.systemprofiler.SystemProfiler
 import com.malinskiy.marathon.apple.bin.xcodeselect.Xcodeselect
@@ -24,6 +26,8 @@ class AppleBinaryEnvironment(
     gson: Gson
 ) {
     val codesign: Codesign = Codesign(commandExecutor, timeoutConfiguration)
+    val csrutil: Csrutil = Csrutil(commandExecutor, timeoutConfiguration)
+    val sqlite3: Sqlite3 = Sqlite3(commandExecutor, timeoutConfiguration)
     val getconf: Getconf =
         Getconf(commandExecutor, timeoutConfiguration)
     val lipo: Lipo = Lipo(commandExecutor, timeoutConfiguration)

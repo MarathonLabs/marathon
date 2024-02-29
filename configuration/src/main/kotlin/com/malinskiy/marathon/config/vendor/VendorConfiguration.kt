@@ -26,6 +26,7 @@ import com.malinskiy.marathon.config.vendor.android.TimeoutConfiguration as Andr
 import com.malinskiy.marathon.config.vendor.apple.TestParserConfiguration as AppleTestParserConfiguration
 import com.malinskiy.marathon.config.vendor.apple.ios.ScreenRecordConfiguration as IosScreenRecordConfiguration
 import com.malinskiy.marathon.config.vendor.apple.ThreadingConfiguration as AppleThreadingConfiguration
+import com.malinskiy.marathon.config.vendor.apple.macos.PermissionsConfiguration as MacosPermissionsConfiguration
 
 const val DEFAULT_INIT_TIMEOUT_MILLIS = 30_000
 const val DEFAULT_AUTO_GRANT_PERMISSION = false
@@ -191,6 +192,7 @@ sealed class VendorConfiguration {
         @JsonProperty("rsync") val rsync: RsyncConfiguration = RsyncConfiguration(),
         @JsonProperty("xcodebuildTestArgs") val xcodebuildTestArgs: Map<String, String> = emptyMap(),
         @JsonProperty("testParserConfiguration") val testParserConfiguration: AppleTestParserConfiguration = AppleTestParserConfiguration.NmTestParserConfiguration(),
+        @JsonProperty("permissions") val permissions: MacosPermissionsConfiguration = MacosPermissionsConfiguration(),
 
         @JsonProperty("signing") val signing: SigningConfiguration = SigningConfiguration(),
     ) : VendorConfiguration() {

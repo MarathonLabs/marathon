@@ -61,7 +61,7 @@ open class AppleApplicationInstaller<in T : AppleDevice>(
         val remoteTestBinary = device.remoteFileManager.joinPath(remoteXctest, *relativeTestBinaryPath, testBinary.name)
         val testType = getTestTypeFor(device, device.sdk, remoteTestBinary)
         TestRootFactory(device, xctestrunEnv, xcresultConfiguration).generate(testType, bundle, useXctestParser)
-        afterInstall(device as T)
+        afterInstall(device as T, bundle)
 
         bundleConfiguration.extraApplications?.forEach {
             if (it.isDirectory && it.extension == "app") {
@@ -75,7 +75,7 @@ open class AppleApplicationInstaller<in T : AppleDevice>(
         }
     }
 
-    open suspend fun afterInstall(device: T) = Unit
+    open suspend fun afterInstall(device: T, bundle: AppleTestBundle) = Unit
 
     private suspend fun getTestTypeFor(device: AppleDevice, sdk: Sdk, remoteTestBinary: String): TestType {
         val app = vendorConfiguration.bundleConfiguration()?.application

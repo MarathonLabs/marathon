@@ -62,7 +62,7 @@ val MacosVendor = module {
             else -> NmTestParser(get(), get(), TestParserConfiguration.NmTestParserConfiguration(), get())
         }
     }
-    single<AppleApplicationInstaller<MacosDevice>> { AppleApplicationInstaller(get()) }
+    single<AppleApplicationInstaller<MacosDevice>> { MacosApplicationInstaller(get()) }
     single<MarathonLogConfigurator> { AppleLogConfigurator(get<VendorConfiguration.MacosConfiguration>().compactOutput) }
 
     val appleTestBundleIdentifier = AppleTestBundleIdentifier()

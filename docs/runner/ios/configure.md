@@ -319,11 +319,10 @@ lifecycle:
 ```
 
 ### Permissions
-Marathon can grant permissions to application by bundle id during device setup, e.g.:
+Marathon can grant permissions to application during device setup, e.g.:
 
 ```yaml
 permissions:
-  bundleId: sampleBundle
   grant:
     - contacts
     - photos-add

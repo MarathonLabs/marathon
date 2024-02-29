@@ -30,6 +30,7 @@ import com.malinskiy.marathon.apple.test.TestEvent
 import com.malinskiy.marathon.apple.test.TestRequest
 import com.malinskiy.marathon.config.Configuration
 import com.malinskiy.marathon.config.vendor.VendorConfiguration
+import com.malinskiy.marathon.config.vendor.apple.macos.Permission
 import com.malinskiy.marathon.device.DeviceFeature
 import com.malinskiy.marathon.device.DevicePoolId
 import com.malinskiy.marathon.device.NetworkState
@@ -267,7 +268,7 @@ class MacosDevice(
                     remoteFileManager.createRemoteSharedDirectory()
                     mutableListOf<Deferred<Unit>>().apply {
                         add(async {
-                            AppleApplicationInstaller<MacosDevice>(
+                            MacosApplicationInstaller(
                                 vendorConfiguration,
                             ).prepareInstallation(this@MacosDevice)
                             testBundle = vendorConfiguration.bundleConfiguration()?.let {
@@ -416,4 +417,16 @@ class MacosDevice(
         )
     }
 
+    suspend fun grant(client: String, permission: Set<Permission>) {
+        if (operatingSystem.major?.let { it > 10 } != true)  {
+            throw IncompatibleDeviceException("Modifying permissions is supported to macOS 10+")
+        }
+
+        val epoch = System.currentTimeMillis() / 1000
+        permission.forEach {
+            val query = "replace into access (service,client,client_type,auth_value,auth_reason,auth_version,indirect_object_identifier,flags,last_modified) values (\"${it.value}\",\"${client}\",0,2,1,1,\"UNUSED\",0,$epoch);"
+            binaryEnvironment.sqlite3.query("/Library/Application Support/com.apple.TCC/TCC.db", query, sudo = true)
+            binaryEnvironment.sqlite3.query("/Users/${env["USER"]}/Library/Application Support/com.apple.TCC/TCC.db", query, sudo = true)
+        }
+    }
 }
