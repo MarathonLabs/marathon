@@ -60,8 +60,9 @@ class Xcresulttool(
             args.add(it)
         }
         val result =
-            commandExecutor.criticalExecute(timeoutConfiguration.shell, *args.toTypedArray())
-        val json = result.combinedStdout.trim()
+            commandExecutor.safeExecute(timeoutConfiguration.shell, *args.toTypedArray())
+        val json = result?.combinedStdout?.trim() ?: return null
+        if (json.isBlank()) return null
         return try {
             AppleJsonMapper.readValue(json, clazz)
         } catch (e: JsonSyntaxException) {

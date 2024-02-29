@@ -37,6 +37,7 @@ import com.malinskiy.marathon.config.ScreenRecordingPolicy
 import com.malinskiy.marathon.config.vendor.VendorConfiguration
 import com.malinskiy.marathon.config.vendor.apple.ios.LifecycleAction
 import com.malinskiy.marathon.config.vendor.apple.ios.Permission
+import com.malinskiy.marathon.config.vendor.apple.ios.Type
 import com.malinskiy.marathon.device.DeviceFeature
 import com.malinskiy.marathon.device.DevicePoolId
 import com.malinskiy.marathon.device.NetworkState
@@ -79,7 +80,6 @@ import java.awt.image.BufferedImage
 import java.io.File
 import java.time.Duration
 import java.util.concurrent.CopyOnWriteArrayList
-import java.util.concurrent.RejectedExecutionException
 import javax.imageio.ImageIO
 import kotlin.coroutines.CoroutineContext
 
@@ -469,7 +469,13 @@ class AppleSimulatorDevice(
     }
 
     override suspend fun getScreenshot(timeout: Duration): BufferedImage? {
-        val tempFile = kotlin.io.path.createTempFile(suffix = ".png").toFile()
+        val extension = when(vendorConfiguration.screenRecordConfiguration.screenshotConfiguration.type) {
+            Type.PNG -> ".png"
+            Type.TIFF -> ".tiff"
+            Type.BMP -> ".bmp"
+            Type.JPEG -> ".jpeg"
+        }
+        val tempFile = kotlin.io.path.createTempFile(suffix = extension).toFile()
         try {
             if (getScreenshot(timeout, tempFile)) {
                 return ImageIO.read(tempFile)
