@@ -4,6 +4,7 @@ import com.malinskiy.marathon.apple.cmd.remote.ssh.sshj.auth.SshAuthentication
 import com.malinskiy.marathon.apple.cmd.remote.ssh.sshj.config.PerformanceDefaultConfig
 import com.malinskiy.marathon.apple.sshj.PatchedSSHClient
 import com.malinskiy.marathon.execution.withRetrySync
+import com.malinskiy.marathon.log.MarathonLogging
 import kotlinx.coroutines.channels.Channel
 import net.schmizz.sshj.transport.TransportException
 import net.schmizz.sshj.transport.verification.HostKeyVerifier
@@ -19,6 +20,9 @@ class SshjCommandExecutorFactory(
     private val keepAliveInterval: Duration = Duration.ofSeconds(60L),
     private val channelCapacity: Int = Channel.BUFFERED,
 ) {
+
+    private val logger = MarathonLogging.logger {}
+
     /**
      * @throws TransportException
      * @throws ConnectException
@@ -36,7 +40,7 @@ class SshjCommandExecutorFactory(
             connection.keepAlive.name = "$addr:$port keep-alive"
             addHostKeyVerifier(hostKeyVerifier)
         }
-        withRetrySync(connectionAttempts) {
+        withRetrySync(connectionAttempts, 0, logger) {
             client.connect(addr, port)
         }
         authentication.authenticate(client)
