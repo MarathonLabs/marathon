@@ -29,6 +29,6 @@ class Sqlite3(
         timeout: Duration,
         vararg args: String,
     ): CommandResult {
-        return commandExecutor.criticalExecute(timeout, "sqlite", *args)
+        return commandExecutor.criticalExecute(timeout, "sqlite3", *args)
     }
 }

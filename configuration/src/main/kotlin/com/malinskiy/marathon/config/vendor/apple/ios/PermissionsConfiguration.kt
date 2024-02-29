@@ -4,7 +4,13 @@ import com.fasterxml.jackson.annotation.JsonProperty
 
 data class PermissionsConfiguration(
     @JsonProperty("grant") val grant: Set<Permission> = emptySet(),
+    @JsonProperty("lifecycle") val lifecycle: GrantLifecycle = GrantLifecycle.BEFORE_TEST_RUN,
 )
+
+enum class GrantLifecycle {
+    @JsonProperty("BEFORE_TEST_RUN") BEFORE_TEST_RUN,
+    @JsonProperty("BEFORE_EACH_BATCH") BEFORE_EACH_BATCH,
+}
 
 /**
  * @property All Apply the action to all services
@@ -34,5 +40,8 @@ enum class Permission(val value: String) {
     @JsonProperty("microphone") Microphone("microphone"),
     @JsonProperty("motion") Motion("motion"),
     @JsonProperty("reminders") Reminders("reminders"),
-    @JsonProperty("siri") Siri("siri");
+    @JsonProperty("siri") Siri("siri"),
+
+    //Non-simctl grant permissions
+    @JsonProperty("user-tracking") UserTracking("kTCCServiceUserTracking"),
 }

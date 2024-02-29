@@ -35,6 +35,7 @@ import com.malinskiy.marathon.apple.test.TestRequest
 import com.malinskiy.marathon.config.Configuration
 import com.malinskiy.marathon.config.ScreenRecordingPolicy
 import com.malinskiy.marathon.config.vendor.VendorConfiguration
+import com.malinskiy.marathon.config.vendor.apple.ios.GrantLifecycle
 import com.malinskiy.marathon.config.vendor.apple.ios.LifecycleAction
 import com.malinskiy.marathon.config.vendor.apple.ios.Permission
 import com.malinskiy.marathon.config.vendor.apple.ios.Type
@@ -253,6 +254,11 @@ class AppleSimulatorDevice(
                     try {
                         val (listener, lineListeners) = createExecutionListeners(devicePoolId, testBatch, deferred)
                         executionLineListeners = lineListeners.onEach { addLineListener(it) }
+                        if (vendorConfiguration.permissions.lifecycle == GrantLifecycle.BEFORE_EACH_BATCH) {
+                            for (permission in vendorConfiguration.permissions.grant) {
+                                grant(permission, testBundle.appId)
+                            }
+                        }
                         AppleDeviceTestRunner(this@AppleSimulatorDevice, testBundleIdentifier).execute(
                             configuration,
                             testBundle,
@@ -469,7 +475,7 @@ class AppleSimulatorDevice(
     }
 
     override suspend fun getScreenshot(timeout: Duration): BufferedImage? {
-        val extension = when(vendorConfiguration.screenRecordConfiguration.screenshotConfiguration.type) {
+        val extension = when (vendorConfiguration.screenRecordConfiguration.screenshotConfiguration.type) {
             Type.PNG -> ".png"
             Type.TIFF -> ".tiff"
             Type.BMP -> ".bmp"
@@ -774,7 +780,20 @@ class AppleSimulatorDevice(
     }
 
     suspend fun grant(permission: Permission, bundleId: String): Boolean {
-        return binaryEnvironment.xcrun.simctl.privacy.grant(udid, permission, bundleId).successful
+        return when (permission) {
+            Permission.UserTracking -> {
+                //This might fail on different versions of iOS runtime. Tested on 17.2
+                val query =
+                    "replace into access (service, client, client_type, auth_value, auth_reason, auth_version, flags) values ('${permission.value}','$bundleId',0,2,2,1,0);"
+                binaryEnvironment.sqlite3.query(
+                    "${env["HOME"]}/Library/Developer/CoreSimulator/Devices/$udid/data/Library/TCC/TCC.db",
+                    query
+                )
+                true
+            }
+
+            else -> binaryEnvironment.xcrun.simctl.privacy.grant(udid, permission, bundleId).successful
+        }
     }
 
     suspend fun clearAppContainer(bundleId: String) {
