@@ -8,7 +8,6 @@ import com.malinskiy.marathon.device.DevicePoolId
 import com.malinskiy.marathon.device.DeviceProvider
 import com.malinskiy.marathon.device.toDeviceInfo
 import com.malinskiy.marathon.exceptions.NoDevicesException
-import com.malinskiy.marathon.execution.DevicePoolMessage.FromScheduler
 import com.malinskiy.marathon.execution.DevicePoolMessage.FromScheduler.AddDevice
 import com.malinskiy.marathon.execution.DevicePoolMessage.FromScheduler.RemoveDevice
 import com.malinskiy.marathon.execution.bundle.TestBundleIdentifier
@@ -20,7 +19,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.cancelAndJoin
-import kotlinx.coroutines.channels.SendChannel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withTimeout
@@ -56,7 +54,7 @@ class Scheduler(
     suspend fun execute() : Boolean {
         subscribeOnDevices(job)
         try {
-            withTimeout(deviceProvider.deviceInitializationTimeoutMillis) {
+            withTimeout(configuration.deviceInitializationTimeoutMillis) {
                 while (pools.isEmpty()) {
                     delay(100)
                 }

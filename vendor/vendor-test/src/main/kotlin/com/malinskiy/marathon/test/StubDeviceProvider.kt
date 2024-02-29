@@ -18,7 +18,6 @@ class StubDeviceProvider : DeviceProvider, CoroutineScope {
     private val channel: Channel<DeviceProvider.DeviceEvent> = unboundedChannel()
     var providingLogic: (suspend (Channel<DeviceProvider.DeviceEvent>) -> Unit)? = null
 
-    override val deviceInitializationTimeoutMillis: Long = 180_000
     override suspend fun initialize() {}
 
     override suspend fun borrow() = borrowingDevice

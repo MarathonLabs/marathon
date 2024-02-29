@@ -52,16 +52,8 @@ class AdamDeviceProvider(
 
     private val channel: Channel<DeviceProvider.DeviceEvent> = unboundedChannel()
     override val coroutineContext: CoroutineContext by lazy { newFixedThreadPoolContext(1, "DeviceMonitor") }
-    private val adbCommunicationContext: CoroutineContext by lazy {
-        newFixedThreadPoolContext(
-            vendorConfiguration.threadingConfiguration.adbIoThreads,
-            "AdbIOThreadPool"
-        )
-    }
     private val setupSupervisor = SupervisorJob()
     private var providerJob: Job? = null
-
-    override val deviceInitializationTimeoutMillis: Long = configuration.deviceInitializationTimeoutMillis
 
     private lateinit var clients: List<AndroidDebugBridgeClient>
     private val socketFactory = VertxSocketFactory(idleTimeout = vendorConfiguration.timeoutConfiguration.socketIdleTimeout.toMillis())

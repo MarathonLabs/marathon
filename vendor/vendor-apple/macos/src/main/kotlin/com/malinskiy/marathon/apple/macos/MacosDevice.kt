@@ -20,6 +20,7 @@ import com.malinskiy.marathon.apple.listener.TestResultsListener
 import com.malinskiy.marathon.apple.listener.TestRunListenerAdapter
 import com.malinskiy.marathon.apple.logparser.XctestEventProducer
 import com.malinskiy.marathon.apple.logparser.parser.DeviceFailureException
+import com.malinskiy.marathon.apple.logparser.parser.DeviceFailureReason
 import com.malinskiy.marathon.apple.logparser.parser.DiagnosticLogsPathFinder
 import com.malinskiy.marathon.apple.logparser.parser.SessionResultsPathFinder
 import com.malinskiy.marathon.apple.model.AppleTestBundle
@@ -39,6 +40,7 @@ import com.malinskiy.marathon.device.screenshot.Rotation
 import com.malinskiy.marathon.device.toDeviceInfo
 import com.malinskiy.marathon.exceptions.DeviceLostException
 import com.malinskiy.marathon.exceptions.DeviceSetupException
+import com.malinskiy.marathon.exceptions.IncompatibleDeviceException
 import com.malinskiy.marathon.execution.TestBatchResults
 import com.malinskiy.marathon.execution.listener.LineListener
 import com.malinskiy.marathon.execution.listener.LogListener
@@ -74,7 +76,7 @@ import kotlin.coroutines.CoroutineContext
 
 class MacosDevice(
     override val udid: String,
-    transport: Transport,
+    override val transport: Transport,
     override var sdk: Sdk,
     override val binaryEnvironment: AppleBinaryEnvironment,
     private val testBundleIdentifier: AppleTestBundleIdentifier,
@@ -314,7 +316,13 @@ class MacosDevice(
         } catch (e: IllegalStateException) {
             throw DeviceLostException(e)
         } catch (e: DeviceFailureException) {
-            throw DeviceLostException(e)
+            when (e.reason) {
+                DeviceFailureReason.IncompatibleDevice -> throw IncompatibleDeviceException(
+                    e
+                )
+
+                else -> throw DeviceLostException(e)
+            }
         }
     }
 
