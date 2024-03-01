@@ -95,7 +95,6 @@ class TestRootFactory(
         val sdkPlatformPath = device.binaryEnvironment.xcrun.getSdkPlatformPath(device.sdk)
         val platformLibraryPath = remoteFileManager.joinPath(sdkPlatformPath, "Developer", "Library")
 
-        ensureApplicationBinariesAreExecutable(remoteFileManager, bundle)
         val (testRunnerApp, remoteXctest) = if (bundle.testApplication != null) {
             reuseTestRunnerApp(testRoot, bundle, bundle.testApplication)
         } else {
@@ -122,6 +121,7 @@ class TestRootFactory(
         if (!device.pushFolder(testApp, remoteTestApp)) {
             throw DeviceSetupException("failed to push app under test to remote device")
         }
+        ensureApplicationBinaryIsExecutable(remoteFileManager, bundle)
 
         if (device.sdk == Sdk.IPHONEOS) {
             TODO("generate phone provisioning")
@@ -202,7 +202,7 @@ class TestRootFactory(
         if (!device.pushFolder(testApp, remoteTestApp)) {
             throw DeviceSetupException("failed to push app under test to remote device")
         }
-        ensureApplicationBinariesAreExecutable(remoteFileManager, bundle)
+        ensureApplicationBinaryIsExecutable(remoteFileManager, bundle)
 
         /**
          * A common scenario is to place xctest for unit tests inside the app's PlugIns.
@@ -216,7 +216,6 @@ class TestRootFactory(
             if (!device.pushFolder(bundle.xctestBundle, remoteXctest)) {
                 throw DeviceSetupException("failed to push xctest to remote device")
             }
-            ensureApplicationBinariesAreExecutable(remoteFileManager, bundle)
         }
 
         if (device.sdk == Sdk.IPHONEOS) {
@@ -288,9 +287,9 @@ class TestRootFactory(
         )
     }
 
-    private suspend fun ensureApplicationBinariesAreExecutable(
+    private suspend fun ensureApplicationBinaryIsExecutable(
         remoteFileManager: RemoteFileManager,
-        bundle: AppleTestBundle
+        bundle: AppleTestBundle,
     ) {
         bundle.applicationBinary?.let {
             val remoteApplicationBinary = joinPath(
@@ -300,6 +299,12 @@ class TestRootFactory(
             )
             device.binaryEnvironment.chmod.makeExecutable(remoteApplicationBinary)
         }
+    }
+
+    private suspend fun ensureTestRunnerApplicationBinaryIsExecutable(
+        remoteFileManager: RemoteFileManager,
+        bundle: AppleTestBundle,
+    ) {
         if (bundle.testApplication != null) {
             bundle.testRunnerBinary.let {
                 val remoteTestApplicationBinary = joinPath(
@@ -356,6 +361,7 @@ class TestRootFactory(
         bundle: AppleTestBundle,
         testApplication: File, //For null safety
     ): Pair<String, String> {
+        ensureTestRunnerApplicationBinaryIsExecutable(device.remoteFileManager, bundle)
         val sharedTestRunnerApp = device.remoteFileManager.remoteTestRunnerApplication()
         val runnerBinaryName = "${bundle.testBundleId}-Runner"
         val testRunnerApp = joinPath(testRoot, "$runnerBinaryName.app")
