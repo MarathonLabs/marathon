@@ -112,4 +112,4 @@ There is also an assortment of html reports for you to analyze:
 ## Next steps
 There are many more customisations and optimisation that you can do for your test runs that can help you speed up the test execution and/or battle reliability issues. Continue reading the docs to understand how marathon can help you. 
 
-[1]: ios/workers.md
+[1]: apple/workers.md

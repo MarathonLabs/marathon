@@ -60,13 +60,44 @@ const sidebars = {
     },
     {
       type: 'category',
-      label: 'iOS',
+      label: 'Apple',
       collapsed: false,
       items: [
-        'ios',
-        'ios/workers',
-        'ios/configure',
-        'ios/examples',
+        'apple',
+        'apple/workers',
+        {
+          type: 'category',
+          label: 'Configuration',
+          collapsed: true,
+          items: [
+              {
+                  type: 'doc',
+                  label: 'iOS',
+                  id: 'apple/configure/ios'
+              },
+              {
+                  type: 'doc',
+                  label: 'watchOS',
+                  id: 'apple/configure/ios'
+              },
+              {
+                  type: 'doc',
+                  label: 'tvOS',
+                  id: 'apple/configure/ios'
+              },
+              {
+                  type: 'doc',
+                  label: 'visionOS',
+                  id: 'apple/configure/ios'
+              },
+              {
+                  type: 'doc',
+                  label: 'macOS',
+                  id: 'apple/configure/macos'
+              },
+          ]
+        },
+        'apple/examples',
       ],
     },
   ],

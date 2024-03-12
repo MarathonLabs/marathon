@@ -76,6 +76,10 @@ This log file can be found at the `$output/test_result/raw.json`
 ### Html report
 This report can be found at `$output/html/index.html`
 
+Demos:
+- [Android](/demo/android/html/)
+- [iOS](/demo/ios/html/)
+
 Device pools are separated on the main page of the report:
 
 ![html report home page](/img/screenshot-html-report-1.png "Html report")
@@ -109,6 +113,10 @@ All the reports for respective pools are placed at `$output/tests/${poolName}/*.
 
 ### Allure report
 [allure][1] report helps identify multiple possible problems during test execution.
+
+Demos:
+- [Android](/demo/android/allure-report/)
+- [iOS](/demo/ios/allure-report/)
 
 :::caution
 

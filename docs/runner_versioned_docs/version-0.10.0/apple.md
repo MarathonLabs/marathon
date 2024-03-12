@@ -2,23 +2,27 @@
 title: "Overview"
 ---
 
-Executing tests on iOS simulators requires access to Apple hardware capable of executing tests. This can be a local macOS instance or a
-remote instance accessible via [secure shell][2]. For remote access file transfers are carried out incrementally using [rsync][3].
+Marathon supports execution of `macOS` tests for desktop apps as well as apps targeting `iOS`, `iPadOS`, `tvOS`, `visionOS` (xctest only)
+using simulators.
+
+Test execution requires Apple hardware capable of executing tests. This can be a local macOS instance or a remote instance
+accessible via [secure shell][2]. For remote access file transfers are carried out incrementally using [rsync][3].
 
 Device provider can provision simulators on-demand, reuse existing ones if they match desired configuration as well as utilize
 pre-provisioned simulators. See documentation on [workers][1] for more information on this topic.
 
-Marathon can run both XCUITests and XCTests. Test bundle requires you to specify application under test as well as test application.
-After preprocessing both of these inputs are distilled into an application bundle (e.g. `my.app`) and xctest bundle (e.g. `my-tests.xctest`)
-You can specify `.ipa` [application archives][4] as well as `.zip` with the same content as application archive. They will be searched for
-the
+Marathon is capable of executing both XCUITests and XCTests. Test bundle requires you to specify application under test as well as test
+application. After preprocessing both of these inputs are distilled into an application bundle (e.g. `my.app`) and xctest bundle (
+e.g. `my-tests.xctest`) or UI test runner app containing xctest bundle (e.g. `Magic-UITests-Runner.app`). You can
+specify `.ipa` [application archives][4] as well as `.zip` with the same content as application archive. They will be searched for the
 application and xctest bundles. If there are multiple entries matching description - marathon will fail.
 
 :::tip
 
 It is much easier to supply the `.app` application bundle and `.xctest` bundle directly instead of wasting time on packaging a signed
-application
-archive and depending on runtime discovery of your bundles
+application archive and depending on runtime discovery of your bundles
+
+An exception here is if you actually need to use signed application with certain entitlements, i.e. for `macOS` desktop testing
 
 :::
 
@@ -37,14 +41,14 @@ settings:
 ### Test plans
 
 Support for Xcode test plans is intentionally missing: fundamentally test plan is a way of filtering tests and Marathon supports universal
-test filtering regardless of the test platform. Having multiple layers of filtering is undesirable and leading to cumbersome user
+test filtering regardless of the test platform. Having multiple layers of filtering is undesirable and leads to cumbersome user
 experience. The simplest way to achieve test plans is to provide a list of tests in a file by combining [dynamic configuration][7]
 and [fully-qualified-test-name filter][8] providing the external file via [values-file-filtering][9].
 
 See [XcodeGen docs][6] for more information.
 
 
-[1]: ios/workers.md
+[1]: apple/workers.md
 
 [2]: https://en.wikipedia.org/wiki/Secure_Shell
 

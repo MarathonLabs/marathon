@@ -38,12 +38,17 @@ analyticsConfiguration:
   retentionPolicyConfiguration:
     everySeconds: 604800  # Duration in seconds for how long data will be kept in the database. 0 means infinite. minimum: 0
     shardGroupDurationSeconds: 0 # Shard duration measured in seconds
+  defaults:
+    successRate: 0.1
+    duration: "PT300S"
 ```
 
 </TabItem>
 <TabItem value="kts" label="Kotlin DSL">
 
 ```kotlin
+import java.time.Duration
+
 marathon {
   analytics {
     influx {
@@ -51,6 +56,7 @@ marathon {
       token = "my-super-secret-token"
       organization = "starlabs"
       bucket = "marathon"
+      defaults = Defaults(0.0, Duration.ofMinutes(5))
     }
   }
 }
@@ -88,6 +94,9 @@ analyticsConfiguration:
     shardDuration: "1h"
     replicationFactor: 5
     isDefault: false
+  defaults:
+    successRate: 0.1
+    duration: "PT300S"
 ```
 
 </TabItem>
@@ -101,6 +110,7 @@ marathon {
       user = "root"
       password = "root"
       dbName = "marathon"
+      defaults = Defaults(0.0, Duration.ofMinutes(5))
     }
   }
 }
@@ -117,6 +127,7 @@ marathon {
       user = "root"
       password = "root"
       dbName = "marathon"
+      defaults = Defaults(0.0, Duration.ofMinutes(5))
     }
   }
 }
@@ -142,6 +153,9 @@ analyticsConfiguration:
   host: "influx.svc.cluster.local"
   port: "8080"
   prefix: "prf"
+  defaults:
+    successRate: 0.1
+    duration: "PT300S"
 ```
 
 </TabItem>
@@ -154,6 +168,7 @@ marathon {
       host = "influx.svc.cluster.local"
       port = "8080"
       prefix = "prf"
+      defaults = Defaults(0.0, Duration.ofMinutes(5))
     }
   }
 }
@@ -169,6 +184,7 @@ marathon {
       host = "influx.svc.cluster.local"
       port = "8080"
       prefix = "prf"
+      defaults = Defaults(0.0, Duration.ofMinutes(5))
     }
   }
 }

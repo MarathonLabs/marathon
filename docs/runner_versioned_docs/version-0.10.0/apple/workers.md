@@ -2,11 +2,14 @@
 title: "Workers"
 ---
 
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
 ## Providing Apple workers
-To inform marathon of the accessible Apple hardware a yaml file named **Marathondevices**
+To inform marathon of the accessible Apple hardware a declarative yaml file named **Marathondevices**
 is read on startup.
 
-The structure of the file is a workers object with list of worker machines and the simulator devices
+The structure of the file is a workers object with a list of worker machines and real or simulated devices
 that can be used or created on those workers.
 
 ```yaml
@@ -46,14 +49,14 @@ workers:
 :::tip
 
 This might be all that you need for getting started with marathon in terms of providing hardware, but if you want to take
-your test run performance to the next level - keep reading for the ability to parallelise your test runs across
+your test run performance to the next level - keep reading for the ability to parallelize your test runs across
 hundreds of simulators
 
 :::
 
 ### SSH worker
-If you want to connect to a remote Apple hardware (maybe because you need to parallelize across 5 MacMinis or
-because you're executing the tests from a Linux machine in CI), then you can use ssh:
+If you want to connect to remote Apple hardware (maybe because you need to parallelize across 5 MacMinis or
+because you're executing tests from a Linux machine in CI), then you can use ssh:
 
 ```yaml
 workers:
@@ -69,6 +72,7 @@ Ssh transport accepts three parameters:
 1. **addr** - address of the host
 2. **port** - port of the ssh server, defaults to 22
 3. **authentication** - override for authentication specifically for this worker
+4. **checkReachability** - optional flag for enabling/disabling ICMP-based ping that might not work in certain network environments
 
 ## Providing simulator devices
 Each worker definition has a list of devices that can be used on that worker
@@ -171,3 +175,54 @@ explicitly will break for those installations on update, because the runtime wil
 by default.
 
 :::
+
+## Providing macOS desktop device
+Testing macOS desktop apps requires access to macOS instances. Depending on the environment of marathon run execution you can use local
+instance, remote one or a mix of both:
+
+<Tabs>
+<TabItem value="local" label="local">
+
+```yaml
+workers:
+  - transport:
+      type: local
+    devices:
+      - type: host
+```
+
+</TabItem>
+<TabItem value="remote" label="remote">
+
+```yaml
+workers:
+  - transport:
+      type: ssh
+      addr: 10.0.0.2
+    devices:
+      - type: host
+  - transport:
+      type: ssh
+      addr: 10.0.0.3
+    devices:
+      - type: host
+```
+
+</TabItem>
+<TabItem value="hybrid" label="hybrid">
+
+```yaml
+workers:
+  - transport:
+      type: ssh
+      addr: 10.0.0.2
+    devices:
+      - type: host
+  - transport:
+      type: local
+    devices:
+      - type: host
+```
+
+</TabItem>
+</Tabs>
