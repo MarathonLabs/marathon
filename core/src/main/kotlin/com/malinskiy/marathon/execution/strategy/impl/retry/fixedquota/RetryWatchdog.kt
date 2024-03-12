@@ -15,6 +15,12 @@ internal class RetryWatchdog(
         return totalAllowedRetryAvailable && singleTestAllowed
     }
 
+    fun retryPossible(failuresCount: Int): Boolean {
+        val totalAllowedRetryAvailable = totalAllowedRetryLeft.get() >= 0
+        val singleTestAllowed = failuresCount <= maxRetryPerTestQuota
+        return totalAllowedRetryAvailable && singleTestAllowed
+    }
+
     private fun totalAllowedRetryAvailable(): Boolean {
         return totalAllowedRetryLeft.decrementAndGet() >= 0
     }

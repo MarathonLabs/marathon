@@ -2,6 +2,7 @@ package com.malinskiy.marathon.config.vendor.ios
 
 import com.malinskiy.marathon.config.exceptions.ConfigurationException
 import com.malinskiy.marathon.config.vendor.IOSConfigurationTest
+import com.malinskiy.marathon.config.vendor.apple.AppleTestBundleConfiguration
 import org.amshove.kluent.invoking
 import org.amshove.kluent.shouldThrow
 import org.junit.jupiter.api.Test

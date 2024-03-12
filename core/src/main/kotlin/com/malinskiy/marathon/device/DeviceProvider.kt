@@ -8,10 +8,6 @@ interface DeviceProvider {
         class DeviceDisconnected(val device: Device) : DeviceEvent()
     }
 
-    /**
-     * Informational for scheduler, device providers should not impose timeouts internally
-     */
-    val deviceInitializationTimeoutMillis: Long
     suspend fun initialize()
 
     /**

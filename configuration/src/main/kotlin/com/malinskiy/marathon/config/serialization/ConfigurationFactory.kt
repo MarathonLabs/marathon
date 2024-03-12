@@ -17,8 +17,8 @@ import com.malinskiy.marathon.config.exceptions.ConfigurationException
 import com.malinskiy.marathon.config.serialization.time.InstantTimeProviderImpl
 import com.malinskiy.marathon.config.serialization.yaml.SerializeModule
 import com.malinskiy.marathon.config.vendor.VendorConfiguration
-import com.malinskiy.marathon.config.vendor.ios.AppleTestBundleConfiguration
-import com.malinskiy.marathon.config.vendor.ios.SshAuthentication
+import com.malinskiy.marathon.config.vendor.apple.AppleTestBundleConfiguration
+import com.malinskiy.marathon.config.vendor.apple.SshAuthentication
 import org.apache.commons.text.StringSubstitutor
 import org.apache.commons.text.lookup.StringLookupFactory
 import java.io.File
@@ -97,6 +97,46 @@ class ConfigurationFactory(
                         null -> null
                     }
                     val optionalSshConfiguration = iosConfiguration.ssh.copy(
+                        authentication = optionalSshAuthentication,
+                        knownHostsPath = optionalknownHostsPath,
+                    )
+
+                    configuration.vendorConfiguration.copy(
+                        bundle = resolvedBundle,
+                        devicesFile = optionalDevices,
+                        ssh = optionalSshConfiguration,
+                    )
+                }
+                is VendorConfiguration.MacosConfiguration -> {
+                    // Any relative path specified in Marathonfile should be resolved against the directory Marathonfile is in
+                    val macosConfiguration: VendorConfiguration.MacosConfiguration = configuration.vendorConfiguration
+                    val resolvedBundle = macosConfiguration.bundle?.let {
+                        val resolvedDerivedDataDir = it.derivedDataDir?.let { ddd -> marathonfileDir.resolve(ddd) }
+                        val resolvedApplication = it.application?.let { ddd -> marathonfileDir.resolve(ddd) }
+                        val resolvedTestApplication = it.testApplication?.let { ddd -> marathonfileDir.resolve(ddd) }
+                        val resolvedExtraApplications = it.extraApplications?.map { ddd -> marathonfileDir.resolve(ddd) }
+
+                        AppleTestBundleConfiguration(
+                            resolvedApplication,
+                            resolvedTestApplication,
+                            resolvedExtraApplications,
+                            resolvedDerivedDataDir
+                        ).apply { validate() }
+                    }
+                    val optionalDevices = configuration.vendorConfiguration.devicesFile?.resolveAgainst(marathonfileDir)
+                        ?: marathonfileDir.resolve("Marathondevices")
+
+                    val optionalknownHostsPath = macosConfiguration.ssh.knownHostsPath?.resolveAgainst(marathonfileDir)
+                    val optionalSshAuthentication = when (macosConfiguration.ssh.authentication) {
+                        is SshAuthentication.PasswordAuthentication -> macosConfiguration.ssh.authentication
+                        is SshAuthentication.PublicKeyAuthentication -> macosConfiguration.ssh.authentication.copy(
+                            username = macosConfiguration.ssh.authentication.username,
+                            key = macosConfiguration.ssh.authentication.key.resolveAgainst(marathonfileDir)
+                        )
+
+                        null -> null
+                    }
+                    val optionalSshConfiguration = macosConfiguration.ssh.copy(
                         authentication = optionalSshAuthentication,
                         knownHostsPath = optionalknownHostsPath,
                     )

@@ -2,6 +2,7 @@ package com.malinskiy.marathon.execution
 
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.delay
+import mu.KLogger
 
 @Suppress("TooGenericExceptionCaught")
 suspend fun <T> withRetry(attempts: Int, delayTime: Long = 0, f: suspend () -> T): T {
@@ -22,7 +23,7 @@ suspend fun <T> withRetry(attempts: Int, delayTime: Long = 0, f: suspend () -> T
     }
 }
 
-fun <T> withRetrySync(attempts: Int, delayTime: Long = 0, f: () -> T): T {
+fun <T> withRetrySync(attempts: Int, delayTime: Long = 0, logger: KLogger, f: () -> T): T {
     var attempt = 1
     while (true) {
         try {
@@ -31,6 +32,7 @@ fun <T> withRetrySync(attempts: Int, delayTime: Long = 0, f: () -> T): T {
             if (attempt == attempts) {
                 throw th
             } else {
+                logger.warn(th) { "Retrying after failure" }
                 Thread.sleep(delayTime)
             }
         }

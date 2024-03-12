@@ -124,13 +124,14 @@ class Marathon(
                     throw ConfigurationException("Unknown test parser type for ${testParser::class}, should inherit from either ${LocalTestParser::class.simpleName} or ${RemoteTestParser::class.simpleName}")
                 }
             }
-        }.let { println("Took $it ms") }
+        }.let { log.debug { "Parsing took $it ms" } }
 
         usageTracker.meta(
             version = BuildConfig.VERSION, releaseMode = BuildConfig.RELEASE_MODE, vendor = when (configuration.vendorConfiguration) {
                 is VendorConfiguration.AndroidConfiguration -> "android"
                 is VendorConfiguration.EmptyVendorConfiguration -> "empty"
                 is VendorConfiguration.IOSConfiguration -> "ios"
+                is VendorConfiguration.MacosConfiguration -> "macos"
                 VendorConfiguration.StubVendorConfiguration -> "testing"
             }
         )

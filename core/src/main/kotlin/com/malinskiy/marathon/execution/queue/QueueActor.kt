@@ -186,10 +186,9 @@ class QueueActor(
         device: DeviceInfo
     ) {
         logger.debug { "handle failed tests ${device.serialNumber}" }
-        val retryList = retryStrategy.process(poolId, failed, testShard)
+        val retryList = retryStrategy.process(poolId, failed, testShard, poolProgressAccumulator)
 
         retryList.forEach {
-            poolProgressAccumulator.retryTest(it.test)
             val testAction = poolProgressAccumulator.testEnded(device, it)
             processTestAction(testAction, it)
             rerunTest(it.test)
