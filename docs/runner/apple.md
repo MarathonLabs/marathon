@@ -48,7 +48,7 @@ and [fully-qualified-test-name filter][8] providing the external file via [value
 See [XcodeGen docs][6] for more information.
 
 
-[1]: apple/workers.md
+[1]: /runner/apple/workers.md
 
 [2]: https://en.wikipedia.org/wiki/Secure_Shell
 
