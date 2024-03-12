@@ -515,6 +515,6 @@ vendorConfiguration:
 
 
 [1]: workers.md
-[2]: /configuration/dynamic-configuration.md
+[2]: ../configuration/dynamic-configuration.md
 [3]: https://en.wikipedia.org/wiki/ISO_8601
 [libxctest-parser-license]: https://github.com/MarathonLabs/marathon/blob/-/vendor/vendor-ios/src/main/resources/EULA.md

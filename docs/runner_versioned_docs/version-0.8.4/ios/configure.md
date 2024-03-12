@@ -440,5 +440,5 @@ rsync:
 ```
 
 [1]: workers.md
-[2]: /configuration/dynamic-configuration.md
+[2]: ../configuration/dynamic-configuration.md
 [3]: https://en.wikipedia.org/wiki/ISO_8601

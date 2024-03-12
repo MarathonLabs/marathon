@@ -485,6 +485,6 @@ $ MARATHON_FRAGMENT_INDEX=0 marathon
 To pass the fragment index in gradle refer to
 the [Gradle's dynamic project properties](https://docs.gradle.org/current/javadoc/org/gradle/api/Project.html#properties)
 
-[1]: /intro/configure.md#test-class-regular-expression
+[1]: ../intro/configure.md#test-class-regular-expression
 [2]: https://github.com/allure-framework/allure-java/tree/master/allure-test-filter
 [3]: https://source.android.com/devices/tech/test_infra/tradefed/architecture/advanced/sharding

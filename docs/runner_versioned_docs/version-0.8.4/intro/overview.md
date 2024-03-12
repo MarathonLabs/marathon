@@ -135,7 +135,7 @@ For more help and examples continue through the rest of the Documentation sectio
 # Requirements
 Marathon requires Java Runtime Environment 8 or higher.
 
-[1]: /ios/workers.md
-[2]: /intro/install.md
-[3]: /intro/configure.md
+[1]: ../ios/workers.md
+[2]: install.md
+[3]: configure.md
 [4]: https://github.com/MarathonLabs/marathon/tree/develop/sample

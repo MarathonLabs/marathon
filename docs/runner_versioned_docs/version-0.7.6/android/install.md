@@ -69,7 +69,7 @@ pluginManagement {
 All the test tasks will start with **marathon** prefix, for example **marathonDebugAndroidTest**.
 
 [1]: https://search.maven.org/
-[2]: /intro/install.md
+[2]: ../intro/install.md
 
 ## Configure
 

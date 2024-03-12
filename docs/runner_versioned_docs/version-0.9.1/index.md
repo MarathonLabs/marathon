@@ -95,7 +95,7 @@ Total time: 0H 1m 45s
 Marathon execution failed
 ```
 
-For CI there is a JUnit xml `marathon_junit_report.xml` generated in the ``$outputDir/tests/omni`` folder where ``$outputDir`` is a directory that you’ve defined in the [marathon configuration](/runner/intro/configure#output-directory):
+For CI there is a JUnit xml `marathon_junit_report.xml` generated in the ``$outputDir/tests/omni`` folder where ``$outputDir`` is a directory that you’ve defined in the [marathon configuration](intro/configure#output-directory):
 ```shell-session 
 foo@bar:~$ cat marathon/omni/marathon_junit_report.xml
 <?xml version="1.0" encoding="UTF-8"?>
@@ -112,4 +112,4 @@ There is also an assortment of html reports for you to analyze:
 ## Next steps
 There are many more customisations and optimisation that you can do for your test runs that can help you speed up the test execution and/or battle reliability issues. Continue reading the docs to understand how marathon can help you. 
 
-[1]: /ios/workers.md
+[1]: ios/workers.md
