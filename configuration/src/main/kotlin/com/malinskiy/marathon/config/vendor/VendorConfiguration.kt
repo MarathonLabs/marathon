@@ -43,7 +43,7 @@ const val DEFAULT_WAIT_FOR_DEVICES_TIMEOUT = 30000L
 )
 @JsonSubTypes(
     JsonSubTypes.Type(value = VendorConfiguration.AndroidConfiguration::class, name = "Android"),
-    JsonSubTypes.Type(value = VendorConfiguration.IOSConfiguration::class, name = "iOS"),
+    JsonSubTypes.Type(value = VendorConfiguration.IOSConfiguration::class, names = arrayOf("iOS", "watchOS", "tvOS", "visionOS")),
     JsonSubTypes.Type(value = VendorConfiguration.MacosConfiguration::class, name = "macOS"),
     JsonSubTypes.Type(value = VendorConfiguration.StubVendorConfiguration::class, name = "stub"),
     JsonSubTypes.Type(value = VendorConfiguration.EmptyVendorConfiguration::class, name = "empty"),
@@ -149,6 +149,9 @@ sealed class VendorConfiguration {
         )
     }
 
+    /**
+     * Used for iOS as well as watchOS, iPadOS, visionOS, tvOS
+     */
     data class IOSConfiguration(
         @JsonProperty("bundle") val bundle: AppleTestBundleConfiguration? = null,
         @JsonProperty("devices") val devicesFile: File? = null,
@@ -193,8 +196,6 @@ sealed class VendorConfiguration {
         @JsonProperty("xcodebuildTestArgs") val xcodebuildTestArgs: Map<String, String> = emptyMap(),
         @JsonProperty("testParserConfiguration") val testParserConfiguration: AppleTestParserConfiguration = AppleTestParserConfiguration.NmTestParserConfiguration(),
         @JsonProperty("permissions") val permissions: MacosPermissionsConfiguration = MacosPermissionsConfiguration(),
-
-        @JsonProperty("signing") val signing: SigningConfiguration = SigningConfiguration(),
     ) : VendorConfiguration() {
         fun validate() {
             ssh.validate()

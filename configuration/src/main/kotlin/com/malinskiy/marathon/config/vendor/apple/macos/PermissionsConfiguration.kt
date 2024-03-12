@@ -7,9 +7,6 @@ data class PermissionsConfiguration(
 )
 
 
-/**
- * @property All Apply the action to all services
- */
 enum class Permission(val value: String) {
     @JsonProperty("accessibility") Accessibility("kTCCServiceAccessibility"),
     @JsonProperty("developer-tool") DeveloperTool("kTCCServiceDeveloperTool"),

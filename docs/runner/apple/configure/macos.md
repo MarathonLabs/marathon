@@ -5,12 +5,12 @@ title: "Configuration"
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
-To indicate that you're using a vendor config for iOS you have to specify
+To indicate that you're using a vendor config for macOS you have to specify
 the *type* in configuration as following:
 
 ```yaml
 vendorConfiguration:
-  type: "iOS"
+  type: "macOS"
   additional_option1: ...
   additional_option2: ...
 ```
@@ -73,14 +73,6 @@ testType: "xctest"
 
 </TabItem>
 </Tabs>
-
-#### Extra applications
-Marathon can install additional applications that might be required for testing:
-
-```yaml
-extraApplications: 
-  - "/path/to/additional.app"
-```
 
 ### Devices
 By default, marathon will look for a file `Marathondevices` in the same folder as `Marathonfile` for the configuration of workers. You can 
@@ -192,56 +184,6 @@ deleted on success and user attachments will always be kept in the xcresult, but
 
 Possible values for the lifetime are `KEEP_ALWAYS`, `DELETE_ON_SUCCESS` and `KEEP_NEVER`.
 
-### Screen recorder configuration
-By default, marathon will record a h264-encoded video of the internal display with black mask if it is supported. 
-If you want to force screenshots or configure the recording parameters you can specify this as follows:
-
-```yaml
-screenRecordConfiguration:
-  preferableRecorderType: "screenshot"
-```
-
-#### Video recorder configuration
-Apple's video recorder can encode videos using `codec` `h264` and `hevc`.
-
-:::caution
-
-HEVC encoded videos are not supported by some web browsers. Such videos might not be playable in html reports that marathon produces
-
-:::
-
-```yaml
-screenRecordConfiguration:
-  videoConfiguration:
-    enabled: true
-    codec: h264
-    display: internal
-    mask: black
-```
-
-The `display` field can be either `internal` or `external`.
-The `mask` field can be either `black` or `ignored`.
-
-#### Screenshot configuration
-Marathon can resize and combine screenshots from device into a GIF image
-
-```yaml
-screenRecordConfiguration:
-  screenshotConfiguration:
-    enabled: true
-    type: jpeg
-    display: internal
-    mask: black
-    width: 720
-    height: 1280
-    # ISO_8601 duration
-    delay: PT1S
-```
-
-The `display` and `mask` fields have the same options as the video recorder.
-The `type` specifies the format of a single frame and is advised not to be changes.
-The `delay` field specifies the minimal delay between frames using [ISO 8601][3] notation.
-
 ### xctestrun environment variables
 You specify additional environment variables for your test run:
 ```yaml
@@ -274,75 +216,19 @@ It is impossible to override the following reserved arguments:
 - `-destination-timeout`
 - `-destination`
 
-### Test run lifecycle
-Marathon provides two lifecycle hooks: `onPrepare` and `onDispose`. 
-For each you can specify one of the following actions: `SHUTDOWN` (shutdown simulator), `ERASE` (erase simulator) and `TERMINATE` (terminate simulator).
-
-These can be useful during provisioning of workers, e.g. you might want to erase the existing simulators before using them
-
-:::warning
-
-If you specify `TERMINATE` marathon will `kill -SIGKILL` the simulators. This usually results in simulators unable to boot with
-black screen as well as a number of zombie processes and can only be resolved by erasing the state. In most cases `SHUTDOWN` is the recommended action.
-
-:::
-
-:::tip
-
-If you specify `ERASE` then marathon will first shut down the simulator since it's impossible to erase it otherwise 
-
-:::
-
-An example for a more clean test run:
-```yaml
-lifecycle:
-  onPrepare:
-    - ERASE
-  onDispose:
-    - SHUTDOWN
-```
-
-:::tip
-
-Booting simulators is an expensive operation: terminating and erasing simulators is advisable only if you can't accept side effects
-from the previous test runs or other usage of simulators
-
-:::
-
-#### Shutdown unused simulators
-Marathon will automatically detect if some running simulators are not required by the test run and will shut down them. If you want to 
-override this behaviour:
-
-```yaml
-lifecycle:
-  shutdownUnused: false
-```
-
 ### Permissions
-Marathon can grant permissions to application during device setup, e.g.:
+Marathon can grant permissions to application during device setup:
 
 ```yaml
 permissions:
   grant:
-    - contacts
-    - photos-add
+    - accessibility
+    - developer-tool
 ```
 
-| Permission       | Description                                          |
-|------------------|------------------------------------------------------|
-| all              | Apply the action to all services                     |
-| calendar         | Allow access to calendar                             |
-| contacts-limited | Allow access to basic contact info                   |
-| contacts         | Allow access to full contact details                 |
-| location         | Allow access to location services when app is in use |
-| location-always  | Allow access to location services at all times       |
-| photos-add       | Allow adding photos to the photo library             |
-| photos           | Allow full access to the photo library               |
-| media-library    | Allow access to the media library                    |
-| microphone       | Allow access to audio input                          |
-| motion           | Allow access to motion and fitness data              |
-| reminders        | Allow access to reminders                            |
-| siri             | Allow use of the app with Siri                       |
+:::warning
+Granting permissions to macOS requires disabling System Integrity Protection
+:::
 
 ### Timeouts
 All the timeouts for test run can be overridden, here is an example configuration with default values:
@@ -483,7 +369,7 @@ We don't provide source code for the libxctest-parser module. By using libxctest
 | YAML type |                                                                                                               Pros |                                                                                                      Const |
 |-----------|-------------------------------------------------------------------------------------------------------------------:|-----------------------------------------------------------------------------------------------------------:|
 | "nm"      |                                                               Doesn't require installation of apps onto the device |                                                      Doesn't support runtime-generated tests, e.g. flutter |
-| "xctest"  | Supports precise test parsing and any runtime-generated tests hence allows marathon to parallelize their execution | Requires a booted iOS device for parsing and a fake test run including installation of test app under test |
+| "xctest"  | Supports precise test parsing and any runtime-generated tests hence allows marathon to parallelize their execution |     Requires a booted device for parsing and a fake test run including installation of test app under test |
 
 Default test parser is nm.
 
@@ -491,22 +377,18 @@ Default test parser is nm.
 <TabItem value="nm" label="nm">
 
 ```yaml
-vendorConfiguration:
-  type: "iOS"
-  testParserConfiguration:
-    type: "nm"
-    testClassRegexes:
-    - "^((?!Abstract).)*Test[s]*$"
+testParserConfiguration:
+  type: "nm"
+  testClassRegexes:
+  - "^((?!Abstract).)*Test[s]*$"
 ```
 
 </TabItem>
 <TabItem value="xctest" label="xctest">
 
 ```yaml
-vendorConfiguration:
-  type: "iOS"
-  testParserConfiguration:
-    type: "xctest"
+testParserConfiguration:
+  type: "xctest"
 ```
 
 </TabItem>
@@ -516,4 +398,4 @@ vendorConfiguration:
 [1]: workers.md
 [2]: /configuration/dynamic-configuration.md
 [3]: https://en.wikipedia.org/wiki/ISO_8601
-[libxctest-parser-license]: https://github.com/MarathonLabs/marathon/blob/-/vendor/vendor-ios/src/main/resources/EULA.md
+[libxctest-parser-license]: https://github.com/MarathonLabs/marathon/blob/-/vendor/vendor-apple/base/src/main/resources/EULA.md
