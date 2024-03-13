@@ -365,7 +365,7 @@ class TestRootFactory(
         val sharedTestRunnerApp = device.remoteFileManager.remoteTestRunnerApplication()
         val runnerBinaryName = "${bundle.testBundleId}-Runner"
         val testRunnerApp = joinPath(testRoot, "$runnerBinaryName.app")
-        device.remoteFileManager.copy(sharedTestRunnerApp, testRunnerApp)
+        device.remoteFileManager.symlink(sharedTestRunnerApp, testRunnerApp)
 
         val testRunnerBinary =
             device.remoteFileManager.joinPath(sharedTestRunnerApp, *bundle.relativeBinaryPath, bundle.testRunnerBinary.name)
