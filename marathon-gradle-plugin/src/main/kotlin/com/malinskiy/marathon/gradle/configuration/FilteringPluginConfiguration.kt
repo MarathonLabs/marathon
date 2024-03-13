@@ -35,6 +35,7 @@ open class FilteringPluginConfiguration {
 
 open class Wrapper {
     open var simpleClassNameFilter: ArrayList<String>? = null
+    open var simpleTestNameFilter: ArrayList<String>? = null
     open var fullyQualifiedClassnameFilter: ArrayList<String>? = null
     open var fullyQualifiedTestnameFilter: ArrayList<String>? = null
     open var testPackageFilter: ArrayList<String>? = null
@@ -70,6 +71,11 @@ fun Wrapper.toList(): List<TestFilterConfiguration> {
         null, 0 -> Unit
         1 -> mutableList.add(TestFilterConfiguration.SimpleClassnameFilterConfiguration(simpleClassNameFilter?.first().orEmpty().toRegex()))
         else -> mutableList.add(TestFilterConfiguration.SimpleClassnameFilterConfiguration(values = simpleClassNameFilter))
+    }
+    when (simpleTestNameFilter?.size) {
+        null, 0 -> Unit
+        1 -> mutableList.add(TestFilterConfiguration.SimpleTestnameFilterConfiguration(simpleTestNameFilter?.first().orEmpty().toRegex()))
+        else -> mutableList.add(TestFilterConfiguration.SimpleTestnameFilterConfiguration(values = simpleTestNameFilter))
     }
     when (fullyQualifiedTestnameFilter?.size) {
         null, 0 -> Unit

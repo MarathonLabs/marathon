@@ -40,6 +40,12 @@ fun Test.toClassName(separator: Char = '.'): String {
     }.toString()
 }
 
-fun Test.toSimpleSafeTestName(): String = "$clazz.$method"
+fun Test.toSimpleSafeTestName(methodSeparator: Char = '.'): String {
+    return StringBuilder().apply {
+        append(clazz)
+        append(methodSeparator)
+        append(method)
+    }.toString()
+}
 
 fun Test.toSafeTestName() = toTestName(methodSeparator = '.')
