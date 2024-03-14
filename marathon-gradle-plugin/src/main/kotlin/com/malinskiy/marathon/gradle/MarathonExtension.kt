@@ -69,6 +69,7 @@ open class MarathonExtension {
      * | "fully-qualified-test-name"       | `FullyQualifiedTestnameFilterConfiguration`     | Filters tests by their FQTN which is `$package.$class#$method`. The `#` sign is important! |
      * | "fully-qualified-class-name"      | `FullyQualifiedClassnameFilterConfiguration`    | Filters tests by their FQCN which is `$package.$class`                                     |
      * | "simple-class-name"               | `SimpleClassnameFilterConfiguration`            | Filters tests by using only test class name, e.g. `MyTest`                                 |
+     * | "simple-test-name"                | `SimpleTestnameFilterConfiguration`             | Filters tests by using only test class name with test method, e.g. `MyTest#mySimpleTest`   |
      * | "package"                         | `TestPackageFilterConfiguration`                | Filters tests by using only test package, e.g. `com.example`                               |
      * | "method"                          | `TestMethodFilterConfiguration`                 | Filters tests by using only test method, e.g. `myComplicatedTest`                          |
      * | "annotation"                      | `AnnotationFilterConfiguration`                 | Filters tests by using only test annotation name, e.g. `androidx.test.filters.LargeTest`   |

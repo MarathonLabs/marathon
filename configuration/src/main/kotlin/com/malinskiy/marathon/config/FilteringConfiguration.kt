@@ -26,6 +26,7 @@ data class FilteringConfiguration(
         name = "fully-qualified-class-name"
     ),
     JsonSubTypes.Type(value = TestFilterConfiguration.FullyQualifiedTestnameFilterConfiguration::class, name = "fully-qualified-test-name"),
+    JsonSubTypes.Type(value = TestFilterConfiguration.SimpleTestnameFilterConfiguration::class, name = "simple-test-name"),
     JsonSubTypes.Type(value = TestFilterConfiguration.SimpleClassnameFilterConfiguration::class, name = "simple-class-name"),
     JsonSubTypes.Type(value = TestFilterConfiguration.TestMethodFilterConfiguration::class, name = "method"),
     JsonSubTypes.Type(value = TestFilterConfiguration.TestPackageFilterConfiguration::class, name = "package"),
@@ -35,6 +36,42 @@ sealed class TestFilterConfiguration {
     abstract fun validate()
 
     data class SimpleClassnameFilterConfiguration(
+        @JsonProperty("regex") val regex: Regex? = null,
+        @JsonProperty("values") val values: List<String>? = null,
+        @JsonProperty("file") val file: File? = null,
+    ) : TestFilterConfiguration() {
+        override fun validate() {
+            var i = 0
+            if (regex != null) i++
+            if (values != null) i++
+            if (file != null) i++
+
+            if (i > 1) throw ConfigurationException("Only one of [regex,values,file] can be specified for ${this::class.simpleName}")
+            if (i == 0) throw ConfigurationException("At least one of [regex,values,file] should be specified for ${this::class.simpleName}")
+        }
+
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (javaClass != other?.javaClass) return false
+
+            other as SimpleClassnameFilterConfiguration
+
+            if (!regex.toString().contentEquals(other.regex.toString())) return false
+            if (values != other.values) return false
+            if (file != other.file) return false
+
+            return true
+        }
+
+        override fun hashCode(): Int {
+            var result = regex?.hashCode() ?: 0
+            result = 31 * result + (values?.hashCode() ?: 0)
+            result = 31 * result + (file?.hashCode() ?: 0)
+            return result
+        }
+    }
+
+    data class SimpleTestnameFilterConfiguration(
         @JsonProperty("regex") val regex: Regex? = null,
         @JsonProperty("values") val values: List<String>? = null,
         @JsonProperty("file") val file: File? = null,

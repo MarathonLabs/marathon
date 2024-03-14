@@ -107,6 +107,9 @@ Filters tests by their FQTN which is `$package.$class#$method`. The `#` sign is 
 ### "fully-qualified-class-name"
 Filters tests by their FQCN which is `$package.$class`                                     |
 
+### "simple-test-name"
+Filters tests by using only test class name with test method, e.g. `MyTest#mySimpleTest`
+
 ### "simple-class-name" 
 Filters tests by using only test class name, e.g. `MyTest`
 
@@ -124,15 +127,16 @@ Filters tests by using allure-test-filter, [source][2]
 
 ### Gradle plugin mapping
 
-| YAML type                         | Gradle class                                    |
-| --------------------------------- |:-----------------------------------------------:|
-| "fully-qualified-test-name"       | `FullyQualifiedTestnameFilterConfiguration`     |
-| "fully-qualified-class-name"      | `FullyQualifiedClassnameFilterConfiguration`    |
-| "simple-class-name"               | `SimpleClassnameFilterConfiguration`            |
-| "package"                         | `TestPackageFilterConfiguration`                |
-| "method"                          | `TestMethodFilterConfiguration`                 |
-| "annotation"                      | `AnnotationFilterConfiguration`                 |
-| "allure"                          | `AllureFilterConfiguration`                     |
+| YAML type                    |                 Gradle class                 |
+|------------------------------|:--------------------------------------------:|
+| "fully-qualified-test-name"  | `FullyQualifiedTestnameFilterConfiguration`  |
+| "fully-qualified-class-name" | `FullyQualifiedClassnameFilterConfiguration` |
+| "simple-test-name"           |     `SimpleTestnameFilterConfiguration`      |
+| "simple-class-name"          |     `SimpleClassnameFilterConfiguration`     |
+| "package"                    |       `TestPackageFilterConfiguration`       |
+| "method"                     |       `TestMethodFilterConfiguration`        |
+| "annotation"                 |       `AnnotationFilterConfiguration`        |
+| "allure"                     |         `AllureFilterConfiguration`          |
 
 :::caution
 
