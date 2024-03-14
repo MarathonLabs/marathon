@@ -137,6 +137,17 @@ class RemoteFileManager(private val device: AppleDevice) {
             listOf("cp", "-R", src, dst), "failed to copy remote directory $src to $dst"
         )
     }
+    suspend fun symlink(src: String, dst: String, override: Boolean = true) {
+        if(override) {
+            safeExecuteCommand(
+                listOf("rm", "-R", dst)
+            )
+        }
+        executeCommand(
+            listOf("ln", "-s", src, dst), "failed to symlink remote directory $src to $dst"
+        )
+    }
+
 
     private fun String.bashEscape() = "'" + replace("'", "'\\''") + "'"
 
