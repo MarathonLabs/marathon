@@ -229,3 +229,9 @@ html.plugin-id-enterprise  .navbar__dropdown--versions.runner {
 .navbar__dropdown--versions.cloud {
     display: none !important;
 }
+
+
+#__docusaurus [class*=docItemContainer_] {
+    width: var(--doc-item-container-width);
+    max-width: 100%;
+}
