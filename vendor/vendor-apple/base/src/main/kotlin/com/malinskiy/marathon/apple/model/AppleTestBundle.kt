@@ -17,8 +17,12 @@ private val File.isAppleBinary: Boolean
             val header = UByteArray(4)
             it.read(header.asByteArray())
 
-            return header.contentEquals(AppleTestBundle.FAT_MAGIC) || header.contentEquals(AppleTestBundle.MH_MAGIC) || header.contentEquals(AppleTestBundle.MH_MAGIC_64) ||
-                header.contentEquals(AppleTestBundle.FAT_CIGAM) || header.contentEquals(AppleTestBundle.MH_CIGAM) || header.contentEquals(AppleTestBundle.MH_CIGAM_64)
+            return header.contentEquals(AppleTestBundle.FAT_MAGIC) || header.contentEquals(AppleTestBundle.MH_MAGIC) || header.contentEquals(
+                AppleTestBundle.MH_MAGIC_64
+            ) ||
+                header.contentEquals(AppleTestBundle.FAT_CIGAM) || header.contentEquals(AppleTestBundle.MH_CIGAM) || header.contentEquals(
+                AppleTestBundle.MH_CIGAM_64
+            )
         }
     }
 
@@ -90,11 +94,11 @@ class AppleTestBundle(
 
         val possibleTestRunnerBinaries = when (sdk) {
             Sdk.IPHONEOS, Sdk.IPHONESIMULATOR, Sdk.TV, Sdk.TV_SIMULATOR, Sdk.WATCH, Sdk.WATCH_SIMULATOR, Sdk.VISION, Sdk.VISION_SIMULATOR -> testApplication.listFiles()
-                ?.filter { it.isFile && it.extension == "" && it.isAppleBinary  }
+                ?.filter { it.isFile && it.extension == "" && it.isAppleBinary }
                 ?: throw ConfigurationException("missing test binaries in test runner folder at $testApplication")
 
             Sdk.MACOS -> Paths.get(testApplication.absolutePath, *relativeBinaryPath).toFile().listFiles()
-                ?.filter { it.isFile && it.extension == "" && it.isAppleBinary  }
+                ?.filter { it.isFile && it.extension == "" && it.isAppleBinary }
                 ?: throw ConfigurationException("missing test binaries in test runner folder at $testApplication")
         }
         when (possibleTestRunnerBinaries.size) {
@@ -111,10 +115,10 @@ class AppleTestBundle(
         application?.let { application ->
             when (sdk) {
                 Sdk.IPHONEOS, Sdk.IPHONESIMULATOR, Sdk.TV, Sdk.TV_SIMULATOR, Sdk.WATCH, Sdk.WATCH_SIMULATOR, Sdk.VISION, Sdk.VISION_SIMULATOR -> application.listFiles()
-                    ?.filter { it.isFile && it.extension == "" && it.isAppleBinary  }
+                    ?.filter { it.isFile && it.extension == "" && it.isAppleBinary }
 
                 Sdk.MACOS -> Paths.get(application.absolutePath, *relativeBinaryPath).toFile().listFiles()
-                    ?.filter { it.isFile && it.extension == "" && it.isAppleBinary  }
+                    ?.filter { it.isFile && it.extension == "" && it.isAppleBinary }
             }?.let { possibleBinaries ->
                 when (possibleBinaries.size) {
                     0 -> null
@@ -133,9 +137,23 @@ class AppleTestBundle(
      */
     val relativeBinaryPath: Array<String> by lazy {
         when (sdk) {
-            Sdk.IPHONEOS, Sdk.IPHONESIMULATOR, Sdk.TV, Sdk.TV_SIMULATOR, Sdk.WATCH, Sdk.WATCH_SIMULATOR, Sdk.VISION, Sdk.VISION_SIMULATOR -> emptyArray()
-            Sdk.MACOS -> arrayOf("Contents", "MacOS")
+            Sdk.IPHONEOS, Sdk.IPHONESIMULATOR, Sdk.TV, Sdk.TV_SIMULATOR, Sdk.WATCH, Sdk.WATCH_SIMULATOR, Sdk.VISION, Sdk.VISION_SIMULATOR -> arrayOf(
+                *relativeRootPath
+            )
+
+            Sdk.MACOS -> arrayOf(*relativeRootPath, "MacOS")
         }
+    }
+
+    val relativeRootPath: Array<String> by lazy {
+        when (sdk) {
+            Sdk.IPHONEOS, Sdk.IPHONESIMULATOR, Sdk.TV, Sdk.TV_SIMULATOR, Sdk.WATCH, Sdk.WATCH_SIMULATOR, Sdk.VISION, Sdk.VISION_SIMULATOR -> emptyArray()
+            Sdk.MACOS -> arrayOf("Contents")
+        }
+    }
+
+    val relativeFrameworksPath: Array<String> by lazy {
+        arrayOf(*relativeRootPath, "Frameworks")
     }
 
     /**

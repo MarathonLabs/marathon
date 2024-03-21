@@ -21,6 +21,7 @@ import com.malinskiy.marathon.exceptions.TransferException
 import com.malinskiy.marathon.extension.relativePathTo
 import java.io.File
 import java.nio.file.Path
+import kotlin.io.path.Path
 import kotlin.io.path.createTempFile
 import com.malinskiy.marathon.apple.xctestrun.v2.Metadata as Metadata
 
@@ -139,19 +140,53 @@ class TestRootFactory(
         val userLibraryPath = xctestrunEnv["DYLD_LIBRARY_PATH"]?.split(":")?.filter { it.isNotBlank() } ?: emptySet()
         val userInsertLibraries = xctestrunEnv["DYLD_INSERT_LIBRARIES"]?.split(":")?.filter { it.isNotBlank() } ?: emptySet()
 
-        val dyldFrameworks = mutableListOf("__TESTROOT__", frameworks, privateFrameworks, *userFrameworkPath.toTypedArray())
-        val dyldLibraries = listOf("__TESTROOT__", usrLib, *userLibraryPath.toTypedArray())
+        val dyldFrameworks = mutableListOf<String>().apply {
+            add("__TESTROOT__")
+            add(
+                joinPath(
+                    remoteFileManager.remoteApplication(),
+                    *bundle.relativeRootPath,
+                    "Frameworks"
+                )
+            )
+            add(
+                joinPath(
+                    testRunnerApp,
+                    *bundle.relativeRootPath,
+                    "Frameworks"
+                )
+            )
+            add(frameworks)
+            add(privateFrameworks)
+            addAll(userFrameworkPath)
+        }
+
+        val dyldLibraries = mutableListOf<String>().apply {
+            add("__TESTROOT__")
+
+            val dylibsInFrameworks =
+                bundle.testApplication?.let { Path(it.absolutePath, *bundle.relativeFrameworksPath) }?.toFile()?.listFiles()?.any {
+                    it.extension == "dylib"
+                }
+            if (dylibsInFrameworks == true) {
+                add(
+                    joinPath(
+                        testRunnerApp,
+                        *bundle.relativeRootPath,
+                        "Frameworks"
+                    )
+                )
+            }
+
+            add(usrLib)
+            addAll(userLibraryPath)
+        }
+
+
         val dyldInsertLibraries = if (useLibParseTests) {
             listOf(remoteFileManager.remoteXctestParserFile(), *userInsertLibraries.toTypedArray())
         } else {
             listOf(*userInsertLibraries.toTypedArray())
-        }
-
-        /**
-         * If the app contains internal frameworks we need to add them to xctestrun
-         */
-        if (File(testApp, "Frameworks").exists()) {
-            dyldFrameworks.add("__TESTROOT__/${remoteFileManager.appUnderTestFileName()}/Frameworks")
         }
 
         val testEnv = mutableMapOf(
