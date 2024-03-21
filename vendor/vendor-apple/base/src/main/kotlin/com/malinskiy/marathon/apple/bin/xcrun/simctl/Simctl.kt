@@ -6,6 +6,7 @@ import com.malinskiy.marathon.apple.bin.xcrun.simctl.service.DeviceService
 import com.malinskiy.marathon.apple.bin.xcrun.simctl.service.IoService
 import com.malinskiy.marathon.apple.bin.xcrun.simctl.service.PrivacyService
 import com.malinskiy.marathon.apple.bin.xcrun.simctl.service.SimulatorService
+import com.malinskiy.marathon.apple.bin.xcrun.simctl.service.SpawnService
 import com.malinskiy.marathon.apple.cmd.CommandExecutor
 import com.malinskiy.marathon.config.Configuration
 import com.malinskiy.marathon.config.vendor.VendorConfiguration
@@ -23,4 +24,5 @@ class Simctl(
     val io = IoService(commandExecutor, timeoutConfiguration)
     val privacy = PrivacyService(commandExecutor, timeoutConfiguration)
     val application = ApplicationService(commandExecutor, timeoutConfiguration)
+    val spawn = SpawnService(commandExecutor, timeoutConfiguration)
 }

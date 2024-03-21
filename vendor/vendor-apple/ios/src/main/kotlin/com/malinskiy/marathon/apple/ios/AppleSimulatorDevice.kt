@@ -14,6 +14,7 @@ import com.malinskiy.marathon.apple.cmd.FileBridge
 import com.malinskiy.marathon.apple.configuration.Transport
 import com.malinskiy.marathon.apple.extensions.bundleConfiguration
 import com.malinskiy.marathon.apple.ios.listener.DataContainerClearListener
+import com.malinskiy.marathon.apple.ios.listener.log.SimulatorLogListener
 import com.malinskiy.marathon.apple.listener.AppleTestRunListener
 import com.malinskiy.marathon.apple.listener.CompositeTestRunListener
 import com.malinskiy.marathon.apple.listener.DebugTestRunListener
@@ -354,6 +355,7 @@ class AppleSimulatorDevice(
                         attachmentProviders
                     ),
                     logListener,
+                    SimulatorLogListener(this, devicePoolId, testBatch),
                     DebugTestRunListener(this),
                     diagnosticLogsPathFinder,
                     sessionResultsPathFinder,
