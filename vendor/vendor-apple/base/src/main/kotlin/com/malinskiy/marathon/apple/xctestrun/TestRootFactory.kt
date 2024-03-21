@@ -140,7 +140,7 @@ class TestRootFactory(
         val userInsertLibraries = xctestrunEnv["DYLD_INSERT_LIBRARIES"]?.split(":")?.filter { it.isNotBlank() } ?: emptySet()
 
         val dyldFrameworks = mutableListOf("__TESTROOT__", frameworks, privateFrameworks, *userFrameworkPath.toTypedArray())
-        val dyldLibraries = listOf("__TESTROOT__", usrLib, *userLibraryPath.toTypedArray())
+        val dyldLibraries = listOf("__TESTROOT__", *userLibraryPath.toTypedArray(), usrLib)
         val dyldInsertLibraries = if (useLibParseTests) {
             listOf(remoteFileManager.remoteXctestParserFile(), *userInsertLibraries.toTypedArray())
         } else {
