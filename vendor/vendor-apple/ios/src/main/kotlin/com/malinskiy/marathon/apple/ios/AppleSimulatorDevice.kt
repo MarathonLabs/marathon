@@ -355,7 +355,7 @@ class AppleSimulatorDevice(
                         attachmentProviders
                     ),
                     logListener,
-                    SimulatorLogListener(this, devicePoolId, testBatch),
+                    SimulatorLogListener(this, vendorConfiguration.deviceLog, devicePoolId, testBatch),
                     DebugTestRunListener(this),
                     diagnosticLogsPathFinder,
                     sessionResultsPathFinder,

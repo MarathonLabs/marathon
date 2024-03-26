@@ -609,6 +609,14 @@ testParserConfiguration:
 </TabItem>
 </Tabs>
 
+### Capture device log
+
+By default, marathon does not pull device system logs. To investigate potential issues users might need to collect these.
+System logs will be available at `$output-folder/device-files` per each batch (not per test!) due to latency issues
+
+```yaml
+deviceLog: true
+```
 
 [1]: ../workers.md
 [2]: ../../configuration/dynamic-configuration.md
