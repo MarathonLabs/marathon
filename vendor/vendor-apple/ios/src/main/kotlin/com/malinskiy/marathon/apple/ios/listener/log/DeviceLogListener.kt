@@ -11,7 +11,7 @@ import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.test.TestBatch
 import kotlin.system.measureTimeMillis
 
-class SimulatorLogListener(
+class DeviceLogListener(
     private val device: AppleSimulatorDevice,
     private val enabled: Boolean,
     private val pool: DevicePoolId,
@@ -68,11 +68,11 @@ class SimulatorLogListener(
     }
 
     private suspend fun pullLogfile() {
-        val localVideoFile =
+        val localLogFile =
             device.fileManager.createFile(FileType.DEVICE_LOG, pool, device.toDeviceInfo(), test = null, testBatchId = testBatch.id)
         val remoteFilePath = device.remoteFileManager.remoteLog()
         val millis = measureTimeMillis {
-            device.pullFile(remoteFilePath, localVideoFile)
+            device.pullFile(remoteFilePath, localLogFile)
         }
         logger.debug { "Pulling finished in ${millis}ms $remoteFilePath " }
     }
