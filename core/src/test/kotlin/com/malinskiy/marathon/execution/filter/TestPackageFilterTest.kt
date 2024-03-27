@@ -8,10 +8,10 @@ import com.malinskiy.marathon.test.Test as MarathonTest
 
 class TestPackageFilterTest {
     private val simpleTest = stubTest("com.example")
+    private val simpleBTest = stubTest("com.example2")
     private val complexTest = stubTest("com.example.subpackage")
     private val someClass = stubTest("com.sample")
-    private val simpleClassnameFilter =
-        TestFilterConfiguration.TestPackageFilterConfiguration(regex = """com\.example.*""".toRegex()).toTestFilter()
+
     val tests = listOf(
         simpleTest,
         complexTest,
@@ -19,13 +19,40 @@ class TestPackageFilterTest {
     )
 
     @Test
-    fun shouldFilter() {
-        simpleClassnameFilter.filter(tests) shouldBeEqualTo listOf(simpleTest, complexTest)
+    fun shouldFilterByRegex() {
+        TestFilterConfiguration.TestPackageFilterConfiguration(regex = """com\.example.*""".toRegex()).toTestFilter()
+            .filter(tests) shouldBeEqualTo listOf(simpleTest, complexTest)
     }
 
     @Test
-    fun shouldFilterNot() {
-        simpleClassnameFilter.filterNot(tests) shouldBeEqualTo listOf(someClass)
+    fun shouldFilterNotByRegex() {
+        TestFilterConfiguration.TestPackageFilterConfiguration(regex = """com\.example.*""".toRegex()).toTestFilter()
+            .filterNot(tests) shouldBeEqualTo listOf(someClass)
+    }
+
+    @Test
+    fun shouldFilterByValues() {
+        TestFilterConfiguration.TestPackageFilterConfiguration(values = listOf("com.example"), subpackages = false).toTestFilter().filter(tests) shouldBeEqualTo listOf(simpleTest)
+    }
+
+    @Test
+    fun shouldFilterNotByValues() {
+        TestFilterConfiguration.TestPackageFilterConfiguration(values = listOf("com.example"), subpackages = false).toTestFilter().filterNot(tests) shouldBeEqualTo listOf(complexTest, someClass)
+    }
+
+    @Test
+    fun shouldFilterByValuesWithSubpackages() {
+        TestFilterConfiguration.TestPackageFilterConfiguration(values = listOf("com.example"), subpackages = true).toTestFilter().filter(tests) shouldBeEqualTo listOf(simpleTest, complexTest)
+    }
+
+    @Test
+    fun shouldFilterByValuesWithSubpackagesByPartialPackageName() {
+        TestFilterConfiguration.TestPackageFilterConfiguration(values = listOf("com.example"), subpackages = true).toTestFilter().filter(listOf(simpleBTest)) shouldBeEqualTo emptyList()
+    }
+
+    @Test
+    fun shouldFilterNotByValuesWithSubpackages() {
+        TestFilterConfiguration.TestPackageFilterConfiguration(values = listOf("com.example"), subpackages = true).toTestFilter().filterNot(tests) shouldBeEqualTo listOf(someClass)
     }
 }
 

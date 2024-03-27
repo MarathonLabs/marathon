@@ -147,6 +147,7 @@ sealed class TestFilterConfiguration {
         @JsonProperty("regex") val regex: Regex? = null,
         @JsonProperty("values") val values: List<String>? = null,
         @JsonProperty("file") val file: File? = null,
+        @JsonProperty("subpackages") val subpackages: Boolean = false,
     ) : TestFilterConfiguration() {
         override fun validate() {
             var i = 0
@@ -167,6 +168,7 @@ sealed class TestFilterConfiguration {
             if (!regex.toString().contentEquals(other.regex.toString())) return false
             if (values != other.values) return false
             if (file != other.file) return false
+            if (subpackages != other.subpackages) return false
 
             return true
         }
@@ -175,6 +177,7 @@ sealed class TestFilterConfiguration {
             var result = regex?.hashCode() ?: 0
             result = 31 * result + (values?.hashCode() ?: 0)
             result = 31 * result + (file?.hashCode() ?: 0)
+            result = 31 * result + (subpackages.hashCode())
             return result
         }
     }
