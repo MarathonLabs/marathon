@@ -99,6 +99,10 @@ class RemoteFileManager(private val device: AppleDevice) {
         return remoteFileForTest(screenshotFileName(udid, type))
     }
 
+    fun remoteLog(): String {
+        return remoteFile("device.log")
+    }
+
     private fun remoteFileForTest(filename: String): String {
         return "${outputDir}$FILE_SEPARATOR$filename"
     }

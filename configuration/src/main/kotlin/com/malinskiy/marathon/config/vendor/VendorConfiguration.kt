@@ -170,6 +170,7 @@ sealed class VendorConfiguration {
         @JsonProperty("xcodebuildTestArgs") val xcodebuildTestArgs: Map<String, String> = emptyMap(),
         @JsonProperty("dataContainerClear") val dataContainerClear: Boolean = false,
         @JsonProperty("testParserConfiguration") val testParserConfiguration: AppleTestParserConfiguration = AppleTestParserConfiguration.NmTestParserConfiguration(),
+        @JsonProperty("deviceLog") val deviceLog: Boolean = false,
 
         @JsonProperty("signing") val signing: SigningConfiguration = SigningConfiguration(),
     ) : VendorConfiguration() {
