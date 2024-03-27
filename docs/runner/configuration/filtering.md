@@ -177,6 +177,23 @@ filteringConfiguration:
         - "com.example.subpackage"
 ```
 
+or utilize the package's `subpackages` field to include all subpackages for each entry:
+```yaml
+filteringConfiguration:
+  allowlist:
+    - type: "package"
+      subpackages: true
+      values:
+        - "com.example"
+```
+
+:::note
+
+Including subpackages via `subpackages: true` works only when using values or file. It doesn't apply to configuration specified via regex.
+This feature is only available in the CLI version of marathon.
+
+:::
+
 ### Values file filtering
 
 Or you can supply these packages via a file (be careful with the relative paths: they will be relative to the workdir of the process):
