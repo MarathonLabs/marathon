@@ -299,17 +299,21 @@ The `display` and `mask` fields have the same options as the video recorder.
 The `type` specifies the format of a single frame and is advised not to be changes.
 The `delay` field specifies the minimal delay between frames using [ISO 8601][3] notation.
 
-### xctestrun environment variables
+### xctestrun Environment and TestingEnvironment variables
 
-You specify additional environment variables for your test run:
+You can specify additional Environment and TestingEnvironment variables for your test run:
 
 ```yaml
 xctestrunEnv:
-  MY_ENV_VAR_1: A
-  MY_ENV_VAR_2: B
+  app: # EnvironmentVariables
+    MY_ENV_VAR_1: A
+    MY_ENV_VAR_2: B
+  test: # TestingEnvironmentVariables
+    MY_TEST_ENV_VAR_1: AA
+    MY_TEST_ENV_VAR_2: BB
 ```
 
-These will be placed in the generated xctestrun property list file under the `TestingEnvironmentVariables` key.
+These will be placed in the generated xctestrun property list file under the `EnvironmentVariables` and `TestingEnvironmentVariables` keys.
 
 :::info
 

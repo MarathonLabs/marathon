@@ -15,6 +15,7 @@ import com.malinskiy.marathon.apple.xctestrun.v2.Xctestrun
 import com.malinskiy.marathon.config.exceptions.ConfigurationException
 import com.malinskiy.marathon.config.vendor.apple.TestType
 import com.malinskiy.marathon.config.vendor.apple.ios.XcresultConfiguration
+import com.malinskiy.marathon.config.vendor.apple.ios.XctestrunEnvConfiguration
 import com.malinskiy.marathon.exceptions.DeviceSetupException
 import com.malinskiy.marathon.exceptions.IncompatibleDeviceException
 import com.malinskiy.marathon.exceptions.TransferException
@@ -27,7 +28,7 @@ import com.malinskiy.marathon.apple.xctestrun.v2.Metadata as Metadata
 
 class TestRootFactory(
     private val device: AppleDevice,
-    private val xctestrunEnv: Map<String, String>,
+    private val xctestrunEnv: XctestrunEnvConfiguration,
     private val xcresultConfiguration: XcresultConfiguration,
 ) {
     suspend fun generate(testType: TestType, bundle: AppleTestBundle, useXctestParser: Boolean) {
@@ -135,10 +136,11 @@ class TestRootFactory(
         val privateFrameworks = remoteFileManager.joinPath(developerPath, "Library", "PrivateFrameworks")
         val usrLib = remoteFileManager.joinPath(developerPath, "usr", "lib")
 
+        val xctestrunTestEnv = xctestrunEnv.testEnvs
         val userFrameworkPath =
-            xctestrunEnv["DYLD_FRAMEWORK_PATH"]?.split(":")?.filter { it.isNotBlank() } ?: emptySet()
-        val userLibraryPath = xctestrunEnv["DYLD_LIBRARY_PATH"]?.split(":")?.filter { it.isNotBlank() } ?: emptySet()
-        val userInsertLibraries = xctestrunEnv["DYLD_INSERT_LIBRARIES"]?.split(":")?.filter { it.isNotBlank() } ?: emptySet()
+            xctestrunTestEnv["DYLD_FRAMEWORK_PATH"]?.split(":")?.filter { it.isNotBlank() } ?: emptySet()
+        val userLibraryPath = xctestrunTestEnv["DYLD_LIBRARY_PATH"]?.split(":")?.filter { it.isNotBlank() } ?: emptySet()
+        val userInsertLibraries = xctestrunTestEnv["DYLD_INSERT_LIBRARIES"]?.split(":")?.filter { it.isNotBlank() } ?: emptySet()
 
         val dyldFrameworks = mutableListOf<String>().apply {
             add("__TESTROOT__")
@@ -194,7 +196,7 @@ class TestRootFactory(
             "DYLD_LIBRARY_PATH" to dyldLibraries.joinToString(":"),
             "DYLD_INSERT_LIBRARIES" to dyldInsertLibraries.joinToString(":")
         ).apply {
-            xctestrunEnv
+            xctestrunTestEnv
                 .filterKeys { !setOf("DYLD_FRAMEWORK_PATH", "DYLD_LIBRARY_PATH", "DYLD_INSERT_LIBRARIES").contains(it) }
                 .forEach {
                     put(it.key, it.value)
@@ -209,6 +211,7 @@ class TestRootFactory(
                     arrayOf(
                         TestTarget.withArtifactReinstall(
                             name = bundle.testBundleId,
+                            environmentVariables = xctestrunEnv.appEnvs,
                             testingEnvironmentVariables = testEnv,
                             productModuleName = bundle.testBundleId,
                             systemAttachmentLifetime = xcresultConfiguration.attachments.systemAttachmentLifetime.value,
@@ -265,11 +268,12 @@ class TestRootFactory(
         val privateFrameworks = remoteFileManager.joinPath(developerPath, "Library", "PrivateFrameworks")
         val usrLib = remoteFileManager.joinPath(developerPath, "usr", "lib")
 
+        val xctestrunTestEnvs = xctestrunEnv.testEnvs
         val userFrameworkPath =
-            xctestrunEnv["DYLD_FRAMEWORK_PATH"]?.split(":")?.filter { it.isNotBlank() } ?: emptySet()
-        val userLibraryPath = xctestrunEnv["DYLD_LIBRARY_PATH"]?.split(":")?.filter { it.isNotBlank() } ?: emptySet()
+            xctestrunTestEnvs["DYLD_FRAMEWORK_PATH"]?.split(":")?.filter { it.isNotBlank() } ?: emptySet()
+        val userLibraryPath = xctestrunTestEnvs["DYLD_LIBRARY_PATH"]?.split(":")?.filter { it.isNotBlank() } ?: emptySet()
         val userInsertLibraries =
-            xctestrunEnv["DYLD_INSERT_LIBRARIES"]?.split(":")?.filter { it.isNotBlank() } ?: emptySet()
+            xctestrunTestEnvs["DYLD_INSERT_LIBRARIES"]?.split(":")?.filter { it.isNotBlank() } ?: emptySet()
 
         val dyldFrameworks = mutableListOf("__TESTROOT__", frameworks, privateFrameworks, *userFrameworkPath.toTypedArray())
         /**
@@ -293,7 +297,7 @@ class TestRootFactory(
             "DYLD_LIBRARY_PATH" to dyldLibraries.joinToString(":"),
             "XCInjectBundleInto" to "__TESTHOST__/${remoteFileManager.appUnderTestFileName()}"
         ).apply {
-            xctestrunEnv
+            xctestrunTestEnvs
                 .filterKeys { !setOf("DYLD_FRAMEWORK_PATH", "DYLD_INSERT_LIBRARIES", "DYLD_LIBRARY_PATH").contains(it) }
                 .forEach {
                     put(it.key, it.value)
@@ -308,6 +312,7 @@ class TestRootFactory(
                     arrayOf(
                         TestTarget.withArtifactReinstall(
                             name = bundle.testBundleId,
+                            environmentVariables = xctestrunEnv.appEnvs,
                             testingEnvironmentVariables = testEnv,
                             productModuleName = bundle.testBundleId,
                             systemAttachmentLifetime = xcresultConfiguration.attachments.systemAttachmentLifetime.value,

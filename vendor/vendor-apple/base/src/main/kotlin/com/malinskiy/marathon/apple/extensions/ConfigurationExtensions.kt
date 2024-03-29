@@ -3,6 +3,7 @@ package com.malinskiy.marathon.apple.extensions
 import com.malinskiy.marathon.config.vendor.VendorConfiguration
 import com.malinskiy.marathon.config.vendor.apple.AppleTestBundleConfiguration
 import com.malinskiy.marathon.config.vendor.apple.ios.XcresultConfiguration
+import com.malinskiy.marathon.config.vendor.apple.ios.XctestrunEnvConfiguration
 
 fun VendorConfiguration.bundleConfiguration(): AppleTestBundleConfiguration? {
     return when (this) {
@@ -18,7 +19,7 @@ fun VendorConfiguration.bundleConfiguration(): AppleTestBundleConfiguration? {
     }
 }
 
-fun VendorConfiguration.xctestrunEnv(): Map<String, String>? {
+fun VendorConfiguration.xctestrunEnv(): XctestrunEnvConfiguration? {
     return when (this) {
         is VendorConfiguration.IOSConfiguration -> {
             this.xctestrunEnv
