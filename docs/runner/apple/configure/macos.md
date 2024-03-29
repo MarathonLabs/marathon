@@ -184,19 +184,25 @@ deleted on success and user attachments will always be kept in the xcresult, but
 
 Possible values for the lifetime are `KEEP_ALWAYS`, `DELETE_ON_SUCCESS` and `KEEP_NEVER`.
 
-### xctestrun environment variables
-You specify additional environment variables for your test run:
+### xctestrun Environment and TestingEnvironment variables
+
+You can specify additional Environment and TestingEnvironment variables for your test run:
+
 ```yaml
 xctestrunEnv:
-  MY_ENV_VAR_1: A
-  MY_ENV_VAR_2: B
+  app: # EnvironmentVariables
+    MY_ENV_VAR_1: A
+    MY_ENV_VAR_2: B
+  test: # TestingEnvironmentVariables
+    MY_TEST_ENV_VAR_1: AA
+    MY_TEST_ENV_VAR_2: BB
 ```
 
-These will be placed in the generated xctestrun property list file under the `TestingEnvironmentVariables` key.
+These will be placed in the generated xctestrun property list file under the `EnvironmentVariables` and `TestingEnvironmentVariables` keys.
 
 :::info
 
-Marathon generates required values for `DYLD_FRAMEWORK_PATH`, `DYLD_LIBRARY_PATH` and `DYLD_INSERT_LIBRARIES` for test environment. 
+Marathon generates required values for `DYLD_FRAMEWORK_PATH`, `DYLD_LIBRARY_PATH` and `DYLD_INSERT_LIBRARIES` for test environment.
 If you specify custom ones then your values will be placed as a lower priority path elements at the end of the specified envvar.
 
 :::
