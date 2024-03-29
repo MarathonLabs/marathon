@@ -211,7 +211,7 @@ class TestRootFactory(
                     arrayOf(
                         TestTarget.withArtifactReinstall(
                             name = bundle.testBundleId,
-                            environmentVariables = xctestrunEnv.appEnvs,
+                            environmentVariables = xctestrunEnv.appEnvs.ifEmpty { null },
                             testingEnvironmentVariables = testEnv,
                             productModuleName = bundle.testBundleId,
                             systemAttachmentLifetime = xcresultConfiguration.attachments.systemAttachmentLifetime.value,
@@ -312,7 +312,7 @@ class TestRootFactory(
                     arrayOf(
                         TestTarget.withArtifactReinstall(
                             name = bundle.testBundleId,
-                            environmentVariables = xctestrunEnv.appEnvs,
+                            environmentVariables = xctestrunEnv.appEnvs.ifEmpty { null },
                             testingEnvironmentVariables = testEnv,
                             productModuleName = bundle.testBundleId,
                             systemAttachmentLifetime = xcresultConfiguration.attachments.systemAttachmentLifetime.value,
