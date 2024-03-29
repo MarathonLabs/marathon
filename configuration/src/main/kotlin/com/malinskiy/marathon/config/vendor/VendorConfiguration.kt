@@ -21,6 +21,7 @@ import com.malinskiy.marathon.config.vendor.apple.ios.SigningConfiguration
 import com.malinskiy.marathon.config.vendor.apple.SshConfiguration
 import com.malinskiy.marathon.config.vendor.apple.TimeoutConfiguration as AppleTimeoutConfiguration
 import com.malinskiy.marathon.config.vendor.apple.ios.XcresultConfiguration
+import com.malinskiy.marathon.config.vendor.apple.ios.XctestrunEnvConfiguration
 import java.io.File
 import com.malinskiy.marathon.config.vendor.android.TimeoutConfiguration as AndroidTimeoutConfiguration
 import com.malinskiy.marathon.config.vendor.apple.TestParserConfiguration as AppleTestParserConfiguration
@@ -159,7 +160,7 @@ sealed class VendorConfiguration {
 
         @JsonProperty("xcresult") val xcresult: XcresultConfiguration = XcresultConfiguration(),
         @JsonProperty("screenRecordConfiguration") val screenRecordConfiguration: IosScreenRecordConfiguration = IosScreenRecordConfiguration(),
-        @JsonProperty("xctestrunEnv") val xctestrunEnv: Map<String, String> = emptyMap(),
+        @JsonProperty("xctestrunEnv") val xctestrunEnv: XctestrunEnvConfiguration = XctestrunEnvConfiguration(),
         @JsonProperty("lifecycle") val lifecycleConfiguration: LifecycleConfiguration = LifecycleConfiguration(),
         @JsonProperty("permissions") val permissions: PermissionsConfiguration = PermissionsConfiguration(),
         @JsonProperty("timeoutConfiguration") val timeoutConfiguration: AppleTimeoutConfiguration = AppleTimeoutConfiguration(),
@@ -188,7 +189,7 @@ sealed class VendorConfiguration {
         @JsonProperty("ssh") val ssh: SshConfiguration = SshConfiguration(),
 
         @JsonProperty("xcresult") val xcresult: XcresultConfiguration = XcresultConfiguration(),
-        @JsonProperty("xctestrunEnv") val xctestrunEnv: Map<String, String> = emptyMap(),
+        @JsonProperty("xctestrunEnv") val xctestrunEnv: XctestrunEnvConfiguration = XctestrunEnvConfiguration(),
         @JsonProperty("timeoutConfiguration") val timeoutConfiguration: AppleTimeoutConfiguration = AppleTimeoutConfiguration(),
         @JsonProperty("threadingConfiguration") val threadingConfiguration: AppleThreadingConfiguration = AppleThreadingConfiguration(),
         @JsonProperty("hideRunnerOutput") val hideRunnerOutput: Boolean = false,
