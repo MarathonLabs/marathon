@@ -42,7 +42,7 @@ class TestAnnotationParserTest {
         val annotations = parser.extractAnnotations(testEnded)
         assertThat(annotations).containsExactlyInAnyOrder(*expected.toTypedArray())
     }
-    
+
     companion object {
         @JvmStatic
         fun testExtractionV2(): Stream<Arguments> {
@@ -66,6 +66,7 @@ class TestAnnotationParserTest {
                 ),
             )
         }
+
         @JvmStatic
         fun testExtractionV4(): Stream<Arguments> {
             return Stream.of(
@@ -81,13 +82,30 @@ class TestAnnotationParserTest {
                     )
                 ),
                 arguments(
-                    "[87Lorg.junit.Test(68Lvalue=something is\nbound to happen (when you're dealing with parsin))]",
+                    "[98Lorg.junit.Test(68Lvalue=something is\nbound to happen (when you're dealing with parsin)9Ltimeout=0)]",
                     listOf(
                         MetaProperty(
                             name = "org.junit.Test", values = mapOf(
                                 "value" to "something is\nbound to happen (when you're dealing with parsin)",
+                                "timeout" to "0",
                             )
                         ),
+                    )
+                ),
+                arguments(
+                    "[64Lorg.junit.Test(34Lexpected=class org.junit.Test\$None9Ltimeout=0), 46Lio.qameta.allure.kotlin.Epic(13Lvalue=General)]",
+                    listOf(
+                        MetaProperty(
+                            name = "org.junit.Test", values = mapOf(
+                                "expected" to "class org.junit.Test\$None",
+                                "timeout" to "0",
+                            )
+                        ),
+                        MetaProperty(
+                            name = "io.qameta.allure.kotlin.Epic", values = mapOf(
+                                "value" to "General"
+                            )
+                        )
                     )
                 )
             )

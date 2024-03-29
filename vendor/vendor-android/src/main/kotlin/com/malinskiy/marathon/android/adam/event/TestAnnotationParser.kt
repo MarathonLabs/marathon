@@ -21,6 +21,8 @@ class TestAnnotationParser {
                     body = body.removeRange(0..splitPoint)
                     var annotation = body.substring(0 until length)
                     body = body.removeRange(0 until length)
+                    body = body.removePrefix(",")
+                    body = body.trimStart()
 
                     return@generateSequence annotation
                 }
