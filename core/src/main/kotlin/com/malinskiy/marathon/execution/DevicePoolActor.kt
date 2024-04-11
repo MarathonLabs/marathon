@@ -80,6 +80,7 @@ class DevicePoolActor(
     }
 
     private suspend fun onQueueTerminated() {
+        logger.debug { "pool $poolId: onQueueTerminated" }
         devices.values.forEach {
             it.safeSend(DeviceEvent.Terminate)
         }
@@ -127,6 +128,7 @@ class DevicePoolActor(
     }
 
     private fun terminate() {
+        logger.debug { "terminate pool $poolId" }
         poolJob.cancel()
         close()
     }
@@ -138,6 +140,7 @@ class DevicePoolActor(
         logger.debug { "devices.size = ${devices.size}" }
         if (noActiveDevices()) {
             //TODO check if we still have tests and timeout if nothing available
+            logger.debug { "pool $poolId: noActiveDevices" }
             terminate()
         }
     }
