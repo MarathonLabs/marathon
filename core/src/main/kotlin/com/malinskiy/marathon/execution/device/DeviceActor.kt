@@ -84,6 +84,9 @@ class DeviceActor(
             on<DeviceEvent.Complete> {
                 dontTransition()
             }
+            on<DeviceEvent.Terminate> {
+                dontTransition()
+            }
         }
         onTransition {
             val validTransition = it as? StateMachine.Transition.Valid

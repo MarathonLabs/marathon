@@ -167,7 +167,9 @@ class AdamDeviceProvider(
 
                             TrackingUpdate.NOTHING_TO_DO -> Unit
                         }
-                        logger.debug { "Device $serial changed state to $state" }
+                        if (state != TrackingUpdate.NOTHING_TO_DO) {
+                            logger.debug { "Device $serial changed state to $state" }
+                        }
                     }
                 }
             }
