@@ -106,7 +106,7 @@ class AmInstrumentTestParser(
             val channel = device.executeTestRequest(runnerRequest)
             var observedAnnotations = false
 
-            val tests = mutableListOf<Test>()
+            val tests = mutableSetOf<Test>()
             while (!channel.isClosedForReceive && isActive) {
                 val events: List<TestEvent>? = withTimeoutOrNull(configuration.testOutputTimeoutMillis) {
                     channel.receiveCatching().getOrNull() ?: emptyList()
