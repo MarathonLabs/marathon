@@ -48,6 +48,7 @@ import com.malinskiy.marathon.config.Configuration
 import com.malinskiy.marathon.config.vendor.VendorConfiguration
 import com.malinskiy.marathon.config.vendor.android.SerialStrategy
 import com.malinskiy.marathon.config.vendor.android.VideoConfiguration
+import com.malinskiy.marathon.coroutines.newCoroutineExceptionHandler
 import com.malinskiy.marathon.device.DevicePoolId
 import com.malinskiy.marathon.device.NetworkState
 import com.malinskiy.marathon.device.file.measureFileTransfer
@@ -71,7 +72,6 @@ import java.awt.image.BufferedImage
 import java.io.File
 import java.time.Duration
 import java.util.concurrent.CopyOnWriteArrayList
-import kotlin.coroutines.CoroutineContext
 import com.malinskiy.marathon.android.model.ShellCommandResult as MarathonShellCommandResult
 
 class AdamAndroidDevice(
@@ -117,7 +117,8 @@ class AdamAndroidDevice(
     private val dispatcher by lazy {
         newFixedThreadPoolContext(2, "AndroidDevice - execution - ${client.host.hostAddress}:${client.port}:${adbSerial}")
     }
-    override val coroutineContext: CoroutineContext = dispatcher
+
+    override val coroutineContext = dispatcher + newCoroutineExceptionHandler(logger)
 
     private var props: Map<String, String> = emptyMap()
 
@@ -373,7 +374,7 @@ class AdamAndroidDevice(
                 }
             }
         } catch (e: CancellationException) {
-            //Ignore
+            logger.warn(e) { "screenrecord start was interrupted" }
         } catch (e: Exception) {
             logger.error("Unable to start screenrecord", e)
         }

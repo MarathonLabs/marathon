@@ -39,9 +39,7 @@ class QueueActor(
     poolJob: Job,
     coroutineContext: CoroutineContext
 ) :
-    Actor<QueueMessage>(parent = poolJob, context = coroutineContext) {
-
-    private val logger = MarathonLogging.logger("QueueActor[$poolId]")
+    Actor<QueueMessage>(parent = poolJob, context = coroutineContext, logger = MarathonLogging.logger("QueueActor[$poolId]")) {
 
     private val sortingStrategy = configuration.sortingStrategy.toSortingStrategy()
 

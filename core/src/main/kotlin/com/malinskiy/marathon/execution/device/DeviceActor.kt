@@ -31,7 +31,7 @@ class DeviceActor(
     parent: Job,
     context: CoroutineContext
 ) :
-    Actor<DeviceEvent>(parent = parent, context = context) {
+    Actor<DeviceEvent>(parent = parent, context = context, logger = MarathonLogging.logger("DevicePool[${devicePoolId.name}]_DeviceActor[${device.serialNumber}]")) {
 
     private val state = StateMachine.create<DeviceState, DeviceEvent, DeviceAction> {
         initialState(DeviceState.Connected)
@@ -124,8 +124,6 @@ class DeviceActor(
             }
         }
     }
-    private val logger = MarathonLogging.logger("DevicePool[${devicePoolId.name}]_DeviceActor[${device.serialNumber}]")
-
     val isAvailable: Boolean
         get() {
             return !isClosedForSend && state.state == DeviceState.Ready
