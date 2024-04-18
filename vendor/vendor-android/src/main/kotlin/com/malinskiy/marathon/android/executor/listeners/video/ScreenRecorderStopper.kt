@@ -51,6 +51,7 @@ internal class ScreenRecorderStopper(private val device: AndroidDevice) {
         try {
             Thread.sleep(PAUSE_BETWEEN_RECORDER_PROCESS_KILL.toLong())
         } catch (ignored: InterruptedException) {
+            logger.warn(ignored) { "screenrecord stop was interrupted" }
         }
 
     }

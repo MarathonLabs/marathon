@@ -13,6 +13,7 @@ import com.malinskiy.marathon.analytics.internal.pub.Track
 import com.malinskiy.marathon.android.AndroidTestBundleIdentifier
 import com.malinskiy.marathon.config.Configuration
 import com.malinskiy.marathon.config.vendor.VendorConfiguration
+import com.malinskiy.marathon.coroutines.newCoroutineExceptionHandler
 import com.malinskiy.marathon.device.DeviceProvider
 import com.malinskiy.marathon.exceptions.NoDevicesException
 import com.malinskiy.marathon.log.MarathonLogging
@@ -36,7 +37,6 @@ import kotlinx.coroutines.withTimeoutOrNull
 import java.net.ConnectException
 import java.net.InetAddress
 import java.util.concurrent.ConcurrentHashMap
-import kotlin.coroutines.CoroutineContext
 
 const val DEFAULT_WAIT_FOR_DEVICES_SLEEP_TIME = 500L
 
@@ -51,7 +51,10 @@ class AdamDeviceProvider(
     private val logger = MarathonLogging.logger("AdamDeviceProvider")
 
     private val channel: Channel<DeviceProvider.DeviceEvent> = unboundedChannel()
-    override val coroutineContext: CoroutineContext by lazy { newFixedThreadPoolContext(1, "DeviceMonitor") }
+
+    private val dispatcher = newFixedThreadPoolContext(1, "DeviceMonitor")
+    override val coroutineContext = dispatcher + newCoroutineExceptionHandler(logger)
+
     private val setupSupervisor = SupervisorJob()
     private var providerJob: Job? = null
 

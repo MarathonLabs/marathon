@@ -3,18 +3,20 @@ package com.malinskiy.marathon.android.adam
 import com.malinskiy.adam.request.logcat.ChanneledLogcatRequest
 import com.malinskiy.adam.request.logcat.LogcatReadMode
 import com.malinskiy.marathon.android.adam.log.LogCatMessageParser
+import com.malinskiy.marathon.coroutines.newCoroutineExceptionHandler
+import com.malinskiy.marathon.log.MarathonLogging
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.newFixedThreadPoolContext
 import kotlinx.coroutines.supervisorScope
 import java.util.concurrent.ConcurrentHashMap
-import kotlin.coroutines.CoroutineContext
 
 class LogcatManager : CoroutineScope {
+    private val logger = MarathonLogging.logger {}
+
     private val dispatcher = newFixedThreadPoolContext(4, "LogcatManager")
-    override val coroutineContext: CoroutineContext
-        get() = dispatcher
+    override val coroutineContext = dispatcher + newCoroutineExceptionHandler(logger)
 
     private val devices: ConcurrentHashMap<AdamAndroidDevice, Job> = ConcurrentHashMap()
 

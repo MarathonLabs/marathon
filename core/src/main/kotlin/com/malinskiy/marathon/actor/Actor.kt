@@ -1,5 +1,6 @@
 package com.malinskiy.marathon.actor
 
+import com.malinskiy.marathon.coroutines.newCoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
@@ -9,16 +10,18 @@ import kotlinx.coroutines.channels.ChannelResult
 import kotlinx.coroutines.channels.SendChannel
 import kotlinx.coroutines.channels.actor
 import kotlinx.coroutines.selects.SelectClause2
+import mu.KLogger
 import kotlin.coroutines.CoroutineContext
 
 abstract class Actor<in T>(
     parent: Job? = null,
-    val context: CoroutineContext
+    val context: CoroutineContext,
+    protected val logger: KLogger,
 ) : SendChannel<T>, CoroutineScope {
 
     protected abstract suspend fun receive(msg: T)
     final override val coroutineContext: CoroutineContext
-        get() = context + actorJob
+        get() = context + actorJob + newCoroutineExceptionHandler(logger)
 
     private val actorJob = Job(parent)
 

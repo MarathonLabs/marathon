@@ -34,9 +34,7 @@ class DevicePoolActor(
     context: CoroutineContext,
     testBundleIdentifier: TestBundleIdentifier?,
 ) :
-    Actor<DevicePoolMessage>(parent = parent, context = context) {
-
-    private val logger = MarathonLogging.logger("DevicePoolActor[${poolId.name}]")
+    Actor<DevicePoolMessage>(parent = parent, context = context, logger = MarathonLogging.logger("DevicePoolActor[${poolId.name}]")) {
 
     override suspend fun receive(msg: DevicePoolMessage) {
         when (msg) {
