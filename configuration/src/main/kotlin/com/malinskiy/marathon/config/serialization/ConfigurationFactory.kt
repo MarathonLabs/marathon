@@ -80,7 +80,8 @@ class ConfigurationFactory(
                             resolvedApplication,
                             resolvedTestApplication,
                             resolvedExtraApplications,
-                            resolvedDerivedDataDir
+                            resolvedDerivedDataDir,
+                            it.testType
                         ).apply { validate() }
                     }
                     val optionalDevices = configuration.vendorConfiguration.devicesFile?.resolveAgainst(marathonfileDir)
@@ -120,7 +121,8 @@ class ConfigurationFactory(
                             resolvedApplication,
                             resolvedTestApplication,
                             resolvedExtraApplications,
-                            resolvedDerivedDataDir
+                            resolvedDerivedDataDir,
+                            it.testType
                         ).apply { validate() }
                     }
                     val optionalDevices = configuration.vendorConfiguration.devicesFile?.resolveAgainst(marathonfileDir)
