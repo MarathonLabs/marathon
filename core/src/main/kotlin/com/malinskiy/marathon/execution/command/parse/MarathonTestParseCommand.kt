@@ -51,11 +51,12 @@ class MarathonTestParseCommand(private val outputDir: File) {
         val res = mapper.writeValueAsString(parseResult)
 
         log.info { "Parse execute mode. Result" }
-        log.info { res }
-        if (outputFileName == null) return
-
-        val dirPath = Files.createDirectories(get(outputDir.absolutePath))
-        val resultFile = File(dirPath.toFile(), outputFileName + EXTENSION)
-        resultFile.writeText(res)
+        if (outputFileName != null) {
+            val dirPath = Files.createDirectories(get(outputDir.absolutePath))
+            val resultFile = File(dirPath.toFile(), outputFileName + EXTENSION)
+            resultFile.writeText(res)
+        } else {
+            log.info { res }
+        }
     }
 }
