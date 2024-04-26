@@ -58,7 +58,7 @@ class Parse(
     private val marathonfile by option("--marathonfile", "-m", help="Marathonfile file path")
         .file()
         .default(File("Marathonfile"))
-    private val parseOutputFileName by option("--output", "-o", help="Output file name in yaml format")
+    private val parseOutputFileName by option("--output", "-o", help="Output file name without extension. Will be in the outputDir with .yaml extension")
     private val includeFlakyTests by option("--include-flaky-tests", "-f", help="Include/exclude flaky tests that will have preventive retries according to the current flakinessStrategy")
         .convert { it.toBoolean() }
         .default(false)
