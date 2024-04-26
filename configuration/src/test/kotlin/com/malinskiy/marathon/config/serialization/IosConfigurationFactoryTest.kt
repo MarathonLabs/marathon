@@ -19,6 +19,7 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.KotlinFeature
 import com.fasterxml.jackson.module.kotlin.KotlinModule
 import com.malinskiy.marathon.config.serialization.yaml.SerializeModule
+import com.malinskiy.marathon.config.vendor.apple.TestType
 
 class IosConfigurationFactoryTest {
     private val mockMarathonFileDir = File(ConfigurationFactoryTest::class.java.getResource("/fixture/config/ios").file)
@@ -87,5 +88,15 @@ class IosConfigurationFactoryTest {
 
         val iosConfiguration = configuration.vendorConfiguration as VendorConfiguration.IOSConfiguration
         iosConfiguration.rsync.remotePath shouldBeEqualTo "/usr/bin/rsync"
+        iosConfiguration.bundle?.testType shouldBeEqualTo TestType.XCUITEST
+    }
+
+    @Test
+    fun `on configuration with xctest type specified`() {
+        val file = File(ConfigurationFactoryTest::class.java.getResource("/fixture/config/ios/sample_3.yaml").file)
+        val configuration = parser.parse(file)
+
+        val iosConfiguration = configuration.vendorConfiguration as VendorConfiguration.IOSConfiguration
+        iosConfiguration.bundle?.testType shouldBeEqualTo TestType.XCUITEST
     }
 }
