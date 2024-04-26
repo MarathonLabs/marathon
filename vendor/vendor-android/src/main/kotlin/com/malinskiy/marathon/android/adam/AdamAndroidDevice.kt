@@ -72,6 +72,7 @@ import java.awt.image.BufferedImage
 import java.io.File
 import java.time.Duration
 import java.util.concurrent.CopyOnWriteArrayList
+import kotlin.coroutines.CoroutineContext
 import com.malinskiy.marathon.android.model.ShellCommandResult as MarathonShellCommandResult
 
 class AdamAndroidDevice(
@@ -79,6 +80,7 @@ class AdamAndroidDevice(
     private val deviceStateTracker: DeviceStateTracker,
     private val logcatManager: LogcatManager,
     private val testBundleIdentifier: AndroidTestBundleIdentifier,
+    private val installContext: CoroutineContext,
     adbSerial: String,
     configuration: Configuration,
     androidConfiguration: VendorConfiguration.AndroidConfiguration,
@@ -199,7 +201,7 @@ class AdamAndroidDevice(
         try {
             measureFileTransfer(File(localFilePath)) {
                 val channel = client.execute(
-                    CompatPushFileRequest(file, remoteFilePath, supportedFeatures, coroutineScope = this),
+                    CompatPushFileRequest(file, remoteFilePath, supportedFeatures, coroutineScope = this, mode = "0777", coroutineContext = installContext),
                     serial = adbSerial
                 )
                 for (update in channel) {

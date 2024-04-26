@@ -19,6 +19,7 @@ import com.malinskiy.marathon.exceptions.NoDevicesException
 import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.time.Timer
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
@@ -53,6 +54,7 @@ class AdamDeviceProvider(
     private val channel: Channel<DeviceProvider.DeviceEvent> = unboundedChannel()
 
     private val dispatcher = newFixedThreadPoolContext(1, "DeviceMonitor")
+    private val installDispatcher = Dispatchers.IO.limitedParallelism(vendorConfiguration.threadingConfiguration.installThreads)
     override val coroutineContext = dispatcher + newCoroutineExceptionHandler(logger)
 
     private val setupSupervisor = SupervisorJob()
@@ -142,6 +144,7 @@ class AdamDeviceProvider(
                                         multiServerDeviceStateTracker.getTracker(client),
                                         logcatManager,
                                         testBundleIdentifier,
+                                        installDispatcher,
                                         serial,
                                         configuration,
                                         vendorConfiguration,
