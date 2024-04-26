@@ -8,6 +8,7 @@ import com.malinskiy.marathon.config.Configuration
 import com.malinskiy.marathon.config.vendor.VendorConfiguration
 import com.malinskiy.marathon.config.vendor.android.SerialStrategy
 import com.malinskiy.marathon.time.SystemTimer
+import kotlinx.coroutines.Dispatchers
 import java.time.Clock
 
 object TestDeviceFactory {
@@ -17,6 +18,7 @@ object TestDeviceFactory {
             deviceStateTracker = DeviceStateTracker(),
             logcatManager = logcatManager,
             AndroidTestBundleIdentifier(),
+            Dispatchers.IO,
             "emulator-5554",
             configuration,
             configuration.vendorConfiguration as VendorConfiguration.AndroidConfiguration,
