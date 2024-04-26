@@ -4,6 +4,7 @@ vendorConfiguration:
   type: "iOS"
   bundle:
     derivedDataDir: "derivedDataDir"
+    testType: xcuitest
   ssh:
     authentication:
       type: "publicKey"
