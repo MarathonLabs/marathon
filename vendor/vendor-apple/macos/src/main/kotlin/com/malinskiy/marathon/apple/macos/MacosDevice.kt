@@ -56,16 +56,14 @@ import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.NonCancellable
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.channels.ReceiveChannel
 import kotlinx.coroutines.channels.produce
 import kotlinx.coroutines.newFixedThreadPoolContext
-import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.supervisorScope
 import kotlinx.coroutines.withContext
-import mu.KLogger
 import net.schmizz.sshj.connection.ConnectionException
 import net.schmizz.sshj.connection.channel.OpenFailException
 import net.schmizz.sshj.transport.TransportException
@@ -74,6 +72,7 @@ import java.io.File
 import java.time.Duration
 import java.util.concurrent.CopyOnWriteArrayList
 import kotlin.coroutines.CoroutineContext
+import kotlin.coroutines.cancellation.CancellationException
 
 class MacosDevice(
     override val udid: String,
@@ -290,8 +289,9 @@ class MacosDevice(
         testBatch: TestBatch,
         deferred: CompletableDeferred<TestBatchResults>
     ) {
+        var job: Job? = null
         try {
-            async(CoroutineName("execute $serialNumber")) {
+            job = async(coroutineContext + CoroutineName("execute $serialNumber")) {
                 supervisorScope {
                     var executionLineListeners = setOf<LineListener>()
                     try {
@@ -307,7 +307,8 @@ class MacosDevice(
                         executionLineListeners.forEach { removeLineListener(it) }
                     }
                 }
-            }.await()
+            }
+            job.await()
         } catch (e: ConnectionException) {
             throw DeviceLostException(e)
         } catch (e: TransportException) {
@@ -324,6 +325,9 @@ class MacosDevice(
 
                 else -> throw DeviceLostException(e)
             }
+        } catch(e: CancellationException) {
+            job?.cancel(e)
+            throw e
         }
     }
 
@@ -418,13 +422,14 @@ class MacosDevice(
     }
 
     suspend fun grant(client: String, permission: Set<Permission>) {
-        if (operatingSystem.major?.let { it > 10 } != true)  {
+        if (operatingSystem.major?.let { it > 10 } != true) {
             throw IncompatibleDeviceException("Modifying permissions is supported to macOS 10+")
         }
 
         val epoch = System.currentTimeMillis() / 1000
         permission.forEach {
-            val query = "replace into access (service,client,client_type,auth_value,auth_reason,auth_version,indirect_object_identifier,flags,last_modified) values (\"${it.value}\",\"${client}\",0,2,1,1,\"UNUSED\",0,$epoch);"
+            val query =
+                "replace into access (service,client,client_type,auth_value,auth_reason,auth_version,indirect_object_identifier,flags,last_modified) values (\"${it.value}\",\"${client}\",0,2,1,1,\"UNUSED\",0,$epoch);"
             binaryEnvironment.sqlite3.query("/Library/Application Support/com.apple.TCC/TCC.db", query, sudo = true)
             binaryEnvironment.sqlite3.query("/Users/${env["USER"]}/Library/Application Support/com.apple.TCC/TCC.db", query, sudo = true)
         }

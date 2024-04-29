@@ -28,7 +28,7 @@ class TestResultsListener(
     private val attachmentCollector: AttachmentCollector = AttachmentCollector(attachmentProviders),
 ) : AccumulatingResultTestRunListener(timer), AttachmentListener by attachmentCollector {
 
-    private val logger = MarathonLogging.logger("TestRunResultsListener")
+    private val logger = MarathonLogging.logger {}
 
     override suspend fun afterTestRun() {
         val results = mergeParameterisedResults(runResult.temporalTestResults)

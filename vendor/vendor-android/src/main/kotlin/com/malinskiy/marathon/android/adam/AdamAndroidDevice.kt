@@ -61,7 +61,9 @@ import com.malinskiy.marathon.test.TestBatch
 import com.malinskiy.marathon.time.Timer
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
 import kotlinx.coroutines.channels.ReceiveChannel
 import kotlinx.coroutines.newFixedThreadPoolContext
@@ -201,7 +203,14 @@ class AdamAndroidDevice(
         try {
             measureFileTransfer(File(localFilePath)) {
                 val channel = client.execute(
-                    CompatPushFileRequest(file, remoteFilePath, supportedFeatures, coroutineScope = this, mode = "0777", coroutineContext = installContext),
+                    CompatPushFileRequest(
+                        file,
+                        remoteFilePath,
+                        supportedFeatures,
+                        coroutineScope = this,
+                        mode = "0777",
+                        coroutineContext = installContext
+                    ),
                     serial = adbSerial
                 )
                 for (update in channel) {
@@ -409,17 +418,26 @@ class AdamAndroidDevice(
         testBatch: TestBatch,
         deferred: CompletableDeferred<TestBatchResults>
     ) {
+        var job: Job? = null
         try {
-            async(coroutineContext) {
+            job = async(coroutineContext + CoroutineName("execute $serialNumber")) {
                 supervisorScope {
                     val listener = createExecutionListeners(configuration, devicePoolId, testBatch, deferred)
-                    AndroidDeviceTestRunner(this@AdamAndroidDevice, testBundleIdentifier).execute(configuration, testBatch, listener)
+                    AndroidDeviceTestRunner(this@AdamAndroidDevice, testBundleIdentifier).execute(
+                        configuration,
+                        testBatch,
+                        listener
+                    )
                 }
-            }.await()
+            }
+            job.await()
         } catch (e: RequestRejectedException) {
             throw DeviceLostException(e)
         } catch (e: CommandRejectedException) {
             throw DeviceLostException(e)
+        } catch (e: CancellationException) {
+            job?.cancel(e)
+            throw e
         }
     }
 

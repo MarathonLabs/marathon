@@ -108,7 +108,7 @@ class QueueActor(
         }
 
         for (test in uncompletedRetryQuotaExceeded) {
-            logger.debug { "uncompletedTestRetryQuota exceeded for ${test.test.toTestName()}}" }
+            logger.debug { "uncompletedTestRetryQuota exceeded for ${test.test.toTestName()}" }
             val testAction = poolProgressAccumulator.testEnded(device, test, final = true)
             processTestAction(testAction, test)
         }
