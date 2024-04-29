@@ -60,11 +60,13 @@ import com.malinskiy.marathon.report.attachment.AttachmentProvider
 import com.malinskiy.marathon.report.logs.LogWriter
 import com.malinskiy.marathon.test.TestBatch
 import com.malinskiy.marathon.time.Timer
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
@@ -248,8 +250,9 @@ class AppleSimulatorDevice(
         testBatch: TestBatch,
         deferred: CompletableDeferred<TestBatchResults>
     ) {
+        var job: Job? = null
         try {
-            async(coroutineContext + CoroutineName("execute $serialNumber")) {
+            job = async(coroutineContext + CoroutineName("execute $serialNumber")) {
                 supervisorScope {
                     var executionLineListeners = setOf<LineListener>()
                     try {
@@ -270,7 +273,8 @@ class AppleSimulatorDevice(
                         executionLineListeners.forEach { removeLineListener(it) }
                     }
                 }
-            }.await()
+            }
+            job.await()
         } catch (e: ConnectionException) {
             throw DeviceLostException(e)
         } catch (e: TransportException) {
@@ -287,6 +291,9 @@ class AppleSimulatorDevice(
 
                 else -> throw DeviceLostException(e)
             }
+        } catch(e: CancellationException) {
+            job?.cancel(e)
+            throw e
         }
     }
 
