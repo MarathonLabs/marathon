@@ -53,7 +53,7 @@ class AdamDeviceProvider(
 
     private val channel: Channel<DeviceProvider.DeviceEvent> = unboundedChannel()
 
-    private val dispatcher = newFixedThreadPoolContext(1, "DeviceMonitor")
+    private val dispatcher = newFixedThreadPoolContext(vendorConfiguration.threadingConfiguration.bootWaitingThreads, "DeviceMonitor")
     private val installDispatcher = Dispatchers.IO.limitedParallelism(vendorConfiguration.threadingConfiguration.installThreads)
     override val coroutineContext = dispatcher + newCoroutineExceptionHandler(logger)
 
