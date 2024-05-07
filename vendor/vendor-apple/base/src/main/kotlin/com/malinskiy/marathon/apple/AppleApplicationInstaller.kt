@@ -109,7 +109,12 @@ open class AppleApplicationInstaller<in T : AppleDevice>(
      */
     private suspend fun detectTestType(device: AppleDevice, remoteTestBinary: String): TestType {
         val output = device.binaryEnvironment.nm.list(remoteTestBinary)
-        return if (output.any { it.contains("XCUIApplication") }) {
+        /**
+         * All bundles containing XCUIApplication should be treated as xcuitest target except:
+         * - KIF-Framework where tests are actually xctest unit tests. This is detected by presence of test case base class
+         *   https://github.com/kif-framework/KIF/blob/ac6468a31180d7ab1ba8ea356e1b5552cd8a928a/Sources/KIF/Classes/KIFTestCase.h#L17
+         */
+        return if (output.any { it.contains("XCUIApplication") } && output.none { it.contains("KIFTestCase") }) {
             TestType.XCUITEST
         } else {
             TestType.XCTEST
