@@ -289,7 +289,11 @@ class TestRootFactory(
         } else {
             "$developerPath/usr/lib/libXCTestBundleInject.dylib"
         }
-        val dyldInsertLibraries = listOf(bundleInject, *userInsertLibraries.toTypedArray())
+        val dyldInsertLibraries = if (useLibParseTests) {
+            listOf(remoteFileManager.remoteXctestParserFile(), bundleInject, *userInsertLibraries.toTypedArray())
+        } else {
+            listOf(*userInsertLibraries.toTypedArray())
+        }
 
         val testEnv = mutableMapOf(
             "DYLD_FRAMEWORK_PATH" to dyldFrameworks.joinToString(":"),
