@@ -4,13 +4,6 @@ pluginManagement {
         gradlePluginPortal()
         google()
     }
-    resolutionStrategy {
-        eachPlugin {
-            if (requested.id.id == "com.android.application") {
-                useModule("com.android.tools.build:gradle:${requested.version}")
-            }
-        }
-    }
 }
 
 rootProject.name = "marathon"
@@ -21,7 +14,6 @@ include("vendor:vendor-apple:ios")
 include("vendor:vendor-apple:macos")
 include("vendor:vendor-apple:base")
 include("vendor:vendor-test")
-include("marathon-gradle-plugin")
 include("report:html-report")
 include("report:execution-timeline")
 include("cli")

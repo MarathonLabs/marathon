@@ -1,9 +1,0 @@
-pluginManagement {
-    repositories {
-        mavenLocal()
-        google()
-        gradlePluginPortal()
-    }
-}
-
-include 'app'
