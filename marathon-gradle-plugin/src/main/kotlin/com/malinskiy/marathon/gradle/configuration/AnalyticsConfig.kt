@@ -37,6 +37,7 @@ class InfluxConfig {
     var dbName: String = ""
     var retentionPolicy: RetentionPolicy? = null
     var defaults: Defaults = Defaults()
+    var readOnly: Boolean = false
 }
 
 class Influx2Config {
@@ -46,6 +47,7 @@ class Influx2Config {
     var bucket: String = ""
     var retentionPolicy: Influx2RetentionPolicy? = null
     var defaults: Defaults = Defaults()
+    var readOnly: Boolean = false
 }
 
 class Influx2RetentionPolicy {
@@ -66,6 +68,7 @@ class GraphiteConfig {
     var port: String? = null
     var prefix: String? = null
     var defaults: Defaults = Defaults()
+    var readOnly: Boolean = false
 }
 
 fun AnalyticsConfig.toAnalyticsConfiguration(): AnalyticsConfiguration {
@@ -80,7 +83,8 @@ fun AnalyticsConfig.toAnalyticsConfiguration(): AnalyticsConfiguration {
             bucket = influx2.bucket,
             retentionPolicyConfiguration = influx2.retentionPolicy?.toRetentionPolicy()
                 ?: AnalyticsConfiguration.InfluxDb2Configuration.RetentionPolicyConfiguration.default,
-            defaults = influx2.defaults
+            defaults = influx2.defaults,
+            readOnly = influx2.readOnly
         )
         influx != null -> AnalyticsConfiguration.InfluxDbConfiguration(
             dbName = influx.dbName,
@@ -89,13 +93,15 @@ fun AnalyticsConfig.toAnalyticsConfiguration(): AnalyticsConfiguration {
             url = influx.url,
             retentionPolicyConfiguration = influx.retentionPolicy?.toRetentionPolicy()
                 ?: AnalyticsConfiguration.InfluxDbConfiguration.RetentionPolicyConfiguration.default,
-            defaults = influx.defaults
+            defaults = influx.defaults,
+            readOnly = influx.readOnly
         )
         graphite != null -> AnalyticsConfiguration.GraphiteConfiguration(
             host = graphite.host,
             port = graphite.port?.toIntOrNull(),
             prefix = graphite.prefix,
-            defaults = graphite.defaults
+            defaults = graphite.defaults,
+            readOnly = graphite.readOnly
         )
         else -> AnalyticsConfiguration.DisabledAnalytics
     }

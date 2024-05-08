@@ -11,12 +11,15 @@ import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.test.toSafeTestName
 
 class InfluxDb2Tracker(
-    private val client: InfluxDBClient
+    private val client: InfluxDBClient,
+    private val readOnly: Boolean,
 ) : TrackerInternalAdapter() {
     private val writeApi by lazy { client.writeApiBlocking }
     private val logger = MarathonLogging.logger {}
 
     override fun trackTest(event: TestEvent) {
+        if (readOnly) return
+
         val testResult = event.testResult
         val device = event.device
         try {
