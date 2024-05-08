@@ -14,22 +14,14 @@ object Versions {
     val bugsnag = "3.7.1"
 
     val junitGradle = "1.2.0"
-    val androidGradleVersion = "8.2.2"
-    val gradlePluginPublish = "1.2.1"
-    val gradlePluginShadow = "8.1.1"
 
     val junit5 = "5.10.1"
     val kluent = "1.73"
 
     val kakao = "3.0.2"
-    val espresso = "3.0.1"
-    val espressoRules = "1.0.1"
-    val espressoRunner = "1.0.1"
-    val junit = "4.13.2"
     val gson = "2.10.1"
     val apacheCommonsText = "1.11.0"
     val apacheCommonsIO = "2.11.0"
-    val apacheCommonsCodec = "1.15"
     val okhttp = "4.12.0"
     val influxDbClient = "2.24"
     val influxDb2Client = "6.12.0"
@@ -63,7 +55,6 @@ object Versions {
 object BuildPlugins {
     val kotlinPlugin = "org.jetbrains.kotlin:kotlin-gradle-plugin:${Versions.kotlin}"
     val junitGradle = "org.junit.platform:junit-platform-gradle-plugin:${Versions.junitGradle}"
-    val androidGradle = "com.android.tools.build:gradle:${Versions.androidGradleVersion}"
     val dokka = "org.jetbrains.dokka:dokka-gradle-plugin:${Versions.dokka}"
 }
 
@@ -82,7 +73,6 @@ object Libraries {
     val gson = "com.google.code.gson:gson:${Versions.gson}"
     val apacheCommonsText = "org.apache.commons:commons-text:${Versions.apacheCommonsText}"
     val apacheCommonsIO = "commons-io:commons-io:${Versions.apacheCommonsIO}"
-    val apacheCommonsCodec = "commons-codec:commons-codec:${Versions.apacheCommonsCodec}"
     val influxDbClient = "org.influxdb:influxdb-java:${Versions.influxDbClient}"
     val influxDb2Client = "com.influxdb:influxdb-client-java:${Versions.influxDb2Client}"
     val clikt = "com.github.ajalt.clikt:clikt:${Versions.clikt}"
@@ -110,9 +100,6 @@ object Libraries {
 object TestLibraries {
     val junit5 = "org.junit.jupiter:junit-jupiter:${Versions.junit5}"
     val kluent = "org.amshove.kluent:kluent:${Versions.kluent}"
-    val kakao = "io.github.kakaocup:kakao:${Versions.kakao}"
-    
-    val junit = "junit:junit:${Versions.junit}"
 
     val mockitoKotlin = "org.mockito.kotlin:mockito-kotlin:${Versions.mockitoKotlin}"
     val jupiterEngine = "org.junit.jupiter:junit-jupiter-engine:${Versions.jupiterEngine}"

@@ -23,9 +23,6 @@ jobs:
       - name: detekt
         run: |
           ./gradlew clean detektCheck || true
-      - name: validateGradlePlugins
-        run: |
-          ./gradlew validatePlugins
   cd-snapshot:
     runs-on: ubuntu-22.04
     needs: ci
@@ -88,11 +85,6 @@ jobs:
           files: cli/build/distributions/marathon-*.zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - name: deliver gradle plugin
-        run: ./gradlew :marathon-gradle-plugin:publishPlugins -Pgradle.publish.key=$GRADLE_PUBLISH_KEY -Pgradle.publish.secret=$GRADLE_PUBLISH_SECRET -PreleaseMode=RELEASE
-        env:
-          GRADLE_PUBLISH_KEY: ${{ secrets.GRADLE_PUBLISH_KEY }}
-          GRADLE_PUBLISH_SECRET: ${{ secrets.GRADLE_PUBLISH_SECRET }}
       - uses: actions/checkout@v4
         with:
           repository: 'Malinskiy/homebrew-tap'

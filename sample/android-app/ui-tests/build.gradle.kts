@@ -3,7 +3,7 @@ import com.malinskiy.marathon.config.vendor.android.TestParserConfiguration
 plugins {
     id("com.android.test")
     id("kotlin-android")
-    id("com.malinskiy.marathon") version "0.9.1-SNAPSHOT"
+    id("com.malinskiy.marathon") version "0.10.0"
 }
 
 android {
