@@ -41,6 +41,7 @@ analyticsConfiguration:
   defaults:
     successRate: 0.1
     duration: "PT300S"
+  readOnly: false
 ```
 
 </TabItem>
@@ -57,6 +58,7 @@ marathon {
       organization = "starlabs"
       bucket = "marathon"
       defaults = Defaults(0.0, Duration.ofMinutes(5))
+      readOnly = false
     }
   }
 }
@@ -97,6 +99,7 @@ analyticsConfiguration:
   defaults:
     successRate: 0.1
     duration: "PT300S"
+  readOnly: false
 ```
 
 </TabItem>
@@ -111,6 +114,7 @@ marathon {
       password = "root"
       dbName = "marathon"
       defaults = Defaults(0.0, Duration.ofMinutes(5))
+      readOnly = false
     }
   }
 }
@@ -128,6 +132,7 @@ marathon {
       password = "root"
       dbName = "marathon"
       defaults = Defaults(0.0, Duration.ofMinutes(5))
+      readOnly = false
     }
   }
 }
@@ -156,6 +161,7 @@ analyticsConfiguration:
   defaults:
     successRate: 0.1
     duration: "PT300S"
+  readOnly: false
 ```
 
 </TabItem>
@@ -169,6 +175,7 @@ marathon {
       port = "8080"
       prefix = "prf"
       defaults = Defaults(0.0, Duration.ofMinutes(5))
+      readOnly = false
     }
   }
 }
@@ -185,6 +192,7 @@ marathon {
       port = "8080"
       prefix = "prf"
       defaults = Defaults(0.0, Duration.ofMinutes(5))
+      readOnly = false
     }
   }
 }

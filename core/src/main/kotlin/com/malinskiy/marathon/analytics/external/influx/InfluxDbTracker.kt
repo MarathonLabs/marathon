@@ -11,10 +11,13 @@ import java.util.concurrent.TimeUnit
 class InfluxDbTracker(
     private val influxDb: InfluxDB,
     private val dbName: String,
-    private val rpName: String
+    private val rpName: String,
+    private val readOnly: Boolean,
 ) : TrackerInternalAdapter() {
 
     override fun trackTest(event: TestEvent) {
+        if (readOnly) return
+
         //Report only success and failure
         if (event.testResult.status in arrayOf(TestStatus.FAILURE, TestStatus.PASSED)) {
 

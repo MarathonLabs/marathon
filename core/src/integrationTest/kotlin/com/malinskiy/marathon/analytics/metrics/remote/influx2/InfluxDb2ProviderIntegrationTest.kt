@@ -56,7 +56,7 @@ class InfluxDb2ProviderIntegrationTest {
         firstDbInstance.close()
 
         val secondDbInstance = provider.createDb()
-        val tracker = InfluxDb2Tracker(secondDbInstance)
+        val tracker = InfluxDb2Tracker(secondDbInstance, readOnly = false)
         val test1 = com.malinskiy.marathon.test.Test("pkg", "clazz", "method", emptyList())
         val test2 = com.malinskiy.marathon.test.Test("pkg", "clazz", "method2", emptyList())
         getTestEvents(test = test1).forEach { tracker.track(it) }

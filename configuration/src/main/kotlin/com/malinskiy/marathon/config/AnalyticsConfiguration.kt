@@ -24,6 +24,7 @@ sealed class AnalyticsConfiguration {
         val dbName: String,
         val retentionPolicyConfiguration: RetentionPolicyConfiguration,
         val defaults: Defaults = Defaults(),
+        val readOnly: Boolean = false,
     ) : AnalyticsConfiguration() {
         data class RetentionPolicyConfiguration(
             val name: String,
@@ -52,6 +53,7 @@ sealed class AnalyticsConfiguration {
         val bucket: String,
         val retentionPolicyConfiguration: RetentionPolicyConfiguration = RetentionPolicyConfiguration.default,
         val defaults: Defaults = Defaults(),
+        val readOnly: Boolean = false,
     ) : AnalyticsConfiguration() {
         data class RetentionPolicyConfiguration(
             val everySeconds: Int,
@@ -74,5 +76,6 @@ sealed class AnalyticsConfiguration {
         val port: Int?,
         val prefix: String?,
         val defaults: Defaults = Defaults(),
+        val readOnly: Boolean = false,
     ) : AnalyticsConfiguration()
 }

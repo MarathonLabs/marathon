@@ -52,7 +52,7 @@ class InfluxDbProviderIntegrationTest {
 
 
         val secondDbInstance = provider.createDb()
-        val tracker = InfluxDbTracker(secondDbInstance, database, rpName)
+        val tracker = InfluxDbTracker(secondDbInstance, database, rpName, readOnly = false)
         getTestEvents().forEach { tracker.track(it) }
         secondDbInstance.close()
 
