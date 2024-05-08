@@ -70,7 +70,7 @@ internal class TrackerFactory(
             log.warn(e) { "Failed to reach InfluxDB at ${config.url}" }
             null
         }
-        return db?.let { InfluxDbTracker(it, config.dbName, config.retentionPolicyConfiguration.name) }
+        return db?.let { InfluxDbTracker(it, config.dbName, config.retentionPolicyConfiguration.name, config.readOnly) }
     }
 
     private fun createInfluxDb2Tracker(config: InfluxDb2Configuration): InfluxDb2Tracker? {
@@ -80,11 +80,11 @@ internal class TrackerFactory(
             log.warn(e) { "Failed to reach InfluxDB at ${config.url}" }
             null
         }
-        return db?.let { InfluxDb2Tracker(it) }
+        return db?.let { InfluxDb2Tracker(it, config.readOnly) }
     }
 
     private fun createGraphiteTracker(config: GraphiteConfiguration): GraphiteTracker {
-        return GraphiteTracker(BasicGraphiteClient(config.host, config.port ?: 2003, config.prefix))
+        return GraphiteTracker(BasicGraphiteClient(config.host, config.port ?: 2003, config.prefix), config.readOnly)
     }
 
     private fun createExecutionReportGenerator(): ExecutionReportGenerator {

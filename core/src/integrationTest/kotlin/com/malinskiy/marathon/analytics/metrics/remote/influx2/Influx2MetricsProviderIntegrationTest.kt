@@ -41,7 +41,7 @@ class Influx2MetricsProviderIntegrationTest : BaseMetricsProviderIntegrationTest
         @JvmStatic
         fun `start influx and insert test data`() {
             container.start()
-            val tracker = InfluxDb2Tracker(influxDb)
+            val tracker = InfluxDb2Tracker(influxDb, readOnly = false)
             getTestEvents().forEach { tracker.track(it) }
         }
 

@@ -8,10 +8,13 @@ import com.malinskiy.marathon.test.Test
 import com.malinskiy.marathon.test.toSafeTestName
 
 class GraphiteTracker(
-    private val graphite: GraphiteClient
+    private val graphite: GraphiteClient,
+    private val readOnly: Boolean,
 ) : TrackerInternalAdapter() {
 
     override fun trackTest(event: TestEvent) {
+        if (readOnly) return
+
         if (event.testResult.status in arrayOf(TestStatus.FAILURE, TestStatus.PASSED)) {
             val testResult = event.testResult
             val device = event.device

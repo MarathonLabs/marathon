@@ -28,7 +28,7 @@ class GraphiteMetricsProviderIntegrationTest : BaseMetricsProviderIntegrationTes
         @JvmStatic
         fun `start container and prepare data`() {
             container.start()
-            val tracker = GraphiteTracker(BasicGraphiteClient(host, container.getMappedPort(port), prefix))
+            val tracker = GraphiteTracker(BasicGraphiteClient(host, container.getMappedPort(port), prefix), readOnly = false)
             getTestEvents().forEach { tracker.track(it) }
             // Graphite needs a couple of seconds to process the data. There's no way to wait for it in a more intelligent manner.
             Thread.sleep(5_000)
