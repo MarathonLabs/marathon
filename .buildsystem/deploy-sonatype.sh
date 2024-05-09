@@ -18,7 +18,7 @@ fi
 
 ASSEMBLE_TARGETS=""
 PUBLISH_TARGETS=""
-for i in ":core" ":vendor:vendor-android" ":report:execution-timeline" ":report:html-report" ":analytics:usage" ":configuration"; do
+for i in ":configuration"; do
   ASSEMBLE_TARGETS="$ASSEMBLE_TARGETS $i:assemble"
   PUBLISH_TARGETS="$PUBLISH_TARGETS $i:publishAllPublicationsToOSSHRRepository"
 done
