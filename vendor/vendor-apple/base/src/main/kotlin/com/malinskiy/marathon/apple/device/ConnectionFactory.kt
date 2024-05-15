@@ -36,7 +36,7 @@ class ConnectionFactory(
     private val logger = com.malinskiy.marathon.log.MarathonLogging.logger {}
     private val fileBridges = hashMapOf<RsyncTarget, RsyncFileBridge>()
     private val sshCommandExecutors = hashMapOf<Transport.Ssh, SshjCommandExecutor>()
-    private val sshFactory = SshjCommandExecutorFactory()
+    private val sshFactory = SshjCommandExecutorFactory(keepAliveInterval = sshConfiguration.keepAliveInterval)
 
     private val connectionCounter = HashMap<CommandExecutor, Int>()
     private val lock = Object()
