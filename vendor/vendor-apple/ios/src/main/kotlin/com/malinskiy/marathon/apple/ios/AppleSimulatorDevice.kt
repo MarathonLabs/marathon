@@ -397,6 +397,7 @@ class AppleSimulatorDevice(
                                 for (line in session.stderr) {
                                     if (line.trim().isNotBlank()) {
                                         logger.error { "simulator $udid: stderr=$line" }
+                                        lineListeners.forEach { it.onLine(line) }
                                     }
                                 }
                             }
