@@ -58,7 +58,7 @@ abstract class BaseAndroidDevice(
     override var manufacturer: String = "Unknown"
     override var deviceFeatures: Collection<DeviceFeature> = emptyList()
     override var apiLevel: Int = version.apiLevel
-    override var operatingSystem: OperatingSystem = OperatingSystem(version.apiString)
+    override var operatingSystem: OperatingSystem = OperatingSystem(version.apiStringWithoutExtension)
     override var initialRotation: Rotation = Rotation.ROTATION_0
     var realSerialNumber: String = "Unknown"
     var booted: Boolean = false
@@ -92,7 +92,7 @@ abstract class BaseAndroidDevice(
             AndroidVersion(sdk.toInt(), codename)
         } else AndroidVersion.DEFAULT
         apiLevel = version.apiLevel
-        operatingSystem = OperatingSystem(version.apiString)
+        operatingSystem = OperatingSystem(version.apiStringWithoutExtension)
         model = getProperty("ro.product.model") ?: "Unknown"
         manufacturer = getProperty("ro.product.manufacturer") ?: "Unknown"
         initialRotation = fetchRotation()
