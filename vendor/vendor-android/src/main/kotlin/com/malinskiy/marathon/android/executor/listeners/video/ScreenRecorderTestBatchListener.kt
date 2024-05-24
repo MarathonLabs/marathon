@@ -95,7 +95,7 @@ class ScreenRecorderTestBatchListener(
                 stop()
                 lastRemoteFile?.let { file ->
                     lastUUID?.let {
-                        val testDuration = testStartTimeMap[it.toString()]!!.calculateTimeDuration()
+                        val testDuration = testStartTimeMap[it.toString()]!!.calculateTestDuration()
                         pullLastBatchVideo(file, testDuration)
                         removeRemoteVideo(file, testDuration)
                     }
@@ -126,7 +126,7 @@ class ScreenRecorderTestBatchListener(
     private suspend fun pullVideo(test: Test) {
         try {
             stop()
-            val testDuration = testStartTimeMap[test.toSafeTestName()]!!.calculateTimeDuration()
+            val testDuration = testStartTimeMap[test.toSafeTestName()]!!.calculateTestDuration()
             if (screenRecordingPolicy == ScreenRecordingPolicy.ON_ANY || hasFailed) {
                 pullTestVideo(test, testDuration)
             }
@@ -193,7 +193,7 @@ class ScreenRecorderTestBatchListener(
         logger.trace { "Removed file in ${millis}ms $remoteFilePath" }
     }
 
-    private fun Long.calculateTimeDuration() = TimeUnit.SECONDS.convert(System.currentTimeMillis() - this, TimeUnit.MILLISECONDS)
+    private fun Long.calculateTestDuration() = TimeUnit.SECONDS.convert(System.currentTimeMillis() - this, TimeUnit.MILLISECONDS)
 }
 
 private suspend fun AndroidDevice.verifyHealthy(): Boolean {
