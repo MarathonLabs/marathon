@@ -44,7 +44,7 @@ class RemoteFileManager(private val device: AndroidDevice) {
     }
 
     companion object {
-        const val MAX_FILENAME = 255
+        const val MAX_FILENAME = 254 //we need 1 more char for fileNumber in case of using video attachment > 180 && apiLevel < 34
         const val TMP_PATH = "/data/local/tmp"
     }
 }

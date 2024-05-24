@@ -10,6 +10,7 @@ import com.malinskiy.marathon.device.DevicePoolId
 import com.malinskiy.marathon.device.toDeviceInfo
 import com.malinskiy.marathon.execution.Attachment
 import com.malinskiy.marathon.execution.AttachmentType
+import com.malinskiy.marathon.extension.addFileNumberForVideo
 import com.malinskiy.marathon.extension.withTimeoutOrNull
 import com.malinskiy.marathon.io.FileManager
 import com.malinskiy.marathon.io.FileType
@@ -22,6 +23,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.async
 import kotlinx.coroutines.cancelAndJoin
+import java.io.File
 import java.time.Duration
 import kotlin.system.measureTimeMillis
 
@@ -122,29 +124,56 @@ class ScreenRecorderTestBatchListener(
     }
 
     private suspend fun pullTestVideo(test: Test) {
-        val localVideoFile = fileManager.createFile(FileType.VIDEO, pool, device.toDeviceInfo(), test, testBatchId)
+        val localVideoFiles = mutableListOf<File>()
         val remoteFilePath = device.fileManager.remoteVideoForTest(test, testBatchId)
         val millis = measureTimeMillis {
-            device.safePullFile(remoteFilePath, localVideoFile.toString())
+            if(device.apiLevel >= 34 || videoConfiguration.timeLimit <= 180) {
+                val localVideoFile = fileManager.createFile(FileType.VIDEO, pool, device.toDeviceInfo(), test, testBatchId)
+                device.safePullFile(remoteFilePath, localVideoFile.toString())
+                localVideoFiles.add(localVideoFile)
+            } else {
+                for (i in 0 .. (videoConfiguration.timeLimit / 180)) {
+                    val localVideoFile = fileManager.createFile(FileType.VIDEO, pool, device.toDeviceInfo(), test, testBatchId, i.toString())
+                    device.safePullFile(remoteFilePath.addFileNumberForVideo(i.toString()), localVideoFile.toString())
+                    localVideoFiles.add(localVideoFile)
+                }
+            }
         }
         logger.trace { "Pulling finished in ${millis}ms $remoteFilePath " }
-        attachmentListeners.forEach { it.onAttachment(test, Attachment(localVideoFile, AttachmentType.VIDEO)) }
+        attachmentListeners.forEach {
+            localVideoFiles.forEach { localVideoFile ->
+                it.onAttachment(test, Attachment(localVideoFile, AttachmentType.VIDEO))
+            }
+        }
     }
 
     /**
      * This can be called both when test times out and device unavailable
      */
     private suspend fun pullLastBatchVideo(remoteFilePath: String) {
-        val localVideoFile = fileManager.createFile(FileType.VIDEO, pool, device.toDeviceInfo(), testBatchId = testBatchId)
         val millis = measureTimeMillis {
-            device.safePullFile(remoteFilePath, localVideoFile.toString())
+            if(device.apiLevel >= 34 || videoConfiguration.timeLimit <= 180) {
+                val localVideoFile = fileManager.createFile(FileType.VIDEO, pool, device.toDeviceInfo(), testBatchId = testBatchId)
+                device.safePullFile(remoteFilePath, localVideoFile.toString())
+            } else {
+                for (i in 0 .. (videoConfiguration.timeLimit / 180)) {
+                    val localVideoFile = fileManager.createFile(FileType.VIDEO, pool, device.toDeviceInfo(), testBatchId = testBatchId, id = i.toString())
+                    device.safePullFile(remoteFilePath.addFileNumberForVideo(i.toString()), localVideoFile.toString())
+                }
+            }
         }
         logger.trace { "Pulling finished in ${millis}ms $remoteFilePath " }
     }
 
     private suspend fun removeRemoteVideo(remoteFilePath: String) {
         val millis = measureTimeMillis {
-            device.fileManager.removeRemotePath(remoteFilePath)
+            if(device.apiLevel >= 34 || videoConfiguration.timeLimit <= 180) {
+                device.fileManager.removeRemotePath(remoteFilePath)
+            } else {
+                for (i in 0 .. (videoConfiguration.timeLimit / 180)) {
+                    device.fileManager.removeRemotePath(remoteFilePath.addFileNumberForVideo(i.toString()))
+                }
+            }
         }
         logger.trace { "Removed file in ${millis}ms $remoteFilePath" }
     }
