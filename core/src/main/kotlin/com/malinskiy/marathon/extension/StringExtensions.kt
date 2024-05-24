@@ -24,5 +24,3 @@ fun String.escape(): String {
 }
 
 val escapeRegex = "[^a-zA-Z0-9\\.\\#]".toRegex()
-
-fun String.addFileNumberForVideo(fileNumber: String) = "${this.split(".mp4")[0]}$fileNumber.mp4"

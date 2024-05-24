@@ -41,6 +41,7 @@ import com.malinskiy.marathon.android.RemoteFileManager
 import com.malinskiy.marathon.android.adam.extension.toShellResult
 import com.malinskiy.marathon.android.exception.CommandRejectedException
 import com.malinskiy.marathon.android.exception.InstallException
+import com.malinskiy.marathon.android.executor.listeners.video.ScreenRecorder.Companion.addFileNumberForVideo
 import com.malinskiy.marathon.exceptions.TransferException
 import com.malinskiy.marathon.execution.listener.LineListener
 import com.malinskiy.marathon.android.extension.toScreenRecorderCommand
@@ -54,7 +55,6 @@ import com.malinskiy.marathon.device.NetworkState
 import com.malinskiy.marathon.device.file.measureFileTransfer
 import com.malinskiy.marathon.exceptions.DeviceLostException
 import com.malinskiy.marathon.execution.TestBatchResults
-import com.malinskiy.marathon.extension.addFileNumberForVideo
 import com.malinskiy.marathon.extension.escape
 import com.malinskiy.marathon.extension.withTimeout
 import com.malinskiy.marathon.extension.withTimeoutOrNull

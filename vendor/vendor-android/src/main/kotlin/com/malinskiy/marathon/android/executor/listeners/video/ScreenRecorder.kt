@@ -34,5 +34,14 @@ internal class ScreenRecorder(
 
     companion object {
         private val logger = MarathonLogging.logger("ScreenRecorder")
+        private const val VIDEO_SUFFIX_LENGTH = 41 // "-" + 36 chars UUID of testBatchId + ".mp4"
+        fun String.addFileNumberForVideo(fileNumber: String): String  {
+            val lastIndexForReplacement = this.length - VIDEO_SUFFIX_LENGTH
+            var firstIndexForReplacement = lastIndexForReplacement
+            if (this.length + fileNumber.length > 255) {
+                firstIndexForReplacement -= fileNumber.length
+            }
+            return this.replaceRange(firstIndexForReplacement, lastIndexForReplacement, fileNumber)
+        }
     }
 }
