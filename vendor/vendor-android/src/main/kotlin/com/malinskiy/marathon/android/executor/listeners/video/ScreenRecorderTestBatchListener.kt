@@ -70,7 +70,7 @@ class ScreenRecorderTestBatchListener(
                 lastUUID = this
                 testStartTimeMap[this.toString()] = System.currentTimeMillis()
             }
-            testStartTimeMap[test.toTest().toSafeTestName()]
+            testStartTimeMap[test.toTest().toSafeTestName()] = System.currentTimeMillis()
             screenRecorder.run()
         }
     }
