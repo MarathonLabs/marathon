@@ -127,7 +127,7 @@ class ScreenRecorderTestBatchListener(
         val localVideoFiles = mutableListOf<File>()
         val remoteFilePath = device.fileManager.remoteVideoForTest(test, testBatchId)
         val millis = measureTimeMillis {
-            if(device.apiLevel >= 34 || videoConfiguration.timeLimit <= 180) {
+            if(device.apiLevel >= 34 || videoConfiguration.timeLimit <= 180 || !videoConfiguration.increasedTimeLimitFeatureEnabled) {
                 val localVideoFile = fileManager.createFile(FileType.VIDEO, pool, device.toDeviceInfo(), test, testBatchId)
                 device.safePullFile(remoteFilePath, localVideoFile.toString())
                 localVideoFiles.add(localVideoFile)
@@ -152,7 +152,7 @@ class ScreenRecorderTestBatchListener(
      */
     private suspend fun pullLastBatchVideo(remoteFilePath: String) {
         val millis = measureTimeMillis {
-            if(device.apiLevel >= 34 || videoConfiguration.timeLimit <= 180) {
+            if(device.apiLevel >= 34 || videoConfiguration.timeLimit <= 180 || !videoConfiguration.increasedTimeLimitFeatureEnabled) {
                 val localVideoFile = fileManager.createFile(FileType.VIDEO, pool, device.toDeviceInfo(), testBatchId = testBatchId)
                 device.safePullFile(remoteFilePath, localVideoFile.toString())
             } else {
@@ -167,7 +167,7 @@ class ScreenRecorderTestBatchListener(
 
     private suspend fun removeRemoteVideo(remoteFilePath: String) {
         val millis = measureTimeMillis {
-            if(device.apiLevel >= 34 || videoConfiguration.timeLimit <= 180) {
+            if(device.apiLevel >= 34 || videoConfiguration.timeLimit <= 180 || !videoConfiguration.increasedTimeLimitFeatureEnabled) {
                 device.fileManager.removeRemotePath(remoteFilePath)
             } else {
                 for (i in 0 .. (videoConfiguration.timeLimit / 180)) {

@@ -375,7 +375,7 @@ class AdamAndroidDevice(
         options: VideoConfiguration
     ) {
         var secondsRemaining = TimeUnit.SECONDS.convert(options.timeLimit, options.timeLimitUnits)
-        if(secondsRemaining <= 180 || apiLevel >= 34) {
+        if(secondsRemaining <= 180 || apiLevel >= 34 || !options.increasedTimeLimitFeatureEnabled) {
             startScreenRecorder(remoteFilePath, options)
         } else {
             var recordsCount = 0
