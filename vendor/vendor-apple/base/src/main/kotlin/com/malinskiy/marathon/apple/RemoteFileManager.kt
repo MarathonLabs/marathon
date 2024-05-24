@@ -70,9 +70,7 @@ class RemoteFileManager(private val device: AppleDevice) {
     private suspend fun safeExecuteCommand(command: List<String>) {
         try {
             device.executeWorkerCommand(command)
-        } catch (e: Exception) {
-            null
-        }
+        } catch (_: Exception) {}
     }
 
     private suspend fun executeCommand(command: List<String>, errorMessage: String): String? {

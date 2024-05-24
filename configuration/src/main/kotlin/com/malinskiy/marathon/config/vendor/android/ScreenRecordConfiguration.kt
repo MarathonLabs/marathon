@@ -18,7 +18,7 @@ enum class RecorderType {
         @JsonCreator
         fun fromString(key: String?): RecorderType? {
             return key?.let {
-                RecorderType.valueOf(it.toUpperCase())
+                RecorderType.valueOf(it.uppercase())
             }
         }
     }

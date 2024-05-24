@@ -4,7 +4,7 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineExceptionHandler
 import mu.KLogger
 
-fun newCoroutineExceptionHandler(logger: KLogger) = CoroutineExceptionHandler { context, exception ->
+fun newCoroutineExceptionHandler(logger: KLogger) = CoroutineExceptionHandler { _, exception ->
     when (exception) {
         null -> logger.debug { "CoroutineContext finished" }
         is CancellationException -> logger.debug(exception) { "CoroutineContext cancelled" }
