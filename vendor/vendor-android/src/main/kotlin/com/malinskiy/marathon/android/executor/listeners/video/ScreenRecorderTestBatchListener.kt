@@ -28,6 +28,7 @@ import java.io.File
 import java.time.Duration
 import java.util.UUID
 import java.util.concurrent.TimeUnit
+import kotlin.math.max
 import kotlin.system.measureTimeMillis
 
 class ScreenRecorderTestBatchListener(
@@ -195,7 +196,7 @@ class ScreenRecorderTestBatchListener(
         logger.trace { "Removed file in ${millis}ms $remoteFilePath" }
     }
 
-    private fun Long?.calculateTestDuration(): Long = this?.let { TimeUnit.SECONDS.convert(System.currentTimeMillis() - this, TimeUnit.MILLISECONDS) - 1 } ?: defaultTimeLimit // -1 in case it takes some time to start and stop recording
+    private fun Long?.calculateTestDuration(): Long = max((this?.let { TimeUnit.SECONDS.convert(System.currentTimeMillis() - this, TimeUnit.MILLISECONDS) - 1 } ?: defaultTimeLimit), defaultTimeLimit) // -1 in case it takes some time to start and stop recording
 }
 
 private suspend fun AndroidDevice.verifyHealthy(): Boolean {
