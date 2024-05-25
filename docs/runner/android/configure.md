@@ -312,7 +312,8 @@ screenshots or configure the recording parameters you can specify this as follow
 
 :::tip
 
-Android's `screenrecorder` doesn't support videos longer than 180 seconds
+Android's `screenrecorder` doesn't support videos longer than 180 seconds for apiVersion < 34. If you want to set timeLimit > 180 you can 
+use `increasedTimeLimitFeatureEnabled: true`
 
 :::
 
@@ -330,6 +331,7 @@ vendorConfiguration:
       height: 1920
       bitrateMbps: 2
       timeLimit: 300
+      increasedTimeLimitFeatureEnabled: false
     screenshotConfiguration:
       enabled: false
       width: 1080
@@ -349,7 +351,8 @@ marathon {
       1080, //width
       1920, //height
       2, //Bitrate in Mbps
-      300 //Max duration in seconds
+      300, //Max duration in seconds
+      false // Increased timeLimit feature toggle - if enabled - we can use more than 180sec videos(depends on apiVersion)
     ),
     ScreenshotConfiguration(
       false, //enabled
@@ -373,7 +376,8 @@ marathon {
       1080, //width
       1920, //height
       2, //Bitrate in Mbps
-      300 //Max duration in seconds
+      300, //Max duration in seconds
+      false // Increased timeLimit feature toggle - if enabled - we can use more than 180sec videos(depends on apiVersion)
     ),
     ScreenshotConfiguration(
       false, //enabled
