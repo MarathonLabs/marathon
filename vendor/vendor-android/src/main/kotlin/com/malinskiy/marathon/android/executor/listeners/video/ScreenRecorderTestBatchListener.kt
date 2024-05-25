@@ -56,6 +56,7 @@ class ScreenRecorderTestBatchListener(
     private var lastUUID: UUID? = null
 
     private val testStartTimeMap: MutableMap<String, Long> = mutableMapOf()
+    private val defaultTimeLimit: Long = 180
 
     override suspend fun testStarted(test: TestIdentifier) {
         hasFailed = false
@@ -66,11 +67,12 @@ class ScreenRecorderTestBatchListener(
         val supervisor = SupervisorJob()
         supervisorJob = supervisor
         async(supervisor) {
+            val startTime = System.currentTimeMillis()
             with(UUID.randomUUID()) {  //safety for immediately failed run
                 lastUUID = this
-                testStartTimeMap[this.toString()] = System.currentTimeMillis()
+                testStartTimeMap[this.toString()] = startTime
             }
-            testStartTimeMap[test.toTest().toSafeTestName()] = System.currentTimeMillis()
+            testStartTimeMap[test.toTest().toSafeTestName()] = startTime
             screenRecorder.run()
         }
     }
@@ -95,7 +97,7 @@ class ScreenRecorderTestBatchListener(
                 stop()
                 lastRemoteFile?.let { file ->
                     lastUUID?.let {
-                        val testDuration = testStartTimeMap[it.toString()]!!.calculateTestDuration()
+                        val testDuration = testStartTimeMap[it.toString()].calculateTestDuration()
                         pullLastBatchVideo(file, testDuration)
                         removeRemoteVideo(file, testDuration)
                     }
@@ -126,7 +128,7 @@ class ScreenRecorderTestBatchListener(
     private suspend fun pullVideo(test: Test) {
         try {
             stop()
-            val testDuration = testStartTimeMap[test.toSafeTestName()]!!.calculateTestDuration()
+            val testDuration = testStartTimeMap[test.toSafeTestName()].calculateTestDuration()
             if (screenRecordingPolicy == ScreenRecordingPolicy.ON_ANY || hasFailed) {
                 pullTestVideo(test, testDuration)
             }
@@ -142,12 +144,12 @@ class ScreenRecorderTestBatchListener(
         val localVideoFiles = mutableListOf<File>()
         val remoteFilePath = device.fileManager.remoteVideoForTest(test, testBatchId)
         val millis = measureTimeMillis {
-            if(device.apiLevel >= 34 || videoConfiguration.timeLimit <= 180 || !videoConfiguration.increasedTimeLimitFeatureEnabled) {
+            if(device.apiLevel >= 34 || videoConfiguration.timeLimit <= defaultTimeLimit || !videoConfiguration.increasedTimeLimitFeatureEnabled) {
                 val localVideoFile = fileManager.createFile(FileType.VIDEO, pool, device.toDeviceInfo(), test, testBatchId)
                 device.safePullFile(remoteFilePath, localVideoFile.toString())
                 localVideoFiles.add(localVideoFile)
             } else {
-                for (i in 0 .. (testDuration / 180)) {
+                for (i in 0 .. (testDuration / defaultTimeLimit)) {
                     val localVideoFile = fileManager.createFile(FileType.VIDEO, pool, device.toDeviceInfo(), test, testBatchId, i.toString())
                     device.safePullFile(remoteFilePath.addFileNumberForVideo(i.toString()), localVideoFile.toString())
                     localVideoFiles.add(localVideoFile)
@@ -167,11 +169,11 @@ class ScreenRecorderTestBatchListener(
      */
     private suspend fun pullLastBatchVideo(remoteFilePath: String, testDuration: Long) {
         val millis = measureTimeMillis {
-            if(device.apiLevel >= 34 || videoConfiguration.timeLimit <= 180 || !videoConfiguration.increasedTimeLimitFeatureEnabled) {
+            if(device.apiLevel >= 34 || videoConfiguration.timeLimit <= defaultTimeLimit || !videoConfiguration.increasedTimeLimitFeatureEnabled) {
                 val localVideoFile = fileManager.createFile(FileType.VIDEO, pool, device.toDeviceInfo(), testBatchId = testBatchId)
                 device.safePullFile(remoteFilePath, localVideoFile.toString())
             } else {
-                for (i in 0 .. (testDuration / 180)) {
+                for (i in 0 .. (testDuration / defaultTimeLimit)) {
                     val localVideoFile = fileManager.createFile(FileType.VIDEO, pool, device.toDeviceInfo(), testBatchId = testBatchId, id = i.toString())
                     device.safePullFile(remoteFilePath.addFileNumberForVideo(i.toString()), localVideoFile.toString())
                 }
@@ -182,10 +184,10 @@ class ScreenRecorderTestBatchListener(
 
     private suspend fun removeRemoteVideo(remoteFilePath: String, testDuration: Long) {
         val millis = measureTimeMillis {
-            if(device.apiLevel >= 34 || videoConfiguration.timeLimit <= 180 || !videoConfiguration.increasedTimeLimitFeatureEnabled) {
+            if(device.apiLevel >= 34 || videoConfiguration.timeLimit <= defaultTimeLimit || !videoConfiguration.increasedTimeLimitFeatureEnabled) {
                 device.fileManager.removeRemotePath(remoteFilePath)
             } else {
-                for (i in 0 .. (testDuration / 180)) {
+                for (i in 0 .. (testDuration / defaultTimeLimit)) {
                     device.fileManager.removeRemotePath(remoteFilePath.addFileNumberForVideo(i.toString()))
                 }
             }
@@ -193,7 +195,7 @@ class ScreenRecorderTestBatchListener(
         logger.trace { "Removed file in ${millis}ms $remoteFilePath" }
     }
 
-    private fun Long.calculateTestDuration() = TimeUnit.SECONDS.convert(System.currentTimeMillis() - this, TimeUnit.MILLISECONDS)
+    private fun Long?.calculateTestDuration(): Long = this?.let { TimeUnit.SECONDS.convert(System.currentTimeMillis() - this, TimeUnit.MILLISECONDS) - 1 } ?: defaultTimeLimit // -1 in case it takes some time to start and stop recording
 }
 
 private suspend fun AndroidDevice.verifyHealthy(): Boolean {
