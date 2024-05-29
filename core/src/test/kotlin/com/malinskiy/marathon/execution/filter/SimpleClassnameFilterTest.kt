@@ -36,6 +36,13 @@ class SimpleClassnameFilterTest {
     }
 
     @Test
+    fun disabled() {
+        val filter = TestFilterConfiguration.SimpleClassnameFilterConfiguration("""^((?!Abstract).)*Test${'$'}""".toRegex(), enabled = false).toTestFilter()
+        filter.filterNot(tests) shouldBeEqualTo tests
+        filter.filter(tests) shouldBeEqualTo tests
+    }
+
+    @Test
     fun `should throw exception when more than one parameter specified`() {
         assertThrows<ConfigurationException> {
             TestFilterConfiguration.SimpleClassnameFilterConfiguration(

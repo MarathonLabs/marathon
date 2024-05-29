@@ -32,6 +32,13 @@ class SimpleTestnameFilterTest {
     }
 
     @Test
+    fun disabled() {
+        val filter = TestFilterConfiguration.SimpleTestnameFilterConfiguration(values = listOf("Test2#test2"), enabled = false).toTestFilter()
+        filter.filterNot(tests) shouldBeEqualTo tests
+        filter.filter(tests) shouldBeEqualTo tests
+    }
+
+    @Test
     fun shouldFilterWithRegex() {
         TestFilterConfiguration.SimpleTestnameFilterConfiguration(
             regex = ".+test3".toRegex()

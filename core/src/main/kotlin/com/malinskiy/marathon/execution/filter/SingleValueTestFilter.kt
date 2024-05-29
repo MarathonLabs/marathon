@@ -3,12 +3,14 @@ package com.malinskiy.marathon.execution.filter
 import com.malinskiy.marathon.execution.TestFilter
 import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.test.Test
+import jdk.jfr.Enabled
 import java.io.File
 
 open class SingleValueTestFilter(
     val regex: Regex?,
     val values: List<String>?,
     val file: File?,
+    val enabled: Boolean,
     val predicate: SingleValueTestFilter.(test: Test, values: List<String>?) -> Boolean,
 ) : TestFilter {
     private val log = MarathonLogging.logger("SingleValueTestFilter")
@@ -28,12 +30,16 @@ open class SingleValueTestFilter(
         return values ?: fileValuesCache
     }
 
-    override fun filter(tests: List<Test>): List<Test> = with(tests) {
-        filter { predicate(this@SingleValueTestFilter, it, readValues()) }
+    override fun filter(tests: List<Test>): List<Test> = if (enabled) {
+        tests.filter { predicate(this@SingleValueTestFilter, it, readValues()) }
+    } else {
+        tests
     }
 
-    override fun filterNot(tests: List<Test>): List<Test> = with(tests) {
-        filterNot { predicate(this@SingleValueTestFilter, it, readValues()) }
+    override fun filterNot(tests: List<Test>): List<Test> = if (enabled) {
+        tests.filterNot { predicate(this@SingleValueTestFilter, it, readValues()) }
+    } else {
+        tests
     }
 
     override fun equals(other: Any?): Boolean {
