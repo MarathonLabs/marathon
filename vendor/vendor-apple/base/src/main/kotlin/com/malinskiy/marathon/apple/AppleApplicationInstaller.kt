@@ -31,7 +31,7 @@ open class AppleApplicationInstaller<in T : AppleDevice>(
         val bundle = AppleTestBundle(app, testApp, xctest, device.sdk)
         val relativeTestBinaryPath = bundle.relativeBinaryPath
         val testBinary = bundle.testBinary
-        var remoteXctest = ""
+        val remoteXctest: String
 
         if (testApp != null) {
             logger.debug { "Moving xctest runner application to ${device.serialNumber}" }
