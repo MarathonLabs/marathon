@@ -32,7 +32,8 @@ class DexTestParser(
                 val packageAndClassName = split[0]
 
                 val lastDotIndex = packageAndClassName.indexOfLast { c -> c == '.' }
-                val packageName = packageAndClassName.substring(0 until lastDotIndex)
+                val packageName = if (lastDotIndex == -1) "" else packageAndClassName.substring(0 until lastDotIndex)
+
                 val className = packageAndClassName.substring(lastDotIndex + 1 until packageAndClassName.length)
 
                 val test = Test(packageName, className, methodName, annotations)
