@@ -5,7 +5,7 @@
     <shortenClasspath name="NONE" />
     <option name="WORKING_DIRECTORY" value="sample/android-library" />
     <method v="2">
-      <option name="Gradle.BeforeRunTask" enabled="false" tasks="publishAllPublicationsToLocalRepository publishPluginMavenPublicationToMavenLocal" externalProjectPath="$PROJECT_DIR$" vmOptions="" scriptParameters="" />
+      <option name="Gradle.BeforeRunTask" enabled="false" tasks="publishAllPublicationsToLocalRepository" externalProjectPath="$PROJECT_DIR$" vmOptions="" scriptParameters="" />
       <option name="Gradle.BeforeRunTask" enabled="false" tasks=":library:assembleDebug :library:assembleDebugAndroidTest" externalProjectPath="$PROJECT_DIR$/sample/android-library" vmOptions="" scriptParameters="" />
       <option name="Make" enabled="true" />
     </method>
