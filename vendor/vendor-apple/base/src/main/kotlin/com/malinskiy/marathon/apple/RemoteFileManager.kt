@@ -16,6 +16,7 @@ class RemoteFileManager(private val device: AppleDevice) {
 
     fun remoteDirectory(): String = outputDir
     fun remoteSharedDirectory(): String = AppleDevice.SHARED_PATH + "/shared/"
+    fun remoteSharedMediaDirectory(): String = remoteSharedDirectory() + "mediaFiles/"
 
     suspend fun createRemoteDirectory(remoteDir: String = remoteDirectory()) {
         executeCommand(
@@ -25,6 +26,8 @@ class RemoteFileManager(private val device: AppleDevice) {
     }
 
     suspend fun createRemoteSharedDirectory() = createRemoteDirectory(remoteSharedDirectory())
+
+    suspend fun createRemoteSharedMediaDirectory() = createRemoteDirectory(remoteSharedMediaDirectory())
 
     suspend fun removeRemoteDirectory() {
         executeCommand(
@@ -47,6 +50,7 @@ class RemoteFileManager(private val device: AppleDevice) {
     fun remoteXctestParserFile(): String = remoteSharedFile(`libXctestParserFileName`())
     fun remoteApplication(): String = remoteSharedFile(appUnderTestFileName())
     fun remoteExtraApplication(name: String) = remoteSharedFile(name)
+    fun remoteMediaFile(file: String): String = remoteSharedMediaDirectory().resolve(file)
 
     /**
      * Omitting xcresult extension results in a symlink

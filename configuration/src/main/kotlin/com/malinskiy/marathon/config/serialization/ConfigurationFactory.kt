@@ -84,6 +84,9 @@ class ConfigurationFactory(
                             it.testType
                         ).apply { validate() }
                     }
+
+                    val resolvedMediaFiles = iosConfiguration.mediaFiles?.map { ddd -> marathonfileDir.resolve(ddd) }
+
                     val optionalDevices = configuration.vendorConfiguration.devicesFile?.resolveAgainst(marathonfileDir)
                         ?: marathonfileDir.resolve("Marathondevices")
 
@@ -104,6 +107,7 @@ class ConfigurationFactory(
 
                     configuration.vendorConfiguration.copy(
                         bundle = resolvedBundle,
+                        mediaFiles = resolvedMediaFiles,
                         devicesFile = optionalDevices,
                         ssh = optionalSshConfiguration,
                     )
