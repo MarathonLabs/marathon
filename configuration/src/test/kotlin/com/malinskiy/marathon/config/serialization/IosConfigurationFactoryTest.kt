@@ -19,7 +19,11 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.KotlinFeature
 import com.fasterxml.jackson.module.kotlin.KotlinModule
 import com.malinskiy.marathon.config.serialization.yaml.SerializeModule
+import com.malinskiy.marathon.config.vendor.apple.TimeoutConfiguration
 import com.malinskiy.marathon.config.vendor.apple.TestType
+import org.amshove.kluent.`should be equal to`
+import org.amshove.kluent.shouldContain
+import org.amshove.kluent.shouldHaveSize
 
 class IosConfigurationFactoryTest {
     private val mockMarathonFileDir = File(ConfigurationFactoryTest::class.java.getResource("/fixture/config/ios").file)
@@ -98,5 +102,40 @@ class IosConfigurationFactoryTest {
 
         val iosConfiguration = configuration.vendorConfiguration as VendorConfiguration.IOSConfiguration
         iosConfiguration.bundle?.testType shouldBeEqualTo TestType.XCUITEST
+    }
+
+    @Test
+    fun `on configuration with push media files`() {
+        val file = File(ConfigurationFactoryTest::class.java.getResource("/fixture/config/ios/sample_4.yaml").file)
+        val configuration = parser.parse(file)
+
+        val iosConfiguration = configuration.vendorConfiguration as VendorConfiguration.IOSConfiguration
+        iosConfiguration.mediaFiles?.shouldHaveSize(2)
+        iosConfiguration.mediaFiles?.shouldContain(file.parentFile.resolve("media/empty.jpg").canonicalFile)
+        iosConfiguration.mediaFiles?.shouldContain(file.parentFile.resolve("media/empty.mp4").canonicalFile)
+    }
+
+    @Test
+    fun `on configuration with timeout configuration in iOS`() {
+        val file = File(ConfigurationFactoryTest::class.java.getResource("/fixture/config/ios/sample_5.yaml").file)
+        val configuration = parser.parse(file)
+
+        val timeoutConfiguration = (configuration.vendorConfiguration as VendorConfiguration.IOSConfiguration).timeoutConfiguration
+        timeoutConfiguration `should be equal to` TimeoutConfiguration(
+            shell = Duration.ofSeconds(30),
+            shellIdle = Duration.ofSeconds(31),
+            reachability = Duration.ofMinutes(1),
+            screenshot = Duration.ofMinutes(2),
+            video = Duration.ofHours(1),
+            erase = Duration.ofHours(2),
+            shutdown = Duration.ofDays(1),
+            delete = Duration.ofSeconds(3),
+            create = Duration.parse("P1DT12H30M5S"),
+            boot = Duration.ofSeconds(80),
+            install = Duration.ofHours(3),
+            uninstall = Duration.ofSeconds(62),
+            pushMedia = Duration.ofSeconds(6),
+            testDestination = Duration.ofSeconds(34),
+        )
     }
 }
