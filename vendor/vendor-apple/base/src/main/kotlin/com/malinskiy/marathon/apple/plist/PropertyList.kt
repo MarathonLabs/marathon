@@ -1,7 +1,9 @@
 package com.malinskiy.marathon.apple.plist
 
+import com.dd.plist.BinaryPropertyListWriter
 import com.dd.plist.NSObject
 import com.dd.plist.PropertyListParser
+import com.dd.plist.XMLPropertyListWriter
 import java.io.File
 import java.io.InputStream
 import java.io.OutputStream
@@ -20,22 +22,20 @@ abstract class PropertyList<T: NSObject>(val delegate: T) {
         }
     }
 
-    
-    
     fun saveAsBinary(file: File) {
-        PropertyListParser.saveAsBinary(delegate, file)
+        BinaryPropertyListWriter.write(delegate, file)
     }
 
     fun saveAsBinary(outputStream: OutputStream) {
-        PropertyListParser.saveAsBinary(delegate, outputStream)
+        BinaryPropertyListWriter.write(delegate, outputStream)
     }
 
     fun saveAsXML(file: File) {
-        PropertyListParser.saveAsXML(delegate, file)
+        XMLPropertyListWriter.write(delegate, file)
     }
 
     fun saveAsXML(outputStream: OutputStream) {
-        PropertyListParser.saveAsXML(delegate, outputStream)
+        XMLPropertyListWriter.write(delegate, outputStream)
     }
 
     override fun equals(other: Any?): Boolean {
