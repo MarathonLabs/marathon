@@ -299,6 +299,21 @@ The `display` and `mask` fields have the same options as the video recorder.
 The `type` specifies the format of a single frame and is advised not to be changes.
 The `delay` field specifies the minimal delay between frames using [ISO 8601][3] notation.
 
+### Push media files to apple simulator before test run
+
+Sometimes you need to push some media files such as photos, live photos, videos, or contacts to the library of a device. Here is how you can configure it:
+
+:::info
+
+All files will be pushed using the `simctl addmedia` command, which is only available for apple simulators.
+
+:::
+```yaml
+pushMediaFiles:
+  - "media/photo.jpg"
+  - "media/video.mp4"
+```
+
 ### xctestrun Environment and TestingEnvironment variables
 
 You can specify additional Environment and TestingEnvironment variables for your test run:
@@ -479,6 +494,7 @@ timeoutConfiguration:
 | install         | Timeout for installing applications (does not apply for the app bundle or test bundle)             |
 | uninstall       | Timeout for uninstalling applications                                                              |
 | testDestination | Timeout for waiting for simulator specified to xcodebuild                                          |
+| pushMedia       | Timeout for pushing a media file to simulator                                                      |
 
 ### Threading
 
