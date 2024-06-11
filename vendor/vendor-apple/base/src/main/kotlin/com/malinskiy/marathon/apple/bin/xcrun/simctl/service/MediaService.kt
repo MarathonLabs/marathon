@@ -12,7 +12,7 @@ class MediaService(
 
     suspend fun addMedia(udid: String, remotePath: String): CommandResult {
         return criticalExec(
-            timeout = timeoutConfiguration.pushMedia,
+            timeout = timeoutConfiguration.importMedia,
             "addmedia", udid, remotePath
         )
     }

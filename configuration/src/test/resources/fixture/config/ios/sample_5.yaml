@@ -23,6 +23,6 @@ vendorConfiguration:
     boot: PT80S
     install: PT3H
     uninstall: PT62S
-    pushMedia: PT6S
+    importMedia: PT6S
     testDestination: PT34S
 

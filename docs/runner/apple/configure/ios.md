@@ -307,11 +307,22 @@ Sometimes you need to push some media files such as photos, live photos, videos,
 
 All files will be pushed using the `simctl addmedia` command, which is only available for apple simulators.
 
+
+This import will only be done once per device provisioning, so in the simplest case once before a test run. So if the test manipulates these in any way - it's the test's responsibility to reset it to the state needed.
+
+:::
+
+:::warning
+
+The imported files will remain on the device throughout its entire life cycle.
+New test runs will produce new file imports. To avoid increasing the simulator storage growth or side effects from the previous test runs -  read how to erase it before/after test runs - [Test run lifecycle][4]
+
 :::
 ```yaml
-pushMediaFiles:
+importMedia:
   - "media/photo.jpg"
   - "media/video.mp4"
+  - "media/contact.vcf"
 ```
 
 ### xctestrun Environment and TestingEnvironment variables
@@ -477,6 +488,7 @@ timeoutConfiguration:
   install: PT30S
   uninstall: PT30S
   testDestination: PT30S
+  importMedia: PT30S
 ```
 
 | Name            | Description                                                                                        |
@@ -494,7 +506,7 @@ timeoutConfiguration:
 | install         | Timeout for installing applications (does not apply for the app bundle or test bundle)             |
 | uninstall       | Timeout for uninstalling applications                                                              |
 | testDestination | Timeout for waiting for simulator specified to xcodebuild                                          |
-| pushMedia       | Timeout for pushing a media file to simulator                                                      |
+| importMedia     | Timeout for importing a media file to simulator                                                    |
 
 ### Threading
 
@@ -641,4 +653,5 @@ deviceLog: true
 [1]: ../workers.md
 [2]: ../../configuration/dynamic-configuration.md
 [3]: https://en.wikipedia.org/wiki/ISO_8601
+[4]: #test-run-lifecycle
 [libxctest-parser-license]: https://github.com/MarathonLabs/marathon/blob/-/vendor/vendor-apple/base/src/main/resources/EULA.md

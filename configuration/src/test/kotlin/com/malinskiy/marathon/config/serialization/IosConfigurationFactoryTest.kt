@@ -105,7 +105,7 @@ class IosConfigurationFactoryTest {
     }
 
     @Test
-    fun `on configuration with push media files`() {
+    fun `on configuration with import media files`() {
         val file = File(ConfigurationFactoryTest::class.java.getResource("/fixture/config/ios/sample_4.yaml").file)
         val configuration = parser.parse(file)
 
@@ -134,7 +134,7 @@ class IosConfigurationFactoryTest {
             boot = Duration.ofSeconds(80),
             install = Duration.ofHours(3),
             uninstall = Duration.ofSeconds(62),
-            pushMedia = Duration.ofSeconds(6),
+            importMedia = Duration.ofSeconds(6),
             testDestination = Duration.ofSeconds(34),
         )
     }

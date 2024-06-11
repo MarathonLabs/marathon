@@ -217,8 +217,8 @@ class AppleSimulatorDevice(
                             if (!boot()) {
                                 logger.warn("Exception booting simulator $udid")
                             }
-                            AppleSimulatorMediaPusher(vendorConfiguration)
-                                .addMedia(this@AppleSimulatorDevice)
+                            AppleSimulatorMediaImporter(vendorConfiguration)
+                                .importMedia(this@AppleSimulatorDevice)
                         })
                     }.awaitAll()
                 }
@@ -455,7 +455,7 @@ class AppleSimulatorDevice(
         return binaryEnvironment.xcrun.simctl.application.install(udid, remotePath).successful
     }
 
-    suspend fun addMedia(remotePath: String): Boolean {
+    suspend fun importMedia(remotePath: String): Boolean {
         return binaryEnvironment.xcrun.simctl.mediaService.addMedia(udid, remotePath).successful
     }
 

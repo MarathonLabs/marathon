@@ -5,7 +5,7 @@ vendorConfiguration:
   bundle:
     derivedDataDir: "derivedDataDir"
     testType: xcuitest
-  pushMediaFiles:
+  importMedia:
     - "media/empty.jpg"
     - "media/empty.mp4"
   ssh:

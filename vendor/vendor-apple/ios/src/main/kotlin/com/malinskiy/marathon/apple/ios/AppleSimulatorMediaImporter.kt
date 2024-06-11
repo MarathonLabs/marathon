@@ -6,12 +6,12 @@ import com.malinskiy.marathon.exceptions.DeviceSetupException
 import com.malinskiy.marathon.execution.withRetry
 import com.malinskiy.marathon.log.MarathonLogging
 
-class AppleSimulatorMediaPusher(override val vendorConfiguration: VendorConfiguration.IOSConfiguration) :
+class AppleSimulatorMediaImporter(override val vendorConfiguration: VendorConfiguration.IOSConfiguration) :
     AppleApplicationInstaller<AppleSimulatorDevice>(vendorConfiguration) {
 
     private val logger = MarathonLogging.logger {}
 
-    suspend fun addMedia(device: AppleSimulatorDevice) {
+    suspend fun importMedia(device: AppleSimulatorDevice) {
         if (vendorConfiguration.mediaFiles.isNullOrEmpty()) return
 
         device.remoteFileManager.createRemoteSharedMediaDirectory()
@@ -23,9 +23,9 @@ class AppleSimulatorMediaPusher(override val vendorConfiguration: VendorConfigur
                 throw DeviceSetupException("Error transferring $remoteMediaFile to ${device.serialNumber}")
             }
             withRetry(3, 1000L) {
-                logger.debug { "Adding media $mFile to ${device.serialNumber}" }
-                if (!device.addMedia(remoteMediaFile)) {
-                    throw DeviceSetupException("Error adding media $remoteMediaFile to ${device.serialNumber}")
+                logger.debug { "Importing media $mFile to ${device.serialNumber}" }
+                if (!device.importMedia(remoteMediaFile)) {
+                    throw DeviceSetupException("Error importing media $remoteMediaFile to ${device.serialNumber}")
                 }
             }
         }
