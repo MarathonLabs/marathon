@@ -1,0 +1,16 @@
+name: "sample-app tests"
+outputDir: "./marathon"
+vendorConfiguration:
+  type: "iOS"
+  bundle:
+    derivedDataDir: "derivedDataDir"
+    testType: xcuitest
+  importMedia:
+    - "media/empty.jpg"
+    - "media/empty.mp4"
+  ssh:
+    authentication:
+      type: "publicKey"
+      username: "testuser"
+      key: "/home/testuser/.ssh/id_rsa"
+    debug: true
