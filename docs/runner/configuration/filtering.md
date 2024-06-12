@@ -212,6 +212,15 @@ com.example
 com.example.subpackage
 ```
 
+You can leave comments via the **#** symbol at the beginning of the line or after the space in a value line. 
+It can be helpful for example for the blocklist when you needed to specify the reason of skipping a test or just for commenting some values:
+
+```text
+#this is comment
+com.example #skipped because of flakiness
+com.example.subpackage
+```
+
 ### Groovy filtering
 
 With almost every filtering configuration (except for `annotationDataFilter`) it is possible to have `regex` and `values`.

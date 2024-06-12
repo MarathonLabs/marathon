@@ -8,6 +8,25 @@ import org.junit.jupiter.api.Test
 
 class SingleValueTestFilterTest {
     @Test
+    fun `should filter block list from value file`() {
+        val blockedTest = MarathonTest("pkg", "clazz", "method", emptyList())
+        val allowedTest = MarathonTest("pkg", "clazz2", "method", emptyList())
+        val inputTests = listOf(blockedTest, allowedTest)
+
+        val blocklistEmptyFileFilter = FullyQualifiedClassnameFilter(
+            TestFilterConfiguration.FullyQualifiedClassnameFilterConfiguration(
+                regex = null,
+                values = null,
+                file = File(SingleValueTestFilterTest::class.java.getResource("/testfilters/valuelist_2").file)
+            )
+        )
+
+        val filteredTests = blocklistEmptyFileFilter.filterNot(inputTests)
+
+        assertEquals(listOf(allowedTest), filteredTests)
+    }
+
+    @Test
     fun `if empty block list file all tests should be allowed`() {
         val inputTests = listOf(
             MarathonTest("pkg", "clazz", "method", emptyList()),
@@ -45,6 +64,25 @@ class SingleValueTestFilterTest {
         val filteredTests = blocklistEmptyFileFilter.filterNot(inputTests)
 
         assertEquals(inputTests, filteredTests)
+    }
+
+    @Test
+    fun `should filter allow list from value file`() {
+        val blockedTest = MarathonTest("pkg", "clazz2", "method", emptyList())
+        val allowedTest = MarathonTest("pkg", "clazz", "method", emptyList())
+        val inputTests = listOf(blockedTest, allowedTest)
+
+        val blocklistEmptyFileFilter = FullyQualifiedClassnameFilter(
+            TestFilterConfiguration.FullyQualifiedClassnameFilterConfiguration(
+                regex = null,
+                values = null,
+                file = File(SingleValueTestFilterTest::class.java.getResource("/testfilters/valuelist_2").file)
+            )
+        )
+
+        val filteredTests = blocklistEmptyFileFilter.filter(inputTests)
+
+        assertEquals(listOf(allowedTest), filteredTests)
     }
 
     @Test
