@@ -167,9 +167,11 @@ As of the time of writing marathon doesn't support merging the xcresult and trea
 
 ```yaml
   xcresult:
-    pull: true
+    pullingPolicy: ALWAYS
     remoteClean: true
 ```
+
+Possible values for the `pullingPolicy` are `ALWAYS` (by default), `NEVER` and `ON_FAILURE` - which means pulling the xcresult only for failed batches (if at least one test in the batch is failed), including retried failures.
 
 #### Attachment lifetime
 Marathon generates the xctestrun file for each batch and can specify custom lifecycle attachments. By default, system attachments will be 

@@ -27,7 +27,7 @@ vendorConfiguration:
       key: ${HOME}/.ssh/marathon
     knownHostsPath: ${HOME}/.ssh/known_hosts
   xcresult:
-    pull: true
+    pullingStrategy: ALWAYS
     remoteClean: true
   lifecycle:
     onPrepare: []
