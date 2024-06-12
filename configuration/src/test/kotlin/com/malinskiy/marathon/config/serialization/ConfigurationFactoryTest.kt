@@ -131,12 +131,12 @@ class ConfigurationFactoryTest {
         configuration.retryStrategy shouldBeEqualTo
             RetryStrategyConfiguration.FixedQuotaRetryStrategyConfiguration(100, 2)
 
-        TestFilterConfiguration.SimpleClassnameFilterConfiguration(".*".toRegex()) shouldBeEqualTo
-            TestFilterConfiguration.SimpleClassnameFilterConfiguration(".*".toRegex())
+        TestFilterConfiguration.SimpleClassnameFilterConfiguration(".*".toRegex(),) shouldBeEqualTo
+            TestFilterConfiguration.SimpleClassnameFilterConfiguration(".*".toRegex(),)
 
         configuration.filteringConfiguration.allowlist shouldContainSame listOf(
-            TestFilterConfiguration.SimpleClassnameFilterConfiguration(".*".toRegex()),
-            TestFilterConfiguration.SimpleClassnameFilterConfiguration(values = listOf("SimpleTest")),
+            TestFilterConfiguration.SimpleClassnameFilterConfiguration(".*".toRegex(),),
+            TestFilterConfiguration.SimpleClassnameFilterConfiguration(values = listOf("SimpleTest"),),
             TestFilterConfiguration.FullyQualifiedClassnameFilterConfiguration(".*".toRegex()),
             TestFilterConfiguration.FullyQualifiedClassnameFilterConfiguration(
                 file = File(
@@ -335,7 +335,7 @@ class ConfigurationFactoryTest {
         val configuration = parser.parse(file)
 
         configuration.filteringConfiguration.allowlist shouldBeEqualTo listOf(
-            TestFilterConfiguration.SimpleClassnameFilterConfiguration(".*".toRegex())
+            TestFilterConfiguration.SimpleClassnameFilterConfiguration(".*".toRegex(),)
         )
 
         configuration.filteringConfiguration.blocklist shouldBe emptyList()
@@ -349,7 +349,7 @@ class ConfigurationFactoryTest {
         configuration.filteringConfiguration.allowlist shouldBe emptyList()
 
         configuration.filteringConfiguration.blocklist shouldBeEqualTo listOf(
-            TestFilterConfiguration.SimpleClassnameFilterConfiguration(".*".toRegex())
+            TestFilterConfiguration.SimpleClassnameFilterConfiguration(".*".toRegex(),)
         )
     }
 

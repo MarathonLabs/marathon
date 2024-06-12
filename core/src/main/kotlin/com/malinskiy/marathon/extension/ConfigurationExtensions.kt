@@ -63,7 +63,7 @@ fun TestFilterConfiguration.toTestFilter(): TestFilter {
     return when (this) {
         is TestFilterConfiguration.AnnotationDataFilterConfiguration -> AnnotationDataFilter(this)
         is TestFilterConfiguration.AnnotationFilterConfiguration -> AnnotationFilter(this)
-        is TestFilterConfiguration.CompositionFilterConfiguration -> CompositionFilter(this.filters.map { it.toTestFilter() }, this.op, true)
+        is TestFilterConfiguration.CompositionFilterConfiguration -> CompositionFilter(this.filters.map { it.toTestFilter() }, this.op, this.enabled)
         is TestFilterConfiguration.FragmentationFilterConfiguration -> FragmentationFilter(this)
         is TestFilterConfiguration.FullyQualifiedClassnameFilterConfiguration -> FullyQualifiedClassnameFilter(this)
         is TestFilterConfiguration.FullyQualifiedTestnameFilterConfiguration -> FullyQualifiedTestnameFilter(this)
