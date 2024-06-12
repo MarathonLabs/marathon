@@ -3,7 +3,6 @@ package com.malinskiy.marathon.execution.filter
 import com.malinskiy.marathon.execution.TestFilter
 import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.test.Test
-import jdk.jfr.Enabled
 import java.io.File
 
 open class SingleValueTestFilter(
