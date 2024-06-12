@@ -217,6 +217,8 @@ class AppleSimulatorDevice(
                             if (!boot()) {
                                 logger.warn("Exception booting simulator $udid")
                             }
+                            AppleSimulatorMediaImporter(vendorConfiguration)
+                                .importMedia(this@AppleSimulatorDevice)
                         })
                     }.awaitAll()
                 }
@@ -451,6 +453,10 @@ class AppleSimulatorDevice(
 
     override suspend fun install(remotePath: String): Boolean {
         return binaryEnvironment.xcrun.simctl.application.install(udid, remotePath).successful
+    }
+
+    suspend fun importMedia(remotePath: String): Boolean {
+        return binaryEnvironment.xcrun.simctl.mediaService.addMedia(udid, remotePath).successful
     }
 
     override suspend fun startVideoRecording(remotePath: String): CommandResult? {
