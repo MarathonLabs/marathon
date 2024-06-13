@@ -163,6 +163,7 @@ sealed class VendorConfiguration {
         @JsonProperty("xctestrunEnv") val xctestrunEnv: XctestrunEnvConfiguration = XctestrunEnvConfiguration(),
         @JsonProperty("lifecycle") val lifecycleConfiguration: LifecycleConfiguration = LifecycleConfiguration(),
         @JsonProperty("permissions") val permissions: PermissionsConfiguration = PermissionsConfiguration(),
+        @JsonProperty("importMedia") val mediaFiles: List<File>? = null,
         @JsonProperty("timeoutConfiguration") val timeoutConfiguration: AppleTimeoutConfiguration = AppleTimeoutConfiguration(),
         @JsonProperty("threadingConfiguration") val threadingConfiguration: AppleThreadingConfiguration = AppleThreadingConfiguration(),
         @JsonProperty("hideRunnerOutput") val hideRunnerOutput: Boolean = false,

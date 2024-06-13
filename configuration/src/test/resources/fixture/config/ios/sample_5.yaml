@@ -1,0 +1,28 @@
+name: "sample-app tests"
+outputDir: "./marathon"
+vendorConfiguration:
+  type: "iOS"
+  bundle:
+    derivedDataDir: "derivedDataDir"
+  ssh:
+    authentication:
+      type: "publicKey"
+      username: "testuser"
+      key: "/home/testuser/.ssh/id_rsa"
+    debug: true
+  timeoutConfiguration:
+    shell: PT30S
+    shellIdle: PT31S
+    reachability: PT1M
+    screenshot: PT2M
+    video: PT1H
+    erase: PT2H
+    shutdown: P1D
+    delete: PT3S
+    create: P1DT12H30M5S
+    boot: PT80S
+    install: PT3H
+    uninstall: PT62S
+    importMedia: PT6S
+    testDestination: PT34S
+

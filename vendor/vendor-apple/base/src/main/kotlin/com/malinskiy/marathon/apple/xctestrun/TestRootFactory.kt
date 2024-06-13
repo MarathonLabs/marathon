@@ -292,7 +292,7 @@ class TestRootFactory(
         val dyldInsertLibraries = if (useLibParseTests) {
             listOf(remoteFileManager.remoteXctestParserFile(), bundleInject, *userInsertLibraries.toTypedArray())
         } else {
-            listOf(*userInsertLibraries.toTypedArray())
+            listOf(bundleInject, *userInsertLibraries.toTypedArray())
         }
 
         val testEnv = mutableMapOf(

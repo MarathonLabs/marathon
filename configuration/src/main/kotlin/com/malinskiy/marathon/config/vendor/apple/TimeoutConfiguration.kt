@@ -23,6 +23,7 @@ data class TimeoutConfiguration(
     @JsonProperty("boot") var boot: Duration = shell,
     @JsonProperty("install") var install: Duration = shell,
     @JsonProperty("uninstall") var uninstall: Duration = shell,
+    @JsonProperty("importMedia") var importMedia: Duration = shell,
     @JsonProperty("testDestination") var testDestination: Duration = Duration.ofSeconds(30),
 ) {
     
