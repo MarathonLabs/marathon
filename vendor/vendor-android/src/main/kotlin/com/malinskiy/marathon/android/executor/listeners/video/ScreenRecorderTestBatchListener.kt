@@ -145,16 +145,16 @@ class ScreenRecorderTestBatchListener(
         val localVideoFiles = mutableListOf<File>()
         val remoteFilePath = device.fileManager.remoteVideoForTest(test, testBatchId)
         val millis = measureTimeMillis {
-            if(device.apiLevel >= 34 || videoConfiguration.timeLimit <= defaultTimeLimit || !videoConfiguration.increasedTimeLimitFeatureEnabled) {
+            if(device.apiLevel < 34 && videoConfiguration.timeLimit > defaultTimeLimit && videoConfiguration.longVideoSupport) {
+                for (i in 0 .. (testDuration / defaultTimeLimit)) {
+                    val localVideoFile = fileManager.createFile(FileType.VIDEO, pool, device.toDeviceInfo(), test, testBatchId, i.toString())
+                    device.safePullFile(remoteFilePath.addFileNumberForVideo(i), localVideoFile.toString())
+                    localVideoFiles.add(localVideoFile)
+                }
+            } else {
                 val localVideoFile = fileManager.createFile(FileType.VIDEO, pool, device.toDeviceInfo(), test, testBatchId)
                 device.safePullFile(remoteFilePath, localVideoFile.toString())
                 localVideoFiles.add(localVideoFile)
-            } else {
-                for (i in 0 .. (testDuration / defaultTimeLimit)) {
-                    val localVideoFile = fileManager.createFile(FileType.VIDEO, pool, device.toDeviceInfo(), test, testBatchId, i.toString())
-                    device.safePullFile(remoteFilePath.addFileNumberForVideo(i.toString()), localVideoFile.toString())
-                    localVideoFiles.add(localVideoFile)
-                }
             }
         }
         logger.trace { "Pulling finished in ${millis}ms $remoteFilePath " }
@@ -170,14 +170,14 @@ class ScreenRecorderTestBatchListener(
      */
     private suspend fun pullLastBatchVideo(remoteFilePath: String, testDuration: Long) {
         val millis = measureTimeMillis {
-            if(device.apiLevel >= 34 || videoConfiguration.timeLimit <= defaultTimeLimit || !videoConfiguration.increasedTimeLimitFeatureEnabled) {
-                val localVideoFile = fileManager.createFile(FileType.VIDEO, pool, device.toDeviceInfo(), testBatchId = testBatchId)
-                device.safePullFile(remoteFilePath, localVideoFile.toString())
-            } else {
+            if(device.apiLevel < 34 && videoConfiguration.timeLimit > defaultTimeLimit && videoConfiguration.longVideoSupport) {
                 for (i in 0 .. (testDuration / defaultTimeLimit)) {
                     val localVideoFile = fileManager.createFile(FileType.VIDEO, pool, device.toDeviceInfo(), testBatchId = testBatchId, id = i.toString())
-                    device.safePullFile(remoteFilePath.addFileNumberForVideo(i.toString()), localVideoFile.toString())
+                    device.safePullFile(remoteFilePath.addFileNumberForVideo(i), localVideoFile.toString())
                 }
+            } else {
+                val localVideoFile = fileManager.createFile(FileType.VIDEO, pool, device.toDeviceInfo(), testBatchId = testBatchId)
+                device.safePullFile(remoteFilePath, localVideoFile.toString())
             }
         }
         logger.trace { "Pulling finished in ${millis}ms $remoteFilePath " }
@@ -185,12 +185,12 @@ class ScreenRecorderTestBatchListener(
 
     private suspend fun removeRemoteVideo(remoteFilePath: String, testDuration: Long) {
         val millis = measureTimeMillis {
-            if(device.apiLevel >= 34 || videoConfiguration.timeLimit <= defaultTimeLimit || !videoConfiguration.increasedTimeLimitFeatureEnabled) {
-                device.fileManager.removeRemotePath(remoteFilePath)
-            } else {
+            if(device.apiLevel < 34 && videoConfiguration.timeLimit > defaultTimeLimit && videoConfiguration.longVideoSupport) {
                 for (i in 0 .. (testDuration / defaultTimeLimit)) {
-                    device.fileManager.removeRemotePath(remoteFilePath.addFileNumberForVideo(i.toString()))
+                    device.fileManager.removeRemotePath(remoteFilePath.addFileNumberForVideo(i))
                 }
+            } else {
+                device.fileManager.removeRemotePath(remoteFilePath)
             }
         }
         logger.trace { "Removed file in ${millis}ms $remoteFilePath" }

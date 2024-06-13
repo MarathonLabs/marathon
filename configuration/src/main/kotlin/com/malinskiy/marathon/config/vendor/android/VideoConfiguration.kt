@@ -13,5 +13,5 @@ data class VideoConfiguration(
     @JsonProperty("bitrateMbps") val bitrateMbps: Int = 1,
     @JsonProperty("timeLimit") val timeLimit: Long = 180,
     @JsonProperty("timeLimitUnits") val timeLimitUnits: TimeUnit = TimeUnit.SECONDS,
-    @JsonProperty("increasedTimeLimitFeatureEnabled") val increasedTimeLimitFeatureEnabled: Boolean = false
+    @JsonProperty("longVideoSupport") val longVideoSupport: Boolean = false
 )

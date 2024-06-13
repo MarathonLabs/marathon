@@ -313,7 +313,7 @@ screenshots or configure the recording parameters you can specify this as follow
 :::tip
 
 Android's `screenrecorder` doesn't support videos longer than 180 seconds for apiVersion < 34. If you want to set timeLimit > 180 you can 
-use `increasedTimeLimitFeatureEnabled: true`
+use `longVideoSupport: true`
 
 :::
 
@@ -331,7 +331,7 @@ vendorConfiguration:
       height: 1920
       bitrateMbps: 2
       timeLimit: 300
-      increasedTimeLimitFeatureEnabled: false
+      longVideoSupport: false
     screenshotConfiguration:
       enabled: false
       width: 1080

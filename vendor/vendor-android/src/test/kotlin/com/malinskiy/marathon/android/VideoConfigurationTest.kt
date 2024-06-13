@@ -65,7 +65,7 @@ class VideoConfigurationTest {
 
             device.setup()
         }
-        assertThat(VideoConfiguration(timeLimit = 200, increasedTimeLimitFeatureEnabled = featureIsEnabled).toScreenRecorderCommand("/sdcard/video.mp4", device))
+        assertThat(VideoConfiguration(timeLimit = 200, longVideoSupport = featureIsEnabled).toScreenRecorderCommand("/sdcard/video.mp4", device))
             .isEqualTo("screenrecord --size 720x1280 --bit-rate 1000000 --time-limit $expectedTimeLimit /sdcard/video.mp4")
     }
 

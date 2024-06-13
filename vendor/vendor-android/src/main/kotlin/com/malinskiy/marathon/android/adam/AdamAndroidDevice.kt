@@ -375,26 +375,26 @@ class AdamAndroidDevice(
         options: VideoConfiguration
     ) {
         var secondsRemaining = TimeUnit.SECONDS.convert(options.timeLimit, options.timeLimitUnits)
-        if(secondsRemaining <= 180 || apiLevel >= 34 || !options.increasedTimeLimitFeatureEnabled) {
-            startScreenRecorder(remoteFilePath, options)
-        } else {
-            var recordsCount = 0
-            while(recordsCount == 0 || secondsRemaining>=180) {
-                startScreenRecorder(remoteFilePath, options, recordsCount.toString()) {
+        if(secondsRemaining > 180 && apiLevel < 34 && options.longVideoSupport) {
+            var recordsCount = 0L
+            while(recordsCount == 0L || secondsRemaining >= 180) {
+                startScreenRecorder(remoteFilePath, options, recordsCount) {
                     secondsRemaining -= 180
                     recordsCount++
                 }
             }
+        } else {
+            startScreenRecorder(remoteFilePath, options)
         }
     }
 
     private suspend fun startScreenRecorder(
         remoteFilePath: String,
         options: VideoConfiguration,
-        fileNumber: String = "",
-        finallyBlock: (() -> Unit)? = null
+        counter: Long? = null,
+        recordFinished: (() -> Unit)? = null
     ) {
-        val screenRecorderCommand = options.toScreenRecorderCommand(remoteFilePath.addFileNumberForVideo(fileNumber), this)
+        val screenRecorderCommand = options.toScreenRecorderCommand(remoteFilePath.addFileNumberForVideo(counter), this)
         try {
             withTimeoutOrNull(androidConfiguration.timeoutConfiguration.screenrecorder) {
                 val result = client.execute(ShellCommandRequest(screenRecorderCommand), serial = adbSerial)
@@ -411,7 +411,7 @@ class AdamAndroidDevice(
         } catch (e: Exception) {
             logger.error("Unable to start screenrecord", e)
         } finally {
-            finallyBlock?.invoke()
+            recordFinished?.invoke()
         }
     }
 
