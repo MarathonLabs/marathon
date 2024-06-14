@@ -21,6 +21,8 @@ import com.fasterxml.jackson.module.kotlin.KotlinModule
 import com.malinskiy.marathon.config.serialization.yaml.SerializeModule
 import com.malinskiy.marathon.config.vendor.apple.TimeoutConfiguration
 import com.malinskiy.marathon.config.vendor.apple.TestType
+import com.malinskiy.marathon.config.vendor.apple.ios.PullingPolicy
+import com.malinskiy.marathon.config.vendor.apple.ios.XcresultConfiguration
 import org.amshove.kluent.`should be equal to`
 import org.amshove.kluent.shouldContain
 import org.amshove.kluent.shouldHaveSize
@@ -78,6 +80,10 @@ class IosConfigurationFactoryTest {
             ),
             rsync = RsyncConfiguration(
                 remotePath = "/usr/local/bin/rsync",
+            ),
+            xcresult = XcresultConfiguration(
+                pullingPolicy = PullingPolicy.ON_FAILURE,
+                remoteClean = false
             ),
             hideRunnerOutput = true,
             compactOutput = true,
