@@ -3,6 +3,7 @@ package com.malinskiy.marathon.config.vendor.apple.ios
 import com.fasterxml.jackson.annotation.JsonProperty
 
 data class XcresultConfiguration(
+    @JsonProperty("pull") val pull: Boolean? = null,
     @JsonProperty("pullingPolicy") val pullingPolicy: PullingPolicy = PullingPolicy.ALWAYS,
     @JsonProperty("remoteClean") val remoteClean: Boolean = true,
     @JsonProperty("attachments") val attachments: AttachmentsConfiguration = AttachmentsConfiguration(),

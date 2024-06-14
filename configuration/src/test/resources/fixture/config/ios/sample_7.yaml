@@ -1,0 +1,10 @@
+name: "sample-app tests"
+outputDir: "./marathon"
+vendorConfiguration:
+  type: "iOS"
+  bundle:
+    derivedDataDir: "derivedDataDir"
+  xcresult:
+    pull: false
+    pullingPolicy: ON_FAILURE
+    remoteClean: false
