@@ -21,6 +21,9 @@ import com.fasterxml.jackson.module.kotlin.KotlinModule
 import com.malinskiy.marathon.config.serialization.yaml.SerializeModule
 import com.malinskiy.marathon.config.vendor.apple.TimeoutConfiguration
 import com.malinskiy.marathon.config.vendor.apple.TestType
+import com.malinskiy.marathon.config.vendor.apple.ios.PullingPolicy
+import com.malinskiy.marathon.config.vendor.apple.ios.XcresultConfiguration
+import org.amshove.kluent.`should be`
 import org.amshove.kluent.`should be equal to`
 import org.amshove.kluent.shouldContain
 import org.amshove.kluent.shouldHaveSize
@@ -78,6 +81,10 @@ class IosConfigurationFactoryTest {
             ),
             rsync = RsyncConfiguration(
                 remotePath = "/usr/local/bin/rsync",
+            ),
+            xcresult = XcresultConfiguration(
+                pullingPolicy = PullingPolicy.ON_FAILURE,
+                remoteClean = false
             ),
             hideRunnerOutput = true,
             compactOutput = true,
@@ -137,5 +144,26 @@ class IosConfigurationFactoryTest {
             importMedia = Duration.ofSeconds(6),
             testDestination = Duration.ofSeconds(34),
         )
+    }
+
+    @Test
+    fun `should set pulling policy as always when pull is true`() {
+        val file = File(ConfigurationFactoryTest::class.java.getResource("/fixture/config/ios/sample_6.yaml").file)
+        val configuration = parser.parse(file)
+
+        val xcresultConfiguration = (configuration.vendorConfiguration as VendorConfiguration.IOSConfiguration).xcresult
+        xcresultConfiguration.pullingPolicy `should be equal to` PullingPolicy.ALWAYS
+        xcresultConfiguration.remoteClean `should be` false
+    }
+
+
+    @Test
+    fun `should set pulling policy as never when pull is false`() {
+        val file = File(ConfigurationFactoryTest::class.java.getResource("/fixture/config/ios/sample_7.yaml").file)
+        val configuration = parser.parse(file)
+
+        val xcresultConfiguration = (configuration.vendorConfiguration as VendorConfiguration.IOSConfiguration).xcresult
+        xcresultConfiguration.pullingPolicy `should be equal to` PullingPolicy.NEVER
+        xcresultConfiguration.remoteClean `should be` false
     }
 }

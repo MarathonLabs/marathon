@@ -12,6 +12,9 @@ vendorConfiguration:
     knownHostsPath: "known_hosts"
     keepAliveInterval: PT300S
     debug: true
+  xcresult:
+    pullingPolicy: ON_FAILURE
+    remoteClean: false
   lifecycle:
     onPrepare: []
   rsync:

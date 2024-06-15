@@ -19,6 +19,7 @@ import com.malinskiy.marathon.config.serialization.yaml.SerializeModule
 import com.malinskiy.marathon.config.vendor.VendorConfiguration
 import com.malinskiy.marathon.config.vendor.apple.AppleTestBundleConfiguration
 import com.malinskiy.marathon.config.vendor.apple.SshAuthentication
+import com.malinskiy.marathon.config.vendor.apple.ios.PullingPolicy
 import org.apache.commons.text.StringSubstitutor
 import org.apache.commons.text.lookup.StringLookupFactory
 import java.io.File
@@ -105,13 +106,29 @@ class ConfigurationFactory(
                         knownHostsPath = optionalknownHostsPath,
                     )
 
+                    val xcresultConfiguration = when (iosConfiguration.xcresult.pull) {
+                        true -> iosConfiguration.xcresult.copy(
+                            pullingPolicy = PullingPolicy.ALWAYS,
+                            remoteClean = iosConfiguration.xcresult.remoteClean
+                        )
+
+                        false -> iosConfiguration.xcresult.copy(
+                            pullingPolicy = PullingPolicy.NEVER,
+                            remoteClean = iosConfiguration.xcresult.remoteClean
+                        )
+
+                        null -> iosConfiguration.xcresult
+                    }
+
                     configuration.vendorConfiguration.copy(
                         bundle = resolvedBundle,
                         mediaFiles = resolvedMediaFiles,
                         devicesFile = optionalDevices,
                         ssh = optionalSshConfiguration,
+                        xcresult = xcresultConfiguration,
                     )
                 }
+
                 is VendorConfiguration.MacosConfiguration -> {
                     // Any relative path specified in Marathonfile should be resolved against the directory Marathonfile is in
                     val macosConfiguration: VendorConfiguration.MacosConfiguration = configuration.vendorConfiguration
@@ -147,10 +164,25 @@ class ConfigurationFactory(
                         knownHostsPath = optionalknownHostsPath,
                     )
 
+                    val xcresultConfiguration = when (macosConfiguration.xcresult.pull) {
+                        true -> macosConfiguration.xcresult.copy(
+                            pullingPolicy = PullingPolicy.ALWAYS,
+                            remoteClean = macosConfiguration.xcresult.remoteClean
+                        )
+
+                        false -> macosConfiguration.xcresult.copy(
+                            pullingPolicy = PullingPolicy.NEVER,
+                            remoteClean = macosConfiguration.xcresult.remoteClean
+                        )
+
+                        null -> macosConfiguration.xcresult
+                    }
+
                     configuration.vendorConfiguration.copy(
                         bundle = resolvedBundle,
                         devicesFile = optionalDevices,
                         ssh = optionalSshConfiguration,
+                        xcresult = xcresultConfiguration,
                     )
                 }
 
