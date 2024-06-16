@@ -95,7 +95,6 @@ vendorConfiguration:
       height: 1920
       bitrateMbps: 2
       timeLimit: 300
-      longVideoSupport: false
     screenshotConfiguration:
       enabled: false
       width: 1080

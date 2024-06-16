@@ -375,7 +375,7 @@ class AdamAndroidDevice(
         options: VideoConfiguration
     ) {
         var secondsRemaining = TimeUnit.SECONDS.convert(options.timeLimit, options.timeLimitUnits)
-        if(secondsRemaining > 180 && apiLevel < 34 && options.longVideoSupport) {
+        if(secondsRemaining > 180 && apiLevel < 34) {
             var recordsCount = 0L
             while(recordsCount == 0L || secondsRemaining >= 180) {
                 startScreenRecorder(remoteFilePath, options, recordsCount) {

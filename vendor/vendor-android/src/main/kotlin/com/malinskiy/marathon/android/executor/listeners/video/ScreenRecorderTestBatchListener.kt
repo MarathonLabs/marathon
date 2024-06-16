@@ -145,7 +145,7 @@ class ScreenRecorderTestBatchListener(
         val localVideoFiles = mutableListOf<File>()
         val remoteFilePath = device.fileManager.remoteVideoForTest(test, testBatchId)
         val millis = measureTimeMillis {
-            if(device.apiLevel < 34 && videoConfiguration.timeLimit > defaultTimeLimit && videoConfiguration.longVideoSupport) {
+            if(device.apiLevel < 34 && videoConfiguration.timeLimit > defaultTimeLimit) {
                 for (i in 0 .. (testDuration / defaultTimeLimit)) {
                     val localVideoFile = fileManager.createFile(FileType.VIDEO, pool, device.toDeviceInfo(), test, testBatchId, i.toString())
                     device.safePullFile(remoteFilePath.addFileNumberForVideo(i), localVideoFile.toString())
@@ -170,7 +170,7 @@ class ScreenRecorderTestBatchListener(
      */
     private suspend fun pullLastBatchVideo(remoteFilePath: String, testDuration: Long) {
         val millis = measureTimeMillis {
-            if(device.apiLevel < 34 && videoConfiguration.timeLimit > defaultTimeLimit && videoConfiguration.longVideoSupport) {
+            if(device.apiLevel < 34 && videoConfiguration.timeLimit > defaultTimeLimit) {
                 for (i in 0 .. (testDuration / defaultTimeLimit)) {
                     val localVideoFile = fileManager.createFile(FileType.VIDEO, pool, device.toDeviceInfo(), testBatchId = testBatchId, id = i.toString())
                     device.safePullFile(remoteFilePath.addFileNumberForVideo(i), localVideoFile.toString())
@@ -185,7 +185,7 @@ class ScreenRecorderTestBatchListener(
 
     private suspend fun removeRemoteVideo(remoteFilePath: String, testDuration: Long) {
         val millis = measureTimeMillis {
-            if(device.apiLevel < 34 && videoConfiguration.timeLimit > defaultTimeLimit && videoConfiguration.longVideoSupport) {
+            if(device.apiLevel < 34 && videoConfiguration.timeLimit > defaultTimeLimit) {
                 for (i in 0 .. (testDuration / defaultTimeLimit)) {
                     device.fileManager.removeRemotePath(remoteFilePath.addFileNumberForVideo(i))
                 }

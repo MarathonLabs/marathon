@@ -44,7 +44,7 @@ class VideoConfigurationTest {
 
     @ParameterizedTest
     @MethodSource("apiLevels")
-    fun testLongVideoDependsOnApiLevel(sdkLevel: Int, expectedTimeLimit: Int, featureIsEnabled: Boolean) {
+    fun testLongVideoDependsOnApiLevel(sdkLevel: Int, expectedTimeLimit: Int) {
         val configuration = TestConfigurationFactory.create(
             fileSyncConfiguration = FileSyncConfiguration(
                 mutableSetOf(
@@ -65,17 +65,15 @@ class VideoConfigurationTest {
 
             device.setup()
         }
-        assertThat(VideoConfiguration(timeLimit = 200, longVideoSupport = featureIsEnabled).toScreenRecorderCommand("/sdcard/video.mp4", device))
+        assertThat(VideoConfiguration(timeLimit = 200).toScreenRecorderCommand("/sdcard/video.mp4", device))
             .isEqualTo("screenrecord --size 720x1280 --bit-rate 1000000 --time-limit $expectedTimeLimit /sdcard/video.mp4")
     }
 
     companion object {
         @JvmStatic
         fun apiLevels() = listOf(
-            Arguments.of(33, 180, true),
-            Arguments.of(34, 200, true),
-            Arguments.of(33, 180, false),
-            Arguments.of(34, 180, false)
+            Arguments.of(33, 180),
+            Arguments.of(34, 200)
         )
     }
 }

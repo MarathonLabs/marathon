@@ -37,7 +37,7 @@ fun VideoConfiguration.toScreenRecorderCommand(remoteFilePath: String, device: A
     if (timeLimit > 0) {
         sb.append("--time-limit ")
         var seconds = TimeUnit.SECONDS.convert(timeLimit, timeLimitUnits)
-        if (seconds > 180 && ((device?.apiLevel ?: 0) < 34 || !longVideoSupport)) {
+        if (seconds > 180 && (device?.apiLevel ?: 0) < 34) {
             seconds = 180
         }
         sb.append(seconds)
