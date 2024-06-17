@@ -52,7 +52,8 @@ data class ExecutionReport(
             }.map { it.test.toTestName() }
             .toSet()
 
-        val duration = tests.map { it.durationMillis() }.sum()
+        val duration = tests.filter { it.isTimeInfoAvailable }
+            .sumOf { it.durationMillis() }
 
         val rawTests = poolTestEvents
             .map { it.testResult }
@@ -72,8 +73,7 @@ data class ExecutionReport(
         val rawDuration = rawTests
             //Incomplete tests mess up the calculations of time since their end time is 0 and duration is, hence, years
             //We filter here for unavailable time just to be safe
-            .filter { it.startTime != 0L && it.endTime != 0L }
-            .map { it.durationMillis() }.sum()
+            .filter { it.isTimeInfoAvailable }.sumOf { it.durationMillis() }
 
         val retries = tests.map { result: TestResult ->
             Pair(result, poolTestEvents.filter { it.testResult.test == result.test && it.testResult !== result })
