@@ -24,8 +24,10 @@ data class AppleTestBundleConfiguration(
 ) {
     @JsonIgnore
     var app: File? = null
+
     @JsonIgnore
     var testApp: File? = null
+
     @JsonIgnore
     lateinit var xctest: File
 
@@ -90,7 +92,23 @@ data class AppleTestBundleConfiguration(
         }
         when {
             found.isEmpty() && validate -> throw ConfigurationException("Unable to find an $extension directory in ${directory.absolutePath}")
-            found.size > 1 -> throw ConfigurationException("Ambiguous $extension configuration in derived data folder [${found.joinToString { it.absolutePath }}]. Please specify parameters explicitly")
+            found.size == 2 -> {
+                //According to https://developer.apple.com/documentation/bundleresources/placing_content_in_a_bundle watch app will be placed
+                //under X.app/Watch/Y.app
+                //Consider only the X.app for such case
+
+                val a = found.removeFirst()
+                val b = found.removeFirst()
+                return if (a.relativeTo(b).toPath().firstOrNull()?.toString() == "Watch") {
+                    b
+                } else if (b.relativeTo(a).toPath().firstOrNull()?.toString() == "Watch") {
+                    a
+                } else {
+                    throw ConfigurationException("Ambiguous $extension configuration in derived data folder [${found.joinToString { it.absolutePath }}]. Please specify parameters explicitly")
+                }
+            }
+
+            found.size > 2 -> throw ConfigurationException("Ambiguous $extension configuration in derived data folder [${found.joinToString { it.absolutePath }}]. Please specify parameters explicitly")
         }
         return found.firstOrNull()
     }
