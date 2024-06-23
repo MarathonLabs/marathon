@@ -29,7 +29,7 @@ vendorConfiguration:
   testParserConfiguration:
     type: nm
   xcresult:
-    pull: true
+    pullingStrategy: ALWAYS
     remoteClean: true
   screenRecordConfiguration:
     videoConfiguration:

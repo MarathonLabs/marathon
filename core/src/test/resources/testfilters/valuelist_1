@@ -1,0 +1,12 @@
+#line comment
+com.example.test1
+com.example.test2 #issue link = http://test.test/issue
+
+#line comment2
+
+com.example   #flaky package
+
+  # comment3
+ClassName#test4 # comment
+SimpleTestName
+SimpleTestName2 #comment1

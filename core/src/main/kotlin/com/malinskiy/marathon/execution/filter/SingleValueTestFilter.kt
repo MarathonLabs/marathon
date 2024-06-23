@@ -15,14 +15,7 @@ open class SingleValueTestFilter(
     private val log = MarathonLogging.logger("SingleValueTestFilter")
 
     private val fileValuesCache: List<String>? by lazy {
-        file?.let { valuesFile ->
-            if (valuesFile.exists()) {
-                valuesFile.readLines().filter { it.isNotBlank() }
-            } else {
-                log.error { "Filtering configuration file ${valuesFile.absoluteFile} does not exist. Applying empty list." }
-                emptyList()
-            }
-        }
+        FilterValuesFileReader().readValues(file)
     }
 
     private fun readValues(): List<String>? {

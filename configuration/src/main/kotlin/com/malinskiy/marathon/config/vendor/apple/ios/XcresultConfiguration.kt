@@ -3,7 +3,8 @@ package com.malinskiy.marathon.config.vendor.apple.ios
 import com.fasterxml.jackson.annotation.JsonProperty
 
 data class XcresultConfiguration(
-    @JsonProperty("pull") val pull: Boolean = true,
+    @JsonProperty("pull") val pull: Boolean? = null,
+    @JsonProperty("pullingPolicy") val pullingPolicy: PullingPolicy = PullingPolicy.ALWAYS,
     @JsonProperty("remoteClean") val remoteClean: Boolean = true,
     @JsonProperty("attachments") val attachments: AttachmentsConfiguration = AttachmentsConfiguration(),
 )
@@ -28,4 +29,10 @@ enum class Lifetime(val value: String) {
      * Always discard attachments, regardless of whether the test succeeds or fails.
      */
     @JsonProperty("KEEP_NEVER") KEEP_NEVER("keepNever");
+}
+
+enum class PullingPolicy {
+    @JsonProperty("NEVER") NEVER,
+    @JsonProperty("ALWAYS") ALWAYS,
+    @JsonProperty("ON_FAILURE") ON_FAILURE,
 }
