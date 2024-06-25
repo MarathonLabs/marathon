@@ -17,10 +17,12 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CompletionHandler
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.async
 import kotlinx.coroutines.channels.SendChannel
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import kotlin.coroutines.CoroutineContext
 
 class DeviceActor(
@@ -216,7 +218,9 @@ class DeviceActor(
 
     private fun returnBatchAnd(batch: TestBatch, reason: String, completionHandler: CompletionHandler = {}): Job {
         return launch {
-            pool.send(DevicePoolMessage.FromDevice.ReturnTestBatch(device, batch, reason))
+            withContext(NonCancellable) {
+                pool.send(DevicePoolMessage.FromDevice.ReturnTestBatch(device, batch, reason))
+            }
         }.apply {
             invokeOnCompletion(completionHandler)
         }
