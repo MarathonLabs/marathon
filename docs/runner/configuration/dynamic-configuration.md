@@ -26,6 +26,21 @@ and then execute the testing as following:
 foo@bar:~$ MARATHON_FRAGMENT_INDEX=0 marathon
 ```
 
+Each `filteringConfiguration` has an `enabled` option (*default: `true`*). You can use this function to change filtering on the fly without duplicating the `Marathonfile`.
+
+```yaml
+filteringConfiguration:
+  blocklist:
+    - type: "annotation"
+      enabled: ${MARATHON_EXCLUDE_LARGE_TESTS}
+      values: 
+        - "androidx.test.filters.LargeTest"
+```
+
+```shell-session
+foo@bar:~$ MARATHON_EXCLUDE_LARGE_TESTS=false marathon
+```
+
 ## Gradle
 
 To pass a parameter to the Gradle's build script:
