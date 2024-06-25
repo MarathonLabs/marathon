@@ -21,10 +21,6 @@ class StdoutReporter(private val timer: Timer) : Reporter {
         val terminal = Terminal()
         terminal.println(TextColors.cyan("Marathon run finished:"))
         summary.pools.forEach { poolSummary ->
-            terminal.println(TextColors.cyan("Device pool ${poolSummary.poolId.name}:"))
-            terminal.println(TextColors.cyan("\t${poolSummary.passed.size} passed, ${poolSummary.failed.size} failed, ${poolSummary.ignored.size} ignored tests"))
-            terminal.println(TextColors.cyan("   Raw: ${poolSummary.rawPassed.size} passed, ${poolSummary.rawFailed.size} failed, ${poolSummary.rawIgnored.size} ignored, ${poolSummary.rawIncomplete.size} incomplete tests\n"))
-
             if (poolSummary.rawFailed.isNotEmpty()) {
                 terminal.println(table {
                     borderType = SQUARE_DOUBLE_SECTION_SEPARATOR
@@ -96,7 +92,10 @@ class StdoutReporter(private val timer: Timer) : Reporter {
                     }
                 })
             }
-            terminal.println(TextColors.cyan("\nTotal time: ${formatDuration(timer.elapsedTimeMillis)}\n"))
+            terminal.println(TextColors.cyan("\nDevice pool ${poolSummary.poolId.name}:"))
+            terminal.println(TextColors.cyan("\t${poolSummary.passed.size} passed, ${poolSummary.failed.size} failed, ${poolSummary.ignored.size} ignored tests"))
+            terminal.println(TextColors.cyan("   Raw: ${poolSummary.rawPassed.size} passed, ${poolSummary.rawFailed.size} failed, ${poolSummary.rawIgnored.size} ignored, ${poolSummary.rawIncomplete.size} incomplete tests\n"))
+            terminal.println(TextColors.cyan("Total time: ${formatDuration(timer.elapsedTimeMillis)}\n\n"))
         }
     }
 

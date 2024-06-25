@@ -1,17 +1,6 @@
 package com.malinskiy.marathon.execution.progress
 
-import com.github.ajalt.mordant.animation.progress.advance
-import com.github.ajalt.mordant.animation.progress.animateOnThread
-import com.github.ajalt.mordant.animation.progress.execute
 import com.github.ajalt.mordant.rendering.TextColors
-import com.github.ajalt.mordant.terminal.Terminal
-import com.github.ajalt.mordant.widgets.Spinner
-import com.github.ajalt.mordant.widgets.progress.completed
-import com.github.ajalt.mordant.widgets.progress.percentage
-import com.github.ajalt.mordant.widgets.progress.progressBar
-import com.github.ajalt.mordant.widgets.progress.progressBarLayout
-import com.github.ajalt.mordant.widgets.progress.spinner
-import com.github.ajalt.mordant.widgets.progress.timeElapsed
 import com.malinskiy.marathon.actor.StateMachine
 import com.malinskiy.marathon.analytics.internal.pub.Track
 import com.malinskiy.marathon.config.Configuration
@@ -25,12 +14,12 @@ import com.malinskiy.marathon.execution.queue.TestAction
 import com.malinskiy.marathon.execution.queue.TestEvent
 import com.malinskiy.marathon.execution.queue.TestState
 import com.malinskiy.marathon.log.MarathonLogging
+import com.malinskiy.marathon.log.TerminalPrettyOutput
+import com.malinskiy.marathon.log.TerminalPrettyOutput.terminal
 import com.malinskiy.marathon.test.Test
 import com.malinskiy.marathon.test.toTestName
 import kotlin.math.roundToInt
-import kotlin.time.ExperimentalTime
 
-@OptIn(ExperimentalTime::class)
 class PoolProgressAccumulator(
     private val poolId: DevicePoolId,
     shard: TestShard,
@@ -40,14 +29,6 @@ class PoolProgressAccumulator(
     private val tests: HashMap<String, TestExecutionData> = HashMap()
     private val logger = MarathonLogging.logger {}
     private val executionStrategy = configuration.executionStrategy
-    private val terminal = Terminal()
-    private val progressBar = progressBarLayout {
-        percentage()
-        progressBar()
-        completed(style = terminal.theme.success)
-        spinner(Spinner.Dots())
-        timeElapsed(style = terminal.theme.info)
-    }.animateOnThread(terminal)
 
     private fun createState(initialCount: Int) = StateMachine.create<TestState, TestEvent, TestAction> {
         initialState(TestState.Added(initialCount))
@@ -283,8 +264,8 @@ class PoolProgressAccumulator(
         }.also {
             tests.putAll(it)
         }
-        progressBar.update { total = tests.size.toLong() }
-        progressBar.execute()
+        TerminalPrettyOutput.addProgressBar(poolId)
+        TerminalPrettyOutput.updateProgressBar(poolId, tests.size.toLong())
     }
 
     fun testStarted(device: DeviceInfo, test: Test) {
@@ -299,30 +280,29 @@ class PoolProgressAccumulator(
         return when (testResult.status) {
             TestStatus.FAILURE -> {
                 terminal.println("[${poolId.name}]-[${device.serialNumber}] ${testResult.test.toTestName()} ${TextColors.brightRed("failed")}")
-                progressBar.advance()
+                TerminalPrettyOutput.advanceProgressBar(poolId)
                 transition(testResult.test, TestEvent.Failed(device, testResult)).sideffect()
             }
 
             TestStatus.PASSED -> {
                 terminal.println("[${poolId.name}]-[${device.serialNumber}] ${testResult.test.toTestName()} ${TextColors.brightGreen("passed")}")
-                progressBar.advance()
+                TerminalPrettyOutput.advanceProgressBar(poolId)
                 transition(testResult.test, TestEvent.Passed(device, testResult)).sideffect()
             }
 
             TestStatus.IGNORED, TestStatus.ASSUMPTION_FAILURE -> {
                 terminal.println("[${poolId.name}]-[${device.serialNumber}] ${testResult.test.toTestName()} ${TextColors.brightYellow("ignored")}")
-                progressBar.advance()
+                TerminalPrettyOutput.advanceProgressBar(poolId)
                 transition(testResult.test, TestEvent.Passed(device, testResult)).sideffect()
             }
 
             TestStatus.INCOMPLETE -> {
                 terminal.println("[${poolId.name}]-[${device.serialNumber}] ${testResult.test.toTestName()} ${TextColors.brightBlue("incomplete")}")
-                progressBar.advance()
+                TerminalPrettyOutput.advanceProgressBar(poolId)
                 transition(testResult.test, TestEvent.Incomplete(device, testResult, final)).sideffect()
             }
         }
     }
-
 
     /**
      * Should always be called before testEnded, otherwise the FSM might transition into a terminal state prematurely

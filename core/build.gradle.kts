@@ -58,6 +58,7 @@ dependencies {
     implementation(Libraries.kotlinLogging)
     implementation(Libraries.logbackClassic)
     implementation(Libraries.mordant)
+    implementation(Libraries.mordantCoroutines)
     implementation(Libraries.influxDbClient)
     implementation(Libraries.influxDb2Client)
     implementation(Libraries.scalr)
