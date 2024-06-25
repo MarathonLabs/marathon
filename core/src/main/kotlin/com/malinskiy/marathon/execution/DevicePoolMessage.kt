@@ -11,10 +11,10 @@ sealed class DevicePoolMessage {
         object Terminate : FromScheduler()
     }
 
-    sealed class FromDevice(val device: Device) : DevicePoolMessage() {
-        class IsReady(device: Device) : FromDevice(device)
-        class CompletedTestBatch(device: Device, val results: TestBatchResults) : FromDevice(device)
-        class ReturnTestBatch(device: Device, val batch: TestBatch, val reason: String) : FromDevice(device)
+    sealed class FromDevice(open val device: Device) : DevicePoolMessage() {
+        data class IsReady(override val device: Device) : FromDevice(device)
+        data class CompletedTestBatch(override val device: Device, val results: TestBatchResults) : FromDevice(device)
+        data class ReturnTestBatch(override val device: Device, val batch: TestBatch, val reason: String) : FromDevice(device)
     }
 
     sealed class FromQueue : DevicePoolMessage() {
