@@ -15,7 +15,7 @@ class SimpleClassnameFilterTest {
     private val complexTest = stubTest("ComplexTest")
     private val someClass = stubTest("SomeClass")
     private val simpleClassnameFilter =
-        TestFilterConfiguration.SimpleClassnameFilterConfiguration("""^((?!Abstract).)*Test${'$'}""".toRegex()).toTestFilter()
+        TestFilterConfiguration.SimpleClassnameFilterConfiguration("""^((?!Abstract).)*Test${'$'}""".toRegex(),).toTestFilter()
     val tests = listOf(
         simpleTest,
         complexTest,
@@ -36,18 +36,25 @@ class SimpleClassnameFilterTest {
     }
 
     @Test
+    fun disabled() {
+        val filter = TestFilterConfiguration.SimpleClassnameFilterConfiguration("""^((?!Abstract).)*Test${'$'}""".toRegex(), enabled = false).toTestFilter()
+        filter.filterNot(tests) shouldBeEqualTo tests
+        filter.filter(tests) shouldBeEqualTo tests
+    }
+
+    @Test
     fun `should throw exception when more than one parameter specified`() {
         assertThrows<ConfigurationException> {
             TestFilterConfiguration.SimpleClassnameFilterConfiguration(
                 regex = """^((?!Abstract).)*Test${'$'}""".toRegex(),
-                values = listOf("SimpleTest")
+                values = listOf("SimpleTest"),
             ).validate()
         }
     }
 
     @Test
     fun `should filter if values are specified`() {
-        TestFilterConfiguration.SimpleClassnameFilterConfiguration(values = listOf("SimpleTest"))
+        TestFilterConfiguration.SimpleClassnameFilterConfiguration(values = listOf("SimpleTest"),)
             .toTestFilter()
             .filter(tests) shouldBeEqualTo listOf(simpleTest)
     }
@@ -61,7 +68,7 @@ class SimpleClassnameFilterTest {
             """.trimIndent()
             )
         }
-        TestFilterConfiguration.SimpleClassnameFilterConfiguration(file = file).toTestFilter()
+        TestFilterConfiguration.SimpleClassnameFilterConfiguration(file = file,).toTestFilter()
             .filter(tests) shouldBeEqualTo listOf(simpleTest)
     }
 }

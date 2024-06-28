@@ -6,25 +6,31 @@ import com.malinskiy.marathon.test.Test
 
 class CompositionFilter(
     private val filters: List<TestFilter>,
-    private val op: TestFilterConfiguration.CompositionFilterConfiguration.OPERATION
+    private val op: TestFilterConfiguration.CompositionFilterConfiguration.OPERATION,
+    val enabled: Boolean
 ) : TestFilter {
 
-    override fun filter(tests: List<Test>): List<Test> {
-        return when (op) {
+    override fun filter(tests: List<Test>): List<Test> = if (enabled) {
+        when (op) {
             TestFilterConfiguration.CompositionFilterConfiguration.OPERATION.UNION -> filterWithUnionOperation(tests)
             TestFilterConfiguration.CompositionFilterConfiguration.OPERATION.INTERSECTION -> filterWithIntersectionOperation(tests)
             TestFilterConfiguration.CompositionFilterConfiguration.OPERATION.SUBTRACT -> filterWithSubtractOperation(tests)
         }
+    } else {
+        tests
     }
 
-    override fun filterNot(tests: List<Test>): List<Test> {
+    override fun filterNot(tests: List<Test>): List<Test> = if (enabled) {
         val filteredTests = filter(tests)
-        return when (op) {
+        when (op) {
             TestFilterConfiguration.CompositionFilterConfiguration.OPERATION.UNION -> tests.subtract(filteredTests).toList()
             TestFilterConfiguration.CompositionFilterConfiguration.OPERATION.INTERSECTION -> tests.subtract(filteredTests).toList()
             TestFilterConfiguration.CompositionFilterConfiguration.OPERATION.SUBTRACT -> tests.subtract(filteredTests).toList()
         }
+    } else {
+        tests
     }
+
 
     private fun filterWithUnionOperation(tests: List<Test>): List<Test> {
         return filters.fold(emptySet<Test>()) { acc, f ->

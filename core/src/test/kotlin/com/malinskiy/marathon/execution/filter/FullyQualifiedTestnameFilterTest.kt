@@ -32,6 +32,13 @@ class FullyQualifiedTestnameFilterTest {
     }
 
     @Test
+    fun disabled() {
+        val filter = TestFilterConfiguration.FullyQualifiedTestnameFilterConfiguration("""com\.example\..*#test.*""".toRegex(), enabled = false).toTestFilter()
+        filter.filterNot(tests) shouldBeEqualTo tests
+        filter.filter(tests) shouldBeEqualTo tests
+    }
+
+    @Test
     fun shouldFilterWithValues() {
         TestFilterConfiguration.FullyQualifiedTestnameFilterConfiguration(
             values = listOf(

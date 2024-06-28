@@ -6,16 +6,25 @@ import com.malinskiy.marathon.test.MetaProperty
 import com.malinskiy.marathon.test.Test
 
 data class AnnotationDataFilter(val cnf: TestFilterConfiguration.AnnotationDataFilterConfiguration) : TestFilter {
-    override fun filter(tests: List<Test>): List<Test> = tests.filter { test ->
-        test.metaProperties.any {
-            match(it)
+
+    override fun filter(tests: List<Test>): List<Test> = if (cnf.enabled) {
+        tests.filter { test ->
+            test.metaProperties.any {
+                match(it)
+            }
         }
+    } else {
+        tests
     }
 
-    override fun filterNot(tests: List<Test>): List<Test> = tests.filterNot { test ->
-        test.metaProperties.any {
-            match(it)
+    override fun filterNot(tests: List<Test>): List<Test> = if (cnf.enabled) {
+        tests.filterNot { test ->
+            test.metaProperties.any {
+                match(it)
+            }
         }
+    } else {
+        tests
     }
 
     private fun match(metaProperty: MetaProperty): Boolean {

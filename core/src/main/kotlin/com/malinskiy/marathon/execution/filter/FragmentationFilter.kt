@@ -20,6 +20,7 @@ import java.math.BigInteger
 class FragmentationFilter(private val cnf: TestFilterConfiguration.FragmentationFilterConfiguration) : TestFilter {
     private val power by lazy { BigInteger.valueOf(cnf.count.toLong()) }
     private val remainder by lazy { BigInteger.valueOf(cnf.index.toLong()) }
+
     private val predicate: (Test) -> Boolean = {
         /**
          * Randomizing the distribution via md5
@@ -35,7 +36,15 @@ class FragmentationFilter(private val cnf: TestFilterConfiguration.Fragmentation
         actualRemainder == remainder
     }
 
-    override fun filter(tests: List<Test>): List<Test> = tests.filter(predicate)
+    override fun filter(tests: List<Test>): List<Test> = if (cnf.enabled) {
+        tests.filter(predicate)
+    } else {
+        tests
+    }
 
-    override fun filterNot(tests: List<Test>): List<Test> = tests.filterNot(predicate)
+    override fun filterNot(tests: List<Test>): List<Test> = if (cnf.enabled) {
+        tests.filterNot(predicate)
+    } else {
+        tests
+    }
 }
