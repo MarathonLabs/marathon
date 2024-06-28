@@ -23,6 +23,13 @@ class AnnotationFilterTest {
     fun shouldFilterNot() {
         filter.filterNot(tests) shouldBeEqualTo listOf(test3)
     }
+
+    @Test
+    fun disabled() {
+        val filter = TestFilterConfiguration.AnnotationFilterConfiguration(regex = """com\.example.*""".toRegex(), enabled = false).toTestFilter()
+        filter.filterNot(tests) shouldBeEqualTo tests
+        filter.filter(tests) shouldBeEqualTo tests
+    }
 }
 
 

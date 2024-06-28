@@ -137,12 +137,12 @@ class AndroidDeviceTestRunner(private val device: AdamAndroidDevice, private val
         info: InstrumentationInfo
     ) {
         if (androidConfiguration.applicationPmClear) {
-            device.safeClearPackage(info.applicationPackage)?.output?.trim()?.also {
+            device.clearPackage(info.applicationPackage)?.output?.trim()?.also {
                 logger.debug { "Package ${info.applicationPackage} cleared: $it" }
             }
         }
         if (androidConfiguration.testApplicationPmClear) {
-            device.safeClearPackage(info.instrumentationPackage)?.output?.trim()?.also {
+            device.clearPackage(info.instrumentationPackage)?.output?.trim()?.also {
                 logger.debug { "Package ${info.instrumentationPackage} cleared: $it" }
             }
         }

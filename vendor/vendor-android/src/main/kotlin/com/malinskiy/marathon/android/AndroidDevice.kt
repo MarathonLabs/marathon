@@ -64,7 +64,7 @@ interface AndroidDevice : Device, LogProducer, Screenshottable {
     suspend fun installPackage(absolutePath: String, reinstall: Boolean, optionalParams: List<String>): ShellCommandResult?
     suspend fun installSplitPackages(absolutePaths: List<String>, reinstall: Boolean, optionalParams: List<String>): String
     suspend fun safeUninstallPackage(appPackage: String, keepData: Boolean = false): ShellCommandResult?
-    suspend fun safeClearPackage(packageName: String): ShellCommandResult?
+    suspend fun clearPackage(packageName: String): ShellCommandResult?
     
     suspend fun safeStartScreenRecorder(remoteFilePath: String, options: VideoConfiguration)
 }

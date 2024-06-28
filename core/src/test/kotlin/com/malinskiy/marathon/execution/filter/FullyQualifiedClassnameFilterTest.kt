@@ -28,6 +28,13 @@ class FullyQualifiedClassnameFilterTest {
     fun shouldNotFilter() {
         filter.filterNot(tests) shouldBeEqualTo listOf(complexTest, someClass)
     }
+    @Test
+    fun disabled() {
+        val filter = TestFilterConfiguration.FullyQualifiedClassnameFilterConfiguration("""com\.example\.ClassTest""".toRegex(), enabled = false).toTestFilter()
+        filter.filterNot(tests) shouldBeEqualTo tests
+        filter.filter(tests) shouldBeEqualTo tests
+    }
+
 }
 
 private fun stubTest(pkg: String) = MarathonTest(pkg, "ClassTest", "fakeMethod", emptyList())

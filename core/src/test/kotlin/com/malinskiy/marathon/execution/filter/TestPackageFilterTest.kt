@@ -54,6 +54,11 @@ class TestPackageFilterTest {
     fun shouldFilterNotByValuesWithSubpackages() {
         TestFilterConfiguration.TestPackageFilterConfiguration(values = listOf("com.example"), subpackages = true).toTestFilter().filterNot(tests) shouldBeEqualTo listOf(someClass)
     }
+
+    @Test
+    fun disabled() {
+        TestFilterConfiguration.TestPackageFilterConfiguration(values = listOf("com.example"), subpackages = true, enabled = false).toTestFilter().filterNot(tests) shouldBeEqualTo tests
+    }
 }
 
 private fun stubTest(pkg: String) = MarathonTest(pkg, "SimpleTest", "fakeMethod", emptyList())

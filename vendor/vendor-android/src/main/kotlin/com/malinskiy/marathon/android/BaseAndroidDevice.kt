@@ -188,8 +188,8 @@ abstract class BaseAndroidDevice(
     }
 
 
-    override suspend fun safeClearPackage(packageName: String): ShellCommandResult? =
-        safeExecuteShellCommand("pm clear $packageName", "Could not clear package $packageName on device: $serialNumber")
+    override suspend fun clearPackage(packageName: String): ShellCommandResult? =
+        criticalExecuteShellCommand("pm clear $packageName", "Could not clear package $packageName on device: $serialNumber")
 
     protected suspend fun clearLogcat() = safeExecuteShellCommand("logcat -c", "Could not clear logcat on device: $serialNumber")
 
