@@ -153,6 +153,8 @@ Each of the above filters expects **only one** of the following parameters:
 - An array of `values`
 - A `file` that contains each value on a separate line (empty lines will be ignored)
 
+Each filter also has an `enabled` option (*default: `true`*). You can use this option to partially enable/disable filters.
+
 ### Regex filtering
 
 An example of `regex` filtering is executing any test for a particular package, e.g. for package: `com.example` and it's subpackages:
@@ -456,6 +458,31 @@ marathon {
 
 </TabItem>
 </Tabs>
+
+### Dynamically disable parts of the filteringConfiguration
+Each filter in `filteringConfiguration` has an `enabled` option (*default: `true`*). You can use this option to change filtering on-the-fly 
+without duplicating the `Marathonfile`:
+
+```yaml
+filteringConfiguration:
+  blocklist:
+    - type: "annotation"
+      enabled: ${MARATHON_EXCLUDE_LARGE_TESTS}
+      values: 
+        - "androidx.test.filters.LargeTest"
+```
+
+```shell-session
+foo@bar:~$ MARATHON_EXCLUDE_LARGE_TESTS=false marathon
+```
+
+
+:::note
+
+The default value of envvar is empty. When using envvars as parameters for `enabled` flag you have to specify each and every variable
+
+:::
+
 
 ## Fragmented execution of tests
 

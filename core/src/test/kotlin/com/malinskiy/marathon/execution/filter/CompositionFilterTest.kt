@@ -20,7 +20,7 @@ class CompositionFilterTest {
 
     private val union = TestFilterConfiguration.CompositionFilterConfiguration(
         listOf(
-            TestFilterConfiguration.SimpleClassnameFilterConfiguration(".*Cat.*".toRegex()),
+            TestFilterConfiguration.SimpleClassnameFilterConfiguration(".*Cat.*".toRegex(),),
             TestFilterConfiguration.AnnotationFilterConfiguration("com.example.BestAnimal".toRegex())
         ),
         TestFilterConfiguration.CompositionFilterConfiguration.OPERATION.UNION
@@ -28,7 +28,7 @@ class CompositionFilterTest {
 
     private val intersection = TestFilterConfiguration.CompositionFilterConfiguration(
         listOf(
-            TestFilterConfiguration.SimpleClassnameFilterConfiguration(".*Dog.*".toRegex()),
+            TestFilterConfiguration.SimpleClassnameFilterConfiguration(".*Dog.*".toRegex(),),
             TestFilterConfiguration.AnnotationFilterConfiguration("com.example.BestAnimal".toRegex())
         ),
         TestFilterConfiguration.CompositionFilterConfiguration.OPERATION.INTERSECTION
@@ -36,7 +36,7 @@ class CompositionFilterTest {
 
     private val subtraction = TestFilterConfiguration.CompositionFilterConfiguration(
         listOf(
-            TestFilterConfiguration.SimpleClassnameFilterConfiguration(".*Animal.*".toRegex()),
+            TestFilterConfiguration.SimpleClassnameFilterConfiguration(".*Animal.*".toRegex(),),
             TestFilterConfiguration.AnnotationFilterConfiguration("com.example.BestAnimal".toRegex())
         ),
         TestFilterConfiguration.CompositionFilterConfiguration.OPERATION.SUBTRACT
