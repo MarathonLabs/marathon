@@ -86,6 +86,7 @@ class DevicePoolActor(
     }
 
     private suspend fun deviceReturnedTestBatch(device: Device, batch: TestBatch, reason: String) {
+        logger.debug { "pool $poolId: device ${device.serialNumber} returned test batch" }
         queue.send(QueueMessage.ReturnBatch(device.toDeviceInfo(), batch, reason))
     }
 
@@ -98,7 +99,7 @@ class DevicePoolActor(
     }
 
     // Requests a batch of tests for a random device from the list of devices not running tests at the moment.
-    // When @avoidingDevice is not null, attemtps to send the request for any other device whenever available.
+    // When @avoidingDevice is not null, attempts to send the request for any other device whenever available.
     private suspend fun maybeRequestBatch(avoidingDevice: Device? = null) {
         val availableDevices = devices.values.asSequence()
             .map { it as DeviceActor }

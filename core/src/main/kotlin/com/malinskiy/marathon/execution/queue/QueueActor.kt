@@ -73,7 +73,7 @@ class QueueActor(
             }
 
             is QueueMessage.ReturnBatch -> {
-                onReturnBatch(msg.device, msg.batch)
+                onReturnBatch(msg.device, msg.batch, msg.reason)
             }
         }
     }
@@ -124,8 +124,8 @@ class QueueActor(
         }
     }
 
-    private suspend fun onReturnBatch(device: DeviceInfo, batch: TestBatch) {
-        logger.debug { "onReturnBatch ${device.serialNumber}" }
+    private suspend fun onReturnBatch(device: DeviceInfo, batch: TestBatch, reason: String) {
+        logger.debug { "onReturnBatch ${device.serialNumber}. reason=$reason" }
 
         val uncompletedTests = batch.tests
         val results = uncompletedTests.map {

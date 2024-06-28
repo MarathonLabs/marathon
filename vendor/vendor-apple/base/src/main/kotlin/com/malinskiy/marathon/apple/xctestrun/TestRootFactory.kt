@@ -439,10 +439,11 @@ class TestRootFactory(
             }
         } else if (device.sdk == Sdk.IPHONESIMULATOR) {
             val supportedArchs = device.binaryEnvironment.lipo.getArch(testBinary)
-            if (supportedArchs.contains(Arch.x86_64) && device.arch != Arch.arm64) {
+            val testRunnerArchs = device.binaryEnvironment.lipo.getArch(testRunnerBinary)
+            if (supportedArchs.contains(Arch.x86_64) && device.arch != Arch.arm64 && testRunnerArchs.contains(Arch.arm64)) {
                 // Launch as plain x86_64 if test binary has been built for simulator and is targeting x86_64
                 device.binaryEnvironment.lipo.removeArch(testRunnerBinary, Arch.arm64)
-            } else if (supportedArchs.contains(Arch.x86_64) && !supportedArchs.contains(Arch.arm64)) {
+            } else if (supportedArchs.contains(Arch.x86_64) && !supportedArchs.contains(Arch.arm64) && testRunnerArchs.contains(Arch.arm64)) {
                 // Launch as plain x86_64 if test binary supports only x86_64
                 device.binaryEnvironment.lipo.removeArch(testRunnerBinary, Arch.arm64)
             }
