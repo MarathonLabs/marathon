@@ -15,10 +15,22 @@ class Nm(
     private val timeoutConfiguration: TimeoutConfiguration,
 ) {
     private val logger = MarathonLogging.logger {}
-    suspend fun list(path: String): List<String> {
-        return criticalExec(timeoutConfiguration.shell, path).successfulOrNull()?.stdout
-            ?: throw DeviceSetupException("failed to extract symbol table from $path")
+
+    /**
+     * Instead of listing all the symbols (potentially hundreds of MBs)
+     * we grep for substrings we're interested in and return only the
+     * strings we might be interested in
+     *
+     * Warning: prefilter should not contain ' characters
+     */
+    suspend fun list(path: String, prefilter: Set<String>): List<String> {
+        if (prefilter.any { it.contains("'") }) {
+            throw RuntimeException("nm list prefilter should not contain symbol \"'\"")
+        }
+        val filter = prefilter.joinToString(" ") { "-e \"$it\"" }
+        return listSymbolsVia(path, "'nm \"$path\" | grep $filter'")
     }
+
 
     /**
      *
@@ -64,7 +76,6 @@ class Nm(
     ): CommandResult {
         return commandExecutor.criticalExecute(timeout, "nm", *args)
     }
-
     companion object {
         const val MAX_XARGS = 131072
     }
