@@ -32,6 +32,7 @@ import com.malinskiy.marathon.test.Test
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.NonCancellable.isActive
 import kotlinx.coroutines.withTimeoutOrNull
+import java.io.File
 
 private const val LISTENER_ARGUMENT = "listener"
 private const val TEST_ANNOTATION_PRODUCER = "com.malinskiy.adam.junit4.android.listener.TestAnnotationProducer"
@@ -55,8 +56,12 @@ class AmInstrumentTestParser(
                 throw e
             } catch (e: TestAnnotationProducerNotFoundException) {
                 logger.warn {
-                    "Previous parsing attempt failed due to test parser misconfiguration: test annotation producer was not found. See https://docs.marathonlabs.io/runner/android/configure#test-parser. " +
-                        "Next parsing attempt will remove overridden test run listener."
+                    """
+                     Previous parsing attempt failed for ${e.instrumentationPackage}
+                        file: ${e.testApplication} 
+                     due to test parser misconfiguration: test annotation producer was not found. See https://docs.marathonlabs.io/runner/android/configure#test-parser
+                     Next parsing attempt will remove overridden test run listener.   
+                    """.trimIndent()
                 }
                 blockListenerArgumentOverride = true
                 throw e
@@ -114,6 +119,10 @@ class AmInstrumentTestParser(
                 if (events == null) {
                     throw TestParsingException("Unable to parse test list using ${device.serialNumber}")
                 } else {
+                    throw TestAnnotationProducerNotFoundException(
+                        instrumentationInfo.instrumentationPackage,
+                        androidTestBundle.testApplication
+                    )
                     for (event in events) {
                         when (event) {
                             is TestRunStartedEvent -> Unit
@@ -134,16 +143,23 @@ class AmInstrumentTestParser(
                             is TestRunFailing -> {
                                 // Error message is stable, see https://github.com/android/android-test/blame/1ae53b93e02cc363311f6564a35edeea1b075103/runner/android_junit_runner/java/androidx/test/internal/runner/RunnerArgs.java#L624
                                 if (event.error.contains("Could not find extra class $TEST_ANNOTATION_PRODUCER")) {
-                                    throw TestAnnotationProducerNotFoundException()
+                                    throw TestAnnotationProducerNotFoundException(
+                                        instrumentationInfo.instrumentationPackage,
+                                        androidTestBundle.testApplication
+                                    )
                                 }
                             }
 
                             is TestRunFailed -> {
                                 //Happens on Android Wear if classpath is misconfigured
                                 if (event.error.contains("Process crashed")) {
-                                    throw TestAnnotationProducerNotFoundException()
+                                    throw TestAnnotationProducerNotFoundException(
+                                        instrumentationInfo.instrumentationPackage,
+                                        androidTestBundle.testApplication
+                                    )
                                 }
                             }
+
                             is TestRunStopped -> Unit
                             is TestRunEnded -> Unit
                         }
@@ -163,4 +179,4 @@ class AmInstrumentTestParser(
     }
 }
 
-private class TestAnnotationProducerNotFoundException : RuntimeException()
+private class TestAnnotationProducerNotFoundException(val instrumentationPackage: String, val testApplication: File) : RuntimeException()
