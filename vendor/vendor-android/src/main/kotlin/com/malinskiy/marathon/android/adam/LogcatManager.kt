@@ -36,9 +36,7 @@ class LogcatManager : CoroutineScope {
                 val parser = LogCatMessageParser()
                 for (logPart in logcatChannel) {
                     val messages = parser.processLogLines(logPart.lines(), device)
-                    messages.forEach { msg ->
-                        device.onLine("${msg.timestamp} ${msg.pid}-${msg.tid}/${msg.appName} ${msg.logLevel.priorityLetter}/${msg.tag}: ${msg.message}")
-                    }
+                    messages.forEach { msg -> device.onLogcat(msg) }
                 }
             }
         }
