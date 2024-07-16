@@ -1,6 +1,7 @@
 package com.malinskiy.marathon.android
 
 import com.android.sdklib.AndroidVersion
+import com.malinskiy.marathon.android.logcat.LogcatProducer
 import com.malinskiy.marathon.android.model.ShellCommandResult
 import com.malinskiy.marathon.device.screenshot.Rotation
 import com.malinskiy.marathon.config.vendor.android.VideoConfiguration
@@ -8,7 +9,7 @@ import com.malinskiy.marathon.device.Device
 import com.malinskiy.marathon.device.screenshot.Screenshottable
 import com.malinskiy.marathon.report.logs.LogProducer
 
-interface AndroidDevice : Device, LogProducer, Screenshottable {
+interface AndroidDevice : Device, LogProducer, LogcatProducer, Screenshottable {
     val apiLevel: Int
     val version: AndroidVersion
     val fileManager: RemoteFileManager

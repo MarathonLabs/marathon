@@ -16,6 +16,7 @@ import com.malinskiy.adam.request.testrunner.TestStarted
 import com.malinskiy.marathon.android.AndroidAppInstaller
 import com.malinskiy.marathon.android.AndroidTestBundleIdentifier
 import com.malinskiy.marathon.android.adam.event.TestAnnotationParser
+import com.malinskiy.marathon.android.adam.log.LogcatAccumulatingListener
 import com.malinskiy.marathon.android.extension.testBundlesCompat
 import com.malinskiy.marathon.android.model.AndroidTestBundle
 import com.malinskiy.marathon.android.model.TestIdentifier
@@ -56,11 +57,12 @@ class AmInstrumentTestParser(
                 throw e
             } catch (e: TestAnnotationProducerNotFoundException) {
                 logger.warn {
-                    """
-                     Previous parsing attempt failed for ${e.instrumentationPackage}
-                        file: ${e.testApplication} 
-                     due to test parser misconfiguration: test annotation producer was not found. See https://docs.marathonlabs.io/runner/android/configure#test-parser
-                     Next parsing attempt will remove overridden test run listener.   
+                    """Previous parsing attempt failed for ${e.instrumentationPackage}
+                         file: ${e.testApplication}
+                       due to test parser misconfiguration: test annotation producer was not found. See https://docs.marathonlabs.io/runner/android/configure#test-parser
+                       Next parsing attempt will remove overridden test run listener.
+                       Device log:
+                       ${e.logcat}
                     """.trimIndent()
                 }
                 blockListenerArgumentOverride = true
@@ -82,101 +84,111 @@ class AmInstrumentTestParser(
         val androidAppInstaller = AndroidAppInstaller(configuration)
         androidAppInstaller.prepareInstallation(device)
 
-        return testBundles.flatMap { bundle ->
-            val androidTestBundle =
-                AndroidTestBundle(bundle.application, bundle.testApplication, bundle.extraApplications, bundle.splitApks)
-            val instrumentationInfo = androidTestBundle.instrumentationInfo
+        val listener = LogcatAccumulatingListener(device)
+        listener.setup()
 
-            val testParserConfiguration = vendorConfiguration.testParserConfiguration
-            val overrides: Map<String, String> = when {
-                testParserConfiguration is TestParserConfiguration.RemoteTestParserConfiguration -> {
-                    if (blockListenerArgumentOverride) testParserConfiguration.instrumentationArgs
-                        .filterNot { it.key == LISTENER_ARGUMENT && it.value == TEST_ANNOTATION_PRODUCER }
-                    else testParserConfiguration.instrumentationArgs
+        try {
+            return testBundles.flatMap { bundle ->
+                val androidTestBundle =
+                    AndroidTestBundle(bundle.application, bundle.testApplication, bundle.extraApplications, bundle.splitApks)
+                val instrumentationInfo = androidTestBundle.instrumentationInfo
+
+                val testParserConfiguration = vendorConfiguration.testParserConfiguration
+                val overrides: Map<String, String> = when {
+                    testParserConfiguration is TestParserConfiguration.RemoteTestParserConfiguration -> {
+                        if (blockListenerArgumentOverride) testParserConfiguration.instrumentationArgs
+                            .filterNot { it.key == LISTENER_ARGUMENT && it.value == TEST_ANNOTATION_PRODUCER }
+                        else testParserConfiguration.instrumentationArgs
+                    }
+
+                    else -> emptyMap()
                 }
 
-                else -> emptyMap()
-            }
+                val runnerRequest = TestRunnerRequest(
+                    testPackage = instrumentationInfo.instrumentationPackage,
+                    runnerClass = instrumentationInfo.testRunnerClass,
+                    instrumentOptions = InstrumentOptions(
+                        log = true,
+                        overrides = overrides,
+                    ),
+                    supportedFeatures = device.supportedFeatures,
+                    coroutineScope = device,
+                )
+                listener.start()
+                val channel = device.executeTestRequest(runnerRequest)
+                var observedAnnotations = false
 
-            val runnerRequest = TestRunnerRequest(
-                testPackage = instrumentationInfo.instrumentationPackage,
-                runnerClass = instrumentationInfo.testRunnerClass,
-                instrumentOptions = InstrumentOptions(
-                    log = true,
-                    overrides = overrides,
-                ),
-                supportedFeatures = device.supportedFeatures,
-                coroutineScope = device,
-            )
-            val channel = device.executeTestRequest(runnerRequest)
-            var observedAnnotations = false
-
-            val tests = mutableSetOf<Test>()
-            while (!channel.isClosedForReceive && isActive) {
-                val events: List<TestEvent>? = withTimeoutOrNull(configuration.testOutputTimeoutMillis) {
-                    channel.receiveCatching().getOrNull() ?: emptyList()
-                }
-                if (events == null) {
-                    throw TestParsingException("Unable to parse test list using ${device.serialNumber}")
-                } else {
-                    throw TestAnnotationProducerNotFoundException(
-                        instrumentationInfo.instrumentationPackage,
-                        androidTestBundle.testApplication
-                    )
-                    for (event in events) {
-                        when (event) {
-                            is TestRunStartedEvent -> Unit
-                            is TestStarted -> Unit
-                            is TestFailed -> Unit
-                            is TestAssumptionFailed -> Unit
-                            is TestIgnored -> Unit
-                            is TestEnded -> {
-                                val annotations = testAnnotationParser.extractAnnotations(event)
-                                if (annotations.isNotEmpty()) {
-                                    observedAnnotations = true
+                val tests = mutableSetOf<Test>()
+                while (!channel.isClosedForReceive && isActive) {
+                    val events: List<TestEvent>? = withTimeoutOrNull(configuration.testOutputTimeoutMillis) {
+                        channel.receiveCatching().getOrNull() ?: emptyList()
+                    }
+                    if (events == null) {
+                        throw TestParsingException("Unable to parse test list using ${device.serialNumber}")
+                    } else {
+                        for (event in events) {
+                            when (event) {
+                                is TestRunStartedEvent -> Unit
+                                is TestStarted -> Unit
+                                is TestFailed -> Unit
+                                is TestAssumptionFailed -> Unit
+                                is TestIgnored -> Unit
+                                is TestEnded -> {
+                                    val annotations = testAnnotationParser.extractAnnotations(event)
+                                    if (annotations.isNotEmpty()) {
+                                        observedAnnotations = true
+                                    }
+                                    val test = TestIdentifier(event.id.className, event.id.testName).toTest(annotations)
+                                    tests.add(test)
+                                    testBundleIdentifier.put(test, androidTestBundle)
                                 }
-                                val test = TestIdentifier(event.id.className, event.id.testName).toTest(annotations)
-                                tests.add(test)
-                                testBundleIdentifier.put(test, androidTestBundle)
-                            }
 
-                            is TestRunFailing -> {
-                                // Error message is stable, see https://github.com/android/android-test/blame/1ae53b93e02cc363311f6564a35edeea1b075103/runner/android_junit_runner/java/androidx/test/internal/runner/RunnerArgs.java#L624
-                                if (event.error.contains("Could not find extra class $TEST_ANNOTATION_PRODUCER")) {
-                                    throw TestAnnotationProducerNotFoundException(
-                                        instrumentationInfo.instrumentationPackage,
-                                        androidTestBundle.testApplication
-                                    )
+                                is TestRunFailing -> {
+                                    // Error message is stable, see https://github.com/android/android-test/blame/1ae53b93e02cc363311f6564a35edeea1b075103/runner/android_junit_runner/java/androidx/test/internal/runner/RunnerArgs.java#L624
+                                    val logcat = listener.stop()
+                                    if (event.error.contains("Could not find extra class $TEST_ANNOTATION_PRODUCER")) {
+                                        throw TestAnnotationProducerNotFoundException(
+                                            instrumentationInfo.instrumentationPackage,
+                                            androidTestBundle.testApplication,
+                                            logcat,
+                                        )
+                                    }
                                 }
-                            }
 
-                            is TestRunFailed -> {
-                                //Happens on Android Wear if classpath is misconfigured
-                                if (event.error.contains("Process crashed")) {
-                                    throw TestAnnotationProducerNotFoundException(
-                                        instrumentationInfo.instrumentationPackage,
-                                        androidTestBundle.testApplication
-                                    )
+                                is TestRunFailed -> {
+                                    val logcat = listener.stop()
+                                    //Happens on Android Wear if classpath is misconfigured
+                                    if (event.error.contains("Process crashed")) {
+                                        throw TestAnnotationProducerNotFoundException(
+                                            instrumentationInfo.instrumentationPackage,
+                                            androidTestBundle.testApplication,
+                                            logcat,
+                                        )
+                                    }
                                 }
-                            }
 
-                            is TestRunStopped -> Unit
-                            is TestRunEnded -> Unit
+                                is TestRunStopped -> Unit
+                                is TestRunEnded -> Unit
+                            }
                         }
                     }
                 }
-            }
+                listener.finish()
 
-            if (!observedAnnotations) {
-                logger.warn {
-                    "Bundle ${bundle.id} did not report any test annotations. If you need test annotations retrieval, remote test parser requires additional setup " +
-                        "see https://docs.marathonlabs.io/runner/android/configure#test-parser"
+                if (!observedAnnotations) {
+                    logger.warn {
+                        "Bundle ${bundle.id} did not report any test annotations. If you need test annotations retrieval, remote test parser requires additional setup " +
+                            "see https://docs.marathonlabs.io/runner/android/configure#test-parser"
+                    }
                 }
-            }
 
-            tests
+                tests
+            }
+        } finally {
+            listener.stop()
         }
     }
 }
 
-private class TestAnnotationProducerNotFoundException(val instrumentationPackage: String, val testApplication: File) : RuntimeException()
+private class TestAnnotationProducerNotFoundException(val instrumentationPackage: String, val testApplication: File, val logcat: String) :
+    RuntimeException()
