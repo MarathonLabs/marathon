@@ -7,7 +7,7 @@ class LogcatAccumulatingListener(
     private val logcatProducer: LogcatProducer,
 ) : LogcatListener {
     private val stringBuffer = StringBuffer(4096)
-    private val allowlist = setOf("AndroidJUnitRunner", "AndroidRuntime")
+    private val allowlist = setOf("AndroidRuntime")
 
     override suspend fun onMessage(msg: LogCatMessage) {
         if (allowlist.contains(msg.tag)) {
