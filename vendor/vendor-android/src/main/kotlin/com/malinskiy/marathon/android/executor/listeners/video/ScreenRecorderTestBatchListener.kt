@@ -3,6 +3,7 @@ package com.malinskiy.marathon.android.executor.listeners.video
 import com.malinskiy.marathon.android.AndroidDevice
 import com.malinskiy.marathon.exceptions.TransferException
 import com.malinskiy.marathon.android.executor.listeners.NoOpTestRunListener
+import com.malinskiy.marathon.android.executor.listeners.video.ScreenRecorder.Companion.addFileNumberForVideo
 import com.malinskiy.marathon.android.model.TestIdentifier
 import com.malinskiy.marathon.config.ScreenRecordingPolicy
 import com.malinskiy.marathon.config.vendor.android.VideoConfiguration
@@ -17,12 +18,17 @@ import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.report.attachment.AttachmentListener
 import com.malinskiy.marathon.report.attachment.AttachmentProvider
 import com.malinskiy.marathon.test.Test
+import com.malinskiy.marathon.test.toSafeTestName
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.async
 import kotlinx.coroutines.cancelAndJoin
+import java.io.File
 import java.time.Duration
+import java.util.UUID
+import java.util.concurrent.TimeUnit
+import kotlin.math.max
 import kotlin.system.measureTimeMillis
 
 class ScreenRecorderTestBatchListener(
@@ -48,6 +54,10 @@ class ScreenRecorderTestBatchListener(
     private var hasFailed: Boolean = false
     private var supervisorJob: Job? = null
     private var lastRemoteFile: String? = null
+    private var lastUUID: UUID? = null
+
+    private val testStartTimeMap: MutableMap<String, Long> = mutableMapOf()
+    private val defaultTimeLimit: Long = 180
 
     override suspend fun testStarted(test: TestIdentifier) {
         hasFailed = false
@@ -58,6 +68,12 @@ class ScreenRecorderTestBatchListener(
         val supervisor = SupervisorJob()
         supervisorJob = supervisor
         async(supervisor) {
+            val startTime = System.currentTimeMillis()
+            with(UUID.randomUUID()) {  //safety for immediately failed run
+                lastUUID = this
+                testStartTimeMap[this.toString()] = startTime
+            }
+            testStartTimeMap[test.toTest().toSafeTestName()] = startTime
             screenRecorder.run()
         }
     }
@@ -80,9 +96,12 @@ class ScreenRecorderTestBatchListener(
         try {
             if (device.verifyHealthy()) {
                 stop()
-                lastRemoteFile?.let {
-                    pullLastBatchVideo(it)
-                    removeRemoteVideo(it)
+                lastRemoteFile?.let { file ->
+                    lastUUID?.let {
+                        val testDuration = testStartTimeMap[it.toString()].calculateTestDuration()
+                        pullLastBatchVideo(file, testDuration)
+                        removeRemoteVideo(file, testDuration)
+                    }
                 }
             }
         } catch (e: InterruptedException) {
@@ -110,10 +129,11 @@ class ScreenRecorderTestBatchListener(
     private suspend fun pullVideo(test: Test) {
         try {
             stop()
+            val testDuration = testStartTimeMap[test.toSafeTestName()].calculateTestDuration()
             if (screenRecordingPolicy == ScreenRecordingPolicy.ON_ANY || hasFailed) {
-                pullTestVideo(test)
+                pullTestVideo(test, testDuration)
             }
-            removeRemoteVideo(device.fileManager.remoteVideoForTest(test, testBatchId))
+            removeRemoteVideo(device.fileManager.remoteVideoForTest(test, testBatchId), testDuration)
         } catch (e: InterruptedException) {
             logger.warn { "Can't stop recording" }
         } catch (e: TransferException) {
@@ -121,33 +141,62 @@ class ScreenRecorderTestBatchListener(
         }
     }
 
-    private suspend fun pullTestVideo(test: Test) {
-        val localVideoFile = fileManager.createFile(FileType.VIDEO, pool, device.toDeviceInfo(), test, testBatchId)
+    private suspend fun pullTestVideo(test: Test, testDuration: Long) {
+        val localVideoFiles = mutableListOf<File>()
         val remoteFilePath = device.fileManager.remoteVideoForTest(test, testBatchId)
         val millis = measureTimeMillis {
-            device.safePullFile(remoteFilePath, localVideoFile.toString())
+            if(device.apiLevel < 34 && videoConfiguration.timeLimit > defaultTimeLimit) {
+                for (i in 0 .. (testDuration / defaultTimeLimit)) {
+                    val localVideoFile = fileManager.createFile(FileType.VIDEO, pool, device.toDeviceInfo(), test, testBatchId, i.toString())
+                    device.safePullFile(remoteFilePath.addFileNumberForVideo(i), localVideoFile.toString())
+                    localVideoFiles.add(localVideoFile)
+                }
+            } else {
+                val localVideoFile = fileManager.createFile(FileType.VIDEO, pool, device.toDeviceInfo(), test, testBatchId)
+                device.safePullFile(remoteFilePath, localVideoFile.toString())
+                localVideoFiles.add(localVideoFile)
+            }
         }
         logger.trace { "Pulling finished in ${millis}ms $remoteFilePath " }
-        attachmentListeners.forEach { it.onAttachment(test, Attachment(localVideoFile, AttachmentType.VIDEO)) }
+        attachmentListeners.forEach {
+            localVideoFiles.forEach { localVideoFile ->
+                it.onAttachment(test, Attachment(localVideoFile, AttachmentType.VIDEO))
+            }
+        }
     }
 
     /**
      * This can be called both when test times out and device unavailable
      */
-    private suspend fun pullLastBatchVideo(remoteFilePath: String) {
-        val localVideoFile = fileManager.createFile(FileType.VIDEO, pool, device.toDeviceInfo(), testBatchId = testBatchId)
+    private suspend fun pullLastBatchVideo(remoteFilePath: String, testDuration: Long) {
         val millis = measureTimeMillis {
-            device.safePullFile(remoteFilePath, localVideoFile.toString())
+            if(device.apiLevel < 34 && videoConfiguration.timeLimit > defaultTimeLimit) {
+                for (i in 0 .. (testDuration / defaultTimeLimit)) {
+                    val localVideoFile = fileManager.createFile(FileType.VIDEO, pool, device.toDeviceInfo(), testBatchId = testBatchId, id = i.toString())
+                    device.safePullFile(remoteFilePath.addFileNumberForVideo(i), localVideoFile.toString())
+                }
+            } else {
+                val localVideoFile = fileManager.createFile(FileType.VIDEO, pool, device.toDeviceInfo(), testBatchId = testBatchId)
+                device.safePullFile(remoteFilePath, localVideoFile.toString())
+            }
         }
         logger.trace { "Pulling finished in ${millis}ms $remoteFilePath " }
     }
 
-    private suspend fun removeRemoteVideo(remoteFilePath: String) {
+    private suspend fun removeRemoteVideo(remoteFilePath: String, testDuration: Long) {
         val millis = measureTimeMillis {
-            device.fileManager.removeRemotePath(remoteFilePath)
+            if(device.apiLevel < 34 && videoConfiguration.timeLimit > defaultTimeLimit) {
+                for (i in 0 .. (testDuration / defaultTimeLimit)) {
+                    device.fileManager.removeRemotePath(remoteFilePath.addFileNumberForVideo(i))
+                }
+            } else {
+                device.fileManager.removeRemotePath(remoteFilePath)
+            }
         }
         logger.trace { "Removed file in ${millis}ms $remoteFilePath" }
     }
+
+    private fun Long?.calculateTestDuration(): Long = max((this?.let { TimeUnit.SECONDS.convert(System.currentTimeMillis() - this, TimeUnit.MILLISECONDS) - 1 } ?: defaultTimeLimit), defaultTimeLimit) // -1 in case it takes some time to start and stop recording
 }
 
 private suspend fun AndroidDevice.verifyHealthy(): Boolean {

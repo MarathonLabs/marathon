@@ -42,6 +42,7 @@ import com.malinskiy.marathon.android.adam.extension.toShellResult
 import com.malinskiy.marathon.android.adam.log.LogCatMessage
 import com.malinskiy.marathon.android.exception.CommandRejectedException
 import com.malinskiy.marathon.android.exception.InstallException
+import com.malinskiy.marathon.android.executor.listeners.video.ScreenRecorder.Companion.addFileNumberForVideo
 import com.malinskiy.marathon.exceptions.TransferException
 import com.malinskiy.marathon.execution.listener.LineListener
 import com.malinskiy.marathon.android.extension.toScreenRecorderCommand
@@ -76,6 +77,7 @@ import java.awt.image.BufferedImage
 import java.io.File
 import java.time.Duration
 import java.util.concurrent.CopyOnWriteArrayList
+import java.util.concurrent.TimeUnit
 import kotlin.coroutines.CoroutineContext
 import com.malinskiy.marathon.android.model.ShellCommandResult as MarathonShellCommandResult
 
@@ -383,7 +385,27 @@ class AdamAndroidDevice(
         remoteFilePath: String,
         options: VideoConfiguration
     ) {
-        val screenRecorderCommand = options.toScreenRecorderCommand(remoteFilePath)
+        var secondsRemaining = TimeUnit.SECONDS.convert(options.timeLimit, options.timeLimitUnits)
+        if(secondsRemaining > 180 && apiLevel < 34) {
+            var recordsCount = 0L
+            while(recordsCount == 0L || secondsRemaining >= 180) {
+                startScreenRecorder(remoteFilePath, options, recordsCount) {
+                    secondsRemaining -= 180
+                    recordsCount++
+                }
+            }
+        } else {
+            startScreenRecorder(remoteFilePath, options)
+        }
+    }
+
+    private suspend fun startScreenRecorder(
+        remoteFilePath: String,
+        options: VideoConfiguration,
+        counter: Long? = null,
+        recordFinished: (() -> Unit)? = null
+    ) {
+        val screenRecorderCommand = options.toScreenRecorderCommand(remoteFilePath.addFileNumberForVideo(counter), this)
         try {
             withTimeoutOrNull(androidConfiguration.timeoutConfiguration.screenrecorder) {
                 val result = client.execute(ShellCommandRequest(screenRecorderCommand), serial = adbSerial)
@@ -399,6 +421,8 @@ class AdamAndroidDevice(
             logger.warn(e) { "screenrecord start was interrupted" }
         } catch (e: Exception) {
             logger.error("Unable to start screenrecord", e)
+        } finally {
+            recordFinished?.invoke()
         }
     }
 
