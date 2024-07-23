@@ -39,12 +39,14 @@ import com.malinskiy.marathon.android.AndroidTestBundleIdentifier
 import com.malinskiy.marathon.android.BaseAndroidDevice
 import com.malinskiy.marathon.android.RemoteFileManager
 import com.malinskiy.marathon.android.adam.extension.toShellResult
+import com.malinskiy.marathon.android.adam.log.LogCatMessage
 import com.malinskiy.marathon.android.exception.CommandRejectedException
 import com.malinskiy.marathon.android.exception.InstallException
 import com.malinskiy.marathon.android.executor.listeners.video.ScreenRecorder.Companion.addFileNumberForVideo
 import com.malinskiy.marathon.exceptions.TransferException
 import com.malinskiy.marathon.execution.listener.LineListener
 import com.malinskiy.marathon.android.extension.toScreenRecorderCommand
+import com.malinskiy.marathon.android.logcat.LogcatListener
 import com.malinskiy.marathon.config.Configuration
 import com.malinskiy.marathon.config.vendor.VendorConfiguration
 import com.malinskiy.marathon.config.vendor.android.SerialStrategy
@@ -360,13 +362,22 @@ class AdamAndroidDevice(
         }
     }
 
-    private val logcatListeners = CopyOnWriteArrayList<LineListener>()
+    private val logListeners = CopyOnWriteArrayList<LineListener>()
+    private val logcatListeners = CopyOnWriteArrayList<LogcatListener>()
 
     override fun addLineListener(listener: LineListener) {
-        logcatListeners.add(listener)
+        logListeners.add(listener)
     }
 
     override fun removeLineListener(listener: LineListener) {
+        logListeners.remove(listener)
+    }
+
+    override fun addLogcatListener(listener: LogcatListener) {
+        logcatListeners.add(listener)
+    }
+
+    override fun removeLogcatListener(listener: LogcatListener) {
         logcatListeners.remove(listener)
     }
 
@@ -495,8 +506,14 @@ class AdamAndroidDevice(
         return client.execute(runnerRequest, serial = adbSerial)
     }
 
+    suspend fun onLogcat(msg: LogCatMessage) {
+        //Bridge to regular string lines log
+        onLine("${msg.timestamp} ${msg.pid}-${msg.tid}/${msg.appName} ${msg.logLevel.priorityLetter}/${msg.tag}: ${msg.message}")
+        logcatListeners.forEach { it.onMessage(msg) }
+    }
+
     override suspend fun onLine(line: String) {
-        logcatListeners.forEach { listener ->
+        logListeners.forEach { listener ->
             listener.onLine(line)
         }
     }
