@@ -16,7 +16,8 @@ class LogListener(
     private val devicePoolId: DevicePoolId,
     private val testBatchId: String,
     private val logWriter: LogWriter,
-    private val attachmentProvider: AttachmentProviderDelegate = AttachmentProviderDelegate()
+    private val attachmentProvider: AttachmentProviderDelegate = AttachmentProviderDelegate(),
+    private val attachmentName: String = "log",
 ) : TestRunListener, AttachmentProvider by attachmentProvider, LineListener {
     private val stringBuffer = StringBuffer(4096)
 
@@ -37,7 +38,7 @@ class LogListener(
         stringBuffer.reset()
         if (log.isNotEmpty()) {
             val file = logWriter.saveLogs(test, devicePoolId, testBatchId, deviceInfo, listOf(log))
-            attachmentProvider.onAttachment(test, Attachment(file, AttachmentType.LOG))
+            attachmentProvider.onAttachment(test, Attachment(file, AttachmentType.LOG, attachmentName))
         }
     }
 

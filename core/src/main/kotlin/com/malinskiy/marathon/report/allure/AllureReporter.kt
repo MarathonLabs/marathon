@@ -77,12 +77,17 @@ class AllureReporter(val configuration: Configuration, private val outputDirecto
             TestStatus.IGNORED -> Status.SKIPPED
         }
 
-        val allureAttachments: List<Attachment> = testResult.attachments.map {
-            Attachment()
-                .setName(it.type.name.lowercase(Locale.ENGLISH)
-                             .replaceFirstChar { cher -> if (cher.isLowerCase()) cher.titlecase(Locale.ENGLISH) else cher.toString() })
-                .setSource(it.file.absolutePath)
-                .setType(it.type.mimeType)
+        val allureAttachments: List<Attachment> = testResult.attachments.mapNotNull {
+            if (it.empty) {
+                null
+            } else {
+                val name = it.name ?: it.type.name.lowercase(Locale.ENGLISH)
+                    .replaceFirstChar { cher -> if (cher.isLowerCase()) cher.titlecase(Locale.ENGLISH) else cher.toString() }
+                Attachment()
+                    .setName(name)
+                    .setSource(it.file.absolutePath)
+                    .setType(it.type.mimeType)
+            }
         }
 
         val allureTestResult = io.qameta.allure.model.TestResult()

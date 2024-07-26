@@ -252,7 +252,7 @@ abstract class BaseAndroidDevice(
         } ?: NoOpTestRunListener()
 
         val logListener = TestRunListenerAdapter(
-            LogListener(this.toDeviceInfo(), this, devicePoolId, testBatch.id, LogWriter(fileManager))
+            LogListener(this.toDeviceInfo(), this, devicePoolId, testBatch.id, LogWriter(fileManager), attachmentName = "logcat")
             .also { attachmentProviders.add(it) }
         )
 

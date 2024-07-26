@@ -56,7 +56,7 @@ class AdamScreenCaptureTestRunListener(
                 device.safePullFile(path, localFile.absolutePath)
                 logger.debug { "Received screen capture file $path" }
                 attachmentListeners.forEach {
-                    it.onAttachment(test.toTest(), Attachment(localFile, attachmentType))
+                    it.onAttachment(test.toTest(), Attachment(localFile, attachmentType, "screen"))
                 }
             } else {
                 logger.warn { "Unable to decode image format of screen capture $path. The file will be available in the report directory, but will not be included as part of any visual report" }

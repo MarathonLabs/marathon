@@ -335,7 +335,7 @@ class AppleSimulatorDevice(
             } ?: object : AppleTestRunListener {}
 
         val logListener = TestRunListenerAdapter(
-            LogListener(toDeviceInfo(), this, devicePoolId, testBatch.id, logWriter)
+            LogListener(toDeviceInfo(), this, devicePoolId, testBatch.id, logWriter, attachmentName = "xcodebuild-log")
                 .also { attachmentProviders.add(it) }
         )
 

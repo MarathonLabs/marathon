@@ -25,15 +25,16 @@ class FileManager(private val maxPath: Int, private val maxFilename: Int, privat
         device: DeviceInfo,
         test: Test? = null,
         testBatchId: String? = null,
-        id: String? = null
+        id: String? = null,
+        chunk: String? = null,
     ): File {
         val directory = when {
             test != null || testBatchId != null -> createDirectory(fileType, pool, device)
             else -> createDirectory(fileType, pool)
         }
         val filename = when {
-            test != null -> createTestFilename(test, fileType, testBatchId, id = id)
-            testBatchId != null -> createBatchFilename(testBatchId, fileType, id = id)
+            test != null -> createTestFilename(test, fileType, testBatchId, id = id, chunk = chunk)
+            testBatchId != null -> createBatchFilename(testBatchId, fileType, id = id, chunk = chunk)
             else -> createDeviceFilename(device, fileType, id = id)
         }
         return createFile(directory, filename)
@@ -104,7 +105,7 @@ class FileManager(private val maxPath: Int, private val maxFilename: Int, privat
         }
     }
 
-    private fun createBatchFilename(testBatchId: String, fileType: FileType, id: String? = null): String {
+    private fun createBatchFilename(testBatchId: String, fileType: FileType, id: String? = null, chunk: String? = null): String {
         return StringBuilder().apply {
             append(testBatchId)
             if (id != null) {
@@ -112,6 +113,9 @@ class FileManager(private val maxPath: Int, private val maxFilename: Int, privat
             }
             if (fileType.suffix.isNotEmpty()) {
                 append(".$testBatchId")
+            }
+            if (chunk != null) {
+                append("-$chunk")
             }
         }.toString()
     }
@@ -122,6 +126,7 @@ class FileManager(private val maxPath: Int, private val maxFilename: Int, privat
         testBatchId: String? = null,
         overrideExtension: String? = null,
         id: String? = null,
+        chunk: String? = null,
     ): String {
         val testSuffix = StringBuilder().apply {
             if (testBatchId != null) {
@@ -129,6 +134,9 @@ class FileManager(private val maxPath: Int, private val maxFilename: Int, privat
             }
             if (id != null) {
                 append("-$id")
+            }
+            if (chunk != null) {
+                append("-$chunk")
             }
             if (overrideExtension != null) {
                 append(".${overrideExtension}")
