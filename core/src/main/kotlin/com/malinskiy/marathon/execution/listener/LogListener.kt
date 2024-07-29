@@ -17,7 +17,7 @@ class LogListener(
     private val testBatchId: String,
     private val logWriter: LogWriter,
     private val attachmentProvider: AttachmentProviderDelegate = AttachmentProviderDelegate(),
-    private val attachmentName: String = "log",
+    private val attachmentName: String = Attachment.Name.LOG,
 ) : TestRunListener, AttachmentProvider by attachmentProvider, LineListener {
     private val stringBuffer = StringBuffer(4096)
 

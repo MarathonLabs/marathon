@@ -78,7 +78,7 @@ class LogListenerTest {
             listener.testEnded(test0)
             listener.onLine("3")
 
-            verify(attachmentListener, times(1)).onAttachment(test0, Attachment(logFile, AttachmentType.LOG, "log"))
+            verify(attachmentListener, times(1)).onAttachment(test0, Attachment(logFile, AttachmentType.LOG, Attachment.Name.LOG))
         }
     }
 
@@ -120,7 +120,7 @@ class LogListenerTest {
             listener.testEnded(test0)
             listener.onLine("3")
 
-            verify(attachmentListener, times(1)).onAttachment(test0, Attachment(logFile, AttachmentType.LOG, "log"))
+            verify(attachmentListener, times(1)).onAttachment(test0, Attachment(logFile, AttachmentType.LOG, Attachment.Name.LOG))
         }
     }
 
@@ -172,8 +172,8 @@ class LogListenerTest {
             listener.onLine("d")
 
 
-            verify(attachmentListener, times(1)).onAttachment(test0, Attachment(logFile1, AttachmentType.LOG, "log"))
-            verify(attachmentListener, times(1)).onAttachment(test1, Attachment(logFile2, AttachmentType.LOG, "log"))
+            verify(attachmentListener, times(1)).onAttachment(test0, Attachment(logFile1, AttachmentType.LOG, Attachment.Name.LOG))
+            verify(attachmentListener, times(1)).onAttachment(test1, Attachment(logFile2, AttachmentType.LOG, Attachment.Name.LOG))
         }
     }
 

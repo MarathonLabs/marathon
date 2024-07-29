@@ -165,13 +165,13 @@ class ScreenRecorderTestBatchListener(
                 val localVideoFile = fileManager.createFile(FileType.VIDEO, pool, device.toDeviceInfo(), test, testBatchId, chunk = i.toString())
                 val remoteFilePath = remoteVideoForTest(test, testBatchId, i)
                 pullTestVideoFile(remoteFilePath, localVideoFile, test)
-                attachmentListeners.forEach { it.onAttachment(test, Attachment(localVideoFile, AttachmentType.VIDEO, name = "screen-$i")) }
+                attachmentListeners.forEach { it.onAttachment(test, Attachment(localVideoFile, AttachmentType.VIDEO, name = "${Attachment.Name.SCREEN}-$i")) }
             }
         } else {
             val localVideoFile = fileManager.createFile(FileType.VIDEO, pool, device.toDeviceInfo(), test, testBatchId)
             val remoteFilePath = device.fileManager.remoteVideoForTest(test, testBatchId)
             pullTestVideoFile(remoteFilePath, localVideoFile, test)
-            attachmentListeners.forEach { it.onAttachment(test, Attachment(localVideoFile, AttachmentType.VIDEO, "screen")) }
+            attachmentListeners.forEach { it.onAttachment(test, Attachment(localVideoFile, AttachmentType.VIDEO, Attachment.Name.SCREEN)) }
         }
     }
 

@@ -34,8 +34,8 @@ internal class ScreenRecorder(
     suspend fun stopScreenRecord() {
         logger.debug { "Stopping screen recorder" }
         var hasKilledScreenRecord = true
-        var tries = 0
-        while (hasKilledScreenRecord && tries++ < SCREEN_RECORD_KILL_ATTEMPTS) {
+        for (tries in 0 until SCREEN_RECORD_KILL_ATTEMPTS) {
+            if (!hasKilledScreenRecord) break
             hasKilledScreenRecord = attemptToGracefullyKillScreenRecord()
             pauseBetweenProcessKill()
         }
