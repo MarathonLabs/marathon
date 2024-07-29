@@ -16,4 +16,3 @@ can [add it in a PR!](https://github.com/MarathonLabs/marathon/edit/develop/ADOP
 * [Aetna](https://www.aetna.com) 
 * [CVS Health](https://www.cvshealth.com)
 * [PITS Global Data Recovery Services](https://www.pitsdatarecovery.net/)
-* [Commonwealth Bank of Australia](https://www.commbank.com.au/)
