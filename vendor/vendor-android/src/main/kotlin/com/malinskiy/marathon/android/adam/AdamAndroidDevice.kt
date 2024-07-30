@@ -383,9 +383,11 @@ class AdamAndroidDevice(
         remoteFilePath: String,
         options: VideoConfiguration
     ) {
-        val screenRecorderCommand = options.toScreenRecorderCommand(remoteFilePath)
+        val supportsInfiniteRecording = apiLevel >= 34
+        val screenRecorderCommand = options.toScreenRecorderCommand(remoteFilePath, supportsInfiniteRecording)
         try {
             withTimeoutOrNull(androidConfiguration.timeoutConfiguration.screenrecorder) {
+                logger.debug { "Running screenrecorder for $remoteFilePath" }
                 val result = client.execute(ShellCommandRequest(screenRecorderCommand), serial = adbSerial)
                 logger.debug {
                     StringBuilder().apply {

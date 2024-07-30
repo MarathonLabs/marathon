@@ -51,6 +51,7 @@ import com.malinskiy.marathon.device.toDeviceInfo
 import com.malinskiy.marathon.exceptions.DeviceLostException
 import com.malinskiy.marathon.exceptions.DeviceSetupException
 import com.malinskiy.marathon.exceptions.IncompatibleDeviceException
+import com.malinskiy.marathon.execution.Attachment
 import com.malinskiy.marathon.execution.TestBatchResults
 import com.malinskiy.marathon.execution.listener.LineListener
 import com.malinskiy.marathon.execution.listener.LogListener
@@ -335,7 +336,7 @@ class AppleSimulatorDevice(
             } ?: object : AppleTestRunListener {}
 
         val logListener = TestRunListenerAdapter(
-            LogListener(toDeviceInfo(), this, devicePoolId, testBatch.id, logWriter)
+            LogListener(toDeviceInfo(), this, devicePoolId, testBatch.id, logWriter, attachmentName = Attachment.Name.XCODEBUILDLOG)
                 .also { attachmentProviders.add(it) }
         )
 

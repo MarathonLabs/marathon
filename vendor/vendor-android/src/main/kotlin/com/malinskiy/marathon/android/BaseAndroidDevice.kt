@@ -27,6 +27,7 @@ import com.malinskiy.marathon.device.DevicePoolId
 import com.malinskiy.marathon.device.OperatingSystem
 import com.malinskiy.marathon.device.toDeviceInfo
 import com.malinskiy.marathon.exceptions.DeviceSetupException
+import com.malinskiy.marathon.execution.Attachment
 import com.malinskiy.marathon.execution.TestBatchResults
 import com.malinskiy.marathon.extension.withTimeoutOrNull
 import com.malinskiy.marathon.io.FileManager
@@ -252,7 +253,7 @@ abstract class BaseAndroidDevice(
         } ?: NoOpTestRunListener()
 
         val logListener = TestRunListenerAdapter(
-            LogListener(this.toDeviceInfo(), this, devicePoolId, testBatch.id, LogWriter(fileManager))
+            LogListener(this.toDeviceInfo(), this, devicePoolId, testBatch.id, LogWriter(fileManager), attachmentName = Attachment.Name.LOGCAT)
             .also { attachmentProviders.add(it) }
         )
 

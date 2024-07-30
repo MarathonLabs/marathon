@@ -154,7 +154,7 @@ class ScreenRecordingListener(
             device.pullFile(remoteFilePath, localVideoFile)
         }
         logger.debug { "Pulling finished in ${millis}ms $remoteFilePath " }
-        attachmentProvider.onAttachment(test, Attachment(localVideoFile, AttachmentType.VIDEO))
+        attachmentProvider.onAttachment(test, Attachment(localVideoFile, AttachmentType.VIDEO, Attachment.Name.SCREEN))
     }
 
     private suspend fun pullLastBatchVideo(remoteFilePath: String) {

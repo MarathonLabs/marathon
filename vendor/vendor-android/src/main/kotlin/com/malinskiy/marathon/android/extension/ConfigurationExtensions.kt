@@ -6,7 +6,7 @@ import com.malinskiy.marathon.config.vendor.android.AndroidTestBundleConfigurati
 import com.malinskiy.marathon.config.vendor.android.VideoConfiguration
 import java.util.concurrent.TimeUnit
 
-fun VideoConfiguration.toScreenRecorderCommand(remoteFilePath: String): String {
+fun VideoConfiguration.toScreenRecorderCommand(remoteFilePath: String, supportsInfiniteRecording: Boolean): String {
     val sb = StringBuilder()
 
     sb.append("screenrecord")
@@ -36,7 +36,7 @@ fun VideoConfiguration.toScreenRecorderCommand(remoteFilePath: String): String {
     if (timeLimit > 0) {
         sb.append("--time-limit ")
         var seconds = TimeUnit.SECONDS.convert(timeLimit, timeLimitUnits)
-        if (seconds > 180) {
+        if (seconds > 180 && !supportsInfiniteRecording) {
             seconds = 180
         }
         sb.append(seconds)

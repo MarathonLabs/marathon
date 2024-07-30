@@ -26,14 +26,17 @@ class RemoteFileManager(private val device: AndroidDevice) {
         return remoteFileForTest(videoFileName(test, testBatchId))
     }
 
+    fun remoteChunkedVideoForTest(test: Test, testBatchId: String, chunk: Long): String {
+        return remoteFileForTest(videoFileName(test, testBatchId, chunk))
+    }
+
     private fun remoteFileForTest(filename: String): String {
         return "$outputDir/$filename"
     }
 
-    private fun videoFileName(test: Test, testBatchId: String): String {
-        "${test.toClassName()}-${test.method}-$testBatchId.mp4"
-
-        val testSuffix = "-$testBatchId.mp4"
+    private fun videoFileName(test: Test, testBatchId: String, chunk: Long? = null): String {
+        val chunkId = chunk?.let { "-$it" } ?: ""
+        val testSuffix = "-$testBatchId$chunkId.mp4"
         val rawTestName = "${test.toClassName()}-${test.method}".escape()
         val testName = rawTestName.take(MAX_FILENAME - testSuffix.length)
         val fileName = "$testName$testSuffix"

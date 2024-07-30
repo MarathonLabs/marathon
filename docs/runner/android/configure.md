@@ -312,7 +312,8 @@ screenshots or configure the recording parameters you can specify this as follow
 
 :::tip
 
-Android's `screenrecorder` doesn't support videos longer than 180 seconds
+Android's `screenrecorder` doesn't support videos longer than 180 seconds for apiVersion < 34. For such devices marathon will automatically 
+record as many video files as needed if the test takes longer than 180 seconds. Expect several missing frames between the files though
 
 :::
 
