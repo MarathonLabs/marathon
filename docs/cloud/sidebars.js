@@ -41,7 +41,8 @@ const sidebars = {
             label: 'Misc',
             collapsed: false,
             items: [
-                'misc/pricing'
+                'misc/pricing',
+                'misc/sso'
             ]
         },
 
