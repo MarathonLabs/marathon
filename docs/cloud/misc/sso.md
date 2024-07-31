@@ -14,4 +14,4 @@ To configure SAML, you'll need the following parameters:
 - Entity ID
 - Public certificate
 
-Once you've set up these parameters, check the configuration by clicking "Test сonfiguration."
+You can check if the configuration is valid by clicking "Test сonfiguration."
