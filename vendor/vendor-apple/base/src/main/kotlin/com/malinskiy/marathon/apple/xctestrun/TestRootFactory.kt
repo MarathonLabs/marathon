@@ -221,6 +221,7 @@ class TestRootFactory(
                             testBundlePath = remoteXctest,
                             testHostPath = testRunnerApp,
                             uiTargetAppPath = remoteTestApp,
+                            preferredScreenCaptureFormat = xcresultConfiguration.preferredScreenCaptureFormat?.xcodevalue(),
                         )
                     )
                 )

@@ -248,6 +248,21 @@ deleted on success and user attachments will always be kept in the xcresult, but
 
 Possible values for the lifetime are `KEEP_ALWAYS`, `DELETE_ON_SUCCESS` and `KEEP_NEVER`.
 
+#### xcresult screen recorder configuration
+Since Xcode 15 test execution defaults to recording test video and attaching it to xcresults. This can be configured as follows:
+```yaml
+  xcresult:
+    preferredScreenCaptureFormat: SCREENSHOTS
+```
+
+Possible values for the screen capture format are `SCREENSHOTS` and `SCREEN_RECORDING`.
+
+:::warning
+
+This setting doesn't influence marathon's screen recorder which is configured separately.
+
+:::
+
 ### Screen recorder configuration
 
 By default, marathon will record a h264-encoded video of the internal display with black mask if it is supported.

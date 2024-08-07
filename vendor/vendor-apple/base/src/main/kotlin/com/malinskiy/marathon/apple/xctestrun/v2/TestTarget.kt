@@ -38,6 +38,7 @@ class TestTarget : TestTarget {
             testRegion: String? = null,
             isUITestBundle: Boolean? = null,
             isAppHostedTestBundle: Boolean? = null,
+            preferredScreenCaptureFormat: String? = null,
         ): V2TestTarget {
             return V2TestTarget(
                 name = name,
@@ -65,6 +66,7 @@ class TestTarget : TestTarget {
                 testRegion = testRegion,
                 isUITestBundle = isUITestBundle,
                 isAppHostedTestBundle = isAppHostedTestBundle,
+                preferredScreenCaptureFormat = preferredScreenCaptureFormat,
             )
         }
 
@@ -161,6 +163,7 @@ class TestTarget : TestTarget {
         testRegion: String? = null,
         isUITestBundle: Boolean? = null,
         isAppHostedTestBundle: Boolean? = null,
+        preferredScreenCaptureFormat: String? = null,
     ) : super(
         testBundlePath,
         testHostPath,
@@ -192,6 +195,7 @@ class TestTarget : TestTarget {
         testRegion?.let { this.testRegion = it }
         isUITestBundle?.let { this.isUITestBundle = it }
         isAppHostedTestBundle?.let { this.isAppHostedTestBundle = it }
+        preferredScreenCaptureFormat?.let { this.preferredScreenCaptureFormat = it }
     }
 
     /**
@@ -270,4 +274,10 @@ class TestTarget : TestTarget {
      */
     var isUITestBundle: Boolean? by delegate.optionalDelegateFor("IsUITestBundle")
     var isAppHostedTestBundle: Boolean? by delegate.optionalDelegateFor("IsAppHostedTestBundle")
+
+    /**
+     * Added in xcode 15, possible values are [screenshots, screenRecording]. Defaults to screenRecording
+     * Ignored by previous versions of xcode
+     */
+    var preferredScreenCaptureFormat: String? by delegate.optionalDelegateFor("preferredScreenCaptureFormat")
 }
