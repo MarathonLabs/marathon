@@ -39,8 +39,8 @@ enum class PullingPolicy {
 }
 
 enum class ScreenCaptureFormat {
-    @JsonProperty("screenshots") SCREENSHOTS,
-    @JsonProperty("screenRecording") SCREEN_RECORDING;
+    @JsonProperty("SCREENSHOTS") SCREENSHOTS,
+    @JsonProperty("SCREEN_RECORDING") SCREEN_RECORDING;
 
     fun xcodevalue() = when(this) {
         SCREENSHOTS -> "screenshots"
