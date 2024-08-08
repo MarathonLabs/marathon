@@ -26,8 +26,11 @@ vendorConfiguration:
       username: malinskiy
       key: ${HOME}/.ssh/marathon
     knownHostsPath: ${HOME}/.ssh/known_hosts
+    # Temporary fix for https://github.com/hierynomus/sshj/pull/934
+    keepAliveInterval: "PT0H0M0S"
   xcresult:
-    pullingStrategy: ALWAYS
+    pullingPolicy: ALWAYS
     remoteClean: true
+    preferredScreenCaptureFormat: SCREENSHOTS
   lifecycle:
     onPrepare: []

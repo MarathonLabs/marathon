@@ -7,6 +7,7 @@ data class XcresultConfiguration(
     @JsonProperty("pullingPolicy") val pullingPolicy: PullingPolicy = PullingPolicy.ALWAYS,
     @JsonProperty("remoteClean") val remoteClean: Boolean = true,
     @JsonProperty("attachments") val attachments: AttachmentsConfiguration = AttachmentsConfiguration(),
+    @JsonProperty("preferredScreenCaptureFormat") val preferredScreenCaptureFormat: ScreenCaptureFormat? = null,
 )
 
 data class AttachmentsConfiguration(
@@ -35,4 +36,14 @@ enum class PullingPolicy {
     @JsonProperty("NEVER") NEVER,
     @JsonProperty("ALWAYS") ALWAYS,
     @JsonProperty("ON_FAILURE") ON_FAILURE,
+}
+
+enum class ScreenCaptureFormat {
+    @JsonProperty("SCREENSHOTS") SCREENSHOTS,
+    @JsonProperty("SCREEN_RECORDING") SCREEN_RECORDING;
+
+    fun xcodevalue() = when(this) {
+        SCREENSHOTS -> "screenshots"
+        SCREEN_RECORDING -> "screenRecording"
+    }
 }
