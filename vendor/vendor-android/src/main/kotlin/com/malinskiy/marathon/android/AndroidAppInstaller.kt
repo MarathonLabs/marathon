@@ -3,6 +3,7 @@ package com.malinskiy.marathon.android
 import com.malinskiy.marathon.android.exception.DeviceNotSupportedException
 import com.malinskiy.marathon.android.exception.InstallException
 import com.malinskiy.marathon.android.extension.testBundlesCompat
+import com.malinskiy.marathon.android.model.AndroidTestBundle
 import com.malinskiy.marathon.config.Configuration
 import com.malinskiy.marathon.config.vendor.VendorConfiguration
 import com.malinskiy.marathon.exceptions.DeviceSetupException
@@ -26,31 +27,33 @@ class AndroidAppInstaller(configuration: Configuration) {
     suspend fun prepareInstallation(device: AndroidDevice) {
         val testBundles = androidConfiguration.testBundlesCompat()
         testBundles.forEach { bundle ->
-            val apkParser = ApkParser()
-            val applicationInfo = apkParser.parseInstrumentationInfo(bundle.testApplication)
-
-            logger.debug { "Installing application output to ${device.serialNumber}" }
-            bundle.application?.let { applicationApk ->
-                if (bundle.splitApks.isNullOrEmpty()) {
-                    if (device.apiLevel < 21) {
-                        throw DeviceNotSupportedException("Device api level should be more then 20")
-                    }
-                }
-                reinstall(device, applicationInfo.applicationPackage, applicationApk, bundle.splitApks ?: emptyList())
-            }
-
-            bundle.extraApplications?.let { extraApplications ->
-                extraApplications.forEach { extraApplication ->
-                    logger.debug { "Installing extra application to ${device.serialNumber}" }
-                    val extraApplicationPackage = apkParser.parseAppPackageName(extraApplication)
-                    reinstall(device, extraApplicationPackage, extraApplication)
-                }
-            }
-
-            logger.debug { "Installing instrumentation package to ${device.serialNumber}" }
-            reinstall(device, applicationInfo.instrumentationPackage, bundle.testApplication)
-            logger.debug { "Prepare installation finished for ${device.serialNumber}" }
+            preparePartialInstallation(device, bundle)
         }
+    }
+
+    suspend fun preparePartialInstallation(device: AndroidDevice, bundle: AndroidTestBundle) {
+        val applicationInfo = bundle.instrumentationInfo
+        logger.debug { "Installing application output to ${device.serialNumber}" }
+        bundle.application?.let { applicationApk ->
+            if (bundle.splitApks.isNullOrEmpty()) {
+                if (device.apiLevel < 21) {
+                    throw DeviceNotSupportedException("Device api level should be more then 20")
+                }
+            }
+            reinstall(device, applicationInfo.applicationPackage, applicationApk, bundle.splitApks ?: emptyList())
+        }
+
+        bundle.extraApplications?.let { extraApplications ->
+            extraApplications.forEach { extraApplication ->
+                logger.debug { "Installing extra application to ${device.serialNumber}" }
+                val extraApplicationPackage = AndroidTestBundle.apkParser.parseAppPackageName(extraApplication)
+                reinstall(device, extraApplicationPackage, extraApplication)
+            }
+        }
+
+        logger.debug { "Installing instrumentation package to ${device.serialNumber}" }
+        reinstall(device, applicationInfo.instrumentationPackage, bundle.testApplication)
+        logger.debug { "Prepare installation finished for ${device.serialNumber}" }
     }
 
     /**
