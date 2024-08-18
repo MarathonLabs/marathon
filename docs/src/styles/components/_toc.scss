@@ -28,8 +28,6 @@ html[data-theme='dark'] {
         --ifm-toc-border-color: transparent;
     }
 
-    
-
     .toc-wrapper {
         overflow: auto;
         position: sticky;
@@ -41,7 +39,6 @@ html[data-theme='dark'] {
         padding-inline-end: 2rem;
         padding-inline-start: 2rem;
         padding-block-end: 2rem;
-        
         h2 {
             font-size: 0.625rem;
             line-height: 12px;
