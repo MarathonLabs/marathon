@@ -430,8 +430,10 @@ class AdamAndroidDevice(
             }
         } catch (e: CancellationException) {
             logger.warn(e) { "screenrecord start was interrupted" }
+            throw e
         } catch (e: Exception) {
             logger.error("Unable to start screenrecord", e)
+            throw e
         }
     }
 

@@ -16,8 +16,10 @@ internal class ScreenRecorder(
             startRecordingTestVideo(remoteFilePath)
         } catch (e: CancellationException) {
             logger.warn(e) { "screenrecord start was interrupted" }
+            throw e
         } catch (e: Exception) {
             logger.error("Something went wrong while screen recording", e)
+            throw e
         }
     }
 
