@@ -32,6 +32,9 @@ abstract class AccumulatingTestResultListener(private val expectedTestCount: Int
         testEnded(test, startTime, endTime)
     }
 
+    /**
+     * Even though apple provides the timestamps for tests, there is no expectation of these being in sync with local time
+     */
     private fun testEnded(test: Test, startTime: Long, endTime: Long) {
         runResult.testEnded(test = test, testMetrics = emptyMap())
     }
