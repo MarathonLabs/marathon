@@ -33,7 +33,7 @@ abstract class AccumulatingTestResultListener(private val expectedTestCount: Int
     }
 
     private fun testEnded(test: Test, startTime: Long, endTime: Long) {
-        runResult.testEnded(test = test, testMetrics = emptyMap(), endTime = endTime)
+        runResult.testEnded(test = test, testMetrics = emptyMap())
     }
 
     override suspend fun testRunFailed(errorMessage: String, reason: DeviceFailureReason) {
