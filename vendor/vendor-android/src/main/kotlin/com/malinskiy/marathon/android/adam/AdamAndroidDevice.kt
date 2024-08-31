@@ -17,6 +17,7 @@ import com.malinskiy.adam.request.framebuffer.BufferedImageScreenCaptureAdapter
 import com.malinskiy.adam.request.framebuffer.ScreenCaptureRequest
 import com.malinskiy.adam.request.pkg.InstallRemotePackageRequest
 import com.malinskiy.adam.request.pkg.InstallSplitPackageRequest
+import com.malinskiy.adam.request.pkg.StreamingPackageInstallRequest
 import com.malinskiy.adam.request.pkg.UninstallRemotePackageRequest
 import com.malinskiy.adam.request.pkg.multi.ApkSplitInstallationPackage
 import com.malinskiy.adam.request.prop.GetPropRequest
@@ -307,6 +308,36 @@ class AdamAndroidDevice(
         reinstall: Boolean,
         optionalParams: List<String>
     ): MarathonShellCommandResult {
+        return if (supportedFeatures.contains(Feature.ABB_EXEC) || supportedFeatures.contains(Feature.CMD)) {
+            installPackageStreaming(absolutePath, reinstall, optionalParams)
+        } else {
+            installPackageLegacy(absolutePath, reinstall, optionalParams)
+        }
+    }
+
+    private suspend fun installPackageStreaming(
+        absolutePath: String,
+        reinstall: Boolean,
+        optionalParams: List<String>
+    ): MarathonShellCommandResult {
+        val result = withTimeoutOrNull(androidConfiguration.timeoutConfiguration.install) {
+            client.execute(
+                StreamingPackageInstallRequest(
+                    File(absolutePath),
+                    supportedFeatures,
+                    reinstall,
+                    extraArgs = optionalParams.filter { it.isNotBlank() },
+                ), serial = adbSerial
+            )
+        } ?: throw InstallException("Timeout installing $absolutePath")
+        return com.malinskiy.marathon.android.model.ShellCommandResult(result.output, if (result.success) 0 else 1)
+    }
+
+    private suspend fun installPackageLegacy(
+        absolutePath: String,
+        reinstall: Boolean,
+        optionalParams: List<String>
+    ): MarathonShellCommandResult {
         val file = File(absolutePath)
         //Very simple escaping for the name of the file
         val fileName = file.name.escape()
@@ -399,8 +430,10 @@ class AdamAndroidDevice(
             }
         } catch (e: CancellationException) {
             logger.warn(e) { "screenrecord start was interrupted" }
+            throw e
         } catch (e: Exception) {
             logger.error("Unable to start screenrecord", e)
+            throw e
         }
     }
 
