@@ -12,6 +12,7 @@ import com.malinskiy.marathon.execution.TestStatus
 import com.malinskiy.marathon.execution.queue.TestAction
 import com.malinskiy.marathon.execution.queue.TestEvent
 import com.malinskiy.marathon.execution.queue.TestState
+import com.malinskiy.marathon.integrations.ci.CIIntegrationFactory
 import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.test.Test
 import com.malinskiy.marathon.test.toTestName
@@ -26,6 +27,7 @@ class PoolProgressAccumulator(
     private val tests: HashMap<String, TestExecutionData> = HashMap()
     private val logger = MarathonLogging.logger {}
     private val executionStrategy = configuration.executionStrategy
+    private val ci = CIIntegrationFactory.get(configuration)
 
     private fun createState(initialCount: Int) = StateMachine.create<TestState, TestEvent, TestAction> {
         initialState(TestState.Added(initialCount))
@@ -265,6 +267,7 @@ class PoolProgressAccumulator(
 
     fun testStarted(device: DeviceInfo, test: Test) {
         transition(test, TestEvent.Started)
+        ci.setBuildProgress(progress().toInt())
         println("${toPercent(progress())} | [${poolId.name}]-[${device.serialNumber}] ${test.toTestName()} started")
     }
 

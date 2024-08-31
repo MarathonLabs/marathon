@@ -50,6 +50,7 @@ data class Configuration private constructor(
     val analyticsTracking: Boolean,
     val bugsnagReporting: Boolean,
     val deviceInitializationTimeoutMillis: Long,
+    val ciConfiguration: CIConfiguration,
 ) {
     fun toMap() =
         mapOf<String, String>(
@@ -74,7 +75,8 @@ data class Configuration private constructor(
             "debug" to debug.toString(),
             "screenRecordingPolicy" to screenRecordingPolicy.toString(),
             "vendorConfiguration" to vendorConfiguration.toString(),
-            "deviceInitializationTimeoutMillis" to deviceInitializationTimeoutMillis.toString()
+            "deviceInitializationTimeoutMillis" to deviceInitializationTimeoutMillis.toString(),
+            "ciConfiguration" to ciConfiguration.toString(),
         )
 
     override fun equals(other: Any?): Boolean {
@@ -108,6 +110,7 @@ data class Configuration private constructor(
         if (analyticsTracking != other.analyticsTracking) return false
         if (bugsnagReporting != other.bugsnagReporting) return false
         if (deviceInitializationTimeoutMillis != other.deviceInitializationTimeoutMillis) return false
+        if (ciConfiguration != other.ciConfiguration) return false
 
         return true
     }
@@ -138,6 +141,7 @@ data class Configuration private constructor(
         result = 31 * result + analyticsTracking.hashCode()
         result = 31 * result + bugsnagReporting.hashCode()
         result = 31 * result + deviceInitializationTimeoutMillis.hashCode()
+        result = 31 * result + ciConfiguration.hashCode()
         return result
     }
 
@@ -173,6 +177,7 @@ data class Configuration private constructor(
 
          var outputConfiguration: OutputConfiguration = OutputConfiguration(),
          var vendorConfiguration: VendorConfiguration = VendorConfiguration.EmptyVendorConfiguration(),
+         var ciConfiguration: CIConfiguration = CIConfiguration.None,
     ) {
         fun build(): Configuration {
             return Configuration(
@@ -200,7 +205,8 @@ data class Configuration private constructor(
                 vendorConfiguration = vendorConfiguration,
                 analyticsTracking = analyticsTracking,
                 bugsnagReporting = bugsnagReporting,
-                deviceInitializationTimeoutMillis = deviceInitializationTimeoutMillis
+                deviceInitializationTimeoutMillis = deviceInitializationTimeoutMillis,
+                ciConfiguration = ciConfiguration,
             )
         }
     }
