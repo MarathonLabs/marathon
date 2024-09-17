@@ -23,6 +23,7 @@ data class VideoConfiguration(
     @JsonProperty("codec") val codec: Codec = Codec.H264,
     @JsonProperty("display") val display: Display = Display.INTERNAL,
     @JsonProperty("mask") val mask: Mask = Mask.BLACK,
+    @JsonProperty("transcoding") val transcoding: TranscodingConfiguration = TranscodingConfiguration()
 )
 
 enum class Codec(val value: String) {
@@ -34,3 +35,15 @@ enum class Codec(val value: String) {
     @JsonProperty("hevc") HEVC("hevc"),
 }
 
+data class TranscodingConfiguration(
+    @JsonProperty("enabled") val enabled: Boolean = false,
+    @JsonProperty("ffmpegPath") val binary: String = "/opt/homebrew/bin/ffmpeg",
+    @JsonProperty("size") val size: Size = Size.hd720,
+)
+
+
+enum class Size(val value: Int) {
+    @JsonProperty("hd480") hd480(852),
+    @JsonProperty("hd720") hd720(1280),
+    @JsonProperty("hd1080") hd1080(1920),
+}

@@ -139,6 +139,7 @@ class AppleSimulatorDevice(
     override val storagePath = "${AppleDevice.SHARED_PATH}/$udid"
     private lateinit var xcodeVersion: XcodeVersion
     private lateinit var testBundle: AppleTestBundle
+    private var supportsTranscoding: Boolean = false
 
     /**
      * Called only once per device's lifetime
@@ -188,6 +189,14 @@ class AppleSimulatorDevice(
             } ?: "Unknown"
 
             deviceFeatures = detectFeatures()
+
+            supportsTranscoding = executeWorkerCommand(listOf(vendorConfiguration.screenRecordConfiguration.videoConfiguration.transcoding.binary, "-version"))?.let {
+                if (it.successful) {
+                    true
+                } else {
+                    false
+                }
+            } ?: false
         }
     }
 
@@ -294,7 +303,7 @@ class AppleSimulatorDevice(
 
                 else -> throw DeviceLostException(e)
             }
-        } catch(e: CancellationException) {
+        } catch (e: CancellationException) {
             job?.cancel(e)
             throw e
         }
@@ -736,6 +745,8 @@ class AppleSimulatorDevice(
                     testBatchId,
                     this,
                     screenRecordingPolicy,
+                    vendorConfiguration.screenRecordConfiguration.videoConfiguration,
+supportsTranscoding,
                     this,
                 )
                     .also { attachmentProviders.add(it) }

@@ -59,11 +59,11 @@ class RemoteFileManager(private val device: AppleDevice) {
 
     fun xctestrunFileName(): String = "marathon.xctestrun"
 
-    private fun xctestFileName(): String  = "marathon.xctest"
-    private fun libXctestParserFileName(): String  = "libxctest-parser.dylib"
+    private fun xctestFileName(): String = "marathon.xctest"
+    private fun libXctestParserFileName(): String = "libxctest-parser.dylib"
 
-    fun appUnderTestFileName(): String  = "appUnderTest.app"
-    fun testRunnerFileName(): String  = "xctestRunner.app"
+    fun appUnderTestFileName(): String = "appUnderTest.app"
+    fun testRunnerFileName(): String = "xctestRunner.app"
 
     private fun xcresultFileName(batch: TestBatch): String =
         "${device.udid}.${batch.id}.xcresult"
@@ -74,14 +74,15 @@ class RemoteFileManager(private val device: AppleDevice) {
     private suspend fun safeExecuteCommand(command: List<String>) {
         try {
             device.executeWorkerCommand(command)
-        } catch (_: Exception) {}
+        } catch (_: Exception) {
+        }
     }
 
     private suspend fun executeCommand(command: List<String>, errorMessage: String): String? {
         return try {
             val result = device.executeWorkerCommand(command) ?: return null
             val stderr = result.combinedStderr.trim()
-            if(stderr.isNotBlank()) {
+            if (stderr.isNotBlank()) {
                 logger.error { "cmd=${command.joinToString(" ")}, stderr=$stderr" }
             }
             result.combinedStdout.trim()
@@ -92,7 +93,11 @@ class RemoteFileManager(private val device: AppleDevice) {
     }
 
     fun remoteVideoForTest(test: Test, testBatchId: String): String {
-        return remoteFileForTest(videoFileName(test, testBatchId))
+        return remoteFileForTest(videoFileName(test, testBatchId, temporary = false))
+    }
+
+    fun remoteTempVideoForTest(test: Test, testBatchId: String): String {
+        return remoteFileForTest(videoFileName(test, testBatchId, temporary = true))
     }
 
     fun remoteVideoPidfile() = remoteFileForTest(videoPidFileName(device.udid))
@@ -113,14 +118,15 @@ class RemoteFileManager(private val device: AppleDevice) {
         return "$udid.${type.value}"
     }
 
-    private fun videoFileName(test: Test, testBatchId: String): String {
-        val testSuffix = "-$testBatchId.mp4"
+    private fun videoFileName(test: Test, testBatchId: String, temporary: Boolean = false): String {
+        val tempSuffix = if (temporary) "-temp" else ""
+        val testSuffix = "-$testBatchId$tempSuffix.mp4"
         val testName = "${test.toClassName('-')}-${test.method}".escape()
         return "$testName$testSuffix"
     }
 
-    fun parentOf(remoteXctestrunFile: String): String {
-        return remoteXctestrunFile.substringBeforeLast(FILE_SEPARATOR)
+    fun parentOf(path: String): String {
+        return path.substringBeforeLast(FILE_SEPARATOR)
     }
 
     private fun videoPidFileName(udid: String) = "${udid}.pid"
@@ -134,7 +140,7 @@ class RemoteFileManager(private val device: AppleDevice) {
     }
 
     suspend fun copy(src: String, dst: String, override: Boolean = true) {
-        if(override) {
+        if (override) {
             safeExecuteCommand(
                 listOf("rm", "-R", dst)
             )
@@ -143,8 +149,15 @@ class RemoteFileManager(private val device: AppleDevice) {
             listOf("cp", "-R", src, dst), "failed to copy remote directory $src to $dst"
         )
     }
+
+    suspend fun move(src: String, dst: String) {
+        executeCommand(
+            listOf("mv", "-f", src, dst), "failed to move remote file $src to $dst"
+        )
+    }
+
     suspend fun symlink(src: String, dst: String, override: Boolean = true) {
-        if(override) {
+        if (override) {
             safeExecuteCommand(
                 listOf("rm", "-R", dst)
             )
@@ -154,6 +167,13 @@ class RemoteFileManager(private val device: AppleDevice) {
         )
     }
 
+    suspend fun test(path: String): Boolean {
+        val commandResult = device.executeWorkerCommand(
+            listOf("test", "-f", path)
+        )
+
+        return commandResult?.successful == true
+    }
 
     private fun String.bashEscape() = "'" + replace("'", "'\\''") + "'"
 
