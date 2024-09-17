@@ -177,7 +177,7 @@ class ScreenRecordingListener(
                 listOf(
                     "sh",
                     "-c",
-                    "${videoConfiguration.transcoding.binary} -i $tempFile -vf \"scale=${size.value}:${size.value}:force_original_aspect_ratio=decrease\" -preset ultrafast $optional $src"
+                    "${videoConfiguration.transcoding.binary} -i $tempFile -vf \"scale=${size.value}:${size.value}:force_original_aspect_ratio=decrease:force_divisible_by=2\" -preset ultrafast $optional $src"
                 )
             )
             if (result?.successful == false) {
