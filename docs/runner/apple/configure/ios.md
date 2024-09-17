@@ -292,6 +292,19 @@ screenRecordConfiguration:
     mask: black
 ```
 
+#### Transcoding
+Marathon can optionally use ffmpeg to transcode the captured video screen recordings and downscale them.
+Supported sizes are [hd480, hd720, hd1080], default is hd720 i.e. largest dimension of 1280px.
+
+```yaml
+screenRecordConfiguration:
+  videoConfiguration:
+    transcoding:
+      enabled: true
+      ffmpegPath: /opt/homebrew/bin/ffmpeg
+      size: hd720
+```
+
 The `display` field can be either `internal` or `external`.
 The `mask` field can be either `black` or `ignored`.
 

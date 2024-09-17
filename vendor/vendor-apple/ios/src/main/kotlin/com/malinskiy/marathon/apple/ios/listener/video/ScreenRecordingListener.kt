@@ -6,6 +6,9 @@ import com.malinskiy.marathon.apple.RemoteFileManager
 import com.malinskiy.marathon.apple.listener.AppleTestRunListener
 import com.malinskiy.marathon.apple.logparser.parser.DeviceFailureReason
 import com.malinskiy.marathon.config.ScreenRecordingPolicy
+import com.malinskiy.marathon.config.vendor.apple.ios.Codec
+import com.malinskiy.marathon.config.vendor.apple.ios.Size
+import com.malinskiy.marathon.config.vendor.apple.ios.VideoConfiguration
 import com.malinskiy.marathon.device.DevicePoolId
 import com.malinskiy.marathon.device.toDeviceInfo
 import com.malinskiy.marathon.exceptions.TransferException
@@ -33,6 +36,8 @@ class ScreenRecordingListener(
     private val testBatchId: String,
     private val device: AppleSimulatorDevice,
     private val screenRecordingPolicy: ScreenRecordingPolicy,
+    private val videoConfiguration: VideoConfiguration,
+    private val supportsTranscoding: Boolean,
     coroutineScope: CoroutineScope,
     private val attachmentProvider: AttachmentProviderDelegate = AttachmentProviderDelegate(),
 ) : AppleTestRunListener, AttachmentProvider by attachmentProvider, CoroutineScope by coroutineScope {
@@ -100,12 +105,19 @@ class ScreenRecordingListener(
 
     private suspend fun pullVideo(test: Test, success: Boolean) {
         try {
+            val videoForTest = remoteFileManager.remoteVideoForTest(test, testBatchId)
+            if (!remoteFileManager.test(videoForTest)) return
+
             if (screenRecordingPolicy == ScreenRecordingPolicy.ON_ANY ||
                 screenRecordingPolicy == ScreenRecordingPolicy.ON_FAILURE && !success
             ) {
+                if (videoConfiguration.transcoding.enabled && supportsTranscoding) {
+                    val remoteTempFilePath = remoteFileManager.remoteTempVideoForTest(test, testBatchId)
+                    transcode(videoForTest, remoteTempFilePath, videoConfiguration.transcoding.size)
+                }
                 pullTestVideo(test)
             }
-            removeRemoteVideo(remoteFileManager.remoteVideoForTest(test, testBatchId))
+            removeRemoteVideo(videoForTest)
         } catch (e: TransferException) {
             logger.warn { "Can't pull video" }
         }
@@ -116,6 +128,12 @@ class ScreenRecordingListener(
             if (device.verifyHealthy()) {
                 stop()
                 lastRemoteFile?.let {
+                    if (!remoteFileManager.test(it)) return
+
+                    if (videoConfiguration.transcoding.enabled && supportsTranscoding) {
+                        transcode(it, "$it.tmp", videoConfiguration.transcoding.size)
+                    }
+
                     pullLastBatchVideo(it)
                     removeRemoteVideo(it)
                 }
@@ -147,13 +165,35 @@ class ScreenRecordingListener(
         supervisorJob?.cancelAndJoin()
     }
 
+    private suspend fun transcode(src: String, tempFile: String, size: Size) {
+        remoteFileManager.move(src, tempFile)
+
+        val millis = measureTimeMillis {
+            val optional = when (videoConfiguration.codec) {
+                Codec.H264 -> "-movflags +faststart"
+                Codec.HEVC -> ""
+            }
+            val result = device.executeWorkerCommand(
+                listOf(
+                    "sh",
+                    "-c",
+                    "${videoConfiguration.transcoding.binary} -i $tempFile -vf \"scale=${size.value}:${size.value}:force_original_aspect_ratio=decrease\" -preset ultrafast $optional $src"
+                )
+            )
+            if (result?.successful == false) {
+                logger.error { "Transcoding failed for $src: ${result.combinedStdout}, ${result.combinedStderr}" }
+            }
+        }
+        logger.debug { "Transcoding finished in ${millis}ms $src" }
+    }
+
     private suspend fun pullTestVideo(test: Test) {
         val localVideoFile = fileManager.createFile(FileType.VIDEO, pool, device.toDeviceInfo(), test, testBatchId)
         val remoteFilePath = remoteFileManager.remoteVideoForTest(test, testBatchId)
         val millis = measureTimeMillis {
             device.pullFile(remoteFilePath, localVideoFile)
         }
-        logger.debug { "Pulling finished in ${millis}ms $remoteFilePath " }
+        logger.debug { "Pulling finished in ${millis}ms $remoteFilePath" }
         attachmentProvider.onAttachment(test, Attachment(localVideoFile, AttachmentType.VIDEO, Attachment.Name.SCREEN))
     }
 
@@ -162,7 +202,7 @@ class ScreenRecordingListener(
         val millis = measureTimeMillis {
             device.pullFile(remoteFilePath, localVideoFile)
         }
-        logger.debug { "Pulling finished in ${millis}ms $remoteFilePath " }
+        logger.debug { "Pulling finished in ${millis}ms $remoteFilePath" }
     }
 
     private suspend fun removeRemoteVideo(remoteFilePath: String) {
