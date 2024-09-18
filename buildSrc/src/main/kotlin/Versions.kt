@@ -26,6 +26,8 @@ object Versions {
     val influxDbClient = "2.24"
     val influxDb2Client = "6.12.0"
     val clikt = "4.2.2"
+    val mordant = "2.6.0"
+    val mordantCoroutines = "2.6.0"
     val jacksonDatabind = "2.15.3"
     val jacksonKotlin = jacksonDatabind
     val jacksonYaml = jacksonDatabind
@@ -76,6 +78,8 @@ object Libraries {
     val influxDbClient = "org.influxdb:influxdb-java:${Versions.influxDbClient}"
     val influxDb2Client = "com.influxdb:influxdb-client-java:${Versions.influxDb2Client}"
     val clikt = "com.github.ajalt.clikt:clikt:${Versions.clikt}"
+    val mordant = "com.github.ajalt.mordant:mordant:${Versions.mordant}"
+    val mordantCoroutines = "com.github.ajalt.mordant:mordant-coroutines:${Versions.mordantCoroutines}"
     val jacksonDatabind = "com.fasterxml.jackson.core:jackson-databind:${Versions.jacksonDatabind}"
     val jacksonAnnotations = "com.fasterxml.jackson.core:jackson-annotations:${Versions.jacksonAnnotations}"
     val jacksonKotlin = "com.fasterxml.jackson.module:jackson-module-kotlin:${Versions.jacksonKotlin}"

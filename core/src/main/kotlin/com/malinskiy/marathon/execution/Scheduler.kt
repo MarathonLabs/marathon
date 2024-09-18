@@ -14,6 +14,7 @@ import com.malinskiy.marathon.execution.bundle.TestBundleIdentifier
 import com.malinskiy.marathon.execution.progress.PoolProgressAccumulator
 import com.malinskiy.marathon.extension.toPoolingStrategy
 import com.malinskiy.marathon.log.MarathonLogging
+import com.malinskiy.marathon.log.TerminalPrettyOutput
 import com.malinskiy.marathon.time.Timer
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
@@ -53,6 +54,7 @@ class Scheduler(
      */
     suspend fun execute() : Boolean {
         subscribeOnDevices(job)
+        TerminalPrettyOutput.launchAnimation()
         try {
             withTimeout(configuration.deviceInitializationTimeoutMillis) {
                 while (pools.isEmpty()) {

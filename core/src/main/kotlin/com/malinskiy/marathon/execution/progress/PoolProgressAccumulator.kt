@@ -1,5 +1,6 @@
 package com.malinskiy.marathon.execution.progress
 
+import com.github.ajalt.mordant.rendering.TextColors
 import com.malinskiy.marathon.actor.StateMachine
 import com.malinskiy.marathon.analytics.internal.pub.Track
 import com.malinskiy.marathon.config.Configuration
@@ -14,6 +15,8 @@ import com.malinskiy.marathon.execution.queue.TestEvent
 import com.malinskiy.marathon.execution.queue.TestState
 import com.malinskiy.marathon.integrations.ci.CIIntegrationFactory
 import com.malinskiy.marathon.log.MarathonLogging
+import com.malinskiy.marathon.log.TerminalPrettyOutput
+import com.malinskiy.marathon.log.TerminalPrettyOutput.terminal
 import com.malinskiy.marathon.test.Test
 import com.malinskiy.marathon.test.toTestName
 import kotlin.math.roundToInt
@@ -263,6 +266,8 @@ class PoolProgressAccumulator(
         }.also {
             tests.putAll(it)
         }
+        TerminalPrettyOutput.addProgressBar(poolId)
+        TerminalPrettyOutput.updateProgressBar(poolId, tests.size.toLong())
     }
 
     fun testStarted(device: DeviceInfo, test: Test) {
@@ -277,27 +282,30 @@ class PoolProgressAccumulator(
     fun testEnded(device: DeviceInfo, testResult: TestResult, final: Boolean = false): TestAction? {
         return when (testResult.status) {
             TestStatus.FAILURE -> {
-                println("${toPercent(progress())} | [${poolId.name}]-[${device.serialNumber}] ${testResult.test.toTestName()} failed")
+                terminal.println("[${poolId.name}]-[${device.serialNumber}] ${testResult.test.toTestName()} ${TextColors.brightRed("failed")}")
+                TerminalPrettyOutput.advanceProgressBar(poolId)
                 transition(testResult.test, TestEvent.Failed(device, testResult)).sideffect()
             }
 
             TestStatus.PASSED -> {
-                println("${toPercent(progress())} | [${poolId.name}]-[${device.serialNumber}] ${testResult.test.toTestName()} passed")
+                terminal.println("[${poolId.name}]-[${device.serialNumber}] ${testResult.test.toTestName()} ${TextColors.brightGreen("passed")}")
+                TerminalPrettyOutput.advanceProgressBar(poolId)
                 transition(testResult.test, TestEvent.Passed(device, testResult)).sideffect()
             }
 
             TestStatus.IGNORED, TestStatus.ASSUMPTION_FAILURE -> {
-                println("${toPercent(progress())} | [${poolId.name}]-[${device.serialNumber}] ${testResult.test.toTestName()} ignored")
+                terminal.println("[${poolId.name}]-[${device.serialNumber}] ${testResult.test.toTestName()} ${TextColors.brightYellow("ignored")}")
+                TerminalPrettyOutput.advanceProgressBar(poolId)
                 transition(testResult.test, TestEvent.Passed(device, testResult)).sideffect()
             }
 
             TestStatus.INCOMPLETE -> {
-                println("${toPercent(progress())} | [${poolId.name}]-[${device.serialNumber}] ${testResult.test.toTestName()} incomplete")
+                terminal.println("[${poolId.name}]-[${device.serialNumber}] ${testResult.test.toTestName()} ${TextColors.brightBlue("incomplete")}")
+                TerminalPrettyOutput.advanceProgressBar(poolId)
                 transition(testResult.test, TestEvent.Incomplete(device, testResult, final)).sideffect()
             }
         }
     }
-
 
     /**
      * Should always be called before testEnded, otherwise the FSM might transition into a terminal state prematurely

@@ -63,6 +63,7 @@ class Marathon(
 
     private fun configureLogging() {
         MarathonLogging.debug = configuration.debug
+        MarathonLogging.prettyTerminalOutput = configuration.prettyTerminalOutput
         logConfigurator.configure()
     }
 

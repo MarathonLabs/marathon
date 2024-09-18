@@ -42,6 +42,7 @@ data class Configuration private constructor(
     val testBatchTimeoutMillis: Long,
     val testOutputTimeoutMillis: Long,
     val debug: Boolean,
+    val prettyTerminalOutput: Boolean,
 
     val screenRecordingPolicy: ScreenRecordingPolicy,
 
@@ -73,6 +74,7 @@ data class Configuration private constructor(
             "testBatchTimeoutMillis" to testBatchTimeoutMillis.toString(),
             "testOutputTimeoutMillis" to testOutputTimeoutMillis.toString(),
             "debug" to debug.toString(),
+            "prettyTerminalOutput" to prettyTerminalOutput.toString(),
             "screenRecordingPolicy" to screenRecordingPolicy.toString(),
             "vendorConfiguration" to vendorConfiguration.toString(),
             "deviceInitializationTimeoutMillis" to deviceInitializationTimeoutMillis.toString(),
@@ -105,6 +107,7 @@ data class Configuration private constructor(
         if (testBatchTimeoutMillis != other.testBatchTimeoutMillis) return false
         if (testOutputTimeoutMillis != other.testOutputTimeoutMillis) return false
         if (debug != other.debug) return false
+        if (prettyTerminalOutput != other.prettyTerminalOutput) return false
         if (screenRecordingPolicy != other.screenRecordingPolicy) return false
         if (vendorConfiguration != other.vendorConfiguration) return false
         if (analyticsTracking != other.analyticsTracking) return false
@@ -136,6 +139,7 @@ data class Configuration private constructor(
         result = 31 * result + testBatchTimeoutMillis.hashCode()
         result = 31 * result + testOutputTimeoutMillis.hashCode()
         result = 31 * result + debug.hashCode()
+        result = 31 * result + prettyTerminalOutput.hashCode()
         result = 31 * result + screenRecordingPolicy.hashCode()
         result = 31 * result + vendorConfiguration.hashCode()
         result = 31 * result + analyticsTracking.hashCode()
@@ -168,6 +172,7 @@ data class Configuration private constructor(
          var testBatchTimeoutMillis: Long = DEFAULT_BATCH_EXECUTION_TIMEOUT_MILLIS,
          var testOutputTimeoutMillis: Long = DEFAULT_OUTPUT_TIMEOUT_MILLIS,
          var debug: Boolean = true,
+         var prettyTerminalOutput: Boolean = false,
 
          var screenRecordingPolicy: ScreenRecordingPolicy = ScreenRecordingPolicy.ON_FAILURE,
 
@@ -201,6 +206,7 @@ data class Configuration private constructor(
                 testBatchTimeoutMillis = testBatchTimeoutMillis,
                 testOutputTimeoutMillis = testOutputTimeoutMillis,
                 debug = debug,
+                prettyTerminalOutput = prettyTerminalOutput,
                 screenRecordingPolicy = screenRecordingPolicy,
                 vendorConfiguration = vendorConfiguration,
                 analyticsTracking = analyticsTracking,
