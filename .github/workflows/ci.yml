@@ -2,6 +2,7 @@ name: ci
 on: [ push, pull_request ]
 permissions:
   checks: write
+  contents: write
 jobs:
   ci:
     runs-on: ubuntu-22.04
