@@ -11,7 +11,7 @@ jobs:
         uses: actions/setup-java@v3
         with:
           distribution: 'temurin'
-          java-version: '11'
+          java-version: '17'
       - name: test
         run: |
           chmod 0600 $GITHUB_WORKSPACE/vendor/vendor-apple/base/src/test/resources/fixtures/derived-data-manager/test_rsa
@@ -35,7 +35,7 @@ jobs:
         uses: actions/setup-java@v3
         with:
           distribution: 'temurin'
-          java-version: '11'
+          java-version: '17'
       - uses: little-core-labs/get-git-tag@v3.0.2
         id: tag
         if: ${{ startsWith(github.ref, 'refs/tags/') }}
