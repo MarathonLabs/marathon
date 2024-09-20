@@ -1,55 +1,55 @@
 object Versions {
     val marathon = System.getenv("GIT_TAG_NAME") ?: "0.10.1"
 
-    val kotlin = "1.9.10"
-    val coroutines = "1.7.3"
+    val kotlin = "1.9.24"
+    val coroutines = "1.8.1"
     val coroutinesTest = coroutines
 
-    val androidCommon = "31.2.2"
+    val androidCommon = "31.6.1"
     val adam = "0.5.8"
     val dexTestParser = "2.3.4"
     val kotlinLogging = "3.0.5"
-    val logbackClassic = "1.4.14"
+    val logbackClassic = "1.5.8"
     val axmlParser = "1.0"
-    val bugsnag = "3.7.1"
+    val bugsnag = "3.7.2"
 
     val junitGradle = "1.2.0"
 
-    val junit5 = "5.10.1"
+    val junit5 = "5.11.0"
     val kluent = "1.73"
 
     val kakao = "3.0.2"
-    val gson = "2.10.1"
-    val apacheCommonsText = "1.11.0"
-    val apacheCommonsIO = "2.11.0"
+    val gson = "2.11.0"
+    val apacheCommonsText = "1.12.0"
+    val apacheCommonsIO = "2.17.0"
     val okhttp = "4.12.0"
     val influxDbClient = "2.24"
-    val influxDb2Client = "6.12.0"
-    val clikt = "4.2.2"
-    val jacksonDatabind = "2.15.3"
+    val influxDb2Client = "7.2.0"
+    val clikt = "5.0.0"
+    val jacksonDatabind = "2.17.2"
     val jacksonKotlin = jacksonDatabind
     val jacksonYaml = jacksonDatabind
     val jacksonJSR310 = jacksonDatabind
     val jacksonAnnotations = jacksonDatabind
-    val ddPlist = "1.27"
-    val guava = "33.0.0-jre"
-    val rsync4j = "3.2.7-6"
-    val sshj = "0.38.0"
-    val kotlinProcess = "1.4.1"
-    val testContainers = "1.19.4"
+    val ddPlist = "1.28"
+    val guava = "33.3.0-jre"
+    val rsync4j = "3.3.0-1"
+    val sshj = "0.39.0"
+    val kotlinProcess = "1.5"
+    val testContainers = "1.20.1"
     val jupiterEngine = junit5
     val jansi = "2.4.1"
     val scalr = "4.2"
-    val allureTestFilter = "2.25.0"
-    val allureJava = "2.25.0"
+    val allureTestFilter = "2.29.0"
+    val allureJava = "2.29.0"
     val allureKotlin = "2.4.0"
     val allureEnvironment = "1.0.0"
-    val mockitoKotlin = "5.2.1"
+    val mockitoKotlin = "5.4.0"
     val dokka = "1.9.10"
-    val koin = "3.5.3"
-    val jsonAssert = "1.5.1"
-    val xmlUnit = "2.9.1"
-    val assertk = "0.28.0"
+    val koin = "3.5.6"
+    val jsonAssert = "1.5.3"
+    val xmlUnit = "2.10.0"
+    val assertk = "0.28.1"
 }
 
 object BuildPlugins {
