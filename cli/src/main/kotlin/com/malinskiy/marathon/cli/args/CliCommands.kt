@@ -1,6 +1,7 @@
 package com.malinskiy.marathon.cli.args
 
 import com.github.ajalt.clikt.core.CliktCommand
+import com.github.ajalt.clikt.core.Context
 import com.github.ajalt.clikt.parameters.groups.OptionGroup
 import com.github.ajalt.clikt.parameters.groups.provideDelegate
 import com.github.ajalt.clikt.parameters.options.convert
@@ -10,22 +11,23 @@ import com.github.ajalt.clikt.parameters.types.file
 import java.io.File
 
 class MarathonRunCommonOptions : OptionGroup() {
-    val marathonfile by option("--marathonfile", "-m", help="Marathonfile file path")
+    val marathonfile by option("--marathonfile", "-m", help = "Marathonfile file path")
         .file()
         .default(File("Marathonfile"))
-    val analyticsTracking by option("--analyticsTracking", help="Enable / Disable anonymous analytics tracking. Enabled by default.")
+    val analyticsTracking by option("--analyticsTracking", help = "Enable / Disable anonymous analytics tracking. Enabled by default.")
         .convert { it.toBoolean() }
         .default(true)
-    val bugsnagReporting by option("--bugsnag", help="Enable/Disable anonymous crash reporting. Enabled by default")
+    val bugsnagReporting by option("--bugsnag", help = "Enable/Disable anonymous crash reporting. Enabled by default")
         .convert { it.toBoolean() }
         .default(true)
 }
 
 class MarathonCli(
     private val starter: (CliConfiguration) -> Unit
-) : CliktCommand(invokeWithoutSubcommand = true, name = "marathon") {
+) : CliktCommand(name = "marathon") {
 
     private val marathonRunCommonOptions by MarathonRunCommonOptions()
+    override val invokeWithoutSubcommand = true
 
     override fun run() {
         val subcommand = currentContext.invokedSubcommand
@@ -45,23 +47,34 @@ class MarathonCli(
 
 class Version(
     private val starter: (CliConfiguration) -> Unit
-) : CliktCommand(name = "version", help="Print version and exit") {
+) : CliktCommand(name = "version") {
     override fun run() {
         starter(VersionCommandCliConfiguration)
     }
+
+    override fun help(context: Context) = "Print version and exit"
 }
 
 class Parse(
     private val starter: (CliConfiguration) -> Unit
-): CliktCommand(name = "parse", help="Print the list of tests without executing them") {
+) : CliktCommand(name = "parse") {
 
-    private val marathonfile by option("--marathonfile", "-m", help="Marathonfile file path")
+    private val marathonfile by option("--marathonfile", "-m", help = "Marathonfile file path")
         .file()
         .default(File("Marathonfile"))
-    private val parseOutputFileName by option("--output", "-o", help="Output file name without extension. Will be in the outputDir with .yaml extension")
-    private val includeFlakyTests by option("--include-flaky-tests", "-f", help="Include/exclude flaky tests that will have preventive retries according to the current flakinessStrategy")
+    private val parseOutputFileName by option(
+        "--output",
+        "-o",
+        help = "Output file name without extension. Will be in the outputDir with .yaml extension"
+    )
+    private val includeFlakyTests by option(
+        "--include-flaky-tests",
+        "-f",
+        help = "Include/exclude flaky tests that will have preventive retries according to the current flakinessStrategy"
+    )
         .convert { it.toBoolean() }
         .default(false)
+
     override fun run() {
         val parseCommandCliConfiguration = ParseCommandCliConfiguration(
             marathonfile = marathonfile,
@@ -70,11 +83,13 @@ class Parse(
         )
         starter(parseCommandCliConfiguration)
     }
+
+    override fun help(context: Context) = "Print the list of tests without executing them"
 }
 
 class RunMarathon(
     private val starter: (CliConfiguration) -> Unit
-) : CliktCommand(name = "run", help="Run Marathon to execute tests") {
+) : CliktCommand(name = "run") {
 
     private val marathonRunCommonOptions by MarathonRunCommonOptions()
 
@@ -86,4 +101,6 @@ class RunMarathon(
         )
         starter(marathonRunCommandCliConfiguration)
     }
+
+    override fun help(context: Context) = "Run Marathon to execute tests"
 }

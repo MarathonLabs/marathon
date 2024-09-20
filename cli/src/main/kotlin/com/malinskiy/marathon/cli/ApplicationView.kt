@@ -1,6 +1,7 @@
 package com.malinskiy.marathon.cli
 
 import com.github.ajalt.clikt.core.PrintMessage
+import com.github.ajalt.clikt.core.main
 import com.github.ajalt.clikt.core.subcommands
 import com.malinskiy.marathon.Marathon
 import com.malinskiy.marathon.exceptions.ExceptionsReporter
