@@ -30,13 +30,26 @@ class RemoteFileManager(private val device: AndroidDevice) {
         return remoteFileForTest(videoFileName(test, testBatchId, chunk))
     }
 
+    fun remoteTracingForTest(test: Test, testBatchId: String): String {
+        return "$PERFETTO_TRACE_ROOT/${traceFileName(test, testBatchId)}"
+    }
+
     private fun remoteFileForTest(filename: String): String {
         return "$outputDir/$filename"
     }
 
+    private fun traceFileName(test: Test, testBatchId: String): String {
+        return remoteFileName(test, testBatchId, extension = "perfetto-trace", chunk = null)
+    }
+
     private fun videoFileName(test: Test, testBatchId: String, chunk: Long? = null): String {
+        return remoteFileName(test, testBatchId, extension = "mp4", chunk = chunk)
+
+    }
+
+    private fun remoteFileName(test: Test, testBatchId: String, extension: String, chunk: Long? = null): String {
         val chunkId = chunk?.let { "-$it" } ?: ""
-        val testSuffix = "-$testBatchId$chunkId.mp4"
+        val testSuffix = "-$testBatchId$chunkId.$extension"
         val rawTestName = "${test.toClassName()}-${test.method}".escape()
         val testName = rawTestName.take(MAX_FILENAME - testSuffix.length)
         val fileName = "$testName$testSuffix"
@@ -49,5 +62,7 @@ class RemoteFileManager(private val device: AndroidDevice) {
     companion object {
         const val MAX_FILENAME = 255
         const val TMP_PATH = "/data/local/tmp"
+        const val PERFETTO_TRACE_ROOT = "/data/misc/perfetto-traces"
+        const val PERFETTO_CONFIG_FILE = "$TMP_PATH/tracing.pbtx"
     }
 }

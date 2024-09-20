@@ -15,4 +15,5 @@ enum class FileType(val dir: String, val suffix: String) {
     SCREENSHOT_GIF("screenshot", "jpg"),
     XCTESTRUN("xctestrun", "xctestrun"),
     BILL("bill", "json"),
+    TRACING("tracing", "perfetto-trace"),
 }

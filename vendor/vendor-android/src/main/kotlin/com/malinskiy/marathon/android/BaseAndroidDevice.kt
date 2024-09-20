@@ -12,6 +12,7 @@ import com.malinskiy.marathon.android.executor.listeners.TestResultsListener
 import com.malinskiy.marathon.android.executor.listeners.filesync.FileSyncTestRunListener
 import com.malinskiy.marathon.android.executor.listeners.screenshot.AdamScreenCaptureTestRunListener
 import com.malinskiy.marathon.android.executor.listeners.screenshot.ScreenCapturerTestRunListener
+import com.malinskiy.marathon.android.executor.listeners.tracing.PerfettoRunListener
 import com.malinskiy.marathon.android.executor.listeners.video.ScreenRecorderTestBatchListener
 import com.malinskiy.marathon.android.model.ShellCommandResult
 import com.malinskiy.marathon.device.screenshot.Rotation
@@ -47,6 +48,7 @@ abstract class BaseAndroidDevice(
     protected val serialStrategy: SerialStrategy,
     protected val configuration: Configuration,
     protected val androidConfiguration: VendorConfiguration.AndroidConfiguration,
+    protected val testBundleIdentifier: AndroidTestBundleIdentifier,
     protected val track: Track,
     protected val timer: Timer
 ) : AndroidDevice, CoroutineScope {
@@ -252,9 +254,31 @@ abstract class BaseAndroidDevice(
             prepareRecorderListener(feature, fileManager, devicePoolId, testBatch.id, screenRecordingPolicy, attachmentProviders)
         } ?: NoOpTestRunListener()
 
+        val tracingConfiguration = this@BaseAndroidDevice.androidConfiguration.tracingConfiguration
+        val tracingListener = if (tracingConfiguration.enabled && tracingConfiguration.pbtxt != null) {
+            PerfettoRunListener(
+                fileManager,
+                devicePoolId,
+                testBatch,
+                this,
+                tracingConfiguration,
+                testBundleIdentifier,
+                this
+            ).also { attachmentProviders.add(it) }
+        } else {
+            NoOpTestRunListener()
+        }
+
         val logListener = TestRunListenerAdapter(
-            LogListener(this.toDeviceInfo(), this, devicePoolId, testBatch.id, LogWriter(fileManager), attachmentName = Attachment.Name.LOGCAT)
-            .also { attachmentProviders.add(it) }
+            LogListener(
+                this.toDeviceInfo(),
+                this,
+                devicePoolId,
+                testBatch.id,
+                LogWriter(fileManager),
+                attachmentName = Attachment.Name.LOGCAT
+            )
+                .also { attachmentProviders.add(it) }
         )
 
         val fileSyncTestRunListener =
@@ -262,7 +286,7 @@ abstract class BaseAndroidDevice(
 
         val adamScreenCaptureTestRunListener = AdamScreenCaptureTestRunListener(devicePoolId, this, fileManager, testBatch.id)
         attachmentProviders.add(adamScreenCaptureTestRunListener)
-        
+
         return CompositeTestRunListener(
             listOf(
                 recorderListener,
@@ -270,7 +294,8 @@ abstract class BaseAndroidDevice(
                 TestResultsListener(testBatch, this, deferred, timer, devicePoolId, attachmentProviders),
                 DebugTestRunListener(this),
                 adamScreenCaptureTestRunListener,
-                fileSyncTestRunListener
+                fileSyncTestRunListener,
+                tracingListener,
             )
         )
     }

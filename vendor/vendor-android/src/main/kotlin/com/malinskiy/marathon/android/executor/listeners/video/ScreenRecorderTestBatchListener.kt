@@ -42,7 +42,7 @@ class ScreenRecorderTestBatchListener(
         attachmentListeners.add(listener)
     }
 
-    private val logger = MarathonLogging.logger("ScreenRecorder")
+    private val logger = MarathonLogging.logger("ScreenRecorderTestBatchListener")
 
     private val screenRecorder = ScreenRecorder(device, videoConfiguration)
 

@@ -143,11 +143,11 @@ class AdamDeviceProvider(
                                         client,
                                         multiServerDeviceStateTracker.getTracker(client),
                                         logcatManager,
-                                        testBundleIdentifier,
                                         installDispatcher,
                                         serial,
                                         configuration,
                                         vendorConfiguration,
+                                        testBundleIdentifier,
                                         track,
                                         timer,
                                         vendorConfiguration.serialStrategy

@@ -84,15 +84,15 @@ class AdamAndroidDevice(
     internal val client: AndroidDebugBridgeClient,
     private val deviceStateTracker: DeviceStateTracker,
     private val logcatManager: LogcatManager,
-    private val testBundleIdentifier: AndroidTestBundleIdentifier,
     private val installContext: CoroutineContext,
     adbSerial: String,
     configuration: Configuration,
     androidConfiguration: VendorConfiguration.AndroidConfiguration,
+    testBundleIdentifier: AndroidTestBundleIdentifier,
     track: Track,
     timer: Timer,
     serialStrategy: SerialStrategy
-) : BaseAndroidDevice(adbSerial, serialStrategy, configuration, androidConfiguration, track, timer), LineListener {
+) : BaseAndroidDevice(adbSerial, serialStrategy, configuration, androidConfiguration, testBundleIdentifier, track, timer), LineListener {
 
     /**
      * This adapter is thread-safe but the internal reusable buffer should be considered if we ever need to make screenshots in parallel
