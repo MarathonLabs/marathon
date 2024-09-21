@@ -16,6 +16,6 @@ data class HtmlFullTest(
     @SerializedName("diagnostic_video") val diagnosticVideo: Boolean,
     @SerializedName("diagnostic_screenshots") val diagnosticScreenshots: Boolean,
     @SerializedName("screenshot") val screenshot: String,
-    @SerializedName("video") val video: String,
+    @SerializedName("videos") val videos: List<String>,
     @SerializedName("log_file") val logFile: String,
 )

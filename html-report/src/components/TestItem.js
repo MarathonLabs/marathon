@@ -38,9 +38,12 @@ export default class TestItem extends Component {
                         </div>
                     </div>
 
-                    {!!data.video && <div className='card row full'>
-                        <ReactPlayer url={data.video} controls={true} playsinline={true}/>
-                    </div>}
+                    <div className="container-expanded list">
+                    {data.videos.map((video, i) => {
+                        return (<div className='card row full'><ReactPlayer url={video} controls={true} playsinline={true}/></div>)
+                        })
+                    }
+                    </div>
 
                     {!!data.screenshot && <div className='card row full'>
                         <img src={data.screenshot}/>
