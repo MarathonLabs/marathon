@@ -8,6 +8,7 @@ import com.malinskiy.marathon.config.Configuration
 import com.malinskiy.marathon.device.DeviceFeature
 import com.malinskiy.marathon.device.DeviceInfo
 import com.malinskiy.marathon.device.DevicePoolId
+import com.malinskiy.marathon.execution.AttachmentType
 import com.malinskiy.marathon.execution.TestResult
 import com.malinskiy.marathon.execution.TestStatus
 import com.malinskiy.marathon.extension.escape
@@ -175,14 +176,10 @@ class HtmlSummaryReporter(
         }
     }
 
-    private fun TestResult.receiveVideoPath(poolId: String, batchId: String): String {
-        val videoRelativePath =
-            fileManager.createFile(FileType.VIDEO, DevicePoolId(poolId), device, test, batchId).relativePathTo(rootOutput)
-        val videoFullPath = File(rootOutput, videoRelativePath)
-        return when (device.deviceFeatures.contains(DeviceFeature.VIDEO) && videoFullPath.exists()) {
-            true -> "../../../../${videoRelativePath.replace("#", "%23")}"
-            false -> ""
-        }
+    private fun TestResult.receiveVideoPaths(poolId: String, batchId: String): List<String> {
+        if (!device.deviceFeatures.contains(DeviceFeature.VIDEO)) return emptyList()
+        return attachments.filter { it.type == AttachmentType.VIDEO && it.file.exists() }.map { it.file.relativePathTo(rootOutput) }
+            .map { "../../../../${it.replace("#","%23")}" }
     }
 
     private fun TestResult.receiveLogPath(poolId: String, batchId: String): String {
@@ -209,7 +206,7 @@ class HtmlSummaryReporter(
         diagnosticScreenshots = device.deviceFeatures.contains(DeviceFeature.SCREENSHOT),
         stacktrace = stacktrace,
         screenshot = receiveScreenshotPath(poolId, batchId),
-        video = receiveVideoPath(poolId, batchId),
+        videos = receiveVideoPaths(poolId, batchId),
         logFile = receiveLogPath(poolId, batchId)
     )
 
