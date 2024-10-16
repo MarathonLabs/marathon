@@ -18,6 +18,9 @@ import com.malinskiy.marathon.apple.configuration.AppleTarget
 import com.malinskiy.marathon.apple.configuration.Marathondevices
 import com.malinskiy.marathon.apple.configuration.Transport
 import com.malinskiy.marathon.apple.device.ConnectionFactory
+import com.malinskiy.marathon.apple.ios.extensions.compatClear
+import com.malinskiy.marathon.apple.ios.extensions.compatLimit
+import com.malinskiy.marathon.apple.ios.extensions.compatRewind
 import com.malinskiy.marathon.config.Configuration
 import com.malinskiy.marathon.config.vendor.VendorConfiguration
 import com.malinskiy.marathon.config.vendor.apple.DeviceProvider.Static
@@ -26,8 +29,16 @@ import com.malinskiy.marathon.device.DeviceProvider
 import com.malinskiy.marathon.exceptions.NoDevicesException
 import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.time.Timer
+import io.ktor.network.selector.ActorSelectorManager
+import io.ktor.network.sockets.InetSocketAddress
+import io.ktor.network.sockets.aSocket
+import io.ktor.network.sockets.isClosed
+import io.ktor.network.sockets.openReadChannel
+import io.ktor.util.decodeString
+import io.ktor.utils.io.core.use
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.async
@@ -47,9 +58,14 @@ import kotlinx.coroutines.withContext
 import org.apache.commons.text.StringSubstitutor
 import org.apache.commons.text.lookup.StringLookupFactory
 import java.io.File
+import java.nio.ByteBuffer
 import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.coroutines.CoroutineContext
+import kotlin.math.ceil
+import kotlin.math.log2
+import kotlin.math.pow
+import kotlin.math.roundToInt
 
 //Should not use udid as key to support multiple devices with the same udid across transports
 typealias AppleDeviceId = String
@@ -112,20 +128,52 @@ class AppleSimulatorProvider(
         monitoringJob = if (initialMarathonfile != null) {
             startStaticProvider(initialMarathonfile)
         } else {
-            startDynamicProvider()
+            val dynamicConfiguration =
+                vendorConfiguration.deviceProvider as com.malinskiy.marathon.config.vendor.apple.DeviceProvider.Dynamic
+            startDynamicProvider(dynamicConfiguration)
         }
     }
 
-    private fun startDynamicProvider(): Job {
+    private fun startDynamicProvider(dynamicConfiguration: com.malinskiy.marathon.config.vendor.apple.DeviceProvider.Dynamic): Job {
         return launch {
+            var buffer = ByteBuffer.allocate(4096)
             while (isActive) {
                 sourceMutex.withLock {
                     sourceChannel = produce {
-                        //TODO: dynamic provider
+                        aSocket(ActorSelectorManager(Dispatchers.IO)).tcp()
+                            .connect(InetSocketAddress(dynamicConfiguration.host, dynamicConfiguration.port)).use { socket ->
+                                while (!socket.isClosed) {
+                                    val readChannel = socket.openReadChannel()
+                                    val length = readChannel.readInt()
+                                    buffer.compatClear()
+                                    if (length <= buffer.capacity()) {
+                                        buffer.compatLimit(length)
+                                    } else {
+                                        //Reallocate up to a maximum of 1Mb
+                                        val newCapacity = ceil(log2(length.toDouble())).roundToInt()
+                                        if (newCapacity in 1..20) {
+                                            buffer = ByteBuffer.allocate(2.0.pow(newCapacity.toDouble()).toInt())
+                                            buffer.compatLimit(length)
+                                        } else {
+                                            throw RuntimeException("Device provider update too long: maximum is 2^20 bytes")
+                                        }
+                                    }
+                                    readChannel.readFully(buffer)
+                                    buffer.compatRewind()
+                                    val devicesWithEnvironmentVariablesReplaced =
+                                        environmentVariableSubstitutor.replace(buffer.decodeString())
+                                    val marathonfile = try {
+                                        objectMapper.readValue<Marathondevices>(devicesWithEnvironmentVariablesReplaced)
+                                    } catch (e: JsonMappingException) {
+                                        throw NoDevicesException("Invalid Marathondevices update format", e)
+                                    }
+                                    send(marathonfile)
+                                }
+                            }
                     }
                 }
 
-                while(true) {
+                while (true) {
                     val channelResult = sourceChannel.tryReceive()
                     channelResult.onSuccess { processUpdate(it) }
                     reconnect()

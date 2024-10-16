@@ -7,6 +7,7 @@ plugins {
 
 dependencies {
     implementation(project(":vendor:vendor-apple:base"))
+    implementation(Libraries.ktorNetwork)
 
     testImplementation(TestLibraries.kluent)
     testImplementation(TestLibraries.assertk)
