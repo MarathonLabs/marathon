@@ -190,7 +190,8 @@ class AppleSimulatorDevice(
 
             deviceFeatures = detectFeatures()
 
-            supportsTranscoding = executeWorkerCommand(listOf(vendorConfiguration.screenRecordConfiguration.videoConfiguration.transcoding.binary, "-version"))?.let {
+            val transcodingVideoConfiguration = vendorConfiguration.screenRecordConfiguration.videoConfiguration.transcoding
+            supportsTranscoding = transcodingVideoConfiguration.enabled && executeWorkerCommand(listOf(transcodingVideoConfiguration.binary, "-version"))?.let {
                 if (it.successful) {
                     true
                 } else {
