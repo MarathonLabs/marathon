@@ -18,10 +18,11 @@ import java.io.File
 class DeviceTrackerTest {
     @Test
     fun testWorkerSimple() {
-        val workerTracker = WorkerTracker(worker.transport)
+
         val marathondevices = readFixture("all.yaml")
         val worker = marathondevices.workers.first()
-        val update: List<Pair<AppleTarget, TrackingUpdate>> = workerTracker.update(worker.transport, worker.devices)
+        val workerTracker = WorkerTracker(worker.transport)
+        val update: List<Pair<AppleTarget, TrackingUpdate>> = workerTracker.update(worker.devices)
 
         val simulator = AppleTarget.Simulator("12345-ABCDE-54321")
         val simulatorProfile = AppleTarget.SimulatorProfile(
@@ -39,7 +40,7 @@ class DeviceTrackerTest {
         )
 
         //Same state
-        val noopUpdate: List<Pair<AppleTarget, TrackingUpdate>> = workerTracker.update(worker.transport, worker.devices)
+        val noopUpdate: List<Pair<AppleTarget, TrackingUpdate>> = workerTracker.update(worker.devices)
         val actualNoop = noopUpdate.map { it.second }.toList()
         assertThat(actualNoop).isEmpty()
 
@@ -51,7 +52,7 @@ class DeviceTrackerTest {
             deviceTypeId = "iPhone X", runtimeId = "com.apple.CoreSimulator.SimRuntime.iOS-14-5", newNamePrefix = "testSim"
         )
         val physicalx2 = AppleTarget.Physical("98765-ZYXWV-56780")
-        val x2Update: List<Pair<AppleTarget, TrackingUpdate>> = workerTracker.update(workerX2.transport, workerX2.devices)
+        val x2Update: List<Pair<AppleTarget, TrackingUpdate>> = workerTracker.update(workerX2.devices)
         val actualX2 = x2Update.map { it.second }.toList()
 
         assertThat(actualX2).containsExactlyInAnyOrder(
@@ -63,10 +64,10 @@ class DeviceTrackerTest {
 
     @Test
     fun testSimulatorProfileScaling() {
-        val workerTracker = WorkerTracker(worker.transport)
         val marathondevices = readFixture("simulatorprofile.yaml")
         val worker = marathondevices.workers.first()
-        val update: List<Pair<AppleTarget, TrackingUpdate>> = workerTracker.update(worker.transport, worker.devices)
+        val workerTracker = WorkerTracker(worker.transport)
+        val update: List<Pair<AppleTarget, TrackingUpdate>> = workerTracker.update(worker.devices)
         val actual1 = update.map { it.second }.toList()
 
         val simulatorProfile = AppleTarget.SimulatorProfile(
@@ -80,7 +81,7 @@ class DeviceTrackerTest {
         //Scale up x3
         val marathondevicesX3 = readFixture("simulatorprofilex3.yaml")
         val workerX3 = marathondevicesX3.workers.first()
-        val x3Update: List<Pair<AppleTarget, TrackingUpdate>> = workerTracker.update(workerX3.transport, workerX3.devices)
+        val x3Update: List<Pair<AppleTarget, TrackingUpdate>> = workerTracker.update(workerX3.devices)
         val actualX3 = x3Update.map { it.second }.toList()
 
         assertThat(actualX3).containsExactlyInAnyOrder(
@@ -91,7 +92,7 @@ class DeviceTrackerTest {
         //Scale down to x2
         val marathondevicesX2 = readFixture("simulatorprofilex2.yaml")
         val workerX2 = marathondevicesX2.workers.first()
-        val x2Update: List<Pair<AppleTarget, TrackingUpdate>> = workerTracker.update(workerX2.transport, workerX2.devices)
+        val x2Update: List<Pair<AppleTarget, TrackingUpdate>> = workerTracker.update(workerX2.devices)
         val actualX2 = x2Update.map { it.second }.toList()
 
         assertThat(actualX2).isEmpty()
@@ -99,7 +100,7 @@ class DeviceTrackerTest {
         //Scale up to x4
         val marathondevicesX4 = readFixture("simulatorprofilex4.yaml")
         val workerX4 = marathondevicesX4.workers.first()
-        val x4Update: List<Pair<AppleTarget, TrackingUpdate>> = workerTracker.update(workerX4.transport, workerX4.devices)
+        val x4Update: List<Pair<AppleTarget, TrackingUpdate>> = workerTracker.update(workerX4.devices)
         val actualX4 = x4Update.map { it.second }.toList()
 
         assertThat(actualX4).containsExactlyInAnyOrder(
