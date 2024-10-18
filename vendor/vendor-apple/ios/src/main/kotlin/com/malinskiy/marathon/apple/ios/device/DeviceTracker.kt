@@ -8,6 +8,7 @@ import com.malinskiy.marathon.log.MarathonLogging
 import java.util.concurrent.ConcurrentHashMap
 
 class DeviceTracker {
+
     private val workers: ConcurrentHashMap<String, WorkerTracker> = ConcurrentHashMap()
 
     fun update(marathondevices: Marathondevices): Map<Transport, List<TrackingUpdate>> {
@@ -98,7 +99,9 @@ class WorkerTracker(val transport: Transport) {
             val target = desired.first()
             if (previousState == null) {
                 devices[id] = DeviceState.PROVISIONED(target, desired.size.toUInt())
-                updates.add(Pair(target, TrackingUpdate.Connected(target)))
+                repeat(desired.size) {
+                    updates.add(Pair(target, TrackingUpdate.Connected(target)))
+                }
             } else {
                 val desiredCount = desired.size.toUInt()
                 val currentCount = (previousState as DeviceState.PROVISIONED).count

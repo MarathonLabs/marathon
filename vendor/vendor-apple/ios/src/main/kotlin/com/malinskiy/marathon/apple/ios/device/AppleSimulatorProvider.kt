@@ -31,6 +31,7 @@ import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.time.Timer
 import io.ktor.network.selector.ActorSelectorManager
 import io.ktor.network.sockets.InetSocketAddress
+import io.ktor.network.sockets.Socket
 import io.ktor.network.sockets.aSocket
 import io.ktor.network.sockets.isClosed
 import io.ktor.network.sockets.openReadChannel
@@ -45,6 +46,7 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.ReceiveChannel
+import kotlinx.coroutines.channels.SendChannel
 import kotlinx.coroutines.channels.onSuccess
 import kotlinx.coroutines.channels.produce
 import kotlinx.coroutines.delay
@@ -58,6 +60,7 @@ import kotlinx.coroutines.withContext
 import org.apache.commons.text.StringSubstitutor
 import org.apache.commons.text.lookup.StringLookupFactory
 import java.io.File
+import java.net.ConnectException
 import java.nio.ByteBuffer
 import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
@@ -109,7 +112,8 @@ class AppleSimulatorProvider(
     override suspend fun initialize() {
         logger.debug("Initializing AppleSimulatorProvider")
 
-        //Fail fast if we use static provider with no devices available
+        // Fail fast if we use static provider with no devices available
+        // todo tell that the provider is static
         val file = vendorConfiguration.devicesFile ?: File(System.getProperty("user.dir"), "Marathondevices")
         var initialMarathonfile: Marathondevices? = null
         if (vendorConfiguration.deviceProvider is Static || file.exists()) {
@@ -136,40 +140,27 @@ class AppleSimulatorProvider(
 
     private fun startDynamicProvider(dynamicConfiguration: com.malinskiy.marathon.config.vendor.apple.DeviceProvider.Dynamic): Job {
         return launch {
-            var buffer = ByteBuffer.allocate(4096)
+            val byteBufferWrapper = ByteBufferWrapper(
+                buffer = ByteBuffer.allocate(4096)
+            )
             while (isActive) {
                 sourceMutex.withLock {
                     sourceChannel = produce {
-                        aSocket(ActorSelectorManager(Dispatchers.IO)).tcp()
-                            .connect(InetSocketAddress(dynamicConfiguration.host, dynamicConfiguration.port)).use { socket ->
-                                while (!socket.isClosed) {
-                                    val readChannel = socket.openReadChannel()
-                                    val length = readChannel.readInt()
-                                    buffer.compatClear()
-                                    if (length <= buffer.capacity()) {
-                                        buffer.compatLimit(length)
-                                    } else {
-                                        //Reallocate up to a maximum of 1Mb
-                                        val newCapacity = ceil(log2(length.toDouble())).roundToInt()
-                                        if (newCapacity in 1..20) {
-                                            buffer = ByteBuffer.allocate(2.0.pow(newCapacity.toDouble()).toInt())
-                                            buffer.compatLimit(length)
-                                        } else {
-                                            throw RuntimeException("Device provider update too long: maximum is 2^20 bytes")
-                                        }
+                        while(true) {
+                            try {
+                                aSocket(ActorSelectorManager(Dispatchers.IO))
+                                    .tcp()
+                                    .connect(InetSocketAddress(dynamicConfiguration.host, dynamicConfiguration.port)).use { socket ->
+                                        readSocket(byteBufferWrapper, socket, this)
                                     }
-                                    readChannel.readFully(buffer)
-                                    buffer.compatRewind()
-                                    val devicesWithEnvironmentVariablesReplaced =
-                                        environmentVariableSubstitutor.replace(buffer.decodeString())
-                                    val marathonfile = try {
-                                        objectMapper.readValue<Marathondevices>(devicesWithEnvironmentVariablesReplaced)
-                                    } catch (e: JsonMappingException) {
-                                        throw NoDevicesException("Invalid Marathondevices update format", e)
-                                    }
-                                    send(marathonfile)
-                                }
+                            } catch (e: ConnectException) {
+                                logger.warn { "Connection refused, retrying in 5 seconds..." }
+                                delay(5000) // Retry delay if socket connection is refused
+                            } catch (e: Exception) {
+                                logger.error(e) { "Error occurred: ${e.message}" }
+                                break // Exit the reading loop if a critical error occurs
                             }
+                        }
                     }
                 }
 
@@ -180,6 +171,48 @@ class AppleSimulatorProvider(
                     delay(16)
                 }
             }
+        }
+    }
+
+    private suspend fun readSocket(bufferWrapper: ByteBufferWrapper, socket: Socket, channel: SendChannel<Marathondevices>) {
+        val readChannel = socket.openReadChannel()
+        while (!socket.isClosed) {
+            // Read the 4 reserved bytes
+            val reservedBytes = ByteArray(4)
+            readChannel.readFully(reservedBytes, 0, 4)
+
+            // Read message length (4 bytes)
+            val length = readChannel.readInt()
+
+            bufferWrapper.buffer.compatClear()
+            if (length <= bufferWrapper.buffer.capacity()) {
+                bufferWrapper.buffer.compatLimit(length)
+            } else {
+                // Reallocate up to a maximum of 1Mb
+                val newCapacity = ceil(log2(length.toDouble())).roundToInt()
+                if (newCapacity in 1..20) {
+                    bufferWrapper.buffer = ByteBuffer.allocate(2.0.pow(newCapacity.toDouble()).toInt())
+                    bufferWrapper.buffer.compatLimit(length)
+                } else {
+                    throw RuntimeException("Device provider update too long: maximum is 2^20 bytes")
+                }
+            }
+
+            // Read the full message into the buffer
+            readChannel.readFully(bufferWrapper.buffer)
+
+            // Process the message
+            bufferWrapper.buffer.compatRewind()
+            val message = bufferWrapper.buffer.decodeString()
+
+            val devicesWithEnvironmentVariablesReplaced =
+                environmentVariableSubstitutor.replace(message)
+            val marathonfile = try {
+                objectMapper.readValue<Marathondevices>(devicesWithEnvironmentVariablesReplaced)
+            } catch (e: JsonMappingException) {
+                throw NoDevicesException("Invalid Marathondevices update format", e)
+            }
+            channel.send(marathonfile)
         }
     }
 
@@ -194,7 +227,7 @@ class AppleSimulatorProvider(
     }
 
     private suspend fun reconnect() {
-        var recreate = mutableSetOf<AppleDevice>()
+        val recreate = mutableSetOf<AppleDevice>()
         devices.values.forEach { device ->
             if (!device.commandExecutor.connected) {
                 channel.send(DeviceProvider.DeviceEvent.DeviceDisconnected(device))
@@ -499,3 +532,7 @@ class AppleSimulatorProvider(
         channel.send(element = DeviceProvider.DeviceEvent.DeviceDisconnected(device))
     }
 }
+
+private data class ByteBufferWrapper(
+    var buffer: ByteBuffer,
+)

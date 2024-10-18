@@ -22,5 +22,5 @@ sealed class DeviceProvider {
     data class Dynamic(
         @JsonProperty("host") val host: String = "127.0.0.1",
         @JsonProperty("port") val port: Int = 5037,
-    )
+    ) : DeviceProvider()
 }
