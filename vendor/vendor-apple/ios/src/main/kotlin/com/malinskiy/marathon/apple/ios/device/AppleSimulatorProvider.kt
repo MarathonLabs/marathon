@@ -37,6 +37,7 @@ import io.ktor.network.sockets.isClosed
 import io.ktor.network.sockets.openReadChannel
 import io.ktor.util.decodeString
 import io.ktor.utils.io.core.use
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
@@ -113,10 +114,10 @@ class AppleSimulatorProvider(
         logger.debug("Initializing AppleSimulatorProvider")
 
         // Fail fast if we use static provider with no devices available
-        // todo tell that the provider is static
         val file = vendorConfiguration.devicesFile ?: File(System.getProperty("user.dir"), "Marathondevices")
         var initialMarathonfile: Marathondevices? = null
         if (vendorConfiguration.deviceProvider is Static || file.exists()) {
+            logger.debug { "Using static device provider" }
             val devicesWithEnvironmentVariablesReplaced = environmentVariableSubstitutor.replace(file.readText())
             val marathonfile = try {
                 objectMapper.readValue<Marathondevices>(devicesWithEnvironmentVariablesReplaced)
@@ -139,6 +140,7 @@ class AppleSimulatorProvider(
     }
 
     private fun startDynamicProvider(dynamicConfiguration: com.malinskiy.marathon.config.vendor.apple.DeviceProvider.Dynamic): Job {
+        logger.debug { "Using dynamic device provider at $dynamicConfiguration" }
         return launch {
             val byteBufferWrapper = ByteBufferWrapper(
                 buffer = ByteBuffer.allocate(4096)
@@ -156,6 +158,8 @@ class AppleSimulatorProvider(
                             } catch (e: ConnectException) {
                                 logger.warn { "Connection refused, retrying in 5 seconds..." }
                                 delay(5000) // Retry delay if socket connection is refused
+                            } catch (e: CancellationException) {
+                                throw e
                             } catch (e: Exception) {
                                 logger.error(e) { "Error occurred: ${e.message}" }
                                 break // Exit the reading loop if a critical error occurs
@@ -283,6 +287,8 @@ class AppleSimulatorProvider(
         }
 
         awaitAll(*deferred.toTypedArray())
+
+        logger.debug { "Providing ${devices.size} devices" }
     }
 
     override suspend fun borrow(): Device {
