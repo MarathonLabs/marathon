@@ -14,6 +14,7 @@ import com.malinskiy.marathon.config.vendor.android.TestAccessConfiguration
 import com.malinskiy.marathon.config.vendor.android.TestParserConfiguration
 import com.malinskiy.marathon.config.vendor.android.ThreadingConfiguration
 import com.malinskiy.marathon.config.vendor.apple.AppleTestBundleConfiguration
+import com.malinskiy.marathon.config.vendor.apple.DeviceProvider
 import com.malinskiy.marathon.config.vendor.apple.ios.LifecycleConfiguration
 import com.malinskiy.marathon.config.vendor.apple.ios.PermissionsConfiguration
 import com.malinskiy.marathon.config.vendor.apple.RsyncConfiguration
@@ -155,6 +156,7 @@ sealed class VendorConfiguration {
      */
     data class IOSConfiguration(
         @JsonProperty("bundle") val bundle: AppleTestBundleConfiguration? = null,
+        @JsonProperty("deviceProvider") val deviceProvider: DeviceProvider = DeviceProvider.Static(),
         @JsonProperty("devices") val devicesFile: File? = null,
         @JsonProperty("ssh") val ssh: SshConfiguration = SshConfiguration(),
 
@@ -186,6 +188,7 @@ sealed class VendorConfiguration {
 
     data class MacosConfiguration(
         @JsonProperty("bundle") val bundle: AppleTestBundleConfiguration? = null,
+        @JsonProperty("deviceProvider") val deviceProvider: DeviceProvider = DeviceProvider.Static(),
         @JsonProperty("devices") val devicesFile: File? = null,
         @JsonProperty("ssh") val ssh: SshConfiguration = SshConfiguration(),
 

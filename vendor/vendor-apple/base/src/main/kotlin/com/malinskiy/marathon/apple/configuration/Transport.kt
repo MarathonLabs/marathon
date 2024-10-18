@@ -23,4 +23,11 @@ sealed interface Transport {
         @JsonProperty("authentication") val authentication: SshAuthentication? = null,
         @JsonProperty("checkReachability") val checkReachability: Boolean = true,
     ) : Transport
+
+    fun id(): String {
+        return when (this) {
+            Local -> "local"
+            is Ssh -> "${addr}:${port}"
+        }
+    }
 }

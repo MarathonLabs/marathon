@@ -6,17 +6,13 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLGenerator
 import com.fasterxml.jackson.module.kotlin.KotlinFeature
 import com.fasterxml.jackson.module.kotlin.KotlinModule
 import com.fasterxml.jackson.module.kotlin.readValue
-import com.malinskiy.marathon.apple.configuration.AppleTarget
-import com.malinskiy.marathon.apple.configuration.Marathondevices
-import com.malinskiy.marathon.apple.configuration.Transport
-import com.malinskiy.marathon.apple.configuration.Worker
 import com.malinskiy.marathon.config.vendor.apple.SshAuthentication
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import java.io.File
 
-class MarathondevicesTest {
+class StaticTest {
     lateinit var mapper: ObjectMapper
 
     @BeforeEach
@@ -36,7 +32,7 @@ class MarathondevicesTest {
 
     @Test
     fun testSample1() {
-        val src = File(MarathondevicesTest::class.java.getResource("/fixtures/marathondevices/sample_1.yaml").file)
+        val src = File(StaticTest::class.java.getResource("/fixtures/marathondevices/sample_1.yaml").file)
         val actual = mapper.readValue<Marathondevices>(src)
 
         actual shouldBeEqualTo Marathondevices(
