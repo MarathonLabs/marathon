@@ -17,35 +17,62 @@ import com.malinskiy.marathon.apple.cmd.FileBridge
 import com.malinskiy.marathon.apple.configuration.AppleTarget
 import com.malinskiy.marathon.apple.configuration.Marathondevices
 import com.malinskiy.marathon.apple.configuration.Transport
-import com.malinskiy.marathon.apple.configuration.Worker
 import com.malinskiy.marathon.apple.device.ConnectionFactory
+import com.malinskiy.marathon.apple.ios.extensions.compatClear
+import com.malinskiy.marathon.apple.ios.extensions.compatLimit
+import com.malinskiy.marathon.apple.ios.extensions.compatRewind
 import com.malinskiy.marathon.config.Configuration
 import com.malinskiy.marathon.config.vendor.VendorConfiguration
+import com.malinskiy.marathon.config.vendor.apple.DeviceProvider.Static
 import com.malinskiy.marathon.device.Device
 import com.malinskiy.marathon.device.DeviceProvider
 import com.malinskiy.marathon.exceptions.NoDevicesException
 import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.time.Timer
+import io.ktor.network.selector.ActorSelectorManager
+import io.ktor.network.sockets.InetSocketAddress
+import io.ktor.network.sockets.Socket
+import io.ktor.network.sockets.aSocket
+import io.ktor.network.sockets.isClosed
+import io.ktor.network.sockets.openReadChannel
+import io.ktor.util.decodeString
+import io.ktor.utils.io.core.use
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.channels.ReceiveChannel
+import kotlinx.coroutines.channels.SendChannel
+import kotlinx.coroutines.channels.onSuccess
+import kotlinx.coroutines.channels.produce
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.newFixedThreadPoolContext
 import kotlinx.coroutines.supervisorScope
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
-import kotlinx.coroutines.yield
 import org.apache.commons.text.StringSubstitutor
 import org.apache.commons.text.lookup.StringLookupFactory
 import java.io.File
+import java.net.ConnectException
+import java.nio.ByteBuffer
 import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.coroutines.CoroutineContext
+import kotlin.math.ceil
+import kotlin.math.log2
+import kotlin.math.pow
+import kotlin.math.roundToInt
+
+//Should not use udid as key to support multiple devices with the same udid across transports
+typealias AppleDeviceId = String
 
 class AppleSimulatorProvider(
     private val configuration: Configuration,
@@ -66,7 +93,7 @@ class AppleSimulatorProvider(
 
     private var monitoringJob: Job? = null
 
-    private val devices = ConcurrentHashMap<String, AppleSimulatorDevice>()
+    private val devices = ConcurrentHashMap<AppleDeviceId, AppleSimulatorDevice>()
     private val channel: Channel<DeviceProvider.DeviceEvent> = unboundedChannel()
     private val connectionFactory = ConnectionFactory(
         configuration,
@@ -76,58 +103,192 @@ class AppleSimulatorProvider(
     )
     private val environmentVariableSubstitutor = StringSubstitutor(StringLookupFactory.INSTANCE.environmentVariableStringLookup())
     private val simulatorFactory = SimulatorFactory(configuration, vendorConfiguration, testBundleIdentifier, gson, track, timer)
+    private val deviceTracker = DeviceTracker()
 
     override fun subscribe() = channel
 
+    private val sourceMutex = Mutex()
+    private lateinit var sourceChannel: ReceiveChannel<Marathondevices>
+
     override suspend fun initialize() {
         logger.debug("Initializing AppleSimulatorProvider")
+
+        // Fail fast if we use static provider with no devices available
         val file = vendorConfiguration.devicesFile ?: File(System.getProperty("user.dir"), "Marathondevices")
-        val devicesWithEnvironmentVariablesReplaced = environmentVariableSubstitutor.replace(file.readText())
-        val workers: List<Worker> = try {
-            objectMapper.readValue<Marathondevices>(devicesWithEnvironmentVariablesReplaced).workers
-        } catch (e: JsonMappingException) {
-            throw NoDevicesException("Invalid Marathondevices file ${file.absolutePath} format", e)
-        }
-        if (workers.isEmpty()) {
-            throw NoDevicesException("No workers found in the ${file.absolutePath}")
-        }
-        val hosts: Map<Transport, List<AppleTarget>> = mutableMapOf<Transport, List<AppleTarget>>().apply {
-            workers.map {
-                put(it.transport, it.devices)
+        var initialMarathonfile: Marathondevices? = null
+        if (vendorConfiguration.deviceProvider is Static || file.exists()) {
+            logger.debug { "Using static device provider" }
+            val devicesWithEnvironmentVariablesReplaced = environmentVariableSubstitutor.replace(file.readText())
+            val marathonfile = try {
+                objectMapper.readValue<Marathondevices>(devicesWithEnvironmentVariablesReplaced)
+            } catch (e: JsonMappingException) {
+                throw NoDevicesException("Invalid Marathondevices file ${file.absolutePath} format", e)
             }
+            if (marathonfile.workers.isEmpty()) {
+                throw NoDevicesException("No workers found in the ${file.absolutePath}")
+            }
+            initialMarathonfile = marathonfile
         }
 
-        logger.debug { "Establishing communication with [${hosts.keys.joinToString()}]" }
-        val deferred = hosts.map { (transport, targets) ->
-            async {
-                initializeForTransport(targets, transport)
-            }
+        monitoringJob = if (initialMarathonfile != null) {
+            startStaticProvider(initialMarathonfile)
+        } else {
+            val dynamicConfiguration =
+                vendorConfiguration.deviceProvider as com.malinskiy.marathon.config.vendor.apple.DeviceProvider.Dynamic
+            startDynamicProvider(dynamicConfiguration)
         }
-        awaitAll(*deferred.toTypedArray())
+    }
 
-        monitoringJob = launch {
+    private fun startDynamicProvider(dynamicConfiguration: com.malinskiy.marathon.config.vendor.apple.DeviceProvider.Dynamic): Job {
+        logger.debug { "Using dynamic device provider at $dynamicConfiguration" }
+        return launch {
+            val byteBufferWrapper = ByteBufferWrapper(
+                buffer = ByteBuffer.allocate(4096)
+            )
             while (isActive) {
-                var recreate = mutableSetOf<AppleDevice>()
-                devices.values.forEach { device ->
-                    if (!device.commandExecutor.connected) {
-                        channel.send(DeviceProvider.DeviceEvent.DeviceDisconnected(device))
-                        device.dispose()
-                        recreate.add(device)
+                sourceMutex.withLock {
+                    sourceChannel = produce {
+                        while(true) {
+                            try {
+                                aSocket(ActorSelectorManager(Dispatchers.IO))
+                                    .tcp()
+                                    .connect(InetSocketAddress(dynamicConfiguration.host, dynamicConfiguration.port)).use { socket ->
+                                        readSocket(byteBufferWrapper, socket, this)
+                                    }
+                            } catch (e: ConnectException) {
+                                logger.warn { "Connection refused, retrying in 5 seconds..." }
+                                delay(5000) // Retry delay if socket connection is refused
+                            } catch (e: CancellationException) {
+                                throw e
+                            } catch (e: Exception) {
+                                logger.error(e) { "Error occurred: ${e.message}" }
+                                break // Exit the reading loop if a critical error occurs
+                            }
+                        }
                     }
                 }
-                val byTransport = recreate.groupBy { it.transport }
-                byTransport.forEach { (transport, devices) ->
-                    val plan = ProvisioningPlan(existingSimulators = devices.map {
-                        logger.warn { "Re-provisioning ${it.serialNumber}" }
-                        it.udid
-                    }.toSet(), emptyList(), emptySet())
-                    createExisting(plan, transport)
+
+                while (true) {
+                    val channelResult = sourceChannel.tryReceive()
+                    channelResult.onSuccess { processUpdate(it) }
+                    reconnect()
+                    delay(16)
                 }
-                recreate.clear()
+            }
+        }
+    }
+
+    private suspend fun readSocket(bufferWrapper: ByteBufferWrapper, socket: Socket, channel: SendChannel<Marathondevices>) {
+        val readChannel = socket.openReadChannel()
+        while (!socket.isClosed) {
+            // Read the 4 reserved bytes
+            val reservedBytes = ByteArray(4)
+            readChannel.readFully(reservedBytes, 0, 4)
+
+            // Read message length (4 bytes)
+            val length = readChannel.readInt()
+
+            bufferWrapper.buffer.compatClear()
+            if (length <= bufferWrapper.buffer.capacity()) {
+                bufferWrapper.buffer.compatLimit(length)
+            } else {
+                // Reallocate up to a maximum of 1Mb
+                val newCapacity = ceil(log2(length.toDouble())).roundToInt()
+                if (newCapacity in 1..20) {
+                    bufferWrapper.buffer = ByteBuffer.allocate(2.0.pow(newCapacity.toDouble()).toInt())
+                    bufferWrapper.buffer.compatLimit(length)
+                } else {
+                    throw RuntimeException("Device provider update too long: maximum is 2^20 bytes")
+                }
+            }
+
+            // Read the full message into the buffer
+            readChannel.readFully(bufferWrapper.buffer)
+
+            // Process the message
+            bufferWrapper.buffer.compatRewind()
+            val message = bufferWrapper.buffer.decodeString()
+
+            val devicesWithEnvironmentVariablesReplaced =
+                environmentVariableSubstitutor.replace(message)
+            val marathonfile = try {
+                objectMapper.readValue<Marathondevices>(devicesWithEnvironmentVariablesReplaced)
+            } catch (e: JsonMappingException) {
+                throw NoDevicesException("Invalid Marathondevices update format", e)
+            }
+            channel.send(marathonfile)
+        }
+    }
+
+    private fun startStaticProvider(marathondevices: Marathondevices): Job {
+        return launch {
+            processUpdate(marathondevices)
+            while (isActive) {
+                reconnect()
                 delay(16)
             }
         }
-        Unit
+    }
+
+    private suspend fun reconnect() {
+        val recreate = mutableSetOf<AppleDevice>()
+        devices.values.forEach { device ->
+            if (!device.commandExecutor.connected) {
+                channel.send(DeviceProvider.DeviceEvent.DeviceDisconnected(device))
+                device.dispose()
+                recreate.add(device)
+            }
+        }
+        val byTransport = recreate.groupBy { it.transport }
+        byTransport.forEach { (transport, devices) ->
+            val plan = ProvisioningPlan(existingSimulators = devices.map {
+                logger.warn { "Re-provisioning ${it.serialNumber}" }
+                it.udid
+            }.toSet(), emptyList(), emptySet())
+            createExisting(plan, transport)
+        }
+        recreate.clear()
+    }
+
+    private suspend fun processUpdate(initialMarathonfile: Marathondevices) {
+        val update: Map<Transport, List<TrackingUpdate>> = deviceTracker.update(initialMarathonfile)
+        val deferred = update.mapNotNull { (transport, updates) ->
+            logger.debug { "Processing updates from $transport:\n${updates.joinToString(separator = "\n", prefix = "- ")}" }
+
+            val connected = updates.filterIsInstance<TrackingUpdate.Connected>()
+            val disconnected = updates.filterIsInstance<TrackingUpdate.Disconnected>()
+
+            disconnected.mapNotNull { it ->
+                val appleId = when (it.target) {
+                    is AppleTarget.Physical -> toAppleId(it.target.udid, transport)
+                    is AppleTarget.Simulator -> toAppleId(it.target.udid, transport)
+                    AppleTarget.Host -> {
+                        logger.warn { "host devices are not support by apple simulator provider" }
+                        null
+                    }
+
+                    is AppleTarget.SimulatorProfile -> {
+                        logger.warn { "simulator profile devices do not support disconnect" }
+                        null
+                    }
+                }
+                appleId?.let { devices[it] }
+            }.forEach {
+                notifyDisconnected(it)
+                dispose(it)
+            }
+
+            if (connected.isNotEmpty()) {
+                //If we already connected to this host then reuse existing
+                async {
+                    initializeForTransport(connected.map { it.target }, transport)
+                }
+            } else null
+        }
+
+        awaitAll(*deferred.toTypedArray())
+
+        logger.debug { "Providing ${devices.size} devices" }
     }
 
     override suspend fun borrow(): Device {
@@ -160,7 +321,8 @@ class AppleSimulatorProvider(
                         return@async
                     }
                     val simulator = createSimulator(udid, transport, commandExecutor, fileBridge)
-                    connect(transport, simulator)
+                    val id: AppleDeviceId = toAppleId(udid, transport)
+                    connect(id, simulator)
                 }
             }
         }
@@ -201,7 +363,8 @@ class AppleSimulatorProvider(
                             return@async
                         }
                         val simulator = createSimulator(udid, transport, commandExecutor, fileBridge)
-                        connect(transport, simulator)
+                        val id: AppleDeviceId = toAppleId(udid, transport)
+                        connect(id, simulator)
                     } else {
                         logger.error { "Failed to create simulator for profile $profile" }
                     }
@@ -209,6 +372,8 @@ class AppleSimulatorProvider(
             }
         }
     }
+
+    private fun toAppleId(udid: String?, transport: Transport) = "$udid@${transport.id()}"
 
     private fun verifySimulatorCanBeProvisioned(
         simctlListDevicesOutput: SimctlListDevicesOutput,
@@ -251,7 +416,10 @@ class AppleSimulatorProvider(
             }
         }
         val availableUdids = simulatorDevices.keys
-        val usedUdids = mutableSetOf<String>()
+        val usedUdids = devices.values
+            .filter { it.transport == transport }
+            .map { it.udid }
+            .toMutableSet()
         simulators.forEach {
             if (!availableUdids.contains(it.udid)) {
                 logger.error { "udid ${it.udid} is not available at $transport" }
@@ -259,6 +427,7 @@ class AppleSimulatorProvider(
                 usedUdids.add(it.udid)
             }
         }
+
         val unusedDevices = simulatorDevices.filterKeys { !usedUdids.contains(it) }.toMutableMap()
         val reuseUdid = mutableSetOf<String>()
         val createProfiles = mutableListOf<AppleTarget.SimulatorProfile>()
@@ -352,9 +521,8 @@ class AppleSimulatorProvider(
         device.dispose()
     }
 
-    private fun connect(transport: Transport, device: AppleSimulatorDevice) {
-        //Should not use udid as key here to support multiple devices with the same udid across transports
-        devices.put(device.serialNumber, device)
+    private fun connect(id: AppleDeviceId, device: AppleSimulatorDevice) {
+        devices.put(id, device)
             ?.let {
                 logger.error("replaced existing device $it with new $device.")
                 dispose(it)
@@ -369,14 +537,8 @@ class AppleSimulatorProvider(
     private fun notifyDisconnected(device: AppleSimulatorDevice) = launch(context = coroutineContext) {
         channel.send(element = DeviceProvider.DeviceEvent.DeviceDisconnected(device))
     }
-
-//    private fun printFailingSimulatorSummary() {
-//        simulators
-//            .map { "${it.udid}@${it.transport}" to (RemoteSimulatorConnectionCounter.get(it.udid) - 1) }
-//            .filter { it.second > 0 }
-//            .sortedByDescending { it.second }
-//            .forEach {
-//                logger.debug(String.format("%3d %s", it.second, it.first))
-//            }
-//    }
 }
+
+private data class ByteBufferWrapper(
+    var buffer: ByteBuffer,
+)

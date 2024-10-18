@@ -23,6 +23,7 @@ object Versions {
     val apacheCommonsText = "1.12.0"
     val apacheCommonsIO = "2.17.0"
     val okhttp = "4.12.0"
+    val ktor = "2.3.6"
     val influxDbClient = "2.24"
     val influxDb2Client = "7.2.0"
     val clikt = "5.0.0"
@@ -95,6 +96,7 @@ object Libraries {
     val bugsnag = "com.bugsnag:bugsnag:${Versions.bugsnag}"
     val kotlinProcess = "com.github.pgreze:kotlin-process:${Versions.kotlinProcess}"
     val okhttp = "com.squareup.okhttp3:okhttp:${Versions.okhttp}"
+    val ktorNetwork = "io.ktor:ktor-network:${Versions.ktor}"
 }
 
 object TestLibraries {
