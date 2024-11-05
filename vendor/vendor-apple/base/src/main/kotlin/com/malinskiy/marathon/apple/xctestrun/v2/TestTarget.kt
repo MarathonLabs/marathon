@@ -279,5 +279,5 @@ class TestTarget : TestTarget {
      * Added in xcode 15, possible values are [screenshots, screenRecording]. Defaults to screenRecording
      * Ignored by previous versions of xcode
      */
-    var preferredScreenCaptureFormat: String? by delegate.optionalDelegateFor("preferredScreenCaptureFormat")
+    var preferredScreenCaptureFormat: String? by delegate.optionalDelegateFor("PreferredScreenCaptureFormat")
 }

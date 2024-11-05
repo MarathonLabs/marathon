@@ -1,0 +1,13 @@
+workers:
+  - transport:
+      type: ssh
+      addr: 192.168.1.10
+      port: 22
+      authentication:
+        type: publicKey
+        username: user123
+        key: "/path/to/private/key"
+      checkReachability: true
+    devices:
+      - type: physical
+        udid: 98765-ZYXWV-56789

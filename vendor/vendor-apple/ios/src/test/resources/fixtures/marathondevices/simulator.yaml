@@ -1,0 +1,13 @@
+workers:
+  - transport:
+      type: ssh
+      addr: 192.168.1.10
+      port: 22
+      authentication:
+        type: publicKey
+        username: user123
+        key: "/path/to/private/key"
+      checkReachability: true
+    devices:
+      - type: simulator
+        udid: 12345-ABCDE-54321

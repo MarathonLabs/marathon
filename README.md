@@ -119,7 +119,7 @@ XXX [main] INFO com.malinskiy.marathon.cli.config.ConfigFactory - Checking Marat
 ```
 
 ### Requirements
-Marathon requires Java Runtime Environment 8 or higher.
+Marathon requires Java Runtime Environment 17 or higher.
 
 ## Move even faster with Marathon Cloud
 <h1 align="center">
