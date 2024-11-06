@@ -31,7 +31,7 @@ class RemoteFileManager(private val device: AndroidDevice) {
     }
 
     fun remoteTracingForTest(test: Test, testBatchId: String): String {
-        return "$PERFETTO_TRACE_ROOT/${traceFileName(test, testBatchId)}"
+        return "$TRACE_ROOT/${traceFileName(test, testBatchId)}"
     }
 
     private fun remoteFileForTest(filename: String): String {
@@ -62,7 +62,7 @@ class RemoteFileManager(private val device: AndroidDevice) {
     companion object {
         const val MAX_FILENAME = 255
         const val TMP_PATH = "/data/local/tmp"
-        const val PERFETTO_TRACE_ROOT = "/data/misc/perfetto-traces"
-        const val PERFETTO_CONFIG_FILE = "$TMP_PATH/tracing.pbtx"
+        const val TRACE_ROOT = "/data/misc/perfetto-traces"
+        const val TRACE_CONFIG_FILE = "$TMP_PATH/tracing.pbtx"
     }
 }

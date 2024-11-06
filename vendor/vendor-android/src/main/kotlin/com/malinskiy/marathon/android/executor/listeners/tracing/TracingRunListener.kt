@@ -28,7 +28,7 @@ import kotlin.coroutines.cancellation.CancellationException
 import kotlin.system.measureTimeMillis
 
 
-class PerfettoRunListener(
+class TracingRunListener(
     private val fileManager: FileManager,
     private val pool: DevicePoolId,
     private val testBatch: TestBatch,
@@ -37,7 +37,7 @@ class PerfettoRunListener(
     private val testBundleIdentifier: AndroidTestBundleIdentifier,
     coroutineScope: CoroutineScope
 ) : NoOpTestRunListener(), AttachmentProvider, CoroutineScope by coroutineScope {
-    private val logger = MarathonLogging.logger("PerfettoRunListener")
+    private val logger = MarathonLogging.logger("TracingRunListener")
 
     private var job: Job? = null
     private val attachmentListeners = mutableListOf<AttachmentListener>()

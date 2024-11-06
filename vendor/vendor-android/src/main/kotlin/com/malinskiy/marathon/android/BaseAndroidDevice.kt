@@ -12,7 +12,7 @@ import com.malinskiy.marathon.android.executor.listeners.TestResultsListener
 import com.malinskiy.marathon.android.executor.listeners.filesync.FileSyncTestRunListener
 import com.malinskiy.marathon.android.executor.listeners.screenshot.AdamScreenCaptureTestRunListener
 import com.malinskiy.marathon.android.executor.listeners.screenshot.ScreenCapturerTestRunListener
-import com.malinskiy.marathon.android.executor.listeners.tracing.PerfettoRunListener
+import com.malinskiy.marathon.android.executor.listeners.tracing.TracingRunListener
 import com.malinskiy.marathon.android.executor.listeners.video.ScreenRecorderTestBatchListener
 import com.malinskiy.marathon.android.model.ShellCommandResult
 import com.malinskiy.marathon.device.screenshot.Rotation
@@ -256,7 +256,7 @@ abstract class BaseAndroidDevice(
 
         val tracingConfiguration = this@BaseAndroidDevice.androidConfiguration.tracingConfiguration
         val tracingListener = if (tracingConfiguration.enabled && tracingConfiguration.pbtxt != null) {
-            PerfettoRunListener(
+            TracingRunListener(
                 fileManager,
                 devicePoolId,
                 testBatch,
