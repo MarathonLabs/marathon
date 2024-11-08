@@ -141,8 +141,7 @@ class TestRunResultsAccumulator(private val timer: Timer) {
             r = TemporalTestResult(startTime = timer.currentTimeMillis())
         }
         r.status = status
-        if (r.stackTrace == null) {
-            //ignore stack trace overrides
+        if (!trace.isNullOrBlank()) {
             r.stackTrace = trace
         }
         startTime?.let { r.startTime = it }

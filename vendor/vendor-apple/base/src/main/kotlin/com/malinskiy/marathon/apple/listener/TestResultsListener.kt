@@ -138,7 +138,7 @@ class TestResultsListener(
             traces.forEach { (test, traceBuilder) ->
                 runResult.testFailed(
                     test,
-                    trace = traceBuilder.toString()
+                    trace = traceBuilder.toString().trim()
                 )
             }
         }.let {
