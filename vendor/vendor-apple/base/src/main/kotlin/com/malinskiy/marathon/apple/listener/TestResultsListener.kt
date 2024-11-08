@@ -39,7 +39,7 @@ class TestResultsListener(
     private val enhanceUsingXcresult = true
 
     override suspend fun afterTestRun() {
-        if(enhanceUsingXcresult) enhanceResults()
+        if (enhanceUsingXcresult) enhanceResults()
 
         val results = runResult.temporalTestResults
         val tests = testBatch.tests
@@ -106,6 +106,7 @@ class TestResultsListener(
                 }
             }
 
+            val traces = mutableMapOf<Test, StringBuilder>()
             actionsInvocationRecord.issues.testFailureSummaries?.forEach { failureSummary ->
                 //AIR doesn't contain package information at all. Match by class+method and fail if more than one found
                 val matchingTests = runResult.completedTests.filter {
@@ -117,17 +118,28 @@ class TestResultsListener(
                     }
                 }
                 when (matchingTests.size) {
-                    1 -> runResult.testFailed(
-                        matchingTests.first(),
-                        trace = StringBuilder().apply {
-                            failureSummary.documentLocationInCreatingWorkspace?.let { appendLine(it.url) }
-                            appendLine(failureSummary.message)
-                        }.toString()
-                    )
+                    1 -> {
+                        traces.getOrPut(matchingTests.first()) { StringBuilder() }
+                            .apply {
+                                failureSummary.documentLocationInCreatingWorkspace?.let {
+                                    if (it.url.isNotBlank()) {
+                                        appendLine(it.url)
+                                    }
+                                }
+                                appendLine(failureSummary.message)
+                            }
+                    }
 
                     0 -> logger.warn { "No matching test cases found in xcresult" }
                     else -> logger.warn { "Multiple matching test cases found in xcresult. Impossible to possible to add stacktrace to report" }
                 }
+            }
+
+            traces.forEach { (test, traceBuilder) ->
+                runResult.testFailed(
+                    test,
+                    trace = traceBuilder.toString()
+                )
             }
         }.let {
             logger.debug { "Enhancing report using xcresult took $it ms" }
