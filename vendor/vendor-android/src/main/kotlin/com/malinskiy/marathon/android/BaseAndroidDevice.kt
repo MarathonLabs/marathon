@@ -12,7 +12,7 @@ import com.malinskiy.marathon.android.executor.listeners.TestResultsListener
 import com.malinskiy.marathon.android.executor.listeners.filesync.FileSyncTestRunListener
 import com.malinskiy.marathon.android.executor.listeners.screenshot.AdamScreenCaptureTestRunListener
 import com.malinskiy.marathon.android.executor.listeners.screenshot.ScreenCapturerTestRunListener
-import com.malinskiy.marathon.android.executor.listeners.tracing.TracingRunListener
+import com.malinskiy.marathon.android.executor.listeners.profiling.ProfilingRunListener
 import com.malinskiy.marathon.android.executor.listeners.video.ScreenRecorderTestBatchListener
 import com.malinskiy.marathon.android.model.ShellCommandResult
 import com.malinskiy.marathon.device.screenshot.Rotation
@@ -254,14 +254,14 @@ abstract class BaseAndroidDevice(
             prepareRecorderListener(feature, fileManager, devicePoolId, testBatch.id, screenRecordingPolicy, attachmentProviders)
         } ?: NoOpTestRunListener()
 
-        val tracingConfiguration = this@BaseAndroidDevice.androidConfiguration.tracingConfiguration
-        val tracingListener = if (tracingConfiguration.enabled && tracingConfiguration.pbtxt != null) {
-            TracingRunListener(
+        val profilingConfiguration = this@BaseAndroidDevice.androidConfiguration.profilingConfiguration
+        val profilingListener = if (profilingConfiguration.enabled && profilingConfiguration.pbtxt != null) {
+            ProfilingRunListener(
                 fileManager,
                 devicePoolId,
                 testBatch,
                 this,
-                tracingConfiguration,
+                profilingConfiguration,
                 testBundleIdentifier,
                 this
             ).also { attachmentProviders.add(it) }
@@ -295,7 +295,7 @@ abstract class BaseAndroidDevice(
                 DebugTestRunListener(this),
                 adamScreenCaptureTestRunListener,
                 fileSyncTestRunListener,
-                tracingListener,
+                profilingListener,
             )
         )
     }

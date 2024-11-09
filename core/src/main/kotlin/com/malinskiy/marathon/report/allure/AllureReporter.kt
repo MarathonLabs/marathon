@@ -86,7 +86,7 @@ class AllureReporter(val configuration: Configuration, private val outputDirecto
                 null
             } else {
                 when (it.type) {
-                    AttachmentType.TRACING -> links.add(
+                    AttachmentType.PROFILING -> links.add(
                         Link().apply {
                             setUrl("https://cloud.marathonlabs.io/trace/view?todo=x")
                             setName("Tracing")

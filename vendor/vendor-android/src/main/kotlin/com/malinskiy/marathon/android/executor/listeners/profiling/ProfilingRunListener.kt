@@ -1,11 +1,11 @@
-package com.malinskiy.marathon.android.executor.listeners.tracing
+package com.malinskiy.marathon.android.executor.listeners.profiling
 
 import com.malinskiy.marathon.android.AndroidDevice
 import com.malinskiy.marathon.android.AndroidTestBundleIdentifier
 import com.malinskiy.marathon.android.InstrumentationInfo
 import com.malinskiy.marathon.android.executor.listeners.NoOpTestRunListener
 import com.malinskiy.marathon.android.model.TestIdentifier
-import com.malinskiy.marathon.config.vendor.android.TracingConfiguration
+import com.malinskiy.marathon.config.vendor.android.ProfilingConfiguration
 import com.malinskiy.marathon.device.DevicePoolId
 import com.malinskiy.marathon.device.toDeviceInfo
 import com.malinskiy.marathon.exceptions.TransferException
@@ -28,16 +28,16 @@ import kotlin.coroutines.cancellation.CancellationException
 import kotlin.system.measureTimeMillis
 
 
-class TracingRunListener(
+class ProfilingRunListener(
     private val fileManager: FileManager,
     private val pool: DevicePoolId,
     private val testBatch: TestBatch,
     private val device: AndroidDevice,
-    private val tracingConfiguration: TracingConfiguration,
+    private val profilingConfiguration: ProfilingConfiguration,
     private val testBundleIdentifier: AndroidTestBundleIdentifier,
     coroutineScope: CoroutineScope
 ) : NoOpTestRunListener(), AttachmentProvider, CoroutineScope by coroutineScope {
-    private val logger = MarathonLogging.logger("TracingRunListener")
+    private val logger = MarathonLogging.logger("ProfilingRunListener")
 
     private var job: Job? = null
     private val attachmentListeners = mutableListOf<AttachmentListener>()
@@ -51,7 +51,7 @@ class TracingRunListener(
 
     override suspend fun beforeTestRun(info: InstrumentationInfo?) {
         super.beforeTestRun(info)
-        tracingConfig = tracingConfiguration.pbtxt?.readText()
+        tracingConfig = profilingConfiguration.pbtxt?.readText()
     }
 
     override suspend fun testRunStarted(runName: String, testCount: Int) {
@@ -83,7 +83,7 @@ class TracingRunListener(
     override suspend fun testStarted(test: TestIdentifier) {
         super.testStarted(test)
 
-        val remoteFile = device.fileManager.remoteTracingForTest(test.toTest(), testBatch.id)
+        val remoteFile = device.fileManager.remoteProfilingForTest(test.toTest(), testBatch.id)
 
         job = async(coroutineContext + CoroutineName("perfetto ${device.serialNumber}")) {
             supervisorScope {
@@ -113,7 +113,7 @@ class TracingRunListener(
             stop()
 
             val test = test.toTest()
-            val remoteFile = device.fileManager.remoteTracingForTest(test, testBatch.id)
+            val remoteFile = device.fileManager.remoteProfilingForTest(test, testBatch.id)
             val localFile = fileManager.createFile(FileType.TRACING, pool, device.toDeviceInfo(), test, testBatch.id)
             val millis = measureTimeMillis {
                 device.safePullFile(remoteFile, localFile.toString())
@@ -123,7 +123,7 @@ class TracingRunListener(
             attachmentListeners.forEach {
                 it.onAttachment(
                     test,
-                    Attachment(localFile, AttachmentType.TRACING, name = Attachment.Name.TRACING)
+                    Attachment(localFile, AttachmentType.PROFILING, name = Attachment.Name.PROFILING)
                 )
             }
 

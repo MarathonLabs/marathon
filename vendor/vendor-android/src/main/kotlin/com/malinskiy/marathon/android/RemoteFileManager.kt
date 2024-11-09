@@ -30,7 +30,7 @@ class RemoteFileManager(private val device: AndroidDevice) {
         return remoteFileForTest(videoFileName(test, testBatchId, chunk))
     }
 
-    fun remoteTracingForTest(test: Test, testBatchId: String): String {
+    fun remoteProfilingForTest(test: Test, testBatchId: String): String {
         return "$TRACE_ROOT/${traceFileName(test, testBatchId)}"
     }
 

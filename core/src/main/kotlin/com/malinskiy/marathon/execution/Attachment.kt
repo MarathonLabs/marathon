@@ -11,7 +11,7 @@ data class Attachment(val file: File, val type: AttachmentType, val name: String
         const val LOG = "log"
         const val LOGCAT = "logcat"
         const val XCODEBUILDLOG = "xcodebuild-log"
-        const val TRACING = "tracing"
+        const val PROFILING = "profiling"
     }
 }
 
@@ -22,5 +22,5 @@ enum class AttachmentType(val mimeType: String) {
     SCREENSHOT_WEBP("image/webp"),
     VIDEO("video/mp4"),
     LOG("text/plain"),
-    TRACING("application/octet-stream");
+    PROFILING("application/octet-stream");
 }
