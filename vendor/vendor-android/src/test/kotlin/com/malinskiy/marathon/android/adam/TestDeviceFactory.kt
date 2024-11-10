@@ -17,11 +17,11 @@ object TestDeviceFactory {
             client = client,
             deviceStateTracker = DeviceStateTracker(),
             logcatManager = logcatManager,
-            AndroidTestBundleIdentifier(),
             Dispatchers.IO,
             "emulator-5554",
             configuration,
             configuration.vendorConfiguration as VendorConfiguration.AndroidConfiguration,
+            AndroidTestBundleIdentifier(),
             Track(),
             SystemTimer(Clock.systemDefaultZone()),
             SerialStrategy.AUTOMATIC
