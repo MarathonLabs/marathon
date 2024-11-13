@@ -5,6 +5,7 @@ import com.google.common.collect.ImmutableMap
 import com.malinskiy.marathon.analytics.internal.sub.ExecutionReport
 import com.malinskiy.marathon.config.Configuration
 import com.malinskiy.marathon.device.DeviceInfo
+import com.malinskiy.marathon.execution.AttachmentType
 import com.malinskiy.marathon.execution.TestResult
 import com.malinskiy.marathon.execution.TestStatus
 import com.malinskiy.marathon.report.Reporter
@@ -15,6 +16,7 @@ import io.qameta.allure.AllureLifecycle
 import io.qameta.allure.FileSystemResultsWriter
 import io.qameta.allure.model.Attachment
 import io.qameta.allure.model.Label
+import io.qameta.allure.model.Link
 import io.qameta.allure.model.Status
 import io.qameta.allure.model.StatusDetails
 import io.qameta.allure.util.ResultsUtils
@@ -77,10 +79,22 @@ class AllureReporter(val configuration: Configuration, private val outputDirecto
             TestStatus.IGNORED -> Status.SKIPPED
         }
 
+        val links = mutableListOf<Link>()
+
         val allureAttachments: List<Attachment> = testResult.attachments.mapNotNull {
             if (it.empty) {
                 null
             } else {
+                when (it.type) {
+                    AttachmentType.PROFILING -> links.add(
+                        Link().apply {
+                            setUrl("https://cloud.marathonlabs.io/trace/view?todo=x")
+                            setName("Tracing")
+                        }
+                    )
+
+                    else -> Unit
+                }
                 val name = it.name ?: it.type.name.lowercase(Locale.ENGLISH)
                     .replaceFirstChar { cher -> if (cher.isLowerCase()) cher.titlecase(Locale.ENGLISH) else cher.toString() }
                 Attachment()
@@ -100,6 +114,7 @@ class AllureReporter(val configuration: Configuration, private val outputDirecto
             .setStop(testResult.endTime)
             .setAttachments(allureAttachments)
             .setParameters(emptyList())
+            .setLinks(links)
             .setLabels(
                 mutableListOf(
                     ResultsUtils.createHostLabel().setValue(device.serialNumber),
