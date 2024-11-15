@@ -4,10 +4,12 @@ import com.github.automatedowl.tools.AllureEnvironmentWriter.allureEnvironmentWr
 import com.google.common.collect.ImmutableMap
 import com.malinskiy.marathon.analytics.internal.sub.ExecutionReport
 import com.malinskiy.marathon.config.Configuration
+import com.malinskiy.marathon.config.vendor.VendorConfiguration
 import com.malinskiy.marathon.device.DeviceInfo
 import com.malinskiy.marathon.execution.AttachmentType
 import com.malinskiy.marathon.execution.TestResult
 import com.malinskiy.marathon.execution.TestStatus
+import com.malinskiy.marathon.extension.relativePathTo
 import com.malinskiy.marathon.report.Reporter
 import com.malinskiy.marathon.test.Test
 import com.malinskiy.marathon.test.toClassName
@@ -21,6 +23,7 @@ import io.qameta.allure.model.Status
 import io.qameta.allure.model.StatusDetails
 import io.qameta.allure.util.ResultsUtils
 import java.io.File
+import java.net.URLEncoder
 import java.util.Locale
 import java.util.UUID
 import io.qameta.allure.Description as JavaDescription
@@ -81,26 +84,32 @@ class AllureReporter(val configuration: Configuration, private val outputDirecto
 
         val links = mutableListOf<Link>()
 
-        val allureAttachments: List<Attachment> = testResult.attachments.mapNotNull {
-            if (it.empty) {
+        val allureAttachments: List<Attachment> = testResult.attachments.mapNotNull { attachment ->
+            if (attachment.empty) {
                 null
             } else {
-                when (it.type) {
+                val androidConfiguration = configuration.vendorConfiguration as? VendorConfiguration.AndroidConfiguration
+                when (attachment.type) {
                     AttachmentType.PROFILING -> links.add(
                         Link().apply {
-                            setUrl("https://cloud.marathonlabs.io/trace/view?todo=x")
-                            setName("Tracing")
+                            androidConfiguration?.profilingConfiguration?.urlTemplate?.let { urlTemplate ->
+                                val relativePath = '/' + attachment.file.relativePathTo(configuration.outputDir)
+                                val urlEncodedPath = URLEncoder.encode(relativePath, Charsets.UTF_8)
+                                val url = urlTemplate.replace("{}", urlEncodedPath)
+                                setUrl(url)
+                                setName("Tracing")
+                            }
                         }
                     )
 
                     else -> Unit
                 }
-                val name = it.name ?: it.type.name.lowercase(Locale.ENGLISH)
+                val name = attachment.name ?: attachment.type.name.lowercase(Locale.ENGLISH)
                     .replaceFirstChar { cher -> if (cher.isLowerCase()) cher.titlecase(Locale.ENGLISH) else cher.toString() }
                 Attachment()
                     .setName(name)
-                    .setSource(it.file.absolutePath)
-                    .setType(it.type.mimeType)
+                    .setSource(attachment.file.absolutePath)
+                    .setType(attachment.type.mimeType)
             }
         }
 
