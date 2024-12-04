@@ -6,7 +6,6 @@ import com.malinskiy.marathon.device.toDeviceInfo
 import com.malinskiy.marathon.execution.TestBatchResults
 import com.malinskiy.marathon.execution.TestResult
 import com.malinskiy.marathon.execution.TestStatus
-import com.malinskiy.marathon.execution.progress.ProgressReporter
 import com.malinskiy.marathon.execution.result.TemporalTestResult
 import com.malinskiy.marathon.report.attachment.AttachmentCollector
 import com.malinskiy.marathon.log.MarathonLogging

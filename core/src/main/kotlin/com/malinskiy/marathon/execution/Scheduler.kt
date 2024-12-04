@@ -12,6 +12,7 @@ import com.malinskiy.marathon.execution.DevicePoolMessage.FromScheduler.AddDevic
 import com.malinskiy.marathon.execution.DevicePoolMessage.FromScheduler.RemoveDevice
 import com.malinskiy.marathon.execution.bundle.TestBundleIdentifier
 import com.malinskiy.marathon.execution.progress.PoolProgressAccumulator
+import com.malinskiy.marathon.report.ProgressReporter
 import com.malinskiy.marathon.extension.toPoolingStrategy
 import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.time.Timer
@@ -36,6 +37,7 @@ class Scheduler(
     private val configuration: Configuration,
     private val shard: TestShard,
     private val track: Track,
+    private val progressReporter: ProgressReporter,
     private val timer: Timer,
     private val testBundleIdentifier: TestBundleIdentifier?,
     override val coroutineContext: CoroutineContext
@@ -112,7 +114,7 @@ class Scheduler(
         val poolId = poolingStrategy.associate(device)
         logger.debug { "device ${device.serialNumber} associated with poolId ${poolId.name}" }
         val accumulator = results.computeIfAbsent(poolId) { id ->
-            PoolProgressAccumulator(id, shard, configuration, track)
+            PoolProgressAccumulator(id, shard, configuration, track, progressReporter)
         }
 
         pools.computeIfAbsent(poolId) { id ->

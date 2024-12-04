@@ -11,6 +11,7 @@ import com.malinskiy.marathon.execution.TestResult
 import com.malinskiy.marathon.execution.TestShard
 import com.malinskiy.marathon.execution.TestStatus
 import com.malinskiy.marathon.generateTest
+import com.malinskiy.marathon.report.NoopProgressReporter
 import com.malinskiy.marathon.report.getDevice
 import org.amshove.kluent.shouldBe
 import org.mockito.kotlin.mock
@@ -55,7 +56,8 @@ class PoolProgressAccumulatorTest {
             poolId,
             TestShard(listOf(test, test, test)),
             anySuccessConfig,
-            track
+            track,
+            NoopProgressReporter,
         )
         reporter.testStarted(device, test)
         reporter.testEnded(device, TestResult(test, device, "1", TestStatus.PASSED, 0, 1))
@@ -72,7 +74,8 @@ class PoolProgressAccumulatorTest {
             poolId,
             TestShard(listOf(test, test, test)),
             anySuccessConfig,
-            track
+            track,
+            NoopProgressReporter,
         )
         reporter.testStarted(device, test)
         reporter.testEnded(device, TestResult(test, device, "1", TestStatus.PASSED, 0, 1))
@@ -89,7 +92,8 @@ class PoolProgressAccumulatorTest {
             poolId,
             TestShard(listOf(test, test, test)),
             anySuccessConfig,
-            track
+            track,
+            NoopProgressReporter,
         )
         reporter.testStarted(device, test)
         reporter.testEnded(device, TestResult(test, device, "1", TestStatus.PASSED, 0, 1))
@@ -106,7 +110,8 @@ class PoolProgressAccumulatorTest {
             poolId,
             TestShard(listOf(test, test, test)),
             anySuccessConfig,
-            track
+            track,
+            NoopProgressReporter,
         )
         reporter.aggregateResult().shouldBeEqualTo(false)
     }
@@ -117,7 +122,8 @@ class PoolProgressAccumulatorTest {
             poolId,
             TestShard(listOf(test)),
             anySuccessConfig,
-            track
+            track,
+            NoopProgressReporter,
         )
         reporter.testStarted(device, test)
         reporter.retryTest(test)
@@ -141,7 +147,8 @@ class PoolProgressAccumulatorTest {
             poolId,
             TestShard(listOf(testParameterized)),
             anySuccessConfig,
-            track
+            track,
+            NoopProgressReporter,
         )
         val test0 = generateTest(
             pkg = "com.malinskiy.marathon",
@@ -174,7 +181,8 @@ class PoolProgressAccumulatorTest {
             poolId,
             TestShard(listOf(test)),
             successFastConfig,
-            track
+            track,
+            NoopProgressReporter,
         )
         reporter.testStarted(device, test)
         reporter.testEnded(device, TestResult(test, device, "1", TestStatus.PASSED, 0, 1))
@@ -191,7 +199,8 @@ class PoolProgressAccumulatorTest {
             poolId,
             TestShard(listOf(test)),
             successFastConfig,
-            track
+            track,
+            NoopProgressReporter,
         )
         reporter.testStarted(device, test)
         reporter.testEnded(device, TestResult(test, device, "1", TestStatus.FAILURE, 0, 1))
@@ -204,7 +213,8 @@ class PoolProgressAccumulatorTest {
             poolId,
             TestShard(listOf(test, test, test)),
             successFastConfig,
-            track
+            track,
+            NoopProgressReporter,
         )
         reporter.testStarted(device, test)
         reporter.testEnded(device, TestResult(test, device, "1", TestStatus.FAILURE, 0, 1))
@@ -217,7 +227,8 @@ class PoolProgressAccumulatorTest {
             poolId,
             TestShard(listOf(test, test, test)),
             anySuccessConfig,
-            track
+            track,
+            NoopProgressReporter,
         )
         reporter.testStarted(device, test)
         reporter.testEnded(device, TestResult(test, device, "1", TestStatus.PASSED, 0, 1))
@@ -238,7 +249,8 @@ class PoolProgressAccumulatorTest {
             poolId,
             TestShard(listOf(test, test)),
             anySuccessConfig,
-            track
+            track,
+            NoopProgressReporter,
         )
         reporter.testStarted(device, test)
         reporter.testEnded(device, TestResult(test, device, "1", TestStatus.PASSED, 0, 1))
@@ -260,7 +272,8 @@ class PoolProgressAccumulatorTest {
             poolId,
             TestShard(listOf(test, test, test)),
             anySuccessConfig,
-            track
+            track,
+            NoopProgressReporter,
         )
         reporter.testStarted(device, test)
         reporter.testEnded(device, TestResult(test, device, "1", TestStatus.FAILURE, 0, 1))
@@ -281,7 +294,8 @@ class PoolProgressAccumulatorTest {
             poolId,
             TestShard(listOf(test, test, test)),
             anySuccessConfig,
-            track
+            track,
+            NoopProgressReporter,
         )
         reporter.testStarted(device, test)
         reporter.testEnded(device, TestResult(test, device, "1", TestStatus.FAILURE, 0, 1))
@@ -302,7 +316,8 @@ class PoolProgressAccumulatorTest {
             poolId,
             TestShard(listOf(test, test, test)),
             successFastConfig,
-            track
+            track,
+            NoopProgressReporter,
         )
         reporter.testStarted(device, test)
         reporter.testEnded(device, TestResult(test, device, "1", TestStatus.FAILURE, 0, 1))
@@ -323,7 +338,8 @@ class PoolProgressAccumulatorTest {
             poolId,
             TestShard(listOf(test, test)),
             anySuccessConfig,
-            track
+            track,
+            NoopProgressReporter,
         )
         reporter.testStarted(device, test)
         reporter.retryTest(test)
@@ -351,7 +367,8 @@ class PoolProgressAccumulatorTest {
             poolId,
             TestShard(listOf(test, test, test)),
             successFastConfig,
-            track
+            track,
+            NoopProgressReporter,
         )
         reporter.testStarted(device, test)
         reporter.testEnded(device, TestResult(test, device, "1", TestStatus.INCOMPLETE, 0, 1), false)
@@ -370,7 +387,8 @@ class PoolProgressAccumulatorTest {
             poolId,
             TestShard(listOf(test, test, test)),
             allSuccessConfig,
-            track
+            track,
+            NoopProgressReporter,
         )
         reporter.testStarted(device, test)
         reporter.testEnded(device, TestResult(test, device, "1", TestStatus.FAILURE, 0, 1))
@@ -391,7 +409,8 @@ class PoolProgressAccumulatorTest {
             poolId,
             TestShard(listOf(test)),
             anySuccessConfig,
-            track
+            track,
+            NoopProgressReporter,
         )
         reporter.testStarted(device, test)
         reporter.testEnded(device, TestResult(test, device, "1", TestStatus.FAILURE, 0, 1))
@@ -414,7 +433,8 @@ class PoolProgressAccumulatorTest {
             poolId,
             TestShard(listOf(test)),
             allSuccessConfig,
-            track
+            track,
+            NoopProgressReporter,
         )
         reporter.testStarted(device, test)
         reporter.testEnded(device, TestResult(test, device, "1", TestStatus.PASSED, 0, 1))
@@ -437,7 +457,8 @@ class PoolProgressAccumulatorTest {
             poolId,
             TestShard(listOf(test, test, test)),
             failFastConfig,
-            track
+            track,
+            NoopProgressReporter,
         )
         reporter.testStarted(device, test)
         reporter.testEnded(device, TestResult(test, device, "1", TestStatus.PASSED, 0, 1))
@@ -454,7 +475,8 @@ class PoolProgressAccumulatorTest {
             poolId,
             TestShard(listOf(test, test, test)),
             allSuccessConfig,
-            track
+            track,
+            NoopProgressReporter,
         )
         reporter.testStarted(device, test)
         reporter.testEnded(device, TestResult(test, device, "1", TestStatus.PASSED, 0, 1))
@@ -471,7 +493,8 @@ class PoolProgressAccumulatorTest {
             poolId,
             TestShard(listOf(test, test, test)),
             failFastConfig,
-            track
+            track,
+            NoopProgressReporter,
         )
         reporter.testStarted(device, test)
         reporter.testEnded(device, TestResult(test, device, "1", TestStatus.PASSED, 0, 1))
@@ -486,7 +509,8 @@ class PoolProgressAccumulatorTest {
             poolId,
             TestShard(listOf(test, test, test)),
             allSuccessConfig,
-            track
+            track,
+            NoopProgressReporter,
         )
         reporter.testStarted(device, test)
         reporter.testEnded(device, TestResult(test, device, "1", TestStatus.PASSED, 0, 1))
@@ -503,7 +527,8 @@ class PoolProgressAccumulatorTest {
             poolId,
             TestShard(listOf(test)),
             allSuccessConfig,
-            track
+            track,
+            NoopProgressReporter,
         )
         reporter.testStarted(device, test)
         reporter.testEnded(device, TestResult(test, device, "1", TestStatus.PASSED, 0, 1))
@@ -516,7 +541,8 @@ class PoolProgressAccumulatorTest {
             poolId,
             TestShard(listOf(test, test, test)),
             allSuccessConfig,
-            track
+            track,
+            NoopProgressReporter,
         )
         reporter.testStarted(device, test)
         reporter.testEnded(device, TestResult(test, device, "1", TestStatus.FAILURE, 0, 1))
@@ -529,7 +555,8 @@ class PoolProgressAccumulatorTest {
             poolId,
             TestShard(listOf(test)),
             allSuccessConfig,
-            track
+            track,
+            NoopProgressReporter,
         )
         reporter.testStarted(device, test)
         reporter.testEnded(device, TestResult(test, device, "1", TestStatus.FAILURE, 0, 1))
@@ -542,7 +569,8 @@ class PoolProgressAccumulatorTest {
             poolId,
             TestShard(listOf(test, test, test)),
             failFastConfig,
-            track
+            track,
+            NoopProgressReporter,
         )
         reporter.testStarted(device, test)
         reporter.testEnded(device, TestResult(test, device, "1", TestStatus.FAILURE, 0, 1))
@@ -555,7 +583,8 @@ class PoolProgressAccumulatorTest {
             poolId,
             TestShard(listOf(test)),
             failFastConfig,
-            track
+            track,
+            NoopProgressReporter,
         )
         reporter.testStarted(device, test)
         reporter.retryTest(test)
@@ -573,7 +602,8 @@ class PoolProgressAccumulatorTest {
             poolId,
             TestShard(listOf(test, test, test, test)),
             failFastConfig,
-            track
+            track,
+            NoopProgressReporter,
         )
         //Just removes one attempt. Now we have 3 tests to execute with all_success mode
         reporter.removeTest(test, 1)
@@ -601,7 +631,8 @@ class PoolProgressAccumulatorTest {
             poolId,
             TestShard(listOf(test, test, test)),
             allSuccessConfig,
-            track
+            track,
+            NoopProgressReporter,
         )
         reporter.testStarted(device, test)
         reporter.testEnded(device, TestResult(test, device, "1", TestStatus.PASSED, 0, 1))
@@ -622,7 +653,8 @@ class PoolProgressAccumulatorTest {
             poolId,
             TestShard(listOf(test, test, test)),
             allSuccessConfig,
-            track
+            track,
+            NoopProgressReporter,
         )
         reporter.testStarted(device, test)
         reporter.testEnded(device, TestResult(test, device, "1", TestStatus.FAILURE, 0, 1))
@@ -643,7 +675,8 @@ class PoolProgressAccumulatorTest {
             poolId,
             TestShard(listOf(test, test, test)),
             failFastConfig,
-            track
+            track,
+            NoopProgressReporter,
         )
         reporter.testStarted(device, test)
         reporter.testEnded(device, TestResult(test, device, "1", TestStatus.FAILURE, 0, 1))
@@ -664,7 +697,8 @@ class PoolProgressAccumulatorTest {
             poolId,
             TestShard(listOf(test, test, test)),
             allSuccessConfig,
-            track
+            track,
+            NoopProgressReporter,
         )
         reporter.testStarted(device, test)
         reporter.testEnded(device, TestResult(test, device, "1", TestStatus.FAILURE, 0, 1))
@@ -685,7 +719,8 @@ class PoolProgressAccumulatorTest {
             poolId,
             TestShard(listOf(test, test, test)),
             failFastConfig,
-            track
+            track,
+            NoopProgressReporter,
         )
         reporter.testStarted(device, test)
         reporter.testEnded(device, TestResult(test, device, "1", TestStatus.FAILURE, 0, 1))
@@ -712,7 +747,8 @@ class PoolProgressAccumulatorTest {
             poolId,
             TestShard(listOf(test1, test2, test3)),
             anySuccessConfig,
-            track
+            track,
+            NoopProgressReporter,
         )
         
         reporter.progress().shouldBeEqualTo(.0f)

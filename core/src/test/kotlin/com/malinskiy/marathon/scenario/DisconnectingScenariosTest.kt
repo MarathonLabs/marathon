@@ -2,6 +2,8 @@
 
 package com.malinskiy.marathon.scenario
 
+import com.malinskiy.marathon.config.ProgressConfiguration
+import com.malinskiy.marathon.config.ProgressReporterConfiguration
 import com.malinskiy.marathon.device.DeviceProvider
 import com.malinskiy.marathon.execution.TestStatus
 import com.malinskiy.marathon.test.StubDevice
@@ -49,6 +51,7 @@ class DisconnectingScenariosTest {
                     listOf(test1, test2)
                 }
 
+                progressConfiguration = ProgressConfiguration.Custom(listOf(ProgressReporterConfiguration.Raw))
                 deviceProvider.context = coroutineContext
 
                 devices {

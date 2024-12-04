@@ -7,8 +7,8 @@ import com.malinskiy.marathon.config.strategy.ExecutionStrategyConfiguration
 import com.malinskiy.marathon.config.strategy.RetryStrategyConfiguration
 import com.malinskiy.marathon.config.vendor.VendorConfiguration
 import com.malinskiy.marathon.device.DevicePoolId
-import com.malinskiy.marathon.execution.TestResult
 import com.malinskiy.marathon.execution.TestShard
+import com.malinskiy.marathon.report.NoopProgressReporter
 import com.malinskiy.marathon.execution.progress.PoolProgressAccumulator
 import com.malinskiy.marathon.extension.toRetryStrategy
 import com.malinskiy.marathon.generateTestResults
@@ -42,7 +42,8 @@ class FixedQuotaRetryStrategyTest {
             poolId,
             TestShard(tests),
             anySuccessConfig,
-            track
+            track,
+            NoopProgressReporter,
         )
 
         strategy.process(poolId, testResults, TestShard(tests), accumulator).size shouldBe 1
@@ -58,7 +59,8 @@ class FixedQuotaRetryStrategyTest {
             poolId,
             TestShard(tests),
             anySuccessConfig,
-            track
+            track,
+            NoopProgressReporter,
         )
         strategy.process(poolId, testResults, TestShard(tests), accumulator).size shouldBe 10
     }
@@ -73,7 +75,8 @@ class FixedQuotaRetryStrategyTest {
             poolId,
             TestShard(tests),
             anySuccessConfig,
-            track
+            track,
+            NoopProgressReporter,
         )
 
         strategy.process(poolId, testResults, TestShard(tests), accumulator).size shouldBe 50
@@ -89,7 +92,8 @@ class FixedQuotaRetryStrategyTest {
             poolId,
             TestShard(tests),
             anySuccessConfig,
-            track
+            track,
+            NoopProgressReporter,
         )
 
         strategy.process(
@@ -110,7 +114,8 @@ class FixedQuotaRetryStrategyTest {
             poolId,
             TestShard(tests),
             anySuccessConfig,
-            track
+            track,
+            NoopProgressReporter,
         )
         val deviceInfo = getDevice()
 

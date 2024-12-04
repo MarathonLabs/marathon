@@ -2,6 +2,8 @@
 
 package com.malinskiy.marathon.scenario
 
+import com.malinskiy.marathon.config.ProgressConfiguration
+import com.malinskiy.marathon.config.ProgressReporterConfiguration
 import com.malinskiy.marathon.device.DeviceProvider
 import com.malinskiy.marathon.execution.TestStatus
 import com.malinskiy.marathon.test.MetaProperty
@@ -52,6 +54,7 @@ class SuccessScenariosTest {
                     listOf(test)
                 }
 
+                progressConfiguration = ProgressConfiguration.Custom(listOf(ProgressReporterConfiguration.Raw))
                 deviceProvider.context = coroutineContext
 
                 devices {

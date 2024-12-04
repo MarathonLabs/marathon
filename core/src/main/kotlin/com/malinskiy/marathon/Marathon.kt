@@ -21,6 +21,7 @@ import com.malinskiy.marathon.execution.TestParser
 import com.malinskiy.marathon.execution.TestShard
 import com.malinskiy.marathon.execution.bundle.TestBundleIdentifier
 import com.malinskiy.marathon.execution.command.parse.MarathonTestParseCommand
+import com.malinskiy.marathon.report.ProgressReporter
 import com.malinskiy.marathon.execution.withRetry
 import com.malinskiy.marathon.extension.toFlakinessStrategy
 import com.malinskiy.marathon.extension.toShardingStrategy
@@ -54,6 +55,7 @@ class Marathon(
     private val tracker: TrackerInternal,
     private val analytics: Analytics,
     private val track: Track,
+    private val progressReporter: ProgressReporter,
     private val timer: Timer,
     private val marathonTestParseCommand: MarathonTestParseCommand,
     private val usageTracker: UsageTracker,
@@ -155,6 +157,7 @@ class Marathon(
 
         val shard = prepareTestShard(parsedFilteredTests, analytics)
 
+        progressReporter.begin(parsedFilteredTests)
         usageTracker.trackEvent(Event.TestsTotal(parsedAllTests.size))
         usageTracker.trackEvent(Event.TestsRun(parsedFilteredTests.size))
 
@@ -167,6 +170,7 @@ class Marathon(
             configuration,
             shard,
             track,
+            progressReporter,
             timer,
             testBundleIdentifier,
             currentCoroutineContext

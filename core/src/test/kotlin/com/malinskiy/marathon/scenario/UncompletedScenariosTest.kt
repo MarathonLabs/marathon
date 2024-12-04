@@ -2,6 +2,8 @@
 
 package com.malinskiy.marathon.scenario
 
+import com.malinskiy.marathon.config.ProgressConfiguration
+import com.malinskiy.marathon.config.ProgressReporterConfiguration
 import com.malinskiy.marathon.config.strategy.RetryStrategyConfiguration
 import com.malinskiy.marathon.device.DeviceProvider
 import com.malinskiy.marathon.execution.TestStatus
@@ -48,6 +50,7 @@ class UncompletedScenariosTest {
 
                 uncompletedTestRetryQuota = 100
 
+                progressConfiguration = ProgressConfiguration.Custom(listOf(ProgressReporterConfiguration.Raw))
                 deviceProvider.context = coroutineContext
 
                 devices {
@@ -90,6 +93,7 @@ class UncompletedScenariosTest {
 
                 uncompletedTestRetryQuota = 100
 
+                progressConfiguration = ProgressConfiguration.Custom(listOf(ProgressReporterConfiguration.Raw))
                 deviceProvider.context = coroutineContext
 
                 devices {
@@ -133,6 +137,7 @@ class UncompletedScenariosTest {
 
                 uncompletedTestRetryQuota = 3
 
+                progressConfiguration = ProgressConfiguration.Custom(listOf(ProgressReporterConfiguration.Raw))
                 deviceProvider.context = coroutineContext
 
                 devices {
@@ -174,6 +179,7 @@ class UncompletedScenariosTest {
                 uncompletedTestRetryQuota = 3
                 retryStrategy = RetryStrategyConfiguration.FixedQuotaRetryStrategyConfiguration(10, 3)
 
+                progressConfiguration = ProgressConfiguration.Custom(listOf(ProgressReporterConfiguration.Raw))
                 deviceProvider.context = coroutineContext
 
                 devices {

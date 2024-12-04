@@ -2,8 +2,8 @@ package com.malinskiy.marathon.report.timeline
 
 import com.google.gson.Gson
 import com.malinskiy.marathon.analytics.internal.sub.ExecutionReport
+import com.malinskiy.marathon.report.ProgressReporter
 import com.malinskiy.marathon.log.MarathonLogging
-import com.malinskiy.marathon.report.Reporter
 import java.io.File
 import java.io.InputStream
 
@@ -12,9 +12,9 @@ class TimelineReporter(
     private val provider: TimelineSummaryProvider,
     private val gson: Gson,
     private val rootOutput: File
-) : Reporter {
+) : ProgressReporter {
 
-    override fun generate(executionReport: ExecutionReport) {
+    override fun end(executionReport: ExecutionReport) {
         val htmlDir = File(rootOutput, "/html")
         htmlDir.mkdirs()
         val timelineDir = File(htmlDir, "/timeline")

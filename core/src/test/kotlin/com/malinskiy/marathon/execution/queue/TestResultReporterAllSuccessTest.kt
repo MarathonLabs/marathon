@@ -11,6 +11,7 @@ import com.malinskiy.marathon.device.DevicePoolId
 import com.malinskiy.marathon.execution.TestResult
 import com.malinskiy.marathon.execution.TestShard
 import com.malinskiy.marathon.execution.TestStatus
+import com.malinskiy.marathon.report.NoopProgressReporter
 import com.malinskiy.marathon.execution.progress.PoolProgressAccumulator
 import com.malinskiy.marathon.generateTest
 import org.mockito.kotlin.inOrder
@@ -46,14 +47,16 @@ class TestResultReporterAllSuccessTest {
         poolId,
         TestShard(listOf(test, test, test)),
         defaultConfig,
-        track
+        track,
+        NoopProgressReporter,
     )
 
     private fun filterStrict() = PoolProgressAccumulator(
         poolId,
         TestShard(listOf(test, test, test)),
         strictConfig,
-        track
+        track,
+        NoopProgressReporter,
     )
 
     private val deviceInfo = createDeviceInfo()

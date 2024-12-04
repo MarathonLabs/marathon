@@ -12,22 +12,21 @@ import com.malinskiy.marathon.execution.TestStatus
 import com.malinskiy.marathon.execution.queue.TestAction
 import com.malinskiy.marathon.execution.queue.TestEvent
 import com.malinskiy.marathon.execution.queue.TestState
-import com.malinskiy.marathon.integrations.ci.CIIntegrationFactory
 import com.malinskiy.marathon.log.MarathonLogging
+import com.malinskiy.marathon.report.ProgressReporter
 import com.malinskiy.marathon.test.Test
 import com.malinskiy.marathon.test.toTestName
-import kotlin.math.roundToInt
 
 class PoolProgressAccumulator(
     private val poolId: DevicePoolId,
     shard: TestShard,
     configuration: Configuration,
-    private val track: Track
+    private val track: Track,
+    private val progressReporter: ProgressReporter,
 ) {
     private val tests: HashMap<String, TestExecutionData> = HashMap()
     private val logger = MarathonLogging.logger {}
     private val executionStrategy = configuration.executionStrategy
-    private val ci = CIIntegrationFactory.get(configuration)
 
     private fun createState(initialCount: Int) = StateMachine.create<TestState, TestEvent, TestAction> {
         initialState(TestState.Added(initialCount))
@@ -267,33 +266,38 @@ class PoolProgressAccumulator(
 
     fun testStarted(device: DeviceInfo, test: Test) {
         transition(test, TestEvent.Started)
-        ci.setBuildProgress(progress().toInt())
-        println("${toPercent(progress())} | [${poolId.name}]-[${device.serialNumber}] ${test.toTestName()} started")
+        progressReporter.testStarted(progress(), poolId.name, device.serialNumber, test.toTestName())
     }
 
     /**
+     * Side effect should be actioned before reporting progress to account for the current test effect on the progress
+     *
      * @param final used for incomplete tests to signal no more retries left, hence a decision on the status has to be made
      */
     fun testEnded(device: DeviceInfo, testResult: TestResult, final: Boolean = false): TestAction? {
         return when (testResult.status) {
             TestStatus.FAILURE -> {
-                println("${toPercent(progress())} | [${poolId.name}]-[${device.serialNumber}] ${testResult.test.toTestName()} failed")
-                transition(testResult.test, TestEvent.Failed(device, testResult)).sideffect()
+                val sideffect = transition(testResult.test, TestEvent.Failed(device, testResult)).sideffect()
+                progressReporter.testFailed(progress(), poolId.name, device.serialNumber, testResult.test.toTestName())
+                sideffect
             }
 
             TestStatus.PASSED -> {
-                println("${toPercent(progress())} | [${poolId.name}]-[${device.serialNumber}] ${testResult.test.toTestName()} passed")
-                transition(testResult.test, TestEvent.Passed(device, testResult)).sideffect()
+                val sideffect = transition(testResult.test, TestEvent.Passed(device, testResult)).sideffect()
+                progressReporter.testPassed(progress(), poolId.name, device.serialNumber, testResult.test.toTestName())
+                sideffect
             }
 
             TestStatus.IGNORED, TestStatus.ASSUMPTION_FAILURE -> {
-                println("${toPercent(progress())} | [${poolId.name}]-[${device.serialNumber}] ${testResult.test.toTestName()} ignored")
-                transition(testResult.test, TestEvent.Passed(device, testResult)).sideffect()
+                val sideffect = transition(testResult.test, TestEvent.Passed(device, testResult)).sideffect()
+                progressReporter.testIgnored(progress(), poolId.name, device.serialNumber, testResult.test.toTestName())
+                sideffect
             }
 
             TestStatus.INCOMPLETE -> {
-                println("${toPercent(progress())} | [${poolId.name}]-[${device.serialNumber}] ${testResult.test.toTestName()} incomplete")
-                transition(testResult.test, TestEvent.Incomplete(device, testResult, final)).sideffect()
+                val sideffect = transition(testResult.test, TestEvent.Incomplete(device, testResult, final)).sideffect()
+                progressReporter.testIncomplete(progress(), poolId.name, device.serialNumber, testResult.test.toTestName())
+                sideffect
             }
         }
     }
@@ -421,16 +425,6 @@ class PoolProgressAccumulator(
             logger.warn { "No FSM registered for test ${test.toTestName()}" }
         }
         return testActionTransition
-    }
-
-    private fun toPercent(float: Float): String {
-        val percent = (float * HUNDRED_PERCENT_IN_FLOAT).roundToInt()
-        val format = "%02d%%"
-        return String.format(format, percent)
-    }
-
-    companion object {
-        const val HUNDRED_PERCENT_IN_FLOAT: Float = 100.0f
     }
 }
 

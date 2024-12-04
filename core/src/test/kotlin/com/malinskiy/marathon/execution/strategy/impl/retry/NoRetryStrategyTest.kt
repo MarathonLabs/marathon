@@ -7,6 +7,7 @@ import com.malinskiy.marathon.config.strategy.ExecutionStrategyConfiguration
 import com.malinskiy.marathon.config.vendor.VendorConfiguration
 import com.malinskiy.marathon.device.DevicePoolId
 import com.malinskiy.marathon.execution.TestShard
+import com.malinskiy.marathon.report.NoopProgressReporter
 import com.malinskiy.marathon.execution.progress.PoolProgressAccumulator
 import com.malinskiy.marathon.generateTestResults
 import com.malinskiy.marathon.generateTests
@@ -39,7 +40,8 @@ class NoRetryStrategyTest {
             devicePoolId,
             TestShard(tests),
             anySuccessConfig,
-            track
+            track,
+            NoopProgressReporter,
         )
 
         val result = strategy.process(devicePoolId, testResults, testShard, accumulator)

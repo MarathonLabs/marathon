@@ -1,4 +1,6 @@
 import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet
+import com.google.protobuf.gradle.id
+import com.google.protobuf.gradle.remove
 
 plugins {
     idea
@@ -7,6 +9,7 @@ plugins {
     id("org.jetbrains.dokka")
     jacoco
     id("com.github.gmazzo.buildconfig") version "5.5.0"
+    id("com.google.protobuf") version Versions.protobufGradle
 }
 
 sourceSets {
@@ -62,6 +65,11 @@ dependencies {
     implementation(Libraries.scalr)
     api(Libraries.koin)
     api(Libraries.bugsnag)
+    api(Libraries.protobufLite)
+    api(Libraries.grpcProtobufLite)
+    api(Libraries.grpcKotlinStub)
+    api(Libraries.grpcOkhttp)
+    api(Libraries.grpcStub)
     testImplementation(project(":vendor:vendor-test"))
     testImplementation(TestLibraries.junit5)
     testImplementation(TestLibraries.kluent)
@@ -90,3 +98,38 @@ val integrationTest = task<Test>("integrationTest") {
 setupDeployment()
 setupKotlinCompiler()
 setupTestTask()
+
+protobuf {
+    protoc {
+        artifact = "com.google.protobuf:protoc:${Versions.protobuf}"
+    }
+    plugins {
+        id("java") {
+            artifact = "io.grpc:protoc-gen-grpc-java:${Versions.grpc}"
+        }
+        id("grpc") {
+            artifact = "io.grpc:protoc-gen-grpc-java:${Versions.grpc}"
+        }
+        id("grpckt") {
+            artifact = "io.grpc:protoc-gen-grpc-kotlin:${Versions.grpcKotlin}:jdk8@jar"
+        }
+    }
+    generateProtoTasks {
+        all().forEach {
+            it.builtins {
+                remove("java")
+            }
+            it.plugins {
+                id("java") {
+                    option("lite")
+                }
+                id("grpc") {
+                    option("lite")
+                }
+                id("grpckt") {
+                    option("lite")
+                }
+            }
+        }
+    }
+}

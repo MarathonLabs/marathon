@@ -9,8 +9,8 @@ import com.malinskiy.marathon.device.DeviceInfo
 import com.malinskiy.marathon.execution.AttachmentType
 import com.malinskiy.marathon.execution.TestResult
 import com.malinskiy.marathon.execution.TestStatus
+import com.malinskiy.marathon.report.ProgressReporter
 import com.malinskiy.marathon.extension.relativePathTo
-import com.malinskiy.marathon.report.Reporter
 import com.malinskiy.marathon.test.Test
 import com.malinskiy.marathon.test.toClassName
 import com.malinskiy.marathon.test.toSafeTestName
@@ -45,11 +45,11 @@ import io.qameta.allure.kotlin.SeverityLevel as KotlinSeverityLevel
 import io.qameta.allure.kotlin.Story as KotlinStory
 import io.qameta.allure.kotlin.TmsLink as KotlinTmsLink
 
-class AllureReporter(val configuration: Configuration, private val outputDirectory: File) : Reporter {
+class AllureReporter(val configuration: Configuration, private val outputDirectory: File) : ProgressReporter {
 
     private val lifecycle: AllureLifecycle by lazy { AllureLifecycle(FileSystemResultsWriter(outputDirectory.toPath())) }
 
-    override fun generate(executionReport: ExecutionReport) {
+    override fun end(executionReport: ExecutionReport) {
         executionReport.testEvents.forEach { testEvent ->
             val uuid = UUID.randomUUID().toString()
             val allureResults = createTestResult(uuid, testEvent.device, testEvent.testResult)

@@ -100,7 +100,8 @@ class TimelineSummaryProvider {
                 deviceDisconnectedEvents = deviceDisconnectedEvents[key] ?: emptyList(),
                 devicePreparingEvents = devicePreparingEvent[key] ?: emptyList(),
                 deviceProviderPreparingEvent = deviceProviderPreparingEvents[key] ?: emptyList(),
-                testEvents = testEvents[key] ?: emptyList()
+                testEvents = testEvents[key] ?: emptyList(),
+                defaultStart = executionReport.defaultStart,
             )
         }.toMap()
 

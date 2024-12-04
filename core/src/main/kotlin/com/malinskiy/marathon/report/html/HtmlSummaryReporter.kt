@@ -11,6 +11,7 @@ import com.malinskiy.marathon.device.DevicePoolId
 import com.malinskiy.marathon.execution.AttachmentType
 import com.malinskiy.marathon.execution.TestResult
 import com.malinskiy.marathon.execution.TestStatus
+import com.malinskiy.marathon.report.ProgressReporter
 import com.malinskiy.marathon.extension.escape
 import com.malinskiy.marathon.extension.relativePathTo
 import com.malinskiy.marathon.io.FileManager
@@ -22,7 +23,6 @@ import com.malinskiy.marathon.report.HtmlIndex
 import com.malinskiy.marathon.report.HtmlPoolSummary
 import com.malinskiy.marathon.report.HtmlShortTest
 import com.malinskiy.marathon.report.HtmlTestLogDetails
-import com.malinskiy.marathon.report.Reporter
 import com.malinskiy.marathon.report.Status
 import com.malinskiy.marathon.test.toClassName
 import org.apache.commons.text.StringEscapeUtils
@@ -38,7 +38,7 @@ class HtmlSummaryReporter(
     private val fileManager: FileManager,
     private val rootOutput: File,
     private val configuration: Configuration
-) : Reporter {
+) : ProgressReporter {
 
     /**
      * Following file tree structure will be created:
@@ -46,7 +46,7 @@ class HtmlSummaryReporter(
      * - suites/suiteId.json
      * - suites/deviceId/testId.json
      */
-    override fun generate(executionReport: ExecutionReport) {
+    override fun end(executionReport: ExecutionReport) {
         val summary = executionReport.summary
         if (summary.pools.isEmpty()) return
 

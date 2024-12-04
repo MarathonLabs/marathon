@@ -42,11 +42,12 @@ class JUnitReporterTest {
                 createTestEvent(device, "test1", TestStatus.PASSED),
                 createTestEvent(device, "test2", TestStatus.PASSED),
                 createTestEvent(device, "test3", TestStatus.PASSED)
-            )
+            ),
+            defaultStart = Instant.now(),
         )
         val configuration = getConfiguration()
         val junitReport = JUnitReporter(configuration.outputDir)
-        junitReport.generate(report)
+        junitReport.end(report)
         File(configuration.outputDir.absolutePath + "/tests/myPool/marathon_junit_report.xml")
             .shouldBeEqualToAsXML(File(javaClass.getResource("/output/tests/myPool/xxyyzz/marathon_junit_report_passed_tests.xml").file))
 
@@ -69,12 +70,13 @@ class JUnitReporterTest {
                 createTestEvent(device, "test2", TestStatus.INCOMPLETE),
                 createTestEvent(device, "test2", TestStatus.FAILURE),
                 createTestEvent(device, "test3", TestStatus.FAILURE)
-            )
+            ),
+            defaultStart = Instant.now(),
         )
         val configuration = getConfiguration()
         println(configuration.outputDir)
         val junitReport = JUnitReporter(configuration.outputDir)
-        junitReport.generate(report)
+        junitReport.end(report)
         File(configuration.outputDir.absolutePath + "/tests/myPool/marathon_junit_report.xml")
             .shouldBeEqualToAsXML(File(javaClass.getResource("/output/tests/myPool/xxyyzz/marathon_junit_report_failed_tests.xml").file))
 
@@ -101,12 +103,13 @@ class JUnitReporterTest {
                 createTestEvent(device, "test2", TestStatus.IGNORED),
                 createTestEvent(device, "test2", TestStatus.INCOMPLETE),
                 createTestEvent(device, "test3", TestStatus.ASSUMPTION_FAILURE, stackTrace)
-            )
+            ),
+            defaultStart = Instant.now(),
         )
         val configuration = getConfiguration()
         println(configuration.outputDir)
         val junitReport = JUnitReporter(configuration.outputDir)
-        junitReport.generate(report)
+        junitReport.end(report)
         File(configuration.outputDir.absolutePath + "/tests/myPool/marathon_junit_report.xml")
             .shouldBeEqualToAsXML(File(javaClass.getResource("/output/tests/myPool/xxyyzz/marathon_junit_report_failed_tests_with_stacktrace.xml").file))
 
@@ -132,12 +135,13 @@ class JUnitReporterTest {
             testEvents = listOf(
                 createTestEvent(device, "test1", TestStatus.FAILURE, stackTrace, false),
                 createTestEvent(device, "test1", TestStatus.PASSED, final = true)
-            )
+            ),
+            defaultStart = Instant.now(),
         )
         val configuration = getConfiguration()
         println(configuration.outputDir)
         val junitReport = JUnitReporter(configuration.outputDir)
-        junitReport.generate(report)
+        junitReport.end(report)
         File(configuration.outputDir.absolutePath + "/tests/myPool/marathon_junit_report.xml")
             .shouldBeEqualToAsXML(File(javaClass.getResource("/output/tests/myPool/xxyyzz/marathon_junit_report_failed_to_passed_test.xml").file))
 
@@ -163,12 +167,13 @@ class JUnitReporterTest {
             testEvents = listOf(
                 createTestEvent(device, "test1", TestStatus.PASSED, final = false),
                 createTestEvent(device, "test1", TestStatus.FAILURE, stackTrace)
-            )
+            ),
+            defaultStart = Instant.now(),
         )
         val configuration = getConfiguration()
         println(configuration.outputDir)
         val junitReport = JUnitReporter(configuration.outputDir)
-        junitReport.generate(report)
+        junitReport.end(report)
         File(configuration.outputDir.absolutePath + "/tests/myPool/marathon_junit_report.xml")
             .shouldBeEqualToAsXML(File(javaClass.getResource("/output/tests/myPool/xxyyzz/marathon_junit_report_passed_to_failed_test.xml").file))
 

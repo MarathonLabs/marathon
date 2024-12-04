@@ -2,6 +2,8 @@
 
 package com.malinskiy.marathon.scenario
 
+import com.malinskiy.marathon.config.ProgressConfiguration
+import com.malinskiy.marathon.config.ProgressReporterConfiguration
 import com.malinskiy.marathon.device.DeviceProvider
 import com.malinskiy.marathon.execution.TestStatus
 import com.malinskiy.marathon.test.StubDevice
@@ -45,6 +47,7 @@ class DeviceFilteringScenarioTest {
 
                 excludeSerialRegexes = listOf("""emulator-5002""".toRegex())
                 includeSerialRegexes = emptyList()
+                progressConfiguration = ProgressConfiguration.Custom(listOf(ProgressReporterConfiguration.Raw))
 
                 deviceProvider.context = coroutineContext
 
@@ -92,6 +95,7 @@ class DeviceFilteringScenarioTest {
 
                 excludeSerialRegexes = emptyList()
                 includeSerialRegexes = listOf("""emulator-5002""".toRegex())
+                progressConfiguration = ProgressConfiguration.Custom(listOf(ProgressReporterConfiguration.Raw))
 
                 deviceProvider.context = coroutineContext
 
@@ -139,6 +143,7 @@ class DeviceFilteringScenarioTest {
 
                 excludeSerialRegexes = listOf("""emulator-5002""".toRegex())
                 includeSerialRegexes = listOf("""emulator-500[2,4]""".toRegex())
+                progressConfiguration = ProgressConfiguration.Custom(listOf(ProgressReporterConfiguration.Raw))
 
                 deviceProvider.context = coroutineContext
 

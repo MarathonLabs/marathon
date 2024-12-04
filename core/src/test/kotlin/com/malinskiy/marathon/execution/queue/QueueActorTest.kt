@@ -13,6 +13,7 @@ import com.malinskiy.marathon.execution.TestBatchResults
 import com.malinskiy.marathon.execution.TestResult
 import com.malinskiy.marathon.execution.TestShard
 import com.malinskiy.marathon.execution.TestStatus
+import com.malinskiy.marathon.report.NoopProgressReporter
 import com.malinskiy.marathon.execution.progress.PoolProgressAccumulator
 import org.mockito.kotlin.KArgumentCaptor
 import org.mockito.kotlin.any
@@ -264,7 +265,7 @@ private fun createQueueActor(
         devicePoolId,
         mock(),
         null,
-        PoolProgressAccumulator(devicePoolId, testShard, configuration, track),
+        PoolProgressAccumulator(devicePoolId, testShard, configuration, track, NoopProgressReporter),
         job,
         Dispatchers.Unconfined
   )

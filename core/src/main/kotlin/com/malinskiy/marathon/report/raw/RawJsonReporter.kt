@@ -4,15 +4,15 @@ import com.google.gson.Gson
 import com.google.gson.annotations.SerializedName
 import com.malinskiy.marathon.analytics.internal.sub.ExecutionReport
 import com.malinskiy.marathon.execution.TestStatus
+import com.malinskiy.marathon.report.ProgressReporter
 import com.malinskiy.marathon.io.FileManager
-import com.malinskiy.marathon.report.Reporter
 
 class RawJsonReporter(
     private val fileManager: FileManager,
     private val gson: Gson
-) : Reporter {
+) : ProgressReporter {
 
-    override fun generate(executionReport: ExecutionReport) {
+    override fun end(executionReport: ExecutionReport) {
         val testResults = executionReport.testEvents.map {
             val metaPropertiesList = it.testResult.test.metaProperties.map { metaProp ->
                 val valuesAsStringMap = metaProp.values.mapValues { (_, value) ->

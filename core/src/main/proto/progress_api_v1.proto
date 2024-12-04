@@ -1,0 +1,90 @@
+syntax = "proto3";
+package io.marathonlabs.testing.progress.v1;
+
+import "google/protobuf/duration.proto";
+import "google/protobuf/timestamp.proto";
+
+option java_multiple_files = true;
+option java_package = "io.marathonlabs.testing.progress";
+
+service ProgressService {
+    rpc Start(StartRequest) returns (StartResponse);
+    rpc Track(stream TrackRequest) returns (TrackResponse);
+    rpc End(EndRequest) returns (EndResponse);
+}
+
+message StartRequest {
+    string run_id = 1;
+    repeated Test tests = 2;
+}
+
+message StartResponse {}
+message TrackResponse {}
+message EndResponse {}
+
+message TrackRequest {
+    string run_id = 1;
+    repeated TestUpdate test_updates = 2;
+    Stats raw = 3;
+    Stats final = 4;
+}
+
+message TestUpdate {
+    Event event = 1;
+    Test test = 2;
+    DeviceInfo device_info = 3;
+}
+
+enum Event {
+    EVENT_UNSPECIFIED = 0;
+    EVENT_STARTED = 1;
+    EVENT_FAILED = 2;
+    EVENT_PASSED = 3;
+    EVENT_IGNORED = 4;
+    EVENT_INCOMPLETE = 5;
+}
+
+message Stats {
+    uint32 passed = 1;
+    uint32 failed = 2;
+    uint32 ignored = 3;
+    uint32 incomplete = 4;
+}
+
+message EndRequest {
+    string run_id = 1;
+    bool success = 2;
+    google.protobuf.Duration flakiness = 3;
+    google.protobuf.Duration cost = 4;
+    google.protobuf.Duration duration = 5;
+    Stats raw = 6;
+    Stats final = 7;
+    repeated TestStat final_failed = 8;
+    repeated TestStat raw_failed = 9;
+    repeated TestStat raw_incomplete = 10;
+    repeated DeviceBill device_bill = 11;
+}
+
+message TestStat {
+    Test test = 1;
+    uint32 count = 2;
+}
+
+message DeviceBill {
+    DeviceInfo device_info = 1;
+    google.protobuf.Timestamp start = 2;
+    google.protobuf.Timestamp end = 3;
+    google.protobuf.Duration duration = 4;
+}
+
+message DeviceInfo {
+    string serial = 1;
+    string operating_system = 2;
+}
+
+message Test {
+    string pkg = 1;
+    string clazz = 2;
+    string method = 3;
+    repeated string meta_properties = 4;
+}

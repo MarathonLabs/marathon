@@ -3,6 +3,7 @@ package com.malinskiy.marathon.test.factory
 import com.malinskiy.marathon.config.AnalyticsConfiguration
 import com.malinskiy.marathon.config.Configuration
 import com.malinskiy.marathon.config.FilteringConfiguration
+import com.malinskiy.marathon.config.ProgressConfiguration
 import com.malinskiy.marathon.config.ScreenRecordingPolicy
 import com.malinskiy.marathon.config.strategy.BatchingStrategyConfiguration
 import com.malinskiy.marathon.config.strategy.FlakinessStrategyConfiguration
@@ -43,6 +44,7 @@ class ConfigurationFactory(val testParser: LocalTestParser, val deviceProvider: 
     var analyticsTracking = false
     var screenRecordingPolicy: ScreenRecordingPolicy = ScreenRecordingPolicy.ON_ANY
     var deviceInitializationTimeoutMillis = 60_000L
+    var progressConfiguration = ProgressConfiguration.Custom(emptyList())
 
     suspend fun tests(block: () -> List<Test>) {
         whenever(testParser.extract()).thenReturn(block.invoke())
@@ -76,5 +78,6 @@ class ConfigurationFactory(val testParser: LocalTestParser, val deviceProvider: 
         screenRecordingPolicy = this@ConfigurationFactory.screenRecordingPolicy
         analyticsTracking = this@ConfigurationFactory.analyticsTracking
         deviceInitializationTimeoutMillis = this@ConfigurationFactory.deviceInitializationTimeoutMillis
+        progressConfiguration = this@ConfigurationFactory.progressConfiguration
     }.build()
 }

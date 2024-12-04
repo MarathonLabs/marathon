@@ -5,8 +5,8 @@ import com.malinskiy.marathon.analytics.internal.sub.PoolSummary
 import com.malinskiy.marathon.device.DevicePoolId
 import com.malinskiy.marathon.execution.TestResult
 import com.malinskiy.marathon.execution.TestStatus
+import com.malinskiy.marathon.report.ProgressReporter
 import com.malinskiy.marathon.io.FileType
-import com.malinskiy.marathon.report.Reporter
 import com.malinskiy.marathon.report.junit.model.Failure
 import com.malinskiy.marathon.report.junit.model.JUnitReport
 import com.malinskiy.marathon.report.junit.model.Rerun
@@ -25,11 +25,11 @@ private val FORMATTER = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.US).app
     timeZone = TimeZone.getTimeZone("UTC")
 }
 
-internal class JUnitReporter(private val outputDir: File) : Reporter {
+internal class JUnitReporter(private val outputDir: File) : ProgressReporter {
     private val reportName = "marathon_junit_report"
     private val serializer: JUnitReportSerializer = JUnitReportSerializer()
 
-    override fun generate(executionReport: ExecutionReport) {
+    override fun end(executionReport: ExecutionReport) {
         val junitReports = hashMapOf<DevicePoolId, JUnitReport>()
         executionReport.summary.pools.forEach { poolSummary ->
             val poolId = poolSummary.poolId

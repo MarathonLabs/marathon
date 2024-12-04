@@ -11,6 +11,9 @@ import com.malinskiy.marathon.execution.command.parse.MarathonTestParseCommand
 import com.malinskiy.marathon.io.FileManager
 import com.malinskiy.marathon.json.FileSerializer
 import com.malinskiy.marathon.log.MarathonLogConfigurator
+import com.malinskiy.marathon.report.NoopProgressReporter
+import com.malinskiy.marathon.report.ProgressReporter
+import com.malinskiy.marathon.report.ProgressReporterFactory
 import com.malinskiy.marathon.test.Mocks
 import com.malinskiy.marathon.test.StubDeviceProvider
 import com.malinskiy.marathon.time.SystemTimer
@@ -54,7 +57,11 @@ class MarathonFactory {
                 val configuration = get<Configuration>()
                 MarathonTestParseCommand(configuration.outputDir)
             }
-            single { Marathon(get(), get(), get(), get(), get(), get(), get(), get(), get(), get(), get()) }
+            single<ProgressReporter> {
+                val factory = ProgressReporterFactory(get(), get(), get(), get(), get())
+                factory.create()
+            }
+            single { Marathon(get(), get(), get(), get(), get(), get(), get(), get(), get(), get(), get(), get()) }
         }
 
         val configurationModule = module {

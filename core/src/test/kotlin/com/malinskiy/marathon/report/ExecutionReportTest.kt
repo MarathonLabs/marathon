@@ -50,8 +50,9 @@ class ExecutionReportTest {
             testEvents = listOf(
                 createTestEvent(device, "test1", TestStatus.INCOMPLETE),
                 createTestEvent(device, "test2", TestStatus.PASSED),
-                createTestEvent(device, "test3", TestStatus.FAILURE)
-            )
+                createTestEvent(device, "test3", TestStatus.FAILURE),
+            ),
+            defaultStart = Instant.now(),
         )
     }
 
@@ -79,7 +80,8 @@ class ExecutionReportTest {
                 createTestEvent(device, "test3", TestStatus.FAILURE, false),
                 createTestEvent(device, "test3", TestStatus.FAILURE, false),
                 createTestEvent(device, "test3", TestStatus.FAILURE, true)
-            )
+            ),
+            defaultStart = Instant.now(),
         )
     }
 

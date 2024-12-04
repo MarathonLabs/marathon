@@ -51,6 +51,12 @@ object Versions {
     val jsonAssert = "1.5.3"
     val xmlUnit = "2.10.0"
     val assertk = "0.28.1"
+
+    val grpc = "1.59.0"
+    val grpcKotlin = "1.4.0"
+    val grpcOkhttp = "1.59.0"
+    val protobufGradle = "0.9.4"
+    val protobuf = "3.25.0"
 }
 
 object BuildPlugins {
@@ -97,6 +103,11 @@ object Libraries {
     val kotlinProcess = "com.github.pgreze:kotlin-process:${Versions.kotlinProcess}"
     val okhttp = "com.squareup.okhttp3:okhttp:${Versions.okhttp}"
     val ktorNetwork = "io.ktor:ktor-network:${Versions.ktor}"
+    val protobufLite = "com.google.protobuf:protobuf-javalite:${Versions.protobuf}"
+    val grpcStub = "io.grpc:grpc-stub:${Versions.grpc}"
+    val grpcKotlinStub = "io.grpc:grpc-kotlin-stub:${Versions.grpcKotlin}"
+    val grpcProtobufLite = "io.grpc:grpc-protobuf-lite:${Versions.grpc}"
+    val grpcOkhttp = "io.grpc:grpc-okhttp:${Versions.grpcOkhttp}"
 }
 
 object TestLibraries {
