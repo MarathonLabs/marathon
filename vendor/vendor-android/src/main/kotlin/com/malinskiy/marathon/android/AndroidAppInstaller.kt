@@ -53,7 +53,25 @@ class AndroidAppInstaller(configuration: Configuration) {
 
         logger.debug { "Installing instrumentation package to ${device.serialNumber}" }
         reinstall(device, applicationInfo.instrumentationPackage, bundle.testApplication)
+        appops(device, applicationInfo.instrumentationPackage)
         logger.debug { "Prepare installation finished for ${device.serialNumber}" }
+    }
+
+    private suspend fun appops(device: AndroidDevice, instrumentationPackage: String) {
+        if (androidConfiguration.mockLocation) {
+            if (device.apiLevel < 23) {
+                logger.warn { "Can't setup mock location: device ${device.serialNumber} doesn't support appops" }
+                return
+            }
+
+            val appopsMessage = device.criticalExecuteShellCommand("appops set $instrumentationPackage android:mock_location allow")
+            appopsMessage.let {
+                if (it.exitCode != 0) {
+                    val (output, _) = device.criticalExecuteShellCommand("appops query-op android:mock_location allow")
+                    logger.error { "Can't set android:mock_location on $instrumentationPackage. List of apps currently using android:mock_location:$output" }
+                }
+            }
+        }
     }
 
     /**

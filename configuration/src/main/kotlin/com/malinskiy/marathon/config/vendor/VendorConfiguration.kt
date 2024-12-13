@@ -38,6 +38,7 @@ const val DEFAULT_APPLICATION_PM_CLEAR = false
 const val DEFAULT_TEST_APPLICATION_PM_CLEAR = false
 const val DEFAULT_INSTALL_OPTIONS = ""
 const val DEFAULT_WAIT_FOR_DEVICES_TIMEOUT = 30000L
+const val DEFAULT_MOCK_LOCATION = false
 
 @JsonTypeInfo(
     use = JsonTypeInfo.Id.NAME,
@@ -77,6 +78,7 @@ sealed class VendorConfiguration {
         @JsonProperty("adbServers") val adbServers: List<AdbEndpoint> = listOf(AdbEndpoint()),
         @JsonProperty("disableWindowAnimation") val disableWindowAnimation: Boolean = DEFAULT_DISABLE_WINDOW_ANIMATION,
         @JsonProperty("profilingConfiguration") val profilingConfiguration: ProfilingConfiguration = ProfilingConfiguration(),
+        @JsonProperty("mockLocation") val mockLocation: Boolean = DEFAULT_MOCK_LOCATION
     ) : VendorConfiguration() {
         fun safeAndroidSdk(): File = androidSdk ?: throw ConfigurationException("No android SDK path specified")
 
@@ -125,6 +127,8 @@ sealed class VendorConfiguration {
         var testAccessConfiguration: TestAccessConfiguration = TestAccessConfiguration()
         var adbServers: List<AdbEndpoint> = listOf(AdbEndpoint())
         var disableWindowAnimation: Boolean = DEFAULT_DISABLE_WINDOW_ANIMATION
+        var profilingConfiguration: ProfilingConfiguration = ProfilingConfiguration()
+        var mockLocation: Boolean = DEFAULT_MOCK_LOCATION
 
         fun build() = AndroidConfiguration(
             androidSdk,
@@ -149,7 +153,9 @@ sealed class VendorConfiguration {
             testParserConfiguration,
             testAccessConfiguration,
             adbServers,
-            disableWindowAnimation
+            disableWindowAnimation,
+            profilingConfiguration,
+            mockLocation,
         )
     }
 
