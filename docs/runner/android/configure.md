@@ -1090,7 +1090,7 @@ marathon {
 </Tabs>
 
 ### Location mock access
-Some tests require mocking device location. Marathon can setup access for instrumentation package if you enable this option as following:
+Some tests require mocking device location. Marathon can setup access for application package if you enable this option as following:
 
 <Tabs>
 <TabItem value="YAML" label="Marathonfile">
