@@ -121,12 +121,12 @@ class TestResultsListener(
                     1 -> {
                         traces.getOrPut(matchingTests.first()) { StringBuilder() }
                             .apply {
+                                appendLine(failureSummary.message)
                                 failureSummary.documentLocationInCreatingWorkspace?.let {
                                     if (it.url.isNotBlank()) {
                                         appendLine(it.url)
                                     }
                                 }
-                                appendLine(failureSummary.message)
                             }
                     }
 
