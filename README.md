@@ -157,8 +157,8 @@ Link References
 
 [release]:https://github.com/MarathonLabs/marathon/releases/latest "Latest Release (external link) ➶"
 [docs]:https://docs.marathonlabs.io
-[docs-workers]:https://docs.marathonlabs.io/ios/workers
-[contributing]:https://docs.marathonlabs.io/intro/contribute
+[docs-workers]:https://docs.marathonlabs.io/runner/apple/workers
+[contributing]:https://docs.marathonlabs.io/runner/intro/contribute
 [prs]:http://makeapullrequest.com "Make a Pull Request (external link) ➶"
 [LICENSE]:https://github.com/MarathonLabs/marathon/blob/-/LICENSE
 [libxctest-parser-license]: https://github.com/MarathonLabs/marathon/blob/-/vendor/vendor-apple/base/src/main/resources/EULA.md
