@@ -27,9 +27,21 @@ data class AnnotationDataFilter(val cnf: TestFilterConfiguration.AnnotationDataF
         tests
     }
 
-    private fun match(metaProperty: MetaProperty): Boolean {
-        return cnf.nameRegex.matches(metaProperty.name) && metaProperty.values.containsKey("value") && cnf.valueRegex.matches(metaProperty.values["value"].toString())
+    private fun match(metaProperty: MetaProperty) = cnf.nameRegex.matches(metaProperty.name) && metaProperty.matchesValueRegex()
+
+    private fun MetaProperty.matchesValueRegex() = when (val annotationData = this.values["value"]) {
+        null -> false
+
+        is Array<*> -> annotationData.map {
+            it.toString()
+                .substringAfter("(value=")
+                .substringBefore(")")
+        }
+            .any { cnf.valueRegex.matches(it) }
+
+        else -> cnf.valueRegex.matches(annotationData.toString())
     }
+
 
     override fun equals(other: Any?): Boolean {
         if (other !is AnnotationDataFilter) return false

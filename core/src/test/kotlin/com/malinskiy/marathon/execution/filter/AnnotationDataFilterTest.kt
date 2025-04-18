@@ -27,6 +27,12 @@ class AnnotationDataFilterTest {
     private val test5MetaProperty = MetaProperty("com.example.CorrectAnnotation", mapOf("testKey" to "testValue"))
     private val test5 = stubTest(test5MetaProperty)
 
+    private val test6 =
+        stubTest(AnnotationDataWithArray("com.example.CorrectAnnotation", "CORRECT_VALUE", "INCORRECT_VALUE"))
+
+    private val test7 =
+        stubTest(AnnotationDataWithArray("com.example.CorrectAnnotation", AnnotationValue("CORRECT_VALUE"), AnnotationValue("INCORRECT_VALUE")))
+
     @Test
     fun shouldFilter() {
         filter.filter(tests) shouldBeEqualTo listOf(test1, test2)
@@ -46,6 +52,21 @@ class AnnotationDataFilterTest {
     fun shouldNotFailIfValueFieldIsNotExist() {
         filter.filter(listOf(test5)) shouldBeEqualTo emptyList()
     }
+
+    @Test
+    fun shouldFilterWithArrayString() {
+        filter2.filter(listOf(*tests.toTypedArray(), test6)) shouldBeEqualTo listOf(test6)
+    }
+
+    @Test
+    fun shouldFilterNotWithArrayString() {
+        filter2.filterNot(listOf(*tests.toTypedArray(), test6)) shouldBeEqualTo tests
+    }
+
+    @Test
+    fun shouldNotFailWithArrayAnotherType() {
+        filter2.filter(listOf(*tests.toTypedArray(), test7)) shouldBeEqualTo emptyList()
+    }
 }
 
 private class AnnotationData(
@@ -53,7 +74,33 @@ private class AnnotationData(
     var value: String = ""
 )
 
+private class AnnotationDataWithArray<T>(
+    var name: String = "",
+    vararg var value: T
+)
 
-private fun stubTest(vararg annotations: MetaProperty) = MarathonTest("com.sample", "SimpleTest", "fakeMethod", listOf(*annotations))
-private fun stubTest(vararg annotations: AnnotationData) =
-    MarathonTest("com.sample", "SimpleTest", "fakeMethod", annotations.map { MetaProperty(it.name, mapOf("value" to it.value)) })
+private class AnnotationValue(
+    var value: String = ""
+)
+
+
+private fun stubTest(vararg annotations: MetaProperty) = MarathonTest(
+    pkg = "com.sample",
+    clazz = "SimpleTest",
+    method = "fakeMethod",
+    metaProperties = listOf(*annotations)
+)
+
+private fun stubTest(vararg annotations: AnnotationData) = MarathonTest(
+    pkg = "com.sample",
+    clazz = "SimpleTest",
+    method = "fakeMethod",
+    metaProperties = annotations.map { MetaProperty(it.name, mapOf("value" to it.value)) }
+)
+
+private fun <T> stubTest(vararg annotations: AnnotationDataWithArray<T>) = MarathonTest(
+    pkg = "com.sample",
+    clazz = "SimpleTest",
+    method = "fakeMethod",
+    metaProperties = annotations.map { MetaProperty(it.name, mapOf("value" to it.value)) }
+)

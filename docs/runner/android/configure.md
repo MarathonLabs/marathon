@@ -1089,6 +1089,21 @@ marathon {
 </TabItem>
 </Tabs>
 
+### Location mock access
+Some tests require mocking device location. Marathon can setup access for application package if you enable this option as following:
+
+<Tabs>
+<TabItem value="YAML" label="Marathonfile">
+
+```yaml
+vendorConfiguration:
+  type: "Android"
+  mockLocation: true
+```
+
+</TabItem>
+</Tabs>
+
 [1]: https://developer.android.com/studio/
 
 [2]: https://developer.android.com/studio/command-line/adb#issuingcommands
