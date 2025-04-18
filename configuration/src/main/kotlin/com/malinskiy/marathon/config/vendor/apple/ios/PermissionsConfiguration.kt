@@ -26,6 +26,8 @@ enum class GrantLifecycle {
  * @property Motion Allow access to motion and fitness data
  * @property Reminders Allow access to reminders
  * @property Siri Allow use of the app with Siri
+ * @property UserTracking Allow user tracking
+ * @property Pasteboard Allow paste from external apps
  */
 enum class Permission(val value: String) {
     @JsonProperty("all") All("all"),
@@ -44,4 +46,5 @@ enum class Permission(val value: String) {
 
     //Non-simctl grant permissions
     @JsonProperty("user-tracking") UserTracking("kTCCServiceUserTracking"),
+    @JsonProperty("pasteboard") Pasteboard("kTCCServicePasteboard"),
 }

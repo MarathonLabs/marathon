@@ -412,6 +412,7 @@ permissions:
 | reminders        | Allow access to reminders                            |
 | siri             | Allow use of the app with Siri                       |
 | user-tracking    | Allow user tracking                                  |
+| pasteboard       | Allow paste from external apps                       |
 
 <Tabs>
 <TabItem value="before-test-run" label="Before test run">

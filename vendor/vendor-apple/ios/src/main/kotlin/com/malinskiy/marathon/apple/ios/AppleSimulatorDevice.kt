@@ -810,8 +810,8 @@ supportsTranscoding,
 
     suspend fun grant(permission: Permission, bundleId: String): Boolean {
         return when (permission) {
-            Permission.UserTracking -> {
-                //This might fail on different versions of iOS runtime. Tested on 17.2
+            Permission.UserTracking, Permission.Pasteboard -> {
+                //This might fail on different versions of iOS runtime. Tested on 17.2, 18.1
                 val query =
                     "replace into access (service, client, client_type, auth_value, auth_reason, auth_version, flags) values ('${permission.value}','$bundleId',0,2,2,1,0);"
                 binaryEnvironment.sqlite3.query(
