@@ -4,7 +4,7 @@ import com.malinskiy.marathon.apple.logparser.TestEventProducer
 import com.malinskiy.marathon.apple.test.TestEvent
 import com.malinskiy.marathon.apple.test.TestRunFailed
 
-class DeviceFailureParser : com.malinskiy.marathon.apple.logparser.TestEventProducer {
+class DeviceFailureParser : TestEventProducer {
     private val patterns = listOf(
         "Failed to install or launch the test runner",
         "Software caused connection abort",

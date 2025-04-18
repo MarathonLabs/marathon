@@ -14,7 +14,7 @@ import kotlin.math.roundToInt
 class TestRunProgressParser(
     private val timer: Timer,
     private val targetName: String,
-) : com.malinskiy.marathon.apple.logparser.TestEventProducer {
+) : TestEventProducer {
 
     val logger = MarathonLogging.logger(TestRunProgressParser::class.java.simpleName)
 
@@ -29,6 +29,11 @@ class TestRunProgressParser(
      * $4 = reason
      */
     val FAILING_TEST_MATCHER = "(/.+:\\d+):\\serror:\\s[\\+\\-]\\[(.*)\\s(.*)\\]\\s:(\\s.*)".toRegex()
+
+    /**
+     * Timeout case from https://developer.apple.com/documentation/xctest/xctestcase/3526064-executiontimeallowance
+     */
+    val TIMEOUT_TEST_MATCHER = """Test Case '-\[(.+) (.+)]' exceeded execution time allowance of (\d+) minutes*\. The test may have hung.*""".toRegex()
     
     private var failingTestLine: String? = null
     
@@ -37,6 +42,8 @@ class TestRunProgressParser(
             parseTestStarted(line)?.let { listOf(it) }
         } else if (line.matches(TEST_CASE_FINISHED)) {
             parseTestFinished(line)?.let { listOf(it) }
+        } else if (line.matches(TIMEOUT_TEST_MATCHER)) {
+            parseTestTimeout(line)?.let { listOf(it) }
         } else if (line.matches(FAILING_TEST_MATCHER)) {
             failingTestLine = line
             null
@@ -104,6 +111,40 @@ class TestRunProgressParser(
                     null
                 }
             }
+        }
+        return null
+    }
+
+    private fun parseTestTimeout(line: String): TestEvent? {
+        val matchResult = TIMEOUT_TEST_MATCHER.find(line)
+        val pkgWithClass = matchResult?.groups?.get(1)?.value
+        var pkg: String? = null
+        var clazz: String? = null
+        if (pkgWithClass != null) {
+            if (pkgWithClass.contains('.')) {
+                pkg = pkgWithClass.substringBeforeLast('.', missingDelimiterValue = "")
+                clazz = pkgWithClass.substringAfter('.', missingDelimiterValue = pkgWithClass)
+            } else {
+                pkg = targetName
+                clazz = pkgWithClass
+            }
+        }
+
+        val method = matchResult?.groups?.get(2)?.value
+        val duration = matchResult?.groups?.get(3)?.value?.toFloat()?.times(60)
+
+        logger.debug { "Test $pkg.$clazz.$method finished with result <timeout> after $duration seconds" }
+
+        if (pkg != null && clazz != null && method != null && duration != null) {
+            val test = Test(pkg, clazz, method, emptyList())
+
+            val endTime = timer.currentTimeMillis()
+            val startTime = endTime - (duration * 1000).roundToInt()
+
+            val trace = failingTestLine?.let {
+                parseFailingTest(it)
+            }
+            return TestFailed(test, startTime, endTime, trace)
         }
         return null
     }

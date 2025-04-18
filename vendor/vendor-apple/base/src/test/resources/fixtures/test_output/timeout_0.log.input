@@ -1,0 +1,15 @@
+Test Case '-[sample_appUITests.MoreTests testPresentModal]' started.
+    t =     0.00s Start Test at 2018-09-15 01:08:51.148
+    t =     0.03s Set Up
+    t =     0.03s     Open com.agoda.sample-app
+    t =     0.06s         Launch com.agoda.sample-app
+    t =     2.61s             Wait for com.agoda.sample-app to idle
+    t =     3.85s Waiting 30.0s for Button to exist
+    t =     4.85s     Checking `Expect predicate `exists == 1` for object Button`
+    t =     4.86s Tap Button
+    t =     4.86s     Wait for com.agoda.sample-app to idle
+    t =     4.87s     Find the Button
+    t =     4.98s         Wait for com.agoda.sample-app to idle
+    t =     4.99s     Synthesize event
+    t =     5.07s     Wait for com.agoda.sample-app to idle
+Test Case '-[sample_appUITests.MoreTests testPresentModal]' exceeded execution time allowance of 3 minutes. The test may have hung; check Xcode's test report for additional diagnostics. If the test requires additional time, use -[XCTestCase executionTimeAllowance] or one of xcodebuild's command-line overrides.
