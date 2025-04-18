@@ -108,7 +108,11 @@ class Marathon(
             logSystemInformation()
             configurationValidator.validate(configuration)
 
-            deviceProvider.initialize()
+            when {
+                executionCommand is ParseCommand && testParser is LocalTestParser -> log.info("DeviceProvider is not required for local parsing")
+                else -> deviceProvider.initialize()
+            }
+
             parsedAllTests = when (testParser) {
                 is LocalTestParser -> testParser.extract()
                 is RemoteTestParser<*> -> {
