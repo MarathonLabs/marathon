@@ -9,6 +9,7 @@ import com.malinskiy.marathon.apple.test.TestStarted
 import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.test.Test
 import com.malinskiy.marathon.time.Timer
+import java.time.Duration
 import kotlin.math.roundToInt
 
 class TestRunProgressParser(
@@ -19,6 +20,10 @@ class TestRunProgressParser(
     val logger = MarathonLogging.logger(TestRunProgressParser::class.java.simpleName)
 
     val TEST_CASE_STARTED = """Test Case '-\[(.+) (.+)]' started\.""".toRegex()
+
+    /**
+     * Format: Test Case '%@' %@ (%.3f seconds).
+     */
     val TEST_CASE_FINISHED =
         """Test Case '-\[(.+) (.+)]' (passed|failed|skipped) \(([\d\.]+) seconds\)\.""".toRegex()
 
@@ -32,8 +37,11 @@ class TestRunProgressParser(
 
     /**
      * Timeout case from https://developer.apple.com/documentation/xctest/xctestcase/3526064-executiontimeallowance
+     *
+     * String template:
+     * Test Case '%@' exceeded execution time allowance of %@. The test may have hung
      */
-    val TIMEOUT_TEST_MATCHER = """Test Case '-\[(.+) (.+)]' exceeded execution time allowance of (\d+) minutes*\. The test may have hung.*""".toRegex()
+    val TIMEOUT_TEST_MATCHER = """Test Case '-\[(.+) (.+)]' exceeded execution time allowance of (.+)\. The test may have hung.*""".toRegex()
     
     private var failingTestLine: String? = null
     
@@ -131,15 +139,15 @@ class TestRunProgressParser(
         }
 
         val method = matchResult?.groups?.get(2)?.value
-        val duration = matchResult?.groups?.get(3)?.value?.toFloat()?.times(60)
+        val duration = matchResult?.groups?.get(3)?.value?.parseAppleDuration()
 
-        logger.debug { "Test $pkg.$clazz.$method finished with result <timeout> after $duration seconds" }
+        logger.debug { "Test $pkg.$clazz.$method finished with result <timeout> after ${duration?.seconds} seconds" }
 
         if (pkg != null && clazz != null && method != null && duration != null) {
             val test = Test(pkg, clazz, method, emptyList())
 
             val endTime = timer.currentTimeMillis()
-            val startTime = endTime - (duration * 1000).roundToInt()
+            val startTime = endTime - duration.toMillis()
 
             val trace = failingTestLine?.let {
                 parseFailingTest(it)
@@ -173,5 +181,14 @@ class TestRunProgressParser(
         } else {
             null
         }
+    }
+}
+
+private fun String?.parseAppleDuration(): Duration? {
+    return this?.trim()?.let {
+        val iso8601  = "PT" + replace(" seconds", "S")
+            .replace(" minutes", "M")
+            .replace(" hours", "H")
+        Duration.parse(iso8601)
     }
 }

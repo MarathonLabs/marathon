@@ -122,4 +122,21 @@ class TestRunProgressParserTest {
         assertThat(events.map { it.toString() }.reduce { acc, s -> acc + "\n" + s })
             .isEqualTo(javaClass.getResourceAsStream("/fixtures/test_output/timeout_0.expected").reader().readText().trimEnd())
     }
+
+    @Test
+    fun testSample6() {
+        val parser = TestRunProgressParser(mockTimer, "")
+
+        val events = mutableListOf<TestEvent>()
+        javaClass.getResourceAsStream("/fixtures/test_output/timeout_1.log.input").bufferedReader().use {
+            it.lines().forEach { line ->
+                parser.process(line)?.let {
+                    events.addAll(it)
+                }
+            }
+        }
+
+        assertThat(events.map { it.toString() }.reduce { acc, s -> acc + "\n" + s })
+            .isEqualTo(javaClass.getResourceAsStream("/fixtures/test_output/timeout_1.expected").reader().readText().trimEnd())
+    }
 }
