@@ -1,0 +1,12 @@
+Test Case '-[sample_appUITests.MoreTests testPresentModal]' started.
+    t =     0.00s Start Test at 2018-09-15 01:08:51.148
+    t =     0.03s Set Up
+    t =     0.03s     Open com.agoda.sample-app
+    t =     0.06s         Launch com.agoda.sample-app
+    t =     2.61s             Wait for com.agoda.sample-app to idle
+    t =     3.85s Waiting 30.0s for Button to exist
+/Users/vagrant/git/apps/sample_appUITests/Target/TestCases/MoreTests.swift:33: error: -[sample_appUITests.MoreTests testPresentModal] : XCTAssertTrue failed - This test failed.
+    t =     4.20s Tear Down
+
+Test sample_appUITests.MoreTests.testPresentModal finished with result <failed> after 4.244 seconds
+Test Case '-[sample_appUITests.MoreTests testPresentModal]' failed (4.244 seconds).

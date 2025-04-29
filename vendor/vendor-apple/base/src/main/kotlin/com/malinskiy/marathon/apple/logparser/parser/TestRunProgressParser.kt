@@ -33,7 +33,7 @@ class TestRunProgressParser(
      * $3 = test_case
      * $4 = reason
      */
-    val FAILING_TEST_MATCHER = "(/.+:\\d+):\\serror:\\s[\\+\\-]\\[(.*)\\s(.*)\\]\\s:(\\s.*)".toRegex()
+    val FAILING_TEST_MATCHER = "(/.+|<unknown>:\\d+):\\serror:\\s[\\+\\-]\\[(.*)\\s(.*)\\]\\s:(\\s.*)".toRegex()
 
     /**
      * Timeout case from https://developer.apple.com/documentation/xctest/xctestcase/3526064-executiontimeallowance
