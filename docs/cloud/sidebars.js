@@ -23,6 +23,7 @@ const sidebars = {
                 'intro/overview',
                 'intro/android',
                 'intro/ios',
+                'intro/maestro'
             ]
         },
         {
