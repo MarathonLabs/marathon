@@ -140,7 +140,7 @@ class Marathon(
             }
         )
 
-        if (parsedAllTests.isEmpty()) throw NoTestCasesFoundException("No tests cases were found")
+        if (parsedAllTests.isEmpty() && !configuration.allowEmptyTestSuites) throw NoTestCasesFoundException("No tests cases were found")
         val parsedFilteredTests = applyTestFilters(parsedAllTests)
 
         if (executionCommand is ParseCommand) {

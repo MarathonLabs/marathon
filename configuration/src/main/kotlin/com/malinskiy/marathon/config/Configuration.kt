@@ -51,6 +51,8 @@ data class Configuration private constructor(
     val bugsnagReporting: Boolean,
     val deviceInitializationTimeoutMillis: Long,
     val ciConfiguration: CIConfiguration,
+
+    val allowEmptyTestSuites: Boolean,
 ) {
     fun toMap() =
         mapOf<String, String>(
@@ -77,6 +79,7 @@ data class Configuration private constructor(
             "vendorConfiguration" to vendorConfiguration.toString(),
             "deviceInitializationTimeoutMillis" to deviceInitializationTimeoutMillis.toString(),
             "ciConfiguration" to ciConfiguration.toString(),
+            "allowEmptyTestSuites" to allowEmptyTestSuites.toString(),
         )
 
     override fun equals(other: Any?): Boolean {
@@ -111,6 +114,7 @@ data class Configuration private constructor(
         if (bugsnagReporting != other.bugsnagReporting) return false
         if (deviceInitializationTimeoutMillis != other.deviceInitializationTimeoutMillis) return false
         if (ciConfiguration != other.ciConfiguration) return false
+        if (allowEmptyTestSuites != other.allowEmptyTestSuites) return false
 
         return true
     }
@@ -142,42 +146,45 @@ data class Configuration private constructor(
         result = 31 * result + bugsnagReporting.hashCode()
         result = 31 * result + deviceInitializationTimeoutMillis.hashCode()
         result = 31 * result + ciConfiguration.hashCode()
+        result = 31 * result + allowEmptyTestSuites.hashCode()
         return result
     }
 
-     data class Builder(
-         val name: String,
-         val outputDir: File,
-         var analyticsConfiguration: AnalyticsConfiguration = AnalyticsConfiguration.DisabledAnalytics,
-         var poolingStrategy: PoolingStrategyConfiguration = PoolingStrategyConfiguration.OmniPoolingStrategyConfiguration,
-         var shardingStrategy: ShardingStrategyConfiguration = ShardingStrategyConfiguration.ParallelShardingStrategyConfiguration,
-         var sortingStrategy: SortingStrategyConfiguration = SortingStrategyConfiguration.NoSortingStrategyConfiguration,
-         var batchingStrategy: BatchingStrategyConfiguration = BatchingStrategyConfiguration.IsolateBatchingStrategyConfiguration,
-         var flakinessStrategy: FlakinessStrategyConfiguration = FlakinessStrategyConfiguration.IgnoreFlakinessStrategyConfiguration,
-         var retryStrategy: RetryStrategyConfiguration = RetryStrategyConfiguration.NoRetryStrategyConfiguration,
-         var filteringConfiguration: FilteringConfiguration = FilteringConfiguration(emptyList(), emptyList()),
+    data class Builder(
+        val name: String,
+        val outputDir: File,
+        var analyticsConfiguration: AnalyticsConfiguration = AnalyticsConfiguration.DisabledAnalytics,
+        var poolingStrategy: PoolingStrategyConfiguration = PoolingStrategyConfiguration.OmniPoolingStrategyConfiguration,
+        var shardingStrategy: ShardingStrategyConfiguration = ShardingStrategyConfiguration.ParallelShardingStrategyConfiguration,
+        var sortingStrategy: SortingStrategyConfiguration = SortingStrategyConfiguration.NoSortingStrategyConfiguration,
+        var batchingStrategy: BatchingStrategyConfiguration = BatchingStrategyConfiguration.IsolateBatchingStrategyConfiguration,
+        var flakinessStrategy: FlakinessStrategyConfiguration = FlakinessStrategyConfiguration.IgnoreFlakinessStrategyConfiguration,
+        var retryStrategy: RetryStrategyConfiguration = RetryStrategyConfiguration.NoRetryStrategyConfiguration,
+        var filteringConfiguration: FilteringConfiguration = FilteringConfiguration(emptyList(), emptyList()),
 
-         var ignoreFailures: Boolean = false,
-         var isCodeCoverageEnabled: Boolean = false,
-         var executionStrategy: ExecutionStrategyConfiguration = ExecutionStrategyConfiguration(),
-         var uncompletedTestRetryQuota: Int = Integer.MAX_VALUE,
+        var ignoreFailures: Boolean = false,
+        var isCodeCoverageEnabled: Boolean = false,
+        var executionStrategy: ExecutionStrategyConfiguration = ExecutionStrategyConfiguration(),
+        var uncompletedTestRetryQuota: Int = Integer.MAX_VALUE,
 
-         var includeSerialRegexes: Collection<Regex> = emptyList(),
-         var excludeSerialRegexes: Collection<Regex> = emptyList(),
+        var includeSerialRegexes: Collection<Regex> = emptyList(),
+        var excludeSerialRegexes: Collection<Regex> = emptyList(),
 
-         var testBatchTimeoutMillis: Long = DEFAULT_BATCH_EXECUTION_TIMEOUT_MILLIS,
-         var testOutputTimeoutMillis: Long = DEFAULT_OUTPUT_TIMEOUT_MILLIS,
-         var debug: Boolean = true,
+        var testBatchTimeoutMillis: Long = DEFAULT_BATCH_EXECUTION_TIMEOUT_MILLIS,
+        var testOutputTimeoutMillis: Long = DEFAULT_OUTPUT_TIMEOUT_MILLIS,
+        var debug: Boolean = true,
 
-         var screenRecordingPolicy: ScreenRecordingPolicy = ScreenRecordingPolicy.ON_FAILURE,
+        var screenRecordingPolicy: ScreenRecordingPolicy = ScreenRecordingPolicy.ON_FAILURE,
 
-         var analyticsTracking: Boolean = true,
-         var bugsnagReporting: Boolean = true,
-         var deviceInitializationTimeoutMillis: Long = DEFAULT_DEVICE_INITIALIZATION_TIMEOUT_MILLIS,
+        var analyticsTracking: Boolean = true,
+        var bugsnagReporting: Boolean = true,
+        var deviceInitializationTimeoutMillis: Long = DEFAULT_DEVICE_INITIALIZATION_TIMEOUT_MILLIS,
 
-         var outputConfiguration: OutputConfiguration = OutputConfiguration(),
-         var vendorConfiguration: VendorConfiguration = VendorConfiguration.EmptyVendorConfiguration(),
-         var ciConfiguration: CIConfiguration = CIConfiguration.None,
+        var outputConfiguration: OutputConfiguration = OutputConfiguration(),
+        var vendorConfiguration: VendorConfiguration = VendorConfiguration.EmptyVendorConfiguration(),
+        var ciConfiguration: CIConfiguration = CIConfiguration.None,
+
+        var allowEmptyTestSuites: Boolean = false,
     ) {
         fun build(): Configuration {
             return Configuration(
@@ -207,6 +214,7 @@ data class Configuration private constructor(
                 bugsnagReporting = bugsnagReporting,
                 deviceInitializationTimeoutMillis = deviceInitializationTimeoutMillis,
                 ciConfiguration = ciConfiguration,
+                allowEmptyTestSuites = allowEmptyTestSuites,
             )
         }
     }
