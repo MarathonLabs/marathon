@@ -31,4 +31,10 @@ else
   echo "on a tag -> deploy release version $GIT_TAG_NAME"
   ./gradlew $ASSEMBLE_TARGETS -PreleaseMode=RELEASE
   ./gradlew $PUBLISH_TARGETS -PreleaseMode=RELEASE
+
+  echo "promoting staging repository to Central Portal"
+  TOKEN=$(echo -n "$SONATYPE_USERNAME:$SONATYPE_PASSWORD" | base64)
+  curl -f -X POST \
+    -H "Authorization: Bearer $TOKEN" \
+    "https://ossrh-staging-api.central.sonatype.com/manual/upload/defaultRepository/com.malinskiy.marathon"
 fi

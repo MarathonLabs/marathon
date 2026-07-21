@@ -31,10 +31,10 @@ object Deployment {
 
     val snapshotDeployUrl: String
         get() = System.getenv("SONATYPE_SNAPSHOTS_URL")
-            ?: "https://oss.sonatype.org/content/repositories/snapshots/"
+            ?: "https://central.sonatype.com/repository/maven-snapshots/"
     val releaseDeployUrl: String
         get() = System.getenv("SONATYPE_RELEASES_URL")
-            ?: "https://oss.sonatype.org/service/local/staging/deploy/maven2/"
+            ?: "https://ossrh-staging-api.central.sonatype.com/service/local/staging/deploy/maven2/"
     val githubDeployUrl = "https://maven.pkg.github.com/MarathonLabs/marathon"
 
     fun initialize(project: Project) {
