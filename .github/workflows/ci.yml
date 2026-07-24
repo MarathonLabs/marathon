@@ -29,7 +29,9 @@ jobs:
   cd-release:
     runs-on: ubuntu-24.04
     needs: [ci]
-    if: ${{ startsWith(github.ref, 'refs/tags/') }}
+    # Upstream-only. Forks publish via .github/workflows/fork-release.yml,
+    # which skips Sonatype/GPG/Bugsnag/Homebrew (fork won't have those secrets).
+    if: ${{ startsWith(github.ref, 'refs/tags/') && github.repository == 'MarathonLabs/marathon' }}
     steps:
       - uses: actions/checkout@v7
       - name: Set up JDK 21
