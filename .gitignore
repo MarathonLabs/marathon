@@ -285,3 +285,9 @@ DerivedData
 *.xcuserstate
 *.profraw
 sample/ios-app/Marathondevices
+
+# Negate the generic `logs` node-convention ignore for the html-report log
+# parser module — the pattern above (line ~162) is unanchored and would
+# otherwise swallow html-report/src/logs/ (the OS/logcat parser module).
+!html-report/src/logs/
+!html-report/src/logs/**
