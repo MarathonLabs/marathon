@@ -5,10 +5,10 @@ plugins {
 }
 
 dependencies {
-    implementation(Libraries.gson)
-    implementation(Libraries.kotlinStdLib)
-    implementation(Libraries.kotlinCoroutines)
-    implementation(Libraries.kotlinLogging)
+    implementation(libs.gson)
+    implementation(libs.kotlinStdLib)
+    implementation(libs.kotlinCoroutines)
+    implementation(libs.kotlinLogging)
 }
 
 setupDeployment()

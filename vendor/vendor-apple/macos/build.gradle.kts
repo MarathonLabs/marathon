@@ -7,14 +7,14 @@ plugins {
 
 dependencies {
     implementation(project(":vendor:vendor-apple:base"))
-    testImplementation(TestLibraries.kluent)
-    testImplementation(TestLibraries.assertk)
-    testImplementation(TestLibraries.mockitoKotlin)
-    testImplementation(TestLibraries.testContainers)
-    testImplementation(TestLibraries.testContainersJupiter)
-    testImplementation(TestLibraries.junit5)
-    testImplementation(TestLibraries.coroutinesTest)
-    testRuntimeOnly(TestLibraries.jupiterEngine)
+    testImplementation(libs.kluent)
+    testImplementation(libs.assertk)
+    testImplementation(libs.mockitoKotlin)
+    testImplementation(libs.testContainers)
+    testImplementation(libs.testContainersJupiter)
+    testImplementation(libs.junit5)
+    testImplementation(libs.coroutinesTest)
+    testRuntimeOnly(libs.jupiterEngine)
 }
 
 setupDeployment()

@@ -4,14 +4,14 @@ plugins {
     `java-library`
     id("org.jetbrains.kotlin.jvm")
     id("org.jetbrains.dokka")
-    id("com.github.node-gradle.node") version "7.1.0"
+    id("com.github.node-gradle.node")
 }
 
 dependencies {
-    implementation(Libraries.gson)
-    implementation(Libraries.kotlinStdLib)
-    implementation(Libraries.kotlinCoroutines)
-    implementation(Libraries.kotlinLogging)
+    implementation(libs.gson)
+    implementation(libs.kotlinStdLib)
+    implementation(libs.kotlinCoroutines)
+    implementation(libs.kotlinLogging)
 }
 
 // HTML report bundle

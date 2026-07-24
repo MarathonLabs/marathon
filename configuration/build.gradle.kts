@@ -2,26 +2,26 @@ plugins {
     id("org.jetbrains.kotlin.jvm")
     id("org.jetbrains.dokka")
     jacoco
-    id("com.github.gmazzo.buildconfig") version "5.5.0"
+    id("com.github.gmazzo.buildconfig")
 }
 
 dependencies {
-    api(Libraries.jacksonDatabind)
-    api(Libraries.jacksonAnnotations)
-    api(Libraries.jacksonKotlin)
-    api(Libraries.jacksonYaml)
-    api(Libraries.jacksonJSR310)
-    api(Libraries.apacheCommonsText)
-    testImplementation(TestLibraries.junit5)
-    testImplementation(TestLibraries.kluent)
-    testImplementation(TestLibraries.mockitoKotlin)
-    testRuntimeOnly(TestLibraries.jupiterEngine)
+    api(libs.jacksonDatabind)
+    api(libs.jacksonAnnotations)
+    api(libs.jacksonKotlin)
+    api(libs.jacksonYaml)
+    api(libs.jacksonJSR310)
+    api(libs.apacheCommonsText)
+    testImplementation(libs.junit5)
+    testImplementation(libs.kluent)
+    testImplementation(libs.mockitoKotlin)
+    testRuntimeOnly(libs.jupiterEngine)
 }
 
 buildConfig {
     useKotlinOutput { internalVisibility = false }
 
-    buildConfigField("String", "VERSION", provider { "\"${Versions.marathon}\"" })
+    buildConfigField("String", "VERSION", provider { "\"${Deployment.getVersion(project)}\"" })
     buildConfigField("String", "RELEASE_MODE", provider {
         val releaseMode = Deployment.releaseMode ?: ""
         "\"$releaseMode\""

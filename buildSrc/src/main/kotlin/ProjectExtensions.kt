@@ -7,6 +7,7 @@ import org.gradle.jvm.toolchain.JavaLanguageVersion
 import org.gradle.kotlin.dsl.configure
 import org.gradle.kotlin.dsl.named
 import org.gradle.kotlin.dsl.withType
+import org.gradle.api.artifacts.VersionCatalogsExtension
 import org.gradle.testing.jacoco.tasks.JacocoReport
 import org.jetbrains.kotlin.gradle.dsl.KotlinJvmProjectExtension
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
@@ -63,9 +64,13 @@ fun Project.setupTestTask(jacoco: Boolean = true) {
     // JUnit 5.8+ split the platform launcher out of `junit-jupiter`. Gradle 9's
     // test workers no longer resolve it transitively, so add it wherever we
     // wire the test infrastructure — matches what
-    // `junit-platform-gradle-plugin` used to do.
+    // `junit-platform-gradle-plugin` used to do. Coordinates come from the
+    // root version catalog so upgrades touch one file (gradle/libs.versions.toml).
     configurations.findByName("testRuntimeOnly")?.let { cfg ->
-        dependencies.add(cfg.name, "org.junit.platform:junit-platform-launcher:1.11.0")
+        val launcher = extensions.getByType(VersionCatalogsExtension::class.java)
+            .named("libs")
+            .findLibrary("junitPlatformLauncher").get().get()
+        dependencies.add(cfg.name, launcher)
     }
 }
 

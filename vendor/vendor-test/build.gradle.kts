@@ -5,15 +5,15 @@ plugins {
 }
 
 dependencies {
-    implementation(Libraries.kotlinStdLib)
-    implementation(Libraries.kotlinCoroutines)
-    implementation(Libraries.kotlinLogging)
-    implementation(Libraries.kotlinReflect)
-    implementation(Libraries.gson)
-    implementation(TestLibraries.jsonAssert)
-    implementation(TestLibraries.xmlUnit)
-    implementation(TestLibraries.kluent)
-    implementation(TestLibraries.mockitoKotlin)
+    implementation(libs.kotlinStdLib)
+    implementation(libs.kotlinCoroutines)
+    implementation(libs.kotlinLogging)
+    implementation(libs.kotlinReflect)
+    implementation(libs.gson)
+    implementation(libs.jsonAssert)
+    implementation(libs.xmlUnit)
+    implementation(libs.kluent)
+    implementation(libs.mockitoKotlin)
     implementation(project(":core"))
     implementation(project(":analytics:usage"))
 }

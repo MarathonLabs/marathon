@@ -10,10 +10,10 @@ setupKotlinCompiler()
 setupTestTask()
 
 dependencies {
-    implementation(Libraries.okhttp)
-    implementation(Libraries.kotlinStdLib)
-    testRuntimeOnly(TestLibraries.jupiterEngine)
-    testImplementation(TestLibraries.junit5)
-    testImplementation(TestLibraries.kluent)
-    testImplementation(TestLibraries.mockitoKotlin)
+    implementation(libs.okhttp)
+    implementation(libs.kotlinStdLib)
+    testRuntimeOnly(libs.jupiterEngine)
+    testImplementation(libs.junit5)
+    testImplementation(libs.kluent)
+    testImplementation(libs.mockitoKotlin)
 }

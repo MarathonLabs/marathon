@@ -4,7 +4,7 @@ plugins {
     id("org.jetbrains.kotlin.jvm")
     id("org.jetbrains.dokka")
     jacoco
-    id("com.github.gmazzo.buildconfig") version "5.5.0"
+    id("com.github.gmazzo.buildconfig")
 }
 
 // Kotlin plugin registers a matching Kotlin source set for each Java one;
@@ -28,7 +28,7 @@ buildConfig {
     useKotlinOutput { internalVisibility = false }
 
     buildConfigField("String", "NAME", "\"${project.name}\"")
-    buildConfigField("String", "VERSION", provider<String> { "\"${Versions.marathon}\"" })
+    buildConfigField("String", "VERSION", provider<String> { "\"${Deployment.getVersion(project)}\"" })
     buildConfigField("String", "BUGSNAG_TOKEN", provider {
         val token = System.getenv("BUGSNAG_TOKEN") ?: ""
         "\"$token\""
@@ -44,41 +44,41 @@ dependencies {
     implementation(project(":report:html-report"))
     implementation(project(":report:execution-timeline"))
 
-    implementation(Libraries.allure)
-    implementation(Libraries.allureKotlinCommons)
-    implementation(Libraries.allureEnvironment)
-    implementation(Libraries.allureTestFilter)
+    implementation(libs.allure)
+    implementation(libs.allureKotlinCommons)
+    implementation(libs.allureEnvironment)
+    implementation(libs.allureTestFilter)
 
     implementation(project(":analytics:usage"))
-    implementation(Libraries.gson)
-    implementation(Libraries.jacksonAnnotations)
-    implementation(Libraries.apacheCommonsIO)
-    implementation(Libraries.kotlinStdLib)
-    implementation(Libraries.kotlinCoroutines)
-    implementation(Libraries.kotlinLogging)
-    implementation(Libraries.logbackClassic)
-    implementation(Libraries.influxDbClient)
-    implementation(Libraries.influxDb2Client)
-    implementation(Libraries.scalr)
-    api(Libraries.koin)
-    api(Libraries.bugsnag)
+    implementation(libs.gson)
+    implementation(libs.jacksonAnnotations)
+    implementation(libs.apacheCommonsIO)
+    implementation(libs.kotlinStdLib)
+    implementation(libs.kotlinCoroutines)
+    implementation(libs.kotlinLogging)
+    implementation(libs.logbackClassic)
+    implementation(libs.influxDbClient)
+    implementation(libs.influxDb2Client)
+    implementation(libs.scalr)
+    api(libs.koin)
+    api(libs.bugsnag)
     testImplementation(project(":vendor:vendor-test"))
-    testImplementation(TestLibraries.junit5)
-    testImplementation(TestLibraries.kluent)
-    testImplementation(TestLibraries.assertk)
-    testImplementation(TestLibraries.testContainers)
-    testImplementation(TestLibraries.testContainersInflux)
-    testImplementation(TestLibraries.mockitoKotlin)
-    testImplementation(TestLibraries.koin)
-    testImplementation(TestLibraries.xmlUnit)
-    testImplementation(TestLibraries.coroutinesTest)
-    testRuntimeOnly(TestLibraries.jupiterEngine)
-    testRuntimeOnly(TestLibraries.junitPlatformLauncher)
+    testImplementation(libs.junit5)
+    testImplementation(libs.kluent)
+    testImplementation(libs.assertk)
+    testImplementation(libs.testContainers)
+    testImplementation(libs.testContainersInflux)
+    testImplementation(libs.mockitoKotlin)
+    testImplementation(libs.koinTest)
+    testImplementation(libs.xmlUnit)
+    testImplementation(libs.coroutinesTest)
+    testRuntimeOnly(libs.jupiterEngine)
+    testRuntimeOnly(libs.junitPlatformLauncher)
     // integrationTest source set has its own runtime configuration; without the
     // launcher on that classpath Gradle 9's worker fails with
     // "Failed to load JUnit Platform" before any test even starts.
-    "integrationTestRuntimeOnly"(TestLibraries.jupiterEngine)
-    "integrationTestRuntimeOnly"(TestLibraries.junitPlatformLauncher)
+    "integrationTestRuntimeOnly"(libs.jupiterEngine)
+    "integrationTestRuntimeOnly"(libs.junitPlatformLauncher)
 }
 
 /**
