@@ -42,4 +42,6 @@ setupDeployment()
 setupKotlinCompiler()
 setupTestTask()
 
-tasks.findByPath("sourcesJar")?.dependsOn(tasks.findByPath("generateXcresulttoolSource"))
+tasks.findByPath("generateXcresulttoolSource")?.let { generator ->
+    tasks.findByPath("sourcesJar")?.dependsOn(generator)
+}

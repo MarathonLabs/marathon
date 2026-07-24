@@ -1,8 +1,8 @@
 object Versions {
     val marathon = System.getenv("GIT_TAG_NAME") ?: "0.10.1"
 
-    val kotlin = "1.9.24"
-    val coroutines = "1.8.1"
+    val kotlin = "2.1.20"
+    val coroutines = "1.9.0"
     val coroutinesTest = coroutines
 
     val androidCommon = "31.6.1"
@@ -13,9 +13,10 @@ object Versions {
     val axmlParser = "1.0"
     val bugsnag = "3.7.2"
 
-    val junitGradle = "1.2.0"
-
     val junit5 = "5.11.0"
+    // JUnit 5.8+ split the platform launcher out; Gradle 9 test workers no
+    // longer bring it in transitively and need it on the runtime classpath.
+    val junitPlatform = "1.11.0"
     val kluent = "1.73"
 
     val kakao = "3.0.2"
@@ -46,7 +47,7 @@ object Versions {
     val allureKotlin = "2.4.0"
     val allureEnvironment = "1.0.0"
     val mockitoKotlin = "5.4.0"
-    val dokka = "1.9.10"
+    val dokka = "2.0.0"
     val koin = "3.5.6"
     val jsonAssert = "1.5.3"
     val xmlUnit = "2.10.0"
@@ -55,7 +56,6 @@ object Versions {
 
 object BuildPlugins {
     val kotlinPlugin = "org.jetbrains.kotlin:kotlin-gradle-plugin:${Versions.kotlin}"
-    val junitGradle = "org.junit.platform:junit-platform-gradle-plugin:${Versions.junitGradle}"
     val dokka = "org.jetbrains.dokka:dokka-gradle-plugin:${Versions.dokka}"
 }
 
@@ -105,6 +105,7 @@ object TestLibraries {
 
     val mockitoKotlin = "org.mockito.kotlin:mockito-kotlin:${Versions.mockitoKotlin}"
     val jupiterEngine = "org.junit.jupiter:junit-jupiter-engine:${Versions.jupiterEngine}"
+    val junitPlatformLauncher = "org.junit.platform:junit-platform-launcher:${Versions.junitPlatform}"
     val koin = "io.insert-koin:koin-test:${Versions.koin}"
     val jsonAssert = "org.skyscreamer:jsonassert:${Versions.jsonAssert}"
     val xmlUnit = "org.xmlunit:xmlunit-matchers:${Versions.xmlUnit}"

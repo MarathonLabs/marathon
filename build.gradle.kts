@@ -9,23 +9,20 @@ buildscript {
     }
     dependencies {
         classpath(BuildPlugins.kotlinPlugin)
-        classpath(BuildPlugins.junitGradle)
         classpath(BuildPlugins.dokka)
     }
 }
 
 
 plugins {
-    id("io.gitlab.arturbosch.detekt") version "1.23.6"
+    id("io.gitlab.arturbosch.detekt") version "1.23.7"
     id("com.github.ben-manes.versions") version "0.51.0"
 }
 
 configure<DetektExtension> {
     debug = true
-    input = files(
-        rootProject.projectDir.absolutePath
-    )
-    config = files("${rootProject.projectDir}/default-detekt-config.yml")
+    source.from(rootProject.projectDir)
+    config.from(rootProject.projectDir.resolve("default-detekt-config.yml"))
     baseline = file("${rootProject.projectDir}/reports/baseline.xml")
 }
 
@@ -68,4 +65,16 @@ allprojects {
             }
         }
     }
+}
+
+tasks.named<Wrapper>("wrapper") {
+    distributionType = Wrapper.DistributionType.BIN
+    gradleVersion = "latest"
+    retries = 3
+    retryBackOffMs = 500
+}
+
+tasks.named<UpdateDaemonJvm>("updateDaemonJvm") {
+    languageVersion = JavaLanguageVersion.of(21)
+    vendor = JvmVendorSpec.ADOPTIUM
 }

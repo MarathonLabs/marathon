@@ -1,0 +1,212 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/*
+ * Theme tokens — light and dark are two rgb triple sets consumed via
+ * Tailwind's `<alpha-value>` template. Dark mode toggles via a `dark` class
+ * on <html>, which `ThemeProvider` manages.
+ */
+@layer base {
+  :root {
+    --color-surface: 255 255 255;
+    --color-surface-alt: 248 250 252; /* slate-50 */
+    --color-surface-border: 226 232 240; /* slate-200 */
+    --color-passed: 22 163 74; /* green-600 */
+    --color-failed: 220 38 38; /* red-600 */
+    --color-ignored: 234 179 8; /* yellow-500 */
+    --color-flaky: 168 85 247; /* purple-500 */
+    /* Timeline chart tokens — flat colors, not rgb triples, since the chart
+       consumes them via `fill`/`stroke`. Kept in sync with the status tokens
+       above so the timeline reads as one system with the rest of the report. */
+    --tl-passed: #16a34a;
+    --tl-failed: #dc2626;
+    --tl-ignored: #eab308;
+    --tl-incomplete: #94a3b8;
+    --tl-prepare: #6366f1;
+    --tl-provider: #06b6d4;
+    --tl-axis: #64748b;
+    --tl-grid: #e2e8f0;
+    --tl-tooltip-bg: #ffffff;
+  }
+  html.dark {
+    --color-surface: 15 23 42; /* slate-900 */
+    --color-surface-alt: 30 41 59; /* slate-800 */
+    --color-surface-border: 51 65 85; /* slate-700 */
+    --color-passed: 74 222 128; /* green-400 */
+    --color-failed: 248 113 113; /* red-400 */
+    --color-ignored: 250 204 21; /* yellow-400 */
+    --color-flaky: 192 132 252; /* purple-400 */
+    --tl-passed: #4ade80;
+    --tl-failed: #f87171;
+    --tl-ignored: #facc15;
+    --tl-incomplete: #cbd5e1;
+    --tl-prepare: #818cf8;
+    --tl-provider: #22d3ee;
+    --tl-axis: #94a3b8;
+    --tl-grid: #334155;
+    --tl-tooltip-bg: #0f172a;
+  }
+  html,
+  body,
+  #root {
+    height: 100%;
+  }
+  body {
+    @apply bg-surface text-slate-900 dark:text-slate-100 font-sans antialiased;
+  }
+  a {
+    @apply text-sky-700 hover:underline dark:text-sky-300;
+  }
+  code,
+  pre {
+    @apply font-mono;
+  }
+}
+
+/*
+ * Timeline chart element styles. Chart is rendered as HTML (React) rather
+ * than SVG — most layout is expressed via utility classes on JSX; this block
+ * covers the pieces that need shared tokens or fine-grained control not
+ * worth expressing per-element.
+ */
+.timeline-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  color: var(--tl-axis);
+  font-size: 12px;
+}
+.timeline-legend__item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.timeline-legend__swatch {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border-radius: 2px;
+}
+/*
+ * Label column cell. Text left, bracket flush against the right edge so the
+ * bracket's vertical stem hugs whichever label line is wider.
+ */
+.timeline-label-cell {
+  position: relative;
+  display: flex;
+  align-items: center;
+  padding-left: 12px;
+  padding-right: 22px;
+  transition: opacity 200ms ease;
+}
+.timeline-label-cell__text {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.timeline-label-cell__serial {
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.15;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.timeline-label-cell__meta {
+  font-size: 10px;
+  line-height: 1.2;
+  color: var(--tl-axis);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.timeline-label-cell__bracket {
+  position: absolute;
+  right: 4px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+/*
+ * Chart row — bars are absolutely positioned children. Row height set inline
+ * (matches ROW_HEIGHT in TimelineChart.tsx).
+ */
+.timeline-row-html {
+  position: relative;
+  transition: opacity 200ms ease;
+}
+.timeline-row-html__guide {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  height: 1px;
+  background: var(--tl-grid);
+}
+/*
+ * Bars. `<button>` when clickable (a real keyboard-focusable element), plain
+ * `<div>` for device init / prepare markers.
+ */
+.bar {
+  position: absolute;
+  border: 0;
+  padding: 0;
+  margin: 0;
+  border-radius: 2px;
+  transition: filter 120ms ease;
+}
+.bar:hover,
+.bar:focus-visible {
+  filter: brightness(1.15);
+  outline: none;
+}
+.bar-clickable {
+  cursor: pointer;
+}
+.bar-clickable:focus-visible {
+  box-shadow: 0 0 0 2px rgb(14 165 233 / 0.7);
+}
+.bar-PASSED {
+  background: var(--tl-passed);
+}
+.bar-FAILURE {
+  background: var(--tl-failed);
+}
+.bar-IGNORED,
+.bar-ASSUMPTION_FAILURE {
+  background: var(--tl-ignored);
+}
+.bar-INCOMPLETE {
+  background: var(--tl-incomplete);
+}
+.bar-DEVICE_PREPARE {
+  background: var(--tl-prepare);
+}
+.bar-DEVICE_PROVIDER_INIT {
+  background: var(--tl-provider);
+}
+.timeline-tooltip {
+  position: fixed;
+  z-index: 20;
+  pointer-events: none;
+  background: rgb(var(--color-surface-alt));
+  color: currentColor;
+  border: 1px solid rgb(var(--color-surface-border));
+  padding: 8px 10px;
+  font-size: 11px;
+  line-height: 1.35;
+  border-radius: 6px;
+  box-shadow: 0 8px 24px rgb(0 0 0 / 0.35);
+  max-width: 320px;
+  /* Break long test names / batch ids inside the tooltip so text never spills
+     out of the padded box. */
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+html.dark .timeline-tooltip {
+  /* Give the tooltip a stronger separation from the near-black chart bg in
+     dark mode — otherwise text appears to float directly over the bars. */
+  background: rgb(30 41 59); /* slate-800 */
+  border-color: rgb(71 85 105); /* slate-500 */
+}

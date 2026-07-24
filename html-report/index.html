@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Marathon Report — dev</title>
+    <script>
+      // Local dev fixture: paste real payloads here or import from src/dev/fixtures.
+      window.mainData = {
+        report_schema_version: 2,
+        generated_at_ms: Date.now(),
+        title: 'dev-run',
+        total_failed: 0,
+        total_flaky: 0,
+        total_ignored: 0,
+        total_passed: 0,
+        total_duration_millis: 0,
+        average_duration_millis: 0,
+        max_duration_millis: 0,
+        min_duration_millis: 0,
+        pools: [],
+      };
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

@@ -7,7 +7,8 @@ repositories {
 }
 
 dependencies {
-    implementation("org.jetbrains.kotlin:kotlin-gradle-plugin:1.9.10")
-    implementation("com.squareup:kotlinpoet:1.16.0")
-    implementation("com.google.code.gson:gson:2.10.1")
+    // Keep in lockstep with `Versions.kotlin` in src/main/kotlin/Versions.kt.
+    implementation("org.jetbrains.kotlin:kotlin-gradle-plugin:2.1.20")
+    implementation("com.squareup:kotlinpoet:1.18.1")
+    implementation("com.google.code.gson:gson:2.11.0")
 }

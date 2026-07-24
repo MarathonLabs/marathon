@@ -25,7 +25,6 @@ import com.malinskiy.marathon.report.junit.JUnitReporter
 import com.malinskiy.marathon.report.raw.RawJsonReporter
 import com.malinskiy.marathon.report.stdout.StdoutReporter
 import com.malinskiy.marathon.report.test.TestJsonReporter
-import com.malinskiy.marathon.report.timeline.TimelineReporter
 import com.malinskiy.marathon.report.timeline.TimelineSummaryProvider
 import com.malinskiy.marathon.time.Timer
 import com.malinskiy.marathon.usageanalytics.tracker.UsageTracker
@@ -93,11 +92,12 @@ internal class TrackerFactory(
                 DeviceInfoJsonReporter(fileManager, gson),
                 BillingReporter(fileManager, gson, usageTracker),
                 JUnitReporter(configuration.outputDir),
-                TimelineReporter(TimelineSummaryProvider(), gson, configuration.outputDir),
                 RawJsonReporter(fileManager, gson),
                 TestJsonReporter(fileManager, gson),
                 AllureReporter(configuration, File(configuration.outputDir, "allure-results")),
-                HtmlSummaryReporter(gson, fileManager, configuration.outputDir, configuration),
+                // Timeline data is inlined into the HTML index by the summary
+                // reporter — no separate emitter needed.
+                HtmlSummaryReporter(gson, fileManager, configuration.outputDir, configuration, TimelineSummaryProvider()),
                 StdoutReporter(timer)
             )
         )
