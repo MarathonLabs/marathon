@@ -1,3 +1,5 @@
+import com.malinskiy.marathon.buildsystem.libs
+import com.malinskiy.marathon.buildsystem.library
 import org.gradle.api.JavaVersion
 import org.gradle.api.Project
 import org.gradle.api.plugins.JavaPluginExtension
@@ -7,7 +9,6 @@ import org.gradle.jvm.toolchain.JavaLanguageVersion
 import org.gradle.kotlin.dsl.configure
 import org.gradle.kotlin.dsl.named
 import org.gradle.kotlin.dsl.withType
-import org.gradle.api.artifacts.VersionCatalogsExtension
 import org.gradle.testing.jacoco.tasks.JacocoReport
 import org.jetbrains.kotlin.gradle.dsl.KotlinJvmProjectExtension
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
@@ -67,10 +68,7 @@ fun Project.setupTestTask(jacoco: Boolean = true) {
     // `junit-platform-gradle-plugin` used to do. Coordinates come from the
     // root version catalog so upgrades touch one file (gradle/libs.versions.toml).
     configurations.findByName("testRuntimeOnly")?.let { cfg ->
-        val launcher = extensions.getByType(VersionCatalogsExtension::class.java)
-            .named("libs")
-            .findLibrary("junitPlatformLauncher").get().get()
-        dependencies.add(cfg.name, launcher)
+        dependencies.add(cfg.name, libs.library("junitPlatformLauncher").get())
     }
 }
 
