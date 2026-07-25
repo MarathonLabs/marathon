@@ -391,11 +391,22 @@ class HtmlSummaryReporter(
 
     companion object {
         /**
-         * Per-attempt log inline cap. 1 MiB keeps the emitted HTML shell
-         * bounded on typical test runs while covering the common android /
-         * ios logcat volumes we see in practice.
+         * Per-attempt log inline cap. Emitted HTML embeds this many head
+         * bytes of the log file into `window.logs.attempts[i].log_body`.
+         *
+         * The client (`LogsPage`) prefers a network fetch of `log_path`
+         * when available (unlimited), and falls back to the inlined body
+         * when running under `file://` (Chromium blocks fetch there). The
+         * cap only bites in the fallback path — set high enough to cover
+         * the vast majority of real logcat volumes without ballooning the
+         * emitted HTML into hundreds of MiB.
+         *
+         * 8 MiB × N attempts × M failing tests can still add up on a
+         * flaky suite; if a real run trips memory limits, prefer serving
+         * the report over HTTP (mainstream case) so the fetch path takes
+         * over rather than raising this further.
          */
-        const val LOG_INLINE_CAP_BYTES = 1_048_576
+        const val LOG_INLINE_CAP_BYTES = 8 * 1_048_576
     }
 }
 

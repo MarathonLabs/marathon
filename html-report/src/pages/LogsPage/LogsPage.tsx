@@ -213,25 +213,57 @@ function LogViewer({
   useEffect(() => {
     setText(null);
     setError(null);
-    // Prefer the inlined body when the reporter provides it — Chromium blocks
-    // `fetch()` under `file://`, so log_path alone doesn't work for users who
-    // just double-click index.html. Kotlin inlines log_body on emit; static
-    // fixtures always inline. Fall back to fetch for pre-v2 payloads.
-    if (typeof attempt.log_body === 'string') {
-      setText(attempt.log_body);
+    // Load order (see reporter's LOG_INLINE_CAP_BYTES for context):
+    //
+    // 1. Report served over HTTP + `log_path` present → prefer fetch. The
+    //    inlined body is capped at 8 MiB per attempt; the on-disk file is
+    //    unlimited. Fetching gets the full log for reports served by a real
+    //    HTTP host (CI artifact browsers, gh pages, etc.).
+    //
+    // 2. `log_body` inlined → use it. Handles Chromium's `file://` fetch
+    //    block (double-clicking index.html) and reports missing `log_path`.
+    //
+    // 3. Neither → surface "no log captured".
+    //
+    // If step 1 fails at runtime (404, CORS, etc.), fall back to the inlined
+    // body when we have one — same policy as opening under file://.
+    const preferFetch =
+      typeof window !== 'undefined' &&
+      window.location.protocol !== 'file:' &&
+      typeof attempt.log_path === 'string' &&
+      attempt.log_path.length > 0;
+
+    const inlineFallback = typeof attempt.log_body === 'string' ? attempt.log_body : null;
+
+    if (preferFetch) {
+      let cancelled = false;
+      fetch(attempt.log_path!)
+        .then((res) => {
+          if (!res.ok) throw new Error(`HTTP ${res.status}`);
+          return res.text();
+        })
+        .then((body) => {
+          if (!cancelled) setText(body);
+        })
+        .catch((e: unknown) => {
+          if (cancelled) return;
+          if (inlineFallback !== null) setText(inlineFallback);
+          else setError(String(e));
+        });
+      return () => {
+        cancelled = true;
+      };
+    }
+
+    if (inlineFallback !== null) {
+      setText(inlineFallback);
       return;
     }
     if (!attempt.log_path) {
       setError('This attempt did not capture any log output.');
       return;
     }
-    fetch(attempt.log_path)
-      .then((res) => {
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        return res.text();
-      })
-      .then((body) => setText(body))
-      .catch((e: unknown) => setError(String(e)));
+    setError('Log file present on disk but cannot be fetched from this origin.');
   }, [attempt.log_body, attempt.log_path]);
 
   const forcedParser = params.get('parser');
