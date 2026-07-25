@@ -20,6 +20,7 @@ const LEGEND: Array<{ type: MetricType; label: string }> = [
   { type: 'PASSED', label: 'Passed test' },
   { type: 'FAILURE', label: 'Failed test' },
   { type: 'IGNORED', label: 'Ignored / assumption' },
+  { type: 'INCOMPLETE', label: 'Incomplete' },
   { type: 'DEVICE_PREPARE', label: 'Device prepare' },
   { type: 'DEVICE_PROVIDER_INIT', label: 'Provider init' },
 ];
