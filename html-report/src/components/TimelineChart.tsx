@@ -27,7 +27,14 @@ const LEGEND: Array<{ type: MetricType; label: string }> = [
 const formatClock = timeFormat('%H:%M:%S');
 
 // Layout constants — kept in sync with the CSS in `src/styles.css`.
-const LABEL_COLUMN_WIDTH = 220;
+// Label column width is measured at render time (see `useLabelColumnWidth`);
+// these are the floor and ceiling. Floor keeps the column readable when every
+// label is short (short serials + no meta line); ceiling stops one pathological
+// device (an emulator with a fully-qualified host chain like
+// `127.0.0.1:5037:localhost:45071`) from starving the chart area.
+const LABEL_COLUMN_MIN = 200;
+const LABEL_COLUMN_MAX = 360;
+const LABEL_COLUMN_PADDING = 44; // matches .timeline-label-cell padding+bracket
 const ROW_HEIGHT = 50;
 const BAR_HEIGHT = 16;
 const HEADER_HEIGHT = 36;
@@ -84,6 +91,39 @@ export function TimelineChart({ data, onOpenTest, className }: TimelineChartProp
     return () => ro.disconnect();
   }, []);
 
+  // Auto-size label column to widest label text (both serial + meta lines).
+  // Sized after mount from unclipped label text; column is capped at
+  // LABEL_COLUMN_MAX to keep the chart area from being starved by one long serial.
+  const labelColumnRef = useRef<HTMLDivElement>(null);
+  const [labelColumnWidth, setLabelColumnWidth] = useState(LABEL_COLUMN_MIN);
+  useLayoutEffect(() => {
+    const container = labelColumnRef.current;
+    if (!container) return;
+    const measure = () => {
+      let widest = 0;
+      // Text nodes have `white-space: nowrap` — scrollWidth is the intrinsic
+      // laid-out width, ignoring the column's clip. Grab both lines per row.
+      container
+        .querySelectorAll<HTMLElement>(
+          '.timeline-label-cell__serial, .timeline-label-cell__meta',
+        )
+        .forEach((el) => {
+          if (el.scrollWidth > widest) widest = el.scrollWidth;
+        });
+      const w = Math.max(
+        LABEL_COLUMN_MIN,
+        Math.min(LABEL_COLUMN_MAX, widest + LABEL_COLUMN_PADDING),
+      );
+      setLabelColumnWidth(w);
+    };
+    measure();
+    // Re-measure on font load or resize — glyph metrics can shift after
+    // web fonts swap in, and dark/light theme toggles restyle text weight.
+    const ro = new ResizeObserver(measure);
+    ro.observe(container);
+    return () => ro.disconnect();
+  }, [data]);
+
   const measures = useMemo(() => data.measures.filter((m) => m.data.length > 0), [data.measures]);
   const [domainStart, domainEnd] = useMemo(() => domainOf(measures), [measures]);
   const availableWidth = Math.max(MIN_CHART_WIDTH, chartWidth);
@@ -139,7 +179,10 @@ export function TimelineChart({ data, onOpenTest, className }: TimelineChartProp
           </div>
         ) : (
           <div className="flex">
-            <div style={{ width: LABEL_COLUMN_WIDTH, flex: '0 0 auto' }}>
+            <div
+              ref={labelColumnRef}
+              style={{ width: labelColumnWidth, flex: '0 0 auto' }}
+            >
               {/* Spacer matching the axis header row over on the right */}
               <div style={{ height: HEADER_HEIGHT }} />
               {measures.map((m) => (
