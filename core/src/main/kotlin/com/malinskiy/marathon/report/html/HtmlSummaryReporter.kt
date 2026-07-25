@@ -151,12 +151,21 @@ class HtmlSummaryReporter(
         )
     }
 
+    // Base directory the html-report tree is rooted at (rootOutput/html/).
+    // Artifact paths (screenshot/video/log) are made relative to this base so
+    // the emitted `<img src>`/`<a href>` refs point at sibling directories
+    // inside `html/` instead of escaping to marathon's rootOutput. That keeps
+    // the entire report self-contained under `html/` — archive tools can grab
+    // just that subtree and get every asset the report links to.
+    private val htmlOutputBase: File by lazy { File(rootOutput, FolderType.HTML.dir) }
+
     private fun TestResult.artifactScreenshotPath(poolId: String): String {
-        val relative = fileManager.createFile(FileType.SCREENSHOT, DevicePoolId(poolId), device, test, testBatchId)
-            .relativePathTo(rootOutput)
-        val full = File(rootOutput, relative)
-        return if (device.deviceFeatures.contains(DeviceFeature.SCREENSHOT) && full.exists()) {
-            "../../../../${relative.replace("#", "%23")}"
+        val file = fileManager.createFile(FileType.SCREENSHOT, DevicePoolId(poolId), device, test, testBatchId)
+        val relative = file.relativePathTo(htmlOutputBase)
+        // Test HTML lives at `html/pools/<pool>/<device>/<name>.html` (3 deep
+        // inside `html/`); `../../../` returns to the html root.
+        return if (device.deviceFeatures.contains(DeviceFeature.SCREENSHOT) && file.exists()) {
+            "../../../${relative.replace("#", "%23")}"
         } else ""
     }
 
@@ -164,15 +173,14 @@ class HtmlSummaryReporter(
         if (!device.deviceFeatures.contains(DeviceFeature.VIDEO)) return emptyList()
         return attachments
             .filter { it.type == AttachmentType.VIDEO && it.file.exists() }
-            .map { it.file.relativePathTo(rootOutput).replace("#", "%23") }
-            .map { "../../../../$it" }
+            .map { it.file.relativePathTo(htmlOutputBase).replace("#", "%23") }
+            .map { "../../../$it" }
     }
 
     private fun TestResult.artifactLogPath(poolId: String): String {
-        val relative = fileManager.createFile(FileType.LOG, DevicePoolId(poolId), device, test, testBatchId)
-            .relativePathTo(rootOutput)
-        val full = File(rootOutput, relative)
-        return if (full.exists()) "../../../../${relative.replace("#", "%23")}" else ""
+        val file = fileManager.createFile(FileType.LOG, DevicePoolId(poolId), device, test, testBatchId)
+        val relative = file.relativePathTo(htmlOutputBase)
+        return if (file.exists()) "../../../${relative.replace("#", "%23")}" else ""
     }
 
     /**
