@@ -36,9 +36,16 @@ class ScreenCapturer(
         var outputStream: FileImageOutputStream? = null
         var writer: GifSequenceWriter? = null
         capturesTaken = 0
+        // FileImageOutputStream writes the GIF header eagerly on open. If a
+        // test finishes with zero frames captured (short test, all captures
+        // failed, permissions), `writer.close()` still calls
+        // `endWriteSequence()` and we leave a ~1-byte file on disk containing
+        // just the GIF trailer `0x3B`. The html-report links it as
+        // `<img src>` and browsers render it as broken. Track the target
+        // file so we can delete an empty GIF on cleanup rather than emit it.
+        val outputFile = fileManager.createFile(FileType.SCREENSHOT, poolId, deviceInfo, test, testBatchId)
         try {
-            outputStream =
-                FileImageOutputStream(fileManager.createFile(FileType.SCREENSHOT, poolId, deviceInfo, test, testBatchId))
+            outputStream = FileImageOutputStream(outputFile)
             writer = GifSequenceWriter(outputStream, BufferedImage.TYPE_INT_ARGB, delayMillis, true)
             var targetRotation = detectCurrentDeviceOrientation()
             while (coroutineContext.isActive) {
@@ -57,6 +64,9 @@ class ScreenCapturer(
         } finally {
             writer?.close()
             outputStream?.close()
+            if (capturesTaken == 0 && outputFile.exists()) {
+                outputFile.delete()
+            }
         }
     }
 
