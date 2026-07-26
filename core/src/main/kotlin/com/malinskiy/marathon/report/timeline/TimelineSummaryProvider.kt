@@ -11,7 +11,7 @@ import com.malinskiy.marathon.test.toClassName
 class TimelineSummaryProvider {
     val logger = MarathonLogging.logger(TimelineSummaryProvider::class.java.simpleName)
 
-    private fun parseData(report: ExecutionReport): List<Data> {
+    private fun parseData(report: ExecutionReport, finalDeviceByTestKey: Map<String, String>): List<Data> {
         val perTestAttempts: Map<String, MutableList<TestEvent>> = mutableMapOf<String, MutableList<TestEvent>>().apply {
             report.testEvents.groupByTo(this) { "${it.testResult.test.clazz}.${it.testResult.test.method}" }
                 .values.forEach { it.sortBy { evt -> evt.testResult.startTime } }
@@ -20,7 +20,9 @@ class TimelineSummaryProvider {
             events.mapIndexed { index, event -> event to index }
         }.toMap()
 
-        val testData = report.testEvents.map { convertToData(it, eventAttemptIndex[it] ?: 0) }
+        val testData = report.testEvents.map {
+            convertToData(it, eventAttemptIndex[it] ?: 0, finalDeviceByTestKey)
+        }
 
         val preparingData = report.devicePreparingEvents.map {
             Data(
@@ -47,12 +49,25 @@ class TimelineSummaryProvider {
         return (testData + preparingData + providerData).sortedBy { it.startDate }
     }
 
-    private fun convertToData(event: TestEvent, attemptIndex: Int): Data {
+    private fun convertToData(
+        event: TestEvent,
+        attemptIndex: Int,
+        finalDeviceByTestKey: Map<String, String>,
+    ): Data {
         val preparedTestName = "${event.testResult.test.clazz}.${event.testResult.test.method}"
         // Reproduce the filename convention `HtmlSummaryReporter` uses so
         // consumers can build the same `pools/<pool>/<device>/<name>.html`
         // href the pool list emits — no extra lookup table required.
         val filename = "${event.testResult.test.toClassName()}.${event.testResult.test.method}".escape().safePathLength() + ".html"
+        // HtmlSummaryReporter only writes a per-test HTML under the FINAL
+        // attempt's device directory (see `HtmlSummaryReporter.generate`,
+        // `pool.tests.forEach`). Every bar for a retried test must therefore
+        // point at the final-device directory — not the bar's own attempt
+        // device — or clicking a prior-attempt bar 404s. Attempt-specific
+        // highlighting still works via the `#/attempt/N` hash the caller
+        // appends on click (see `HomePage.onOpenTest`).
+        val testKey = "${event.poolId.name}/$preparedTestName"
+        val navDeviceSerial = finalDeviceByTestKey[testKey] ?: event.device.safeSerialNumber
         return Data(
             testName = preparedTestName,
             metricType = event.testResult.status.toMetricType(),
@@ -64,7 +79,7 @@ class TimelineSummaryProvider {
             attemptIndex = attemptIndex,
             poolId = event.poolId.name,
             testFilename = filename,
-            deviceSerial = event.device.safeSerialNumber,
+            deviceSerial = navDeviceSerial,
         )
     }
 
@@ -116,8 +131,18 @@ class TimelineSummaryProvider {
         val deviceBySerial: Map<String, DeviceInfo> =
             executionReport.deviceConnectedEvents.associateBy({ it.device.serialNumber }, { it.device })
 
+        // Marathon's per-test HTML lives under the FINAL attempt's device dir.
+        // Build a `pool/test-key → final-attempt-safe-serial` map once, keyed
+        // by the last-started event per (pool, test) tuple, so timeline bars
+        // for prior attempts still link to a real file on disk.
+        val finalDeviceByTestKey: Map<String, String> = executionReport.testEvents
+            .groupBy { "${it.poolId.name}/${it.testResult.test.clazz}.${it.testResult.test.method}" }
+            .mapValues { (_, events) ->
+                events.maxBy { it.testResult.startTime }.device.safeSerialNumber
+            }
+
         val measures = reports.map { (serial, subReport) ->
-            val data = parseData(subReport)
+            val data = parseData(subReport, finalDeviceByTestKey)
             Measure(
                 measure = serial,
                 executionStats = calculateExecutionStats(data),
