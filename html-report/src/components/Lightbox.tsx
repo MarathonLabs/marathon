@@ -13,9 +13,18 @@ export function Lightbox({ src, alt }: { src: string; alt: string }) {
       <Dialog.Trigger asChild>
         <button
           type="button"
-          className="block max-h-64 overflow-hidden rounded border border-surface-border bg-surface-alt"
+          // Center the thumbnail in the pane and cap its display so tall
+          // portrait screenshots (typical for android phone runs) don't
+          // stretch the attempt card. Real-size render is the lightbox
+          // dialog; the trigger is a preview only.
+          className="mx-auto block max-h-96 max-w-full overflow-hidden rounded border border-surface-border bg-surface-alt"
         >
-          <img src={src} alt={alt} className="h-full w-full object-contain" />
+          <img
+            src={src}
+            alt={alt}
+            loading="lazy"
+            className="mx-auto max-h-96 w-auto object-contain"
+          />
         </button>
       </Dialog.Trigger>
       <Dialog.Portal>

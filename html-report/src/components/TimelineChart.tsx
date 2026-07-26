@@ -47,20 +47,20 @@ const BRACKET_TICK = 8;
 interface Filters {
   osMajors: Set<string>;
   manufacturers: Set<string>;
-  serials: Set<string>;
 }
 const EMPTY_FILTERS: Filters = {
   osMajors: new Set(),
   manufacturers: new Set(),
-  serials: new Set(),
 };
 
 // URL-hash query keys. Prefixed so they don't collide with page-level state
 // (`q`, `status`, etc. on PoolPage) if a user copies a full URL between pages.
+//
+// Device serial isn't filterable — each device is its own row, so single-serial
+// filtering just dims every-other row with no analytical value.
 const HASH_KEYS = {
   osMajors: 'tl_os',
   manufacturers: 'tl_mfg',
-  serials: 'tl_dev',
 } as const;
 
 /**
@@ -157,8 +157,7 @@ export function TimelineChart({ data, onOpenTest, className }: TimelineChartProp
     });
   }, [updateHash]);
 
-  const anyActive =
-    filters.osMajors.size + filters.manufacturers.size + filters.serials.size > 0;
+  const anyActive = filters.osMajors.size + filters.manufacturers.size > 0;
 
   const [tooltip, setTooltip] = useState<TooltipState | null>(null);
 
@@ -216,15 +215,12 @@ export function TimelineChart({ data, onOpenTest, className }: TimelineChartProp
 interface TimelineFacets {
   osMajors: string[];
   manufacturers: string[];
-  serials: string[];
 }
 
 function facetsFor(data: TimelineExecutionResult): TimelineFacets {
   const os = new Set<string>();
   const mfg = new Set<string>();
-  const serials: string[] = [];
   for (const measure of data.measures) {
-    serials.push(measure.measure);
     const d = measure.device;
     if (!d) continue;
     if (d.manufacturer) mfg.add(d.manufacturer);
@@ -234,7 +230,6 @@ function facetsFor(data: TimelineExecutionResult): TimelineFacets {
   return {
     osMajors: [...os].sort(),
     manufacturers: [...mfg].sort(),
-    serials,
   };
 }
 
@@ -251,8 +246,7 @@ function osFacetLabel(
 }
 
 function dimSet(data: TimelineExecutionResult, filters: Filters): Set<string> {
-  const active =
-    filters.osMajors.size + filters.manufacturers.size + filters.serials.size;
+  const active = filters.osMajors.size + filters.manufacturers.size;
   const dimmed = new Set<string>();
   if (active === 0) return dimmed;
   for (const measure of data.measures) {
@@ -263,8 +257,7 @@ function dimSet(data: TimelineExecutionResult, filters: Filters): Set<string> {
     const passesMfg =
       filters.manufacturers.size === 0 ||
       (!!d?.manufacturer && filters.manufacturers.has(d.manufacturer));
-    const passesSerial = filters.serials.size === 0 || filters.serials.has(measure.measure);
-    if (!(passesOs && passesMfg && passesSerial)) dimmed.add(measure.measure);
+    if (!(passesOs && passesMfg)) dimmed.add(measure.measure);
   }
   return dimmed;
 }
@@ -274,7 +267,6 @@ function filtersFromHash(params: URLSearchParams): Filters {
   return {
     osMajors: decode(params.get(HASH_KEYS.osMajors)),
     manufacturers: decode(params.get(HASH_KEYS.manufacturers)),
-    serials: decode(params.get(HASH_KEYS.serials)),
   };
 }
 
@@ -540,14 +532,6 @@ function TimelineFilters({
           values={facets.manufacturers}
           active={filters.manufacturers}
           onToggle={(v) => onToggle('manufacturers', v)}
-        />
-      )}
-      {facets.serials.length > 1 && (
-        <FacetRow
-          label="Device"
-          values={facets.serials}
-          active={filters.serials}
-          onToggle={(v) => onToggle('serials', v)}
         />
       )}
       <div className="absolute right-3 top-3">
