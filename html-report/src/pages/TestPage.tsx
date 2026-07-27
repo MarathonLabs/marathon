@@ -235,12 +235,26 @@ function AttemptBody({ attempt, logFilename }: { attempt: HtmlAttempt; logFilena
           <div className="mt-4 flex flex-col gap-3">
             {attempt.screenshot && <Lightbox src={attempt.screenshot} alt="Screenshot" />}
             {attempt.videos.map((v) => (
-              // preload="none" — under `file://` Chromium doesn't honor Range
-              // requests on local mp4s, and `preload="metadata"` fires a
-              // Range: 0-N GET that returns 0 bytes, marking the source as
-              // empty before the user ever clicks play. Deferring the fetch
-              // until interaction avoids the truncated read.
-              <video key={v} controls preload="none" playsInline src={v} className="w-full rounded border border-surface-border bg-black" />
+              // Chromium under file:// has flaky read behavior on `<video src>`:
+              //   * preload="metadata" fires a Range GET that returns 0 bytes
+              //     before the user ever clicks play, so the element renders
+              //     empty forever
+              //   * even with preload="none", a plain `src` attribute lets the
+              //     internal type sniffer decide "not decodable" on the first
+              //     truncated read
+              // Explicit <source type="video/mp4"> short-circuits sniffing +
+              // preload="none" keeps the first request tied to the user's
+              // play click. This combo renders correctly in both Chrome and
+              // Safari file:// for the mp4s marathon captures.
+              <video
+                key={v}
+                controls
+                preload="none"
+                playsInline
+                className="w-full rounded border border-surface-border bg-black"
+              >
+                <source src={v} type="video/mp4" />
+              </video>
             ))}
             {attempt.log_file && (
               <a
