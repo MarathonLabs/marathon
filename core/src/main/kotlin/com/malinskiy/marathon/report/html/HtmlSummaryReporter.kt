@@ -331,6 +331,8 @@ class HtmlSummaryReporter(
             isFlaky = attempts.isFlakySequence(),
             devices = attempts.map { it.device.serial }.distinct(),
             osVersions = attempts.map { it.device.osVersion }.distinct(),
+            hasScreenshot = attempts.any { it.screenshot.isNotEmpty() },
+            hasVideo = attempts.any { it.videos.isNotEmpty() },
         )
     }
 

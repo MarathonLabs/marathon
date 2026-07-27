@@ -98,8 +98,24 @@ export function applyFilters(pool: HtmlPoolSummary, filters: PoolFilters): HtmlS
       }
     }
 
-    if (filters.requireScreenshot && !t.device.features.includes('SCREENSHOT')) return false;
-    if (filters.requireVideo && !t.device.features.includes('VIDEO')) return false;
+    // Filter on the emitted asset, not device capability. `features`
+    // reflects what the emulator can capture; `has_screenshot`/`has_video`
+    // reflect what the reporter actually linked (the reporter now hides
+    // broken captures — 0-byte gifs, mp4s missing moov). Old code no-op'd
+    // because every capable device shows SCREENSHOT+VIDEO in features.
+    //
+    // Backwards-compat: reports emitted before has_screenshot/has_video
+    // shipped will have the field undefined. Fall back to the feature-based
+    // check so the filter chip at least does the old (noisier) behavior
+    // rather than filtering out every test.
+    if (filters.requireScreenshot) {
+      const hasShot = t.has_screenshot ?? t.device.features.includes('SCREENSHOT');
+      if (!hasShot) return false;
+    }
+    if (filters.requireVideo) {
+      const hasVid = t.has_video ?? t.device.features.includes('VIDEO');
+      if (!hasVid) return false;
+    }
     if (filters.requireLog && !t.device.features.length) return false;
 
     return true;

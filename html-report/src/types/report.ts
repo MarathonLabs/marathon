@@ -57,6 +57,10 @@ export interface HtmlShortTest {
   devices: string[];
   /** Distinct OS version strings touched across attempts. */
   os_versions: string[];
+  /** True when any attempt of this test produced a linked screenshot. */
+  has_screenshot: boolean;
+  /** True when any attempt of this test produced a linked video. */
+  has_video: boolean;
 }
 
 export interface HtmlFullTest {

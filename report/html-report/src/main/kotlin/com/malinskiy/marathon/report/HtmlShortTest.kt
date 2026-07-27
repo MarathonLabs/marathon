@@ -26,4 +26,14 @@ data class HtmlShortTest(
     @SerializedName("devices") val devices: List<String>,
     /** Distinct OS versions the test ran on across all attempts. */
     @SerializedName("os_versions") val osVersions: List<String>,
+    /**
+     * True when any attempt of this test produced a captured screenshot the
+     * report actually links to. Populated by the Kotlin reporter from the
+     * same `artifactScreenshotPath` result the test detail page uses, so
+     * the pool page's "screenshot" filter reflects real assets rather than
+     * device capability.
+     */
+    @SerializedName("has_screenshot") val hasScreenshot: Boolean,
+    /** Same shape as [hasScreenshot], for captured video attachments. */
+    @SerializedName("has_video") val hasVideo: Boolean,
 )
