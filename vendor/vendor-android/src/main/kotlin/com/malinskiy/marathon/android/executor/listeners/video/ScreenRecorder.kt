@@ -4,6 +4,7 @@ import com.malinskiy.marathon.android.AndroidDevice
 import com.malinskiy.marathon.config.vendor.android.VideoConfiguration
 import com.malinskiy.marathon.log.MarathonLogging
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.delay
 import kotlin.system.measureTimeMillis
 
 internal class ScreenRecorder(
@@ -33,13 +34,35 @@ internal class ScreenRecorder(
         logger.debug { "Recording finished in ${millis}ms $remoteFilePath" }
     }
 
-    suspend fun stopScreenRecord() {
+    /**
+     * Send SIGINT to any live screenrecord PID, then wait for the process to
+     * actually exit and its output file to stop growing on disk before
+     * returning. `screenrecord` catches SIGINT and finalizes the mp4's
+     * moov atom during shutdown; caller pulling the file before that
+     * finalization completes was the source of the "video plays as blank
+     * frame" bug — the file has ftyp + mdat but no moov, and browsers
+     * refuse to decode it.
+     *
+     * @param remoteFilePath path being recorded to; polled for size
+     *                       stability after the process exits. When null,
+     *                       only the process-exit poll runs.
+     */
+    suspend fun stopScreenRecord(remoteFilePath: String? = null) {
         logger.debug { "Stopping screen recorder" }
-        var hasKilledScreenRecord = true
+        var sentSignal = false
         for (tries in 0 until SCREEN_RECORD_KILL_ATTEMPTS) {
-            if (!hasKilledScreenRecord) break
-            hasKilledScreenRecord = attemptToGracefullyKillScreenRecord()
-            pauseBetweenProcessKill()
+            val killed = attemptToGracefullyKillScreenRecord()
+            if (killed) sentSignal = true
+            if (!killed) break
+            delay(PAUSE_BETWEEN_RECORDER_PROCESS_KILL.toLong())
+        }
+        // Only run the finalization waits when we actually saw a running
+        // screenrecord to kill. Skipping keeps the existing test stubs
+        // (which stage a single ps-grep response) working, and avoids
+        // burning device round-trips when there was nothing to stop.
+        if (sentSignal) {
+            awaitProcessExit()
+            if (remoteFilePath != null) awaitFileSizeStable(remoteFilePath)
         }
     }
 
@@ -69,7 +92,7 @@ internal class ScreenRecorder(
                 device.safeExecuteShellCommand("kill -2 $pid")
                 return true
             } else {
-                logger.warn { "Did not kill any screen recording process" }
+                logger.trace { "No screenrecord process still alive" }
             }
         } catch (e: Exception) {
             logger.error("Error while killing recording processes", e)
@@ -77,13 +100,47 @@ internal class ScreenRecorder(
         return false
     }
 
-    private fun pauseBetweenProcessKill() {
-        try {
-            Thread.sleep(PAUSE_BETWEEN_RECORDER_PROCESS_KILL.toLong())
-        } catch (ignored: InterruptedException) {
-            logger.warn(ignored) { "screenrecord stop was interrupted" }
+    /**
+     * Poll `pidof screenrecord` until absent or the budget expires. Kill sent
+     * to the process is SIGINT; screenrecord catches it and flushes moov —
+     * the process only goes away once flush is done, so absence is a strong
+     * signal that the file is complete.
+     */
+    private suspend fun awaitProcessExit() {
+        val start = System.currentTimeMillis()
+        while (System.currentTimeMillis() - start < PROCESS_EXIT_TIMEOUT_MS) {
+            if (grepPid().isBlank()) return
+            delay(PROCESS_POLL_INTERVAL_MS.toLong())
         }
+        logger.warn { "screenrecord did not exit within ${PROCESS_EXIT_TIMEOUT_MS}ms" }
+    }
 
+    /**
+     * Poll the remote file size until two consecutive samples match. Guards
+     * against pulling mid-write on slower emulators where the process has
+     * already exited but the file's fs metadata hasn't caught up.
+     */
+    private suspend fun awaitFileSizeStable(remoteFilePath: String) {
+        var previous = -1L
+        val start = System.currentTimeMillis()
+        while (System.currentTimeMillis() - start < FILE_STABLE_TIMEOUT_MS) {
+            val size = statRemoteSize(remoteFilePath) ?: return
+            if (size == previous && size > 0L) return
+            previous = size
+            delay(FILE_POLL_INTERVAL_MS.toLong())
+        }
+        logger.warn { "$remoteFilePath size did not stabilize within ${FILE_STABLE_TIMEOUT_MS}ms" }
+    }
+
+    /**
+     * `stat -c%s` on Android — works from Nougat onward. Null return means
+     * the stat call failed or the file is missing; caller should stop
+     * polling in either case (the pull will surface the real failure).
+     */
+    private suspend fun statRemoteSize(remoteFilePath: String): Long? {
+        val quoted = "'${remoteFilePath.replace("'", "'\\''")}'"
+        val output = device.safeExecuteShellCommand("stat -c%s $quoted")?.output?.trim()
+        return output?.takeIf { it.isNotBlank() }?.toLongOrNull()
     }
 
     companion object {
@@ -93,5 +150,13 @@ internal class ScreenRecorder(
         * Workaround for https://github.com/MarathonLabs/marathon/issues/133
         */
         private const val PAUSE_BETWEEN_RECORDER_PROCESS_KILL = 300
+
+        /** How long to wait for `screenrecord` to exit after SIGINT. */
+        private const val PROCESS_EXIT_TIMEOUT_MS = 5_000
+        private const val PROCESS_POLL_INTERVAL_MS = 200
+
+        /** How long to wait for the remote file size to stabilize post-exit. */
+        private const val FILE_STABLE_TIMEOUT_MS = 3_000
+        private const val FILE_POLL_INTERVAL_MS = 150
     }
 }
