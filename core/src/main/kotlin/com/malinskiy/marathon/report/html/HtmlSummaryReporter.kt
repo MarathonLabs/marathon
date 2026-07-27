@@ -172,9 +172,42 @@ class HtmlSummaryReporter(
     private fun TestResult.artifactVideoPaths(): List<String> {
         if (!device.deviceFeatures.contains(DeviceFeature.VIDEO)) return emptyList()
         return attachments
-            .filter { it.type == AttachmentType.VIDEO && it.file.exists() }
+            .filter { it.type == AttachmentType.VIDEO && it.file.exists() && it.file.hasPlayableMp4Atoms() }
             .map { it.file.relativePathTo(htmlOutputBase).replace("#", "%23") }
             .map { "../../../$it" }
+    }
+
+    /**
+     * Cheap validation that a captured screenrecord mp4 is likely playable.
+     * `adb shell screenrecord` occasionally exits before writing the `moov`
+     * atom on flaky emulators — the resulting file has a valid `ftyp` header
+     * and megabytes of `mdat` data, but no `moov`, so browsers render an
+     * empty player. Scan the top of the file for `ftyp` + `moov`; if either
+     * is missing, omit the file from the emitted refs so the client just
+     * hides the video slot rather than showing a broken player.
+     *
+     * Only reads the first 1 MiB — real mp4s marathon captures put `moov`
+     * up front (screenrecord is streaming, not fragmented). Broken captures
+     * either lack `moov` entirely or leave it dangling past truncation.
+     */
+    private fun File.hasPlayableMp4Atoms(): Boolean {
+        val scanLimit = 1 * 1024 * 1024L
+        val readLen = minOf(length(), scanLimit).toInt()
+        if (readLen < 24) return false
+        val buf = ByteArray(readLen)
+        inputStream().use { it.readNBytes(buf, 0, readLen) }
+        val hasFtyp = containsAtom(buf, "ftyp")
+        val hasMoov = containsAtom(buf, "moov")
+        return hasFtyp && hasMoov
+    }
+
+    private fun containsAtom(buf: ByteArray, atom: String): Boolean {
+        val bytes = atom.toByteArray(Charsets.US_ASCII)
+        outer@ for (i in 0..buf.size - bytes.size) {
+            for (j in bytes.indices) if (buf[i + j] != bytes[j]) continue@outer
+            return true
+        }
+        return false
     }
 
     private fun TestResult.artifactLogPath(poolId: String): String {
