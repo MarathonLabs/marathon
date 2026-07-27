@@ -251,7 +251,10 @@ function AttemptBody({ attempt, logFilename }: { attempt: HtmlAttempt; logFilena
                 controls
                 preload="none"
                 playsInline
-                className="w-full rounded border border-surface-border bg-black"
+                // max-h-96 matches the Lightbox screenshot cap so a tall
+                // portrait screenrecord doesn't dominate the attempt card.
+                // object-contain preserves aspect ratio inside the box.
+                className="mx-auto block max-h-96 w-auto max-w-full rounded border border-surface-border bg-black"
               >
                 <source src={v} type="video/mp4" />
               </video>
