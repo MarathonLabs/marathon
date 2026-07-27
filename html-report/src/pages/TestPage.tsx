@@ -235,7 +235,12 @@ function AttemptBody({ attempt, logFilename }: { attempt: HtmlAttempt; logFilena
           <div className="mt-4 flex flex-col gap-3">
             {attempt.screenshot && <Lightbox src={attempt.screenshot} alt="Screenshot" />}
             {attempt.videos.map((v) => (
-              <video key={v} controls preload="metadata" playsInline src={v} className="w-full rounded border border-surface-border bg-black" />
+              // preload="none" — under `file://` Chromium doesn't honor Range
+              // requests on local mp4s, and `preload="metadata"` fires a
+              // Range: 0-N GET that returns 0 bytes, marking the source as
+              // empty before the user ever clicks play. Deferring the fetch
+              // until interaction avoids the truncated read.
+              <video key={v} controls preload="none" playsInline src={v} className="w-full rounded border border-surface-border bg-black" />
             ))}
             {attempt.log_file && (
               <a
