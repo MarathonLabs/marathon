@@ -56,7 +56,7 @@ class FileManagerTest {
     fun createFilenameNormalLengthTest() {
         val fileManager = FileManager(0, 255, output)
         val file = fileManager.createFile(FileType.LOG, poolId, deviceInfo, shortNameTest, batchId)
-        file.name shouldBeEqualTo "com.example.Clazz#method-batchId.log"
+        file.name shouldBeEqualTo "com.example.Clazz-method-batchId.log"
     }
 
     @Test
@@ -110,7 +110,7 @@ class FileManagerTest {
             test = shortNameTest,
             id = "on-device-test",
         )
-        file.name shouldBeEqualTo "com.example.Clazz#method-on-device-test.png"
+        file.name shouldBeEqualTo "com.example.Clazz-method-on-device-test.png"
     }
 
     @Test
