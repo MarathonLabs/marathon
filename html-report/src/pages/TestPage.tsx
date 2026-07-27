@@ -251,10 +251,10 @@ function AttemptBody({ attempt, logFilename }: { attempt: HtmlAttempt; logFilena
                 controls
                 preload="none"
                 playsInline
-                // max-h-[560px] gives a tall-portrait screenrecord enough
-                // room to be readable at rest. Left-aligned (no mx-auto)
-                // so it stacks under the stacktrace column naturally.
-                className="block max-h-[560px] w-auto max-w-full rounded border border-surface-border bg-black"
+                // max-h-[640px] readable at rest; max-w-full clamps to
+                // column so a landscape recording wraps down instead of
+                // busting the layout. Left-aligned under the stacktrace.
+                className="block max-h-[640px] w-auto max-w-full rounded border border-surface-border bg-black"
               >
                 <source src={v} type="video/mp4" />
               </video>
