@@ -119,12 +119,8 @@ class ScreenRecorderTestBatchListener(
 
     private suspend fun stop() {
         cancelNewInvocations()
-        // Pass the file being recorded so the recorder can wait for the OS
-        // to finish flushing before we pull. Prevents pulling an mp4 that
-        // has ftyp + mdat but no moov (unplayable, renders as blank frame).
-        val currentRemote = lastRemoteFiles.lastOrNull()
         val stop = measureTimeMillis {
-            screenRecorder.stopScreenRecord(currentRemote)
+            screenRecorder.stopScreenRecord()
         }
         logger.trace { "stop ${stop}ms" }
         val join = measureTimeMillis {
