@@ -109,13 +109,10 @@ internal class ScreenRecorder(
     private suspend fun awaitProcessExit() {
         val start = System.currentTimeMillis()
         while (System.currentTimeMillis() - start < PROCESS_EXIT_TIMEOUT_MS) {
-            if (grepPid().isBlank()) {
-                logger.debug { "screenrecord exited after ${System.currentTimeMillis() - start}ms wait on ${device.serialNumber}" }
-                return
-            }
+            if (grepPid().isBlank()) return
             delay(PROCESS_POLL_INTERVAL_MS.toLong())
         }
-        logger.warn { "screenrecord did not exit within ${PROCESS_EXIT_TIMEOUT_MS}ms on ${device.serialNumber} — pulled video may be truncated (missing moov)" }
+        logger.warn { "screenrecord did not exit within ${PROCESS_EXIT_TIMEOUT_MS}ms" }
     }
 
     /**
@@ -128,14 +125,11 @@ internal class ScreenRecorder(
         val start = System.currentTimeMillis()
         while (System.currentTimeMillis() - start < FILE_STABLE_TIMEOUT_MS) {
             val size = statRemoteSize(remoteFilePath) ?: return
-            if (size == previous && size > 0L) {
-                logger.debug { "$remoteFilePath size stable at $size bytes after ${System.currentTimeMillis() - start}ms" }
-                return
-            }
+            if (size == previous && size > 0L) return
             previous = size
             delay(FILE_POLL_INTERVAL_MS.toLong())
         }
-        logger.warn { "$remoteFilePath size did not stabilize within ${FILE_STABLE_TIMEOUT_MS}ms — video may be mid-write when pulled" }
+        logger.warn { "$remoteFilePath size did not stabilize within ${FILE_STABLE_TIMEOUT_MS}ms" }
     }
 
     /**
