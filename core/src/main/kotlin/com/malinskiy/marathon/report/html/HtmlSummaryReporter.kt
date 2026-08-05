@@ -164,9 +164,27 @@ class HtmlSummaryReporter(
         val relative = file.relativePathTo(htmlOutputBase)
         // Test HTML lives at `html/pools/<pool>/<device>/<name>.html` (3 deep
         // inside `html/`); `../../../` returns to the html root.
-        return if (device.deviceFeatures.contains(DeviceFeature.SCREENSHOT) && file.exists()) {
+        return if (device.deviceFeatures.contains(DeviceFeature.SCREENSHOT) && file.isDecodableImage()) {
             "../../../${relative.replace("#", "%23")}"
         } else ""
+    }
+
+    /**
+     * A screen capture with zero frames still leaves a file on disk — the GIF
+     * writer emits the header + trailer even when no frame was ever written
+     * (short test, capture failed, permissions). Browsers render that stub as
+     * a broken `<img>`. `ImageIO.read` returns null for such a file (no
+     * decodable image data), so use it as the emit gate — mirrors the
+     * `hasPlayableMp4Atoms` check for videos. Cheap: screenshots are one per
+     * attempt and KB-sized.
+     */
+    private fun File.isDecodableImage(): Boolean {
+        if (!exists() || length() == 0L) return false
+        return try {
+            javax.imageio.ImageIO.read(this) != null
+        } catch (e: Exception) {
+            false
+        }
     }
 
     private fun TestResult.artifactVideoPaths(): List<String> {
