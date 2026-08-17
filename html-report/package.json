@@ -31,7 +31,7 @@
     "react-dom": "^16.8.0",
     "react-loading": "^2.0.3",
     "react-player": "^2.11.0",
-    "webpack": "^5.74.0"
+    "webpack": "^5.76.0"
   },
   "devDependencies": {
     "@babel/core": "^7.19.3",
