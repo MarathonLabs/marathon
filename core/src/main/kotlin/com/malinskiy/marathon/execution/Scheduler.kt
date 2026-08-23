@@ -1,5 +1,6 @@
 package com.malinskiy.marathon.execution
 
+import com.malinskiy.marathon.actor.safeSend
 import com.malinskiy.marathon.analytics.external.Analytics
 import com.malinskiy.marathon.analytics.internal.pub.Track
 import com.malinskiy.marathon.config.Configuration
@@ -94,7 +95,7 @@ class Scheduler(
 
         logger.debug { "device ${device.serialNumber} disconnected" }
         pools.values.forEach {
-            it.send(RemoveDevice(device))
+            it.safeSend(RemoveDevice(device))
         }
     }
 
@@ -119,7 +120,7 @@ class Scheduler(
             logger.debug { "pool actor ${id.name} is being created" }
             DevicePoolActor(id, configuration, accumulator, analytics, shard, timer, parent, context, testBundleIdentifier)
         }
-        pools[poolId]?.send(AddDevice(device)) ?: logger.debug {
+        pools[poolId]?.safeSend(AddDevice(device)) ?: logger.debug {
             "not sending the AddDevice event " +
                 "to device pool for ${device.serialNumber}"
         }
