@@ -1,14 +1,15 @@
-import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet
-
 plugins {
     idea
     `java-library`
     id("org.jetbrains.kotlin.jvm")
     id("org.jetbrains.dokka")
     jacoco
-    id("com.github.gmazzo.buildconfig") version "5.5.0"
+    id("com.github.gmazzo.buildconfig")
 }
 
+// Kotlin plugin registers a matching Kotlin source set for each Java one;
+// applying `kotlin.srcDirs(...)` after the `create` block works without the
+// Gradle 9-removed `withConvention` shim.
 sourceSets {
     create("integrationTest") {
         compileClasspath += sourceSets["main"].output
@@ -18,9 +19,8 @@ sourceSets {
         runtimeClasspath += sourceSets["main"].output
         runtimeClasspath += sourceSets["test"].output
         runtimeClasspath += configurations.testRuntimeClasspath.get()
-        withConvention(KotlinSourceSet::class) {
-            kotlin.srcDirs("src/integrationTest/kotlin")
-        }
+
+        java.srcDirs("src/integrationTest/kotlin")
     }
 }
 
@@ -28,7 +28,7 @@ buildConfig {
     useKotlinOutput { internalVisibility = false }
 
     buildConfigField("String", "NAME", "\"${project.name}\"")
-    buildConfigField("String", "VERSION", provider<String> { "\"${Versions.marathon}\"" })
+    buildConfigField("String", "VERSION", provider<String> { "\"${Deployment.getVersion(project)}\"" })
     buildConfigField("String", "BUGSNAG_TOKEN", provider {
         val token = System.getenv("BUGSNAG_TOKEN") ?: ""
         "\"$token\""
@@ -44,38 +44,80 @@ dependencies {
     implementation(project(":report:html-report"))
     implementation(project(":report:execution-timeline"))
 
-    implementation(Libraries.allure)
-    implementation(Libraries.allureKotlinCommons)
-    implementation(Libraries.allureEnvironment)
-    implementation(Libraries.allureTestFilter)
+    implementation(libs.allure)
+    implementation(libs.allureKotlinCommons)
+    implementation(libs.allureEnvironment)
+    implementation(libs.allureTestFilter)
 
     implementation(project(":analytics:usage"))
-    implementation(Libraries.gson)
-    implementation(Libraries.jacksonAnnotations)
-    implementation(Libraries.apacheCommonsIO)
-    implementation(Libraries.kotlinStdLib)
-    implementation(Libraries.kotlinCoroutines)
-    implementation(Libraries.kotlinLogging)
-    implementation(Libraries.logbackClassic)
-    implementation(Libraries.influxDbClient)
-    implementation(Libraries.influxDb2Client)
-    implementation(Libraries.scalr)
-    api(Libraries.koin)
-    api(Libraries.bugsnag)
+    implementation(libs.gson)
+    implementation(libs.jacksonAnnotations)
+    implementation(libs.apacheCommonsIO)
+    implementation(libs.kotlinStdLib)
+    implementation(libs.kotlinCoroutines)
+    implementation(libs.kotlinLogging)
+    implementation(libs.logbackClassic)
+    implementation(libs.influxDbClient)
+    implementation(libs.influxDb2Client)
+    implementation(libs.scalr)
+    api(libs.koin)
+    api(libs.bugsnag)
     testImplementation(project(":vendor:vendor-test"))
-    testImplementation(TestLibraries.junit5)
-    testImplementation(TestLibraries.kluent)
-    testImplementation(TestLibraries.assertk)
-    testImplementation(TestLibraries.testContainers)
-    testImplementation(TestLibraries.testContainersInflux)
-    testImplementation(TestLibraries.mockitoKotlin)
-    testImplementation(TestLibraries.koin)
-    testImplementation(TestLibraries.xmlUnit)
-    testImplementation(TestLibraries.coroutinesTest)
-    testRuntimeOnly(TestLibraries.jupiterEngine)
+    testImplementation(libs.junit5)
+    testImplementation(libs.kluent)
+    testImplementation(libs.assertk)
+    testImplementation(libs.testContainers)
+    testImplementation(libs.testContainersInflux)
+    testImplementation(libs.mockitoKotlin)
+    testImplementation(libs.koinTest)
+    testImplementation(libs.xmlUnit)
+    testImplementation(libs.coroutinesTest)
+    testRuntimeOnly(libs.jupiterEngine)
+    testRuntimeOnly(libs.junitPlatformLauncher)
+    // integrationTest source set has its own runtime configuration; without the
+    // launcher on that classpath Gradle 9's worker fails with
+    // "Failed to load JUnit Platform" before any test even starts.
+    "integrationTestRuntimeOnly"(libs.jupiterEngine)
+    "integrationTestRuntimeOnly"(libs.junitPlatformLauncher)
 }
 
-val integrationTest = task<Test>("integrationTest") {
+/**
+ * Rebuild the html-report preview fixture directly through the real Kotlin
+ * reporter pipeline. Wraps the `HtmlReportFixtureGenerator` JUnit class so
+ * a human can `./gradlew :core:generateHtmlReportFixture` without hunting
+ * for the `--tests "*Fixture*"` filter. Output lands in
+ * `core/build/fixtures/{android,ios}/html/`. Depends on the bundle copy so
+ * the app.min.{js,css} the reporter reads at runtime are present.
+ */
+tasks.register<Test>("generateHtmlReportFixture") {
+    description = "Emit an html-report preview into core/build/fixtures via real Kotlin reporters."
+    group = "html-report"
+    // The html-report bundle is generated by Vite through gradle-node-plugin
+    // and packaged into the module jar via processResources. Depending on the
+    // sibling module's processResources guarantees the fresh bundle is on the
+    // runtime classpath when the fixture reporter reads it.
+    dependsOn(":report:html-report:processResources")
+    testClassesDirs = sourceSets["test"].output.classesDirs
+    classpath = sourceSets["test"].runtimeClasspath
+    useJUnitPlatform()
+    filter {
+        includeTestsMatching("com.malinskiy.marathon.report.html.HtmlReportFixtureGenerator")
+    }
+    // Keep this out of `check` — heavy IO, only run on demand.
+    outputs.upToDateWhen { false }
+
+    // Forward scale knobs from Gradle project properties into JVM sysprops
+    // the fixture generator reads. Example:
+    //   ./gradlew :core:generateHtmlReportFixture -PfixturePools=8 -PfixtureTests=10000
+    listOf("fixturePools", "fixtureTests", "fixtureDevicesPerPool").forEach { key ->
+        (project.findProperty(key) as? String)?.let { systemProperty(key, it) }
+    }
+    // Larger scales blow past the default 512m heap — reporter builds the
+    // full ExecutionReport in memory before emit.
+    maxHeapSize = "2g"
+}
+
+tasks.register<Test>("integrationTest") {
     description = "Runs integration tests."
     group = "verification"
 

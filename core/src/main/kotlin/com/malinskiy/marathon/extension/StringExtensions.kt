@@ -23,4 +23,13 @@ fun String.escape(): String {
     return replace(regex = escapeRegex, "-")
 }
 
-val escapeRegex = "[^a-zA-Z0-9\\.\\#]".toRegex()
+// `#` used to be preserved so `toTestName()`'s `Class#method` separator
+// survived into the on-disk filename. That backfires under `file://`: even
+// URL-encoded as `%23`, Chromium's local file loader mis-handles the
+// character inside `<video>` and `<img>` src attributes — `<video>` requests
+// return 200 with 0 bytes; `<img>` sometimes fails silently. Collapse `#`
+// into `-` here so no artifact path ever contains it. `#` was never a
+// meaningful separator to preserve — everything downstream (allure, junit,
+// html-report) reconstructs the class/method split from `Test.pkg/clazz/method`
+// directly rather than parsing filenames.
+val escapeRegex = "[^a-zA-Z0-9\\.]".toRegex()

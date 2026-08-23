@@ -7,7 +7,9 @@ repositories {
 }
 
 dependencies {
-    implementation("org.jetbrains.kotlin:kotlin-gradle-plugin:1.9.10")
-    implementation("com.squareup:kotlinpoet:1.16.0")
-    implementation("com.google.code.gson:gson:2.10.1")
+    // Kotlin version drawn from the root version catalog (buildSrc/settings.gradle.kts
+    // wires `../gradle/libs.versions.toml` in as `libs`).
+    implementation("org.jetbrains.kotlin:kotlin-gradle-plugin:${libs.versions.kotlin.get()}")
+    implementation("com.squareup:kotlinpoet:1.18.1")
+    implementation(libs.gson)
 }

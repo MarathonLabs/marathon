@@ -1,0 +1,54 @@
+name: fork-release
+# CLI-only release for downstream fork consumers. Publishes the CLI dist zip
+# to GitHub Releases so consumers can `curl` it via the canonical URL:
+#
+#   https://github.com/<owner>/marathon/releases/download/<tag>/marathon-<tag>.zip
+#
+# Skips Sonatype / GPG signing / Bugsnag / Homebrew — none apply on a fork.
+# Tag format: any string Gradle accepts as a Maven version, e.g. `0.10.5-foo.1`.
+# The tag drives the zip filename via GIT_TAG_NAME (see Versions.marathon).
+on:
+  push:
+    tags:
+      - '*'
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Version tag to publish (must already exist)'
+        required: true
+permissions:
+  contents: write
+jobs:
+  fork-release:
+    if: ${{ github.repository != 'MarathonLabs/marathon' }}
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7
+      - name: Set up JDK 21
+        uses: actions/setup-java@v5
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+      - name: Resolve tag
+        id: tag
+        run: |
+          if [ -n "${{ inputs.tag }}" ]; then
+            echo "tag=${{ inputs.tag }}" >> "$GITHUB_OUTPUT"
+          else
+            echo "tag=${GITHUB_REF#refs/tags/}" >> "$GITHUB_OUTPUT"
+          fi
+      - name: Assemble CLI dist
+        env:
+          GIT_TAG_NAME: ${{ steps.tag.outputs.tag }}
+        run: |
+          ./gradlew :cli:assembleDist -PreleaseMode=RELEASE
+          rm -f cli/build/distributions/marathon-*-SNAPSHOT.zip || true
+          ls -la cli/build/distributions/
+      - name: Upload zip to GitHub Release
+        uses: softprops/action-gh-release@v3
+        with:
+          tag_name: ${{ steps.tag.outputs.tag }}
+          files: cli/build/distributions/marathon-*.zip
+          fail_on_unmatched_files: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

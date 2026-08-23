@@ -4,7 +4,7 @@ plugins {
     jacoco
     id("org.jetbrains.kotlin.jvm")
     id("org.jetbrains.dokka")
-    id("com.github.gmazzo.buildconfig") version "5.5.0"
+    id("com.github.gmazzo.buildconfig")
 }
 
 val enableJDB = false
@@ -38,13 +38,13 @@ dependencies {
     implementation(project(":vendor:vendor-apple:macos"))
     implementation(project(":vendor:vendor-android"))
     implementation(project(":analytics:usage"))
-    implementation(Libraries.kotlinStdLib)
-    implementation(Libraries.kotlinCoroutines)
-    implementation(Libraries.kotlinLogging)
-    implementation(Libraries.kotlinReflect)
-    implementation(Libraries.logbackClassic)
-    implementation(Libraries.clikt)
-    testRuntimeOnly(TestLibraries.jupiterEngine)
+    implementation(libs.kotlinStdLib)
+    implementation(libs.kotlinCoroutines)
+    implementation(libs.kotlinLogging)
+    implementation(libs.kotlinReflect)
+    implementation(libs.logbackClassic)
+    implementation(libs.clikt)
+    testRuntimeOnly(libs.jupiterEngine)
 }
 
 setupDeployment()
@@ -55,7 +55,7 @@ buildConfig {
     useKotlinOutput { internalVisibility = false }
 
     buildConfigField("String", "NAME", "\"${project.name}\"")
-    buildConfigField("String", "VERSION", provider { "\"${Versions.marathon}\"" })
+    buildConfigField("String", "VERSION", provider { "\"${Deployment.getVersion(project)}\"" })
 }
 
 sourceSets["main"].java {

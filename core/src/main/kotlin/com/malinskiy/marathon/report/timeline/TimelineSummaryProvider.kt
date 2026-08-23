@@ -2,54 +2,85 @@ package com.malinskiy.marathon.report.timeline
 
 import com.malinskiy.marathon.analytics.internal.sub.ExecutionReport
 import com.malinskiy.marathon.analytics.internal.sub.TestEvent
+import com.malinskiy.marathon.device.DeviceInfo
 import com.malinskiy.marathon.execution.TestStatus
+import com.malinskiy.marathon.extension.escape
 import com.malinskiy.marathon.log.MarathonLogging
+import com.malinskiy.marathon.test.toClassName
 
 class TimelineSummaryProvider {
     val logger = MarathonLogging.logger(TimelineSummaryProvider::class.java.simpleName)
 
-    private fun parseData(report: ExecutionReport): List<Data> {
-        val testData = report.testEvents.map { convertToData(it) }
+    private fun parseData(report: ExecutionReport, finalDeviceByTestKey: Map<String, String>): List<Data> {
+        val perTestAttempts: Map<String, MutableList<TestEvent>> = mutableMapOf<String, MutableList<TestEvent>>().apply {
+            report.testEvents.groupByTo(this) { "${it.testResult.test.clazz}.${it.testResult.test.method}" }
+                .values.forEach { it.sortBy { evt -> evt.testResult.startTime } }
+        }
+        val eventAttemptIndex: Map<TestEvent, Int> = perTestAttempts.values.flatMap { events ->
+            events.mapIndexed { index, event -> event to index }
+        }.toMap()
+
+        val testData = report.testEvents.map {
+            convertToData(it, eventAttemptIndex[it] ?: 0, finalDeviceByTestKey)
+        }
 
         val preparingData = report.devicePreparingEvents.map {
-            Data(MetricType.DEVICE_PREPARE.name, MetricType.DEVICE_PREPARE, it.start.toEpochMilli(), it.finish.toEpochMilli(), 0.0, 0.0)
+            Data(
+                testName = MetricType.DEVICE_PREPARE.name,
+                metricType = MetricType.DEVICE_PREPARE,
+                startDate = it.start.toEpochMilli(),
+                endDate = it.finish.toEpochMilli(),
+                expectedValue = 0.0,
+                variance = 0.0,
+            )
         }
 
         val providerData = report.deviceProviderPreparingEvent.map {
             Data(
-                MetricType.DEVICE_PROVIDER_INIT.name,
-                MetricType.DEVICE_PROVIDER_INIT,
-                it.start.toEpochMilli(),
-                it.finish.toEpochMilli(),
-                0.0,
-                0.0
+                testName = MetricType.DEVICE_PROVIDER_INIT.name,
+                metricType = MetricType.DEVICE_PROVIDER_INIT,
+                startDate = it.start.toEpochMilli(),
+                endDate = it.finish.toEpochMilli(),
+                expectedValue = 0.0,
+                variance = 0.0,
             )
         }
 
         return (testData + preparingData + providerData).sortedBy { it.startDate }
     }
 
-    private fun convertToData(event: TestEvent): Data {
+    private fun convertToData(
+        event: TestEvent,
+        attemptIndex: Int,
+        finalDeviceByTestKey: Map<String, String>,
+    ): Data {
         val preparedTestName = "${event.testResult.test.clazz}.${event.testResult.test.method}"
-        val testMetric = getTestMetric(event)
-        return createData(event, event.testResult.status, preparedTestName, testMetric)
-    }
-
-    data class TestMetric(val expectedValue: Double, val variance: Double)
-
-    private fun createData(event: TestEvent, status: TestStatus, preparedTestName: String, testMetric: TestMetric): Data {
+        // Reproduce the filename convention `HtmlSummaryReporter` uses so
+        // consumers can build the same `pools/<pool>/<device>/<name>.html`
+        // href the pool list emits — no extra lookup table required.
+        val filename = "${event.testResult.test.toClassName()}.${event.testResult.test.method}".escape().safePathLength() + ".html"
+        // HtmlSummaryReporter only writes a per-test HTML under the FINAL
+        // attempt's device directory (see `HtmlSummaryReporter.generate`,
+        // `pool.tests.forEach`). Every bar for a retried test must therefore
+        // point at the final-device directory — not the bar's own attempt
+        // device — or clicking a prior-attempt bar 404s. Attempt-specific
+        // highlighting still works via the `#/attempt/N` hash the caller
+        // appends on click (see `HomePage.onOpenTest`).
+        val testKey = "${event.poolId.name}/$preparedTestName"
+        val navDeviceSerial = finalDeviceByTestKey[testKey] ?: event.device.safeSerialNumber
         return Data(
-            preparedTestName,
-            status.toMetricType(),
-            event.testResult.startTime,
-            event.testResult.endTime,
-            testMetric.expectedValue, testMetric.variance
+            testName = preparedTestName,
+            metricType = event.testResult.status.toMetricType(),
+            startDate = event.testResult.startTime,
+            endDate = event.testResult.endTime,
+            expectedValue = 0.0,
+            variance = 0.0,
+            batchId = event.testResult.testBatchId,
+            attemptIndex = attemptIndex,
+            poolId = event.poolId.name,
+            testFilename = filename,
+            deviceSerial = navDeviceSerial,
         )
-    }
-
-    private fun getTestMetric(execution: TestEvent): TestMetric {
-        //TODO add real data
-        return TestMetric(0.0, 0.0)
     }
 
     private fun calculateExecutionStats(data: List<Data>): ExecutionStats {
@@ -57,27 +88,19 @@ class TimelineSummaryProvider {
     }
 
     private fun calculateAverageExecutionTime(data: List<Data>): Long {
-        return data.map { this.calculateDuration(it) }.average().toLong()
+        if (data.isEmpty()) return 0L
+        return data.map { calculateDuration(it) }.average().toLong()
     }
 
-    private fun calculateDuration(a: Data): Long {
-        return a.endDate - a.startDate
-    }
+    private fun calculateDuration(a: Data): Long = a.endDate - a.startDate
 
-    private fun calculateIdle(data: List<Data>): Long {
-        return data.windowed(2, 1).fold(0L, { acc, list ->
-            acc + (list[1].startDate - list[0].endDate)
-        })
-    }
+    private fun calculateIdle(data: List<Data>): Long =
+        data.windowed(2, 1).fold(0L) { acc, list -> acc + (list[1].startDate - list[0].endDate) }
 
     private fun aggregateExecutionStats(list: List<Measure>): ExecutionStats {
-        val summaryIdle = list
-            .map { it.executionStats.idleTimeMillis }
-            .sum()
-        val avgTestExecutionTime = list
-            .map { it.executionStats.averageTestExecutionTimeMillis }
-            .average()
-            .toLong()
+        val summaryIdle = list.sumOf { it.executionStats.idleTimeMillis }
+        val avgTestExecutionTime = list.map { it.executionStats.averageTestExecutionTimeMillis }
+            .let { if (it.isEmpty()) 0L else it.average().toLong() }
         return ExecutionStats(summaryIdle, avgTestExecutionTime)
     }
 
@@ -92,27 +115,65 @@ class TimelineSummaryProvider {
         val deviceProviderPreparingEvents = executionReport.deviceProviderPreparingEvent.groupBy { it.serialNumber }
         val testEvents = executionReport.testEvents.groupBy { it.device.serialNumber }
 
-        val keys = (deviceConnectedEvents.keys + devicePreparingEvent.keys + deviceProviderPreparingEvents.keys + testEvents.keys)
+        val keys = deviceConnectedEvents.keys + devicePreparingEvent.keys +
+            deviceProviderPreparingEvents.keys + testEvents.keys
 
-        val reports = keys.map { key ->
-            key to ExecutionReport(
+        val reports = keys.associateWith { key ->
+            ExecutionReport(
                 deviceConnectedEvents = deviceConnectedEvents[key] ?: emptyList(),
                 deviceDisconnectedEvents = deviceDisconnectedEvents[key] ?: emptyList(),
                 devicePreparingEvents = devicePreparingEvent[key] ?: emptyList(),
                 deviceProviderPreparingEvent = deviceProviderPreparingEvents[key] ?: emptyList(),
-                testEvents = testEvents[key] ?: emptyList()
+                testEvents = testEvents[key] ?: emptyList(),
             )
-        }.toMap()
+        }
 
-        val measures = reports.map {
-            val serialNumber = it.key
-            val data = parseData(it.value)
-            Measure(serialNumber, calculateExecutionStats(data), data)
+        val deviceBySerial: Map<String, DeviceInfo> =
+            executionReport.deviceConnectedEvents.associateBy({ it.device.serialNumber }, { it.device })
+
+        // Marathon's per-test HTML lives under the FINAL attempt's device dir.
+        // Build a `pool/test-key → final-attempt-safe-serial` map once, keyed
+        // by the last-started event per (pool, test) tuple, so timeline bars
+        // for prior attempts still link to a real file on disk.
+        val finalDeviceByTestKey: Map<String, String> = executionReport.testEvents
+            .groupBy { "${it.poolId.name}/${it.testResult.test.clazz}.${it.testResult.test.method}" }
+            .mapValues { (_, events) ->
+                events.maxBy { it.testResult.startTime }.device.safeSerialNumber
+            }
+
+        val measures = reports.map { (serial, subReport) ->
+            val data = parseData(subReport, finalDeviceByTestKey)
+            Measure(
+                measure = serial,
+                executionStats = calculateExecutionStats(data),
+                data = data,
+                device = deviceBySerial[serial]?.toTimelineDevice(),
+            )
         }
 
         val executionStats = aggregateExecutionStats(measures)
-        return TimelineExecutionResult(passedTestCount, failedTests, ignoredTests, executionStats, measures)
+        return TimelineExecutionResult(
+            passedTests = passedTestCount,
+            failedTests = failedTests,
+            ignoredTests = ignoredTests,
+            executionStats = executionStats,
+            measures = measures,
+        )
     }
+
+    private fun DeviceInfo.toTimelineDevice(): TimelineDevice = TimelineDevice(
+        serial = safeSerialNumber,
+        modelName = model,
+        manufacturer = manufacturer,
+        osVersion = operatingSystem.version,
+        osMajor = operatingSystem.version.substringBefore('.').toIntOrNull(),
+    )
+
+    // Duplicate of the private helper in HtmlSummaryReporter — kept small so
+    // this cross-module dep on filename derivation stays local rather than
+    // pulling core::report.html into the timeline module.
+    private fun String.safePathLength(): String =
+        if (length >= 128) substring(0 until 128) else this
 
     private fun TestStatus.toMetricType() = when (this) {
         TestStatus.FAILURE -> MetricType.FAILURE
@@ -122,4 +183,3 @@ class TimelineSummaryProvider {
         TestStatus.ASSUMPTION_FAILURE -> MetricType.ASSUMPTION_FAILURE
     }
 }
-

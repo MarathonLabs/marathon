@@ -2,30 +2,22 @@ import com.github.benmanes.gradle.versions.updates.DependencyUpdatesTask
 import io.gitlab.arturbosch.detekt.Detekt
 import io.gitlab.arturbosch.detekt.extensions.DetektExtension
 
-buildscript {
-    repositories {
-        mavenCentral()
-        google()
-    }
-    dependencies {
-        classpath(BuildPlugins.kotlinPlugin)
-        classpath(BuildPlugins.junitGradle)
-        classpath(BuildPlugins.dokka)
-    }
-}
-
-
 plugins {
-    id("io.gitlab.arturbosch.detekt") version "1.23.6"
-    id("com.github.ben-manes.versions") version "0.51.0"
+    // Kotlin plugin is on the classpath via `buildSrc` (which pulls it in
+    // from the version catalog). Declaring an explicit version here would
+    // trigger Gradle's "plugin already on classpath, unknown version" error.
+    id("org.jetbrains.kotlin.jvm") apply false
+    alias(libs.plugins.dokka) apply false
+    alias(libs.plugins.buildconfig) apply false
+    alias(libs.plugins.node) apply false
+    alias(libs.plugins.detekt)
+    alias(libs.plugins.benManesVersions)
 }
 
 configure<DetektExtension> {
     debug = true
-    input = files(
-        rootProject.projectDir.absolutePath
-    )
-    config = files("${rootProject.projectDir}/default-detekt-config.yml")
+    source.from(rootProject.projectDir)
+    config.from(rootProject.projectDir.resolve("default-detekt-config.yml"))
     baseline = file("${rootProject.projectDir}/reports/baseline.xml")
 }
 
@@ -48,6 +40,11 @@ tasks.withType<Detekt> {
     exclude(".*/sample-app/.*")
 }
 
+// Pin all Kotlin stdlib/reflect fetches to the version the catalog declares.
+// Hoisted out of `allprojects` so the accessor is evaluated once at
+// root-config time, not re-resolved in each subproject.
+val kotlinVersion = libs.versions.kotlin.get()
+
 allprojects {
     group = "com.malinskiy.marathon"
 
@@ -63,9 +60,22 @@ allprojects {
                 if (requested.group == "org.jetbrains.kotlin"
                     && (requested.name.startsWith("kotlin-stdlib") || requested.name.startsWith("kotlin-reflect"))
                 ) {
-                    useVersion(Versions.kotlin)
+                    useVersion(kotlinVersion)
                 }
             }
         }
     }
 }
+
+tasks.named<Wrapper>("wrapper") {
+    distributionType = Wrapper.DistributionType.BIN
+    gradleVersion = "latest"
+    retries = 3
+    retryBackOffMs = 500
+}
+
+tasks.named<UpdateDaemonJvm>("updateDaemonJvm") {
+    languageVersion = JavaLanguageVersion.of(21)
+    vendor = JvmVendorSpec.ADOPTIUM
+}
+

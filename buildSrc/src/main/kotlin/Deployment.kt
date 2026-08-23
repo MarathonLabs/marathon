@@ -174,10 +174,15 @@ object Deployment {
 
     fun getVersion(project: Project): String {
         val releaseMode: String? by project
+        // Base comes from the top-level gradle.properties `version=...` (which
+        // Gradle wires into `project.version` automatically). CI overrides it
+        // by exporting GIT_TAG_NAME at release time.
+        val baseVersion = System.getenv("GIT_TAG_NAME")
+            ?: project.version.toString().removeSuffix("-SNAPSHOT")
         val versionSuffix = when (releaseMode) {
             "RELEASE" -> ""
             else -> "-SNAPSHOT"
         }
-        return Versions.marathon + versionSuffix
+        return baseVersion + versionSuffix
     }
 }
