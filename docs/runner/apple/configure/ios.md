@@ -499,6 +499,23 @@ permissions:
 </TabItem>
 </Tabs>
 
+Permissions can also be granted to multiple applications by bundle identifier. All configured grants use the top-level lifecycle.
+The existing `grant` list continues to target the application under test.
+
+```yaml
+permissions:
+  lifecycle: BEFORE_TEST_RUN
+  grant:
+    - contacts
+  applications:
+    com.apple.Maps:
+      grant:
+        - location
+    com.example.companion:
+      grant:
+        - microphone
+```
+
 ### Timeouts
 
 All the timeouts for test run can be overridden, here is an example configuration with default values:

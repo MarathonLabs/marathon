@@ -5,6 +5,35 @@ import com.fasterxml.jackson.annotation.JsonProperty
 data class PermissionsConfiguration(
     @JsonProperty("grant") val grant: Set<Permission> = emptySet(),
     @JsonProperty("lifecycle") val lifecycle: GrantLifecycle = GrantLifecycle.BEFORE_TEST_RUN,
+    @JsonProperty("applications") val applications: Map<String, ApplicationPermissionsConfiguration> = emptyMap(),
+) {
+    fun resolve(applicationBundleId: String): List<ApplicationPermissionGrant> {
+        val applicationUnderTestGrant = grant.takeIf { it.isNotEmpty() }?.let {
+            ApplicationPermissionGrant(
+                bundleId = applicationBundleId,
+                permissions = it,
+            )
+        }
+        val explicitApplicationGrants = applications.mapNotNull { (bundleId, configuration) ->
+            configuration.grant.takeIf { it.isNotEmpty() }?.let {
+                ApplicationPermissionGrant(
+                    bundleId = bundleId,
+                    permissions = it,
+                )
+            }
+        }
+
+        return listOfNotNull(applicationUnderTestGrant) + explicitApplicationGrants
+    }
+}
+
+data class ApplicationPermissionsConfiguration(
+    @JsonProperty("grant") val grant: Set<Permission> = emptySet(),
+)
+
+data class ApplicationPermissionGrant(
+    val bundleId: String,
+    val permissions: Set<Permission>,
 )
 
 enum class GrantLifecycle {
