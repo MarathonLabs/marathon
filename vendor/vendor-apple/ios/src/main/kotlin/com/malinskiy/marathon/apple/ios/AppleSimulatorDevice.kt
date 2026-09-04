@@ -272,8 +272,10 @@ class AppleSimulatorDevice(
                         val (listener, lineListeners) = createExecutionListeners(devicePoolId, testBatch, deferred)
                         executionLineListeners = lineListeners.onEach { addLineListener(it) }
                         if (vendorConfiguration.permissions.lifecycle == GrantLifecycle.BEFORE_EACH_BATCH) {
-                            for (permission in vendorConfiguration.permissions.grant) {
-                                grant(permission, testBundle.appId)
+                            vendorConfiguration.permissions.resolve(testBundle.appId).forEach { applicationGrant ->
+                                for (permission in applicationGrant.permissions) {
+                                    grant(permission, applicationGrant.bundleId)
+                                }
                             }
                         }
                         AppleDeviceTestRunner(this@AppleSimulatorDevice, testBundleIdentifier).execute(
