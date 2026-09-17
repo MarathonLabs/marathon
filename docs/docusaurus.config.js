@@ -11,8 +11,8 @@ const path = require("path");
 const config = {
     title: 'Marathon',
     tagline: 'Cross-platform test runner written for Android and iOS projects',
-    url: 'https://docs.marathonlabs.io/',
-    baseUrl: '/',
+    url: 'https://marathonlabs.github.io',
+    baseUrl: '/marathon/',
     onBrokenLinks: 'throw',
     onBrokenMarkdownLinks: 'warn',
     favicon: 'img/favicon.svg',
