@@ -38,26 +38,6 @@ const config = {
                 },
             },
         ],
-        [
-            '@docusaurus/plugin-content-docs',
-            {
-                id: 'runner',
-                path: 'runner',
-                routeBasePath: 'runner',
-                sidebarPath: require.resolve('./runner/sidebars.js'),
-                editCurrentVersion: false,
-                remarkPlugins: [math],
-                rehypePlugins: [katex],
-                breadcrumbs: false,
-                versions: {
-                    current: {
-                        label: 'develop',
-                        path: 'next',
-                        banner: 'unreleased',
-                    },
-                }
-            },
-        ],
     ],
 
     presets: [
@@ -65,12 +45,20 @@ const config = {
             '@docusaurus/preset-classic',
             {
                 docs: {
-                    path: 'cloud',
+                    path: 'runner',
                     routeBasePath: '/',
-                    sidebarPath: require.resolve('./cloud/sidebars.js'),
+                    sidebarPath: require.resolve('./runner/sidebars.js'),
+                    editCurrentVersion: false,
                     remarkPlugins: [math],
                     rehypePlugins: [katex],
                     breadcrumbs: false,
+                    versions: {
+                        current: {
+                            label: 'develop',
+                            path: 'next',
+                            banner: 'unreleased',
+                        },
+                    },
                 },
                 theme: {
                     customCss: [
@@ -109,30 +97,19 @@ const config = {
                         type: 'docSidebar',
                         position: 'left',
                         sidebarId: 'docs',
-                        label: 'Cloud',
+                        label: 'Docs',
                     },
 
                     {
-                        to: 'runner',
-                        label: 'OSS Runner',
-                        position: 'left'
+                        href: 'https://docs.marathonlabs.io',
+                        label: 'Cloud Docs',
+                        position: 'left',
                     },
 
                     {
-                        docsPluginId: "default",
                         type: 'docsVersionDropdown',
                         position: 'right',
                         dropdownActiveClassDisabled: true,
-                        className: 'navbar__dropdown--versions cloud',
-
-                    },
-                    {
-                        docsPluginId: "runner",
-                        type: 'docsVersionDropdown',
-                        position: 'right',
-                        dropdownActiveClassDisabled: true,
-                        className: 'navbar__dropdown--versions runner',
-
                     },
 
                     {
@@ -163,6 +140,16 @@ const config = {
                     {
                         type: 'custom-separator',
                         position: 'right',
+                    },
+                    {
+                        type: 'custom-iconLink',
+                        position: 'right',
+                        icon: {
+                            alt: 'MarathonLabs',
+                            src: `/logos/marathonlabs-icon-dark.svg`,
+                            href: 'https://marathonlabs.io',
+                            target: '_blank',
+                        },
                     },
                     {
                         type: 'custom-iconLink',
