@@ -97,12 +97,12 @@ const config = {
                         type: 'docSidebar',
                         position: 'left',
                         sidebarId: 'docs',
-                        label: 'Docs',
+                        label: 'OSS Runner',
                     },
 
                     {
                         href: 'https://docs.marathonlabs.io',
-                        label: 'Cloud Docs',
+                        label: 'Cloud',
                         position: 'left',
                     },
 
