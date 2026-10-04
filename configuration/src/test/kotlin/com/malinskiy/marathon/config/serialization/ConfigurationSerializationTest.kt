@@ -52,6 +52,7 @@ class ConfigurationSerializationTest {
             "ios/sample_1.yaml",
             "ios/sample_2.yaml",
             "ios/sample_3.yaml",
+            "ios/sample_8.yaml",
         )
     )
     @ParameterizedTest

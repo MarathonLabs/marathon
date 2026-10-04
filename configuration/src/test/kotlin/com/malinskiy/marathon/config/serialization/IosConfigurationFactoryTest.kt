@@ -21,6 +21,9 @@ import com.fasterxml.jackson.module.kotlin.KotlinModule
 import com.malinskiy.marathon.config.serialization.yaml.SerializeModule
 import com.malinskiy.marathon.config.vendor.apple.TimeoutConfiguration
 import com.malinskiy.marathon.config.vendor.apple.TestType
+import com.malinskiy.marathon.config.vendor.apple.ios.ApplicationPermissionsConfiguration
+import com.malinskiy.marathon.config.vendor.apple.ios.GrantLifecycle
+import com.malinskiy.marathon.config.vendor.apple.ios.Permission
 import com.malinskiy.marathon.config.vendor.apple.ios.PullingPolicy
 import com.malinskiy.marathon.config.vendor.apple.ios.XcresultConfiguration
 import org.amshove.kluent.`should be`
@@ -165,5 +168,23 @@ class IosConfigurationFactoryTest {
         val xcresultConfiguration = (configuration.vendorConfiguration as VendorConfiguration.IOSConfiguration).xcresult
         xcresultConfiguration.pullingPolicy `should be equal to` PullingPolicy.NEVER
         xcresultConfiguration.remoteClean `should be` false
+    }
+
+    @Test
+    fun `should parse permissions for multiple applications`() {
+        val file = File(ConfigurationFactoryTest::class.java.getResource("/fixture/config/ios/sample_8.yaml").file)
+        val configuration = parser.parse(file)
+
+        val permissions = (configuration.vendorConfiguration as VendorConfiguration.IOSConfiguration).permissions
+        permissions.grant shouldBeEqualTo setOf(Permission.Contacts)
+        permissions.lifecycle shouldBeEqualTo GrantLifecycle.BEFORE_TEST_RUN
+        permissions.applications shouldBeEqualTo mapOf(
+            "com.apple.Maps" to ApplicationPermissionsConfiguration(
+                grant = setOf(Permission.Location),
+            ),
+            "com.example.companion" to ApplicationPermissionsConfiguration(
+                grant = setOf(Permission.Microphone),
+            ),
+        )
     }
 }

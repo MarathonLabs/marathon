@@ -14,8 +14,10 @@ class AppleSimulatorApplicationInstaller(override val vendorConfiguration: Vendo
 
     private suspend fun grantPermissions(device: AppleSimulatorDevice, bundleId: String) {
         if (vendorConfiguration.permissions.lifecycle == GrantLifecycle.BEFORE_TEST_RUN) {
-            for (permission in vendorConfiguration.permissions.grant) {
-                device.grant(permission, bundleId)
+            vendorConfiguration.permissions.resolve(bundleId).forEach { applicationGrant ->
+                for (permission in applicationGrant.permissions) {
+                    device.grant(permission, applicationGrant.bundleId)
+                }
             }
         }
     }
