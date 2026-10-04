@@ -226,4 +226,32 @@ class AndroidConfigurationTest {
         val androidConfiguration = configurationFactory.parse(marathonfile).vendorConfiguration as VendorConfiguration.AndroidConfiguration
         androidConfiguration.extraApplicationsOutput shouldBeEqualTo null
     }
+
+    @Test
+    fun `if android sdk is not null allowEmptyTestSuites should be false by default`() {
+        val marathonfile = File(AndroidConfigurationTest::class.java.getResource("/fixture/config/android/sample_1.yaml").file)
+        val environmentReader = mock<EnvironmentReader>()
+        whenever(environmentReader.read()).thenReturn(EnvironmentConfiguration(env))
+
+        val configurationFactory = ConfigurationFactory(
+            marathonfileDir = mockMarathonFileDir,
+            environmentReader = environmentReader,
+        )
+
+        configurationFactory.parse(marathonfile).allowEmptyTestSuites shouldBeEqualTo false
+    }
+
+    @Test
+    fun `if android sdk is not null allowEmptyTestSuites should be equal if provided`() {
+        val marathonfile = File(AndroidConfigurationTest::class.java.getResource("/fixture/config/android/sample_7.yaml").file)
+        val environmentReader = mock<EnvironmentReader>()
+        whenever(environmentReader.read()).thenReturn(EnvironmentConfiguration(env))
+
+        val configurationFactory = ConfigurationFactory(
+            marathonfileDir = mockMarathonFileDir,
+            environmentReader = environmentReader,
+        )
+
+        configurationFactory.parse(marathonfile).allowEmptyTestSuites shouldBeEqualTo true
+    }
 }
