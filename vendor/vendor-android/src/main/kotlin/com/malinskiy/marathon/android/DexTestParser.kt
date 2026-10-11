@@ -10,6 +10,13 @@ import com.malinskiy.marathon.execution.LocalTestParser
 import com.malinskiy.marathon.test.MetaProperty
 import com.malinskiy.marathon.test.Test
 
+/**
+ * JUnit 5 tests carry Jupiter's `@Test`, which dex-test-parser only reports when asked to.
+ * Template annotations (`@ParameterizedTest`, `@RepeatedTest`, `@TestFactory`) are left out:
+ * they expand at runtime into invocations that no parsed method matches.
+ */
+private val JUNIT5_TEST_ANNOTATIONS = listOf("org.junit.jupiter.api.Test")
+
 class DexTestParser(
     private val vendorConfiguration: VendorConfiguration.AndroidConfiguration,
     private val testBundleIdentifier: AndroidTestBundleIdentifier
@@ -18,7 +25,7 @@ class DexTestParser(
     override suspend fun extract(): List<Test> {
         val testBundles = vendorConfiguration.testBundlesCompat()
         return testBundles.flatMap { bundle ->
-            val tests = DexParser.findTestMethods(bundle.testApplication.absolutePath)
+            val tests = DexParser.findTestMethods(bundle.testApplication.absolutePath, JUNIT5_TEST_ANNOTATIONS)
             val androidTestBundle =
                 AndroidTestBundle(bundle.application, bundle.testApplication, bundle.extraApplications, bundle.splitApks)
             return@flatMap tests.map {
