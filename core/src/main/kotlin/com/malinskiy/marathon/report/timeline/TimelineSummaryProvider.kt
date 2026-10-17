@@ -11,15 +11,11 @@ import com.malinskiy.marathon.test.toClassName
 class TimelineSummaryProvider {
     val logger = MarathonLogging.logger(TimelineSummaryProvider::class.java.simpleName)
 
-    private fun parseData(report: ExecutionReport, finalDeviceByTestKey: Map<String, String>): List<Data> {
-        val perTestAttempts: Map<String, MutableList<TestEvent>> = mutableMapOf<String, MutableList<TestEvent>>().apply {
-            report.testEvents.groupByTo(this) { "${it.testResult.test.clazz}.${it.testResult.test.method}" }
-                .values.forEach { it.sortBy { evt -> evt.testResult.startTime } }
-        }
-        val eventAttemptIndex: Map<TestEvent, Int> = perTestAttempts.values.flatMap { events ->
-            events.mapIndexed { index, event -> event to index }
-        }.toMap()
-
+    private fun parseData(
+        report: ExecutionReport,
+        eventAttemptIndex: Map<TestEvent, Int>,
+        finalDeviceByTestKey: Map<String, String>,
+    ): List<Data> {
         val testData = report.testEvents.map {
             convertToData(it, eventAttemptIndex[it] ?: 0, finalDeviceByTestKey)
         }
@@ -66,8 +62,7 @@ class TimelineSummaryProvider {
         // device — or clicking a prior-attempt bar 404s. Attempt-specific
         // highlighting still works via the `#/attempt/N` hash the caller
         // appends on click (see `HomePage.onOpenTest`).
-        val testKey = "${event.poolId.name}/$preparedTestName"
-        val navDeviceSerial = finalDeviceByTestKey[testKey] ?: event.device.safeSerialNumber
+        val navDeviceSerial = finalDeviceByTestKey[event.testKey()] ?: event.device.safeSerialNumber
         return Data(
             testName = preparedTestName,
             metricType = event.testResult.status.toMetricType(),
@@ -135,14 +130,20 @@ class TimelineSummaryProvider {
         // Build a `pool/test-key → final-attempt-safe-serial` map once, keyed
         // by the last-started event per (pool, test) tuple, so timeline bars
         // for prior attempts still link to a real file on disk.
-        val finalDeviceByTestKey: Map<String, String> = executionReport.testEvents
-            .groupBy { "${it.poolId.name}/${it.testResult.test.clazz}.${it.testResult.test.method}" }
-            .mapValues { (_, events) ->
-                events.maxBy { it.testResult.startTime }.device.safeSerialNumber
-            }
+        val eventsByTestKey = executionReport.testEvents.groupBy { it.testKey() }
+        val finalDeviceByTestKey: Map<String, String> = eventsByTestKey.mapValues { (_, events) ->
+            events.maxBy { it.testResult.startTime }.device.safeSerialNumber
+        }
+        // Attempt numbers must be assigned across ALL devices before the
+        // per-device split below: retries usually land on a different device,
+        // and the index is the `#/attempt/N` the test page selects on click.
+        // Ordering matches HtmlSummaryReporter.attemptResults (by start time).
+        val eventAttemptIndex: Map<TestEvent, Int> = eventsByTestKey.values.flatMap { events ->
+            events.sortedBy { it.testResult.startTime }.mapIndexed { index, event -> event to index }
+        }.toMap()
 
         val measures = reports.map { (serial, subReport) ->
-            val data = parseData(subReport, finalDeviceByTestKey)
+            val data = parseData(subReport, eventAttemptIndex, finalDeviceByTestKey)
             Measure(
                 measure = serial,
                 executionStats = calculateExecutionStats(data),
@@ -160,6 +161,9 @@ class TimelineSummaryProvider {
             measures = measures,
         )
     }
+
+    private fun TestEvent.testKey(): String =
+        "${poolId.name}/${testResult.test.clazz}.${testResult.test.method}"
 
     private fun DeviceInfo.toTimelineDevice(): TimelineDevice = TimelineDevice(
         serial = safeSerialNumber,
