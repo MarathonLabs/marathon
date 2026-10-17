@@ -120,8 +120,8 @@ function tagStarts(c: HTMLElement, data: TimelineExecutionResult) {
   const rows = [...c.querySelectorAll<HTMLElement>('.timeline-row-html')];
   rows.forEach((row, i) => {
     const rowBars = [...row.querySelectorAll<HTMLElement>('.bar')];
-    data.measures[i].data.forEach((d, j) => {
-      rowBars[j].dataset.testStart = String(d.startDate - T0);
+    data.measures[i]!.data.forEach((d, j) => {
+      rowBars[j]!.dataset.testStart = String(d.startDate - T0);
     });
   });
 }
@@ -191,10 +191,10 @@ describe('TimelineChart time scale', () => {
     history.replaceState(null, '', '#?tl_time=rel');
     const { container } = render(<TimelineChart data={data} />);
     const secs = axisLabels(container).map((l) => {
-      const [h, m, s] = l.slice(1).split(':').map(Number);
+      const [h = NaN, m = NaN, s = NaN] = l.slice(1).split(':').map(Number);
       return h * 3600 + m * 60 + s;
     });
-    const step = secs[1] - secs[0];
+    const step = secs[1]! - secs[0]!;
     expect(step).toBeGreaterThan(0);
     secs.forEach((s) => expect(s % step).toBe(0));
   });
@@ -240,13 +240,13 @@ describe('TimelineChart attempt halo', () => {
     const attempts = flakyAttempts(container);
     expect(attempts).toHaveLength(3);
 
-    fireEvent.mouseEnter(attempts[1], { clientX: 1, clientY: 1 });
+    fireEvent.mouseEnter(attempts[1]!, { clientX: 1, clientY: 1 });
     expect(haloed(container)).toEqual(attempts);
   });
 
   it('does not halo same-named tests from another class or another pool', () => {
     const { container } = setup();
-    fireEvent.mouseEnter(flakyAttempts(container)[0], { clientX: 1, clientY: 1 });
+    fireEvent.mouseEnter(flakyAttempts(container)[0]!, { clientX: 1, clientY: 1 });
     const decoys = bars(container).filter((b) => ['70000', '110000'].includes(b.dataset.testStart ?? ''));
     expect(decoys).toHaveLength(2);
     for (const d of decoys) expect(d).not.toHaveClass('bar-attempt');
@@ -261,7 +261,7 @@ describe('TimelineChart attempt halo', () => {
 
   it('mouse leave clears the halo and the tooltip', () => {
     const { container } = setup();
-    const a = flakyAttempts(container)[0];
+    const a = flakyAttempts(container)[0]!;
     fireEvent.mouseEnter(a, { clientX: 1, clientY: 1 });
     fireEvent.mouseLeave(a);
     expect(haloed(container)).toHaveLength(0);
@@ -270,7 +270,7 @@ describe('TimelineChart attempt halo', () => {
 
   it('moving between attempts keeps only the current test haloed', () => {
     const { container } = setup();
-    const flaky = flakyAttempts(container)[0];
+    const flaky = flakyAttempts(container)[0]!;
     const stable = bars(container).find((b) => b.dataset.testStart === '30000')!;
     fireEvent.mouseEnter(flaky, { clientX: 1, clientY: 1 });
     fireEvent.mouseLeave(flaky);
@@ -281,9 +281,9 @@ describe('TimelineChart attempt halo', () => {
   it('keyboard focus haloes like hover, blur clears it', () => {
     const { container } = setup();
     const attempts = flakyAttempts(container);
-    act(() => attempts[2].focus());
+    act(() => attempts[2]!.focus());
     expect(haloed(container)).toEqual(attempts);
-    act(() => attempts[2].blur());
+    act(() => attempts[2]!.blur());
     expect(haloed(container)).toHaveLength(0);
   });
 
@@ -303,7 +303,7 @@ describe('TimelineChart attempt halo', () => {
   it('halo survives toggling the time scale', () => {
     const { container } = setup();
     const attempts = flakyAttempts(container);
-    fireEvent.mouseEnter(attempts[0], { clientX: 1, clientY: 1 });
+    fireEvent.mouseEnter(attempts[0]!, { clientX: 1, clientY: 1 });
     fireEvent.click(timeButton('relative'));
     expect(haloed(container)).toEqual(attempts);
   });
