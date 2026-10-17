@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import clsx from 'clsx';
-import { scaleTime } from 'd3-scale';
-import { timeFormat } from 'd3-time-format';
+import { scaleTime, scaleUtc } from 'd3-scale';
+import { timeFormat, utcFormat } from 'd3-time-format';
 import type {
   MetricType,
   TimelineData,
@@ -26,6 +26,11 @@ const LEGEND: Array<{ type: MetricType; label: string }> = [
 ];
 
 const formatClock = timeFormat('%H:%M:%S');
+// Elapsed time is formatted as a UTC clock on epoch-relative ms so a 1h+ run
+// still reads `01:02:03` rather than wrapping at the local-timezone offset.
+const formatElapsed = (ms: number) => `+${utcFormat('%H:%M:%S')(new Date(ms))}`;
+
+type TimeMode = 'absolute' | 'relative';
 
 // Layout constants — kept in sync with the CSS in `src/styles.css`.
 // Label column width is measured at render time (see `useLabelColumnWidth`);
@@ -62,6 +67,7 @@ const HASH_KEYS = {
   osMajors: 'tl_os',
   manufacturers: 'tl_mfg',
 } as const;
+const TIME_MODE_KEY = 'tl_time';
 
 /**
  * HTML timeline. Replaces the earlier imperative D3/SVG chart. Layout is a
@@ -132,10 +138,38 @@ export function TimelineChart({ data, onOpenTest, className }: TimelineChartProp
     () => scaleTime().domain([domainStart, domainEnd]).range([0, availableWidth]),
     [domainStart, domainEnd, availableWidth],
   );
-  const ticks = useMemo(
-    () => scale.ticks(Math.max(4, Math.floor(availableWidth / 110))),
-    [scale, availableWidth],
+  const timeMode: TimeMode = params.get(TIME_MODE_KEY) === 'rel' ? 'relative' : 'absolute';
+  const formatStart = useCallback(
+    (ms: number) =>
+      timeMode === 'relative' ? formatElapsed(ms - domainStart.getTime()) : formatClock(new Date(ms)),
+    [timeMode, domainStart],
   );
+  const ticks = useMemo(() => {
+    const count = Math.max(4, Math.floor(availableWidth / 110));
+    if (timeMode === 'absolute') {
+      return scale.ticks(count).map((t) => ({ x: scaleX(scale, t), label: formatClock(t) }));
+    }
+    // Relative ticks land on round elapsed offsets (every 30s, 5m, ...), not
+    // on round wall-clock times, so they're computed in elapsed-ms space.
+    const origin = domainStart.getTime();
+    return scaleUtc()
+      .domain([0, domainEnd.getTime() - origin])
+      .ticks(count)
+      .map((t) => ({ x: scaleX(scale, origin + t.getTime()), label: formatElapsed(t.getTime()) }));
+  }, [scale, availableWidth, timeMode, domainStart, domainEnd]);
+
+  const setTimeMode = useCallback(
+    (mode: TimeMode) =>
+      updateHash((p) => {
+        if (mode === 'relative') p.set(TIME_MODE_KEY, 'rel');
+        else p.delete(TIME_MODE_KEY);
+      }),
+    [updateHash],
+  );
+
+  // Every attempt of the hovered test gets a halo, so retries of a flaky test
+  // can be spotted across devices at a glance.
+  const [hoveredTest, setHoveredTest] = useState<string | null>(null);
 
   const toggle = useCallback(
     (key: keyof Filters, value: string) => {
@@ -170,6 +204,8 @@ export function TimelineChart({ data, onOpenTest, className }: TimelineChartProp
         onToggle={toggle}
         onReset={reset}
         anyActive={anyActive}
+        timeMode={timeMode}
+        onTimeMode={setTimeMode}
       />
       <div className="rounded-md border border-surface-border">
         <TimelineLegend />
@@ -190,7 +226,7 @@ export function TimelineChart({ data, onOpenTest, className }: TimelineChartProp
               ))}
             </div>
             <div ref={chartRef} className="relative flex-1 overflow-hidden">
-              <TimelineAxis ticks={ticks} scale={scale} height={HEADER_HEIGHT} />
+              <TimelineAxis ticks={ticks} height={HEADER_HEIGHT} />
               {measures.map((m) => (
                 <TimelineRow
                   key={m.measure}
@@ -199,6 +235,9 @@ export function TimelineChart({ data, onOpenTest, className }: TimelineChartProp
                   dimmed={dimmed.has(m.measure)}
                   onOpenTest={onOpenTest}
                   onTooltip={setTooltip}
+                  formatStart={formatStart}
+                  hoveredTest={hoveredTest}
+                  onHoverTest={setHoveredTest}
                 />
               ))}
             </div>
@@ -309,27 +348,22 @@ const scaleX = (scale: TimeScale, input: Date | number): number => scale(input) 
 
 function TimelineAxis({
   ticks,
-  scale,
   height,
 }: {
-  ticks: Date[];
-  scale: TimeScale;
+  ticks: Array<{ x: number; label: string }>;
   height: number;
 }) {
   return (
     <div className="relative border-b border-surface-border" style={{ height }}>
-      {ticks.map((t) => {
-        const x = scaleX(scale, t);
-        return (
-          <div
-            key={t.getTime()}
-            className="absolute -translate-x-1/2 text-[10px] text-slate-500 dark:text-slate-400 tabular-nums"
-            style={{ left: x, top: height / 2 - 6 }}
-          >
-            {formatClock(t)}
-          </div>
-        );
-      })}
+      {ticks.map((t) => (
+        <div
+          key={t.x}
+          className="absolute -translate-x-1/2 text-[10px] text-slate-500 dark:text-slate-400 tabular-nums"
+          style={{ left: t.x, top: height / 2 - 6 }}
+        >
+          {t.label}
+        </div>
+      ))}
     </div>
   );
 }
@@ -378,12 +412,18 @@ function TimelineRow({
   dimmed,
   onOpenTest,
   onTooltip,
+  formatStart,
+  hoveredTest,
+  onHoverTest,
 }: {
   measure: TimelineMeasure;
   scale: TimeScale;
   dimmed: boolean;
   onOpenTest?: (payload: { measure: string; data: TimelineData }) => void;
   onTooltip: (state: TooltipState | null) => void;
+  formatStart: (ms: number) => string;
+  hoveredTest: string | null;
+  onHoverTest: (key: string | null) => void;
 }) {
   return (
     <div
@@ -395,21 +435,27 @@ function TimelineRow({
         const left = scaleX(scale, point.startDate);
         const width = Math.max(1, scaleX(scale, point.endDate) - left);
         const clickable = Boolean(point.poolId && point.testFilename && point.deviceSerial);
+        const key = testKey(point);
+        const showTooltip = (e: React.MouseEvent) =>
+          onTooltip({
+            x: e.clientX + 12,
+            y: e.clientY + 12,
+            html: tooltipHtml(measure, point, formatStart),
+          });
         const commonHandlers = {
-          onMouseEnter: (e: React.MouseEvent) =>
-            onTooltip({
-              x: e.clientX + 12,
-              y: e.clientY + 12,
-              html: tooltipHtml(measure, point),
-            }),
-          onMouseMove: (e: React.MouseEvent) =>
-            onTooltip({
-              x: e.clientX + 12,
-              y: e.clientY + 12,
-              html: tooltipHtml(measure, point),
-            }),
-          onMouseLeave: () => onTooltip(null),
+          onMouseEnter: (e: React.MouseEvent) => {
+            showTooltip(e);
+            onHoverTest(key);
+          },
+          onMouseMove: showTooltip,
+          onMouseLeave: () => {
+            onTooltip(null);
+            onHoverTest(null);
+          },
+          onFocus: () => onHoverTest(key),
+          onBlur: () => onHoverTest(null),
         };
+        const attemptClass = key !== null && key === hoveredTest ? ' bar-attempt' : '';
         const barStyle = {
           left,
           width,
@@ -421,7 +467,7 @@ function TimelineRow({
             <button
               key={i}
               type="button"
-              className={`bar bar-${point.metricType} bar-clickable`}
+              className={`bar bar-${point.metricType} bar-clickable${attemptClass}`}
               style={barStyle}
               aria-label={`${point.testName} — ${point.metricType.toLowerCase()}`}
               onClick={() => onOpenTest?.({ measure: measure.measure, data: point })}
@@ -432,7 +478,7 @@ function TimelineRow({
         return (
           <div
             key={i}
-            className={`bar bar-${point.metricType}`}
+            className={`bar bar-${point.metricType}${attemptClass}`}
             style={barStyle}
             aria-hidden
             {...commonHandlers}
@@ -473,9 +519,23 @@ function deviceMeta(measure: TimelineMeasure): string {
   return parts.join(' · ');
 }
 
-function tooltipHtml(measure: TimelineMeasure, data: TimelineData): string {
+/**
+ * Identity of a test across attempts/devices. `testName` alone collides across
+ * packages and `testFilename` is truncated for long names, so both are used.
+ * Null for device prepare / provider-init markers, which aren't tests.
+ */
+function testKey(data: TimelineData): string | null {
+  if (!data.testFilename) return null;
+  return `${data.poolId ?? ''}|${data.testFilename}|${data.testName}`;
+}
+
+function tooltipHtml(
+  measure: TimelineMeasure,
+  data: TimelineData,
+  formatStart: (ms: number) => string,
+): string {
   const duration = data.endDate - data.startDate;
-  const started = formatClock(new Date(data.startDate));
+  const started = formatStart(data.startDate);
   const deviceLine = measure.device
     ? `<div>${escapeHtml(deviceMeta(measure) || measure.measure)}</div>`
     : '';
@@ -506,44 +566,66 @@ function TimelineFilters({
   onToggle,
   onReset,
   anyActive,
+  timeMode,
+  onTimeMode,
 }: {
   facets: TimelineFacets;
   filters: Filters;
   onToggle: (key: keyof Filters, value: string) => void;
   onReset: () => void;
   anyActive: boolean;
+  timeMode: TimeMode;
+  onTimeMode: (mode: TimeMode) => void;
 }) {
-  // Reset button lives inline with the first facet row — no dedicated header
-  // row eats vertical space. The button occupies a reserved-width slot so
-  // adding/removing it doesn't reflow the surrounding chip layout.
+  // Facet rows only render when there's more than one value to pick from, so
+  // the toolbar can hold zero facets — the time-mode toggle keeps it non-empty.
   return (
-    <div className="relative flex flex-col gap-2 rounded-md border border-surface-border bg-surface p-3 pr-16 text-xs">
-      {facets.osMajors.length > 1 && (
-        <FacetRow
-          label="OS"
-          values={facets.osMajors}
-          active={filters.osMajors}
-          onToggle={(v) => onToggle('osMajors', v)}
-        />
-      )}
-      {facets.manufacturers.length > 1 && (
-        <FacetRow
-          label="Manufacturer"
-          values={facets.manufacturers}
-          active={filters.manufacturers}
-          onToggle={(v) => onToggle('manufacturers', v)}
-        />
-      )}
-      <div className="absolute right-3 top-3">
-        {anyActive && (
-          <button
-            type="button"
-            onClick={onReset}
-            className="rounded border border-surface-border px-2 py-0.5 hover:bg-surface-alt"
-          >
-            reset
-          </button>
+    <div className="flex items-start gap-3 rounded-md border border-surface-border bg-surface p-3 text-xs">
+      <div className="flex flex-1 flex-col gap-2">
+        {facets.osMajors.length > 1 && (
+          <FacetRow
+            label="OS"
+            values={facets.osMajors}
+            active={filters.osMajors}
+            onToggle={(v) => onToggle('osMajors', v)}
+          />
         )}
+        {facets.manufacturers.length > 1 && (
+          <FacetRow
+            label="Manufacturer"
+            values={facets.manufacturers}
+            active={filters.manufacturers}
+            onToggle={(v) => onToggle('manufacturers', v)}
+          />
+        )}
+      </div>
+      {anyActive && (
+        <button
+          type="button"
+          onClick={onReset}
+          className="rounded border border-surface-border px-2 py-0.5 hover:bg-surface-alt"
+        >
+          reset
+        </button>
+      )}
+      <div role="group" aria-label="Time scale" className="flex items-center gap-1">
+        <span className="mr-1 text-slate-500 dark:text-slate-400">Time:</span>
+        {(['absolute', 'relative'] as const).map((mode) => (
+          <button
+            key={mode}
+            type="button"
+            aria-pressed={timeMode === mode}
+            onClick={() => onTimeMode(mode)}
+            className={clsx(
+              'rounded-full border px-2 py-0.5 transition',
+              timeMode === mode
+                ? 'border-sky-500 bg-sky-500/10 text-sky-700 dark:text-sky-300'
+                : 'border-surface-border bg-surface hover:border-slate-400 dark:hover:border-slate-500',
+            )}
+          >
+            {mode}
+          </button>
+        ))}
       </div>
     </div>
   );

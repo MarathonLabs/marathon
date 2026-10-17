@@ -167,6 +167,15 @@
 .bar-clickable:focus-visible {
   box-shadow: 0 0 0 2px rgb(14 165 233 / 0.7);
 }
+/* Every attempt of the hovered test. Ring + glow rather than a fill change so
+ * the attempt's own status color stays readable, and so 1px-wide bars are
+ * still findable. */
+.bar-attempt {
+  z-index: 1;
+  box-shadow:
+    0 0 0 2px rgb(var(--color-flaky)),
+    0 0 8px 3px rgb(var(--color-flaky) / 0.6);
+}
 .bar-PASSED {
   background: var(--tl-passed);
 }
