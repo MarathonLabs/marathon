@@ -78,6 +78,31 @@ tasks.register("bundleHtmlReport") {
     dependsOn(bundleHtmlReportApp)
 }
 
+val viteTest = tasks.register<NpmTask>("viteTest") {
+    group = "verification"
+    description = "Run the html-report vitest suite."
+    dependsOn(tasks.named("npmInstall"))
+    val junitXml = layout.buildDirectory.file("test-results/vitest/junit.xml")
+    args.set(
+        junitXml.map {
+            listOf("run", "test", "--", "--reporter=default", "--reporter=junit", "--outputFile.junit=${it.asFile.absolutePath}")
+        },
+    )
+    inputs.dir(htmlReportSrcDir.resolve("src"))
+        .withPathSensitivity(PathSensitivity.RELATIVE)
+    inputs.file(htmlReportSrcDir.resolve("vite.config.ts"))
+        .withPathSensitivity(PathSensitivity.RELATIVE)
+    inputs.file(htmlReportSrcDir.resolve("vitest.setup.ts"))
+        .withPathSensitivity(PathSensitivity.RELATIVE)
+    inputs.file(htmlReportSrcDir.resolve("package.json"))
+        .withPathSensitivity(PathSensitivity.RELATIVE)
+    outputs.file(junitXml)
+}
+
+tasks.named("check").configure {
+    dependsOn(viteTest)
+}
+
 sourceSets["main"].resources.srcDir(generatedResourcesDir)
 
 tasks.named("processResources").configure {
