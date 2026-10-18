@@ -39,7 +39,7 @@ function testBar(
   };
 }
 
-function deviceBar(metricType: 'DEVICE_PREPARE' | 'DEVICE_PROVIDER_INIT', startOffsetMs: number): TimelineData {
+function deviceBar(metricType: 'DEVICE_PREPARE' | 'DEVICE_PROVIDER_INIT' | 'TEST_PARSING', startOffsetMs: number): TimelineData {
   return {
     testName: metricType,
     metricType,
@@ -306,5 +306,51 @@ describe('TimelineChart attempt halo', () => {
     fireEvent.mouseEnter(attempts[0]!, { clientX: 1, clientY: 1 });
     fireEvent.click(timeButton('relative'));
     expect(haloed(container)).toEqual(attempts);
+  });
+});
+
+describe('TimelineChart test parsing', () => {
+  // Shape of a remote-parser run: the parse device installs, then parses; the rest only install.
+  function parsingFixture() {
+    return timeline([
+      {
+        serial: 'parser',
+        data: [
+          deviceBar('DEVICE_PREPARE', 0),
+          deviceBar('TEST_PARSING', 40_000),
+          testBar('Suite.first', 70_000),
+        ],
+      },
+      { serial: 'other', data: [deviceBar('DEVICE_PREPARE', 0), testBar('Suite.second', 70_000)] },
+    ]);
+  }
+  const parsingBars = (c: HTMLElement) => bars(c).filter((b) => b.classList.contains('bar-TEST_PARSING'));
+
+  it('draws the parse as its own bar on the parsing device row only', () => {
+    const { container } = render(<TimelineChart data={parsingFixture()} />);
+    const rows = [...container.querySelectorAll<HTMLElement>('.timeline-row-html')];
+    expect(rows.map((r) => r.querySelectorAll('.bar-TEST_PARSING').length)).toEqual([1, 0]);
+  });
+
+  it('is in the legend with its own swatch', () => {
+    const { container } = render(<TimelineChart data={parsingFixture()} />);
+    expect(screen.getByText('Test parsing')).toBeTruthy();
+    expect(container.querySelector('.timeline-legend .timeline-legend__swatch.bar-TEST_PARSING')).not.toBeNull();
+  });
+
+  it('is not a link to a test and never haloes', () => {
+    const { container } = render(<TimelineChart data={parsingFixture()} />);
+    const [bar] = parsingBars(container);
+    expect(bar!.tagName).toBe('DIV');
+    fireEvent.mouseEnter(bar!, { clientX: 1, clientY: 1 });
+    expect(haloed(container)).toHaveLength(0);
+  });
+
+  it('tooltip names it and gives its duration', () => {
+    const { container } = render(<TimelineChart data={parsingFixture()} />);
+    fireEvent.mouseEnter(parsingBars(container)[0]!, { clientX: 1, clientY: 1 });
+    const text = document.querySelector('.timeline-tooltip')?.textContent ?? '';
+    expect(text).toContain('TEST_PARSING');
+    expect(text).toContain('5000 ms');
   });
 });

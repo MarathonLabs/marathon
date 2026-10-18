@@ -23,6 +23,7 @@ const LEGEND: Array<{ type: MetricType; label: string }> = [
   { type: 'INCOMPLETE', label: 'Incomplete' },
   { type: 'DEVICE_PREPARE', label: 'Device prepare' },
   { type: 'DEVICE_PROVIDER_INIT', label: 'Provider init' },
+  { type: 'TEST_PARSING', label: 'Test parsing' },
 ];
 
 const formatClock = timeFormat('%H:%M:%S');

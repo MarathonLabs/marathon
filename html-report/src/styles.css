@@ -25,6 +25,7 @@
     --tl-incomplete: #94a3b8;
     --tl-prepare: #6366f1;
     --tl-provider: #06b6d4;
+    --tl-parsing: #ea580c;
     --tl-axis: #64748b;
     --tl-grid: #e2e8f0;
     --tl-tooltip-bg: #ffffff;
@@ -43,6 +44,7 @@
     --tl-incomplete: #cbd5e1;
     --tl-prepare: #818cf8;
     --tl-provider: #22d3ee;
+    --tl-parsing: #fb923c;
     --tl-axis: #94a3b8;
     --tl-grid: #334155;
     --tl-tooltip-bg: #0f172a;
@@ -194,6 +196,9 @@
 }
 .bar-DEVICE_PROVIDER_INIT {
   background: var(--tl-provider);
+}
+.bar-TEST_PARSING {
+  background: var(--tl-parsing);
 }
 .timeline-tooltip {
   position: fixed;

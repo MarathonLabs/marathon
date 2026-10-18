@@ -8,7 +8,8 @@ export type MetricType =
   | 'INCOMPLETE'
   | 'ASSUMPTION_FAILURE'
   | 'DEVICE_PROVIDER_INIT'
-  | 'DEVICE_PREPARE';
+  | 'DEVICE_PREPARE'
+  | 'TEST_PARSING';
 
 export interface TimelineData {
   testName: string;
