@@ -6,6 +6,8 @@ import com.malinskiy.marathon.io.FileManager
 import com.malinskiy.marathon.io.FileType
 import com.malinskiy.marathon.log.MarathonLogging
 import com.malinskiy.marathon.test.Test
+import com.malinskiy.marathon.test.toSimpleSafeTestName
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import org.imgscalr.Scalr
@@ -32,10 +34,20 @@ class ScreenCapturer(
     private val delayMillis by lazy { delay.toMillis().toInt() }
     var capturesTaken: Int = 0
 
+    // A miss is a frame that came back empty: adam's capture returns null on timeout, and IO errors
+    // are swallowed per frame. Without these counters a capturer that never gets a frame leaves a
+    // 1-byte GIF (which the report hides) and nothing in the log.
+    private var capturesMissed: Int = 0
+    private var captureMillis: Long = 0
+    private var lastError: Throwable? = null
+
     suspend fun start(test: Test) {
         var outputStream: FileImageOutputStream? = null
         var writer: GifSequenceWriter? = null
         capturesTaken = 0
+        capturesMissed = 0
+        captureMillis = 0
+        lastError = null
         try {
             outputStream =
                 FileImageOutputStream(fileManager.createFile(FileType.SCREENSHOT, poolId, deviceInfo, test, testBatchId))
@@ -43,20 +55,42 @@ class ScreenCapturer(
             var targetRotation = detectCurrentDeviceOrientation()
             while (coroutineContext.isActive) {
                 val capturingTimeMillis = measureTimeMillis {
-                    getScreenshot(targetRotation)?.let {
-                        writer.writeToSequence(it)
+                    val image = getScreenshot(targetRotation)
+                    if (image != null) {
+                        writer.writeToSequence(image)
                         capturesTaken++
+                    } else {
+                        capturesMissed++
                     }
                 }
+                captureMillis += capturingTimeMillis
                 val sleepTimeMillis = when {
                     (delayMillis - capturingTimeMillis) < 0 -> 0
                     else -> delayMillis - capturingTimeMillis
                 }
                 delay(sleepTimeMillis)
             }
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            // start() runs in an async nobody awaits, so an escaping exception would vanish.
+            lastError = e
         } finally {
             writer?.close()
             outputStream?.close()
+            logSummary(test)
+        }
+    }
+
+    private fun logSummary(test: Test) {
+        val attempts = capturesTaken + capturesMissed
+        val avgMillis = if (attempts > 0) captureMillis / attempts else 0
+        val summary = "Screen capture for ${test.toSimpleSafeTestName()} on ${deviceInfo.serialNumber}: " +
+            "$capturesTaken frames, $capturesMissed missed, avg ${avgMillis}ms per attempt (timeout ${timeout.toMillis()}ms)"
+        if (capturesTaken == 0) {
+            logger.warn(lastError) { "$summary. No frames captured, so no screen recording will be attached" }
+        } else {
+            logger.debug { summary }
         }
     }
 
@@ -110,9 +144,10 @@ class ScreenCapturer(
                 Scalr.resize(screenshot, Scalr.Method.SPEED, Scalr.Mode.AUTOMATIC, height, width)
             }
         } catch (e: TimeoutException) {
-            logger.error(e) { "Timeout. Exiting" }
+            lastError = e
             null
         } catch (e: IOException) {
+            lastError = e
             null
         }
     }
