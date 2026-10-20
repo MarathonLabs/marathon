@@ -21,6 +21,10 @@ class LogListener(
 ) : TestRunListener, AttachmentProvider by attachmentProvider, LineListener {
     private val stringBuffer = StringBuffer(4096)
 
+    // Set between testStarted and testEnded. A process crash never delivers testEnded, so whatever
+    // is still set at afterTestRun is the test that crashed and owns the buffered log.
+    private var currentTest: Test? = null
+
     override suspend fun onLine(line: String) {
         stringBuffer.appendLine(line)
     }
@@ -31,22 +35,34 @@ class LogListener(
 
     override suspend fun testStarted(test: Test) {
         stringBuffer.reset()
+        currentTest = test
     }
 
     override suspend fun testEnded(test: Test) {
+        currentTest = null
+        saveTestLog(test)
+    }
+
+    override suspend fun afterTestRun() {
+        logProducer.removeLineListener(this)
+        val crashedTest = currentTest
+        currentTest = null
+        if (crashedTest != null) {
+            saveTestLog(crashedTest)
+            return
+        }
+        val log = stringBuffer.toString()
+        if (log.isNotEmpty()) {
+            logWriter.saveLogs(devicePoolId, testBatchId, deviceInfo, listOf(log))
+        }
+    }
+
+    private fun saveTestLog(test: Test) {
         val log = stringBuffer.toString()
         stringBuffer.reset()
         if (log.isNotEmpty()) {
             val file = logWriter.saveLogs(test, devicePoolId, testBatchId, deviceInfo, listOf(log))
             attachmentProvider.onAttachment(test, Attachment(file, AttachmentType.LOG, attachmentName))
-        }
-    }
-
-    override suspend fun afterTestRun() {
-        logProducer.removeLineListener(this)
-        val log = stringBuffer.toString()
-        if (log.isNotEmpty()) {
-            logWriter.saveLogs(devicePoolId, testBatchId, deviceInfo, listOf(log))
         }
     }
 

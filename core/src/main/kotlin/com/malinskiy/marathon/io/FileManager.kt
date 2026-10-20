@@ -111,11 +111,11 @@ class FileManager(private val maxPath: Int, private val maxFilename: Int, privat
             if (id != null) {
                 append("-$id")
             }
-            if (fileType.suffix.isNotEmpty()) {
-                append(".$testBatchId")
-            }
             if (chunk != null) {
                 append("-$chunk")
+            }
+            if (fileType.suffix.isNotEmpty()) {
+                append(".${fileType.suffix}")
             }
         }.toString()
     }

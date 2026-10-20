@@ -205,6 +205,42 @@ class LogListenerTest {
         }
     }
 
+    @Test
+    fun testProcessCrashMidTest() {
+        val configuration = TestConfigurationFactory.create()
+        val device = TestDeviceFactory.create(client, configuration, mock())
+        val poolId = DevicePoolId("testpool")
+        val batch = TestBatch(listOf(test0))
+        val logWriter = mock<LogWriter>()
+        val attachmentListener = mock<AttachmentListener>()
+        val deviceInfo = device.toDeviceInfo()
+        val listener = LogListener(deviceInfo, device, poolId, batch.id, logWriter)
+
+        runBlocking {
+            server.multipleSessions {
+                serial("emulator-5554") {
+                    boot()
+                }
+                features("emulator-5554")
+            }
+
+            device.setup()
+
+            val logFile = File(temp, "log")
+            whenever(logWriter.saveLogs(test0, poolId, batch.id, deviceInfo, listOf("1\nKilling app\n"))).thenReturn(logFile)
+
+            listener.registerListener(attachmentListener)
+            listener.beforeTestRun()
+            listener.testStarted(test0)
+            listener.onLine("1")
+            listener.onLine("Killing app")
+            listener.afterTestRun()
+
+            verify(attachmentListener, times(1)).onAttachment(test0, Attachment(logFile, AttachmentType.LOG, Attachment.Name.LOG))
+            verify(logWriter, times(0)).saveLogs(poolId, batch.id, deviceInfo, listOf("1\nKilling app\n"))
+        }
+    }
+
     companion object {
         val test0 = MarathonTest("com.example", "Class", "method0", emptyList())
         val test1 = MarathonTest("com.example", "Class", "method1", emptyList())

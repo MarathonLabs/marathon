@@ -53,6 +53,13 @@ class FileManagerTest {
     }
 
     @Test
+    fun createBatchFilename() {
+        val fileManager = FileManager(0, 255, output)
+        fileManager.createFile(FileType.LOG, poolId, deviceInfo, testBatchId = batchId).name shouldBeEqualTo "batchId.log"
+        fileManager.createFile(FileType.VIDEO, poolId, deviceInfo, testBatchId = batchId, chunk = "0").name shouldBeEqualTo "batchId-0.mp4"
+    }
+
+    @Test
     fun createFilenameNormalLengthTest() {
         val fileManager = FileManager(0, 255, output)
         val file = fileManager.createFile(FileType.LOG, poolId, deviceInfo, shortNameTest, batchId)
